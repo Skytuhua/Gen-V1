@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "status": "FAIL_PRODUCTION_FIRST_ACQUIRE_BUDGET_REPRODUCED_PROTOCOL_OBSERVATION_PASSED",
+  "workflow": {
+    "runId": 43788430810,
+    "attempt": 1,
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43788430810",
+    "headSha": "90a6fb729d57e7ec15ae2f2eea96e0790dd4f931",
+    "treeSha": "55608c03588fdfe8d473008c20cc80082d58cf5b",
+    "parentSourceSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "branch": "diagnostic/m05-guard-startup-20261116",
+    "conclusion": "failure"
+  },
+  "sourceIsolation": {
+    "onlyNewFiles": [
+      "diagnostics/guard-startup/run.ts",
+      ".github/workflows/m05-guard-startup-diagnostic.yml"
+    ],
+    "productionFilesChanged": false,
+    "productionBranchChanged": false,
+    "nodeVersion": "24.22.2",
+    "nodeArchiveSha256": "ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2",
+    "nodeExeSha256": "1c331340fa6cac5e4294725959070a143fa0507195a78ad77eed7943f719aac9"
+  },
+  "productionLane": {
+    "jobId": 133041185760,
+    "commandStatus": "FAIL",
+    "operationStatus": "failed",
+    "captureCompleted": true,
+    "helperUnchanged": true,
+    "helperElapsedMs": 17022,
+    "actionEntered": false,
+    "errorCode": "CAPABILITY_DENIED",
+    "nativeCode": null,
+    "storeAndProfileLeaseClosed": true,
+    "guardProcessClosureDirectlyObserved": null
+  },
+  "protocolLane": {
+    "jobId": 133041185462,
+    "commandStatus": "PASS",
+    "operationStatus": "passed",
+    "captureCompleted": true,
+    "scriptUnchanged": true,
+    "observationDeadlineMs": 60000,
+    "productionDeadlineMs": 15000,
+    "outerRpcElapsedMs": 31944,
+    "firstReplySinceSpawnRequestMs": 31949,
+    "nestedAcquireRpcElapsedMs": 8,
+    "nestedReleaseRpcElapsedMs": 2,
+    "stderrBytes": 0,
+    "nativeCode": null,
+    "naturalExitAndClose": {
+      "code": 0,
+      "signal": null,
+      "elapsedMs": 32055
+    },
+    "terminationRequested": false,
+    "storeAndProfileLeaseClosed": true
+  },
+  "finding": "A valid first guard acquisition exceeded the unchanged production15-second RPC budget in an isolated fresh Windows runner with the seeded profile and exact Node/script pins. A separate runner using the unmodified production helper rejected before its guarded action. Later protocol requests were fast and all native checks completed.",
+  "limits": [
+    "The two lanes are separate Windows machines, not a replay of the same child process.",
+    "The31,944ms first-request interval includes script startup, Add-Type and native acquisition. No subphase duration was measured.",
+    "The protocol lane60-second observation limit is diagnostic only and does not change or prove the production15-second result.",
+    "No Python worker, model action, installed app launch, native memory export, Forget, restart or installed image was executed.",
+    "Global provider/network call counts remain unmeasured (null).",
+    "The original installed437834 attempt and its Browser failure remain failures."
+  ],
+  "originalInstalledErrorHashReview": {
+    "path": "docs/implementation/v3/M05-startup-guard-hash-review-43783430726.json",
+    "bytes": 8608,
+    "sha256": "9576f81276aa79d12e8cb28fc73fbd160eeb72cb9c4e2463e534a87b7bf7adf6",
+    "blobSha": "669a91fae6f960d9d82afb380e5f9261996d1a04"
+  },
+  "artifacts": [
+    {
+      "id": 14191756049,
+      "name": "guard-startup-production-43788430810-1",
+      "bytes": 1275,
+      "sha256": "5af7f29c7a4995d3563780008a7b5b3357606a1634a157e57b38a16d20451296",
+      "lane": "production",
+      "crcVerified": true,
+      "member": "receipt-production.json",
+      "memberBytes": 1925,
+      "memberSha256": "cdceebb97cf7e6904e3c2a78cbf64abad6a3c4e41aae11da29d5319c22b09b92",
+      "memberGitBlobSha": "983daf49c47a44a6fb0f7f480ecb74d9dc956457",
+      "matchesDecodedLogMarkerBytes": true
+    },
+    {
+      "id": 14191701147,
+      "name": "guard-startup-protocol-43788430810-1",
+      "bytes": 1617,
+      "sha256": "30ec4c0c81fe1997e30613ea160337bb1f86105b883fd43cacca1757784b0438",
+      "lane": "protocol",
+      "crcVerified": true,
+      "member": "receipt-protocol.json",
+      "memberBytes": 3280,
+      "memberSha256": "2e35da09a9c6fae5920c0b4693ee9a4805897cc4c7573c85d511421b7662028d",
+      "memberGitBlobSha": "7a59fe34addeea88db6570bd1e670831f981924b",
+      "matchesDecodedLogMarkerBytes": true
+    }
+  ],
+  "commands": [
+    {
+      "lane": "production",
+      "jobId": 133041185760,
+      "record": {
+        "argv": [
+          "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+          "--import",
+          "file:///D:/a/Gen-V1/Gen-V1/node_modules/tsx/dist/loader.mjs",
+          "diagnostics/guard-startup/run.ts",
+          "production"
+        ],
+        "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+        "executableIdentity": "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+        "startedAt": "2026-11-16T01:49:59Z",
+        "endedAt": "2026-11-16T01:50:18Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185760-s5-production.log",
+        "logDigest": "2de1729e0cf56e89df6282fb5bf48ae363e40ff561ea0bf4286632d89a3281aa"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185760-s5-production.meta.json",
+        "bytes": 2241,
+        "sha256": "f1bd80b61e439552f94aed6b7ea41f9bf6a25ad89ec2ef003cc1b20151c9fa01",
+        "blobSha": "ff3a3fe05d5242203521afea1d32b8fc0eb3e0fa"
+      }
+    },
+    {
+      "lane": "protocol",
+      "jobId": 133041185462,
+      "record": {
+        "argv": [
+          "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+          "--import",
+          "file:///D:/a/Gen-V1/Gen-V1/node_modules/tsx/dist/loader.mjs",
+          "diagnostics/guard-startup/run.ts",
+          "protocol"
+        ],
+        "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+        "executableIdentity": "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+        "startedAt": "2026-11-16T01:50:03Z",
+        "endedAt": "2026-11-16T01:50:38Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185462-s5-protocol.log",
+        "logDigest": "fcd09ed025b0cc1b0d2a22fe2e1ad8a32d563dfc761b6b90884628c2a1336d74"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185462-s5-protocol.meta.json",
+        "bytes": 2235,
+        "sha256": "24c641fcbb5d98910278829d12a7c56b4117698405c5eda8ec350b6f9613a05f",
+        "blobSha": "9de5c3bca2208f201b750ffc57453cfa2c4e8d7b"
+      }
+    }
+  ],
+  "sourceReview": {
+    "reviewer": "dependency_audit",
+    "finding": "No remaining concrete finding after per-RPC clock correction, strict output handling and separate capture/operation status.",
+    "scopedLocalTypecheck": "PASS; auxiliary compile only, not a Windows guard result."
+  }
+}

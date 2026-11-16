@@ -1,0 +1,43 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+✘ [ERROR] Could not resolve "node:util"
+
+    tests/e2e/task-interface-fixture.ts:2:32:
+      2 │ import {isDeepStrictEqual} from 'node:util';
+        ╵                                 ~~~~~~~~~~~
+
+  The package "node:util" wasn't found on the file system but is built into node. Are you trying to bundle for node? You can use "platform: 'node'" to do that, which will remove this error.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ❯ tests/artifact-settle.test.ts (11 tests | 11 skipped) 782ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/artifact-settle.test.ts > artifact settle and deliberate collapse
+Error: Build failed with 1 error:
+tests/e2e/task-interface-fixture.ts:2:32: ERROR: Could not resolve "node:util"
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 skipped (11)
+   Start at  08:10:12
+   Duration  2.32s (transform 240ms, setup 0ms, import 1.16s, tests 782ms, environment 0ms)
+

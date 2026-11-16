@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-desktop-verification.test.ts",
+      "tests/desktop-native.test.ts",
+      "tests/desktop-backend-handoff.test.ts",
+      "--reporter=verbose"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:46:12.786577+00:00",
+    "endedAt": "2026-11-16T00:46:16.109726+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.log",
+    "logDigest": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "workingDiffSha256": "2ba23e303f4f11aba8b24c6ad1e7b9eda1f2794ad1f6edf5038fb254e10d8f25",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 3303,
+  "rawOutputBytes": 21123,
+  "rawOutputSha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+  "excerptInputBytes": 21123,
+  "excerptInputSha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ],
+  "sourceCapture": {
+    "metadataRef": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-red.meta.json",
+    "bytes": 1966,
+    "sha256": "0cb753a3c3f19b99a967d9eb39c9a46ec3368844f764148e60e472c9cb1bfb71",
+    "blobSha": "d354dc736386a7c53c2b37632054ed957dabc397",
+    "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-red.raw.log",
+    "rawLogBytes": 21123,
+    "rawLogSha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+    "captureScript": {
+      "path": "docs/implementation/v3/m05-review-inputs/m05-capture-local-check-094fba22.py",
+      "bytes": 2657,
+      "sha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "blobSha": "b99a0600fc25a3ef3175f39d55fcece501bd9f32"
+    }
+  },
+  "normalizationScope": "Exact original log and original metadata are preserved before ANSI/LF normalization. No command, outcome, timing, phase or recorded working-diff hash is rewritten.",
+  "reviewedOutputPrivacy": "Output contains disposable authored error sentinels, controlled fixtures and tool paths. No user-source body or credential was emitted by the new diagnostics or included in these command inputs.",
+  "evidenceScope": "Actual local Linux execution. The captured committed-tree and working-diff digest are retained; this is not an immutable final Windows checkout or installed application proof.",
+  "testSummary": {
+    "passed": 56,
+    "failed": 13,
+    "skipped": 0
+  },
+  "reviewedOutcome": "Intentional fail-first diagnostic cases. Existing startup/custody behavior passes; new observer and collector contracts are absent."
+}

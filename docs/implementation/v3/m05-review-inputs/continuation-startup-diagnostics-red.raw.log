@@ -1,0 +1,342 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ✓ tests/desktop-backend-handoff.test.ts > does not activate a backend that stops while the old relay closes ({"exitCode":7,"signalCode":null}) 13ms
+ ✓ tests/desktop-backend-handoff.test.ts > does not activate a backend that stops while the old relay closes ({"exitCode":null,"signalCode":"SIGTERM"}) 1ms
+ ✓ tests/desktop-backend-handoff.test.ts > activates a live backend only after the old relay is closed 1ms
+ × tests/desktop-backend-handoff.test.ts > keeps the original relay rejection when diagnostic observation fails 23ms
+   → expected [] to deeply equal [ { …(2) } ]
+ × tests/desktop-backend-handoff.test.ts > records a backend stopped during relay close without changing refusal 4ms
+   → expected [] to deeply equal [ { …(2) } ]
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > accepts the exact owned ready message after the former 25-second limit 8ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > still refuses a backend that never becomes ready at the 60-second bound 3ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > ignores foreign tokens, origins, PIDs and errors until its own ready message 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on a child error and removes readiness listeners 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on child exit with the bounded diagnostic tail 2ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately when the startup sidecar loses its IPC channel 4ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on an authenticated backend startup error 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > retains the original personal sidecar and immutable native document URL 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > restricts plug-in native IPC to its window lifecycle 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps plug-in task ownership distinct from personal surfaces 4ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > passes only an explicitly supported subscription provider into the fixed sign-in helper 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > rejects unrecognized provider or executable-shaped sign-in input before process creation 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > launches the real Node sidecar loader through a file URL, including Windows paths with spaces 425ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > admits only bounded typed identities and registered surface properties 3ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps task-specific windows distinct without accepting arbitrary window URLs 2ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the original main frame, exact URL and webContents identity 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the actual matching editor to flush when detachment starts in a sidebar 1ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > resolves once and returns a numeric destination, rejecting private rebinds and custom ports 10ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > sends HTTP only to the approved numeric address and rejects a later private response 29ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > pins CONNECT to the approved numeric address and rejects loopback before opening a socket 6ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > allows independent X/Y placement on a connected negative-coordinate display 1ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > recovers removed-monitor bounds and oversized/invalid values inside a reachable work area 0ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > closes explicitly removed browser views and frees their budget while preserving a reparented view 0ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > rejects local/private/credentialled/non-web pages before native navigation 2ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > fails closed for DNS failures and mixed public/private DNS responses 1ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > does not admit mapped/private IPv6 addresses or arbitrary browser control arguments 1ms
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > classifies only native error kinds and known codes without reading private error text 9ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > emits fixed metadata and swallows an optional sink failure 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > observes only authenticated backend errors and retains the original rejection 5ms
+   → expected [] to deeply equal [ { stage: 'backend-error', …(1) } ]
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > rejects extra diagnostic fields without changing an authenticated error 3ms
+   → expected [] to deeply equal [ { stage: 'backend-error', …(1) } ]
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > cannot change exact ready admission or rejection when the optional observer throws 1ms
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend exit boundary without extending readiness 2ms
+   → expected [] to deeply equal [ { stage: 'backend-exit', …(1) } ]
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend disconnect boundary without extending readiness 2ms
+   → expected [] to deeply equal [ { …(2) } ]
+ × tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend deadline boundary without extending readiness 6ms
+   → expected [] to deeply equal [ { stage: 'backend-deadline', …(1) } ]
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence 8ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination 12ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them 9ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag 2ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller 31ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner 184ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents 7ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile 2ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it 20ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff 8ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata 10ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck 3ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck 2ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion 3ms
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > reassembles only strict chunked markers while retaining separate output digest and byte counts 12ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > drops malformed, private and extra fields and accepts the next complete line 2ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > bounds parsing, retained events and hash bytes while continuing to drain later output 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > retains the first startup failure while separately observing later process exit and close 1ms
+   → expected 'undefined' to be 'function' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-backend-handoff.test.ts > keeps the original relay rejection when diagnostic observation fails
+AssertionError: expected [] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": {
+-       "category": "error",
+-       "code": null,
+-     },
+-     "stage": "backend-relay-error",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-backend-handoff.test.ts:37:94
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/desktop-backend-handoff.test.ts > records a backend stopped during relay close without changing refusal
+AssertionError: expected [] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": null,
+-     "stage": "backend-activation-stopped",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-backend-handoff.test.ts:42:101
+     40|  const events:unknown[]=[],activate=vi.fn();
+     41|  const outcome=(finishBackendStartup as unknown as (...args:unknown[])…
+     42|  expect(await outcome).toBeInstanceOf(Error);expect(activate).not.toHa…
+       |                                                                                                     ^
+     43| });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > classifies only native error kinds and known codes without reading private error text
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ diagnostic tests/desktop-native.test.ts:171:187
+
+ ❯ tests/desktop-native.test.ts:173:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > emits fixed metadata and swallows an optional sink failure
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/desktop-native.test.ts:181:161
+    179|  });
+    180|  it('emits fixed metadata and swallows an optional sink failure',()=>{
+    181|   const write=(backendPolicy as unknown as {writeStartupDiagnostic:(si…
+       |                                                                                                                                                                 ^
+    182|   const output:string[]=[];const value={stage:'startup-failed',elapsed…
+    183|   write(line=>output.push(line),value);expect(output).toEqual(['HARNES…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > observes only authenticated backend errors and retains the original rejection
+AssertionError: expected [] to deeply equal [ { stage: 'backend-error', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": {
+-       "category": "type-error",
+-       "code": "ENOENT",
+-     },
+-     "stage": "backend-error",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-native.test.ts:194:18
+    192|   child.emit('message',{type:'harness.error',token:'a'.repeat(64),mess…
+    193|   expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});
+    194|   expect(events).toEqual([{stage:'backend-error',error:{category:'type…
+       |                  ^
+    195|   expect(JSON.stringify(events)).not.toMatch(/PRIVATE|token|message/);
+    196|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > rejects extra diagnostic fields without changing an authenticated error
+AssertionError: expected [] to deeply equal [ { stage: 'backend-error', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": {
+-       "category": "unknown",
+-       "code": null,
+-     },
+-     "stage": "backend-error",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-native.test.ts:201:84
+    199|   const outcome=(waitForBackendReady as unknown as (...args:unknown[])…
+    200|   child.emit('message',{type:'harness.error',token:'a'.repeat(64),mess…
+    201|   expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});ex…
+       |                                                                                    ^
+    202|  });
+    203|  it('cannot change exact ready admission or rejection when the optiona…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend exit boundary without extending readiness
+AssertionError: expected [] to deeply equal [ { stage: 'backend-exit', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": null,
+-     "stage": "backend-exit",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-native.test.ts:216:63
+    214|    const outcome=(waitForBackendReady as unknown as (...args:unknown[]…
+    215|    if(kind==='deadline')await vi.advanceTimersByTimeAsync(60000);else …
+    216|    expect(await outcome).toBeInstanceOf(Error);expect(events).toEqual(…
+       |                                                               ^
+    217|   }finally{vi.useRealTimers();}
+    218|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend disconnect boundary without extending readiness
+AssertionError: expected [] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": null,
+-     "stage": "backend-disconnect",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-native.test.ts:216:63
+    214|    const outcome=(waitForBackendReady as unknown as (...args:unknown[]…
+    215|    if(kind==='deadline')await vi.advanceTimersByTimeAsync(60000);else …
+    216|    expect(await outcome).toBeInstanceOf(Error);expect(events).toEqual(…
+       |                                                               ^
+    217|   }finally{vi.useRealTimers();}
+    218|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend deadline boundary without extending readiness
+AssertionError: expected [] to deeply equal [ { stage: 'backend-deadline', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "error": null,
+-     "stage": "backend-deadline",
+-   },
+- ]
++ []
+
+ ❯ tests/desktop-native.test.ts:216:63
+    214|    const outcome=(waitForBackendReady as unknown as (...args:unknown[]…
+    215|    if(kind==='deadline')await vi.advanceTimersByTimeAsync(60000);else …
+    216|    expect(await outcome).toBeInstanceOf(Error);expect(events).toEqual(…
+       |                                                               ^
+    217|   }finally{vi.useRealTimers();}
+    218|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > reassembles only strict chunked markers while retaining separate output digest and byte counts
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ fixture tests/installed-desktop-verification.test.ts:325:199
+
+ ❯ tests/installed-desktop-verification.test.ts:331:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > drops malformed, private and extra fields and accepts the next complete line
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ fixture tests/installed-desktop-verification.test.ts:325:199
+
+ ❯ tests/installed-desktop-verification.test.ts:340:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > bounds parsing, retained events and hash bytes while continuing to drain later output
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ fixture tests/installed-desktop-verification.test.ts:325:199
+
+ ❯ tests/installed-desktop-verification.test.ts:346:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > retains the first startup failure while separately observing later process exit and close
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ fixture tests/installed-desktop-verification.test.ts:325:199
+
+ ❯ tests/installed-desktop-verification.test.ts:355:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  13 failed | 56 passed (69)
+   Start at  08:46:14
+   Duration  2.01s (transform 1.20s, setup 0ms, import 2.07s, tests 918ms, environment 1ms)
+

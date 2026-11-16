@@ -1,0 +1,495 @@
+{
+  "schemaVersion": 1,
+  "kind": "M05_INSTALLED_STARTUP_SOURCE_COMPARISON",
+  "recordedAt": "2026-11-16T00:40:11.584582+00:00",
+  "status": "NO_CAUSE_IDENTIFIED_BOUNDED_DIAGNOSTICS_JUSTIFIED",
+  "repository": "skytuhua-org/Gen-V1",
+  "runs": [
+    {
+      "runId": "43771171183",
+      "actualCheckout": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "actualTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "verification": {
+        "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43771171183/members/10-verification.json",
+        "bytes": 21648,
+        "sha256": "7322076e5f9d06cee281603d7ec3841b309eb528cff4b06e139e59748fada921"
+      },
+      "buildManifest": {
+        "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43771171183/0-build-manifest.json",
+        "bytes": 15611,
+        "sha256": "2dc4b0936e6560e0b48aafa88ebce548c4a4c73c0d966cde69996e98729358d0"
+      },
+      "rawInstalledJobLog": {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43771171183-historical-package/private-raw/job-132987185885.log",
+        "bytes": 124496,
+        "sha256": "9cc49a49d61f628886b0bb55e4a2c7463f644c0346c87d8b0623da410eb39a7e"
+      },
+      "payloadCustody": {
+        "matches": true,
+        "files": 92880,
+        "bytes": 2567821234,
+        "sha256": "08b1484325988f06885be733270fd05b981e6a9bd484188a0f3afabee05f9f40"
+      },
+      "providerVerificationPassed": true,
+      "launchReadiness": [
+        {
+          "iteration": 1,
+          "pid": 5580,
+          "timeoutMs": 80000,
+          "status": "ready",
+          "observations": [
+            {
+              "phase": "waiting",
+              "elapsedMs": 0,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 0,
+                "ownedOrigin": 0,
+                "file": 0,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            },
+            {
+              "phase": "waiting",
+              "elapsedMs": 15156,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 1,
+                "ownedOrigin": 0,
+                "file": 1,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            },
+            {
+              "phase": "candidate",
+              "elapsedMs": 18189,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 2,
+                "ownedOrigin": 1,
+                "file": 1,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            },
+            {
+              "phase": "ready",
+              "elapsedMs": 18193,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 2,
+                "ownedOrigin": 1,
+                "file": 1,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            }
+          ]
+        }
+      ],
+      "memoryObservationSteps": [
+        "installed-default-off-read",
+        "exact-pinned-source",
+        "review-edit-accept-reject",
+        "rejected-record-retained",
+        "failed",
+        "review-command-observation"
+      ],
+      "launchesRecorded": 0,
+      "passed": false,
+      "cleanupStatus": "uninstalled-owned-installation",
+      "cleanupExit": 0
+    },
+    {
+      "runId": "43777513127",
+      "actualCheckout": "0aacdacdf835ec95710ae3674b260d654060f446",
+      "actualTree": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "verification": {
+        "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43777513127/extracted/.harness-desktop-installed/run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9/verification.json",
+        "bytes": 16538,
+        "sha256": "1bc151527209af73ec33ee91f380ac6e3fa86e45ff2c77f2ac901ee5afb079f1"
+      },
+      "buildManifest": {
+        "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43777513127/extracted/.harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+        "bytes": 15611,
+        "sha256": "d6187ed9c1a68dc5d2a8e314c4d14d84341ff817253c3173ad6925d2ab19c00d"
+      },
+      "rawInstalledJobLog": {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43777513127-package/private-raw/job-133007063329.log",
+        "bytes": 125438,
+        "sha256": "96a8df2685b843189395b371d87990eb4fffe7b819649daf1f352663b6be8f14"
+      },
+      "payloadCustody": {
+        "matches": true,
+        "files": 92880,
+        "bytes": 2567821715,
+        "sha256": "d6fee0528b1dcf6f623fcdef1ea635cd60283816a8a1e3263307ee7cbf0bfd38"
+      },
+      "providerVerificationPassed": true,
+      "launchReadiness": [
+        {
+          "iteration": 1,
+          "pid": 1572,
+          "timeoutMs": 80000,
+          "status": "failed",
+          "observations": [
+            {
+              "phase": "waiting",
+              "elapsedMs": 0,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 0,
+                "ownedOrigin": 0,
+                "file": 0,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            },
+            {
+              "phase": "waiting",
+              "elapsedMs": 15201,
+              "process": {
+                "alive": true,
+                "exitCode": null,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 1,
+                "ownedOrigin": 0,
+                "file": 1,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              }
+            },
+            {
+              "phase": "failed",
+              "elapsedMs": 19488,
+              "process": {
+                "alive": false,
+                "exitCode": 1,
+                "signalCode": null
+              },
+              "pages": {
+                "total": 0,
+                "ownedOrigin": 0,
+                "file": 0,
+                "blank": 0,
+                "other": 0,
+                "closed": 0
+              },
+              "failure": "process-exit"
+            }
+          ]
+        }
+      ],
+      "memoryObservationSteps": [],
+      "launchesRecorded": 0,
+      "passed": false,
+      "cleanupStatus": "uninstalled-owned-installation",
+      "cleanupExit": 0
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "apps/desktop/main.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 55667,
+        "sha256": "0b8806045dfda8d1467a4d7864041c3d4ff19a2b9eb1e015471e8f02e2f12d97",
+        "blob": "5726cc646eb84618c2c47ac00d6217fae02072d8"
+      },
+      "current": {
+        "bytes": 55667,
+        "sha256": "0b8806045dfda8d1467a4d7864041c3d4ff19a2b9eb1e015471e8f02e2f12d97",
+        "blob": "5726cc646eb84618c2c47ac00d6217fae02072d8"
+      }
+    },
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 2691,
+        "sha256": "82226ee3e504311ee37a08f4889f6dcbedfc2c9ad9c1509d4d34b4df659c5fba",
+        "blob": "d88b09c322157836dd17a1b17e32c0e3f80f786b"
+      },
+      "current": {
+        "bytes": 2691,
+        "sha256": "82226ee3e504311ee37a08f4889f6dcbedfc2c9ad9c1509d4d34b4df659c5fba",
+        "blob": "d88b09c322157836dd17a1b17e32c0e3f80f786b"
+      }
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 3936,
+        "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0",
+        "blob": "18c6d593e07c5f1d6703436b3b4d19619a9e6b24"
+      },
+      "current": {
+        "bytes": 3936,
+        "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0",
+        "blob": "18c6d593e07c5f1d6703436b3b4d19619a9e6b24"
+      }
+    },
+    {
+      "path": "apps/server/main.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 2413,
+        "sha256": "99de15338cc9d236a258754c6a2e2abdb359005f2931645394999fee1adc051e",
+        "blob": "75721b9d2922f1510fe8e76a974e50cb21b98081"
+      },
+      "current": {
+        "bytes": 2413,
+        "sha256": "99de15338cc9d236a258754c6a2e2abdb359005f2931645394999fee1adc051e",
+        "blob": "75721b9d2922f1510fe8e76a974e50cb21b98081"
+      }
+    },
+    {
+      "path": "apps/server/host.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 9118,
+        "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b",
+        "blob": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
+      },
+      "current": {
+        "bytes": 9118,
+        "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b",
+        "blob": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
+      }
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 4153,
+        "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381",
+        "blob": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af"
+      },
+      "current": {
+        "bytes": 4153,
+        "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381",
+        "blob": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af"
+      }
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 44330,
+        "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+        "blob": "047e04ae94b0da4a74ea8e98b92322d67e21ada7"
+      },
+      "current": {
+        "bytes": 44330,
+        "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+        "blob": "047e04ae94b0da4a74ea8e98b92322d67e21ada7"
+      }
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 22553,
+        "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+        "blob": "5fad015874cf47115c62410015318452d16ea4f8"
+      },
+      "current": {
+        "bytes": 22553,
+        "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+        "blob": "5fad015874cf47115c62410015318452d16ea4f8"
+      }
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 7568,
+        "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+        "blob": "f9e5fc3d90e8637c884faad02dd993812a858633"
+      },
+      "current": {
+        "bytes": 7568,
+        "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+        "blob": "f9e5fc3d90e8637c884faad02dd993812a858633"
+      }
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "identical": true,
+      "earlier": {
+        "bytes": 7629,
+        "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+        "blob": "dd51d62314c63657be29a098861293ad8051f339"
+      },
+      "current": {
+        "bytes": 7629,
+        "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+        "blob": "dd51d62314c63657be29a098861293ad8051f339"
+      }
+    },
+    {
+      "path": "package.json",
+      "identical": true,
+      "earlier": {
+        "bytes": 3172,
+        "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+        "blob": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+      },
+      "current": {
+        "bytes": 3172,
+        "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+        "blob": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+      }
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "identical": true,
+      "earlier": {
+        "bytes": 355786,
+        "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+        "blob": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+      },
+      "current": {
+        "bytes": 355786,
+        "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+        "blob": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+      }
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "identical": false,
+      "earlier": {
+        "bytes": 25009,
+        "sha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+        "blob": "6a36d93c3f527028594c953636d2b7f4d7673cb8"
+      },
+      "current": {
+        "bytes": 25381,
+        "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+        "blob": "a709a77a4fb926e21402d790ec516ddcf572fe75"
+      }
+    }
+  ],
+  "allChangedPaths": [
+    ".github/workflows/ci.yml",
+    "apps/web/src/App.tsx",
+    "apps/web/src/split-workspace-api.ts",
+    "apps/web/src/workspace-integration.css",
+    "scripts/installed-native-save.ts",
+    "tests/e2e/artifact-style.spec.ts",
+    "tests/e2e/composer-app-refinement.spec.ts",
+    "tests/e2e/host-loop.spec.ts",
+    "tests/e2e/plan-timeline.spec.ts",
+    "tests/e2e/reserved-rail.spec.ts",
+    "tests/e2e/task-interface-fixture.ts",
+    "tests/e2e/workspace-host.spec.ts",
+    "tests/installed-native-save.test.ts",
+    "vite.config.ts"
+  ],
+  "startupScopeDiff": [],
+  "manifestComparison": {
+    "equalFields": [
+      "nodeVersion",
+      "nodeArchiveSha256",
+      "electronVersion",
+      "integrationPython",
+      "hermes"
+    ],
+    "differentFields": [
+      "createdAt",
+      "files"
+    ],
+    "nodeVersion": "24.22.2",
+    "nodeArchiveSha256": "ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2",
+    "electronVersion": "45.2.0",
+    "integrationPythonIdentical": true,
+    "hermesIdentical": true,
+    "payloadBytesDifference": 481,
+    "perFileInstalledPayloadDifference": "NOT_RETAINED_IN_ARTIFACT"
+  },
+  "runnerComparison": {
+    "image": "windows-2025-vs2026",
+    "version": "20261103.298.1",
+    "os": "Microsoft Windows Server 2025",
+    "sameObservedImage": true,
+    "unmeasured": [
+      "resource pressure",
+      "port contention",
+      "filesystem access failure",
+      "native process failure cause"
+    ]
+  },
+  "sourceObservations": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "observation": "launchInstalled uses stdio ignore, so main and backend startup error output is not retained. The current failure is process-exit, not the 80000ms readiness deadline."
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "observation": "The existing startup catch writes an error to stderr, stops the backend and exits 1. Current artifact does not prove that this catch rather than another native exit path caused the observed exit 1."
+    },
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "observation": "Backend readiness validates launch token, exact loopback origin and child PID. It rejects authenticated harness.error, spawn error, disconnect, exit and a 60000ms deadline. These boundaries currently do not retain a fixed structured cause in the verifier."
+    },
+    {
+      "path": "apps/server/main.ts",
+      "observation": "Existing startup catch sends authenticated harness.error with a message and exits 1. Original error codes are not retained as a fixed category across this boundary."
+    },
+    {
+      "path": "apps/web/src/App.tsx / split-workspace-api.ts / workspace-integration.css",
+      "observation": "Renderer changes add guarded initial-layout retry/error handling and rail/composer containment. A main renderer can fail before a sampling interval, so absent owned-origin observation alone cannot exclude renderer failure. No source-proven cause found in the reviewed delta."
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "observation": "The helper differs from 8d08 to accepted463d, but its native Save invocation occurs after main-page readiness and memory review. Current run recorded zero memory observations, so no helper native UI action was reached."
+    }
+  ],
+  "diagnosticReviewBoundary": {
+    "approvedPurpose": "Distinguish actual failed stage and fixed category without changing product readiness, ownership or success admission.",
+    "requiredProperties": [
+      "test-data-only fixed main stage markers",
+      "backend token check precedes diagnostic message consumption",
+      "finite error category/code allowlists with unknown fallback",
+      "observers and sinks cannot throw into product flow",
+      "strict incremental marker parsing with bounded line and record counts",
+      "stdout and stderr always drained; raw content is never retained or emitted",
+      "incremental stream byte counts and hashes, separate process exit/close observations",
+      "first failure retained; later cleanup cannot overwrite it",
+      "existing readiness deadlines, owner/nonce/executable checks, payload and cleanup gates unchanged"
+    ]
+  },
+  "conclusion": "No concrete source or environment cause is derivable from the retained evidence. Do not label this a timeout, native Save regression, installation corruption or renderer regression. Add the reviewed bounded observations and require actual exact-cut Windows execution.",
+  "commandsExecutedForThisReview": "Read-only git/file inspection only; no tests, source edits, ref writes or ledger writes."
+}

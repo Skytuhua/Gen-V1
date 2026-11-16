@@ -1,0 +1,381 @@
+{
+  "schema": "m05-startup-guard-callchain-review-v2",
+  "createdAt": "2026-11-16T01:45:06.994726+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "runId": 43783430726,
+  "sourceCommit": "de8700651e6eb97c5a60bf849802b51086244857",
+  "sourceTree": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+  "scope": "Read-only source and existing exact installed-receipt analysis. No re-execution, production change, source/ref/ledger mutation, or internal guard-cause claim.",
+  "receipt": {
+    "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/verification.json",
+    "bytes": 20176,
+    "sha256": "5902100a6262211a50d17fe12e3a01edeb180d3b96e63d9fcbdde69bb892e35a",
+    "launches": 0,
+    "memoryObservations": 0,
+    "sourceKinds": [
+      "MESSAGE"
+    ]
+  },
+  "hashWitnesses": [
+    {
+      "stream": "backend.stderr",
+      "bytes": 83,
+      "sha256": "d8c18bf0aa319b788a2fb0390fb8a7be4ed54a1ed8c05ecf9f1b6aab4fcd070a",
+      "staticSourceText": "File access check failed \u2014 the folder could not be opened safely for this action\n",
+      "conclusion": "Identifies the common file-access public denial message, not its internal reason or operation."
+    },
+    {
+      "stream": "backend.stdout",
+      "bytes": 104,
+      "sha256": "582b72e5de54c110b09b5fe3853124277eaa3d6db7a6689f7717d1a55ad7898d",
+      "fixedMarker": {
+        "stage": "backend-error",
+        "elapsedMs": 17374,
+        "error": {
+          "category": "error",
+          "code": null
+        }
+      },
+      "conclusion": "Exactly recovers server catch elapsedMs17374. Similarity to the guard budget is not exclusive timeout proof."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/server/main.ts",
+      "gitBlob": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "earlierRequestedHeadEqual": false,
+      "earlierActualCheckout": {
+        "gitBlob": "75721b9d2922f1510fe8e76a974e50cb21b98081",
+        "bytes": 2413,
+        "sha256": "99de15338cc9d236a258754c6a2e2abdb359005f2931645394999fee1adc051e"
+      },
+      "equalEarlierActualCheckout": false
+    },
+    {
+      "path": "apps/server/host.ts",
+      "gitBlob": "be98ae5bcdcd310dcaf34257c4b928c9d1045492",
+      "bytes": 9118,
+      "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "be98ae5bcdcd310dcaf34257c4b928c9d1045492",
+        "bytes": 9118,
+        "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "apps/server/profile-lease.ts",
+      "gitBlob": "8ba9106aa0607c27403f69035355612ab1a138b4",
+      "bytes": 2100,
+      "sha256": "53d0f31ee28855c1cab2713d48847b075f28090ff1aa14f136e56eeb9fa46b87",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "8ba9106aa0607c27403f69035355612ab1a138b4",
+        "bytes": 2100,
+        "sha256": "53d0f31ee28855c1cab2713d48847b075f28090ff1aa14f136e56eeb9fa46b87"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "gitBlob": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af",
+      "bytes": 4153,
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af",
+        "bytes": 4153,
+        "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "gitBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "bytes": 15079,
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+        "bytes": 15079,
+        "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/core/service.ts",
+      "gitBlob": "d15a6bfb9bbdf81018cf7756851cd3c233525cae",
+      "bytes": 150475,
+      "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "d15a6bfb9bbdf81018cf7756851cd3c233525cae",
+        "bytes": 150475,
+        "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "gitBlob": "39c23109859e283e07628034a5a352a32958470e",
+      "bytes": 11810,
+      "sha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "39c23109859e283e07628034a5a352a32958470e",
+        "bytes": 11810,
+        "sha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "gitBlob": "4ee3427f44cf547d44aa5f5d01da3fc395241bfa",
+      "bytes": 15955,
+      "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "4ee3427f44cf547d44aa5f5d01da3fc395241bfa",
+        "bytes": 15955,
+        "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "gitBlob": "3040eb843f7aab3a64f4a13c741938b79a496708",
+      "bytes": 2006,
+      "sha256": "f0e725e5a1771760cbf5adbf393c56d723027e4f24ae7fe5d3595c43c5c415a7",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "3040eb843f7aab3a64f4a13c741938b79a496708",
+        "bytes": 2006,
+        "sha256": "f0e725e5a1771760cbf5adbf393c56d723027e4f24ae7fe5d3595c43c5c415a7"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "gitBlob": "c83ab13d1347c592df98ddf258788415bb971873",
+      "bytes": 9192,
+      "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "c83ab13d1347c592df98ddf258788415bb971873",
+        "bytes": 9192,
+        "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "gitBlob": "ba0bf768e44ee9385065401a067028131fe3392c",
+      "bytes": 31421,
+      "sha256": "33249415a437d8ca1ed4107f081801d6e5202a671a3aaf48a9ef99db2d6692d9",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "ba0bf768e44ee9385065401a067028131fe3392c",
+        "bytes": 31421,
+        "sha256": "33249415a437d8ca1ed4107f081801d6e5202a671a3aaf48a9ef99db2d6692d9"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "gitBlob": "83d5d7856551b3d4a52d9a6a2cd8c1363c09abe1",
+      "bytes": 39125,
+      "sha256": "2204c8e4659ca79c30e6f5f09327f0d2327897120eb3005e10cf0038c7abc00d",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "83d5d7856551b3d4a52d9a6a2cd8c1363c09abe1",
+        "bytes": 39125,
+        "sha256": "2204c8e4659ca79c30e6f5f09327f0d2327897120eb3005e10cf0038c7abc00d"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "gitBlob": "44d1923add5fdd2b35829da9ce9c6da12a603448",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "44d1923add5fdd2b35829da9ce9c6da12a603448",
+        "bytes": 4635,
+        "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "packages/runtime-official/manifest.ts",
+      "gitBlob": "c94557e8709b2ed231ce95e411e6d6fb7f43b0bf",
+      "bytes": 6698,
+      "sha256": "955af9901a71b36aef154e488545e4e647cfe5b883f81817a4944b55574cbc08",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "c94557e8709b2ed231ce95e411e6d6fb7f43b0bf",
+        "bytes": 6698,
+        "sha256": "955af9901a71b36aef154e488545e4e647cfe5b883f81817a4944b55574cbc08"
+      },
+      "equalEarlierActualCheckout": true
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "gitBlob": "5fad015874cf47115c62410015318452d16ea4f8",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+      "earlierRequestedHeadEqual": true,
+      "earlierActualCheckout": {
+        "gitBlob": "5fad015874cf47115c62410015318452d16ea4f8",
+        "bytes": 22553,
+        "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb"
+      },
+      "equalEarlierActualCheckout": true
+    }
+  ],
+  "callChain": [
+    {
+      "path": "apps/server/host.ts",
+      "symbol": "launchHost",
+      "fact": "Acquires profile lease, constructs Store/runtime/service, registers and listens on both loopback servers, then awaits service.recover before accepting requests."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "symbol": "Service.recover",
+      "fact": "First awaited operation is source.library.initialize. M05 usage recovery and run recovery occur afterward."
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "symbol": "HermesSourceLibrary.initialize",
+      "fact": "First source request is skills.list with an empty params object."
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "symbol": "createHermesService",
+      "fact": "Production library delegates source requests to the canonical Hermes runtime created with dataDir=store.dataDir."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "symbol": "sourceRequest / ensureSource",
+      "fact": "Creates home=<profile>/hermes; awaits secureDirectory(profile,home); calls source.request(hello) before the requested skills.list."
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "symbol": "HermesClient.ensure",
+      "fact": "Awaits withHermesHome namespace readiness before Python is spawned, retains that lease during the source lifetime."
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "symbol": "withHermesHome",
+      "fact": "Outer acquire pins profile; creates/verifies home and four child roots; nested acquire pins five roots in the same AsyncLocalStorage guard process."
+    }
+  ],
+  "requestTopology": {
+    "profile": "<owned-evidence-root>/host",
+    "home": "<profile>/hermes",
+    "outer": {
+      "command": "acquire",
+      "paths": [
+        {
+          "path": "<profile>",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        }
+      ]
+    },
+    "betweenAcquires": [
+      "home already exists from secureDirectory",
+      "mkdir(home) tolerates EEXIST",
+      "assertHermesTree(home)",
+      "mkdir skills, sessions, workspace and .curator_backups"
+    ],
+    "nested": {
+      "command": "acquire",
+      "paths": [
+        {
+          "path": "<profile>/hermes",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        },
+        {
+          "path": "<profile>/hermes/skills",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        },
+        {
+          "path": "<profile>/hermes/sessions",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        },
+        {
+          "path": "<profile>/hermes/workspace",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        },
+        {
+          "path": "<profile>/hermes/.curator_backups",
+          "leaf": false,
+          "allowChildWrites": true,
+          "childWriteRoot": "<profile>"
+        }
+      ]
+    },
+    "release": "Nested release is sent on action completion if session is live. Outer teardown ends stdin, schedules kill after2000ms, and awaits close.",
+    "budget": "Ordinary RPC15000ms, metadata import120000ms; these startup requests do not set gitMetadataImport."
+  },
+  "ruledOutAsDirectMatchedMessageProducer": [
+    "Profile lease uses SQLite timeout0 and emits a different PROFILE_IN_USE message.",
+    "Store constructor has no file-access import/call; SQLite busy_timeout is5000.",
+    "ProjectMemory file guard is captureFile; installed seed captures four MESSAGE sources, and startup routes keep ProjectMemory construction lazy.",
+    "Skill catalog and resource file-access reads occur in request handlers; accepting remains false until recover completes.",
+    "secureDirectory and assertHermesTree have different static denial messages."
+  ],
+  "limits": [
+    "A source-only chain does not identify the failed RPC. Outer acquire, nested acquire, held-guard loss and cleanup remain possible.",
+    "ensureSource catches an earlier failure by awaiting closeSource; a guard error in disposal can replace the earlier failure.",
+    "Exact first failure timing is consistent with but does not prove a guard RPC timeout.",
+    "A direct withHermesHome probe tests namespace acquire/action/release; it does not by itself prove complete Python hello or installed host readiness."
+  ],
+  "requiredNextEvidence": "Run the authorized exact-source Windows direct/protocol probes with the same seeded profile and reopened Store/profile lease. Retain fixed RPC stage, process lifecycle, elapsed time and numeric error metadata without changing production budgets or security predicates.",
+  "findings": [],
+  "earlierExecution": {
+    "runId": 43771171183,
+    "requestedHead": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "actualCheckout": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "actualTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "actualCheckoutParents": [
+      "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "94b99a8132ed3703b5c253376af9be5b45039815"
+    ],
+    "scope": "Earlier installed execution reached memory UI before its separately preserved export failure. This is not a full installed retention PASS."
+  },
+  "currentExecution": {
+    "runId": 43783430726,
+    "event": "push",
+    "head": "de8700651e6eb97c5a60bf849802b51086244857",
+    "actualCheckout": "de8700651e6eb97c5a60bf849802b51086244857",
+    "actualTree": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+    "identitySource": "Existing collector capture.json, api.checkout Git commit object; no repeated API retrieval."
+  },
+  "sourceComparison": {
+    "totalPaths": 15,
+    "equalEarlierActualCheckout": 14,
+    "changedPaths": [
+      "apps/server/main.ts"
+    ]
+  },
+  "supersedes": {
+    "localPath": "/workspace/scratch/36f66011d961/M05-startup-guard-callchain-review-43783430726.json",
+    "bytes": 10729,
+    "sha256": "1aef425e43b920e57af8960f0adc5e65f276eb4e0b92508b8a60e1e6c36643b5",
+    "reason": "Separates the requested94b head from the actual437711 merge checkout c4d and recomputes every comparison against that exact checkout. Prior local bytes retained."
+  }
+}

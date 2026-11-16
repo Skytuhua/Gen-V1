@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--reporter=verbose",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-combo-identity-repair",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T23:16:06.293823+00:00",
+    "endedAt": "2026-11-15T23:16:07.412525+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-identity-custody.log",
+    "logDigest": "0eb236752218fa5a646e5b68cbf3f8d754f3be9ac1519ba600b1643c10d115e8"
+  },
+  "capturedMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-native-save-parent-identity-custody.meta.json",
+  "capturedMetadataSha256": "f12b7735d4c712adf09d0841f96ceced560cec40f9bffdf4f0cb484cd88101a4",
+  "sourceSha256": "b29a7f3215f8e4506b8f377f9810f9925a3379a147671418c87ff4cb12bf205f",
+  "testSha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+  "scope": "Existing seven portable custody cases against exact measured parent AutomationId candidate. Actual native Save destination requires the two Windows lanes.",
+  "timingBasis": "OBSERVED_LOCAL_PROCESS",
+  "boundedBytes": 1485,
+  "transformations": []
+}

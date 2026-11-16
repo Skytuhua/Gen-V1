@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "traceFile": "0-trace.trace",
+  "traceSHA256": "2fac85d04397399dc00501bc86e350058067847240aa8160c4a24409d68c205d",
+  "resolution": "Playwright subtree references resolved with per-frame snapshot delta and postorder index of non-reference nodes; attribute values copied exactly.",
+  "snapshots": [
+    {
+      "snapshotName": "input@call@5887",
+      "timestampMs": 139430.832,
+      "wallTimeMs": 1794790982785,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "729",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(240.148px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "729",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "after@call@5887",
+      "timestampMs": 139435.74,
+      "wallTimeMs": 1794790982790,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "729",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(240.148px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "before@call@5893",
+      "timestampMs": 139442.222,
+      "wallTimeMs": 1794790982796,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "729",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(240.148px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "after@call@5893",
+      "timestampMs": 139444.987,
+      "wallTimeMs": 1794790982799,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "729",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(240.148px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "before@call@5897",
+      "timestampMs": 139447.492,
+      "wallTimeMs": 1794790982801,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "1360",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(448.013px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "before@call@5901",
+      "timestampMs": 139452.662,
+      "wallTimeMs": 1794790982807,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "1360",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(448.013px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "before@call@5903",
+      "timestampMs": 139464.45,
+      "wallTimeMs": 1794790982818,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "1360",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(448.013px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "1360",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    },
+    {
+      "snapshotName": "after@call@5903",
+      "timestampMs": 139465.822,
+      "wallTimeMs": 1794790982820,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "elements": [
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_target__": "call@5887",
+            "class": "chat-scroll-indicator",
+            "role": "scrollbar",
+            "aria-label": "Scroll conversation",
+            "aria-orientation": "vertical",
+            "aria-valuemin": "0",
+            "aria-valuemax": "1698",
+            "aria-valuenow": "1360",
+            "tabindex": "0",
+            "data-scrollable": "true",
+            "aria-controls": "chat-scroll-_r_0_"
+          }
+        },
+        {
+          "tag": "SPAN",
+          "attributes": {
+            "class": "chat-scroll-thumb",
+            "aria-hidden": "true",
+            "style": "height: 282.643px; transform: translateY(448.013px);"
+          }
+        },
+        {
+          "tag": "DIV",
+          "attributes": {
+            "__playwright_scroll_top_": "309",
+            "class": "conversation-scroll",
+            "aria-label": "Fixture conversation",
+            "id": "chat-scroll-_r_0_"
+          }
+        }
+      ]
+    }
+  ]
+}

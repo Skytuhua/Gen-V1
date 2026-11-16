@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "status": "OBSERVED_WINDOWS_SUITE_COUNTS_ONLY",
+  "recordedAt": "2026-11-16T02:12:48.780175+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43789647166,
+  "runAttempt": 1,
+  "event": "push",
+  "branch": "agent/m05-v3",
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "actualCheckoutSha": "299aa79fce281bacc370bd76373f760082046941",
+  "jobId": 133044988834,
+  "jobName": "Tests (shard 1/4)",
+  "jobConclusion": "success",
+  "rawLog": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43789647166/job-133044988834.log",
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133044988834/logs",
+    "encoding": "Exact connector-decoded UTF-8 log string; no normalization before hashing",
+    "bytes": 120839,
+    "sha256": "a666546df56b6fcc9b3ca98fda81460b2f03573f442646fa5aa815ec381adbd5",
+    "gitBlobSha": "8ab373426ad6cf65fd0483c274181977001d253f"
+  },
+  "suites": [
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "executedCases": 33,
+      "passedCases": 33,
+      "failedCases": 0,
+      "skippedCases": 0,
+      "rawLineNumber": 599,
+      "rawLine": "2026-11-16T02:04:11.5283133Z  \u001b[32m✓\u001b[39m tests/installed-desktop-verification.test.ts \u001b[2m(\u001b[22m\u001b[2m33 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1664\u001b[2mms\u001b[22m\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:04:11.5283133Z  ✓ tests/installed-desktop-verification.test.ts (33 tests) 1664ms",
+      "rawLineSha256": "e86ee9e04514abe270c4a3e60494e794952bef4274f8e3839f2ab52623b23350",
+      "source": {
+        "bytes": 31253,
+        "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+        "gitBlobSha": "b4b847a5503ef4c6d3768d8f0656339e99905b6d"
+      },
+      "inferenceBasis": "The exact green Vitest suite line has this test count and no skipped/failed suffix, and the entire shard reports only passed tests."
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "executedCases": 35,
+      "passedCases": 35,
+      "failedCases": 0,
+      "skippedCases": 0,
+      "rawLineNumber": 631,
+      "rawLine": "2026-11-16T02:05:10.0552229Z  \u001b[32m✓\u001b[39m tests/desktop-native.test.ts \u001b[2m(\u001b[22m\u001b[2m35 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 3377\u001b[2mms\u001b[22m\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:05:10.0552229Z  ✓ tests/desktop-native.test.ts (35 tests) 3377ms",
+      "rawLineSha256": "44c0f9ea0c61da4369036290f649b66f814b87e9bceb9833f2d36e2d31f6dac0",
+      "source": {
+        "bytes": 24494,
+        "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+        "gitBlobSha": "672db4b716bdcfd4f088324b49592dd843106436"
+      },
+      "inferenceBasis": "The exact green Vitest suite line has this test count and no skipped/failed suffix, and the entire shard reports only passed tests."
+    }
+  ],
+  "shardSummary": [
+    {
+      "rawLineNumber": 991,
+      "rawLine": "2026-11-16T02:09:22.6384696Z \u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m91 passed\u001b[39m\u001b[22m\u001b[90m (91)\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:09:22.6384696Z  Test Files  91 passed (91)"
+    },
+    {
+      "rawLineNumber": 992,
+      "rawLine": "2026-11-16T02:09:22.6403008Z \u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1180 passed\u001b[39m\u001b[22m\u001b[90m (1180)\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:09:22.6403008Z       Tests  1180 passed (1180)"
+    }
+  ],
+  "extractionMethod": "Fixed exact suite path/count matches after ANSI removal for matching only; original timestamped raw lines and full raw-log identity are retained. Counts were extracted from the already retained job log without rerunning tests or requesting the log again.",
+  "limits": [
+    "These are observed automated test counts on the exact 299aa79f Windows source cut.",
+    "They do not establish real installed launch, native Save, retained-memory restart or full nine-job success.",
+    "Browser and installed verification remained in progress at the latest observed cutoff when this bounded count observation was created."
+  ]
+}

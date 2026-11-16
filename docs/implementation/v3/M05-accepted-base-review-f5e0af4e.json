@@ -1,0 +1,548 @@
+{
+  "schemaVersion": 1,
+  "status": "READ_ONLY_ACCEPTED_BASE_ADDENDUM_NO_EXECUTION_ADMISSION",
+  "recordedAt": "2026-11-15T22:33:47.078319+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "priorAcceptedBaseSha": "4941b74496c808b5318888ca6b68378c3329b87e",
+  "newAcceptedBaseSha": "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+  "newAcceptedBaseTreeSha": "fa09688270b4e7ee17e81473ec780857e2f18400",
+  "acceptedCommitCountSincePrior": 1,
+  "acceptedChangedPaths": [
+    "apps/web/src/FloatingWindow.tsx",
+    "apps/web/src/WorkspacePanel.tsx",
+    "apps/web/src/WorkspaceSplitLayout.tsx",
+    "scripts/public-source-files.json",
+    "tests/gesture-cleanup.test.ts"
+  ],
+  "mergedFeatureCut": {
+    "headSha": "075f1f3bcf9afcf62831a1ba8d607fa9792dfff0",
+    "treeSha": "c1055beb3527a567ab3fc2c6b9539680f62b5139",
+    "parents": [
+      "33187f67c9db86bccb67a9b48698495c07db2198",
+      "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca"
+    ],
+    "featureMergeChangedPaths": [
+      "apps/web/src/FloatingWindow.tsx",
+      "apps/web/src/WorkspacePanel.tsx",
+      "apps/web/src/WorkspaceSplitLayout.tsx",
+      "scripts/public-source-files.json",
+      "tests/gesture-cleanup.test.ts"
+    ],
+    "acceptedAndFeatureDiffPathSetsEqual": true
+  },
+  "historicalCuts": [
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-source-lock-399cde39.json",
+      "bytes": 25543,
+      "sha256": "1e67d0ebc890aff8ef923f79f8f6600c88e7176fe8fcaa04e9327dc7bf674cdb",
+      "gitBlobSha": "b24bd393519b01e1c0f954204343a684250ff723"
+    },
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-source-lock-bc5aad3c.json",
+      "bytes": 17337,
+      "sha256": "fff1e291c437920c15c79b1626b2837a0781f86faa21606a6bf7cf137f7ffd66",
+      "gitBlobSha": "6def72f6a1df18260d9376bc5a21011d52f66bb1"
+    },
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-source-lock-4941b744.json",
+      "bytes": 20560,
+      "sha256": "0cc7e356652237e50786eee87094744fb30056b2f403079e3848bf6b32929386",
+      "gitBlobSha": "bad0e7114b357f3265c3edfb26ccdcdcbe0adb96"
+    }
+  ],
+  "priorReview": {
+    "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-4941b744/M05-accepted-base-review-4941b744.json",
+    "bytes": 49734,
+    "sha256": "55c319568ffe9808da319e359c355ecb7ebffe565189a330bb3c3a19495d5bea",
+    "gitBlobSha": "1c4ca7053db98db828d1c24c8e1304a7ddb92657"
+  },
+  "proposedFiles": [
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-source-lock.proposed.json",
+      "bytes": 21185,
+      "sha256": "310deb87b1183d5035329f953aee2d679b012a047933cb0fdb423a7ca8e1eeb4",
+      "gitBlobSha": "9ab7e04da4ecd219928bc154e3cb670b929e9b1d"
+    },
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-dependency-contracts.proposed.json",
+      "bytes": 3408,
+      "sha256": "f0e8c782db02de0317369c010ad1aa4ff3752039d41bc870f63d0f784a6327be",
+      "gitBlobSha": "65d075532bc917dc48dbaea77019d3dc7e7a6e52"
+    },
+    {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-f5e0af4e/M05-evidence-contract-update.proposed.json",
+      "bytes": 3838,
+      "sha256": "58183ca577644097d8b3180f692e66f7026cead564d81deadf879e0a8a18cc44",
+      "gitBlobSha": "d15853e9339f8b3f055a795323acc30044ae2b6e"
+    }
+  ],
+  "inspectedSource": {
+    "count": 63,
+    "changedCount": 1,
+    "unchangedCount": 62,
+    "changes": [
+      {
+        "path": "scripts/public-source-files.json",
+        "fromBlob": "f839822ffbfbc1d601f3f327db1f4504f4e7a40f",
+        "toBlob": "269f0be5f741b55b2a6d529f14ec55fe991163c5"
+      }
+    ],
+    "bindings": [
+      {
+        "path": ".github/actions/setup/action.yml",
+        "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef",
+        "bytes": 4252,
+        "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b",
+        "bytes": 4132,
+        "sha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2"
+      },
+      {
+        "path": "apps/desktop/main.ts",
+        "blobSha": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d",
+        "bytes": 55441,
+        "sha256": "0f069121473becb80a755a23862989afdc7325687590864cb8ebf41fc2c3704b"
+      },
+      {
+        "path": "apps/desktop/preload.ts",
+        "blobSha": "2063e498d4131b608baf3ba74d7eead023db6d87",
+        "bytes": 3836,
+        "sha256": "50eddc33bff426d57cc7aeda21f4481189be0800f5f3c021014accd86e873873"
+      },
+      {
+        "path": "apps/desktop/window-policy.ts",
+        "blobSha": "c75a4658539a572fb31fe8fcd30b42ddd4b5a15e",
+        "bytes": 9868,
+        "sha256": "fe3614c9240458235cc73f5405466f9f3b552e2251419659c6acd66fbc555b63"
+      },
+      {
+        "path": "apps/server/host.ts",
+        "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492",
+        "bytes": 9118,
+        "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b"
+      },
+      {
+        "path": "apps/server/profile-lease.ts",
+        "blobSha": "8ba9106aa0607c27403f69035355612ab1a138b4",
+        "bytes": 2100,
+        "sha256": "53d0f31ee28855c1cab2713d48847b075f28090ff1aa14f136e56eeb9fa46b87"
+      },
+      {
+        "path": "apps/server/server.ts",
+        "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+        "bytes": 28200,
+        "sha256": "302c3581f277c3e11b0bf8e6bf359d7c2cefb814a4e37ae9824b35c119fb2a2a"
+      },
+      {
+        "path": "apps/web/src/ContextInspector.tsx",
+        "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea",
+        "bytes": 7920,
+        "sha256": "b1a79351be6cc72f0b6137f586a6cc913757e9d59b2ee21a417012aafb6c25c0"
+      },
+      {
+        "path": "apps/web/src/DesktopEntry.tsx",
+        "blobSha": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+        "bytes": 10077,
+        "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d"
+      },
+      {
+        "path": "apps/web/src/ProjectContextSurface.tsx",
+        "blobSha": "0008281500bc9bb2216160978b81565885afa27d",
+        "bytes": 1693,
+        "sha256": "646d829badca65d937760364f815618b0843335d262d86b6efcc5c5667abd224"
+      },
+      {
+        "path": "docs/architecture.md",
+        "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c",
+        "bytes": 9216,
+        "sha256": "7d0b9b8403391c76563cbfd7bb9c9d83e7b0e975ecec3f10bc7dc5f940fb75dc"
+      },
+      {
+        "path": "docs/implementation/v3/M01-verification.json",
+        "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+        "bytes": 30977,
+        "sha256": "806f844d92c05f1a280b7cec72bdae73b39365eef4417e654a3bf4bbc7bd1daf"
+      },
+      {
+        "path": "docs/implementation/v3/M02-source-lock.json",
+        "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+        "bytes": 1804,
+        "sha256": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a"
+      },
+      {
+        "path": "docs/implementation/v3/M02-verification.json",
+        "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+        "bytes": 6889,
+        "sha256": "cfcd648127baedf633f59e736177e3c26e2b33758cd5cffec8f46bd63e3bf26e"
+      },
+      {
+        "path": "docs/implementation/v3/M04-core-verification.json",
+        "blobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d",
+        "bytes": 10015,
+        "sha256": "f6f501a6f69261d3780bded0800be925640c6e7315b354a3ea9d5da06102e8e1"
+      },
+      {
+        "path": "evals/cases.ts",
+        "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae",
+        "bytes": 9804,
+        "sha256": "5f55c1b8df50eff8d192e52701beb1ca5d23a95cb16f1742f83dfea15925add2"
+      },
+      {
+        "path": "evals/runner.ts",
+        "blobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f",
+        "bytes": 10180,
+        "sha256": "5b0f77dab350869cb6412079ea56eb13879c2e883fe0320ac8d91042f4ebba2c"
+      },
+      {
+        "path": "package.json",
+        "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+        "bytes": 3172,
+        "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+      },
+      {
+        "path": "packages/contracts/implementation-evidence.ts",
+        "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+        "bytes": 10262,
+        "sha256": "149654583eb30c23922deb3c75e2e1b4113083b064b7b95ad6a7ada903d984df"
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57",
+        "bytes": 8820,
+        "sha256": "16fa49f9d8ef4f7fe4fc810a8ce746048da3a8d3afcce93761d0ebf594fb6530"
+      },
+      {
+        "path": "packages/contracts/model-request.ts",
+        "blobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+        "bytes": 6820,
+        "sha256": "5d7c38c634ec68ce3bab99d52eaf189a6a0e55c5867c9847dde280a627e49efa"
+      },
+      {
+        "path": "packages/contracts/request-context.ts",
+        "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+        "bytes": 4120,
+        "sha256": "6f1dc5669b95a2697aa97df44a3d9c86d48ed15ec23bc75db4f20b257a1d2957"
+      },
+      {
+        "path": "packages/contracts/tool-effects.ts",
+        "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+        "bytes": 3275,
+        "sha256": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a"
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537",
+        "bytes": 6377,
+        "sha256": "3691ec52adffd1d0cbc0d8307dbb7b32928e622eedd924dd8072179a127da52f"
+      },
+      {
+        "path": "packages/core/context-compiler.ts",
+        "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+        "bytes": 5999,
+        "sha256": "c26065d87202b051faad3564db8d4a7912333496ef9de963b345336abbf1f423"
+      },
+      {
+        "path": "packages/core/effect-recovery.ts",
+        "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+        "bytes": 7089,
+        "sha256": "bb217f1b3859c8609e04c0b84b93e88dd8b33745818ca6f1d1a5705320c4d10d"
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412",
+        "bytes": 11703,
+        "sha256": "c4388f71a70b530774dd1ea60933cef20bcafe2ddb8ec01b7b8514e2c33b1f6f"
+      },
+      {
+        "path": "packages/core/learning.ts",
+        "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc",
+        "bytes": 8958,
+        "sha256": "fd8f9c0300752a1bf4d6b90268e17b1802f693212910b4c03b31cab748a100a7"
+      },
+      {
+        "path": "packages/core/request-custody.ts",
+        "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+        "bytes": 16211,
+        "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee"
+      },
+      {
+        "path": "packages/core/security.ts",
+        "blobSha": "693f251361bc464caee26df795c57002d120c9a7",
+        "bytes": 3604,
+        "sha256": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9"
+      },
+      {
+        "path": "packages/core/service.ts",
+        "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "bytes": 145131,
+        "sha256": "5ef9d6267b9e79db04e5a97e2eec732198c6c5544ce44d970e817783f527171c"
+      },
+      {
+        "path": "packages/core/skills.ts",
+        "blobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae",
+        "bytes": 20032,
+        "sha256": "6288dfc57a0520774c2e8c1826cef69162dbe5777ce94996a510648716776ef0"
+      },
+      {
+        "path": "packages/core/task-memory.ts",
+        "blobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+        "bytes": 2903,
+        "sha256": "e3f0ae02e787d0ec1463199014a39a5301e3ab5b60cecf6a02cf031b4fb44786"
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "blobSha": "1d654522d9842838276d162a33dac6141f731c26",
+        "bytes": 9666,
+        "sha256": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465"
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+        "bytes": 18058,
+        "sha256": "d43983df718cc497dc85fe92cc719afe35b85df0361d265b131c7313fc94e317"
+      },
+      {
+        "path": "packages/desktop-contract/index.ts",
+        "blobSha": "a149b2c3bb89f3b712feba4e94d646ebb0544c18",
+        "bytes": 11269,
+        "sha256": "92d6c74874f790611fca4f654ba6dccd184ef59430aace168fbaebc6d65be311"
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "blobSha": "3e9a425b28b150874cfee1a29725308133bf193b",
+        "bytes": 36643,
+        "sha256": "679d20fff1ac1e14cf1a40c8035679f471c8cd2215f51635cc19948e1d76fa92"
+      },
+      {
+        "path": "packages/runtime-hermes/library.ts",
+        "blobSha": "ba0bf768e44ee9385065401a067028131fe3392c",
+        "bytes": 31421,
+        "sha256": "33249415a437d8ca1ed4107f081801d6e5202a671a3aaf48a9ef99db2d6692d9"
+      },
+      {
+        "path": "packages/runtime-hermes/worker.py",
+        "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420",
+        "bytes": 77803,
+        "sha256": "b8de842ddec1f5feeccfefd31a66c10d8e887302e918a3fbea73416d8d4d2be6"
+      },
+      {
+        "path": "packages/runtime/index.ts",
+        "blobSha": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6",
+        "bytes": 15301,
+        "sha256": "b20e084be9021a121a87a606e042eb18a1c39c13f02a2f31e5cadb047fbaf67e"
+      },
+      {
+        "path": "packages/runtime/request-capabilities.ts",
+        "blobSha": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+        "bytes": 2393,
+        "sha256": "9280427e2f2ce9d401db85515224f96cd7af0c0e503f03eb6cca6ac6818566b3"
+      },
+      {
+        "path": "packages/runtime/request-scheduler.ts",
+        "blobSha": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+        "bytes": 10955,
+        "sha256": "678c207a0ff62616d9c2b04fa7ad77cbda2c468d690cbff047436a827a478632"
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+        "bytes": 15079,
+        "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae"
+      },
+      {
+        "path": "packages/workspace/tools.ts",
+        "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+        "bytes": 25568,
+        "sha256": "419148db0f57678c51df9def6b8379b3078193df954a716a81817417a5aa629e"
+      },
+      {
+        "path": "pnpm-lock.yaml",
+        "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+        "bytes": 355786,
+        "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+      },
+      {
+        "path": "scripts/browser-suites.ts",
+        "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb",
+        "bytes": 6338,
+        "sha256": "03c9cb9d8e6a43bc6d26418f76e2353d7e3d2f3f3e28478b23d99de5047d4fb4"
+      },
+      {
+        "path": "scripts/integration-assets.ts",
+        "blobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50",
+        "bytes": 8965,
+        "sha256": "24e5c8ac61fa8711b7663e0b8e44231cce87de4e97d8a7d870d9ce9c4fe24118"
+      },
+      {
+        "path": "scripts/package-desktop.ts",
+        "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf",
+        "bytes": 6583,
+        "sha256": "f138034b2cd5f1ead9f2459c770453b6ca3157b5a27de0b3a1aeee2e0021f6ef"
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "blobSha": "269f0be5f741b55b2a6d529f14ec55fe991163c5",
+        "bytes": 134460,
+        "sha256": "9eaf163e80df091108461326438592bd853d1a6656a71757a37c0882b656cc43"
+      },
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "blobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25",
+        "bytes": 25667,
+        "sha256": "84473abad3144d1d2ee50a7c5662a1b2887d7f060f821c6ee34057e542dc9c1d"
+      },
+      {
+        "path": "tests/context-compiler-v3.test.ts",
+        "blobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+        "bytes": 5484,
+        "sha256": "5ae96021557ff129c2abc99cfcbc7d1a4da996c2f17536800a1a6a736ab98dd9"
+      },
+      {
+        "path": "tests/desktop-native.test.ts",
+        "blobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00",
+        "bytes": 17652,
+        "sha256": "33d87e8beb15ca39a9cc5437d8d8f79de343da587a50706e79aa24ed9c5a63ac"
+      },
+      {
+        "path": "tests/desktop-preload-accounts.test.ts",
+        "blobSha": "0dadeefca7b3cb98c6084f32cb84d5e0f2440ad6",
+        "bytes": 1428,
+        "sha256": "3ccdd3c4501f61c2229c6c31068459bd011658e5970687ac7de91f37c0776957"
+      },
+      {
+        "path": "tests/effect-recovery-v3.test.ts",
+        "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+        "bytes": 12127,
+        "sha256": "5968523be60c6086577c38088c2fa7f18afc733700b2daba9c107653cc0d0ae8"
+      },
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "blobSha": "ea70ad3f662754095df20f6686457317266a5e23",
+        "bytes": 5270,
+        "sha256": "3dabd6b506315c1d696765197ea4bf99c68bb36aa54ff1487dc476e0625e52a8"
+      },
+      {
+        "path": "tests/m01-m02-compatibility.test.ts",
+        "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+        "bytes": 1519,
+        "sha256": "9736e8cc531bc59103895f103a1caf07406d8be24ea01db22d2db8d86029982a"
+      },
+      {
+        "path": "tests/request-preparation-service-v3.test.ts",
+        "blobSha": "aa26bcf8997e450de648ac26006770d745a0434c",
+        "bytes": 20640,
+        "sha256": "c798c6dca02c9ae558bab2fbd0082e360fb0ead30713b34895a5338743dde196"
+      },
+      {
+        "path": "tests/research-baseline.test.ts",
+        "blobSha": "a44a20573b4feee888f4709011658a6d50635893",
+        "bytes": 19509,
+        "sha256": "ae6eda779cc4581f086aea8a68f5fac169dd1fb860975b0fb34c6cc0785021f2"
+      },
+      {
+        "path": "tests/task-memory.test.ts",
+        "blobSha": "2ada92f323eda1d39131c3a5a17835392f857cac",
+        "bytes": 4912,
+        "sha256": "88700d6a8a8a2021b54527686c043315a58efd42e98ab7cc00a7db24d5ca5313"
+      },
+      {
+        "path": "tests/tool-authority-v3.test.ts",
+        "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+        "bytes": 5754,
+        "sha256": "0114a5eb94f270c7ee5d5cac2e5fa6263997a7417fae597116f27a59dfb60235"
+      },
+      {
+        "path": "tests/tool-effects-v3.test.ts",
+        "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+        "bytes": 15652,
+        "sha256": "fcf19bff01dd5da09f504e5074fcdf0b9648b6c37b6a88c38b1d8d7c2eb70783"
+      },
+      {
+        "path": "third-party/integrations/PYTHON_LOCK.json",
+        "blobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66",
+        "bytes": 1526869,
+        "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+      }
+    ]
+  },
+  "publicContracts": {
+    "count": 16,
+    "changes": [],
+    "duplicateNames": [],
+    "differingVersionCollisions": [],
+    "sameBytesAs494DependencyContracts": true,
+    "allVersionBlobsPresentAtAcceptedBase": true,
+    "sourceLockAndEvidenceContractsIdentical": true
+  },
+  "dependencyAncestry": [
+    {
+      "commit": "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+      "isAncestor": true
+    },
+    {
+      "commit": "f331cf16b268282da888a41da42fc776ea7befd5",
+      "isAncestor": true
+    },
+    {
+      "commit": "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+      "isAncestor": true
+    },
+    {
+      "commit": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "isAncestor": true
+    },
+    {
+      "commit": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "isAncestor": true
+    },
+    {
+      "commit": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+      "isAncestor": true
+    },
+    {
+      "commit": "4941b74496c808b5318888ca6b68378c3329b87e",
+      "isAncestor": true
+    },
+    {
+      "commit": "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+      "isAncestor": true
+    }
+  ],
+  "reviewConclusions": [
+    {
+      "paths": [
+        "apps/web/src/FloatingWindow.tsx",
+        "apps/web/src/WorkspacePanel.tsx"
+      ],
+      "finding": "Pointer-capture loss and window blur now release gesture listeners and capture; active pointer filtering is preserved. No project-memory API, IPC, source, storage, model or account authorization changed."
+    },
+    {
+      "paths": [
+        "apps/web/src/WorkspaceSplitLayout.tsx"
+      ],
+      "finding": "Interrupted resize and corner gestures release capture. Drag/corner previews use the existing minimum-fit rule; existing command owners, layout revision checks and prepare flow remain."
+    },
+    {
+      "paths": [
+        "scripts/public-source-files.json",
+        "tests/gesture-cleanup.test.ts"
+      ],
+      "finding": "One accepted test entry is added. Source inventory change is bound explicitly; no test execution is inferred from source inspection."
+    }
+  ],
+  "flags": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false
+  },
+  "findings": [],
+  "executionLimits": [
+    "This addendum performs Git object and source review only. No tests, build, native dialog or installed run were executed by it.",
+    "The current native Save helper is an uncommitted separately owned change and is not represented as part of this accepted-base cut.",
+    "The actual latest full CI remains run43760736519 failure until a new actual full run completes.",
+    "Full enabled installed memory and the paid live repeated-task study remain NOT_RUN."
+  ]
+}

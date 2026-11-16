@@ -1,0 +1,46 @@
+2026-11-16T01:00:03.2411244Z ##[group]Run $failedSuites = @()
+2026-11-16T01:00:03.2411472Z $failedSuites = @()
+2026-11-16T01:00:03.2411713Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-16T01:00:03.2411982Z   pnpm test:browser --suite $suite
+2026-11-16T01:00:03.2412183Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-16T01:00:03.2412356Z }
+2026-11-16T01:00:03.2412484Z if ($failedSuites.Count -gt 0) {
+2026-11-16T01:00:03.2412696Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-16T01:00:03.2412882Z }
+2026-11-16T01:00:03.2459517Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T01:00:03.2459717Z env:
+2026-11-16T01:00:03.2460019Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T01:00:03.2460261Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:00:03.2460543Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T01:00:03.2460796Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:00:03.2461031Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:00:03.2461257Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:00:03.2461510Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T01:00:03.2461723Z ##[endgroup]
+2026-11-16T01:00:03.6055224Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-16T01:00:03.6055504Z > tsx scripts/test-browser.ts "--suite" "project-memory"
+2026-11-16T01:00:03.6055643Z 
+2026-11-16T01:00:03.8200954Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794790803818-86d32e8b-fa5f-45d9-ada4-b443acf8c008
+2026-11-16T01:00:03.8206691Z 
+2026-11-16T01:00:03.8207003Z Browser suite: project-memory (1 spec files)
+2026-11-16T01:00:05.8182599Z 
+2026-11-16T01:00:05.8183478Z Running 15 tests using 1 worker
+2026-11-16T01:00:05.8183935Z 
+2026-11-16T01:00:08.0123796Z   ok  1 tests\e2e\project-memory.spec.ts:358:1 › opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport (1.5s)
+2026-11-16T01:00:09.0025563Z   ok  2 tests\e2e\project-memory.spec.ts:401:1 › requires an explicit source selection before enabling the project (982ms)
+2026-11-16T01:00:09.8858487Z   ok  3 tests\e2e\project-memory.spec.ts:428:1 › disabled host prevents new opt-in and preserves correction of retained records (872ms)
+2026-11-16T01:00:10.8429437Z   ok  4 tests\e2e\project-memory.spec.ts:460:1 › opens an exact source as inert text and accepts a proposal by its reviewed revision (949ms)
+2026-11-16T01:00:11.7276547Z   ok  5 tests\e2e\project-memory.spec.ts:493:1 › retains the exact correction draft when the reviewed revision is stale (877ms)
+2026-11-16T01:00:12.7337877Z   ok  6 tests\e2e\project-memory.spec.ts:517:1 › conflict resolution requires explicit revisions and a note before preserving both (1.0s)
+2026-11-16T01:00:13.7948018Z   ok  7 tests\e2e\project-memory.spec.ts:555:1 › forget names invalidated artifacts before committing and shows pending purge afterward (1.1s)
+2026-11-16T01:00:14.7213331Z   ok  8 tests\e2e\project-memory.spec.ts:588:1 › owner change closes the old review without retaining the previous project text (921ms)
+2026-11-16T01:00:15.5241194Z   ok  9 tests\e2e\project-memory.spec.ts:602:1 › explicit export produces only the host redacted export envelope (796ms)
+2026-11-16T01:00:15.8887093Z   ok 10 tests\e2e\project-memory.spec.ts:615:1 › recall explains exact source and disables exclusion without a request preparation adapter (358ms)
+2026-11-16T01:00:16.8779202Z   ok 11 tests\e2e\project-memory.spec.ts:637:1 › confirms a reusable preference only after explicit project-only confirmation (982ms)
+2026-11-16T01:00:17.5364608Z   ok 12 tests\e2e\project-memory.spec.ts:671:1 › prepares the exact draft with terminal excerpts, excludes a revision, and sends its host token (652ms)
+2026-11-16T01:00:18.1031611Z   ok 13 tests\e2e\project-memory.spec.ts:713:1 › invalidates exclusions when the draft changes and does not reuse its previous token (561ms)
+2026-11-16T01:00:18.7717061Z   ok 14 tests\e2e\project-memory.spec.ts:745:1 › blocks send during exclusion and after failure until explicit refresh (663ms)
+2026-11-16T01:00:19.4238384Z   ok 15 tests\e2e\project-memory.spec.ts:806:1 › an empty draft shows the last captured request with exclusion disabled (645ms)
+2026-11-16T01:00:19.6021907Z 
+2026-11-16T01:00:19.6025526Z   15 passed (15.1s)
+2026-11-16T01:00:19.8503219Z 

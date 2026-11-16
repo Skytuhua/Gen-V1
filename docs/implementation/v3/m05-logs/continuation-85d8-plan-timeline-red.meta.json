@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.config.ts",
+      "tests/e2e/plan-timeline.spec.ts",
+      "--reporter=list"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T22:59:29.316527+00:00",
+    "endedAt": "2026-11-15T23:00:26.783812+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-plan-timeline-red.log",
+    "logDigest": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 57459,
+  "rawOutputBytes": 8041,
+  "rawOutputSha256": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c",
+  "excerptInputBytes": 8041,
+  "excerptInputSha256": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

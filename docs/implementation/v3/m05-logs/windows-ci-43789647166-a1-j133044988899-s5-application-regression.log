@@ -1,0 +1,366 @@
+2026-11-16T02:03:23.3736394Z ##[group]Run pnpm test --maxWorkers=2 --shard=3/4
+2026-11-16T02:03:23.3736884Z pnpm test --maxWorkers=2 --shard=3/4
+2026-11-16T02:03:23.3813925Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T02:03:23.3814291Z env:
+2026-11-16T02:03:23.3814565Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T02:03:23.3815005Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:23.3815482Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T02:03:23.3815955Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:23.3816389Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:23.3816803Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:23.3817264Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T02:03:23.3817692Z ##[endgroup]
+2026-11-16T02:03:24.0892680Z 
+2026-11-16T02:03:24.0893383Z > gen-v1@0.6.5 test D:\a\Gen-V1\Gen-V1
+2026-11-16T02:03:24.0894283Z > pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=3/4"
+2026-11-16T02:03:24.0894817Z 
+2026-11-16T02:03:24.4556768Z 
+2026-11-16T02:03:24.4557624Z > gen-v1@0.6.5 build:credential-lease D:\a\Gen-V1\Gen-V1
+2026-11-16T02:03:24.4558435Z > tsx scripts/build-windows-credential-lease.ts
+2026-11-16T02:03:24.4558883Z 
+2026-11-16T02:03:28.5428116Z windows-credential-lease.cc
+2026-11-16T02:03:36.9414435Z    Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+2026-11-16T02:03:37.0650228Z Windows credential lease built.
+2026-11-16T02:03:37.4761713Z 
+2026-11-16T02:03:37.4762539Z > gen-v1@0.6.5 build:widgets D:\a\Gen-V1\Gen-V1
+2026-11-16T02:03:37.4763506Z > node scripts/build-widgets.mjs
+2026-11-16T02:03:37.4763711Z 
+2026-11-16T02:03:38.1345115Z 
+2026-11-16T02:03:38.1347831Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-16T02:03:38.1348768Z 
+2026-11-16T02:03:40.2291832Z  ✓ tests/cursor-worker.test.ts (24 tests) 1281ms
+2026-11-16T02:03:40.2295102Z      ✓ reads actual installed SDK local history with fetch forbidden and without native auth or agent creation  602ms
+2026-11-16T02:04:08.6020636Z  ✓ tests/path-access.test.ts (32 tests) 27228ms
+2026-11-16T02:04:08.6026498Z    ✓ denies resource content when its parent becomes a protected junction after resolveResource  311ms
+2026-11-16T02:04:08.6028509Z    ✓ denies native gemini-cli storage both directly and through an ancestor grant  330ms
+2026-11-16T02:04:08.6030168Z    ✓ denies a hardlink alias of a protected temporary file  302ms
+2026-11-16T02:04:08.6033244Z    ✓ serves approved ordinary bytes and holds every directory ancestor through final access  1455ms
+2026-11-16T02:04:08.6035190Z    ✓ allows ordinary child replacement while its parent directory is guarded  653ms
+2026-11-16T02:04:08.6036996Z    ✓ rejects a substituted replacement source and preserves a nonowned cleanup inode  1242ms
+2026-11-16T02:04:08.6039273Z    ✓ denies an approved replacement after the resolved parent is swapped to protected storage  1265ms
+2026-11-16T02:04:08.6041126Z    ✓ domain text reads do not follow a parent swap after the host resolver returns  686ms
+2026-11-16T02:04:08.6042917Z    ✓ keeps the original database parent and journal inode pinned through actual COMMIT  1430ms
+2026-11-16T02:04:08.6051039Z    ✓ denies preexisting SQLite journal aliases without changing their temporary sentinel  654ms
+2026-11-16T02:04:08.6053157Z    ✓ performs approved ordinary replacement and PDF export under native guards  4187ms
+2026-11-16T02:04:08.6054566Z    ✓ retains a user save made after the final capability read but before replacement  1226ms
+2026-11-16T02:04:08.6055562Z    ✓ does not bypass another read-only destination lease during conditional replacement  679ms
+2026-11-16T02:04:08.6056480Z    ✓ rejects Git metadata redirect git-junction before launching Git  816ms
+2026-11-16T02:04:08.6058356Z    ✓ rejects Git metadata redirect metadata-junction before launching Git  745ms
+2026-11-16T02:04:08.6060099Z    ✓ rejects Git metadata redirect metadata-hardlink before launching Git  802ms
+2026-11-16T02:04:08.6061789Z    ✓ rejects Git metadata redirect commondir before launching Git  782ms
+2026-11-16T02:04:08.6063395Z    ✓ rejects Git metadata redirect alternates before launching Git  794ms
+2026-11-16T02:04:08.6064946Z    ✓ rejects Git metadata redirect include before launching Git  747ms
+2026-11-16T02:04:08.6066526Z    ✓ rejects Git metadata redirect includeIf before launching Git  769ms
+2026-11-16T02:04:08.6067404Z    ✓ rejects Git metadata redirect filter before launching Git  770ms
+2026-11-16T02:04:08.6068614Z    ✓ does not consume a protected temporary ignore file configured by a selected repository  941ms
+2026-11-16T02:04:08.6070194Z    ✓ does not expose a protected sentinel through a tracked working-directory junction in a whole-repository diff  966ms
+2026-11-16T02:04:08.6071643Z    ✓ diffs the acquired deletion when a protected junction is inserted immediately before real Git launch  1309ms
+2026-11-16T02:04:08.6073032Z    ✓ ignores metadata paths inserted after acquisition immediately before real Git status  971ms
+2026-11-16T02:04:08.6074057Z    ✓ does not let repository config redirect snapshot Git to a post-acquisition metadata file  1252ms
+2026-11-16T02:04:11.7140915Z  ✓ tests/skills.test.ts (35 tests) 2708ms
+2026-11-16T02:04:14.7791278Z  ✓ tests/shell-read-models.test.ts (13 tests) 2015ms
+2026-11-16T02:04:15.7846953Z  ✓ tests/github-workspace.test.ts (37 tests) 35109ms
+2026-11-16T02:04:15.7852179Z    ✓ keeps device authorization tokens private and requires a Gen V1 credential before CLI use  4227ms
+2026-11-16T02:04:15.7857594Z    ✓ refuses to create a PR when the GitHub branch differs from the reviewed local commit  1596ms
+2026-11-16T02:04:15.7859661Z    ✓ returns a created PR only after its actual head matches the reviewed commit  1666ms
+2026-11-16T02:04:15.7861921Z    ✓ retains the created PR URL when its actual head differs from the reviewed commit  1679ms
+2026-11-16T02:04:15.7864000Z    ✓ retains the already-created PR URL after failed read without creating it again  1593ms
+2026-11-16T02:04:15.7865334Z    ✓ retains the already-created PR URL after malformed JSON without creating it again  1675ms
+2026-11-16T02:04:15.7868803Z    ✓ retains the already-created PR URL after missing head without creating it again  1671ms
+2026-11-16T02:04:15.7870056Z    ✓ rechecks writable authority after remote validation before draft creation  1643ms
+2026-11-16T02:04:15.7872173Z    ✓ submits a writable exact-head review against its reviewed commit  1652ms
+2026-11-16T02:04:15.7873225Z    ✓ writes long Unicode PR text exactly to a private file before push and removes it after success  1601ms
+2026-11-16T02:04:15.7874876Z    ✓ uses file-backed review JSON without changing newlines, Unicode or literal backslashes  1642ms
+2026-11-16T02:04:15.7875825Z    ✓ rejects changed capability while preparing a private review input  1599ms
+2026-11-16T02:04:15.7877284Z    ✓ rejects changed head while preparing a private review input  1602ms
+2026-11-16T02:04:15.7878102Z    ✓ rejects changed revision while preparing a private review input  1635ms
+2026-11-16T02:04:15.7879538Z    ✓ cleans private create input while preserving a remote failure  1656ms
+2026-11-16T02:04:15.7880348Z    ✓ cleans private review input while preserving a remote failure  1636ms
+2026-11-16T02:04:15.7882185Z    ✓ retains publication state after success even when exact directory cleanup is refused  1538ms
+2026-11-16T02:04:15.7884019Z    ✓ retains publication state after verification failure even when exact directory cleanup is refused  1584ms
+2026-11-16T02:04:15.7885106Z    ✓ fences cancel during private credential writing before rename and preserves the prior token  519ms
+2026-11-16T02:04:15.7886957Z    ✓ fences replace during private credential writing before rename and preserves the prior token  534ms
+2026-11-16T02:04:15.7888770Z    ✓ fences expire during private credential writing before rename and preserves the prior token  497ms
+2026-11-16T02:04:15.7889792Z    ✓ serializes polling per flow and treats cancellation of an older flow as harmless  553ms
+2026-11-16T02:04:15.7891329Z    ✓ reports a completed sign-in when credential commit wins the cancellation race  1047ms
+2026-11-16T02:04:25.1518594Z  ✓ tests/plan-timeline.test.ts (34 tests) 8957ms
+2026-11-16T02:04:25.1527355Z    ✓ enforces canonical job count and nesting bounds without truncating actual work  307ms
+2026-11-16T02:04:25.1529897Z    ✓ ends running steps truthfully for interrupted and ignores old epochs  313ms
+2026-11-16T02:04:25.1531785Z    ✓ marks crash-left plan-only work interrupted without starting or billing jobs  302ms
+2026-11-16T02:04:25.1535833Z    ✓ serializes committed plan revisions and rolls back invalid updates without touching presentation state  305ms
+2026-11-16T02:04:25.7379347Z  ✓ tests/saved-drafts.test.ts (41 tests) 187ms
+2026-11-16T02:04:25.9738841Z  ✓ tests/conversation-read-models.test.ts (29 tests) 10781ms
+2026-11-16T02:04:25.9741149Z    ✓ fails closed before returning a malformed Unicode continuation or cursor  326ms
+2026-11-16T02:04:25.9742369Z    ✓ rejects tampered, cross-owner, cross-kind, restored-repository and malformed scope cursors  310ms
+2026-11-16T02:04:25.9743833Z    ✓ fails closed when captured account changes  317ms
+2026-11-16T02:04:25.9746039Z    ✓ retains revocation when Personal authority is removed then restored between reads  301ms
+2026-11-16T02:04:25.9748095Z    ✓ requires resync after an unobserved external commit or an expired update checkpoint  6165ms
+2026-11-16T02:04:26.5960470Z  ✓ tests/desktop-memory-export.test.ts (50 tests) 358ms
+2026-11-16T02:04:27.6656030Z  ✓ tests/official-runtime-claude.test.ts (17 tests) 1235ms
+2026-11-16T02:05:05.1622179Z  ✓ tests/checkpoint-restore-v3.test.ts (14 tests) 38152ms
+2026-11-16T02:05:05.1624065Z    ✓ captures approved files and keeps excluded files visible as outside coverage  1295ms
+2026-11-16T02:05:05.1625826Z    ✓ reviews a checkpoint with bounded side-by-side diffs  2266ms
+2026-11-16T02:05:05.1627082Z    ✓ restores selected paths exactly with a recorded pre-restore checkpoint  3847ms
+2026-11-16T02:05:05.1628720Z    ✓ rolls written files back on a conflict and reports CONFLICT  6496ms
+2026-11-16T02:05:05.1630115Z    ✓ recreates a file the working copy deleted  3290ms
+2026-11-16T02:05:05.1631935Z    ✓ conflicts rather than overwrite content the recovery checkpoint cannot hold  6415ms
+2026-11-16T02:05:05.1633768Z    ✓ requires the exact approval for a restore plan  1133ms
+2026-11-16T02:05:05.1635430Z    ✓ refuses restore of a checkpoint whose blobs expired and reports MISSING blobs  595ms
+2026-11-16T02:05:05.1636626Z    ✓ collects unreferenced blobs only  618ms
+2026-11-16T02:05:05.1637350Z    ✓ provisions only manifest-pinned non-secret files  1126ms
+2026-11-16T02:05:05.1638552Z    ✓ stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED  3921ms
+2026-11-16T02:05:05.1639642Z    ✓ preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback  5875ms
+2026-11-16T02:05:05.1640602Z    ✓ refuses to re-apply a plan left APPLYING by a killed process  1169ms
+2026-11-16T02:05:09.1111880Z  ✓ tests/learning-service.test.ts (16 tests) 3145ms
+2026-11-16T02:05:09.1113877Z    ✓ runs a separate review after ten foreground tool calls and requires review-local reads for updates  437ms
+2026-11-16T02:05:15.6375180Z  ✓ tests/selective-commit-v3.test.ts (13 tests) 47528ms
+2026-11-16T02:05:15.6376872Z    ✓ commits only the selected hunks and leaves the rest uncommitted  4912ms
+2026-11-16T02:05:15.6378506Z    ✓ commits one hunk of a file and leaves the sibling hunk behind  4481ms
+2026-11-16T02:05:15.6379974Z    ✓ refuses a stale expected head and records nothing  3743ms
+2026-11-16T02:05:15.6381418Z    ✓ commits a brand-new untracked file as a single proven hunk  4232ms
+2026-11-16T02:05:15.6383750Z    ✓ labels hunk attribution from the provenance journal and requires explicit selection for unproven edits  2925ms
+2026-11-16T02:05:15.6385690Z    ✓ keeps a path unattributed when its live bytes no longer match the proven receipt  2798ms
+2026-11-16T02:05:15.6388428Z    ✓ never offers an untracked non-UTF-8 file as a commit candidate  2706ms
+2026-11-16T02:05:15.6389993Z    ✓ commits an untracked UTF-8 file without dropping its BOM  4318ms
+2026-11-16T02:05:15.6391516Z    ✓ rejects a hunk whose digest no longer matches the live postimage  3612ms
+2026-11-16T02:05:15.6393187Z    ✓ never uses blanket staging: an unselected file is absent from the commit  4493ms
+2026-11-16T02:05:15.6394583Z    ✓ requires a managed working copy  2060ms
+2026-11-16T02:05:15.6395958Z    ✓ records the commit and observed head when the branch update is uncertain  4746ms
+2026-11-16T02:05:15.6397520Z    ✓ retains a dirty managed worktree when its operation is cancelled  2499ms
+2026-11-16T02:05:16.4135889Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:16.4137132Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:27.4177408Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:27.4179072Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:41.1782750Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:41.1784933Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:44.0028711Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:44.0030738Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:46.1689240Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:46.1692522Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:48.2192415Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:48.2193824Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:50.8641117Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:50.8642789Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:52.8935005Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:52.8936592Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:54.3831575Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:54.3833470Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:56.0667799Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:56.0669743Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:57.6225454Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:57.6227289Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:59.2054527Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:05:59.2056966Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:02.0811029Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:02.0813083Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:03.8016963Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:03.8018358Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:03.8319118Z  ✓ tests/hermes-service.test.ts (15 tests) 53909ms
+2026-11-16T02:06:03.8321039Z    ✓ carries an actual approved replacement privately to the next idle source turn, never prepare or steering  1385ms
+2026-11-16T02:06:03.8323971Z    ✓ bounds hook admission while preserving every successful write and ordinary receipt  41658ms
+2026-11-16T02:06:03.8325660Z    ✓ does not reauthorize an approved write hook after stop  1202ms
+2026-11-16T02:06:03.8327070Z    ✓ does not reauthorize an approved write hook after rebind  1286ms
+2026-11-16T02:06:03.8328517Z    ✓ does not reauthorize an approved write hook after revision  1422ms
+2026-11-16T02:06:03.8329923Z    ✓ does not reauthorize an approved write hook after recovery  1222ms
+2026-11-16T02:06:03.8332027Z    ✓ never supplies completed-write custody for unapproved or failed effects  1224ms
+2026-11-16T02:06:03.8334003Z    ✓ retains an unknown callback claim across stop/resume without replaying its write  1290ms
+2026-11-16T02:06:03.8335775Z    ✓ does not infer missing legacy write authority from current selection  1246ms
+2026-11-16T02:06:03.8337412Z    ✓ does not infer missing no_project write authority from current selection  1266ms
+2026-11-16T02:06:04.9462220Z  ✓ tests/workspace-layout.test.ts (10 tests) 715ms
+2026-11-16T02:06:06.4243891Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:06.4245411Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:08.2243388Z  ✓ tests/composer-prediction-service.test.ts (10 tests) 2273ms
+2026-11-16T02:06:08.2244379Z    ✓ rejects unanswered decisions, unknown operations and queued input  342ms
+2026-11-16T02:06:09.5023605Z  ✓ tests/learning.test.ts (18 tests) 1016ms
+2026-11-16T02:06:11.6322088Z ▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+2026-11-16T02:06:11.6323887Z 
+2026-11-16T02:06:11.6324676Z     apps/web/src/pdf-draft.ts:11:63:
+2026-11-16T02:06:11.6362134Z       11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+2026-11-16T02:06:11.6468193Z          ╵                              ~~~~~~~~~~~
+2026-11-16T02:06:11.6471874Z 
+2026-11-16T02:06:11.6485682Z   You need to set the output format to "esm" for "import.meta" to work correctly.
+2026-11-16T02:06:11.6489009Z 
+2026-11-16T02:06:12.9317240Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:12.9318925Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:13.4036027Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:13.4037709Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:13.8613846Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:13.8615816Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:16.4497942Z  ✓ tests/plugin-frame-custody.test.ts (4 tests) 5515ms
+2026-11-16T02:06:16.4499784Z    ✓ restricts parent frames to installed plug-in documents and the explicit widget destination  1727ms
+2026-11-16T02:06:16.4501994Z    ✓ never gives a replacement document the bridge, pending results or a successful flush, even with the old session  873ms
+2026-11-16T02:06:16.4504060Z    ✓ revokes an unexpected same-URL reload and recovers only through a fresh parent remount  1216ms
+2026-11-16T02:06:16.4506039Z    ✓ rejects a redirected replacement before the initial trusted bootstrap can connect  304ms
+2026-11-16T02:06:17.9675689Z  ✓ tests/operation-evidence.test.ts (5 tests) 717ms
+2026-11-16T02:06:18.2826319Z  ✓ tests/conversation-scroll.test.ts (18 tests) 20ms
+2026-11-16T02:06:18.6415930Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:18.6416889Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:21.5431709Z warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:21.5433123Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-16T02:06:21.7221642Z  ✓ tests/private-git-family.test.ts (19 tests) 65690ms
+2026-11-16T02:06:21.7223177Z    ✓ imports once into protected private bare storage and creates three independent native worktrees  11038ms
+2026-11-16T02:06:21.7225231Z    ✓ does not consume original metadata after private import and ignores dependency bulk for managed status  13728ms
+2026-11-16T02:06:21.7226386Z    ✓ keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations  4989ms
+2026-11-16T02:06:21.7227579Z    ✓ refuses stored identity substitution before managed Git starts  2117ms
+2026-11-16T02:06:21.7229738Z    ✓ refuses stored gitDirectoryIdentity substitution before managed Git starts  2604ms
+2026-11-16T02:06:21.7231684Z    ✓ refuses stored commonDirectoryIdentity substitution before managed Git starts  2072ms
+2026-11-16T02:06:21.7233704Z    ✓ refuses untrusted metadata include during import without publishing a usable family  1489ms
+2026-11-16T02:06:21.7235375Z    ✓ refuses untrusted metadata alternates during import without publishing a usable family  1570ms
+2026-11-16T02:06:21.7236420Z    ✓ refuses untrusted metadata hardlink during import without publishing a usable family  1659ms
+2026-11-16T02:06:21.7237430Z    ✓ streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer  1571ms
+2026-11-16T02:06:21.7238428Z    ✓ imports safe author and GitHub origin scalars and drops arbitrary source configuration  2889ms
+2026-11-16T02:06:21.7239399Z    ✓ keeps a failed import unavailable and supports ordinary non-Git project sessions  1607ms
+2026-11-16T02:06:21.7240659Z    ✓ refuses a legacy scratch view inside a broad source grant  2727ms
+2026-11-16T02:06:21.7242345Z    ✓ keeps incremental legacy objects out of the authoritative managed family  6446ms
+2026-11-16T02:06:21.7243872Z    ✓ rejects side conversations at the canonical project-tool binding  521ms
+2026-11-16T02:06:21.7244778Z    ✓ rejects legacy-side conversations at the canonical project-tool binding  469ms
+2026-11-16T02:06:21.7245781Z    ✓ reports each admitted managed copy rather than the original repository root in hover context  4788ms
+2026-11-16T02:06:21.7246763Z    ✓ rejects a context read when the admitted model changes during its Git read  2767ms
+2026-11-16T02:06:21.7247691Z    ✓ does not turn a rejected side context into project facts after catching Git denial  637ms
+2026-11-16T02:06:21.7831430Z  ✓ tests/plan-extension-v3.test.ts (11 tests) 3119ms
+2026-11-16T02:06:21.7833588Z      ✓ reaches task events beyond a page of unrelated events  2316ms
+2026-11-16T02:06:22.2129061Z  ✓ tests/desktop-updater.test.ts (25 tests) 186ms
+2026-11-16T02:06:24.5881415Z  ✓ tests/operation-queue.test.ts (6 tests) 2048ms
+2026-11-16T02:06:24.5883208Z    ✓ does not revive a queued effect after Stop replaces its cancellation owner  344ms
+2026-11-16T02:06:24.5885620Z    ✓ revalidates withdrawn approval after queue entry and releases the next slot  379ms
+2026-11-16T02:06:24.5887627Z    ✓ retires an operation-only owner after execution while preserving its durable receipt hold  347ms
+2026-11-16T02:06:24.5889626Z    ✓ an old queued owner and stale settlement cannot retire the second run controller  478ms
+2026-11-16T02:06:24.8388701Z  ✓ tests/research-artifacts.test.ts (10 tests) 2247ms
+2026-11-16T02:06:24.8389999Z    ✓ enforces CAS and idempotent receipts without overwriting old revisions or duplicating events  304ms
+2026-11-16T02:06:24.8391168Z    ✓ persists full revisioned findings separately and marks old citations stale after source changes and restart  371ms
+2026-11-16T02:06:24.8392828Z    ✓ annotates many citations from metadata without repeatedly reading raw materials  363ms
+2026-11-16T02:06:28.3389412Z  ✓ tests/agent-input-v3.test.ts (12 tests) 3418ms
+2026-11-16T02:06:28.3390992Z      ✓ bounding: oversized text and over-full queues are rejected, never truncated  407ms
+2026-11-16T02:06:28.3392524Z      ✓ rejects spoofed senders, unknown recipients, oversized text and cap overflow  1826ms
+2026-11-16T02:06:28.8196452Z  ✓ tests/update-readiness.test.ts (13 tests) 3287ms
+2026-11-16T02:06:28.8198463Z    ✓ completed task returns to update idle after settlement and delivery drain  341ms
+2026-11-16T02:06:28.8218251Z    ✓ a second run returns to idle and ignores stale first-run settlement  422ms
+2026-11-16T02:06:28.8219656Z    ✓ settlement waits for the runtime start call to drain  349ms
+2026-11-16T02:06:28.8221364Z    ✓ held native cancellation stays non-idle until confirmed after foreground settlement  378ms
+2026-11-16T02:06:28.8223302Z    ✓ rejected native cancellation retains its readiness hold after stale settlement  334ms
+2026-11-16T02:06:29.3157326Z  ✓ tests/project-trust-v3.test.ts (9 tests) 632ms
+2026-11-16T02:06:29.3159236Z    ✓ reading an ordinary granted text file still works while execution approval stays distinct  538ms
+2026-11-16T02:06:29.6976387Z  ✓ tests/split-workspace-layout.test.ts (14 tests) 61ms
+2026-11-16T02:06:31.6999042Z  ✓ tests/project-memory-v3.test.ts (10 tests) 2455ms
+2026-11-16T02:06:31.7001118Z    ✓ connects host revisions to local recall and a reference index without reviving corrected or forgotten text  706ms
+2026-11-16T02:06:31.7003100Z    ✓ opens the exact reference when identical source bytes came from distinct messages  308ms
+2026-11-16T02:06:31.7004980Z    ✓ allows disabling project memory after a selected source conversation becomes ineligible  524ms
+2026-11-16T02:06:35.4494227Z  ✓ tests/attention.test.ts (10 tests) 3422ms
+2026-11-16T02:06:35.4495880Z      ✓ seeds an existing inbox without replaying historical notifications  340ms
+2026-11-16T02:06:35.4497618Z      ✓ keeps reading and popup dismissal independent from an unanswered request  398ms
+2026-11-16T02:06:35.4500479Z      ✓ claims a new notification once across reopened repositories and replayed reads  301ms
+2026-11-16T02:06:35.4503732Z      ✓ reflects a canonical resolution instead of retaining an actionable stale request  359ms
+2026-11-16T02:06:35.4505414Z      ✓ rejects removed ownership and cannot turn read into operation approval  333ms
+2026-11-16T02:06:35.4517849Z      ✓ uses exact completed-run identity and preserves read state across title updates  300ms
+2026-11-16T02:06:35.4520449Z      ✓ records a real settled response that returns to ready and retains it during later work  304ms
+2026-11-16T02:06:35.4522287Z      ✓ treats a later canonical operation failure as new attention without approving it  441ms
+2026-11-16T02:06:35.4523959Z    ✓ retains established completion identities across a large inbox refresh  372ms
+2026-11-16T02:06:35.5683239Z  ✓ tests/memory-source-reuse-v3.test.ts (14 tests) 5489ms
+2026-11-16T02:06:35.5685402Z    ✓ reuses the original immutable capture across unchanged settled-cut retries without extra source copies or events  527ms
+2026-11-16T02:06:35.5687251Z    ✓ reuses exact captures even at the retained-source limit  426ms
+2026-11-16T02:06:35.5689109Z    ✓ captures a new exact revision when source evidence changes: {"content":"Use PostgreSQL for project persistence."}  404ms
+2026-11-16T02:06:35.5691394Z    ✓ captures a new exact revision when source evidence changes: {"createdAt":"2020-01-01T00:00:00.000Z"}  330ms
+2026-11-16T02:06:35.5693435Z    ✓ does not reuse a prior account capture after the source thread changes account ownership  602ms
+2026-11-16T02:06:35.5695363Z    ✓ does not reuse retained evidence after the owning thread moves to another project  442ms
+2026-11-16T02:06:35.5698550Z    ✓ checks retained plaintext instead of trusting matching revision-index metadata  475ms
+2026-11-16T02:06:35.5700499Z    ✓ cannot reuse a retained source after Forget excludes its content digest  555ms
+2026-11-16T02:06:35.5702740Z    ✓ reuses only the original authorized FILE capture and its exact private grant metadata  460ms
+2026-11-16T02:06:35.5704544Z    ✓ creates a fresh FILE reference after an authorized content change  529ms
+2026-11-16T02:06:36.1080745Z  ✓ tests/conversation-read-api.test.ts (22 tests) 283ms
+2026-11-16T02:06:37.0810080Z  ✓ tests/skills-http.test.ts (3 tests) 629ms
+2026-11-16T02:06:38.0621901Z  ✓ tests/hermes-broker.test.ts (6 tests) 590ms
+2026-11-16T02:06:38.3593858Z  ✓ tests/task-table-controls.test.ts (12 tests) 16ms
+2026-11-16T02:06:40.0084081Z  ✓ tests/cursor-git-boundary.test.ts (4 tests) 1112ms
+2026-11-16T02:06:40.0085899Z    ✓ reestablishes the actual worker cwd boundary before importing the SDK  766ms
+2026-11-16T02:06:40.5576391Z  ✓ tests/integration-host.test.ts (8 tests) 3617ms
+2026-11-16T02:06:40.5577653Z    ✓ captures profile defaults for an active run and explicit disable revokes those grants  419ms
+2026-11-16T02:06:40.5578622Z    ✓ drains an ended run child and releases its captured preferences  1086ms
+2026-11-16T02:06:40.5579679Z    ✓ drains the previous private Context7 child before committing a changed key and starts replacement lazily  1581ms
+2026-11-16T02:06:40.6553614Z  ✓ tests/task-interface.test.ts (8 tests) 40ms
+2026-11-16T02:06:41.5072842Z  ✓ tests/hermes-desktop-assets.test.ts (9 tests) 631ms
+2026-11-16T02:06:41.9285362Z  ✓ tests/memory-storage-boundary-v3.test.ts (9 tests | 2 skipped) 76ms
+2026-11-16T02:06:42.7560601Z  ✓ tests/cursor-sdk-mcp-metadata.test.ts (4 tests) 1835ms
+2026-11-16T02:06:42.7562556Z    ✓ self-tests child transport denial and parent broker rejection without importing the SDK  635ms
+2026-11-16T02:06:42.7565089Z    ✓ observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport  1159ms
+2026-11-16T02:06:43.9916501Z  ✓ tests/memory-extraction-native-v3.test.ts (8 tests) 1376ms
+2026-11-16T02:06:43.9918842Z    ✓ keeps the actual native extraction transcript in memory with no session artifact  1316ms
+2026-11-16T02:06:44.9613052Z  ✓ tests/plugin-journal.test.ts (6 tests) 721ms
+2026-11-16T02:06:46.4036332Z  ✓ tests/official-runtime-service.test.ts (1 test) 531ms
+2026-11-16T02:06:46.4038874Z    ✓ continues a durable host decision in the same official session through real Service callbacks and authenticated MCP  529ms
+2026-11-16T02:06:52.0469229Z  ✓ tests/hermes-client.test.ts (13 tests) 8914ms
+2026-11-16T02:06:52.0473045Z    ✓ preserves Unicode through chunked replies and resolves concurrent request IDs independently  710ms
+2026-11-16T02:06:52.0476429Z    ✓ uses an isolated home and does not pass provider credentials to Python  710ms
+2026-11-16T02:06:52.0479054Z    ✓ awaits owned host callbacks and returns their results over the private channel  640ms
+2026-11-16T02:06:52.0481008Z    ✓ forwards source events without inventing entry or settlement events  715ms
+2026-11-16T02:06:52.0490713Z    ✓ fails pending requests safely on malformed worker output  687ms
+2026-11-16T02:06:52.0492498Z    ✓ closes its worker and revokes unanswered requests when disposed  547ms
+2026-11-16T02:06:52.0495633Z    ✓ rejects redirected or multiply linked source storage: home  989ms
+2026-11-16T02:06:52.0497566Z    ✓ rejects redirected or multiply linked source storage: nested  773ms
+2026-11-16T02:06:52.0500719Z    ✓ rejects redirected or multiply linked source storage: hardlink  864ms
+2026-11-16T02:06:52.0506959Z    ✓ drains owned host callbacks even when process cancellation fails  1050ms
+2026-11-16T02:06:52.0508764Z    ✓ treats a denied host callback as an ordinary tool result during teardown  1061ms
+2026-11-16T02:06:55.6507492Z  ✓ tests/overlay-motion.test.ts (17 tests) 8452ms
+2026-11-16T02:06:55.6509013Z      ✓ keeps cards opaque when focus interrupts an exit at 1024px  1794ms
+2026-11-16T02:06:55.6510459Z      ✓ keeps cards opaque when focus interrupts an exit at 1440px  495ms
+2026-11-16T02:06:55.6511674Z      ✓ full backdrop animation at 768px  313ms
+2026-11-16T02:06:55.6512779Z      ✓ panels-off backdrop animation at 1440px  430ms
+2026-11-16T02:06:56.3283952Z  ✓ tests/frontend-schema-validator.test.ts (6 tests) 257ms
+2026-11-16T02:06:56.8135435Z  ✓ tests/workspace-native-transaction.test.ts (7 tests) 19ms
+2026-11-16T02:06:57.3092637Z  ✓ tests/desktop-display-layout.test.ts (10 tests) 16ms
+2026-11-16T02:06:58.3452558Z  ✓ tests/content-motion.test.ts (5 tests) 5097ms
+2026-11-16T02:06:58.3453549Z      ✓ animates attachment chips out before unmounting  1631ms
+2026-11-16T02:06:58.3454395Z      ✓ does not resurrect an attachment removed while motion was reduced  516ms
+2026-11-16T02:06:58.3457891Z      ✓ animates native details disclosure via ::details-content  579ms
+2026-11-16T02:06:58.3459484Z      ✓ gives tab panels and arriving messages an entrance  485ms
+2026-11-16T02:06:58.3462759Z      ✓ plays the workspace panel exit before unmount  619ms
+2026-11-16T02:06:58.5614869Z  ✓ tests/task-memory.test.ts (3 tests) 414ms
+2026-11-16T02:06:58.9207361Z  ✓ tests/split-layout-profile-actions.test.ts (8 tests) 14ms
+2026-11-16T02:06:59.4292807Z  ✓ tests/official-history-ownership.test.ts (3 tests) 440ms
+2026-11-16T02:06:59.4293920Z    ✓ routes the real Claude history helper through the owned spawn and waits for its completion  321ms
+2026-11-16T02:06:59.7926388Z  ✓ tests/code-review-reader.test.ts (16 tests) 537ms
+2026-11-16T02:06:59.7927742Z    ✓ bounds complete local hashing before reading an oversized sparse file  519ms
+2026-11-16T02:07:00.1487525Z  ✓ tests/work-objects.test.ts (7 tests) 20ms
+2026-11-16T02:07:00.4199150Z  ✓ tests/account-auth.test.ts (7 tests) 457ms
+2026-11-16T02:07:00.4831140Z  ✓ tests/interactions-catalog.test.ts (6 tests) 26ms
+2026-11-16T02:07:01.0857710Z  ✓ tests/plugin-visuals-retirement.test.ts (1 test) 182ms
+2026-11-16T02:07:01.3539532Z  ✓ tests/settings-supported.test.ts (6 tests) 49ms
+2026-11-16T02:07:01.5259423Z  ✓ tests/agents-workspace-transport.test.ts (3 tests) 180ms
+2026-11-16T02:07:02.2493487Z  ✓ tests/attention-boundaries.test.ts (4 tests) 209ms
+2026-11-16T02:07:02.6182390Z  ✓ tests/plan-service-lifecycle-integration.test.ts (5 tests) 494ms
+2026-11-16T02:07:02.6554532Z  ✓ tests/environment-settings.test.ts (11 tests) 79ms
+2026-11-16T02:07:03.0291300Z  ✓ tests/native-persistence.test.ts (6 tests) 14ms
+2026-11-16T02:07:03.4170786Z  ✓ tests/workspace-native-layout.test.ts (5 tests) 11ms
+2026-11-16T02:07:04.9022747Z  ✓ tests/shell-settings-bootstrap.test.ts (2 tests) 462ms
+2026-11-16T02:07:04.9031931Z    ✓ loads safe shell presentation without reading a global snapshot or transcript  325ms
+2026-11-16T02:07:05.3206293Z  ✓ tests/skill-catalog-api.test.ts (7 tests) 58ms
+2026-11-16T02:07:05.5897728Z  ✓ tests/conversation-find.test.ts (5 tests) 11ms
+2026-11-16T02:07:05.6267460Z  ✓ tests/context-measurement.test.ts (2 tests) 2775ms
+2026-11-16T02:07:05.6269143Z    ✓ measures the HTML-referenced entry rather than a retained older bundle  1041ms
+2026-11-16T02:07:05.6270872Z    ✓ writes a new requested receipt without replacing historical or existing output  1731ms
+2026-11-16T02:07:05.9711433Z  ✓ tests/exploration-catalog.test.ts (4 tests) 37ms
+2026-11-16T02:07:06.2228110Z  ✓ tests/preferences-presentation.test.ts (3 tests) 47ms
+2026-11-16T02:07:06.2511498Z  ✓ tests/native-browser-bounds.test.ts (5 tests) 10ms
+2026-11-16T02:07:06.6068859Z  ✓ tests/capture-ui/browser-data.test.ts (5 tests) 15ms
+2026-11-16T02:07:06.8615331Z  ✓ tests/motion-policy.test.ts (11 tests) 14ms
+2026-11-16T02:07:07.1384737Z  ✓ tests/desktop-shutdown-send.test.ts (4 tests) 11ms
+2026-11-16T02:07:07.6425436Z  ✓ tests/floating-layout.test.ts (4 tests) 10ms
+2026-11-16T02:07:07.9971296Z  ✓ tests/event-stream-fairness.test.ts (2 tests) 62ms
+2026-11-16T02:07:08.3379471Z  ✓ tests/plugin-workspaces.test.ts (2 tests) 12ms
+2026-11-16T02:07:08.5720177Z  ✓ tests/floating-order.test.ts (5 tests) 7ms
+2026-11-16T02:07:08.7982256Z  ✓ tests/motion-spring.test.ts (2 tests) 6ms
+2026-11-16T02:07:09.3671348Z  ✓ tests/table-overflow.test.ts (1 test) 2371ms
+2026-11-16T02:07:09.3673131Z      ✓ detects overflow when a wide table mounts after the container  643ms
+2026-11-16T02:07:09.7470569Z  ✓ tests/appearance-draft.test.ts (4 tests) 6ms
+2026-11-16T02:07:10.2512005Z  ✓ tests/desktop-plugin-catalog.test.ts (3 tests) 14ms
+2026-11-16T02:07:10.2991004Z  ✓ tests/m01-m02-compatibility.test.ts (2 tests) 14ms
+2026-11-16T02:07:10.5085221Z  ✓ tests/agents-project-catalog.test.ts (4 tests) 7ms
+2026-11-16T02:07:10.6404110Z  ✓ tests/portable-verification.test.ts (2 tests) 35ms
+2026-11-16T02:07:10.8697362Z  ✓ tests/skill-catalog-display-metadata.test.ts (5 tests) 7ms
+2026-11-16T02:07:10.9030806Z  ✓ tests/desktop-builder-minimatch.test.ts (1 test) 27ms
+2026-11-16T02:07:11.2150194Z  ✓ tests/api-response-cap.test.ts (2 tests) 118ms
+2026-11-16T02:07:11.2215620Z 
+2026-11-16T02:07:11.2222678Z  Test Files  90 passed (90)
+2026-11-16T02:07:11.2232213Z       Tests  922 passed | 2 skipped (924)
+2026-11-16T02:07:11.2233304Z    Start at  02:03:38
+2026-11-16T02:07:11.2236588Z    Duration  213.04s (transform 5.73s, setup 0ms, import 27.01s, tests 378.38s, environment 13ms)
+2026-11-16T02:07:11.2238502Z 

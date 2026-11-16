@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43776992693,
+  "runAttempt": 1,
+  "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43776992693",
+  "workflow": {
+    "id": 419511027,
+    "name": "M05 native Save diagnostic",
+    "path": ".github/workflows/m05-native-save-diagnostic.yml",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-11-15T23:50:47Z",
+    "updatedAt": "2026-11-15T23:52:53Z",
+    "runStartedAt": "2026-11-15T23:50:47Z"
+  },
+  "headSha": "d29cbd5014863b709cd85c5e29f59740fbfc7b3e",
+  "headBranch": "agent/m05-native-save-diagnostic-43760736519",
+  "treeSha": "badf6ae95cc38c263431be95f0cb6b0e729a386f",
+  "testedCheckout": {
+    "commitSha": "d29cbd5014863b709cd85c5e29f59740fbfc7b3e",
+    "treeSha": "badf6ae95cc38c263431be95f0cb6b0e729a386f",
+    "parents": [
+      "968df4dd910a2296ad2899dfa040db1244c3159e"
+    ]
+  },
+  "scope": "Policy command PASS with exact production export admission, all six native phases and fixed 634-byte file/hash. Direct command remains FAIL at the independent read-only observer after its own successful exact six-phase fixed-byte Save. No installed-retention proof is claimed.",
+  "result": {
+    "jobSuccesses": 1,
+    "jobFailures": 1,
+    "commands": 2,
+    "commandPasses": 1,
+    "commandFailures": 1,
+    "fullInstalledAcceptance": false,
+    "laneSources": [
+      {
+        "lane": "direct",
+        "passed": false,
+        "helperChanged": true,
+        "helperSha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+        "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+      },
+      {
+        "lane": "policy",
+        "passed": true,
+        "helperChanged": true,
+        "helperSha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+        "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+      }
+    ]
+  },
+  "jobs": [
+    {
+      "id": 133005417877,
+      "name": "Native Save diagnostic (direct)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T23:50:49Z",
+      "completedAt": "2026-11-15T23:51:58Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133005417877/logs",
+      "rawLogBytes": 58710,
+      "rawLogDigest": "6fab0a4f094c2251a29a19021bb08cb483c04cb21caf2a8c8e3d1b7e222ae74d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-133005417877.log",
+      "logDigest": "f5ec5b115a5f194ddb057deb0352dcf2453fd1082c303a83ee7542c02e39dd80",
+      "logBytes": 58319,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/direct-receipt.json",
+        "bytes": 18702,
+        "sha256": "33c0839ef86ddab3afad52ad9589bfc87a908b144912dd51515c7ed7b3582281",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": true,
+      "nativeStatus": "completed",
+      "failure": {
+        "stage": "terminal-observations",
+        "error": "Diagnostic boundary failed; inspect the bounded stage metadata."
+      },
+      "saved": {
+        "bytes": 634,
+        "sha256": "905d70a960f8c2703222f1b4d10a9a64a0ddd82c36115220957f1d26dd94b387",
+        "canonicalFilename": "project-memory-diagnostic_project.json"
+      }
+    },
+    {
+      "id": 133005418175,
+      "name": "Native Save diagnostic (policy)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T23:50:50Z",
+      "completedAt": "2026-11-15T23:52:52Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133005418175/logs",
+      "rawLogBytes": 142167,
+      "rawLogDigest": "ab4fb881ace8f390053a0900e8962c7e269aaefbbe515cb56cbbbf0818b385f2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-133005418175.log",
+      "logDigest": "21e6918ae1106fc654426e25a17aeca9279f1f46f13eabeee43403ab3c224219",
+      "logBytes": 65536,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF",
+        "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/policy-receipt.json",
+        "bytes": 79689,
+        "sha256": "60272d77449289b15c1b1123a6e14e2ad887c6ddee97979015726646dbdb58ac",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": true,
+      "nativeStatus": "completed",
+      "failure": null,
+      "saved": {
+        "bytes": 634,
+        "sha256": "905d70a960f8c2703222f1b4d10a9a64a0ddd82c36115220957f1d26dd94b387",
+        "canonicalFilename": "project-memory-diagnostic_project.json"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "direct"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T23:51:38Z",
+      "endedAt": "2026-11-15T23:51:54Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-a1-j133005417877-s4-direct.log",
+      "logDigest": "47249af8b73b32db763aa0f228e17d25e0496ac58380bdf46a67ecd3b1325f3f"
+    },
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "policy"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T23:51:57Z",
+      "endedAt": "2026-11-15T23:52:46Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-a1-j133005418175-s4-policy.log",
+      "logDigest": "83a345f3ba6093a8bc1798fa99e291c12ae3c5b52558396983e0e20061306455"
+    }
+  ],
+  "metadata": {
+    "run": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/run-api.json",
+      "bytes": 12451,
+      "sha256": "d5104e4a79d403e3747efcca74b322687117b94acbb9635c2fc23c43ee6b5705"
+    },
+    "jobs": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/jobs-api.json",
+      "bytes": 4698,
+      "sha256": "df3118546d612f5fe3f50c49768ef712cd0613928e72cb64c295325525f9c307"
+    },
+    "checkout": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/checkout-api.json",
+      "bytes": 1186,
+      "sha256": "f08b95ba41c339c3504d319bec4bc941e20adaf2d8c40bd74e129ddfd25393de"
+    },
+    "artifacts": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43776992693/artifacts-api.json",
+      "bytes": 1505,
+      "sha256": "c6e43da3c94423f363a4624848c56e2da82293a94bf781e7066cfb13c0912bd4"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14187155389,
+      "name": "native-save-policy-43776992693-1",
+      "bytes": 5043,
+      "digest": "sha256:8d15223fefa7f35dc0088e7ff317020696caebde5e4f30d358ccf1b937a1f1e6",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    },
+    {
+      "id": 14186269466,
+      "name": "native-save-direct-43776992693-1",
+      "bytes": 3047,
+      "digest": "sha256:230291e654875f4ae6f43c9552544c78acba82ccb1b8bc0a464d4eab41ae6f3b",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    }
+  ],
+  "limitations": [
+    "An actual failure remains FAIL, including intentional reproductions.",
+    "Each lane receipt separately identifies dispatch, controls, Save and completion outcomes. A failed command is not full-suite success.",
+    "This isolated fixture does not establish installed retention, restart, enabled memory operation or live-provider quality."
+  ]
+}

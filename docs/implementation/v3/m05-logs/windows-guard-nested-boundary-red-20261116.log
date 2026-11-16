@@ -1,0 +1,33 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/file-access-startup.test.ts (9 tests | 1 failed) 28ms
+   × ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/file-access-startup.test.ts > ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/file-access-startup.test.ts:78:30
+     76|   expect(observed.settled()).toBe(false);
+     77|   await vi.advanceTimersByTimeAsync(1);
+     78|   expect(observed.settled()).toBe(true);
+       |                              ^
+     79|   expect((await observed.result).error).toMatchObject({ code: 'CAPABIL…
+     80|   expect(nested).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  09:58:18
+   Duration  494ms (transform 137ms, setup 0ms, import 255ms, tests 28ms, environment 0ms)
+

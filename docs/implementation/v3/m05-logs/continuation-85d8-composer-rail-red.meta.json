@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/frontend-refinement.playwright.config.ts",
+      "tests/e2e/composer-app-refinement.spec.ts",
+      "tests/e2e/reserved-rail.spec.ts",
+      "--grep",
+      "attachment band exists.*no-preference|workspace artifact stays|minimized summaries retain",
+      "--reporter=list"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:10:07.890228+00:00",
+    "endedAt": "2026-11-15T23:10:41.903326+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-red.log",
+    "logDigest": "853978d29186215f8bf1a3e8e8e85ec8b6b38503fb0f94fdd2b4b79f3f9fc368"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "b778b26d504c240624e32844c79c202ef4c032dee459d92f83ca96df4548f8b6",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 33973,
+  "rawOutputBytes": 11216,
+  "rawOutputSha256": "853978d29186215f8bf1a3e8e8e85ec8b6b38503fb0f94fdd2b4b79f3f9fc368",
+  "excerptInputBytes": 11216,
+  "excerptInputSha256": "853978d29186215f8bf1a3e8e8e85ec8b6b38503fb0f94fdd2b4b79f3f9fc368",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

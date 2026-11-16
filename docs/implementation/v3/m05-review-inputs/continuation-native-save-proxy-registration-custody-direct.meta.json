@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-proxy-repair",
+  "startedAt": "2026-11-15T22:24:18.718464+00:00",
+  "endedAt": "2026-11-15T22:24:19.991369+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "logPath": "/workspace/scratch/36f66011d961/m05-native-save-proxy-repair/continuation-native-save-proxy-registration-custody-direct.log",
+  "logBytes": 1476,
+  "logDigest": "5b3c54ea7757531bbe80c89693c4e025a345b852515795568926233a92f2d055",
+  "scope": "Existing seven portable custody tests against candidate helper using direct pinned repository Vitest executable; no Windows native execution."
+}

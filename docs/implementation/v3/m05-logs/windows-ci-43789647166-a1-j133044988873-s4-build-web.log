@@ -1,0 +1,116 @@
+2026-11-16T02:03:17.0860621Z ##[group]Run pnpm build
+2026-11-16T02:03:17.0860966Z pnpm build
+2026-11-16T02:03:17.0933689Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T02:03:17.0934067Z env:
+2026-11-16T02:03:17.0934358Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T02:03:17.0934816Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:17.0935310Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T02:03:17.0935794Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:17.0936944Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:17.0937960Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:17.0938481Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T02:03:17.0938902Z ##[endgroup]
+2026-11-16T02:03:17.9313095Z 
+2026-11-16T02:03:17.9314912Z > gen-v1@0.6.5 build D:\a\Gen-V1\Gen-V1
+2026-11-16T02:03:17.9316014Z > node scripts/build.mjs
+2026-11-16T02:03:17.9316545Z 
+2026-11-16T02:03:18.0077102Z (node:9572) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+2026-11-16T02:03:18.0092250Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T02:03:18.8993203Z vite v7.3.7 building client environment for production...
+2026-11-16T02:03:18.9751122Z vite v7.3.7 building client environment for production...
+2026-11-16T02:03:18.9858767Z transforming...
+2026-11-16T02:03:19.0926778Z transforming...
+2026-11-16T02:03:22.4720372Z node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+2026-11-16T02:03:22.4721546Z 
+2026-11-16T02:03:22.4727206Z "// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+2026-11-16T02:03:22.4728689Z 
+2026-11-16T02:03:22.4730635Z in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-11-16T02:03:22.4739024Z node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+2026-11-16T02:03:22.4739859Z 
+2026-11-16T02:03:22.4741097Z "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+2026-11-16T02:03:22.4742659Z  * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+2026-11-16T02:03:22.4745631Z  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+2026-11-16T02:03:22.4746482Z 
+2026-11-16T02:03:22.4748486Z in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-11-16T02:03:23.5456937Z node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+2026-11-16T02:03:23.5457701Z 
+2026-11-16T02:03:23.5458384Z "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+2026-11-16T02:03:23.5459646Z  * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+2026-11-16T02:03:23.5460843Z  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+2026-11-16T02:03:23.5461545Z 
+2026-11-16T02:03:23.5463817Z in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-11-16T02:03:23.5537744Z node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+2026-11-16T02:03:23.5538462Z 
+2026-11-16T02:03:23.5539232Z "// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+2026-11-16T02:03:23.5539908Z 
+2026-11-16T02:03:23.5540914Z in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-11-16T02:03:28.0178198Z ✓ 1789 modules transformed.
+2026-11-16T02:03:29.0406432Z rendering chunks...
+2026-11-16T02:03:29.1305374Z computing gzip size...
+2026-11-16T02:03:29.2275539Z dist/plugin-runtime/assets/pdf-draft.worker-BsXEv1s_.js    438.34 kB
+2026-11-16T02:03:29.2277501Z dist/plugin-runtime/runtime.css                          1,055.85 kB │ gzip: 667.11 kB
+2026-11-16T02:03:29.2279907Z dist/plugin-runtime/runtime.js                           2,961.88 kB │ gzip: 959.30 kB
+2026-11-16T02:03:29.2281094Z ✓ built in 10.29s
+2026-11-16T02:03:29.8900487Z ✓ 2124 modules transformed.
+2026-11-16T02:03:30.6064506Z rendering chunks...
+2026-11-16T02:03:31.0361530Z computing gzip size...
+2026-11-16T02:03:31.1740082Z ../../dist/web/index.html                                                      0.55 kB │ gzip:   0.34 kB
+2026-11-16T02:03:31.1797229Z 
+2026-11-16T02:03:31.1799367Z ../../dist/web/assets/dancing-script-vietnamese-400-normal-lz8MlVep.woff2      4.94 kB
+2026-11-16T02:03:31.2079705Z (!) Some chunks are larger than 500 kB after minification. Consider:
+2026-11-16T02:03:31.2081528Z ../../dist/web/assets/dancing-script-vietnamese-400-normal-D2srOv8f.woff       6.72 kB
+2026-11-16T02:03:31.2255787Z - Using dynamic import() to code-split the application
+2026-11-16T02:03:31.2257504Z ../../dist/web/assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2             10.25 kB
+2026-11-16T02:03:31.2362345Z - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2026-11-16T02:03:31.2364600Z ../../dist/web/assets/inter-greek-ext-wght-normal-DlzME5K_.woff2              11.23 kB
+2026-11-16T02:03:31.2366088Z - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2026-11-16T02:03:31.2367628Z ../../dist/web/assets/dancing-script-latin-ext-400-normal-C917Kz-3.woff2      13.56 kB
+2026-11-16T02:03:31.2369481Z ../../dist/web/assets/dancing-script-latin-ext-400-normal-DaWfpMsu.woff       18.19 kB
+2026-11-16T02:03:31.2371256Z ../../dist/web/assets/caveat-latin-ext-400-normal-D7hBUiug.woff2              18.60 kB
+2026-11-16T02:03:31.2373306Z ../../dist/web/assets/inter-cyrillic-wght-normal-DqGufNeO.woff2               18.75 kB
+2026-11-16T02:03:31.2375047Z ../../dist/web/assets/inter-greek-wght-normal-CkhJZR-_.woff2                  19.00 kB
+2026-11-16T02:03:31.2376745Z ../../dist/web/assets/dancing-script-latin-400-normal--YrtvvVF.woff2          23.82 kB
+2026-11-16T02:03:31.2378281Z ../../dist/web/assets/caveat-latin-ext-400-normal-DtiRFvw0.woff               24.09 kB
+2026-11-16T02:03:31.2379948Z ../../dist/web/assets/caveat-cyrillic-ext-400-normal-3iEGd-c5.woff2           24.23 kB
+2026-11-16T02:03:31.2382597Z ../../dist/web/assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2           25.96 kB
+2026-11-16T02:03:31.2383769Z ../../dist/web/assets/dancing-script-latin-400-normal-BY5FxJb0.woff           29.13 kB
+2026-11-16T02:03:31.2385425Z ../../dist/web/assets/caveat-cyrillic-ext-400-normal-Cg0RnRQ5.woff            29.73 kB
+2026-11-16T02:03:31.2387166Z ../../dist/web/assets/caveat-cyrillic-400-normal-9cDH9rLW.woff2               45.12 kB
+2026-11-16T02:03:31.2388870Z ../../dist/web/assets/inter-latin-wght-normal-Dx4kXJAl.woff2                  48.26 kB
+2026-11-16T02:03:31.2390824Z ../../dist/web/assets/caveat-latin-400-normal-D6LQsQ_v.woff2                  48.84 kB
+2026-11-16T02:03:31.2392492Z ../../dist/web/assets/caveat-cyrillic-400-normal-CebvvJET.woff                53.10 kB
+2026-11-16T02:03:31.2394711Z ../../dist/web/assets/caveat-latin-400-normal-BzhAQZkN.woff                   60.11 kB
+2026-11-16T02:03:31.2396403Z ../../dist/web/assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2              85.07 kB
+2026-11-16T02:03:31.2398017Z ../../dist/web/assets/pdf-draft.worker-BsXEv1s_.js                           438.34 kB
+2026-11-16T02:03:31.2399485Z ../../dist/web/assets/pdf.worker.min-Dkey6ZUl.mjs                          1,321.31 kB
+2026-11-16T02:03:31.2401153Z ../../dist/web/assets/SignaturePad-DAcKZblR.css                                2.68 kB │ gzip:   0.65 kB
+2026-11-16T02:03:31.2403024Z ../../dist/web/assets/xterm-DDGTF8rc.css                                       3.62 kB │ gzip:   0.99 kB
+2026-11-16T02:03:31.2404782Z ../../dist/web/assets/ImageCompare-RPgQ1nt1.css                                3.69 kB │ gzip:   1.19 kB
+2026-11-16T02:03:31.2406683Z ../../dist/web/assets/Settings-D5NFxjvA.css                                    5.44 kB │ gzip:   1.43 kB
+2026-11-16T02:03:31.2408478Z ../../dist/web/assets/EverydayData-73YFHHqC.css                                9.21 kB │ gzip:   2.16 kB
+2026-11-16T02:03:31.2410405Z ../../dist/web/assets/InteractionTools-DVgicenx.css                           13.41 kB │ gzip:   2.89 kB
+2026-11-16T02:03:31.2412203Z ../../dist/web/assets/ExplorationTools-nl79hqvf.css                           13.54 kB │ gzip:   3.06 kB
+2026-11-16T02:03:31.2414419Z ../../dist/web/assets/SoftwareDevelopment-w-F-TgOD.css                        14.19 kB │ gzip:   3.09 kB
+2026-11-16T02:03:31.2416321Z ../../dist/web/assets/WorkObjects-Bhzs1ppu.css                                14.84 kB │ gzip:   3.28 kB
+2026-11-16T02:03:31.2418131Z ../../dist/web/assets/index-Cr4WvPTJ.css                                      44.14 kB │ gzip:   9.97 kB
+2026-11-16T02:03:31.2419946Z ../../dist/web/assets/DesktopEntry-C4pii4Mc.css                              259.08 kB │ gzip:  45.38 kB
+2026-11-16T02:03:31.2421803Z ../../dist/web/assets/pdf.worker.min-OGYDhRwp.js                               0.07 kB │ gzip:   0.09 kB
+2026-11-16T02:03:31.2423667Z ../../dist/web/assets/chevron-left-NINhwUGv.js                                 0.13 kB │ gzip:   0.14 kB
+2026-11-16T02:03:31.2425734Z ../../dist/web/assets/focus-CylL_KTS.js                                        0.34 kB │ gzip:   0.23 kB
+2026-11-16T02:03:31.2427545Z ../../dist/web/assets/addon-fit-DX4qG4td.js                                    1.21 kB │ gzip:   0.51 kB
+2026-11-16T02:03:31.2429417Z ../../dist/web/assets/CompactSettings-DFZRwpX2.js                              3.34 kB │ gzip:   1.39 kB
+2026-11-16T02:03:31.2431665Z ../../dist/web/assets/ImageCompare-CtOQ73Ql.js                                 6.27 kB │ gzip:   2.53 kB
+2026-11-16T02:03:31.2433799Z ../../dist/web/assets/SignaturePad-DNM_QSgr.js                                11.97 kB │ gzip:   4.85 kB
+2026-11-16T02:03:31.2435698Z ../../dist/web/assets/ProjectMemoryReview-CzjK1Tia.js                         15.83 kB │ gzip:   5.11 kB
+2026-11-16T02:03:31.2437587Z ../../dist/web/assets/EverydayData-BuXu7-le.js                                16.14 kB │ gzip:   5.71 kB
+2026-11-16T02:03:31.2439483Z ../../dist/web/assets/InteractionTools-3Kl7Wz77.js                            21.53 kB │ gzip:   7.14 kB
+2026-11-16T02:03:31.2441395Z ../../dist/web/assets/ExplorationTools-DvExlJq2.js                            21.98 kB │ gzip:   7.60 kB
+2026-11-16T02:03:31.2443305Z ../../dist/web/assets/SoftwareDevelopment-BNQW2Y1O.js                         24.49 kB │ gzip:   7.37 kB
+2026-11-16T02:03:31.2445247Z ../../dist/web/assets/DocumentPreview-DH1gvJVm.js                             25.19 kB │ gzip:   9.54 kB
+2026-11-16T02:03:31.2447129Z ../../dist/web/assets/WorkObjects-AKa08yi6.js                                 28.16 kB │ gzip:   9.57 kB
+2026-11-16T02:03:31.2448927Z ../../dist/web/assets/Settings-BlIkKpFt.js                                    67.32 kB │ gzip:  20.98 kB
+2026-11-16T02:03:31.2450699Z ../../dist/web/assets/index-BRkKIB06.js                                      194.76 kB │ gzip:  61.37 kB
+2026-11-16T02:03:31.2452759Z ../../dist/web/assets/xterm-B-qIQCd3.js                                      329.31 kB │ gzip:  83.04 kB
+2026-11-16T02:03:31.2454603Z ../../dist/web/assets/pdf-CL8ynlU4.js                                        495.58 kB │ gzip: 151.29 kB
+2026-11-16T02:03:31.2456175Z ../../dist/web/assets/DesktopEntry-Jr8pMMML.js                             1,096.15 kB │ gzip: 341.35 kB
+2026-11-16T02:03:31.2456858Z ✓ built in 12.15s

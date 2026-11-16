@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:54:24.497085+00:00",
+    "endedAt": "2026-11-15T23:54:26.426372+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-673-native-save-final-portable.log",
+    "logDigest": "92c919d28482cb4d39be18018676da437095cce79928bda55fa05131b80bf364"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "c6f9c397e25019ba7f83dc2e5eb080a672dea229",
+  "workingDiffSha256": "35215193899cec84e4a74643dd2e5cad504b0ea7b9340eede7e885a9d74ceb06",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 1914,
+  "rawOutputBytes": 228,
+  "rawOutputSha256": "92c919d28482cb4d39be18018676da437095cce79928bda55fa05131b80bf364",
+  "excerptInputBytes": 228,
+  "excerptInputSha256": "92c919d28482cb4d39be18018676da437095cce79928bda55fa05131b80bf364",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+  ]
+}

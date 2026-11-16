@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "build"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T22:48:05Z",
+    "endedAt": "2026-11-15T22:48:17Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43771171183-a1-j132987186101-s4-build-web.log",
+    "logDigest": "5421356523c70959abd9672bdfb3d3b161c08bb6e58c6139b881003462e1faf3"
+  },
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "runId": 43771171183,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+  "testedCheckout": {
+    "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "treeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "parents": [
+      "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "94b99a8132ed3703b5c253376af9be5b45039815"
+    ],
+    "matchesPublishedTree": false,
+    "matchesPublishedCommit": false,
+    "event": "pull_request",
+    "admissionStatus": "NOT_ADMITTED_FOR_94b",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "rawResponseSha256": "897bcc161a6f82e97c7f2df599000dcb52448751e8450cbeaab20e128fb09810"
+  },
+  "job": {
+    "id": 132987186101,
+    "name": "Tests (shard 4/4)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43771171183/job/132987186101",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001727,
+      "name": "GitHub Actions 1000001727",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Build web application",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 4,
+    "started_at": "2026-11-15T22:48:05Z",
+    "completed_at": "2026-11-15T22:48:17Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43771171183.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132987186101/logs",
+  "rawJobLogDigest": "b916bf87622a68d7f9c0eaa24f5e19c19843e59090c6007310a93d5b7ea9df4e",
+  "rawJobLogBytes": 112915,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      417,
+      532
+    ]
+  ],
+  "excerptInputSha256": "af3ca24353f83a63a79cdffd6cba54cf3daff1ade71ea21fd780abded510d310",
+  "excerptInputBytes": 15485,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 12600,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "pnpm build",
+  "receiptSha256": "8f556bb7964f46aa66982cefad102092d69711751d6b1a0443e9dd8bbcdd891d",
+  "admission": {
+    "status": "NOT_ADMITTED_FOR_94b",
+    "publishedHeadSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "publishedTreeSha": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "testedCheckoutSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "testedTreeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "reason": "The actual PR merge checkout includes reviewed accepted-main changes absent from the published source head.",
+    "reviewRef": "docs/implementation/v3/M05-ci-tree-drift-review-43771171183.json",
+    "reviewSha256": "3aa0ab296774c0d15611aae3983fec52360a40c206af771b9b2a02027b9fe3a2"
+  }
+}
