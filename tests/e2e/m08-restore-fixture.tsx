@@ -32,7 +32,7 @@ const adapter:FileCheckpointAdapter={available:true,
  restore:mode==='disabled'?disabledCheckpointAdapter.restore:{
   enabled:true,reason:'',
   plan:async(owner,cp,selected,approvalId)=>{calls.push({kind:'plan',paths:[...selected],approvalId});return storedPlan({id:'rst-fixture-1',owner,checkpointId:cp.id,selected,approvalId,state:'PREVIEW'});},
-  apply:async(owner,cp,planId,approvalId)=>{calls.push({kind:'apply',planId,approvalId});const planned=[...((calls.find(c=>c.kind==='plan')?.paths as string[])??[])];return storedPlan({id:planId,owner,checkpointId:cp.id,selected:planned,approvalId,state:mode==='conflict'?'CONFLICT':'APPLIED',conflicts:mode==='conflict'?['notes.txt']:[]});},
+  apply:async(owner,cp,planId,approvalId)=>{calls.push({kind:'apply',planId,approvalId});const planned=[...((calls.find(c=>c.kind==='plan')?.paths as string[])??[])];return storedPlan({id:planId,owner,checkpointId:cp.id,selected:planned,approvalId,state:mode==='conflict'?'CONFLICT':mode==='partial'?'PARTIAL_RECOVERY_REQUIRED':'APPLIED',conflicts:mode==='conflict'?['notes.txt']:[]});},
  },
 };
 function Fixture(){

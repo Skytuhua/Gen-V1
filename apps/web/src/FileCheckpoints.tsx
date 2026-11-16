@@ -80,7 +80,7 @@ function RestoreResult({done,onBack,onReviewAgain}:{done:RestoreDone;onBack:()=>
   useEffect(()=>{back.current?.focus();},[]);
   const applied=done.state==='APPLIED',conflict=done.state==='CONFLICT',partial=done.state==='PARTIAL_RECOVERY_REQUIRED';
   const title=applied?`Restored ${plural(done.restored.length,'file')}`:conflict?'Nothing was restored':partial?'Restore didn’t finish':'Restore stopped';
-  const note=applied?'Your previous versions were saved as a new checkpoint in History, so you can undo this.':conflict?'Some files changed after you opened this review, so no files were changed. Review again to see the latest differences.':partial?'Some files were restored and others weren’t. Check the files below before you keep working.':'No files were changed. Review again to try once more.';
+  const note=applied?'Your previous versions were saved as a new checkpoint in History, so you can undo this.':conflict?'Some files changed after you opened this review, so no files were changed. Review again to see the latest differences.':partial?'We could not confirm which files were restored. Check the files and recovery checkpoint before retrying.':'No files were changed. Review again to try once more.';
   return <section aria-label="Checkpoint restore result" className="file-checkpoints-result" data-state={applied?'success':'warning'}>
     <button ref={back} type="button" className="file-checkpoints-back" onClick={onBack}><ChevronLeft size={14} aria-hidden="true"/>Back to History</button>
     <div className="file-checkpoints-result-head">{applied?<CheckCircle2 size={18} aria-hidden="true"/>:<AlertTriangle size={18} aria-hidden="true"/>}<h3>{title}</h3></div>
