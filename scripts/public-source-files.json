@@ -758,7 +758,6 @@
     "scripts/public-source.ts",
     "scripts/record-autonomous-pi.ts",
     "scripts/record-centered-workspace.ts",
-    "scripts/record-chat-view-modes.ts",
     "scripts/record-expanded-review.ts",
     "scripts/record-genuine-pi.ts",
     "scripts/record-live-plan-continuation.ts",
