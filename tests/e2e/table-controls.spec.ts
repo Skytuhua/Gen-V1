@@ -27,6 +27,17 @@ async function drag(page: Page, source: { x: number; y: number }, destination: {
   await page.mouse.move(source.x, source.y); await page.mouse.down(); await page.mouse.move(destination.x, destination.y, { steps: 6 });
 }
 
+test('window blur cancels an active column resize', async ({ page }) => {
+  const snapshot = taskFixture(spec(), { rows }, { selected: ['a'] }); await serveTaskFixture(page, snapshot); await page.goto('/');
+  await page.locator('.task-table-resizer').first().waitFor();
+  const resize = separator(page), start = await resize.getAttribute('aria-valuenow'), box = (await resize.boundingBox())!;
+  await drag(page, { x: box.x + 12, y: box.y + 16 }, { x: box.x + 72, y: box.y + 16 });
+  await expect(page.locator('.task-table-resize-guide')).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await expect(page.locator('.task-table-resize-guide')).toHaveCount(0);
+  await page.mouse.up(); await expect(resize).toHaveAttribute('aria-valuenow', start!);
+});
+
 test('resize anchors the grid until release, cancels, fits on double-click and obeys keyboard bounds', async ({ page }) => {
   await open(page); const resize = separator(page), task = page.locator('th[data-column-key=task]');
   const start = Number(await resize.getAttribute('aria-valuenow')), box = (await resize.boundingBox())!, grid = (await task.boundingBox())!;
