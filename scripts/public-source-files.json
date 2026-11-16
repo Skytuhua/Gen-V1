@@ -1902,6 +1902,7 @@
     "tests/e2e/workbench-app.playwright.config.ts",
     "tests/e2e/workbench-app.spec.ts",
     "tests/e2e/workbench-fixture.tsx",
+    "tests/e2e/workbench-native-return-fixture.ts",
     "tests/e2e/workbench.playwright.config.ts",
     "tests/e2e/workbench.spec.ts",
     "tests/e2e/workbench.vite.config.ts",
