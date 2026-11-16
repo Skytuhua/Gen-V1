@@ -1,5 +1,6 @@
 import {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode} from 'react';
-import {createPortal} from 'react-dom';
+import {Modal} from '../../../packages/ui-shell/Modal';
+import {Select} from '../../../packages/ui-shell/Select';
 import type {Snapshot} from '../../../packages/contracts';
 import {WorkbenchRequestPanel,WorkbenchRunPanel} from './WorkbenchPanels';
 import {WorkbenchInputsPanel} from './WorkbenchInputsPanel';
@@ -11,7 +12,6 @@ import {
 } from '../../../packages/contracts/source-selection';
 import {SourceSelectionActions, type SourceSelectionAction, type VisibleSourceSelection} from './SourceSelectionActions';
 import {WorkbenchOutput} from './WorkbenchOutput';
-import {useModalRegion} from './focus';
 import {journalCompareAndSwap, journalReadRecord, journalSubscribe} from './journal';
 import {composeDraftContext, loadWorkbenchViews, prepareWorkbenchHandoff, readSourceDraft, saveWorkbenchView, sourceDraftKey, updateSourceDraft, type SourceDraftSnapshot} from './workbench-recovery';
 import {messageSelection, workbenchApi, type WorkbenchApi} from './workbench-api';
@@ -159,7 +159,7 @@ export function WorkbenchComposer({title,working=false,disabled=false}:{title:st
  const run=(action:()=>Promise<void>)=>{setLocalError('');void action().catch(cause=>setLocalError(messageOf(cause)));};
  return <section aria-label="Prompt source context">
   <div className="workbench-destination"><strong>Destination: {title}</strong><span>Current task</span><button type="button" disabled={disabled} onClick={()=>context.show()}>Sources and evidence</button>
-   <label>Delivery <select aria-label="Source delivery mode" disabled={disabled} value={context.draft?.sendMode??'NOW'} onChange={event=>run(()=>context.setMode(event.target.value as 'NOW'|'AFTER_CURRENT'))}><option value="NOW">Now</option><option value="AFTER_CURRENT" disabled={!context.enabled}>After current run</option></select></label>
+   <label>Delivery <Select aria-label="Source delivery mode" disabled={disabled} value={context.draft?.sendMode??'NOW'} onValueChange={value=>run(()=>context.setMode(value as 'NOW'|'AFTER_CURRENT'))} options={[{value:'NOW',label:'Now'},{value:'AFTER_CURRENT',label:'After current run',disabled:!context.enabled}]}/></label>
    {working&&<span>After current run queues this prompt without interrupting the active run.</span>}
   </div>
   {!context.enabled&&<p role="status">New source actions are disabled. Retained sources remain available to inspect or remove.</p>}
@@ -175,11 +175,10 @@ export function WorkbenchComposer({title,working=false,disabled=false}:{title:st
 }
 
 function WorkbenchDialog({initialTab,snapshot,owner,enabled,candidates,capabilities,selected,evidence,error,api,view,persistView,close,onSelect,attach,open,report}:{initialTab:PanelTab;snapshot?:Snapshot;owner:LogicalOwnerV1;enabled:boolean;candidates:SourceCandidateV1[];capabilities:SourceCapabilityV1[];selected?:SourceDescriptorV1|SourceOpenV1;evidence?:{items:WorkbenchEvidenceItemV1[];modules:WorkbenchModuleV1[]};error:string;api:WorkbenchApi;view?:WorkbenchViewV1;persistView:(type:'SOURCES'|'EVIDENCE',selectedItem?:string|null,anchor?:WorkbenchViewV1['scrollAnchor'])=>void;close:()=>void;onSelect:(candidate:SourceCandidateV1)=>Promise<void>;attach:(source:SelectedSourceV1,action:SourceSelectionAction)=>Promise<void>;open:(ref:SourceRefV1)=>Promise<void>;report:(cause:unknown)=>void}) {
- const region=useRef<HTMLElement>(null);useModalRegion(region,true,close,'[data-workbench-close]');
  const [tab,setTab]=useState<PanelTab>(initialTab);
  const [evidenceKind,setEvidenceKind]=useState('ALL');
- return createPortal(<div className="workbench-backdrop"><section ref={region} className="workbench-panel" role="dialog" aria-modal="true" aria-label="Sources and evidence" tabIndex={-1}>
-  <header><h2>Sources and evidence</h2><button type="button" data-workbench-close onClick={close}>Close</button></header><p>Task {owner.threadId} · Workspace {owner.workspaceId??'none'}</p>
+ return <Modal open title="Sources and evidence" onClose={close} className="workbench-panel">
+  <p>Task {owner.threadId} · Workspace {owner.workspaceId??'none'}</p>
   <nav aria-label="Workbench views"><button type="button" aria-pressed={tab==='request'} onClick={()=>setTab('request')}>Last request</button><button type="button" aria-pressed={tab==='tools'} onClick={()=>setTab('tools')}>Tools</button><button type="button" aria-pressed={tab==='run'} onClick={()=>setTab('run')}>Run</button><button type="button" aria-pressed={tab==='sources'} onClick={()=>{setTab('sources');persistView('SOURCES');}}>Sources</button><button type="button" aria-pressed={tab==='evidence'} onClick={()=>{setTab('evidence');persistView('EVIDENCE');}}>Evidence</button></nav>
   {error&&<p role="alert">{error}</p>}
   {tab==='evidence'&&!evidence&&!error&&<p role="status">Loading task evidence.</p>}
@@ -195,7 +194,7 @@ function WorkbenchDialog({initialTab,snapshot,owner,enabled,candidates,capabilit
    {evidence?.items.length===0&&<p>No evidence is recorded for this task.</p>}
    <h3>Module panels</h3>{evidence?.modules.map(module=><article key={module.id}><h4>{module.id}: {module.title}</h4><p>{module.state}{module.reason?`: ${module.reason}`:''}</p>{module.state==='AVAILABLE'&&module.href?.startsWith('/api/')&&<a href={module.href} target="_blank" rel="noreferrer">Open module record</a>}</article>)}
   </>:null}
- </section></div>,document.body);
+ </Modal>;
 }
 function RetainedSourceOutput({owner,source,api,view,persistView}:{owner:LogicalOwnerV1;source:SourceOpenV1;api:WorkbenchApi;view?:WorkbenchViewV1;persistView:(type:'SOURCES',selectedItem:string,anchor:WorkbenchViewV1['scrollAnchor'])=>void}) {
  const identity=useMemo(()=>({logicalOwner:owner,sourceId:source.ref.captureId,sourceRevision:source.ref.source.sourceRevision}),[ownerKey(owner),source.ref.captureId,source.ref.source.sourceRevision]);
@@ -218,7 +217,7 @@ function DescriptorSelection({descriptor,attach,report}:{descriptor:SourceDescri
  return <section><h3>{descriptor.label}</h3><p>Revision {descriptor.sourceRevision}</p>
   {locator.kind==='MESSAGE'?<SourceSelectionActions text={descriptor.text} enabled={!busy} onAction={(action,selection)=>run(action,selection)}><pre>{descriptor.text}</pre></SourceSelectionActions>:<WorkbenchOutput identity={{logicalOwner:descriptor.logicalOwner,sourceId:locator.sourceId,sourceRevision:descriptor.sourceRevision}} rows={rows} label="Source preview"/>}
   {locator.kind==='FILE_RANGE'&&<div className="workbench-source-actions"><label>First line <input type="number" min={1} max={lines.length} value={start} onChange={event=>setStart(event.target.valueAsNumber)}/></label><label>Last line <input type="number" min={start} max={lines.length} value={end} onChange={event=>setEnd(event.target.valueAsNumber)}/></label><span>Complete lines are captured.</span></div>}
-  {locator.kind==='DIFF_HUNK'&&<label>Diff hunk <select aria-label="Diff hunk" value={hunks.some(h=>h.start===start)?String(start):''} onChange={event=>{const hunk=hunks.find(h=>h.start===Number(event.target.value));if(hunk){setStart(hunk.start);setEnd(hunk.end);}}}><option value="" disabled>Select a complete hunk</option>{hunks.map(hunk=><option key={hunk.start} value={hunk.start}>{lines[hunk.start-1]}</option>)}</select></label>}
+  {locator.kind==='DIFF_HUNK'&&<label>Diff hunk <Select aria-label="Diff hunk" value={hunks.some(h=>h.start===start)?String(start):''} onValueChange={value=>{const hunk=hunks.find(h=>h.start===Number(value));if(hunk){setStart(hunk.start);setEnd(hunk.end);}}} options={[{value:'',label:'Select a complete hunk',disabled:true},...hunks.map(hunk=>({value:String(hunk.start),label:lines[hunk.start-1]}))]}/></label>}
   {locator.kind==='ARTIFACT_REGION'&&<label>JSON pointer within declared binding <input aria-label="Artifact JSON pointer" value={pointer} onChange={event=>setPointer(event.target.value)}/></label>}
   <div className="workbench-source-actions">{(['ask','attach','open'] as const).map((action,index)=><button key={action} type="button" disabled={busy||locator.kind==='DIFF_HUNK'&&!hunks.some(h=>h.start===start)} onClick={()=>{void run(action);}}>{['Ask about this','Attach to prompt','Open source'][index]}</button>)}</div>
  </section>;

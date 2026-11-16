@@ -1,5 +1,5 @@
 import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
-import {createPortal} from 'react-dom';
+import {Popover} from '../../../packages/ui-shell/Popover';
 import './source-workbench.css';
 export interface VisibleSourceSelection {start:number;end:number;text:string}
 export type SourceSelectionAction = 'ask'|'attach'|'open';
@@ -44,7 +44,7 @@ function visible(range:Range,root:HTMLElement):boolean {
 }
 interface Candidate extends VisibleSourceSelection {rect:DOMRect;range:Range;rendered:string}
 export function SourceSelectionActions({children,text,enabled,onAction,onOpenCanonical}:{text:string;enabled:boolean;onAction:(action:SourceSelectionAction,selection:VisibleSourceSelection)=>void|Promise<void>;onOpenCanonical?:()=>void|Promise<void>;children:ReactNode}) {
-  const root=useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),authored=useRef(''),latest=useRef({text,enabled,onAction,onOpenCanonical});
+  const root=useRef<HTMLDivElement>(null),wrap=useRef<HTMLDivElement>(null),mark=useRef<HTMLSpanElement>(null),toolbar=useRef<HTMLDivElement>(null),authored=useRef(''),latest=useRef({text,enabled,onAction,onOpenCanonical});
   latest.current={text,enabled,onAction,onOpenCanonical};
   const [candidate,setCandidate]=useState<Candidate|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const [exactRendering,setExactRendering]=useState(true);
@@ -89,11 +89,13 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     finally{if(version===revision.current)setBusy(false);}
   }
   const width=Math.min(430,Math.max(220,innerWidth-16));
-  return <div className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text">{children}</div>
+  const box=wrap.current?.getBoundingClientRect(),zoom=wrap.current?Number(getComputedStyle(wrap.current).zoom)||1:1;
+  return <div ref={wrap} className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text">{children}</div>
+    {candidate&&box&&<span ref={mark} aria-hidden="true" className="source-selection-anchor" style={{left:(candidate.rect.left-box.left)/zoom,top:(candidate.rect.top-box.top)/zoom,width:candidate.rect.width/zoom,height:candidate.rect.height/zoom}}/>}
     {enabled&&!exactRendering&&<p className="muted" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(cause instanceof Error?cause.message:'Canonical source is unavailable.');}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
-    {candidate&&enabled&&createPortal(<div ref={toolbar} data-escape-scope="source-selection" role="toolbar" aria-label="Selected source" className="source-selection-toolbar" style={{width,left:Math.max(8,Math.min(candidate.rect.left,innerWidth-width-8)),top:Math.max(8,Math.min(candidate.rect.top-60,innerHeight-100))}} onPointerDown={event=>event.preventDefault()}>
+    {candidate&&enabled&&<Popover anchor={mark} contentRef={toolbar} open width={width} height={error?96:48} preferredSide="above" align="start" role="toolbar" aria-label="Selected source" className="source-selection-toolbar" onPointerDown={event=>event.preventDefault()} onDismiss={()=>setCandidate(null)}>
       <button type="button" disabled={busy} onClick={()=>void act('ask')}>Ask about this</button><button type="button" disabled={busy} onClick={()=>void act('attach')}>Attach to prompt</button><button type="button" disabled={busy} onClick={()=>void act('open')}>Open source</button>
       {error&&<span role="alert">{error}</span>}
-    </div>,root.current?.closest('[role="dialog"]')??document.body)}
+    </Popover>}
   </div>;
 }
