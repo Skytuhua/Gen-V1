@@ -137,10 +137,10 @@ it('does not enter the action if cancelled while waiting for a valid startup rep
   expect(g.child.stdin.writableEnded).toBe(true);
 });
 
-it('keeps unrelated first acquisitions at fifteen seconds', async () => {
+it('keeps unrelated first acquisitions at thirty seconds', async () => {
   const g = guard(), action = vi.fn(async () => undefined);
   const observed = observe(withPathGuard([path], signal(), action));
-  await vi.advanceTimersByTimeAsync(14_999);
+  await vi.advanceTimersByTimeAsync(29_999);
   expect(observed.settled()).toBe(false);
   await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });

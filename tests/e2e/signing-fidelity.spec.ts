@@ -27,6 +27,20 @@ test('journal updates do not end an active signature stroke',async({page})=>{
  await page.mouse.move(box.x+box.width*.6,box.y+box.height*.5);await page.mouse.up();
  await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBeGreaterThan(2);
 });
+test('window blur ends a pointer stroke without accepting later movement',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ await canvas.evaluate(node=>{const rect=node.getBoundingClientRect();for(const x of [.3,.4])node.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:rect.left+rect.width*x,clientY:rect.top+rect.height*.5,bubbles:true}));window.dispatchEvent(new Event('blur'));});
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+ const before=await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL());
+ await page.mouse.move(box.x+box.width*.8,box.y+box.height*.5);await page.mouse.up();
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL())).toBe(before);
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+});
 test('a competing primary pointer cannot replace a signature stroke',async({page})=>{
  const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
  const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
