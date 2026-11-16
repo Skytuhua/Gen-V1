@@ -6,7 +6,8 @@ import {projectColor as sharedProjectColor} from './project-colors';
 interface Pending {resolve:(value:unknown)=>void;reject:(cause:Error)=>void;timer:ReturnType<typeof setTimeout>;cleanup:()=>void;blocksClose:boolean}
 const pending=new Map<string,Pending>();
 const editorGuards=new Map<string,()=>Promise<void>>();
-const journalIntents=new Map<string,{value:unknown}>(),journalWrites=new Map<string,Promise<void>>();
+type JournalIntent={value:unknown;identity:object};
+const journalIntents=new Map<string,JournalIntent>(),journalWrites=new Map<string,Promise<void>>(),journalReads=new Map<string,Set<{intent?:JournalIntent}>>();
 const surfaceListeners=new Set<(surface:PluginSurface)=>void>();
 const stateListeners=new Set<()=>void>();
 const visibilityListeners=new Set<(active:boolean)=>void>(),appearanceListeners=new Set<()=>void>();
@@ -63,8 +64,16 @@ export function registerEditorHandoff(id:string,guard:()=>Promise<void>){editorG
 export const prepareEditorHandoff=pluginFlush;
 export function pluginReady(){void connection.then(()=>send({type:'gen.plugin.ready',pluginId,session}),()=>{});}
 export const journalRead=<T,>(key:string)=>pluginRequest<T|null>('state.read',{key});
+export async function journalReadRetainingIntent<T>(key:string):Promise<T|null>{
+ const read={intent:journalIntents.get(key)},reads=journalReads.get(key)??new Set();reads.add(read);journalReads.set(key,reads);
+ try{const value=await journalRead<T>(key);return read.intent?structuredClone(read.intent.value) as T:value;}
+ finally{reads.delete(read);if(!reads.size)journalReads.delete(key);}
+}
+export function journalLocalIntent<T>(key:string):{value:T;pending:Promise<void>|null;identity:object}|undefined{
+ const intent=journalIntents.get(key);return intent?{value:structuredClone(intent.value) as T,pending:journalWrites.get(key)??null,identity:intent.identity}:undefined;
+}
 export function journalWrite(key:string,value:unknown):Promise<void>{
- const intent={value:structuredClone(value)};journalIntents.set(key,intent);
+ const intent={value:structuredClone(value),identity:{}};journalIntents.set(key,intent);for(const read of journalReads.get(key)??[])read.intent=intent;
  const write=(journalWrites.get(key)??Promise.resolve()).catch(()=>{}).then(async()=>{await pluginRequest('state.write',{key,value:intent.value});if(journalIntents.get(key)===intent)journalIntents.delete(key);});
  journalWrites.set(key,write);void write.then(()=>{if(journalWrites.get(key)===write)journalWrites.delete(key);},()=>{if(journalWrites.get(key)===write)journalWrites.delete(key);});return write;
 }
