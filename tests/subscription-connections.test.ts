@@ -38,6 +38,12 @@ beforeEach(() => fakeSdk());
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('subscription connection boundaries', () => {
+  it('discovers only the requested provider without reading or probing unrelated stored credentials',async()=>{
+    const {sdk,runtime}=fakeSdk({openai:'oauth',xai:'oauth'});
+    expect((await subscriptionModels('fake-auth','openai')).map(model=>model.provider)).toEqual(['openai']);
+    expect(sdk.readStoredCredential.mock.calls.map(([id]:string[])=>id)).toEqual(['openai']);
+    expect(runtime.getAvailable).toHaveBeenCalledExactlyOnceWith('openai');
+  });
   it.each(['SIGINT', 'SIGTERM'] as const)('cancels an owned native login on %s and removes its signal handlers', async signalName => {
     const { runtime } = fakeSdk(); let signal: AbortSignal | undefined;
     const before = [process.listenerCount('SIGINT'), process.listenerCount('SIGTERM')];

@@ -34,6 +34,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   const locks = new Map<string, Promise<unknown>>();
   let modelCache: ModelInfo[] | undefined;
   let modelDiscovery: Promise<ModelInfo[]> | undefined;
+  let modelCacheEpoch=0,modelDiscoveryEpoch=0,modelDiscoveryProvider:string|undefined;
   function serial<T>(key: string, action: () => Promise<T>): Promise<T> {
     const previous = locks.get(key) ?? Promise.resolve();
     const next = previous.catch(() => {}).then(action);
@@ -193,25 +194,28 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   }
   return {
     configure(value) { callbacks = value; },
-    async models(options) {
+    models:async function models(options):Promise<ModelInfo[]> {
       assertAuthority();
+      if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if (!modelDiscovery) {
-        if (modelCache && !options?.refresh) return structuredClone(modelCache);
-        modelCache = undefined;
+        if (modelCache && !options?.refresh) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
+        const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
         modelDiscovery = (async () => {
           const worker = await spawnWorker();
           let models: ModelInfo[];
-          try { assertAuthority(); models = await request(worker, "models") as ModelInfo[]; }
+          try { assertAuthority(); models = await request(worker, "models",options?.providerId?{providerId:options.providerId}:{}) as ModelInfo[]; }
           finally { await terminate(worker); }
           assertAuthority();
-          modelCache = models;
+          if(options?.providerId)models=models.filter(model=>model.provider===options.providerId);
+          if(epoch===modelCacheEpoch)modelCache = options?.providerId?(modelCache?[...modelCache,...models]:undefined):models;
           return models;
         })().finally(() => { modelDiscovery = undefined; });
       }
       return structuredClone(await modelDiscovery);
     },
-    async invalidateModels() {
-      modelCache = undefined;
+    async invalidateModels(options) {
+      modelCacheEpoch++;modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
     },
     start(input) { return queueRun(input, "start"); },
     followUp(input) { if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {

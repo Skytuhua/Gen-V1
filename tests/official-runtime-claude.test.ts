@@ -102,6 +102,12 @@ describe('official Claude SDK runtime', () => {
       expect(query).toHaveBeenCalledOnce();await runtime.models({refresh:true});expect(query).toHaveBeenCalledTimes(2);
     }finally{barrier.resolve();await both.catch(()=>{});await runtime.dispose();}
   });
+  it('does not inspect Claude while refreshing a different official provider',async()=>{
+    const fake=scripted(),runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-targeted-'))},fake.dependencies);
+    runtime.configure({onEvent(){},onTool:async()=>null});
+    try{expect(await runtime.models({refresh:true,providerId:'cursor-sdk'})).toEqual([]);expect(fake.dependencies.claudeSdk?.query).not.toHaveBeenCalled();}
+    finally{await runtime.dispose();}
+  });
   it('keeps streaming input empty until account and advertised model validation finish', async () => {
     const fake = scripted(); const barrier = deferred<void>(); fake.hold(barrier.promise);
     const runtime = createOfficialRuntime({ dataDir: await mkdtemp(join(tmpdir(), 'official-claude-')) }, fake.dependencies);

@@ -24,14 +24,15 @@ function resolveTarget(store: Store, target: AccountAuthTarget) {
   if (account && account.providerId !== target.providerId) throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH', 'This account belongs to another provider.');
   return account;
 }
-type Probe = (root: string, target: AccountAuthTarget) => Promise<Pick<AccountAuthStatus, 'state' | 'identity' | 'message'>>;
-const probe: Probe = async (root, { providerId }) => {
+type Probe = (root: string, target: AccountAuthTarget, signal?: AbortSignal) => Promise<Pick<AccountAuthStatus, 'state' | 'identity' | 'message'>>;
+const probe: Probe = async (root, { providerId }, signal) => {
+  signal?.throwIfAborted();
   if (providerId === 'cursor-sdk') {
-    const identity = await cursorAccountStatus(root);
+    const identity = await cursorAccountStatus(root, signal);
     return { state: identity ? 'authenticated' : 'signed-out', identity: identity ?? unavailableIdentity(), message: identity ? 'Cursor authenticated this user. Paid allowance is unavailable.' : 'Sign in through the private Cursor browser flow.' };
   }
   if (providerId === 'claude-code') {
-    const identity = await claudeAccountStatus(root);
+    const identity = await claudeAccountStatus(root, undefined, signal);
     return { state: 'authenticated', identity, message: 'Claude supplied authenticated account metadata. Immutable subject identity and safe reconnect staging are unavailable; use a new local account to change users.' };
   }
   if (providerId === 'gemini-cli') return { state: 'unknown', identity: unavailableIdentity(), message: 'The pinned Gemini ACP interface does not expose account identity or a reliable sign-in status. Use its native console.' };
@@ -42,7 +43,8 @@ const probe: Probe = async (root, { providerId }) => {
 const localSignout = (providerId: AccountAuthTarget['providerId']) => !isOfficialRuntimeProviderId(providerId) || providerId === 'cursor-sdk';
 const unconfirmed = (error: unknown) => ['PI_CANCEL_UNCONFIRMED', 'RUNTIME_TEARDOWN_FAILED'].includes(String((error as { code?: unknown })?.code));
 
-export async function readAccountAuth(store: Store, target: AccountAuthTarget, inspect: Probe = probe): Promise<AccountAuthStatus> {
+export async function readAccountAuth(store: Store, target: AccountAuthTarget, inspect: Probe = probe, signal?: AbortSignal): Promise<AccountAuthStatus> {
+  signal?.throwIfAborted();
   const account = resolveTarget(store, target), identity = unavailableIdentity();
   const base = { ...target, localSignout: localSignout(target.providerId), lastCheckedAt: new Date().toISOString() };
   if (store.all<{providerId:string;accountId:string|null;shutdownUnconfirmed?:boolean}>('accountUse').some(use => use.providerId === target.providerId && use.accountId === target.accountId && use.shutdownUnconfirmed)) return { ...base, state: 'blocked', identity, message: 'Native account cleanup is unconfirmed. This account remains blocked.' };
@@ -50,9 +52,14 @@ export async function readAccountAuth(store: Store, target: AccountAuthTarget, i
   if (login?.shutdownUnconfirmed) return { ...base, state: 'blocked', identity, message: 'Native shutdown is unconfirmed. This account remains blocked.' };
   if (liveAccountLease(login)) return { ...base, state: 'signing-in', identity, message: 'A sign-in console owns this account. An expired or closed console does not establish native cleanup.' };
   const resolver = accountResolver(store), lease = resolver.claimUse!(target.providerId, target.accountId); let release = true;
-  try { return { ...base, ...await withAccountProfile(store.dataDir, account, root => inspect(root, target)), lastCheckedAt: new Date().toISOString() }; }
+  try {
+    const result = await withAccountProfile(store.dataDir, account, root => {signal?.throwIfAborted();return inspect(root, target, signal);});
+    signal?.throwIfAborted();
+    return { ...base, ...result, lastCheckedAt: new Date().toISOString() };
+  }
   catch (error) {
     if (unconfirmed(error)) { release = false; holdAccountUse(store, lease); }
+    if (release && signal?.aborted) throw error;
     return { ...base, state: (error as {code?: unknown})?.code === 'ACCOUNT_IDENTITY_MISMATCH' || !release ? 'blocked' : 'unavailable', identity, message: (error as {code?: unknown})?.code === 'ACCOUNT_IDENTITY_MISMATCH' ? 'The authenticated account differs from this private profile. Add a new local account for another user.' : !release ? 'Native account check cleanup is unconfirmed. This account remains blocked.' : 'The native account check could not confirm readiness. Complete native sign-in or retry the check.' };
   } finally { if (release) resolver.releaseUse!(lease); }
 }

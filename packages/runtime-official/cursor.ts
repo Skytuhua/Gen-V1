@@ -116,8 +116,10 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   } catch (error) { await driver.close(); throw safeError(error); }
 }
 
-async function operation(dataDir: string, init: CursorWorkerInit, spawnChild: typeof spawn, resultType: 'models' | 'history' | 'login-complete' | 'auth-status' | 'logout-complete'): Promise<CursorWorkerEvent> {
+async function operation(dataDir: string, init: CursorWorkerInit, spawnChild: typeof spawn, resultType: 'models' | 'history' | 'login-complete' | 'auth-status' | 'logout-complete', signal?: AbortSignal): Promise<CursorWorkerEvent> {
+  signal?.throwIfAborted();
   const cwd = init.taskDir ?? await secureDirectory(dataDir, officialRuntimeHome(dataDir, 'cursor-sdk'));
+  signal?.throwIfAborted();
   const worker = startWorker(dataDir, cwd, spawnChild); const result = deferred<CursorWorkerEvent>();
   worker.child.on('message', (value: unknown) => {
     if (!value || typeof value !== 'object' || Buffer.byteLength(JSON.stringify(value)) > 4 * 1024 * 1024) { result.reject(protocol()); return; }
@@ -127,7 +129,7 @@ async function operation(dataDir: string, init: CursorWorkerInit, spawnChild: ty
     else if (frame.type === 'login-url' && init.mode === 'login') { try { console.log(`Open this official Cursor sign-in page: ${assertCursorLoginUrl(frame.url)}`); } catch (error) { result.reject(safeError(error)); } }
   });
   void worker.exited.then(() => result.reject(protocol()), error => result.reject(safeError(error)));
-  try { await worker.send({ type: 'initialize', init }); return await bounded(result.promise, init.mode === 'login' ? 180_000 : 30_000, 'Official Cursor operation timed out.'); }
+  try { await bounded(worker.send({ type: 'initialize', init }), 30_000, 'Official Cursor startup timed out.', signal); return await bounded(result.promise, init.mode === 'login' ? 180_000 : 30_000, 'Official Cursor operation timed out.', signal); }
   finally { await worker.close(); }
 }
 
@@ -150,8 +152,8 @@ export async function cursorLogin(dataDir: string): Promise<void> {
   await operation(dataDir, { mode: 'login', dataDir }, spawn, 'login-complete');
 }
 
-export async function cursorAccountStatus(dataDir: string): Promise<AccountIdentity | null> {
-  const frame = await operation(dataDir, { mode: 'auth-status', dataDir }, spawn, 'auth-status');
+export async function cursorAccountStatus(dataDir: string, signal?: AbortSignal): Promise<AccountIdentity | null> {
+  const frame = await operation(dataDir, { mode: 'auth-status', dataDir }, spawn, 'auth-status', signal);
   if (frame.type !== 'auth-status') throw protocol(); return frame.identity;
 }
 export async function cursorLocalSignout(dataDir: string): Promise<void> {
