@@ -24,14 +24,14 @@ function Fixture() {
   const [action, setAction] = useState('');
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [value, setValue] = useState(query.has('required') ? '' : 'c');
+  const [value, setValue] = useState(query.has('stale-choice') ? 'removed' : query.has('required') ? '' : 'c');
   const [disabled, setDisabled] = useState(false);
   const large = query.has('large');
   const controls = <>
     <form id="controls-form" onSubmit={event => { event.preventDefault(); setAction(JSON.stringify([...new FormData(event.currentTarget)])); }}>
       <fieldset data-testid="choice-fieldset" style={{ padding: 0, border: 0 }}><Select aria-label="Choice" aria-invalid={query.has('controlled-invalid') || undefined} name="choice" required={query.has('required')} value={large ? value === 'c' ? '99' : value : value} onValueChange={setValue} disabled={disabled}
         options={large ? Array.from({ length: 100 }, (_, index) => ({ value: String(index), label: `Option ${index}` })) : [
-          ...(query.has('required') ? [{ value: '', label: 'Choose an option' }] : []), { value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta unavailable', disabled: true },
+          ...(query.has('required') && !query.has('stale-choice') ? [{ value: '', label: 'Choose an option' }] : []), { value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta unavailable', disabled: true },
           { value: 'c', label: 'Charlie' }, { value: 'd', label: 'Delta' },
         ]} /></fieldset>
       <input aria-label="Following field" defaultValue="Keep draft" />
