@@ -32,7 +32,8 @@ const snapshot=(page:Page)=>page.evaluate(async()=>{const response=await fetch('
 async function assertBackendAlive(){const diagnostics=await app!.evaluate(()=>(globalThis as any).__accountBackendDiagnostics??[]) as BackendDiagnostic[];backendDiagnostics.push(...diagnostics);expect(diagnostics).toHaveLength(1);expect(diagnostics[0].exitCode).toBeUndefined();}
 async function launch(){
  app=await _electron.launch({...(executable?{executablePath:executable,args:[]}:{args:[resolve('dist/desktop-app/main.mjs')]}),env,timeout:60000});
- const page=await app.firstWindow();page.on('pageerror',error=>errors.push(error.message));
+ await expect.poll(()=>app!.windows().some(page=>page.url().startsWith(`http://127.0.0.1:${hostPort}/`)),{timeout:30000}).toBe(true);
+ const page=app.windows().find(page=>page.url().startsWith(`http://127.0.0.1:${hostPort}/`))!;page.on('pageerror',error=>errors.push(error.message));
  // Inspect only this fresh Electron owner's fixed backend child, retaining bounded
  // stderr/exit evidence so a dead sidecar cannot be misclassified as a UI timeout.
  await app.evaluate(()=>{
@@ -48,7 +49,7 @@ async function launch(){
  page.on('request',request=>{if(new URL(request.url()).pathname==='/api/commands'){const command=request.postDataJSON();if(command?.type?.startsWith('account.'))commands.push({request:command});}});
  page.on('response',response=>{if(new URL(response.url()).pathname==='/api/commands')void response.json().then(value=>commands.push({response:value,status:response.status()})).catch(()=>{});});
  await expect(page.getByRole('button',{name:'Settings',exact:true})).toBeVisible({timeout:45000});
- await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Providers',exact:true}).click();
+ await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Models & Accounts',exact:true}).click();
  return page;
 }
 async function stop(){
@@ -63,6 +64,7 @@ async function stop(){
 try{
  let page=await launch();
  for(const provider of providers){
+  await page.getByRole('navigation',{name:'Subscription providers',exact:true}).getByRole('button',{name:provider.label,exact:true}).click();
   const row=page.locator(`.connection-row[data-provider="${provider.id}"]`),first=`Verification A ${provider.id}`,second=`Verification B ${provider.id}`,renamed=`Verification renamed ${provider.id}`;
   for(const label of [first,second]){await row.getByRole('button',{name:'Add account',exact:true}).click();await row.getByRole('textbox',{name:'Account label',exact:true}).fill(label);await row.getByRole('button',{name:'Save account',exact:true}).click();await expect(row.getByRole('radio',{name:label,exact:true})).toBeVisible();}
   await row.getByRole('radio',{name:second,exact:true}).check();await row.getByRole('button',{name:'Use account',exact:true}).click();await expect(row).toContainText('Default for new tasks: '+second);
@@ -78,7 +80,7 @@ try{
  await assertBackendAlive();await page.screenshot({path:join(directory,'accounts-before-restart.png')});
  await stop();page=await launch();
  const restored=await snapshot(page);expect(restored.accounts).toHaveLength(providers.length*2);
- for(const check of checks){expect(restored.settings.selectedAccounts?.[check.provider as keyof NonNullable<Snapshot['settings']['selectedAccounts']>]).toBe(check.accountId);const row=page.locator(`.connection-row[data-provider="${check.provider}"]`);await expect(row.getByRole('radio',{name:`Verification A ${check.provider}`,exact:true})).toBeChecked();await expect(row.getByRole('radio',{name:`Verification renamed ${check.provider}`,exact:true})).toBeEnabled();}
+ for(const check of checks){expect(restored.settings.selectedAccounts?.[check.provider as keyof NonNullable<Snapshot['settings']['selectedAccounts']>]).toBe(check.accountId);await page.getByRole('navigation',{name:'Subscription providers',exact:true}).getByRole('button',{name:providers.find(provider=>provider.id===check.provider)!.label,exact:true}).click();const row=page.locator(`.connection-row[data-provider="${check.provider}"]`);await expect(row.getByRole('radio',{name:`Verification A ${check.provider}`,exact:true})).toBeChecked();await expect(row.getByRole('radio',{name:`Verification renamed ${check.provider}`,exact:true})).toBeEnabled();}
  await assertBackendAlive();expect(errors).toEqual([]);await page.screenshot({path:join(directory,'accounts-after-restart.png')});
  await stop();passed=true;
 }catch(error){errors.push(error instanceof Error?error.message:String(error));backendDiagnostics=await app?.evaluate(()=>(globalThis as any).__accountBackendDiagnostics??[]).catch(()=>[]);const page=app?.windows().find(page=>!page.isClosed());if(page){await page.screenshot({path:join(directory,'failure.png')}).catch(()=>{});await writeFile(join(directory,'failure-snapshot.json'),JSON.stringify(await snapshot(page).catch(()=>null),null,2));await writeFile(join(directory,'failure-ui.txt'),await page.locator('body').innerText().catch(()=>''));}throw error;

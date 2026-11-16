@@ -116,3 +116,26 @@ it('accepts explicit numeric column metadata without treating text codes as numb
   expect(()=>validateSurface(spec)).not.toThrow();
   expect(()=>validateSurface({...spec,elements:{table:{...spec.elements.table,props:{...spec.elements.table.props,columns:[{key:'count',label:'Count',type:'automatic'}]}}}})).toThrow();
 });
+
+
+it('renders catalog Timeline status aliases with fixed theme semantics under custom accents',async()=>{
+ const {createElement}=await import('react'),{renderToStaticMarkup}=await import('react-dom/server');
+ const {StateProvider,Renderer,VisibilityProvider,ActionProvider}=await import('@json-render/react'),{registry}=await import('../apps/web/src/registry');
+ const {chromium}=await import('@playwright/test');
+ const statuses=[['running','--accent-fg'],['working','--accent-fg'],['succeeded','--success'],['completed','--success'],['success','--success'],['failed','--danger'],['error','--danger'],['cancelled','--muted'],['stopped','--muted'],['needs-input','--pending'],['awaiting_input','--pending'],['prepared','--pending'],['pending','--pending'],['unknown','--pending'],['source-specific-state','--muted'],['constructor','--muted'],['__proto__','--muted']];
+ const spec={root:'timeline',elements:{timeline:{type:'Timeline',props:{rowsBinding:'events'}}}};
+ const html=renderToStaticMarkup(createElement(StateProvider,{initialState:{inputs:{events:statuses.map(([status])=>({status,title:'Supplied '+status}))},values:{}},children:createElement(VisibilityProvider,null,createElement(ActionProvider,null,createElement(Renderer,{spec,registry})))}));
+ const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})}),page=await browser.newPage();
+ try{
+  await page.setContent(html);await page.addStyleTag({content:css.replace(/^@import[^;]+;/,'')+readFileSync(new URL('../apps/web/src/task-interface.css',import.meta.url),'utf8')});
+  for(const theme of ['light','dark'])for(const accent of ['', '#ff00ff','#ffffff']){
+   await page.evaluate(({theme,accent})=>{document.documentElement.dataset.theme=theme;document.documentElement.style.setProperty('--accent',accent);}, {theme,accent});
+   const result=await page.locator('.timeline li').evaluateAll((rows,statuses)=>rows.map((row,index)=>{
+    const probe=document.createElement('i');probe.style.color=`var(${statuses[index][1]})`;document.body.append(probe);const expected=getComputedStyle(probe).color;probe.remove();
+    return {label:row.querySelector('small')?.textContent,title:row.querySelector('strong')?.textContent,color:getComputedStyle(row.querySelector('.timeline-dot')!).backgroundColor,expected};
+   }),statuses);
+   expect(result.map(row=>[row.label,row.title])).toEqual(statuses.map(([status])=>[status,'Supplied '+status]));
+   expect(result.map(row=>row.color),`${theme} accent=${accent}`).toEqual(result.map(row=>row.expected));
+  }
+ }finally{await browser.close();}
+},30000);

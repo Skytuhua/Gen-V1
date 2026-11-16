@@ -38,7 +38,7 @@ export interface ConversationHost {
   choosePreset(preset: WorkspacePreset, binding?: PanelBinding): Promise<void>;
   selectThread(id: string | undefined): void;
   initialThreadId?: string;
-  intent?: {id: number; kind: ConversationIntent; pluginId?: string; workspaceId?: string};
+  intent?: {id: number; kind: ConversationIntent; pluginId?: string; workspaceId?: string; review?: {repo:string;number:number;threadId:string;projectId:string}};
   consumeIntent(id: number): void;
   composers: SharedAgentComposers;
   pluginCatalog: ReturnType<typeof usePluginCatalog>;
@@ -144,7 +144,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         const row=await getShellNavigationItem(scope.threadId);
         if(row.projectId!==scope.projectId||row.workspaceId!==scope.workingCopyId||(row.threadRevision??threadNavigationRevision(row))!==scope.revision)throw Error('Thread details changed. Reopen the current details.');
         selected.current=scope.threadId;changed=true;
-        setIntent({id:++intentSequence.current,kind:'linked-pull-requests'});
+        setIntent({id:++intentSequence.current,kind:'linked-pull-requests',review:{...target,threadId:scope.threadId,projectId:scope.projectId!}});
       },undefined,isCurrent);
       if(isCurrent())try{localStorage.setItem('harness:selected-thread',scope.threadId);}catch{/* The explicit owner still reaches the mounted conversation. */}
     }catch(cause){if(changed){selected.current=previous;setIntent(undefined);}if(alive.current)setError(message(cause));throw cause;}
@@ -162,6 +162,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   };
   const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};
   const resolvingRetired = useRef(false);
+  const [workspaceRetry, setWorkspaceRetry] = useState(0);
   useEffect(() => {
     if (!retiredActive || !workspace.envelope || resolvingRetired.current) return;
     resolvingRetired.current = true;
@@ -170,8 +171,14 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     void workspace.send(supported ? 'workspace.canvas.select' : 'workspace.canvas.create', payload)
       .catch(cause => {if (alive.current) setError(message(cause));})
       .finally(() => {resolvingRetired.current = false;});
-  }, [retiredActive, workspace.envelope?.state.activeCanvasId, workspace.envelope?.state.revision]);
-  const retry = () => fail(async () => {await Promise.all([workspace.refresh(), loadSettings()]); setError('');});
+  }, [retiredActive, workspace.envelope?.state.activeCanvasId, workspace.envelope?.state.revision, workspaceRetry]);
+  const retry = () => fail(async () => {
+    await Promise.all([workspace.refresh(), loadSettings()]);
+    if (!alive.current) return;
+    setError('');
+    // Refresh can return the same revision after a failed preset transition.
+    setWorkspaceRetry(attempt => attempt + 1);
+  });
   const pluginErrorMessage = pluginCatalog.error || (pluginCatalog.failed ? 'Plug-ins could not be loaded. Check the host connection, then retry.' : '');
   const pluginNotice = pluginErrorMessage && pluginErrorMessage !== dismissedPluginError ? <ShellNotice message={pluginErrorMessage} onDismiss={() => setDismissedPluginError(pluginErrorMessage)}/> : null;
   if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap" style={{'--sidebar-width': readShellLayout().sidebarWidth + 'px'} as CSSProperties}>
@@ -241,14 +248,16 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     await check(); await desktop.bridge.browser({type: 'open'}); await check();
     if (url) await desktop.bridge.browser({type: 'navigate', url});
   } : undefined;
-  const mutate = (action: () => Promise<void>) => {
-    if (mutationPending.current) return;
+  const mutate = async (action: () => Promise<void>) => {
+    if (mutationPending.current) return false;
     mutationPending.current = true; setMutationBusy(true);
-    fail(async () => {try {await prepare(); await action();} finally {mutationPending.current = false; setMutationBusy(false);}});
+    try {await prepare(); await action(); return true;}
+    catch (cause) {fail(() => Promise.reject(cause)); return false;}
+    finally {mutationPending.current = false; setMutationBusy(false);}
   };
-  const present = (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
-    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return;}
-    mutate(async () => {await command('thread.presentation', patch, row.id); await navigation.refresh();});
+  const present = async (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
+    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return false;}
+    return mutate(async () => {await command('thread.presentation', patch, row.id); fail(navigation.refresh);});
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
   return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} data-panel-animations={preferences.panelAnimations} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>

@@ -15,6 +15,10 @@ export function createThreadHoverCache<Target = unknown>() {
       entries.set(hoverScopeKey(facts.scope), scopedThreadHoverFacts(facts));
       if (entries.size > 32) entries.delete(entries.keys().next().value!);
     },
+    invalidate(scope: ThreadHoverScope, previous: ThreadHoverFacts<Target> | undefined) {
+      const key = hoverScopeKey(scope);
+      if (entries.get(key) === previous) entries.delete(key);
+    },
     clear: () => entries.clear(),
     get size() {return entries.size;},
   };
@@ -47,7 +51,12 @@ export function createThreadHoverDataController<Target = unknown>({load, cache =
           const checked = scopedThreadHoverFacts(facts); cache.set(checked);
           publish({status: 'ready', scope, facts: checked});
         } catch {
-          if (current()) publish({status: 'error', scope});
+          if (current()) {
+            // A failed refresh must not bring these facts back on the next open.
+            // Another card may have already replaced the cache entry.
+            cache.invalidate(scope, cached);
+            publish({status: 'error', scope});
+          }
         } finally {if (pending === controller) pending = null;}
       })();
     },

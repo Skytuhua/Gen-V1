@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ApiError } from "../api";
 
 export interface FilesRead<T> {
@@ -24,7 +24,10 @@ export function useFilesRead<T>(
 	const [retry, setRetry] = useState(0),
 		generation = useRef(0),
 		owner = useRef({ key, enabled });
-	owner.current = { key, enabled };
+	// A suspended render must not invalidate the visible owner's request.
+	useLayoutEffect(() => {
+		owner.current = { key, enabled };
+	}, [key, enabled]);
 	useEffect(() => {
 		const captured = ++generation.current,
 			controller = new AbortController();

@@ -36,6 +36,20 @@ it('lets the left scroll control hold history through streaming and resume follo
  expect(f.element.scrollTop).toBe(1400);f.scroll.dispose();
 });
 
+for(const owner of ['manual','native'])it(`ignores a foreign pointer release during ${owner} scrolling`,()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});
+ if(owner==='manual')f.scroll.beginManualScroll();else f.intent('pointerdown',{button:1,pointerId:1});
+ f.scroll.scrollTo(600);
+ f.page.dispatchEvent(Object.assign(new Event('pointerup'),{pointerId:77}));
+ f.element.scrollHeight=1400;f.resize();f.tick(60);
+ expect(f.element.scrollTop).toBe(600);expect(f.frames.size).toBe(0);f.scroll.dispose();
+});
+it('resumes following after the native scroll owner releases',()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});f.intent('pointerdown',{button:1,pointerId:1});
+ f.scroll.scrollTo(600);f.page.dispatchEvent(Object.assign(new Event('pointerup'),{pointerId:1}));
+ f.element.scrollHeight=1400;f.resize();f.tick(60);expect(f.element.scrollTop).toBe(1000);f.scroll.dispose();
+});
+
 it('clamps explicit scrollbar positions and ignores invalid or disposed writes',()=>{
  const f=fixture();f.scroll.update('one',{top:150,tail:false});
  expect(f.scroll.scrollTo(-20)).toEqual({top:0,tail:false});

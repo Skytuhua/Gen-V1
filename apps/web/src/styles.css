@@ -300,7 +300,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .timeline strong { font-weight:500; }
 .timeline small { margin-left:auto; font-size:10px; }
 .timeline p { color:var(--muted); font-size:12px; }
-.timeline-dot { flex-shrink:0; width:7px; height:7px; margin-top:5px; background:var(--accent); border-radius:50%; }
+.timeline-dot { flex-shrink:0; width:7px; height:7px; margin-top:5px; background:currentColor; border-radius:50%; }
 .evidence { display:flex; align-items:flex-start; gap:8px; font-size:12px; line-height:1.5; }
 .evidence>svg { margin-top:2px; color:var(--success); }
 .evidence>div { min-width:0; flex:1; }
@@ -370,7 +370,8 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
   :where(details:not([open]))::details-content { display:none; }
 }
 
-.message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { float:right; margin:2px 0 4px 8px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.message,.message-content,.side-message,.activity li { position:relative; }
+.message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { position:absolute; top:2px; right:2px; margin:0; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
 .message:hover>.copy-button,.message:focus-within>.copy-button,.message:hover .message-content>.copy-button,.message:focus-within .message-content>.copy-button,.side-message:hover>.copy-button,.side-message:focus-within>.copy-button,.activity li:hover>.copy-button,.activity li:focus-within>.copy-button { opacity:1; }
 @media (hover:none) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { transition:none; } }

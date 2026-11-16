@@ -38,12 +38,32 @@ export async function installThemeAudit(page: Page, expected: CaptureTheme) {
   };
 }
 
+type CaptureResources = { context?: BrowserContext; browser?: Browser; server?: BrowserServer };
+
+async function captureCloseErrors({ context, browser, server }: CaptureResources): Promise<unknown[]> {
+  const errors: unknown[] = [];
+  // Close in ownership order, but always attempt the server, which owns the
+  // Chromium process even if the context or client connection has failed.
+  for (const resource of [context, browser, server]) {
+    try { await resource?.close(); }
+    catch (error) { errors.push(error); }
+  }
+  return errors;
+}
+
 export async function openCaptureBrowser() {
   const server = await chromium.launchServer({ headless: true, args: ['--force-device-scale-factor=1', '--disable-background-timer-throttling', '--disable-backgrounding-occluded-windows'] });
-  const browser = await chromium.connect(server.wsEndpoint());
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-  const page = await context.newPage();
-  return { server, browser, context, page };
+  let browser: Browser | undefined, context: BrowserContext | undefined;
+  try {
+    browser = await chromium.connect(server.wsEndpoint());
+    context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    return { server, browser, context, page };
+  } catch (cause) {
+    const errors = await captureCloseErrors({ context, browser, server });
+    if (errors.length) throw new AggregateError([cause, ...errors], 'Capture browser startup and cleanup failed', { cause });
+    throw cause;
+  }
 }
 function run(executable: string, args: string[], stdin?: string) {
   return new Promise<string>((resolve, reject) => {
@@ -75,7 +95,14 @@ export async function recordWindow(_server: BrowserServer, page: Page, filename:
   await session.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1 });
   const capture: ChildProcess = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'warning', '-f', 'image2pipe', '-vcodec', 'mjpeg', '-framerate', '30', '-i', 'pipe:0', '-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-n', filename], { windowsHide: true, stdio: ['pipe', 'ignore', 'pipe'] });
   let errors = ''; capture.stderr?.on('data', bytes => { errors += bytes; });
-  const complete = new Promise<void>((resolve, reject) => { capture.on('error', reject); capture.on('exit', code => code === 0 ? resolve() : reject(new Error(`Capture failed: ${errors}`))); });
+  let inputError: Error | undefined;
+  capture.stdin?.on('error', error => { inputError = error; });
+  // An encoder can fail while the caller is still driving the recording. Keep
+  // the failure as a result until stop() can release the compositor and report it.
+  const complete = new Promise<Error | undefined>(resolve => {
+    capture.once('error', resolve);
+    capture.once('close', code => resolve(code === 0 ? inputError : new Error(`Capture failed: ${errors.trim() || `encoder exited (${code})`}`)));
+  });
   const started = performance.now(), startedWallTimeMilliseconds = Date.now();
   const sample = () => {
     const expected = Math.floor((performance.now() - started) * 30 / 1000);
@@ -85,11 +112,14 @@ export async function recordWindow(_server: BrowserServer, page: Page, filename:
   let stopping: Promise<Record<string, unknown>> | undefined;
   return () => stopping ??= (async () => {
     clearInterval(timer); sample(); const elapsedSeconds = (performance.now() - started) / 1000;
-    await session.send('Page.stopScreencast'); await session.detach(); capture.stdin?.end(); await complete;
+    await session.send('Page.stopScreencast'); await session.detach(); capture.stdin?.end();
+    const failure = await complete; if (failure) throw failure;
     const probe = JSON.parse(await run('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_name,width,height,r_frame_rate,avg_frame_rate:format=duration,size', '-of', 'json', filename]));
     return { ...probe, capture: { method: 'Chromium compositor JPEG frames sampled against wall time at 30fps; unchanged or delayed frames held; no interpolation', sourceFrames, writtenFrames, elapsedSeconds, startedWallTimeMilliseconds, firstTimestamp: timestamps[0], lastTimestamp: timestamps.at(-1) } };
   })();
 }
 export async function closeCapture(value: { context: BrowserContext; browser: Browser; server: BrowserServer }) {
-  await value.context.close(); await value.browser.close(); await value.server.close();
+  const errors = await captureCloseErrors(value);
+  if (errors.length === 1) throw errors[0];
+  if (errors.length > 1) throw new AggregateError(errors, 'Capture browser cleanup failed');
 }

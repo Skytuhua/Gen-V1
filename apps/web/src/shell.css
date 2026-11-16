@@ -35,6 +35,8 @@
 .project-selection-list small{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .shell-workarea>.workspace>.workspace-header {width:100%;min-width:0;gap:10px;padding-inline:20px;}
 .shell-workarea .workspace-header>.breadcrumb {flex:1;}
+.conversation-heading { display:flex;flex-direction:column;justify-content:center;gap:1px;flex:1;min-width:0; }
+.conversation-metadata { margin:0;font-size:11px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .shell-workarea .workspace-header>.header-actions {flex-shrink:0;margin-left:auto;gap:7px;}
 /* Expanded tools get room beside the chat; minimized bars reserve no column. */
 @media(min-width:1101px) {
@@ -207,7 +209,7 @@
 .artifact-in-workspace>.artifact-source { max-height:35%; flex-shrink:0; }
 .artifact-in-workspace .artifact-content { max-width:none; }
 .artifact-in-workspace .widget-frame { min-height:60vh; }
-.shell-workarea:has(.artifact-in-workspace)>.summary-layout-owner { position:relative; z-index:29; }
+.shell-workarea:has(.artifact-in-workspace)>:is(.summary-layout-owner,.split-root-workarea) { position:relative; z-index:29; }
 .app-shell[data-panel-animations=false] * { animation:none; transition:none; }
 @keyframes panel-enter { 0% { opacity:.45; transform:translateX(14px); } 78% { opacity:1; transform:translateX(-1px); } 100% { opacity:1; transform:translateX(0); } }
 @keyframes panel-exit { to { opacity:0; transform:translateX(14px); } }
@@ -271,10 +273,7 @@
 .shell-workarea[data-tool-layout=stacked]>.workspace-tools>.workspace-right { min-height:calc(53px + var(--ui-tool-body-min)); }
 .shell-workarea[data-tool-layout=stacked]>.workspace-tools>.desktop-browser-dock { min-height:calc(96px + var(--ui-tool-body-min)); }
 
-.custom-tools-dock { position:relative; display:flex; flex:1 1 0; flex-direction:column; min-width:0; min-height:0; }
-.shell-workarea[data-tool-layout=stacked]>.workspace-tools>.custom-tools-dock { min-height:calc(64px + var(--ui-tool-body-min)); }
 
-.shell-workarea[data-tool-layout=stacked]>.workspace-tools:has(>.custom-tools-dock) { --stacked-tool-min:calc(64px + var(--ui-tool-body-min)); }
 .workspace-tools[hidden] { display:none!important; }
 .shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-shadow:var(--elevation); border-radius:10px; padding:10px 12px 10px 16px; font-size:12px; z-index:55; animation:shell-notice-in var(--ui-motion-toast-enter) var(--ui-ease-enter) both; }
 .shell-notice[data-leaving] { animation:shell-notice-out var(--ui-motion-toast-exit) var(--ui-ease-move) both; }

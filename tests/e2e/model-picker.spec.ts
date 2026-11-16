@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import { serveTaskFixture, serveTaskSplitLayout, taskFixture } from './task-interface-fixture';
 
 const models = [
   { id: 'openai/sol', provider: 'openai', name: 'GPT-6.1 Sol', thinkingLevels: ['low', 'high'] },
@@ -27,14 +27,15 @@ test('model search groups the advertised catalog and keyboard selection reaches 
   await expect(list.getByRole('group', { name: 'Claude', exact: true }).getByRole('option')).toHaveCount(1);
   await expect(list.getByRole('option', { name: 'GPT-6.1 Sol', exact: true })).toHaveAttribute('aria-selected', 'true');
   await search.fill('gpt'); await search.press('ArrowDown'); await search.press('Enter');
-  await expect(trigger).toContainText('GPT-6.1 Terra'); await expect(trigger).toBeFocused();
+  await expect(trigger).toContainText('GPT-6.1 Terra');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');await search.press('Escape');await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Use this model');
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect.poll(() => host.commands.find(command => command.type === 'message.send')?.payload.modelId).toBe('openai/terra');
 });
 
-test('model search has an empty state and Escape, outside click, and Tab dismiss without choosing', async ({ page }) => {
+test('model search has an empty state, Escape and outside click dismiss, and Tab stays in the combined dialog', async ({ page }) => {
   const host = await mount(page), trigger = page.getByRole('combobox', { name: 'Model', exact: true });
   await trigger.click(); const search = page.getByRole('searchbox', { name: 'Search models', exact: true });
   await search.fill('no matching model');
@@ -46,8 +47,40 @@ test('model search has an empty state and Escape, outside click, and Tab dismiss
   const message = page.getByRole('textbox', { name: 'Message', exact: true }); await message.click({ position: { x: 8, y: 8 } });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false'); await expect(message).toBeFocused();
   await trigger.click(); await search.press('Tab');
+  const dialog=page.getByRole('dialog',{name:'Model and reasoning',exact:true});await expect(dialog).toBeVisible();await expect.poll(()=>dialog.evaluate(node=>node.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false'); await expect(search).not.toBeVisible();
   await expect(trigger).toContainText('GPT-6.1 Sol'); expect(host.commands).toHaveLength(0);
+});
+
+test('a first send keeps a usable model when the account pin lands before the bound model id', async ({ page }) => {
+  const snapshot = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Synthetic model selection fixture' } } } });
+  snapshot.settings = { theme: 'dark', modelId: null };
+  snapshot.threads[0].modelId = 'openai/sol';
+  const created: ReturnType<typeof taskFixture>['threads'][number] = { id: 'sent-thread', title: 'First send', projectName: 'Reusable task surfaces', status: 'ready', epoch: 0, runId: null, modelId: null, sessionPath: null, createdAt: '2026-10-29T23:00:00.000Z', updatedAt: '2026-10-29T23:00:00.000Z' };
+  const host = await serveTaskFixture(page, snapshot);
+  await serveTaskSplitLayout(page);
+  await page.route('**/api/models*', route => route.fulfill({ json: { models } }));
+  await page.goto('/');
+  const trigger = page.getByRole('combobox', { name: 'Model', exact: true });
+  await expect(trigger).toContainText('GPT-6.1 Sol');
+  // An unbound thread selected from the sidebar must not wedge the composer
+  // once the host binds its account before the bound model id propagates.
+  snapshot.threads = [created]; snapshot.activeThreadId = created.id; snapshot.messages = [];
+  await host.publish();
+  await page.getByRole('button', { name: /First send/ }).first().click();
+  await expect(trigger).toContainText('GPT-6.1 Sol');
+  await page.getByRole('textbox', { name: 'Message', exact: true }).fill('First send');
+  await page.getByRole('button', { name: 'Send message', exact: true }).click();
+  await expect.poll(() => host.commands.some(command => command.type === 'message.send')).toBe(true);
+  snapshot.messages = [{ id: 'sent', threadId: created.id, role: 'user', content: 'First send', runId: null, createdAt: '2026-10-29T23:00:01.000Z' }];
+  await host.publish();
+  snapshot.threads = [{ ...created, sessionPath: 'fixture-session' }];
+  await host.publish();
+  snapshot.threads = [{ ...created, sessionPath: 'fixture-session', modelId: 'openai/sol' }];
+  await host.publish();
+  await expect(trigger).toContainText('GPT-6.1 Sol');
+  await expect(page.getByRole('button', { name: 'Send message', exact: true })).not.toHaveAttribute('title', 'Connect an available model in Settings to send.');
 });
 
 test('an active run closes model selection and locks the trigger', async ({ page }) => {

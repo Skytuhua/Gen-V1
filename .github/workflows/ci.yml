@@ -85,7 +85,7 @@ jobs:
         run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
+        run: pnpm test --maxWorkers=1 --shard=${{ matrix.shard }}/4
 
   browser:
     name: Browser tests
@@ -118,7 +118,7 @@ jobs:
       - name: Exercise project memory and affected context browser flows
         run: |
           $failedSuites = @()
-          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
             pnpm test:browser --suite $suite
             if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
           }

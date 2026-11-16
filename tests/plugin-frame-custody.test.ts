@@ -33,12 +33,14 @@ beforeAll(async()=>{
  store=new Store(join(directory,'store'));
  // Only the real document/plug-in routes are exercised; no model/runtime starts.
  service={store,dispose:async()=>{}} as unknown as Service;
- const registry={list:()=>[manifest],validateSurface:async()=>true,readAsset:async()=>({bytes:Buffer.from(trustedPluginDocument),contentType:'text/html'}),dispatch:async(_id:string,operation:string,input:{key?:string})=>{operations.push(input.key??operation);if(input.key==='slow')return new Promise(resolve=>slow.set('slow',resolve));return {private:'owner-only',key:input.key};}} as unknown as PluginRegistry;
+ const registry={list:()=>[manifest],validateSurface:async()=>true,readAsset:async()=>({bytes:Buffer.from(trustedPluginDocument),contentType:'text/html'}),dispatch:async(_id:string,operation:string,input:{key?:string})=>{operations.push(input.key??operation);if(input.key?.startsWith('slow'))return new Promise(resolve=>slow.set(input.key!,resolve));return {private:'owner-only',key:input.key};}} as unknown as PluginRegistry;
  app=await buildServer(service,{port,dev:false,widgetPort:Number(new URL(attackerOrigin).port),plugins:registry});
- const parentJs=await bundle(`import React from 'react';import {createRoot} from 'react-dom/client';import {PluginFrame} from './apps/web/src/PluginFrame.tsx';import {prepareEditorHandoff} from './apps/web/src/editor-handoff.ts';
+ const parentJs=await bundle(`import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';import {PluginFrame} from './apps/web/src/PluginFrame.tsx';import {prepareEditorHandoff} from './apps/web/src/editor-handoff.ts';
   const manifest=${JSON.stringify(manifest)};window.__lastFlush='';window.__globalRequests=[];addEventListener('message',event=>{if(event.data?.type==='gen.plugin.request')window.__globalRequests.push(event.data.id);});const original=MessagePort.prototype.postMessage;MessagePort.prototype.postMessage=function(value,...rest){if(value?.type==='gen.plugin.flush')window.__lastFlush=value.id;return original.call(this,value,...rest);};
   const surface=location.search.includes('scoped')?{kind:'plugin',pluginId:'sample-plugin',scopeId:'project-a',surfaceId:'plan',resourceId:'order-a'}:undefined;
-  createRoot(document.getElementById('root')).render(<React.StrictMode><PluginFrame plugin={manifest} surface={surface} theme="dark" onReady={()=>{document.body.dataset.ready='true';}}/></React.StrictMode>);
+  window.__portCloses=0;const close=MessagePort.prototype.close;MessagePort.prototype.close=function(){window.__portCloses++;return close.call(this);};window.__readyOwners=[];const held=new Promise(()=>{});function Block({mode}){if(mode){window.__blockedMode=mode;throw held;}return null;}
+  function Harness(){const[mode,setMode]=React.useState(0);React.useEffect(()=>{window.__committedMode=mode;},[mode]);window.__speculate=()=>React.startTransition(()=>setMode(1));window.__hide=()=>flushSync(()=>setMode(2));window.__reveal=()=>flushSync(()=>setMode(0));return <React.Suspense fallback={<p id="suspended">Suspended</p>}><PluginFrame plugin={manifest} surface={surface} theme="dark" active={mode!==1} onReady={()=>{window.__readyOwners.push(mode?'uncommitted':'committed');document.body.dataset.ready='true';}}/><Block mode={mode}/></React.Suspense>;}
+  const root=createRoot(document.getElementById('root'));root.render(<React.StrictMode><Harness/></React.StrictMode>);window.__unmount=()=>root.unmount();
   document.getElementById('flush').onclick=()=>{document.getElementById('saved').textContent='pending';void prepareEditorHandoff().then(()=>{document.getElementById('saved').textContent='saved';},()=>{document.getElementById('saved').textContent='blocked';});};`,true);
  // Match the real installed-package ordering: the server injects the actual
  // classic GenPluginUI host runtime in <head>, before the private UI script.
@@ -109,6 +111,53 @@ it('revokes an unexpected same-URL reload and recovers only through a fresh pare
   await expect.poll(()=>page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))?.url()).not.toBe(old);
   await expect.poll(()=>page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))?.locator('#result').textContent()).toBe('owner-only');
   await page.locator('#flush').click();await expect.poll(()=>page.locator('#saved').textContent()).toBe('saved');
+ }finally{await page.close();}
+});
+
+it('keeps ready callbacks and visibility with the committed render during a suspended transition',async()=>{
+ const page=await browser.newPage();try{
+  await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
+  const child=page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))!;
+  await page.evaluate(()=>{(window as any).__readyOwners=[];(window as any).__speculate();});
+  await expect.poll(()=>page.evaluate(()=>(window as any).__blockedMode)).toBe(1);
+  await expect.poll(()=>page.locator('iframe').isVisible()).toBe(true);expect(await page.locator('#suspended').count()).toBe(0);
+  await child.evaluate(()=>(window as any).client.pluginReady());
+  await expect.poll(()=>page.evaluate(()=>(window as any).__readyOwners)).toEqual(['committed']);
+  await expect.poll(()=>child.evaluate(()=>(window as any).client.isPluginActive())).toBe(true);
+ }finally{await page.close();}
+});
+
+it('keeps the same document bridge usable after urgent Suspense hide and reveal',async()=>{
+ const page=await browser.newPage();try{
+  await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
+  const child=page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))!;
+  await page.locator('iframe').evaluate(element=>{(window as any).__originalFrame=element;});
+  await child.evaluate(()=>{(window as any).__duringHide='pending';void (window as any).client.pluginRequest('state.read',{key:'slow-hidden'}).then((value:any)=>{(window as any).__duringHide=value.private;});});
+  await expect.poll(()=>slow.has('slow-hidden')).toBe(true);
+  await page.evaluate(()=>(window as any).__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);await expect.poll(()=>page.locator('iframe').isHidden()).toBe(true);
+  slow.get('slow-hidden')!({private:'held-owner-only'});
+  await expect.poll(()=>child.evaluate(()=>(window as any).__duringHide)).toBe('held-owner-only');
+  await page.evaluate(()=>(window as any).__reveal());await expect.poll(()=>page.locator('iframe').isVisible()).toBe(true);
+  expect(await page.locator('iframe').evaluate(element=>element===(window as any).__originalFrame)).toBe(true);
+  await child.evaluate(()=>{(window as any).__afterReveal='pending';void (window as any).client.pluginRequest('state.read',{key:'after-reveal'}).then((value:any)=>{(window as any).__afterReveal=value.private;},()=>{(window as any).__afterReveal='failed';});});
+  await expect.poll(()=>child.evaluate(()=>(window as any).__afterReveal)).toBe('owner-only');
+  await page.locator('#flush').click();await expect.poll(()=>page.locator('#saved').textContent()).toBe('saved');
+  const closed=await page.evaluate(()=>(window as any).__portCloses);
+  await page.evaluate(()=>(window as any).__unmount());
+  await expect.poll(()=>page.evaluate(()=>(window as any).__portCloses)).toBe(closed+1);
+  expect(await page.locator('iframe').count()).toBe(0);
+ }finally{await page.close();}
+});
+
+it('closes the document port when an already-hidden Suspense tree is unmounted',async()=>{
+ const page=await browser.newPage();try{
+  await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
+  const closed=await page.evaluate(()=>(window as any).__portCloses);
+  await page.evaluate(()=>(window as any).__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>(window as any).__committedMode)).toBe(2);
+  await page.evaluate(()=>(window as any).__unmount());
+  expect(await page.locator('iframe').count()).toBe(0);
+  await expect.poll(()=>page.evaluate(()=>(window as any).__portCloses)).toBe(closed+1);
  }finally{await page.close();}
 });
 

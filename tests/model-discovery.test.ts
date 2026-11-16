@@ -25,8 +25,9 @@ afterEach(async () => {
 });
 
 function mockDiscovery(automatic = false) {
+  const observed=new EventEmitter();
   const children: Array<EventEmitter & { connected: boolean; exitCode: number | null; signalCode: null }> = [];
-  const requests: Array<{ resolve(value: ModelInfo[]): void; reject(): void }> = [];
+  const requests: Array<{ providerId?:string;resolve(value: ModelInfo[]): void; reject(): void }> = [];
   vi.spyOn(fileSystem, "mkdir").mockResolvedValue(undefined);
   const spawn = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
@@ -34,9 +35,11 @@ function mockDiscovery(automatic = false) {
       send(message: any, callback: (error: Error | null) => void) {
         if (message.command === "models") {
           requests.push({
+            providerId:message.providerId,
             resolve: value => child.emit("message", { type: "response", requestId: message.requestId, value }),
             reject: () => child.emit("message", { type: "response", requestId: message.requestId, code: "PI_AUTH_REQUIRED", error: "Sign in again" }),
           });
+          observed.emit('request');
           if (automatic) queueMicrotask(() => child.emit("message", { type: "response", requestId: message.requestId, value: structuredClone(catalog) }));
         }
         else queueMicrotask(() => child.emit("message", { type: "response", requestId: message.requestId, value: null }));
@@ -63,10 +66,33 @@ function mockDiscovery(automatic = false) {
     (await request(index)).resolve(structuredClone(catalog));
     return result;
   }
-  return { runtime, requests, children, spawn, terminate, request, discover };
+  return { runtime, requests, children, spawn, terminate, request, discover,observed };
 }
 
 describe("Pi model discovery cache", () => {
+  it('invalidates only the signed-out provider while retaining unrelated cached catalogs',async()=>{
+    const f=mockDiscovery(),kept={id:'xai/kept',provider:'xai',name:'Unrelated cached model'};
+    const first=f.runtime.models();(await f.request(0)).resolve([...catalog,kept]);await first;
+    await f.runtime.invalidateModels!({providerId:'openai'});
+    const cached=f.runtime.models();void cached.catch(()=>{});
+    try{expect(await Promise.race([cached,new Promise(resolve=>f.observed.once('request',()=>resolve('unexpected discovery')))])).toEqual([kept]);expect(f.spawn).toHaveBeenCalledTimes(1);}
+    finally{for(const request of f.requests)request.resolve([]);await cached.catch(()=>{});}
+  });
+  it('refreshes one provider and retains the other cached providers',async()=>{
+    const f=mockDiscovery(),kept={id:'xai/kept',provider:'xai',name:'Unrelated cached model'};
+    const first=f.runtime.models();(await f.request(0)).resolve([...catalog,kept]);await first;
+    const refresh=f.runtime.models({refresh:true,providerId:'openai'});const request=await f.request(1);expect(request.providerId).toBe('openai');request.resolve(updated);
+    expect(await refresh).toEqual(updated);expect(await f.runtime.models()).toEqual([kept,...updated]);expect(f.spawn).toHaveBeenCalledTimes(2);
+  });
+  it('does not treat an initial scoped discovery as the complete catalog',async()=>{
+    const f=mockDiscovery(),first=f.runtime.models({providerId:'openai'});(await f.request(0)).resolve(updated);await first;
+    const all=f.runtime.models();(await f.request(1)).resolve(catalog);expect(await all).toEqual(catalog);
+  });
+  it('does not repopulate an invalidated cache from an older in-flight discovery',async()=>{
+    const f=mockDiscovery(),old=f.runtime.models();await f.request(0);await f.runtime.invalidateModels!();
+    const fresh=f.runtime.models();f.requests[0].resolve(catalog);await old;
+    (await f.request(1)).resolve(updated);expect(await fresh).toEqual(updated);expect(await f.runtime.models()).toEqual(updated);
+  });
   it("reuses successful discovery without leaving a discovery worker alive", async () => {
     const fixture = mockDiscovery(true);
     expect(await fixture.discover()).toEqual(catalog);
@@ -181,6 +207,20 @@ async function modelServer() {
 }
 
 describe("model refresh API", () => {
+  it('forwards an explicit scoped account without broadening a pinned thread refresh',async()=>{
+    const {app,models,headers}=await modelServer(),accountId='13b23643-8c4d-42ac-a5f5-d14823bc4441';
+    expect((await app.inject({url:`/api/models?refresh=1&threadId=saved-thread&providerId=openai&accountId=${accountId}`,headers})).statusCode).toBe(200);
+    expect(models).toHaveBeenCalledExactlyOnceWith({refresh:true,threadId:'saved-thread',target:{providerId:'openai',accountId}});
+  });
+  it.each(['providerId=openai','accountId=','providerId=unknown&accountId=','providerId=openai&accountId=not-an-account'])('rejects an incomplete or invalid targeted catalog (%s)',async query=>{
+    const {app,models,headers}=await modelServer();expect((await app.inject({url:'/api/models?'+query,headers})).statusCode).toBe(400);expect(models).not.toHaveBeenCalled();
+  });
+  it('includes the exact legacy auth target in the existing abortable browser model request',async()=>{
+    const urls:string[]=[],controller=new AbortController();
+    vi.stubGlobal('fetch',async(url:string,options:RequestInit)=>{if(url==='/api/bootstrap')return Response.json({csrfToken:'test-session'});urls.push(url);expect(options.signal).toBe(controller.signal);return Response.json({models:catalog});});
+    await getModels(true,undefined,controller.signal,{providerId:'openai',accountId:null});
+    expect(urls).toEqual(['/api/models?refresh=1&providerId=openai&accountId=']);
+  });
   it.each(["1", "true"])("accepts refresh=%s and forwards explicit refresh", async value => {
     const { app, models, headers } = await modelServer();
     const response = await app.inject({ url: `/api/models?refresh=${value}`, headers });

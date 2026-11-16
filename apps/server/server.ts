@@ -15,8 +15,10 @@ import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/pr
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
+import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
+import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
@@ -170,10 +172,11 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   app.get("/api/models", async (request, reply) => {
     reply.header("Cache-Control", "no-store");
-    const { refresh,threadId } = request.query as { refresh?: unknown;threadId?:unknown };
+    const { refresh,threadId,providerId,accountId } = request.query as { refresh?: unknown;threadId?:unknown;providerId?:unknown;accountId?:unknown };
+    const target=providerId!==undefined||accountId!==undefined?parseAccountAuthTarget({providerId,accountId:accountId===''?null:accountId}):undefined;
     if (refresh !== undefined && refresh !== "1" && refresh !== "true") throw new HarnessError("INVALID_INPUT", "Model refresh must be 1 or true");
     if(threadId!==undefined&&(typeof threadId!=='string'||!threadId||threadId.length>200))throw new HarnessError('INVALID_INPUT','Choose a valid thread for model discovery');
-    try { return { models: await service.models({ refresh: refresh !== undefined,threadId:threadId as string|undefined }) }; }
+    try { return { models: await service.models({ refresh: refresh !== undefined,threadId:threadId as string|undefined,...(target?{target}:{}) }) }; }
     catch (error) { return { models: [], error: error instanceof Error ? error.message : "Pi is unavailable" }; }
   });
   app.post("/api/commands", async request => service.command(commandSchema.parse(request.body)));
@@ -191,6 +194,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
   registerSourceWorkbenchRoutes(app,service);
+  registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
   registerAttentionRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);

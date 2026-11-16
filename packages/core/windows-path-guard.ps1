@@ -179,16 +179,24 @@ public static class HarnessPathGuard {
 try {
   while ($null -ne ($line = [Console]::ReadLine())) {
     $request = $line | ConvertFrom-Json
-    if ($request.command -eq 'acquire') {
-      [HarnessPathGuard]::Begin([string]$request.id)
-      foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly, [bool]$entry.allowChildWrites, [string]$entry.childWriteRoot, [bool]$entry.gitMetadataImport) }
-    } elseif ($request.command -eq 'release') { [HarnessPathGuard]::Release([string]$request.id) }
-    elseif ($request.command -eq 'removeOwned') { [HarnessPathGuard]::RemoveOwned([string]$request.path, [string]$request.dev, [string]$request.ino, [bool]$request.empty, [bool]$request.directory) }
-    elseif ($request.command -eq 'replaceOwned') { [HarnessPathGuard]::ReplaceOwned([string]$request.source, [string]$request.destination, [string]$request.dev, [string]$request.ino, [string]$request.sha256, [string]$request.targetDev, [string]$request.targetIno, [string]$request.targetSha256) }
-    else { throw 'Invalid guard request' }
-    if ($request.command -eq 'acquire' -and @($request.paths | Where-Object { $_.tree }).Count -gt 0) {
-      [Console]::WriteLine((@{ id = [string]$request.id; entries = @([HarnessPathGuard]::GetManifest([string]$request.id)) } | ConvertTo-Json -Compress -Depth 5))
-    } else { [Console]::WriteLine([string]$request.id) }
+    try {
+      if ($request.command -eq 'acquire') {
+        [HarnessPathGuard]::Begin([string]$request.id)
+        foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly, [bool]$entry.allowChildWrites, [string]$entry.childWriteRoot, [bool]$entry.gitMetadataImport) }
+      } elseif ($request.command -eq 'release') { [HarnessPathGuard]::Release([string]$request.id) }
+      elseif ($request.command -eq 'removeOwned') { [HarnessPathGuard]::RemoveOwned([string]$request.path, [string]$request.dev, [string]$request.ino, [bool]$request.empty, [bool]$request.directory) }
+      elseif ($request.command -eq 'replaceOwned') { [HarnessPathGuard]::ReplaceOwned([string]$request.source, [string]$request.destination, [string]$request.dev, [string]$request.ino, [string]$request.sha256, [string]$request.targetDev, [string]$request.targetIno, [string]$request.targetSha256) }
+      else { throw 'Invalid guard request' }
+      if ($request.command -eq 'acquire' -and @($request.paths | Where-Object { $_.tree }).Count -gt 0) {
+        [Console]::WriteLine((@{ id = [string]$request.id; entries = @([HarnessPathGuard]::GetManifest([string]$request.id)) } | ConvertTo-Json -Compress -Depth 5))
+      } else { [Console]::WriteLine([string]$request.id) }
+    } catch {
+      # A failed request must not kill the shared guard: release whatever its
+      # partial acquisition pinned and report the denial as data on stdout.
+      $failure = $_.Exception.GetBaseException()
+      try { [HarnessPathGuard]::Release([string]$request.id) } catch {}
+      [Console]::WriteLine((@{ id = [string]$request.id; error = [string]$failure.Message; code = [int]$failure.HResult } | ConvertTo-Json -Compress))
+    }
     [Console]::Out.Flush()
   }
 } catch {

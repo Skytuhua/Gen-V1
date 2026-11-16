@@ -101,21 +101,30 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
   configure(value){active();callbacks=value;},
   async models(query){
    active();const account=resolveAccount(query?.accountId),selected=pair(account);
+   const providerId=query?.providerId;
+   if(providerId&&(!isConnectionProviderId(providerId)||account&&account.providerId!==providerId))throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH','This catalog belongs to another provider.');
    if(account)available(account.providerId,account.id);
-   const targets=account?[isOfficialRuntimeProviderId(account.providerId)?selected.official:selected.pi]:[selected.pi,selected.official];
+   const targets=providerId?[isOfficialRuntimeProviderId(providerId)?selected.official:selected.pi]:account?[isOfficialRuntimeProviderId(account.providerId)?selected.official:selected.pi]:[selected.pi,selected.official];
    const refresh=query?.refresh;
-   const results=await withAccountProfile(root,account,async()=>{active();if(account)available(account.providerId,account.id);return Promise.allSettled(targets.map(adapter=>probe(adapter,probeProviders(account,adapter===selected.official),account?.id??null,()=>adapter.models(refresh===undefined?undefined:{refresh}))));});active();
+   const results=await withAccountProfile(root,account,async()=>{active();if(account)available(account.providerId,account.id);return Promise.allSettled(targets.map(adapter=>probe(adapter,providerId?[providerId]:probeProviders(account,adapter===selected.official),account?.id??null,async()=>{
+    try{return await adapter.models(providerId?{refresh,providerId}:refresh===undefined?undefined:{refresh});}
+    catch(error){
+     // Pi reports missing credentials only after its discovery worker has closed; other legacy runs keep their adapter.
+     if(providerId&&(error as {code?:unknown})?.code==='PI_AUTH_REQUIRED')return [];
+     throw error;
+    }
+   })));});active();
    if(account){const current=resolveAccount(account.id);if(current?.providerId!==account.providerId)throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH','This account changed during model discovery.');available(account.providerId,account.id);}
    const models=results.flatMap(result=>result.status==='fulfilled'?result.value:[]).filter(model=>{
     const provider=providerForModel(model.id),providerId=model.id.split('/')[0];
-    return (provider==='pi'||isConnectionProviderId(provider))&&(!isOfficialRuntimeProviderId(model.provider)||isConnectionProviderId(model.provider))&&(!account||(model.provider===account.providerId&&providerId===account.providerId))&&!(isConnectionProviderId(providerId)&&options.accounts?.isSigningIn?.(providerId,account?.id??null));
+    return (provider==='pi'||isConnectionProviderId(provider))&&(!query?.providerId||(model.provider===query.providerId&&providerId===query.providerId))&&(!isOfficialRuntimeProviderId(model.provider)||isConnectionProviderId(model.provider))&&(!account||(model.provider===account.providerId&&providerId===account.providerId))&&!(isConnectionProviderId(providerId)&&options.accounts?.isSigningIn?.(providerId,account?.id??null));
    });
    if(!models.length&&results.some(result=>result.status==='rejected'))throw new HarnessError('AI_AUTH_REQUIRED','No signed-in subscription runtime is available. Connect a provider in Settings and refresh models.');return models;
   },
   async invalidateModels(query){
    active();
    const targets=query?.accountId===undefined?[...pairs.values()]:[pairs.get(query.accountId)].filter((value):value is Pair=>Boolean(value));
-   await Promise.all(targets.flatMap(value=>[value.pi,value.official]).map(adapter=>adapter.invalidateModels?.()));
+   await Promise.all(targets.flatMap(value=>query?.providerId?[isOfficialRuntimeProviderId(query.providerId)?value.official:value.pi]:[value.pi,value.official]).map(adapter=>query?.providerId?adapter.invalidateModels?.({providerId:query.providerId}):adapter.invalidateModels?.()));
   },
   async start(input:StartRun){if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured=structuredClone(input),selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId),captured.memoryCheckpoint),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
   async followUp(input){active();if(options.purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.');if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.');if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(!sameMemoryCheckpointRequirement(captured.memoryCheckpoint,current.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_OWNER','Follow-up changed the captured checkpoint requirement.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},

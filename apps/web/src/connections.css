@@ -1,4 +1,10 @@
 .connection-list { margin-top: 28px; }.connection-list>header h2 { font-size: 17px; margin: 0 0 8px; }
+.connection-providers { display:flex;flex-wrap:wrap;gap:6px;margin:16px 0; }
+.connection-providers button { padding:7px 10px;border:1px solid var(--border);border-radius:6px;color:var(--muted);background:transparent;font:inherit; }
+.connection-providers button[aria-pressed="true"] { color:var(--text);background:var(--selection-bg); }
+.connection-account-auth>.connection-account-actions { flex-wrap:wrap;margin:12px 0; }
+.connection-row details { margin-top:18px;color:var(--muted);font-size:12px; }
+.connection-row summary { cursor:pointer; }
 .connection-list p { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 8px 0 14px; }
 .connection-row { border-top: 1px solid var(--border); padding: 20px 0; }
 .connection-row>header,.connection-row>footer { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }

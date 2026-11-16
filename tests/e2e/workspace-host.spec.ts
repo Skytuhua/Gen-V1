@@ -6,7 +6,7 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packa
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
 
-async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
+async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', retiredSelectionFailsOnce = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
   snapshot.threads[0] = {...snapshot.threads[0], id: 'parent-a', title: 'Project investigation', projectId: 'project-a', projectName: 'Alpha', status: working ? 'working' : 'ready', runId: working ? 'run-a' : null};
   snapshot.activeThreadId = 'parent-a'; snapshot.artifacts = []; snapshot.userStates = []; snapshot.data = []; snapshot.messages = [];
@@ -43,6 +43,10 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {
     const input = route.request().postDataJSON();
+    if (retiredSelectionFailsOnce && input.type === 'workspace.canvas.select') {
+      retiredSelectionFailsOnce = false;
+      return route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Could not open the replacement workspace'}}});
+    }
     if (input.type === 'workspace.canvas.select') envelope.state.activeCanvasId = input.payload.canvasId;
     envelope.state.revision++; return route.fulfill({json: {commandId: input.id, seq: 1, result: envelope}});
   });
@@ -157,16 +161,19 @@ test('compact Settings reserves sections while metadata loads and retains its se
     await expect(dialog.locator('.loading-state-skeleton .settings-navigation')).toBeVisible();
     release();
     const search = dialog.getByRole('searchbox', {name: 'Search all settings', exact: true});
-    await search.fill('workspace diagnostics'); const original = await search.elementHandle();
+    await dialog.getByRole('navigation', {name: 'Settings sections'}).getByRole('button', {name: 'Data & Recovery', exact: true}).click();
+    const original = await search.elementHandle();
     gate = new Promise<void>(resolve => {release = resolve;});
     await dialog.getByRole('button', {name: 'Refresh settings', exact: true}).click();
-    await search.focus();
     await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toBeVisible();
+    // Search results navigate to the real controls; they do not contain duplicate controls.
+    await search.fill('workspace diagnostics');
     await expect(dialog.locator('.loading-state-skeleton')).toHaveCount(0);
     await expect(search).toHaveValue('workspace diagnostics');
     expect(await search.evaluate((node, original) => node === original && document.activeElement === node, original)).toBe(true);
     release(); await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toHaveCount(0);
     await expect(search).toHaveValue('workspace diagnostics');
+    expect(await search.evaluate((node, original) => node === original && document.activeElement === node, original)).toBe(true);
   } finally {release();}
 });
 
@@ -246,6 +253,46 @@ for(const [kind,label] of [['file','File'],['database','SQLite database'],['expo
  expect(h.commands.filter(command=>command.type==='resource.grant')).toHaveLength(0);
  await dialog.getByRole('button',{name:'Add resource',exact:true}).click();await expect(dialog).toBeHidden();
  expect(h.commands.filter(command=>command.type==='resource.grant').map(({threadId,payload})=>({threadId,payload}))).toEqual([{threadId:'parent-a',payload:{path:'C:/synthetic/granted-item',kind,writable:true}}]);
+});
+
+test('a finished resource grant does not close a reopened picker', async ({page}) => {
+ const h=await fixture(page,{working:false});
+ let finish!:()=>void;
+ const pending=new Promise<void>(resolve=>{finish=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const input=route.request().postDataJSON();
+  if(input.type!=='resource.grant')return route.fallback();
+  h.commands.push(input);await pending;
+  h.snapshot.resources.push({id:'granted-first',threadId:input.threadId,kind:'file',path:input.payload.path,label:'first-file',writable:false,createdAt:'2026-11-06T00:00:00.000Z'});
+  return route.fulfill({json:{commandId:input.id,seq:++h.snapshot.seq,result:{}}});
+ });
+ const openPicker=async()=>{
+  await page.getByRole('button',{name:'Settings',exact:true}).click();
+  const settings=page.getByRole('dialog',{name:'Settings',exact:true});
+  await settings.getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
+  await settings.getByRole('button',{name:'Add resource',exact:true}).click();
+ };
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await openPicker();
+ const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true}),path=dialog.getByRole('textbox',{name:'Absolute local path',exact:true});
+ await dialog.getByRole('combobox',{name:'Resource type',exact:true}).click();
+ await dialog.getByRole('option',{name:'File',exact:true}).click();
+ await path.fill('C:/synthetic/first-file');
+ await dialog.getByRole('button',{name:'Add resource',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Granting…',exact:true})).toBeDisabled();
+ await expect.poll(()=>h.commands.filter(command=>command.type==='resource.grant').length).toBe(1);
+ await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(dialog).toBeHidden();
+ await openPicker();
+ await path.fill('C:/synthetic/second-draft');
+ const refreshed=page.waitForResponse(async response=>new URL(response.url()).pathname==='/api/snapshot'&&response.ok()&&(await response.json()).resources.some((item:{id:string})=>item.id==='granted-first'));
+ finish();
+ await refreshed;
+ // Let the command's refresh and completion handlers commit before inspecting the new dialog.
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ await expect(path).toBeFocused();
+ await expect(path).toHaveValue('C:/synthetic/second-draft');
+ expect(h.commands.filter(command=>command.type==='resource.grant').map(({threadId,payload})=>[threadId,payload.path])).toEqual([['parent-a','C:/synthetic/first-file']]);
 });
 
 test('monitor preserves unpin confirmation with a shared dialog and cancellation', async ({page}) => {
@@ -377,6 +424,17 @@ for (const preset of ['code-review', 'custom'] as const) test(`a saved ${preset}
   for (const label of ['Code Review', 'Research', 'Custom']) await expect(page.getByRole('button', {name: label, exact: true})).toHaveCount(0);
 });
 
+test('Retry workspace reattempts a failed retired canvas transition at the same revision', async ({page}) => {
+  const h = await fixture(page, {working: false, retiredActive: 'custom', retiredSelectionFailsOnce: true});
+  await expect(page.getByRole('alert')).toContainText('Could not open the replacement workspace');
+  expect(h.envelope.state.revision).toBe(1);
+  await page.getByRole('button', {name: 'Retry workspace', exact: true}).click();
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  expect(h.envelope.state.activeCanvasId).toBe('workspace');
+  expect(h.envelope.state.revision).toBe(2);
+  expect(h.envelope.state.canvases.find(canvas => canvas.id === 'custom')?.preset).toBe('custom');
+});
+
 test('explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12)', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('harness:workspace-mode:v3', 'retained-canvas'));
   const h = await fixture(page, {working: false, retiredActive: 'custom'});
@@ -386,9 +444,21 @@ test('explicit retained-canvas restoration still renders a saved retired canvas 
 });
 
 test('PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12)', async ({page}) => {
+  await page.addInitScript(() => {
+    for (const thread of ['parent-a', 'empty-draft']) for (const panel of ['sidebar', 'linked-pull-requests:' + thread]) {
+      const key = 'pr-panel:' + JSON.stringify(['local', 'project-a', thread, 'linked-pull-requests', panel]);
+      const value = {version: 1, draft: false, title: '', body: '', baseBranch: 'main', push: false, link: '', basis: null, selected: 8, comments: {}};
+      localStorage.setItem('harness:journal-pending:' + encodeURIComponent(key), JSON.stringify({value, updatedAt: Date.now(), generation: crypto.randomUUID()}));
+    }
+  });
   const h = await fixture(page, {working: false});
   await page.route('**/api/projects/project-a/context*', route => route.fulfill({json: {project: {id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}, threadId: 'parent-a', workingCopy: {id: 'copy-a', path: 'C:/synthetic/alpha'}, threadRevision: 'rev-hover-1', machineName: 'Synthetic host', editor: {available: false, label: 'Editor'}, branch: 'feature/fixture', head: null, changes: {added: 1, removed: 0, files: 1}, lineage: [], scripts: [], capabilities: {git: true, terminal: false, pullRequests: true}}}));
-  await page.route('**/api/projects/project-a/pull-requests*', route => route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}}));
+  await page.route('**/api/projects/project-a/pull-requests/**', route => {
+    const number = Number(new URL(route.request().url()).pathname.split('/').at(-1));
+    if (number === 7 || number === 8) return route.fulfill({json: {item: {number, title: number === 7 ? 'Review me' : 'Saved selection', headRefOid: 'a'.repeat(40), state: 'open', files: [], statusCheckRollup: []}, head: 'a'.repeat(40), revision: 'b'.repeat(64), canReview: false}});
+    return route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}});
+  });
+  await page.route('**/api/projects/project-a/pull-requests?*', route => route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}}));
   await page.route('**/api/projects/project-a/git*', route => route.fulfill({json: {branch: 'feature/fixture', head: 'abcdef1234', revision: 'rev-1', files: [], gitWrite: false, stagedDiff: '', diff: ''}}));
   await page.locator('[data-thread-id="parent-a"] .thread-item').hover();
   const action = page.getByRole('button', {name: /Open PR #7/});
@@ -396,6 +466,7 @@ test('PR hover opens the shared linked-pull-requests surface in Workspace, not a
   await action.click();
   await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
   await expect(page.getByText('Linked pull requests', {exact: true}).first()).toBeVisible();
+  await expect(page.locator('.pr-review').first()).toContainText('#7 Review me');
   expect(h.envelope.state.activeCanvasId).toBe('workspace');
   expect(h.envelope.state.canvases).toHaveLength(5);
   await expect(page.getByRole('button', {name: 'Code Review', exact: true})).toHaveCount(0);

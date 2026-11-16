@@ -21,6 +21,7 @@ splitLayout = applySplitWorkspaceCommand(splitLayout, 'view.open', { view: { id:
 splitLayout = applySplitWorkspaceCommand(splitLayout, 'pane.split', { paneId: 'pane-main', newPaneId: 'right', splitId: 'cols', axis: 'horizontal', view: { id: 'thread:b', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'b' } } });
 let singleLayout = createSplitWorkspaceLayout();
 singleLayout = applySplitWorkspaceCommand(singleLayout, 'view.open', { view: { id: 'thread:solo', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'solo' } } });
+const floatingLayout = applySplitWorkspaceCommand(singleLayout, 'view.park', { viewId: 'thread:solo' });
 function Fixture() {
   const [width, setWidth] = useState(300);
   const params = new URLSearchParams(location.search);
@@ -39,6 +40,7 @@ function Fixture() {
     {cornerWidth > 0 && <div style={{ height: 300, width: cornerWidth }}>
       <WorkspaceSplitLayout layout={singleLayout} onCommand={async () => {}} renderView={view => <div style={{ padding: 8 }}>{view.id}</div>} />
     </div>}
+    {params.has('float') && <div style={{ height: 500, width: 900 }}><WorkspaceSplitLayout layout={floatingLayout} floating={{'thread:solo':{x:100,y:80,width:400,height:260}}} onMoveFloat={()=>{}} onCommand={async()=>{}} renderView={view=><div>{view.id}</div>}/></div>}
     {cornerWidth === 0 && <FloatingWindow id="gesture-window" title="Gesture" anchor="top-right" defaultSize={{ width: 300, height: 200 }} focusOnOpen={false}>
       <p>window body</p>
     </FloatingWindow>}
@@ -103,6 +105,19 @@ describe('gesture cleanup', () => {
     await page.close();
   });
 
+  it('a foreign pointer cannot end or replace an active resize', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page), handle = page.getByRole('separator', { name: 'Resize test panel' });
+    await page.mouse.move(center.x, center.y); await page.mouse.down();
+    await handle.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await handle.dispatchEvent('lostpointercapture', { pointerId: 77, bubbles: true });
+    await page.evaluate(() => { window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 77 })); window.dispatchEvent(new PointerEvent('pointercancel', { pointerId: 77 })); });
+    expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(true);
+    await page.mouse.move(center.x + 40, center.y); expect(await width(page)).toBe(340);
+    await page.mouse.up(); expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(false);
+    await page.close();
+  });
+
   it('AUD-01: window blur ends the resize and clears the root class', async () => {
     const page = await openPage();
     const center = await handleCenter(page);
@@ -154,6 +169,19 @@ describe('gesture cleanup', () => {
     await page.close();
   });
 
+  it('a second pointer cannot replace an active floating move', async () => {
+    const page = await openPage(), move = page.getByRole('button', { name: 'Move Gesture' }), shell = page.locator('[data-floating-id="gesture-window"]');
+    await expect.poll(() => shell.evaluate(node => node.getAnimations().filter(animation => animation.playState === 'running').length)).toBe(0);
+    const box = (await move.boundingBox())!, start = (await shell.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 30, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 10);
+    await move.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await page.mouse.move(box.x + box.width / 2 - 80, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 60);
+    await page.mouse.up(); await pw(shell).toHaveAttribute('data-interacting', 'false'); await page.close();
+  });
+
   it('AUD-02: window blur cancels a split resize, clears the preview and releases capture', async () => {
     const page = await openPage('?split');
     const divider = page.getByRole('separator', { name: 'Resize columns' });
@@ -179,6 +207,43 @@ describe('gesture cleanup', () => {
     await pw(divider, 'no preview after blur').not.toHaveClass(/is-dragging/);
     await page.mouse.up();
     await page.close();
+  });
+
+  for (const type of ['pointercancel', 'lostpointercapture']) it(`foreign ${type} cannot cancel a split resize`, async () => {
+    const page = await openPage('?split'), divider = page.getByRole('separator', { name: 'Resize columns' });
+    await divider.waitFor(); const box = (await divider.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2);
+    await pw(divider).toHaveClass(/is-dragging/);
+    await divider.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await divider.dispatchEvent(type, { pointerId: 77, bubbles: true });
+    await pw(divider).toHaveClass(/is-dragging/);
+    await page.mouse.up(); await pw(divider).not.toHaveClass(/is-dragging/); await page.close();
+  });
+
+  for (const type of ['pointercancel', 'lostpointercapture']) it(`foreign ${type} cannot cancel a split corner drag`, async () => {
+    const page = await openPage('?corner&w=900'), corner = page.getByRole('button', { name: 'Split this area' });
+    const box = (await corner.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2);
+    await pw(page.locator('.split-drop-preview')).toHaveCount(1);
+    await corner.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await corner.dispatchEvent(type, { pointerId: 77, bubbles: true });
+    await pw(page.locator('.split-drop-preview')).toHaveCount(1);
+    await page.mouse.up(); await page.close();
+  });
+
+  for (const type of ['pointercancel', 'lostpointercapture']) for (const mode of ['move', 'resize'] as const) it(`foreign ${type} cannot cancel a floating split ${mode}`, async () => {
+    const page = await openPage('?float'), grip = page.getByRole('button', { name: mode === 'move' ? 'Placement and move for Conversation' : 'Resize Conversation' });
+    await grip.scrollIntoViewIfNeeded();
+    const surface = page.locator('[data-split-view="thread:solo"]'), box = (await grip.boundingBox())!, start = (await surface.boundingBox())!;
+    const property = mode === 'move' ? 'x' : 'width';
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down(); await page.mouse.move(box.x + box.width / 2 + 60, box.y + box.height / 2);
+    await pw.poll(async () => (await surface.boundingBox())![property] - start[property]).toBeGreaterThan(40);
+    await grip.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await grip.dispatchEvent(type, { pointerId: 77, bubbles: true });
+    expect((await surface.boundingBox())![property] - start[property]).toBeGreaterThan(40);
+    await page.mouse.up(); await page.close();
   });
 
   it('AUD-04: an impossible edge split shows no preview; a fitting one does', async () => {

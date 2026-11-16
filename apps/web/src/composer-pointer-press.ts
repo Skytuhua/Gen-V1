@@ -12,15 +12,17 @@ export function useComposerPointerPress(){
   return ()=>{clear();window.removeEventListener('pointerup',release,true);window.removeEventListener('pointercancel',release,true);window.removeEventListener('blur',clear);};
  },[]);
  return {
+  'data-composer-press-group':'',
   onPointerDown(event:PointerEvent<HTMLDivElement>){
-   if(event.button!==0||!event.isPrimary)return;
-   clear();
+   if(event.button!==0||!event.isPrimary||(pressed.current&&event.pointerId!==pressed.current.pointerId))return;
    const target=event.target instanceof Element?event.target.closest<HTMLElement>('.composer-tool,.composer-context-chip'):null;
-   if(!target||!event.currentTarget.contains(target)||target.matches(':disabled,[data-pointer-pressed]'))return;
+   if(!target||target.closest('[data-composer-press-group]')!==event.currentTarget)return;
+   clear();
+   if(!event.currentTarget.contains(target)||target.matches(':disabled,[data-pointer-pressed]'))return;
    pressed.current={target,pointerId:event.pointerId};target.setAttribute('data-pointer-pressed','');
   },
   onPointerOut(event:PointerEvent<HTMLDivElement>){
-   if(pressed.current&&!(event.relatedTarget instanceof Node&&pressed.current.target.contains(event.relatedTarget)))clear();
+   if(event.pointerId===pressed.current?.pointerId&&!(event.relatedTarget instanceof Node&&pressed.current.target.contains(event.relatedTarget)))clear();
   },
   onKeyDownCapture:clear,
   onBlurCapture(event:FocusEvent<HTMLDivElement>){if(pressed.current?.target.contains(event.target))clear();},
