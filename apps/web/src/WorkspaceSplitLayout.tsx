@@ -21,7 +21,6 @@ export interface WorkspaceSplitLayoutProps {
  onSelectEditor?:(kind:string,paneId:string)=>Promise<void>;
  prepare?:()=>Promise<void>;
  showHistory?:boolean;
- toolDock?:boolean;
  className?:string;
  floating?:Record<string,ChatRect>;
  onReturnFloat?:(view:SurfaceRef)=>void;
@@ -37,7 +36,7 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false),draggingView=useRef<SurfaceRef|null>(null);
  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[menuPane,setMenuPane]=useState<string|null>(null);
  const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
@@ -54,7 +53,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
  const endFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dock=floatDockTarget.current;floatDockTarget.current=null;setDrop(null);if(g.mode==='move'&&dock&&onDockFloat){const view=layout.views[g.viewId];releaseFloat();if(view)onDockFloat(view,dock.paneId,dock.edge,dock.outer);return;}const dx=event.clientX-g.startX,dy=event.clientY-g.startY;const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};const rect=clampChatRect(next,{width:size.width,height:size.height});releaseFloat();setFloatRects(current=>({...current,[g.viewId]:rect}));onMoveFloat?.(g.viewId,rect);};
  const keyFloat=(event:KeyboardEvent<HTMLElement>,viewId:string)=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;const rect=floatRectOf(viewId);if(!rect)return;event.preventDefault();const step=event.shiftKey?24:8,dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;const next=clampChatRect({...rect,x:rect.x+dx,y:rect.y+dy},{width:size.width,height:size.height});setFloatRects(current=>({...current,[viewId]:next}));onMoveFloat?.(viewId,next);};
  useEffect(()=>{const escape=(event:globalThis.KeyboardEvent)=>{if(event.key==='Escape'){if(floatGesture.current){event.preventDefault();cancelFloat();}setFloatMenu(null);}};const blur=()=>{cancelFloat();setFloatMenu(null);};window.addEventListener('keydown',escape);window.addEventListener('blur',blur);return()=>{window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);cancelFloat();};},[cancelFloat]);
- const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||(toolDock?size.height<minimum.height:size.width<700)),topBar=narrow?30:0;
+ const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||size.width<700),topBar=narrow?30:0;
  useEffect(()=>{if(menuPane&&(!layout.panes[menuPane]||layout.panes[menuPane].collapsed||narrow&&layout.focusedPaneId!==menuPane))setMenuPane(null);},[menuPane,layout.panes,layout.focusedPaneId,narrow]);
  const measure=useCallback(()=>{
   const host=root.current;if(!host)return;const basis=host.getBoundingClientRect(),next:Record<string,SlotRect>={};

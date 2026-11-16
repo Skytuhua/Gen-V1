@@ -80,7 +80,7 @@ jobs:
         run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
+        run: pnpm test --maxWorkers=1 --shard=${{ matrix.shard }}/4
 
   browser:
     name: Browser tests
