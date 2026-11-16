@@ -98,3 +98,57 @@ it('does not let an exclusion response replace the prepared query or its remaini
   const api = await import('../apps/web/src/project-memory-request-api');
   await expect(api.excludeMemoryFromRequest(before, {itemId: 'memory', revision: 2}, new AbortController().signal)).rejects.toMatchObject({code: 'INVALID_RESPONSE'});
 });
+
+
+it.each(['disabled', 'input'] as const)('keeps visible prepared controls on their committed %s during a suspended render', async change => {
+  const {build} = await import('esbuild'), {chromium} = await import('@playwright/test');
+  const script = (await build({stdin: {resolveDir: process.cwd(), loader: 'tsx', contents: `
+    import React,{Suspense,startTransition,useLayoutEffect,useState} from 'react';
+    import {createRoot} from 'react-dom/client';
+    import {useProjectMemoryPreparation} from './apps/web/src/useProjectMemoryPreparation';
+    const original=${JSON.stringify(input)}, never=new Promise(()=>{});
+    function Block({suspend}){if(suspend){window.attempted=true;throw never;}return null;}
+    function Controls({state}){
+      const memory=useProjectMemoryPreparation(state.input,false,state.disabled);
+      const exclude=()=>memory.memoryRecall.exclusionAdapter.exclude({itemId:'memory',revision:2});useLayoutEffect(()=>{window.exclude=exclude;});
+      return <><button onClick={memory.refresh}>Inspect</button>
+        <button disabled={!memory.memoryRecall||memory.memoryRecall.exclusionAdapter.disabled} onClick={()=>{void exclude().then(()=>window.excluded=true).catch(error=>window.error=error.message)}}>Exclude</button>
+        <button onClick={()=>window.token=memory.requestContextId()}>Capture context</button></>;
+    }
+    function App(){
+      const [state,setState]=useState({input:original,disabled:false,suspend:false});
+      window.suspend=change=>startTransition(()=>setState({input:change==='input'?{...original,prompt:'Different uncommitted request'}:original,disabled:change==='disabled',suspend:true}));
+      window.disable=()=>setState({input:original,disabled:true,suspend:false});
+      return <Suspense fallback="fallback"><Controls state={state}/><Block suspend={state.suspend}/></Suspense>;
+    }
+    createRoot(document.getElementById('root')).render(<App/>);
+  `}, bundle: true, write: false, platform: 'browser', format: 'iife', jsx: 'automatic', define: {'process.env.NODE_ENV': '"production"'}, plugins: [{name: 'memory-transport', setup(plugin) {
+    plugin.onResolve({filter: /^\.\/project-memory-request-api$/}, () => ({path: 'memory-transport', namespace: 'fixture'}));
+    plugin.onLoad({filter: /.*/, namespace: 'fixture'}, () => ({loader: 'js', contents: `
+      export const prepareMemoryRequest=async()=>(${JSON.stringify(withMemory())});
+      export const latestMemoryRequest=async()=>null;
+      export const excludeMemoryFromRequest=async view=>{window.exclusions=(window.exclusions??0)+1;return {...view,items:[],injectedBytes:0}};
+    `}));
+  }}]})).outputFiles[0]!.text;
+  const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
+  const page=await browser.newPage();
+  type HookWindow=Window&{suspend:(change:string)=>void;disable:()=>void;exclude:()=>Promise<void>;attempted?:boolean;token?:string;excluded?:boolean;exclusions?:number;error?:string};
+  try {
+    await page.setContent('<div id="root"></div>');await page.addScriptTag({content:script});
+    await page.getByRole('button',{name:'Inspect',exact:true}).click();
+    await expect.poll(()=>page.getByRole('button',{name:'Exclude',exact:true}).isEnabled()).toBe(true);
+    await page.evaluate(change=>(window as unknown as HookWindow).suspend(change),change);
+    await expect.poll(()=>page.evaluate(()=>Boolean((window as unknown as HookWindow).attempted))).toBe(true);
+    expect(await page.getByRole('button',{name:'Exclude',exact:true}).isEnabled()).toBe(true);
+    await page.getByRole('button',{name:'Capture context',exact:true}).click();
+    expect(await page.evaluate(()=>(window as unknown as HookWindow).token)).toBe('request-1');
+    await page.getByRole('button',{name:'Exclude',exact:true}).click();
+    await expect.poll(()=>page.evaluate(()=>(window as unknown as HookWindow).excluded)).toBe(true);
+    expect(await page.evaluate(()=>(window as unknown as HookWindow).exclusions)).toBe(1);
+    expect(await page.evaluate(()=>(window as unknown as HookWindow).error)).toBeUndefined();
+    await page.evaluate(()=>(window as unknown as HookWindow).disable());
+    await expect.poll(()=>page.getByRole('button',{name:'Exclude',exact:true}).isDisabled()).toBe(true);
+    expect(await page.evaluate(async()=>{try{await (window as unknown as HookWindow).exclude();return '';}catch(error){return (error as Error).message;}})).toContain('request is being sent');
+    expect(await page.evaluate(()=>(window as unknown as HookWindow).exclusions)).toBe(1);
+  } finally {await browser.close();}
+},30000);
