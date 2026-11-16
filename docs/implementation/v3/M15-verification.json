@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M15-source-aware-workbench",
-  "baseSha": "138b1356495bb3a2c9b35020240513f8faa84964",
-  "sourceLockDigest": "6a6df58dd0c4f0cfcc6d680a922f5254e58f853b6bf5a81853276f27d26d70c8",
+  "baseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "sourceLockDigest": "f4bb271eda17b4d47e005d44944f75f02c906cc5947bb4acac48bff8b524fa4a",
   "platform": "linux-x64",
   "nodeVersion": "v24.22.1",
   "packageManagerVersion": "10.30.3",
@@ -14,12 +14,12 @@
         {
           "id": "accepted-M01-M02-contracts",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-core-prerequisites.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.json; 72 passed across six owning suites."
         },
         {
           "id": "source-draft-recovery-composer-and-touched-host-contracts",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-focused-04.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json;335 passed,3 genuine Windows-only skips,24 files."
         }
       ],
       "commands": [
@@ -35,17 +35,20 @@
             "tests/tool-authority-v3.test.ts",
             "tests/tool-effects-v3.test.ts",
             "tests/effect-recovery-v3.test.ts",
-            "--maxWorkers=1"
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-core-prerequisites-01-results.json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:19:14.933Z",
-          "endedAt": "2026-11-16T00:19:50.929Z",
+          "startedAt": "2026-11-16T02:03:43.413Z",
+          "endedAt": "2026-11-16T02:04:25.642Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-core-prerequisites.log",
-          "logDigest": "0f6fc91ce2bd0348dc35a31cc78e65f4dd44fa200f3e503c6027ab2d8ac767f5"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.log",
+          "logDigest": "22908c252a89c61d34b9faf5388ad3b6c964fcfda9453417fbca147f0371eb9c"
         },
         {
           "argv": [
@@ -80,23 +83,22 @@
             "--maxWorkers=1",
             "--reporter=default",
             "--reporter=json",
-            "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-04-results.json"
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-final-focused-01-results.json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:43:46.513Z",
-          "endedAt": "2026-11-16T01:44:17.629Z",
+          "startedAt": "2026-11-16T02:14:55.913Z",
+          "endedAt": "2026-11-16T02:15:49.628Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-focused-04.log",
-          "logDigest": "ab6cadd309609de0e82a2a1974a4fe4c85da8a7c87d2012267031d4c1a64381f"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-focused-01.log",
+          "logDigest": "57bc5e7a3481a001e1039af873f3374a410529eb9d069ecc92de08676537ee71"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/M15-dependency-review.md",
-        "docs/implementation/v3/m15-artifacts/c2-final-focused-04-results.json",
-        "docs/implementation/v3/m15-artifacts/c2-plugin-frame-concurrency-audit.md"
+        "docs/implementation/v3/m15-artifacts/c3-core-prerequisites-01-results.json",
+        "docs/implementation/v3/m15-artifacts/c3-final-focused-01-results.json"
       ]
     },
     {
@@ -106,17 +108,27 @@
         {
           "id": "initial-account-and-durable-source-admission",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
         },
         {
           "id": "request-custody-rollback-and-authority-fences",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-artifacts/c2-m04-admission-review-01.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
         },
         {
           "id": "failed-Hermes-startup-custody-cleanup",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-setup-hermes-green-01.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
+        },
+        {
+          "id": "legacy-layout-and-retired-creation-preserve-source-authority",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/c3-layout-source-02.json;1 selected PASS with47 filter exclusions; complete focused run also passes this case. Initial fixture assertion failure remains retained."
+        },
+        {
+          "id": "current-workspace-retirement-and-project-owner-contracts",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.json;17 passed across four owning suites."
         }
       ],
       "commands": [
@@ -126,51 +138,54 @@
             "exec",
             "vitest",
             "run",
-            "tests/request-preparation-service-v3.test.ts",
-            "tests/source-workbench-host-v3.test.ts",
-            "tests/source-selection-v3.test.ts",
-            "tests/accounts.test.ts",
+            "tests/workspace-layout.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/research-service-integration.test.ts",
+            "tests/plugin-visuals-retirement.test.ts",
             "--maxWorkers=1",
             "--reporter=default",
             "--reporter=json",
-            "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-final-green-01-results.json"
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:47:46.385Z",
-          "endedAt": "2026-11-16T00:47:55.854Z",
+          "startedAt": "2026-11-16T02:06:14.500Z",
+          "endedAt": "2026-11-16T02:06:22.000Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.log",
-          "logDigest": "3d57e6d7b3ce241e43d2bdc5181eaee2ae06a156b788551bb0f2986f2a733394"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.log",
+          "logDigest": "6d04a1c4220d04ecf4c26e3031536b3d008ab866d49352f1429504ff00a35ac2"
         },
         {
           "argv": [
-            "pnpm",
-            "exec",
-            "vitest",
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "node_modules/vitest/vitest.mjs",
             "run",
-            "tests/hermes-client-startup.test.ts",
-            "tests/hermes-runtime.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--testNamePattern",
+            "preserves artifact source custody through retained legacy layout apply/select",
             "--maxWorkers=1",
             "--reporter=default",
             "--reporter=json",
-            "--outputFile=docs/implementation/v3/m15-artifacts/c2-setup-hermes-green-01-results.json"
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:24:03.047Z",
-          "endedAt": "2026-11-16T00:24:10.396Z",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-16T02:11:03.604Z",
+          "endedAt": "2026-11-16T02:11:06.620Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-setup-hermes-green-01.log",
-          "logDigest": "83636c60d62052416d27a9b76f7c2b8aeed061f16395aad2cb3f49e7bab4be0c"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-layout-source-02.log",
+          "logDigest": "4df7fb4e68dc52de32ae591fb96b5ad08e83748c6edf9e8ac0ea559144d27736"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-m04-admission-review-01.json"
+        "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.md",
+        "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.json",
+        "docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json",
+        "docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json"
       ]
     },
     {
@@ -180,12 +195,17 @@
         {
           "id": "canonical-selection-durable-send-recovery-and-lazy-failure",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-workbench-app-03.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json; complete current App suite passes all 22 cases with zero skips, flaky cases or runner errors."
         },
         {
           "id": "accepted-split-layout-and-M15-handoff-merge",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-artifacts/c2-ui-primitives-independent-review-02.md"
+          "evidence": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json; current App22 passes at its recorded source cut. The activity test now waits for acknowledged canonical A placement before reload; product App bytes remain unchanged."
+        },
+        {
+          "id": "native-return-and-delayed-source-preserve-owner-drafts",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json; current native case passes with separate retained A/B drafts and two captures. The earlier native-return failure remains unexplained and is not claimed repaired. The delayed request aborted; installed desktop and delivery of an uncancellable stale response remain unproven."
         }
       ],
       "commands": [
@@ -198,160 +218,67 @@
             "--config",
             "tests/e2e/workbench-app.playwright.config.ts",
             "--output",
-            "docs/implementation/v3/m15-artifacts/c2-workbench-app-03/artifacts",
+            "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts",
             "--reporter=list,json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:26:13.376Z",
-          "endedAt": "2026-11-16T01:27:55.420Z",
+          "startedAt": "2026-11-16T02:46:17.342Z",
+          "endedAt": "2026-11-16T02:48:16.032Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-app-03.log",
-          "logDigest": "4165b025c4f23e6ef3b31d37ce55bf53ca7cf282dba9231fcccde739fbff4a32"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+          "logDigest": "150f5838ba3334eaabbdaf164102cd8e069a278da36057c195e46f8e867b5f0c"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-workbench-app-03/results.json",
-        "docs/implementation/v3/m15-artifacts/c2-ui-primitives-independent-review-02.md"
+        "docs/implementation/v3/m15-artifacts/c3-app-resolution-proposal-01.md",
+        "docs/implementation/v3/m15-artifacts/c3-app-resolution-static-01.json",
+        "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.md",
+        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json",
+        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.md"
       ]
     },
     {
       "id": "DRAFT_AND_CHAT_REGRESSION",
-      "status": "FAIL",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "saved-drafts-complete-browser-suite",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-saved-drafts-03.json"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "canonical-chat-layout-and-direct-Escape-IME-cases",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.json"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         }
       ],
-      "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "tests/e2e/saved-drafts.playwright.config.ts",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-saved-drafts-03/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:32:15.780Z",
-          "endedAt": "2026-11-16T01:34:17.975Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-saved-drafts-03.log",
-          "logDigest": "3a64dc194fa102634af3d13c2bdfc7eba79259ac503d102862a44383280c6b6d"
-        },
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "tests/e2e/chat-view-modes.playwright.config.ts",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:35:32.465Z",
-          "endedAt": "2026-11-16T01:35:58.896Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.log",
-          "logDigest": "d429d7ba9bee9447c973de06a0b54b1fd30c9e0b9fb10d1a85d2d384bb1c5132"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/M15-c2-browser-regression-review.md",
-        "docs/implementation/v3/m15-artifacts/c2-saved-drafts-03/results.json",
-        "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/results.json",
-        "docs/implementation/v3/m15-artifacts/c2-chat-view-startup-attribution-01.md"
-      ]
+      "commands": [],
+      "artifactRefs": []
     },
     {
       "id": "SHARED_UI_REGRESSION",
-      "status": "PASS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "existing-overlay-focus-and-IME-contracts",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-02.json"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "existing-select-action-menu-and-form-contracts",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-02.json"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         }
       ],
-      "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-overlays.chromium.playwright.config.ts",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-ui-shell-overlays-02/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:29:33.501Z",
-          "endedAt": "2026-11-16T01:29:50.111Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-02.log",
-          "logDigest": "ea9adee044433f357bd1176967bf7d0bc98a4b9a1fb9ed6ec665947157b9841d"
-        },
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-02/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:31:00.592Z",
-          "endedAt": "2026-11-16T01:31:30.956Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-02.log",
-          "logDigest": "688007bf6fc72ceb5b00b2ddddf1d5d97dd0b6de9b521e6ba03577e2aa40068b"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-ui-primitives-independent-review-02.md",
-        "docs/implementation/v3/m15-artifacts/c2-ui-timeout-attribution-01.md",
-        "docs/implementation/v3/m15-artifacts/c2-ui-shell-overlays-02/results.json",
-        "docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-02/results.json"
-      ]
+      "commands": [],
+      "artifactRefs": []
     },
     {
       "id": "PERFORMANCE_BROWSER",
@@ -360,7 +287,7 @@
         {
           "id": "large-renderer-selection-layout-and-recovery",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-workbench-browser-02.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.json; all 18 standalone cases passed. Renderer-only controlled fixture excludes paint, complete App startup, installed desktop and general-device claims."
         }
       ],
       "commands": [
@@ -373,145 +300,101 @@
             "--config",
             "tests/e2e/workbench.playwright.config.ts",
             "--output",
-            "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/artifacts",
+            "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts",
             "--reporter=list,json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:28:09.748Z",
-          "endedAt": "2026-11-16T01:29:04.834Z",
+          "startedAt": "2026-11-16T02:22:03.009Z",
+          "endedAt": "2026-11-16T02:23:26.045Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-browser-02.log",
-          "logDigest": "52af05cd9d72cd2a36a8bc28d513efe61309678f220c97396fe16bac006ce989"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.log",
+          "logDigest": "aa04eb875b89ddb4aa74a61fb312ba474a6f2d8a7fdad60ab48ca9c6315e35b9"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/results.json",
-        "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json"
+        "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json"
       ]
     },
     {
-      "id": "RECONCILED_BROWSER_CHROMIUM",
-      "status": "PASS",
+      "id": "RECONCILED_BROWSER_TARGETS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "agents-workspace-complete-candidate-suite",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-02.json"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "artifact-acknowledgment-after-measured-App-readiness",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-03.json"
-        }
-      ],
-      "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:33:40.482Z",
-          "endedAt": "2026-11-16T00:34:40.939Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-02.log",
-          "logDigest": "650fa935ac8c1edfd98b869e754128399db58c459ea4c828c7f21c7139365b4d"
+          "status": "NOT_RUN",
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
-          "argv": [
-            "pnpm",
-            "exec",
-            "playwright",
-            "test",
-            "--config",
-            "playwright.config.ts",
-            "tests/e2e/artifact-acknowledgment.spec.ts",
-            "--trace",
-            "on",
-            "--output",
-            "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-03/artifacts",
-            "--reporter=list,json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:30:55.329Z",
-          "endedAt": "2026-11-16T00:31:10.379Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-03.log",
-          "logDigest": "60909b0d88fb042c204600e45100868e51cf85abff083e26b8f42be19609f132"
+          "id": "accepted-workspace-host-routing-and-retirement",
+          "status": "NOT_RUN",
+          "evidence": "Requires the complete workspace-host browser configuration on its declared Edge target; root browser selection does not contain it."
+        },
+        {
+          "id": "saved-layout-chooser-and-legacy-restoration",
+          "status": "NOT_RUN",
+          "evidence": "Requires the complete saved-layout-chooser browser configuration on its declared Edge target."
+        },
+        {
+          "id": "surface-boundary-usage-shell-and-mobile-ownership",
+          "status": "NOT_RUN",
+          "evidence": "Requires the complete usage-app-integration configuration, including shell-error-ownership and mobile-navigation, on its declared Edge target."
+        },
+        {
+          "id": "desktop-surface-canonical-placement-bridge",
+          "status": "NOT_RUN",
+          "evidence": "Requires complete desktop-surfaces configuration on bundled Chromium. Scripted desktop bridge coverage is distinct from installed-desktop execution."
+        },
+        {
+          "id": "enabled-split-workspace-renderer-browser",
+          "status": "NOT_RUN",
+          "evidence": "Requires GEN_SPLIT_RENDERER_BROWSER=1 with an explicitly recorded browser channel; a skipped body in an unfiltered shard is not execution."
+        },
+        {
+          "id": "enabled-split-actual-App-browser",
+          "status": "NOT_RUN",
+          "evidence": "Requires GEN_SPLIT_APP_BROWSER=1 with an explicitly recorded browser channel; a skipped body in an unfiltered shard is not execution."
         }
       ],
+      "commands": [],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-browser-trace-provenance.json"
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
+        "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md"
       ]
     },
     {
       "id": "FULL_REPOSITORY_REGRESSION",
-      "status": "FAIL",
+      "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "declared-pnpm-test-reconciled-pre-UI-repair-source",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/c2-full-repository-test-01.json"
-        },
-        {
-          "id": "current-Windows-full-repository-CI",
+          "id": "current-Windows-full-repository-four-shard-CI",
           "status": "NOT_RUN",
-          "evidence": "Awaiting CI triggered by publication."
+          "evidence": "Push workflow will run unfiltered pnpm test on all four shards; ordinary merge-tree CI is unchanged."
         },
         {
           "id": "accepted-base-root-browser-Windows",
           "status": "NOT_RUN",
-          "evidence": "Awaiting paired exact-source workflow."
+          "evidence": "Paired workflow pins accepted49 and records its actual tree."
         },
         {
           "id": "candidate-root-browser-Windows",
           "status": "NOT_RUN",
-          "evidence": "Awaiting paired exact-source workflow."
+          "evidence": "Paired workflow records the exact pushed head/tree."
         }
       ],
-      "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "test",
-            "--maxWorkers=2",
-            "--reporter=default",
-            "--reporter=json",
-            "--outputFile=docs/implementation/v3/m15-artifacts/c2-full-repository-test-01-results.json"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:53:39.421Z",
-          "endedAt": "2026-11-16T01:00:39.918Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-full-repository-test-01.log",
-          "logDigest": "be94231d1943b5932552c90c7a13f0c6b0e936ff394fa0782229f7c86abc36ae"
-        }
-      ],
+      "commands": [],
       "artifactRefs": [
-        "docs/implementation/v3/M15-browser-baseline.md",
-        "docs/implementation/v3/m15-artifacts/c2-pre-ui-policy-source-cut.json",
-        "docs/implementation/v3/m15-artifacts/c2-full-repository-test-01-results.json",
-        "docs/implementation/v3/m15-artifacts/c2-full-repository-audit.json",
-        "docs/implementation/v3/m15-artifacts/c2-full-repository-audit.md"
+        "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-verification.json",
+        "docs/implementation/v3/m15-artifacts/c2-full-repository-audit.md",
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md"
       ]
     },
     {
@@ -521,40 +404,25 @@
         {
           "id": "typecheck",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-typecheck-03.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.json; current activity synchronization spec passes typecheck. Initial fixture typing failure remains retained."
         },
         {
           "id": "production-build",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-build-03.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-build-01.json"
         },
         {
           "id": "complete-reviewed-public-package-and-import-closure",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-package-01.json; 11 public-source and import-closure checks passed."
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-package-02.json; all 11 checks pass with 3214 explicit public source paths and 216 unchanged runtime paths. Ignored Vite prebundles were preserved outside the export, with their exact hashes retained separately."
         },
         {
           "id": "UI-architecture-policy",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-ui-policy-03.json"
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.json; 527 sources, zero violations, 39 unchanged legacy entries."
         }
       ],
       "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "typecheck"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:38:24.573Z",
-          "endedAt": "2026-11-16T01:39:19.317Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-typecheck-03.log",
-          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
-        },
         {
           "argv": [
             "pnpm",
@@ -562,13 +430,13 @@
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:38:24.645Z",
-          "endedAt": "2026-11-16T01:38:42.634Z",
+          "startedAt": "2026-11-16T02:03:05.115Z",
+          "endedAt": "2026-11-16T02:03:20.247Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-build-03.log",
-          "logDigest": "bae98e59e8046253bd2e975676581aea12359e208cc6a2af875c1f84b8b6c9c6"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-build-01.log",
+          "logDigest": "08aece2ef5416332d4e84c80e76b3df88fdec86e23e4670b6192d08649e7ee58"
         },
         {
           "argv": [
@@ -580,13 +448,28 @@
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
-          "startedAt": "2026-11-16T01:38:24.612Z",
-          "endedAt": "2026-11-16T01:39:05.633Z",
+          "startedAt": "2026-11-16T02:06:14.522Z",
+          "endedAt": "2026-11-16T02:06:49.359Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-ui-policy-03.log",
-          "logDigest": "c31f38fa4a30c65c4d8426599cd53cbb8b7c63e497f9a3136d7ce19491e0f266"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.log",
+          "logDigest": "0231d5e399f59f53accaf2c7ead21da7c44e5bf6e9857282f6702cf809fb2297"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:51:24.643Z",
+          "endedAt": "2026-11-16T02:52:29.483Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.log",
+          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
         },
         {
           "argv": [
@@ -598,21 +481,24 @@
             "--maxWorkers=1",
             "--reporter=default",
             "--reporter=json",
-            "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-package-01-results.json"
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T01:49:20.448Z",
-          "endedAt": "2026-11-16T01:49:24.486Z",
+          "startedAt": "2026-11-16T03:06:22.742Z",
+          "endedAt": "2026-11-16T03:06:26.429Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-package-01.log",
-          "logDigest": "17a6f98a2fbaa938040e28d7550a23bb624d55313d6c233011084bef425d92d2"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-package-02.log",
+          "logDigest": "7621899cfe6c64a2e240cecf9086777060dd6e17e8df440071c628ee14376b79"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-final-package-01-results.json"
+        "docs/implementation/v3/m15-artifacts/c3-final-package-01-results.json",
+        "docs/implementation/v3/m15-artifacts/c3-public-admission-review-01.json",
+        "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json",
+        "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json"
       ]
     },
     {
@@ -622,47 +508,32 @@
         {
           "id": "actual-Windows-file-capture-and-nonnull-account",
           "status": "NOT_RUN",
-          "evidence": "Two Windows-only host tests are skipped on Linux."
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "actual-original-Hermes-source-history-continuity",
           "status": "NOT_RUN",
-          "evidence": "The Windows-only real-engine integration test collects but is skipped on Linux."
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "installed-desktop-handoff-and-Pi-continuity",
           "status": "NOT_RUN",
-          "evidence": "No installed desktop or Pi native execution."
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         },
         {
           "id": "declared-Edge-browser",
           "status": "NOT_RUN",
-          "evidence": "Exact-head Windows/Edge workflow prepared; no current run yet."
+          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
         }
       ],
-      "commands": [
-        {
-          "argv": [
-            "pnpm",
-            "exec",
-            "vitest",
-            "run",
-            "tests/source-workbench-hermes-v3.test.ts",
-            "--maxWorkers=1"
-          ],
-          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
-          "startedAt": "2026-11-16T00:41:43.307Z",
-          "endedAt": "2026-11-16T00:41:46.902Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-hermes-collection-01.log",
-          "logDigest": "180b36af04a582f5cccdca1a1a183f08aec30d2ad8ba5abd5ffa245f57801bd8"
-        }
-      ],
+      "commands": [],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c2-host-hermes-integration-coverage.md"
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-design.md",
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md",
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
+        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.md",
+        "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md",
+        "docs/implementation/v3/m15-artifacts/c3-workflow-v2-application-01.json"
       ]
     },
     {
@@ -702,12 +573,12 @@
         {
           "id": "current-controller-hashes-and-source-cut",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-integrity-01.json; initial controller integrity PASS / bundle FAIL; final M15-validation-summary.json incorporates the controller receipt and completed plan."
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-integrity-02.json; integrity PASS / bundle PARTIAL at its measured source cut. Final M15-validation-summary.json incorporates this receipt and the completed plan without relabeling historical failures or unexecuted required cases."
         },
         {
           "id": "original-checkout-preserved",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c2-final-custody-01.json; original checkout clean, unchanged lockfile, 16 immutable archived files and scoped whitespace verified."
+          "evidence": "docs/implementation/v3/m15-logs/c3-final-custody-02.json; original checkout clean at 399cde3, both exact 16+17 archives verified, all 709 published evidence files retain indexed mode/blob and regular working bytes, unchanged lockfile and ordinary CI, complete explicit admission and scoped whitespace pass."
         }
       ],
       "commands": [
@@ -715,17 +586,17 @@
           "argv": [
             "python",
             "-c",
-            "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path.cwd()\noriginal=root.parent/'gen-v1'\ndef git(*args,cwd=root):\n return subprocess.check_output(['git',*args],cwd=cwd)\nhead='fd17d9f1b3931eb2b974b86ccc5a3892da47ba33'\nbase='138b1356495bb3a2c9b35020240513f8faa84964'\nassert git('rev-parse','HEAD').decode().strip()==head\nassert git('rev-parse','MERGE_HEAD').decode().strip()==base\nassert not git('ls-files','-u')\nassert git('rev-parse','HEAD',cwd=original).decode().strip()=='399cde39ff4ee82272c7a7700944325c44b36070'\nassert not git('status','--porcelain',cwd=original)\nlock=hashlib.sha256(Path('pnpm-lock.yaml').read_bytes()).hexdigest()\nassert lock=='2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9'\na=json.loads(Path('docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json').read_text())\nassert a['publishedCommit']==head\nassert a['publishedTree']==git('rev-parse',head+'^{tree}').decode().strip()\nassert len(a['files'])==16\nfor f in a['files']:\n b=Path(f['archive']).read_bytes()\n assert len(b)==f['bytes']\n assert hashlib.sha256(b).hexdigest()==f['sha256']\n assert b==git('show',head+':'+f['path'])\nsubprocess.run(['git','-c','core.whitespace=cr-at-eol','diff','--check',base,'--','.',':(exclude)docs/implementation/v3/m15-logs/**',':(exclude)docs/implementation/v3/m15-artifacts/**'],check=True)\nprint(json.dumps({'originalCheckout':'clean','originalHead':'399cde39ff4ee82272c7a7700944325c44b36070','publishedParent':head,'acceptedBase':base,'unmergedPaths':0,'archivedFilesVerified':len(a['files']),'lockfileSha256':lock,'authoredWhitespace':'PASS'},indent=2))\n"
+            "import hashlib\nimport json\nfrom pathlib import Path\nimport stat\nimport subprocess\n\nroot = Path.cwd()\noriginal = root.parent / 'gen-v1'\nparent = 'a1349b0a7ffa1420566da9c7770faf80d6be5bf3'\nbase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'\n\ndef git(*args, cwd=root):\n    return subprocess.check_output(['git', *args], cwd=cwd)\n\ndef digest(data):\n    return hashlib.sha256(data).hexdigest()\n\nassert git('rev-parse', 'HEAD').decode().strip() == parent\nassert git('rev-parse', 'MERGE_HEAD').decode().strip() == base\nassert not git('ls-files', '-u')\nassert git('rev-parse', 'HEAD', cwd=original).decode().strip() == '399cde39ff4ee82272c7a7700944325c44b36070'\nassert not git('status', '--porcelain', cwd=original)\nlock = digest(Path('pnpm-lock.yaml').read_bytes())\nassert lock == '2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9'\nordinary_ci = digest(Path('.github/workflows/ci.yml').read_bytes())\nassert ordinary_ci == '4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2'\n\narchives = []\nfor cut, commit, count in [('01', 'fd17d9f1b3931eb2b974b86ccc5a3892da47ba33', 16), ('02', parent, 17)]:\n    path = Path(f'docs/implementation/v3/m15-artifacts/publication-cut-{cut}/archive-manifest.json')\n    manifest = json.loads(path.read_bytes())\n    assert manifest['publishedCommit'] == commit\n    assert manifest['publishedTree'] == git('rev-parse', commit + '^{tree}').decode().strip()\n    assert len(manifest['files']) == count\n    expected_paths = sorted(name for name in git('ls-tree', '-r', '--name-only', commit, '--', 'docs/implementation/v3').decode().splitlines() if Path(name).parent.as_posix() == 'docs/implementation/v3' and Path(name).name.startswith('M15-'))\n    assert sorted(item['path'] for item in manifest['files']) == expected_paths\n    for item in manifest['files']:\n        expected_archive = path.parent / Path(item['path']).name\n        assert item['archive'] == expected_archive.as_posix()\n        assert stat.S_ISREG(expected_archive.lstat().st_mode)\n        data = expected_archive.read_bytes()\n        assert len(data) == item['bytes'] and digest(data) == item['sha256']\n        assert data == git('show', commit + ':' + item['path'])\n    archives.append({'cut': cut, 'publishedCommit': commit, 'filesVerified': count, 'manifestSha256': digest(path.read_bytes())})\n\nretained = 0\nindex = {}\nfor record in git('ls-files', '--stage', '-z', '--', 'docs/implementation/v3/m15-logs', 'docs/implementation/v3/m15-artifacts').split(b'\\0'):\n    if record:\n        metadata, name = record.split(b'\\t', 1)\n        mode, blob, stage = metadata.split()\n        assert stage == b'0'\n        index[name] = (mode, blob)\nfor record in git('ls-tree', '-r', '-z', parent, '--', 'docs/implementation/v3/m15-logs', 'docs/implementation/v3/m15-artifacts').split(b'\\0'):\n    if not record:\n        continue\n    metadata, name = record.split(b'\\t', 1)\n    mode, kind, blob = metadata.split()\n    assert kind == b'blob' and mode in (b'100644', b'100755')\n    assert index[name] == (mode, blob), name\n    current = Path(name.decode())\n    current_mode = current.lstat().st_mode\n    assert stat.S_ISREG(current_mode) and bool(current_mode & 0o111) == (mode == b'100755'), name\n    data = current.read_bytes()\n    actual = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\\0' + data).hexdigest().encode()\n    assert actual == blob, name\n    retained += 1\nassert retained == 709\n\nmanifest = json.loads(Path('scripts/public-source-files.json').read_bytes())\nassert manifest['source'] == sorted(set(manifest['source']))\nassert manifest['runtime'] == sorted(set(manifest['runtime']))\nassert set(manifest['runtime']) <= set(manifest['source'])\nchanged = set(git('diff', '--name-only', base).decode().splitlines()) | set(git('ls-files', '--others', '--exclude-standard').decode().splitlines())\nassert all(path in manifest['source'] for path in changed), sorted(changed - set(manifest['source']))\nsubprocess.run(['git', '-c', 'core.whitespace=cr-at-eol', 'diff', '--check', base, '--', '.', ':(exclude)docs/implementation/v3/m15-logs/**', ':(exclude)docs/implementation/v3/m15-artifacts/**'], check=True)\nprint(json.dumps({'originalCheckout': 'clean', 'originalHead': '399cde39ff4ee82272c7a7700944325c44b36070', 'publishedParent': parent, 'acceptedBase': base, 'unmergedPaths': 0, 'archives': archives, 'publishedEvidenceFilesUnchanged': retained, 'lockfileSha256': lock, 'ordinaryCiSha256': ordinary_ci, 'publicSourceEntries': len(manifest['source']), 'publicRuntimeEntries': len(manifest['runtime']), 'allCurrentChangesAdmitted': True, 'authoredWhitespace': 'PASS'}, indent=2))\n"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
-          "startedAt": "2026-11-16T01:55:00.425Z",
-          "endedAt": "2026-11-16T01:55:00.660Z",
+          "startedAt": "2026-11-16T03:06:49.699Z",
+          "endedAt": "2026-11-16T03:06:50.122Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-custody-01.log",
-          "logDigest": "c96500b610b8044060560f2d7d4b325809ffe487f9058b55a27132cc79f598f4"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-custody-02.log",
+          "logDigest": "75746fac447e5e62e3b8eb58fbd4d1bda8586ba5307847ead89338d6e49fc5fb"
         },
         {
           "argv": [
@@ -737,20 +608,24 @@
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
           "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
-          "startedAt": "2026-11-16T01:55:06.185Z",
-          "endedAt": "2026-11-16T01:55:08.734Z",
+          "startedAt": "2026-11-16T03:07:20.813Z",
+          "endedAt": "2026-11-16T03:07:23.665Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-integrity-01.log",
-          "logDigest": "7a04be6249f501cd385a0961f8087d918b9d4943d8924b1745c88bbd86218265"
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-integrity-02.log",
+          "logDigest": "9a82347a6e70acbd23d1606ca4a7c67669aea653f44dd5f19610659b218f2dbc"
         }
       ],
       "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
+        "docs/implementation/v3/m15-artifacts/publication-cut-02/archive-manifest.json",
         "docs/implementation/v3/M15-handoff.md",
         "docs/implementation/v3/M15-final-review.md",
-        "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
-        "docs/implementation/v3/M15-validation-summary.json"
+        "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-01.md",
+        "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-02.md",
+        "docs/implementation/v3/M15-validation-summary.json",
+        "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json"
       ]
     },
     {
@@ -1109,6 +984,28 @@
             "test",
             "--config",
             "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:33:40.482Z",
+          "endedAt": "2026-11-16T00:34:40.939Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-02.log",
+          "logDigest": "650fa935ac8c1edfd98b869e754128399db58c459ea4c828c7f21c7139365b4d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
             "--grep",
             "first agent reads reserve project rows and parent conversations at 1440|child follow-up uses the published parent/run target and current ticket through handled",
             "--trace",
@@ -1205,6 +1102,31 @@
             "--trace",
             "on",
             "--output",
+            "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-03/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:30:55.329Z",
+          "endedAt": "2026-11-16T00:31:10.379Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-03.log",
+          "logDigest": "60909b0d88fb042c204600e45100868e51cf85abff083e26b8f42be19609f132"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "playwright.config.ts",
+            "tests/e2e/artifact-acknowledgment.spec.ts",
+            "--trace",
+            "on",
+            "--output",
             "docs/implementation/v3/m15-artifacts/c2-browser-artifact-merged-red-01/artifacts",
             "--reporter=list,json"
           ],
@@ -1241,6 +1163,28 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-01.log",
           "logDigest": "ef609b4dcc4e7cc279be830b4eb0b8c48f78345d151869dd9feabd4be701fc82"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/chat-view-modes.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:35:32.465Z",
+          "endedAt": "2026-11-16T01:35:58.896Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.log",
+          "logDigest": "d429d7ba9bee9447c973de06a0b54b1fd30c9e0b9fb10d1a85d2d384bb1c5132"
         },
         {
           "argv": [
@@ -1297,6 +1241,30 @@
         {
           "argv": [
             "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:19:14.933Z",
+          "endedAt": "2026-11-16T00:19:50.929Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-core-prerequisites.log",
+          "logDigest": "0f6fc91ce2bd0348dc35a31cc78e65f4dd44fa200f3e503c6027ab2d8ac767f5"
+        },
+        {
+          "argv": [
+            "pnpm",
             "build"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
@@ -1323,6 +1291,37 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-build-02.log",
           "logDigest": "465160c5e07acc335ab10e0fe3cba068957004a5beae200f8eef2d215f5a2615"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:38:24.645Z",
+          "endedAt": "2026-11-16T01:38:42.634Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-build-03.log",
+          "logDigest": "bae98e59e8046253bd2e975676581aea12359e208cc6a2af875c1f84b8b6c9c6"
+        },
+        {
+          "argv": [
+            "python",
+            "-c",
+            "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path.cwd()\noriginal=root.parent/'gen-v1'\ndef git(*args,cwd=root):\n return subprocess.check_output(['git',*args],cwd=cwd)\nhead='fd17d9f1b3931eb2b974b86ccc5a3892da47ba33'\nbase='138b1356495bb3a2c9b35020240513f8faa84964'\nassert git('rev-parse','HEAD').decode().strip()==head\nassert git('rev-parse','MERGE_HEAD').decode().strip()==base\nassert not git('ls-files','-u')\nassert git('rev-parse','HEAD',cwd=original).decode().strip()=='399cde39ff4ee82272c7a7700944325c44b36070'\nassert not git('status','--porcelain',cwd=original)\nlock=hashlib.sha256(Path('pnpm-lock.yaml').read_bytes()).hexdigest()\nassert lock=='2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9'\na=json.loads(Path('docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json').read_text())\nassert a['publishedCommit']==head\nassert a['publishedTree']==git('rev-parse',head+'^{tree}').decode().strip()\nassert len(a['files'])==16\nfor f in a['files']:\n b=Path(f['archive']).read_bytes()\n assert len(b)==f['bytes']\n assert hashlib.sha256(b).hexdigest()==f['sha256']\n assert b==git('show',head+':'+f['path'])\nsubprocess.run(['git','-c','core.whitespace=cr-at-eol','diff','--check',base,'--','.',':(exclude)docs/implementation/v3/m15-logs/**',':(exclude)docs/implementation/v3/m15-artifacts/**'],check=True)\nprint(json.dumps({'originalCheckout':'clean','originalHead':'399cde39ff4ee82272c7a7700944325c44b36070','publishedParent':head,'acceptedBase':base,'unmergedPaths':0,'archivedFilesVerified':len(a['files']),'lockfileSha256':lock,'authoredWhitespace':'PASS'},indent=2))\n"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "startedAt": "2026-11-16T01:55:00.425Z",
+          "endedAt": "2026-11-16T01:55:00.660Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-custody-01.log",
+          "logDigest": "c96500b610b8044060560f2d7d4b325809ffe487f9058b55a27132cc79f598f4"
         },
         {
           "argv": [
@@ -1462,6 +1461,91 @@
         {
           "argv": [
             "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/source-workbench-hermes-v3.test.ts",
+            "tests/source-selection-dom-v3.test.ts",
+            "tests/source-composer-v3.test.ts",
+            "tests/source-draft-transfer-v3.test.ts",
+            "tests/activity-output-v3.test.ts",
+            "tests/workbench-input-recovery-v3.test.ts",
+            "tests/workbench-performance-v3.test.ts",
+            "tests/workbench-recovery-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "tests/agents-workspace-dispatch.test.ts",
+            "tests/saved-drafts.test.ts",
+            "tests/draft-transfer.test.ts",
+            "tests/compact-draft-transfer.test.ts",
+            "tests/journal.test.ts",
+            "tests/editor-handoff.test.ts",
+            "tests/accounts.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/hermes-client-startup.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "tests/model-discovery.test.ts",
+            "tests/workspace-linked-pr.test.ts",
+            "tests/plugin-frame-custody.test.ts",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-04-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:43:46.513Z",
+          "endedAt": "2026-11-16T01:44:17.629Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-focused-04.log",
+          "logDigest": "ab6cadd309609de0e82a2a1974a4fe4c85da8a7c87d2012267031d4c1a64381f"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/m15-evidence.mts",
+            "--assemble"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-16T01:55:06.185Z",
+          "endedAt": "2026-11-16T01:55:08.734Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-integrity-01.log",
+          "logDigest": "7a04be6249f501cd385a0961f8087d918b9d4943d8924b1745c88bbd86218265"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-package-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:49:20.448Z",
+          "endedAt": "2026-11-16T01:49:24.486Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-package-01.log",
+          "logDigest": "17a6f98a2fbaa938040e28d7550a23bb624d55313d6c233011084bef425d92d2"
+        },
+        {
+          "argv": [
+            "pnpm",
             "typecheck"
           ],
           "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
@@ -1487,6 +1571,21 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-typecheck-02.log",
+          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:38:24.573Z",
+          "endedAt": "2026-11-16T01:39:19.317Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-typecheck-03.log",
           "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
         },
         {
@@ -1524,6 +1623,43 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-ui-policy-02.log",
           "logDigest": "c31f38fa4a30c65c4d8426599cd53cbb8b7c63e497f9a3136d7ce19491e0f266"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/lint-ui.ts",
+            "--check"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-16T01:38:24.612Z",
+          "endedAt": "2026-11-16T01:39:05.633Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-ui-policy-03.log",
+          "logDigest": "c31f38fa4a30c65c4d8426599cd53cbb8b7c63e497f9a3136d7ce19491e0f266"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c2-full-repository-test-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:53:39.421Z",
+          "endedAt": "2026-11-16T01:00:39.918Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-full-repository-test-01.log",
+          "logDigest": "be94231d1943b5932552c90c7a13f0c6b0e936ff394fa0782229f7c86abc36ae"
         },
         {
           "argv": [
@@ -1611,6 +1747,25 @@
         },
         {
           "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-hermes-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:41:43.307Z",
+          "endedAt": "2026-11-16T00:41:46.902Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-hermes-collection-01.log",
+          "logDigest": "180b36af04a582f5cccdca1a1a183f08aec30d2ad8ba5abd5ffa245f57801bd8"
+        },
+        {
+          "argv": [
             "git",
             "ls-tree",
             "-r",
@@ -1661,6 +1816,31 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-owners-unchanged-01.log",
           "logDigest": "2a69064ffabe2d1b42c9f77c92a12d6dafe43c60bf744dadf471bb9f02d37d3a"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/source-selection-v3.test.ts",
+            "tests/accounts.test.ts",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-final-green-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:47:46.385Z",
+          "endedAt": "2026-11-16T00:47:55.854Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.log",
+          "logDigest": "3d57e6d7b3ce241e43d2bdc5181eaee2ae06a156b788551bb0f2986f2a733394"
         },
         {
           "argv": [
@@ -1862,6 +2042,51 @@
           "argv": [
             "pnpm",
             "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/saved-drafts.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-saved-drafts-03/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:32:15.780Z",
+          "endedAt": "2026-11-16T01:34:17.975Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-saved-drafts-03.log",
+          "logDigest": "3a64dc194fa102634af3d13c2bdfc7eba79259ac503d102862a44383280c6b6d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/hermes-client-startup.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c2-setup-hermes-green-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T00:24:03.047Z",
+          "endedAt": "2026-11-16T00:24:10.396Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-setup-hermes-green-01.log",
+          "logDigest": "83636c60d62052416d27a9b76f7c2b8aeed061f16395aad2cb3f49e7bab4be0c"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
             "vitest",
             "run",
             "tests/hermes-client-startup.test.ts",
@@ -2014,6 +2239,28 @@
             "test",
             "--config",
             "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-02/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:31:00.592Z",
+          "endedAt": "2026-11-16T01:31:30.956Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-02.log",
+          "logDigest": "688007bf6fc72ceb5b00b2ddddf1d5d97dd0b6de9b521e6ba03577e2aa40068b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts",
             "--grep",
             "IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time",
             "--output",
@@ -2051,6 +2298,28 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-01.log",
           "logDigest": "1df594dd580e8eee07deb1edb1e496c6d5c21795ee901249d314e94f304272bd"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-overlays.chromium.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-ui-shell-overlays-02/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:29:33.501Z",
+          "endedAt": "2026-11-16T01:29:50.111Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-02.log",
+          "logDigest": "ea9adee044433f357bd1176967bf7d0bc98a4b9a1fb9ed6ec665947157b9841d"
         },
         {
           "argv": [
@@ -2175,6 +2444,28 @@
             "playwright",
             "test",
             "--config",
+            "tests/e2e/workbench-app.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-workbench-app-03/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:26:13.376Z",
+          "endedAt": "2026-11-16T01:27:55.420Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-app-03.log",
+          "logDigest": "4165b025c4f23e6ef3b31d37ce55bf53ca7cf282dba9231fcccde739fbff4a32"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
             "tests/e2e/workbench.playwright.config.ts",
             "--output",
             "docs/implementation/v3/m15-artifacts/c2-workbench-browser-01/artifacts",
@@ -2189,6 +2480,225 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-browser-01.log",
           "logDigest": "235367533fea3088b629e559e411884c0b60b989f82d9a458976e12e9e579f19"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T01:28:09.748Z",
+          "endedAt": "2026-11-16T01:29:04.834Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-browser-02.log",
+          "logDigest": "52af05cd9d72cd2a36a8bc28d513efe61309678f220c97396fe16bac006ce989"
+        },
+        {
+          "argv": [
+            "python",
+            "-c",
+            "import hashlib\nimport json\nfrom pathlib import Path\nimport stat\nimport subprocess\n\nroot = Path.cwd()\noriginal = root.parent / 'gen-v1'\nparent = 'a1349b0a7ffa1420566da9c7770faf80d6be5bf3'\nbase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'\n\ndef git(*args, cwd=root):\n    return subprocess.check_output(['git', *args], cwd=cwd)\n\ndef digest(data):\n    return hashlib.sha256(data).hexdigest()\n\nassert git('rev-parse', 'HEAD').decode().strip() == parent\nassert git('rev-parse', 'MERGE_HEAD').decode().strip() == base\nassert not git('ls-files', '-u')\nassert git('rev-parse', 'HEAD', cwd=original).decode().strip() == '399cde39ff4ee82272c7a7700944325c44b36070'\nassert not git('status', '--porcelain', cwd=original)\nlock = digest(Path('pnpm-lock.yaml').read_bytes())\nassert lock == '2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9'\nordinary_ci = digest(Path('.github/workflows/ci.yml').read_bytes())\nassert ordinary_ci == '4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2'\n\narchives = []\nfor cut, commit, count in [('01', 'fd17d9f1b3931eb2b974b86ccc5a3892da47ba33', 16), ('02', parent, 17)]:\n    path = Path(f'docs/implementation/v3/m15-artifacts/publication-cut-{cut}/archive-manifest.json')\n    manifest = json.loads(path.read_bytes())\n    assert manifest['publishedCommit'] == commit\n    assert manifest['publishedTree'] == git('rev-parse', commit + '^{tree}').decode().strip()\n    assert len(manifest['files']) == count\n    expected_paths = sorted(name for name in git('ls-tree', '-r', '--name-only', commit, '--', 'docs/implementation/v3').decode().splitlines() if Path(name).parent.as_posix() == 'docs/implementation/v3' and Path(name).name.startswith('M15-'))\n    assert sorted(item['path'] for item in manifest['files']) == expected_paths\n    for item in manifest['files']:\n        expected_archive = path.parent / Path(item['path']).name\n        assert item['archive'] == expected_archive.as_posix()\n        assert stat.S_ISREG(expected_archive.lstat().st_mode)\n        data = expected_archive.read_bytes()\n        assert len(data) == item['bytes'] and digest(data) == item['sha256']\n        assert data == git('show', commit + ':' + item['path'])\n    archives.append({'cut': cut, 'publishedCommit': commit, 'filesVerified': count, 'manifestSha256': digest(path.read_bytes())})\n\nretained = 0\nindex = {}\nfor record in git('ls-files', '--stage', '-z', '--', 'docs/implementation/v3/m15-logs', 'docs/implementation/v3/m15-artifacts').split(b'\\0'):\n    if record:\n        metadata, name = record.split(b'\\t', 1)\n        mode, blob, stage = metadata.split()\n        assert stage == b'0'\n        index[name] = (mode, blob)\nfor record in git('ls-tree', '-r', '-z', parent, '--', 'docs/implementation/v3/m15-logs', 'docs/implementation/v3/m15-artifacts').split(b'\\0'):\n    if not record:\n        continue\n    metadata, name = record.split(b'\\t', 1)\n    mode, kind, blob = metadata.split()\n    assert kind == b'blob' and mode in (b'100644', b'100755')\n    assert index[name] == (mode, blob), name\n    current = Path(name.decode())\n    current_mode = current.lstat().st_mode\n    assert stat.S_ISREG(current_mode) and bool(current_mode & 0o111) == (mode == b'100755'), name\n    data = current.read_bytes()\n    actual = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\\0' + data).hexdigest().encode()\n    assert actual == blob, name\n    retained += 1\nassert retained == 709\n\nmanifest = json.loads(Path('scripts/public-source-files.json').read_bytes())\nassert manifest['source'] == sorted(set(manifest['source']))\nassert manifest['runtime'] == sorted(set(manifest['runtime']))\nassert set(manifest['runtime']) <= set(manifest['source'])\nchanged = set(git('diff', '--name-only', base).decode().splitlines()) | set(git('ls-files', '--others', '--exclude-standard').decode().splitlines())\nassert all(path in manifest['source'] for path in changed), sorted(changed - set(manifest['source']))\nsubprocess.run(['git', '-c', 'core.whitespace=cr-at-eol', 'diff', '--check', base, '--', '.', ':(exclude)docs/implementation/v3/m15-logs/**', ':(exclude)docs/implementation/v3/m15-artifacts/**'], check=True)\nprint(json.dumps({'originalCheckout': 'clean', 'originalHead': '399cde39ff4ee82272c7a7700944325c44b36070', 'publishedParent': parent, 'acceptedBase': base, 'unmergedPaths': 0, 'archives': archives, 'publishedEvidenceFilesUnchanged': retained, 'lockfileSha256': lock, 'ordinaryCiSha256': ordinary_ci, 'publicSourceEntries': len(manifest['source']), 'publicRuntimeEntries': len(manifest['runtime']), 'allCurrentChangesAdmitted': True, 'authoredWhitespace': 'PASS'}, indent=2))\n"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "startedAt": "2026-11-16T03:00:56.938Z",
+          "endedAt": "2026-11-16T03:00:57.669Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-custody-01.log",
+          "logDigest": "1860d2c7d9e239c4833a117a8f8a2f3596894043b8f4f0b346ae48624cf2d109"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/m15-evidence.mts",
+            "--assemble"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-16T03:01:38.613Z",
+          "endedAt": "2026-11-16T03:01:42.332Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-integrity-01.log",
+          "logDigest": "355988a24802067349d6815722c4c223baed3dfcac000e7d2d68945ba4161521"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-final-package-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T03:00:14.108Z",
+          "endedAt": "2026-11-16T03:00:18.898Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-package-01.log",
+          "logDigest": "ba755d429c17801d6141b9f3e8e5f30fe32bd69435350321cc60e53d4cb4a4ae"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:11:54.132Z",
+          "endedAt": "2026-11-16T02:13:40.798Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-typecheck-01.log",
+          "logDigest": "6661a43f7b02ab48fd80369c166ff1a6fd793ac018719ca35e7a5c7ad1ba8ae0"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:14:26.942Z",
+          "endedAt": "2026-11-16T02:15:33.882Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-final-typecheck-02.log",
+          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+        },
+        {
+          "argv": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--testNamePattern",
+            "preserves artifact source custody through retained legacy layout apply/select",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/c3-layout-source-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-16T02:10:14.542Z",
+          "endedAt": "2026-11-16T02:10:17.514Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-layout-source-01.log",
+          "logDigest": "b9a1edf3693a3a062fd8eaeda10d221bf4c40387e89369478454f389ce4b1442"
+        },
+        {
+          "argv": [
+            "git",
+            "merge",
+            "--no-commit",
+            "--no-ff",
+            "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/usr/local/bin/git",
+          "startedAt": "2026-11-16T02:01:41.952Z",
+          "endedAt": "2026-11-16T02:01:42.043Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-main-merge-01.log",
+          "logDigest": "17164221e1881521d802f41018f11e7491e0e0ee44fa47af878190fc19ab434b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench-app.playwright.config.ts",
+            "--grep",
+            "native return waits for canonical placement",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts",
+            "--reporter=list,json",
+            "--trace=on"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:08:36.291Z",
+          "endedAt": "2026-11-16T02:08:54.799Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-native-return-01.log",
+          "logDigest": "af50001f2310ce02d022ec8c5fdc7383c6913d8ab43677dfa471567ec3623473"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench-app.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts",
+            "--reporter=list,json",
+            "--trace=on"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:34:15.460Z",
+          "endedAt": "2026-11-16T02:37:53.540Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.log",
+          "logDigest": "52033ae9a880a57360a1fd9790e9c81ebfed5e4ea0fa70ee7dfc900cd49e6548"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench-app.playwright.config.ts",
+            "--output",
+            "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-16T02:17:09.809Z",
+          "endedAt": "2026-11-16T02:19:03.574Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/c3-workbench-app-01.log",
+          "logDigest": "e999847ef342e312f1d302884204140bfab84d6beba28e970cf9abab9d19dae2"
         },
         {
           "argv": [
@@ -4416,6 +4926,7 @@
     "docs/implementation/v3/M15-browser-baseline.md",
     "docs/implementation/v3/M15-browser-regression-review.md",
     "docs/implementation/v3/M15-c2-browser-regression-review.md",
+    "docs/implementation/v3/M15-c3-regression-review.md",
     "docs/implementation/v3/M15-command-index.json",
     "docs/implementation/v3/M15-dependency-review.md",
     "docs/implementation/v3/M15-draft-transfer-review.md",
@@ -4667,6 +5178,115 @@
     "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1280x800-zoom200.png",
     "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1920x1080-zoom200.png",
     "docs/implementation/v3/m15-artifacts/c2-workbench-browser-02/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/.last-run.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/corrected-workbench-app.spec.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-source.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-workbench-app.spec.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-cut.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-modal-zoom-geometry.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.json",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.md",
+    "docs/implementation/v3/m15-artifacts/c3-app-native-return-independent-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-app-native-return-independent-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-app-resolution-proposal-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-app-resolution-static-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-self-test-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-v2-self-test-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-v2-source.py.txt",
+    "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-core-prerequisites-01-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-02.md",
+    "docs/implementation/v3/m15-artifacts/c3-final-focused-01-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-final-package-01-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-layout-source-01-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-layout-source-01-test-source.txt",
+    "docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json",
+    "docs/implementation/v3/m15-artifacts/c3-layout-source-independent-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-layout-source-independent-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/.last-run.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-01/native-return-source-isolation.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-01/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-01/source-cut.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.md",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/.last-run.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/error-context.md",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-after-curren-d5443-d-while-the-task-is-working/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-ask-supplies-1d2aa--draft-and-never-dispatches/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-context-and--a34dd-es-without-invented-metrics/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-default-off--ff8f6-er-and-hides-source-actions/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-deferred-sou-f7b88-composer-and-restores-focus/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-definitive-p-9e5fb-l-and-ordinary-resubmission/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-late-source--ccd38--to-a-replacement-workspace/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-lost-cancell-040af-appears-and-the-App-reloads/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-pointing-mod-5bc2b-nother-pane-focus-or-Escape/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/error-context.md",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-lea-6c2fe-ction-and-removal-reachable/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-ret-e89cc-urning-to-ordinary-delivery/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-selection-at-25fa0-s-the-existing-durable-send/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-selection-in-10529--dismisses-only-the-toolbar/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-diagnostics.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-source-isolation.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-diagnostic-triage.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-source.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/restoration.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-cut.json",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/App.tsx.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/editor-handoff.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/App.tsx.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/editor-handoff.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+    "docs/implementation/v3/m15-artifacts/c3-public-admission-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-split-browser-command-v2.ps1.txt",
+    "docs/implementation/v3/m15-artifacts/c3-typecheck-01-native-fixture-source.txt",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-design.md",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.json",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.md",
+    "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/.last-run.json",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/error-context.md",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/source-cut.json",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/.last-run.json",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1280x800-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1920x1080-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/results.json",
+    "docs/implementation/v3/m15-artifacts/c3-workflow-helper-static-validation-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-workflow-v2-application-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-workflow-v2-static-validation-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json",
     "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/error-context.md",
     "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/results.json",
     "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/trace.zip",
@@ -4708,6 +5328,24 @@
     "docs/implementation/v3/m15-artifacts/publication-cut-01/M15-validation-summary.json",
     "docs/implementation/v3/m15-artifacts/publication-cut-01/M15-verification.json",
     "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-artifacts.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-browser-baseline.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-browser-regression-review.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-c2-browser-regression-review.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-command-index.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-dependency-review.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-draft-transfer-review.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-evidence-plan.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-feature-comparison.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-final-review.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-handoff.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-original-prompt-audit.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-plan.md",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-source-cut.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-source-lock.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-validation-summary.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-verification.json",
+    "docs/implementation/v3/m15-artifacts/publication-cut-02/archive-manifest.json",
     "docs/implementation/v3/m15-artifacts/publication-main-drift.json",
     "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-01-results.json",
     "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-01-summary.json",
@@ -4917,6 +5555,50 @@
     "docs/implementation/v3/m15-logs/c2-workbench-browser-01.log",
     "docs/implementation/v3/m15-logs/c2-workbench-browser-02.json",
     "docs/implementation/v3/m15-logs/c2-workbench-browser-02.log",
+    "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json",
+    "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+    "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.json",
+    "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-build-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-build-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-custody-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-custody-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-focused-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-focused-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-package-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-package-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-package-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-package-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-01.log",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-03.json",
+    "docs/implementation/v3/m15-logs/c3-final-typecheck-03.log",
+    "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.json",
+    "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.log",
+    "docs/implementation/v3/m15-logs/c3-layout-source-01.json",
+    "docs/implementation/v3/m15-logs/c3-layout-source-01.log",
+    "docs/implementation/v3/m15-logs/c3-layout-source-02.json",
+    "docs/implementation/v3/m15-logs/c3-layout-source-02.log",
+    "docs/implementation/v3/m15-logs/c3-main-merge-01.json",
+    "docs/implementation/v3/m15-logs/c3-main-merge-01.log",
+    "docs/implementation/v3/m15-logs/c3-native-return-01.json",
+    "docs/implementation/v3/m15-logs/c3-native-return-01.log",
+    "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.json",
+    "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.log",
+    "docs/implementation/v3/m15-logs/c3-workbench-app-01.json",
+    "docs/implementation/v3/m15-logs/c3-workbench-app-01.log",
+    "docs/implementation/v3/m15-logs/c3-workbench-browser-01.json",
+    "docs/implementation/v3/m15-logs/c3-workbench-browser-01.log",
+    "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.json",
+    "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.log",
     "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json",
     "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.log",
     "docs/implementation/v3/m15-logs/candidate-root-browser-01.json",
@@ -5170,6 +5852,7 @@
     "tests/e2e/workbench-app.playwright.config.ts",
     "tests/e2e/workbench-app.spec.ts",
     "tests/e2e/workbench-fixture.tsx",
+    "tests/e2e/workbench-native-return-fixture.ts",
     "tests/e2e/workbench.playwright.config.ts",
     "tests/e2e/workbench.spec.ts",
     "tests/e2e/workbench.vite.config.ts",
@@ -5270,19 +5953,21 @@
     }
   ],
   "remainingGates": [
-    "The pre-UI-correction declared pnpm test c2-full-repository-test-01 failed: 3344 passed, 271 failed, 56 skipped and 4 unhandled errors across 347 files. Exact implementation bytes are retained in c2-pre-ui-policy-source-cut.json. The audit identifies 188 file-access denials, 10 explicit dependency/executable failures and 73 assertions with unclassified causes. Final policy/typecheck/build03 and serial focused04 pass; focused03 remains a failed incompatible build/test overlap. Current-head Windows full regression remains required.",
-    "This preserved C2 review cut accepts base 138b1356495bb3a2c9b35020240513f8faa84964. Main advanced first to bfd4247 and then to 49cd633273a3f61c14a4191a9877e99ab23ec88f during verification, including retirement of Code Review, Research, Custom and Visuals plus split-selection and error-boundary changes. A source-only merge probe identifies App.tsx and public-source-files.json conflicts. A follow-up reconciliation is required before claiming current-main compatibility; PR-head and ordinary CI merge-tree results must retain distinct source identities.",
-    "Actual Windows native file guards and original-Hermes source/history continuity are pending the exact-PR-head workflow. Two host cases and one original-Hermes integration case are genuine Linux skips, not native passes. Installed-desktop handoff, Pi continuity and live-provider execution remain unobserved.",
-    "First-input account binding and M04 rollback repairs pass current contract tests with immutable captures and original authority fences. The non-null account native case and actual original-engine case still require Windows execution.",
-    "Linux file leaf reads are deliberately unsupported; pure-contract evidence does not enable FILE_RANGE on this platform.",
-    "DIFF_HUNK capture requires an atomic complete comparison witness from the owning service; capture remains disabled.",
-    "Historical log/screenshot navigation needs an authenticated retained-artifact read contract. References are metadata, not working navigation.",
-    "Inline transformed-Markdown selection requires trusted source offsets. Exact canonical text remains accessible per message, including messages outside the bounded catalogue.",
+    "C3 accepts main 49cd633273a3f61c14a4191a9877e99ab23ec88f and preserves incoming published C2 a1349b0a7ffa1420566da9c7770faf80d6be5bf3. C2 documents are archived byte-for-byte in publication-cut-02. Prior C2 current phases move to retained attempt history for this new source cut; this does not relabel their outcomes or certify the new cut.",
+    "C2 complete repository remains historically FAIL: 3344 passed, 271 failed, 56 skipped and 4 unhandled errors at its pre-UI source; C2 final ChatView remains FAIL: 5 passed, 1 completed five-second readiness failure. Fresh C3 counterparts are required. Their results must not be inferred from C2 or from static source comparison.",
+    "C3 focused01 passes 335 cases with 3 genuine Windows-only skips. Build01, typecheck03, UI policy01, workspace contracts01 and standalone workbench-browser01 pass. The current c3-activity-sync-full-01 App run passes all 22 cases after repairing a proven missing canonical-placement prerequisite in the activity test. Product App bytes are unchanged. Earlier App01 FAIL 21/1 and diagnostic FAIL 20/2 remain retained; no product cause or repair is established for the original native-return failure. Final public packaging passes all 11 checks, final custody passes, and controller integrity passes. Remaining affected browser, full repository and platform executions are pending; overall acceptance remains PARTIAL.",
+    "Actual Windows native file guards, non-null account admission and original-Hermes source/history continuity require executed test bodies. Linux skips are not native passes. The workflow retains exact pushed head/tree/run/attempt. Installed desktop, Pi continuity and live-provider execution remain unobserved.",
+    "All four unfiltered Windows repository shards and both accepted 49/candidate root browser results must be collected from one exact run/attempt. Ordinary PR CI tests its own merge tree and stays separate. A push workflow cannot establish compatibility with later unreviewed main changes.",
+    "The root browser selection contains 16 specs and does not cover every changed workspace surface. C3 separately requires workspace-host, saved-layout-chooser, usage/shell-error ownership, desktop-surfaces, and both explicitly enabled split-browser suites. Unfiltered repository shards without the activation flags do not execute those guarded browser bodies.",
+    "Edge acceptance applies only to suites whose declared channel is msedge. Workbench, actual-App, saved-draft, chat and root configurations use bundled Chromium. Installed Edge preflight alone is not a successful browser test.",
+    "Linux file leaf reads remain deliberately unsupported. DIFF_HUNK capture still requires an owning atomic complete-comparison witness. Retiring old Code Review and Research surfaces supplies no replacement source authority.",
+    "Historical log/screenshot navigation requires an authenticated retained-artifact reader. Formatted inline selection requires trusted source offsets; exact canonical message selection remains supported.",
     "M05 memory review, M10 background work and M14 branches have no tested owning integration and remain unsupported.",
-    "Final Linux browser gates: App03 passes 21, workbench02 passes 18, shared overlays02 passes 15, shared controls02 passes 18, and saved-drafts03 passes 27. Chat-view02 fails 1 original five-second first-App readiness assertion with 5 passed, including all three direct Escape/IME cases; its cause remains under audit and it is not attributed to the baseline. Older interrupted full attempts remain failed in history. Declared Edge and complete root baseline/candidate browser gates await Windows execution. Linux Chromium does not certify those targets.",
-    "Renderer performance measures a controlled browser fixture and excludes paint. It does not certify whole-application startup, task-timeline scaling or universal-device performance.",
-    "Feature-flag rollback with current code preserves durable source references. Downgrading to the first-cut binary does not understand the new account-admission witness and can fail closed; no legacy authority is migrated.",
-    "Independent release approval, merge and production activation are not granted. ui.sourceWorkbenchV1 stays false; reviewerApproval stays false."
+    "The renderer benchmark is a controlled browser-fixture measurement that excludes paint and does not establish whole-App startup, task-tree scaling, installed-desktop DPI or universal-device performance.",
+    "Feature-flag rollback with current code preserves durable source references. A downgrade to the first-cut binary lacks the account-admission witness and can fail closed; no legacy authority is migrated.",
+    "Merge, release and production activation are not granted. ui.sourceWorkbenchV1 and reviewerApproval remain false.",
+    "Initial integrity01 included 120 ignored Vite dependency prebundles in its 1002 artifact hashes. Their exact bytes are retained outside the repository and indexed by c3-artifact-intermediates-01.json; no test result, source snapshot, log, trace or published evidence was relocated. Final packaging/custody and controller records describe the reviewed export separately.",
+    "Publication preflight observed later main b4aa2caa5a3cedb29a0fddb510e49b5abd802a73. This C3 source and its required push CI remain pinned to accepted 49cd633273a3f61c14a4191a9877e99ab23ec88f. The later main is under separate read-only drift review and is neither accepted nor tested by these results; current-main merge compatibility is not claimed."
   ],
   "reviewerApproval": false
 }

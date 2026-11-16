@@ -1,0 +1,46 @@
+{
+  "kind": "browser fixture regression source cut",
+  "head": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "sha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419"
+    },
+    {
+      "path": "apps/web/src/SourceSelectionActions.tsx",
+      "sha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d"
+    },
+    {
+      "path": "apps/web/src/desktop-context.tsx",
+      "sha256": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805"
+    },
+    {
+      "path": "apps/web/src/split-thread-placement.ts",
+      "sha256": "dbd4b17d01edf6fed9cabc5f5b0582a12e44736cddaedd7ce4330bb64a1eab7e"
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb"
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "sha256": "f787e1b71dfeecf34f495995032b554f26a8e31b8746fb91a654c9ab26f54e00"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "sha256": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d"
+    },
+    {
+      "path": "tests/e2e/workbench-app.playwright.config.ts",
+      "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6"
+    }
+  ]
+}

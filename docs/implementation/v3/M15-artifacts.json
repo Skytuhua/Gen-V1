@@ -16,9 +16,14 @@
       "sha256": "d86043e1a9e8e6d0a3794c26f2500841767337516888f0a201dc66642892503e"
     },
     {
+      "path": "docs/implementation/v3/M15-c3-regression-review.md",
+      "bytes": 30766,
+      "sha256": "3d4ab96db60eb073612bc2b8d59e373cd7220ba11c4ee04de1aabeea41ec33c2"
+    },
+    {
       "path": "docs/implementation/v3/M15-dependency-review.md",
-      "bytes": 19550,
-      "sha256": "99ec0b13cef7a542d0cbc1364818eaf7cf6fc586cd137d2cb87acd257f31f92d"
+      "bytes": 6426,
+      "sha256": "113a16812c09e300cbd91bdca0f2535a94d035db2b1b6931beef8386ed85b09c"
     },
     {
       "path": "docs/implementation/v3/M15-draft-transfer-review.md",
@@ -27,33 +32,33 @@
     },
     {
       "path": "docs/implementation/v3/M15-evidence-plan.json",
-      "bytes": 18245,
-      "sha256": "7fe892652bc00ddb0d353763003782ebce29cc161d2fc018c0df160513729579"
+      "bytes": 24743,
+      "sha256": "cc3411d157f01fcdd26d396b25f5edd387be29723bbfbd25ed47c9ca382a0ac8"
     },
     {
       "path": "docs/implementation/v3/M15-feature-comparison.md",
-      "bytes": 8245,
-      "sha256": "a8073af14cdd160b0e312360bdbcacf6a54053543d8b530251a552a6baf571b9"
+      "bytes": 10801,
+      "sha256": "6c5c24b9e59efe6ccc8ba2c68561bb39a70572b5411771f58ce7aff466fc1880"
     },
     {
       "path": "docs/implementation/v3/M15-final-review.md",
-      "bytes": 31579,
-      "sha256": "5abf1b7bc932087aa8a785e2d2b608295fa3dec89e7fc27031b2e9086f664e9a"
+      "bytes": 13854,
+      "sha256": "4408e516f332242534ee822341edbe6535d3a4c9eb5e66dac9a001fc4cdca94d"
     },
     {
       "path": "docs/implementation/v3/M15-handoff.md",
-      "bytes": 36545,
-      "sha256": "8911090edcd0c4ad7090c0cc402c6e5c18a82e9c956c44a8ded3a4b4fac7538d"
+      "bytes": 18733,
+      "sha256": "9b017dfc10face9487391479a915e36f2b8bc08b18ada9224aae34e7727f17d3"
     },
     {
       "path": "docs/implementation/v3/M15-original-prompt-audit.md",
-      "bytes": 19686,
-      "sha256": "7f7a0738dd96c635663120c753b5596624cc1d640ff05c6968a39ff4f6f3cc1f"
+      "bytes": 13754,
+      "sha256": "1709c11443a95a3847f66f6f84376c72ebb9af89c0ef50bf683ccb7573b81376"
     },
     {
       "path": "docs/implementation/v3/M15-plan.md",
-      "bytes": 4909,
-      "sha256": "937aeb65ca5eb0fbc9e77b66e671d72509b780fa2bb4e20256516ad8f88098bc"
+      "bytes": 5718,
+      "sha256": "f902d3ad5fc3092f748aa337fe134a6822b67690c8bde195e8a91ae392ecb18f"
     },
     {
       "path": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01-results.json",
@@ -1246,6 +1251,551 @@
       "sha256": "37a20aa70f27cf227b86819146256a01359b4664f25c294dc34d8047f5557f82"
     },
     {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+      "bytes": 81103,
+      "sha256": "5657335a1bc04dbda3c5d4864de3b1a2cfaf8f568b237654011f4bd8bbce854c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+      "bytes": 66404,
+      "sha256": "3e4ca423f1eac9e99f78f0c936ca27fcbab062300d9bb886123ca72285574e56"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/corrected-workbench-app.spec.ts.txt",
+      "bytes": 38469,
+      "sha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json",
+      "bytes": 12328,
+      "sha256": "b2a535019a132f23ea57857b7dbbc7a58884689077cf309d807c81bcdb777e05"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-source.json",
+      "bytes": 546,
+      "sha256": "101a63c6c93be767f49b68fc7aaea8a59ca903071b020fc7b27595cebe4e7613"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-workbench-app.spec.ts.txt",
+      "bytes": 37558,
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json",
+      "bytes": 44506,
+      "sha256": "9304ea4cdb6c7f270fb61a7c1ad13194695c8c5b99502b3dfa1c7fcfa8da2444"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-cut.json",
+      "bytes": 2379,
+      "sha256": "8860104046438ce94f9543f5d454b64873803cff1424212cf35d815c93594226"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-modal-zoom-geometry.json",
+      "bytes": 1568,
+      "sha256": "1e3ddf69bd073a8574a7589718a1b967377b480f0997ff4be16ba807b79072a2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.json",
+      "bytes": 11375,
+      "sha256": "463d2f3d4618470f28b6b2ab0de4aa559d29ba75cdb48648082c1b12dbf2a740"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.md",
+      "bytes": 4307,
+      "sha256": "4f3c2e9337c975bc79d5aee03c524dfb516b733999abe88e596e658fa456251f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-app-native-return-independent-review-01.json",
+      "bytes": 11579,
+      "sha256": "8ddc6493526dd512db0a589b1c7ff73cc699163251029f13cb55c4e827b7655d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-app-native-return-independent-review-01.md",
+      "bytes": 10503,
+      "sha256": "cf3b688349a9258148767b0718e4453b44e334d98f6d5a9c4200b300f4614e9a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-app-resolution-proposal-01.md",
+      "bytes": 7998,
+      "sha256": "14a6596a84041d2b8c9eae39ad74f9d36cb681260b3eba3d6c02945dfb4297a0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-app-resolution-static-01.json",
+      "bytes": 5209,
+      "sha256": "16bde2868fc54afabd9a6c8544d42b75ff89020ee8d12fcfb40ceff2a56fd805"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json",
+      "bytes": 53605,
+      "sha256": "eb8aa58f6318882ba4c7f606b812b3cf7e7414df45ab5185a9eb72c7bc0d6d1f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-self-test-01.json",
+      "bytes": 1233,
+      "sha256": "c6336f686d2f88ecc0a5aaeb23374669228e5a3cf30a55009f6fe36eca887e2f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-v2-self-test-01.json",
+      "bytes": 1861,
+      "sha256": "262e4bad01605687b69fb6d2ea61e53e99514869bedad9ba227069e42e47b549"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-ci-ingestion-v2-source.py.txt",
+      "bytes": 27299,
+      "sha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.json",
+      "bytes": 14809,
+      "sha256": "fbf06f2761309de86c4c0108175f815877cf1972b217575dade27bbe49cbf4ce"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md",
+      "bytes": 3646,
+      "sha256": "eb60286ea96863ba7c5378b67d17cadbc5af01296aa623cc11157790d8e29bb4"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-core-prerequisites-01-results.json",
+      "bytes": 22293,
+      "sha256": "3f99929f312937c6234e757beedae359e1ff6c95fda27ad53b1db858236f7b25"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-01.md",
+      "bytes": 4384,
+      "sha256": "92fce4f08ff254527dd446d7834ea62ad48468734162e11e3a9d8f0884369b81"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-02.md",
+      "bytes": 2540,
+      "sha256": "64daea9978bc81bf565ec41c482ba7d3fe08bf72b9a78513ed562528f4f6ad42"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-final-focused-01-results.json",
+      "bytes": 111464,
+      "sha256": "13097438f0bb23fea70813c557b7aa518adfbd6e744f84ea2751cbc5ad3e7b2d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-final-package-01-results.json",
+      "bytes": 4585,
+      "sha256": "a6a47719ce05bb6f2c0b211559ac3af2a1ea332083037bc2806178ab10fdade0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json",
+      "bytes": 4577,
+      "sha256": "a28ced0ea36e6e1bb59b3a1bd2f3e1d6d8f0e07143a108d4dec4187416dcd129"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.json",
+      "bytes": 37226,
+      "sha256": "c64f91b26aa722b55735b752177d13598cf164bbaad5b6019ef8a8ef2b48ef5f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.md",
+      "bytes": 12815,
+      "sha256": "63bcfeccfeeb93c5d70419182f0041d9b51b2e778e5f6e6cbc7194ef2be63bd5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-01-results.json",
+      "bytes": 14804,
+      "sha256": "d2ca95375d332de2fb69bd0eb0fd892727adb35f1ae8c44733751ead1c62e7e7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-01-test-source.txt",
+      "bytes": 63768,
+      "sha256": "c0a061494ba6a7c3c84fce0b75ae55e22d1627ff347bf79b96694c54ab01dbed"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json",
+      "bytes": 14350,
+      "sha256": "42baf6b8bbfc154b395251612eb8a498317b353f01012fe6341b27c84a40e09a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-independent-review-01.json",
+      "bytes": 7386,
+      "sha256": "5de5c00076aca78d3dba578e8f9a194d01e0732047872d7e72078be57a4a9c79"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-independent-review-01.md",
+      "bytes": 5239,
+      "sha256": "12d94d8ab41df41a9c512946b721a0e857cff7398ee82285acbd3f241acf0565"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+      "bytes": 3923089,
+      "sha256": "123c1a6991ff1e65e3b59bc0e60ea02b9d403fca5ecb196c24db220ced3fcb50"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/native-return-source-isolation.json",
+      "bytes": 12328,
+      "sha256": "60acad4096a592270fc57b5b82374099dca008e3960dbcc5819e9c9298c11a27"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/results.json",
+      "bytes": 19994,
+      "sha256": "7eb0bae3aee0fdb4da5f9b3f8bb16f06c3a6a0df1e67701b4d118c7865c81b67"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/source-cut.json",
+      "bytes": 1615,
+      "sha256": "a4be72dc61869cc233c1a22a71f4f748e3d6b5c05bca915dbd667852c9aa0f8d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.json",
+      "bytes": 66332,
+      "sha256": "ed5ebf87c09471636ceae84eec122434c0ffece8abef5d45d2ef13eaf6f43256"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.md",
+      "bytes": 5062,
+      "sha256": "8e7da81121dd62ab6897686f39844c06a96223447a99e34b66fdc4afb5296ac8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/.last-run.json",
+      "bytes": 145,
+      "sha256": "97ab5d42e8b08c024f925dd88e8ff481b4bbbd9ce75559aa51622242719ba7f9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/error-context.md",
+      "bytes": 7904,
+      "sha256": "c1d8f103811efcdbc9d4ce16734498fccd56f585ad45b3316fc4110559ca70a8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/trace.zip",
+      "bytes": 2525104,
+      "sha256": "1c4a82d18646801924abeda628bc9c39114cc8ad88d8c67620ebbae644ab0976"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip",
+      "bytes": 1379911,
+      "sha256": "f1b2de7ba730e7dae4e8159cb899db82c4d1b90cfdfd8678c0cfefe475af1df2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-after-curren-d5443-d-while-the-task-is-working/trace.zip",
+      "bytes": 2399447,
+      "sha256": "b2272667885b894250e2d95ae827680e5cff040efb336aa2eb1c7909a10775db"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-ask-supplies-1d2aa--draft-and-never-dispatches/trace.zip",
+      "bytes": 1178751,
+      "sha256": "3d4fc5baa87bf091efa38e81e6b94498d397f13433bb475b1f70dc6674334122"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-context-and--a34dd-es-without-invented-metrics/trace.zip",
+      "bytes": 1020198,
+      "sha256": "a729301568464fb231feba06ee7c4dcb7a73e47336a95f8e0c03ecbe77eb530a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-default-off--ff8f6-er-and-hides-source-actions/trace.zip",
+      "bytes": 828017,
+      "sha256": "f088d86c128fe4ab2e8e5fbf44e9beaf7eb91ec00b29d9feff5eca8b4b42b7d6"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-deferred-sou-f7b88-composer-and-restores-focus/trace.zip",
+      "bytes": 1476481,
+      "sha256": "0cdbf49703a0fb2025ceb9144f6f14befb7f64d4cd800cfd8eb6d79a96f05ce9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-definitive-p-9e5fb-l-and-ordinary-resubmission/trace.zip",
+      "bytes": 1708392,
+      "sha256": "e17018cd1f459564af3681a4c8f2f9f2d59f4667df0f6c2e578044aef5cc27c0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+      "bytes": 81103,
+      "sha256": "5657335a1bc04dbda3c5d4864de3b1a2cfaf8f568b237654011f4bd8bbce854c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/trace.zip",
+      "bytes": 1111779,
+      "sha256": "c56ef4b1213416b5c607f556f43e002574dd9cd2b150a45311782d16f52708a7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/trace.zip",
+      "bytes": 1129336,
+      "sha256": "7223a0fd782f93e49abc88aaafa26e6becabbae4e0cf6571d523bb58a877340f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-late-source--ccd38--to-a-replacement-workspace/trace.zip",
+      "bytes": 1124792,
+      "sha256": "85f4618c363319ecd277913d955f7a3b36db356b50ac6d92af8fad37a092d1f5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-lost-cancell-040af-appears-and-the-App-reloads/trace.zip",
+      "bytes": 1648863,
+      "sha256": "58b42409ce67425b32154d65d734d9ed949edf716aebd04edc504d27670c1535"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+      "bytes": 4104466,
+      "sha256": "463b91e13305ae507ee353c3ff55e094016b6b3d4d2a1413d940f9621e5e19bc"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-pointing-mod-5bc2b-nother-pane-focus-or-Escape/trace.zip",
+      "bytes": 781165,
+      "sha256": "4bc5a5309c4ffdd31f2604308b5d11a46f7d5b57d3a136cc590642ce7093c9ae"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/error-context.md",
+      "bytes": 7533,
+      "sha256": "73eeada8bd755ad24d2bf41221e59564d73d2d278c5a0abedaa562fe2660a855"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip",
+      "bytes": 3369052,
+      "sha256": "0e6cc0bb0d03a54fb8c9276bdeb9cdbadd6a07b485abe971fa9f80227e61b1e5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-lea-6c2fe-ction-and-removal-reachable/trace.zip",
+      "bytes": 1592849,
+      "sha256": "ada478cbbc29d5210747f814c993b390cb2a7e51df4fbb769d8d4884360b64f2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip",
+      "bytes": 808938,
+      "sha256": "5bc42c745b5e3053b5e671b7ec47327683072ed8f9125eac2ef27950e822f1c5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-rollback-ret-e89cc-urning-to-ordinary-delivery/trace.zip",
+      "bytes": 1280188,
+      "sha256": "c6ab894000acad4e8945184f44ac0cce1fe80d816ca3c99224d9850eb413a45b"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-selection-at-25fa0-s-the-existing-durable-send/trace.zip",
+      "bytes": 2320745,
+      "sha256": "de2554e3936462f56b98841b20179fd6ed59d69b12b894a149f519cf54305e60"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-selection-in-10529--dismisses-only-the-toolbar/trace.zip",
+      "bytes": 818795,
+      "sha256": "eef9809495f91938c1826cdfaa0703e693c37265e8537f98304efd263f63e741"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip",
+      "bytes": 2535073,
+      "sha256": "3b17b00e0b0290340695ec622bf1743fb1bd03e0d791c51e82b614897dd6f45d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+      "bytes": 66405,
+      "sha256": "ae697b6f1bb8dd413dd808468b29df5601c1cf5cdb7a16cadc09c63deeb6cd7f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip",
+      "bytes": 2196357,
+      "sha256": "e3019b8e612aeeeafbec8d03d979a1d8d545e4693ca462a403dc67a2f6121dcf"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-diagnostics.json",
+      "bytes": 166209,
+      "sha256": "03775cb251ef058627da1de5d1a30489a97fab839dd326cb9bafb398c671a1c9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-source-isolation.json",
+      "bytes": 12328,
+      "sha256": "25c23d51d4f6f1fa0f788ff094cc498de2b37b61bf9fd26d3b48df0fc85f4b32"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-diagnostic-triage.json",
+      "bytes": 124839,
+      "sha256": "4feee9416e6b5a44d6e10d1dd2095764ec0815db09643e85f79e49ed60777d35"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-source.json",
+      "bytes": 1329,
+      "sha256": "fe4bebc18509e7de6467e4d2edcc0f106a2ee05e3e860c8a5307c79b85bc1f56"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/restoration.json",
+      "bytes": 4042,
+      "sha256": "d5102fae6bbb51524cd9259154ba16c466f3ca40d62fb2c9950a8ec29797b4e1"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/results.json",
+      "bytes": 282349,
+      "sha256": "e41770ef2fcfac30eadbc0d6cb3c5691690a7f2e4b4bd21481bb40bdb6dc9597"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-cut.json",
+      "bytes": 4849,
+      "sha256": "1c35abd3514576d73e345cb65d81c04a372fe26a4f78bd8b4d55ba0bddca1654"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/App.tsx.txt",
+      "bytes": 161351,
+      "sha256": "8d86fa738f1a7f0c1a43f0edf68071f8fde8c5852c71085045e00375246152c4"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/editor-handoff.ts.txt",
+      "bytes": 1839,
+      "sha256": "aa86d70c3decd93f93ef51a1ad48e757c67c876f80312b8b7b2116dc8be6e856"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+      "bytes": 38297,
+      "sha256": "c586933ae2d6167d93261ca2193835fc9a5a7df79cb797574aa1c788a3ef57af"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+      "bytes": 13508,
+      "sha256": "6c57fe685518916719cd4ea33b8d664614ef85d7b16c9fa7b80f5bf2c8f6684a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/App.tsx.txt",
+      "bytes": 157534,
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/editor-handoff.ts.txt",
+      "bytes": 600,
+      "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+      "bytes": 37558,
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+      "bytes": 10123,
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-public-admission-review-01.json",
+      "bytes": 18599,
+      "sha256": "b3af17dba2264f5759148916c681e67152491b27ec41b2706a23b0de3e43287f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-split-browser-command-v2.ps1.txt",
+      "bytes": 1440,
+      "sha256": "17b457019a222eb6282360e8de57ac0e70040836a0785995f95f4e33ed70e7b8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-typecheck-01-native-fixture-source.txt",
+      "bytes": 10005,
+      "sha256": "e33142f1fd7073d07f1508d78a1ac805f0b7b226864561fc1d51a4c361485ce5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-design.md",
+      "bytes": 6902,
+      "sha256": "1fd89fd9cda87d2f5745c3f2c1708880675a464479d7daefbcedc516afeae557"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.json",
+      "bytes": 6442,
+      "sha256": "e697af5b09f252f59730b15926a01b9581bf873c621b509c3d1dd2383b56c92c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md",
+      "bytes": 8121,
+      "sha256": "3a1f65858f7288042352ad5b2a3c95a07feb16acbbf142d5d82129e74c47218e"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.json",
+      "bytes": 4848,
+      "sha256": "b2933e96b3254c3b0b3dc8c5353151d0aeabd1a0d44360b4a0214c9820a664ec"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.md",
+      "bytes": 8361,
+      "sha256": "5abd633bc335cce913034b87376ca37ddffaf27f5c01155eceded50639885050"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
+      "bytes": 6216,
+      "sha256": "dee51dddbd17705e9577d4461d7274a118a3c8114891fecf84648fdb3010802f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/.last-run.json",
+      "bytes": 96,
+      "sha256": "a1fac8debd0977733e7b22c3a4262ef366a23eeb5952f9e519c3a35eba48ccb6"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+      "bytes": 81095,
+      "sha256": "17d25099b4e6f108ef1d125f57ebe94892b7bf3594cef98e2952ad9bc29aef02"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/error-context.md",
+      "bytes": 7920,
+      "sha256": "4c4400e200d259851e4a8dd8c246b66bc4ac69b116981b61c19886d5800cec9b"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip",
+      "bytes": 3491891,
+      "sha256": "c9d131ca43d208786a804970133427d1e9085a1a4a946f2ca26d7f57515cac7f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+      "bytes": 66404,
+      "sha256": "3e4ca423f1eac9e99f78f0c936ca27fcbab062300d9bb886123ca72285574e56"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/results.json",
+      "bytes": 33331,
+      "sha256": "e2adc718fcbd2c449d1328ba51adcf94a5db0ea1cabd3a0b810b0f0f5def3199"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/source-cut.json",
+      "bytes": 12581,
+      "sha256": "d76f4de98df499f026529711b5a04c7aa2da84cd429c1a27efd65e4ba18c6c1d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+      "bytes": 9436,
+      "sha256": "8b6d0fe0493bec2c3fc2212edbcb108a0442008c88f47510bd5fbd15e99dbc6f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1280x800-zoom200.png",
+      "bytes": 85459,
+      "sha256": "5ee5cb191b7023baf9f87c044d0999a4c3cac97e21e461a9a449cda8baa2f7aa"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1920x1080-zoom200.png",
+      "bytes": 115849,
+      "sha256": "e3570e79476756f9cdcf3cf6fd58cd260fa5e6960b6847b219c81ca58600f8f4"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/results.json",
+      "bytes": 34521,
+      "sha256": "b3c8ba4cd8ccf244f133e43a9a982f7023cf88f721098ded35c196671f40f218"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workflow-helper-static-validation-01.json",
+      "bytes": 3614,
+      "sha256": "5c79a5d30167349df8c5c3543587fbe9f6cca32367d2488deea5706b56c8c2cf"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workflow-v2-application-01.json",
+      "bytes": 1144,
+      "sha256": "b57f61ee48f63d1e80eb394af9ad6200de0d3179394df3ea978eee2e1ff1ea32"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workflow-v2-static-validation-01.json",
+      "bytes": 4444,
+      "sha256": "296f664b31813bfc4687a90d996f1b6a43e0e40f6eff6b324e867a09943dea3a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json",
+      "bytes": 6653,
+      "sha256": "76cf16a2c820acbe9e3300533943621aa72074fea70571918d4df6db5c620003"
+    },
+    {
       "path": "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/error-context.md",
       "bytes": 9352,
       "sha256": "700e293b7357ac256cf4b5d3b76effd3bfb5b38e48b5cc3b95006d43023ffb25"
@@ -1449,6 +1999,96 @@
       "path": "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
       "bytes": 4977,
       "sha256": "cbfec9a180b422c158118a71301e02c1b6bf9c7dabaebc49f1cb231a9bbb07a7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-artifacts.json",
+      "bytes": 155854,
+      "sha256": "dc972576da16985377b275b079f37bdb5a0213a46dc66359bc9ee016b2ae7f2a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-browser-baseline.md",
+      "bytes": 10241,
+      "sha256": "e79c16010ef8f451dea16dd4a1c9c120f2fe88489b7d177f33fbe29cb1567b11"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-browser-regression-review.md",
+      "bytes": 14757,
+      "sha256": "082252a582b72c0ee5acb836ec8199e95cc795ec9bede5bc7370b890cf7523ed"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-c2-browser-regression-review.md",
+      "bytes": 27411,
+      "sha256": "d86043e1a9e8e6d0a3794c26f2500841767337516888f0a201dc66642892503e"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-command-index.json",
+      "bytes": 55489,
+      "sha256": "2892f8425508be3de532c3272ddd83cbf96aec8accc436cf0a05a33ee20e5d1d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-dependency-review.md",
+      "bytes": 19550,
+      "sha256": "99ec0b13cef7a542d0cbc1364818eaf7cf6fc586cd137d2cb87acd257f31f92d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-draft-transfer-review.md",
+      "bytes": 10988,
+      "sha256": "5433d739dba0c7d15fb32deb1f4d9072d08517817003522e1f9259f8f30ab5a8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-evidence-plan.json",
+      "bytes": 18245,
+      "sha256": "7fe892652bc00ddb0d353763003782ebce29cc161d2fc018c0df160513729579"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-feature-comparison.md",
+      "bytes": 8245,
+      "sha256": "a8073af14cdd160b0e312360bdbcacf6a54053543d8b530251a552a6baf571b9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-final-review.md",
+      "bytes": 31579,
+      "sha256": "5abf1b7bc932087aa8a785e2d2b608295fa3dec89e7fc27031b2e9086f664e9a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-handoff.md",
+      "bytes": 36545,
+      "sha256": "8911090edcd0c4ad7090c0cc402c6e5c18a82e9c956c44a8ded3a4b4fac7538d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-original-prompt-audit.md",
+      "bytes": 19686,
+      "sha256": "7f7a0738dd96c635663120c753b5596624cc1d640ff05c6968a39ff4f6f3cc1f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-plan.md",
+      "bytes": 4909,
+      "sha256": "937aeb65ca5eb0fbc9e77b66e671d72509b780fa2bb4e20256516ad8f88098bc"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-source-cut.json",
+      "bytes": 16375,
+      "sha256": "c64944d5af002e1edaba8c75316f96eff82991df831cf0134958b74880186129"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-source-lock.json",
+      "bytes": 11890,
+      "sha256": "6a6df58dd0c4f0cfcc6d680a922f5254e58f853b6bf5a81853276f27d26d70c8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-validation-summary.json",
+      "bytes": 340,
+      "sha256": "48839b3286854ef5f4e7baef968187bb8972233f6cd34f9353b125d92b4e982b"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-verification.json",
+      "bytes": 262432,
+      "sha256": "731d4d81984deb25f2d87271898a94e6bd7c0b494dcb3a52218491290fb7a322"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/archive-manifest.json",
+      "bytes": 5303,
+      "sha256": "bbe177e524cbb19a98f563427c7e71f9eaa81307cd212e37ee6856ef787e48a1"
     },
     {
       "path": "docs/implementation/v3/m15-artifacts/publication-main-drift.json",
@@ -2494,6 +3134,226 @@
       "path": "docs/implementation/v3/m15-logs/c2-workbench-browser-02.log",
       "bytes": 3552,
       "sha256": "52af05cd9d72cd2a36a8bc28d513efe61309678f220c97396fe16bac006ce989"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json",
+      "bytes": 761,
+      "sha256": "f262d57ab6cb7a2ba8fda3bbf16545f2babbff5002d6067bae881a66da395929"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+      "bytes": 4217,
+      "sha256": "150f5838ba3334eaabbdaf164102cd8e069a278da36057c195e46f8e867b5f0c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.json",
+      "bytes": 971,
+      "sha256": "2a60324fa20994c8a4f091a912acd2a27b3eba1b15af2040abc789577b22c48f"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.log",
+      "bytes": 2239,
+      "sha256": "22908c252a89c61d34b9faf5388ad3b6c964fcfda9453417fbca147f0371eb9c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-build-01.json",
+      "bytes": 534,
+      "sha256": "4d5c9ed5519e0975f01a4c48c2b66efcd4821a3f67851ce13143d583e5c658a0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-build-01.log",
+      "bytes": 8810,
+      "sha256": "08aece2ef5416332d4e84c80e76b3df88fdec86e23e4670b6192d08649e7ee58"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-custody-01.json",
+      "bytes": 5196,
+      "sha256": "c7d006be09cde99d7c1b405430ef6d6bf78a5a6e2bbd461bf61eae06cadc4ea4"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-custody-01.log",
+      "bytes": 5828,
+      "sha256": "1860d2c7d9e239c4833a117a8f8a2f3596894043b8f4f0b346ae48624cf2d109"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-custody-02.json",
+      "bytes": 5196,
+      "sha256": "95ac09b69f068265571562690d9201b5948643d2ed2f30b04b4b83f84b16f8f0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-custody-02.log",
+      "bytes": 5828,
+      "sha256": "75746fac447e5e62e3b8eb58fbd4d1bda8586ba5307847ead89338d6e49fc5fb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-focused-01.json",
+      "bytes": 1719,
+      "sha256": "e4cf331a44fe221ff8c9d0b3419ff86dbf830cfe8ed6e3aa44cac442a2931f34"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-focused-01.log",
+      "bytes": 3969,
+      "sha256": "57bc5e7a3481a001e1039af873f3374a410529eb9d069ecc92de08676537ee71"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-integrity-01.json",
+      "bytes": 572,
+      "sha256": "7e56fbcbc65559e337553b3356d374ce8c219c421f78b0278e1c447caa8bd6bc"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-integrity-01.log",
+      "bytes": 490,
+      "sha256": "355988a24802067349d6815722c4c223baed3dfcac000e7d2d68945ba4161521"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-integrity-02.json",
+      "bytes": 572,
+      "sha256": "f6a235d1d926d0879074f99c7c0ddc242d149c87a4948930816e5c16258fd6c8"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-integrity-02.log",
+      "bytes": 489,
+      "sha256": "9a82347a6e70acbd23d1606ca4a7c67669aea653f44dd5f19610659b218f2dbc"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-package-01.json",
+      "bytes": 756,
+      "sha256": "1dfe754d6e7d682123f5f4603026fe51b16da730cf106cbb11a8a2f818cfe4fb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-package-01.log",
+      "bytes": 964,
+      "sha256": "ba755d429c17801d6141b9f3e8e5f30fe32bd69435350321cc60e53d4cb4a4ae"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-package-02.json",
+      "bytes": 756,
+      "sha256": "28fe42d7c829b50f3d2fa5cd6e16dd723f99be1d952b73d152990b8d158b4de9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-package-02.log",
+      "bytes": 868,
+      "sha256": "7621899cfe6c64a2e240cecf9086777060dd6e17e8df440071c628ee14376b79"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-01.json",
+      "bytes": 542,
+      "sha256": "a17718acee70634389c28dfdf873a47cd6496716974dd85a21a6feb7f8858785"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-01.log",
+      "bytes": 1879,
+      "sha256": "6661a43f7b02ab48fd80369c166ff1a6fd793ac018719ca35e7a5c7ad1ba8ae0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-02.json",
+      "bytes": 542,
+      "sha256": "e74e76f336b0db7081b958fa885f007c2d511089ff7fab9f9fce00e9576af0fc"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-02.log",
+      "bytes": 182,
+      "sha256": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.json",
+      "bytes": 542,
+      "sha256": "8dd035e950ae9f1109fa2d6c1460e51f26a5f18d178a5800b55a618f84c591a0"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.log",
+      "bytes": 182,
+      "sha256": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.json",
+      "bytes": 563,
+      "sha256": "551a4440462911e87af4a9454c1eefd2f2fc44b7955fc9fa559fe929a30b7198"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.log",
+      "bytes": 263,
+      "sha256": "0231d5e399f59f53accaf2c7ead21da7c44e5bf6e9857282f6702cf809fb2297"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-layout-source-01.json",
+      "bytes": 923,
+      "sha256": "30e65e47e8c69d5f335a88d48e8c11860b2f214d864b81071eecf5af0e639931"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-layout-source-01.log",
+      "bytes": 8493,
+      "sha256": "b9a1edf3693a3a062fd8eaeda10d221bf4c40387e89369478454f389ce4b1442"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-layout-source-02.json",
+      "bytes": 923,
+      "sha256": "b8e35fba34a16f573d3d716cbbb41a6a3788795e1e359888f4a41e88779f90ff"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-layout-source-02.log",
+      "bytes": 917,
+      "sha256": "4df7fb4e68dc52de32ae591fb96b5ad08e83748c6edf9e8ac0ea559144d27736"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-main-merge-01.json",
+      "bytes": 534,
+      "sha256": "9b6f3e804fd5f7c3ef191cdda1a9aef89dffbe1eca29f3f1cfc3e32d0151c274"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-main-merge-01.log",
+      "bytes": 554,
+      "sha256": "17164221e1881521d802f41018f11e7491e0e0ee44fa47af878190fc19ab434b"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-native-return-01.json",
+      "bytes": 834,
+      "sha256": "1075fb5b77658e481b5aeaf0736575ecc7e8b832d8d40150878156088c75e71d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-native-return-01.log",
+      "bytes": 1285,
+      "sha256": "af50001f2310ce02d022ec8c5fdc7383c6913d8ab43677dfa471567ec3623473"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.json",
+      "bytes": 791,
+      "sha256": "d5c3fca3b0baf19136afd5fe900de7f55ec4c20ee147602d482b0d6916f0b4aa"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.log",
+      "bytes": 13201,
+      "sha256": "52033ae9a880a57360a1fd9790e9c81ebfed5e4ea0fa70ee7dfc900cd49e6548"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workbench-app-01.json",
+      "bytes": 751,
+      "sha256": "9de6dacf4200032cacdd68f35e9c405b3410ab7b35be74f744fffab670b4fef2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workbench-app-01.log",
+      "bytes": 6950,
+      "sha256": "e999847ef342e312f1d302884204140bfab84d6beba28e970cf9abab9d19dae2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.json",
+      "bytes": 755,
+      "sha256": "99db1d7c61852ddde2e4f21087f0d054cfabbdc6843da49fe7d022b30fb1aa60"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.log",
+      "bytes": 3547,
+      "sha256": "aa04eb875b89ddb4aa74a61fb312ba474a6f2d8a7fdad60ab48ca9c6315e35b9"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.json",
+      "bytes": 911,
+      "sha256": "1d80584975a78cdc8cf57b12225d0eb2e1a0daf1b82d04275cc5fdf35668a2fb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.log",
+      "bytes": 1013,
+      "sha256": "6d04a1c4220d04ecf4c26e3031536b3d008ab866d49352f1429504ff00a35ac2"
     },
     {
       "path": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json",

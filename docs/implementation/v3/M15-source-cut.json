@@ -1,17 +1,17 @@
 {
-  "executionBaseSha": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "files": [
     {
       "path": ".github/workflows/m15-evidence.yml",
-      "bytes": 16391,
-      "sha256": "dfc1581e089e05659338d3f4bdb1f22215ccd2deb5005eaf11c0a5f26deb0748",
-      "gitBlob": "477c72a3a02f38b879104dedb70a2dc6855ffe26"
+      "bytes": 27719,
+      "sha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+      "gitBlob": "36754a4da7f36ee85044ae41a269e5ea877bf123"
     },
     {
       "path": "apps/server/server.ts",
-      "bytes": 28324,
-      "sha256": "bad37847a060e0c04e98b3299f56e41ecd4b06893a34b42bd161a13a88cfb1cd",
-      "gitBlob": "11339502a7d5ecbc25d7c8c7f30ebb65bc673797"
+      "bytes": 28160,
+      "sha256": "0f0085ca4f858b6d0847a238fb6ed5b63c3ab17a1466071ddd97209aefceb5aa",
+      "gitBlob": "ae2794c2d1ebe48f2a7bb70060b011b2ca5dea47"
     },
     {
       "path": "apps/server/source-workbench-routes.ts",
@@ -21,9 +21,9 @@
     },
     {
       "path": "apps/web/src/App.tsx",
-      "bytes": 156202,
-      "sha256": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
-      "gitBlob": "f5df049cec148c47202ce9a33027c666b584532c"
+      "bytes": 157534,
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+      "gitBlob": "c231190c823bb82e98b6ee8d626b578b67acc0a6"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -105,9 +105,9 @@
     },
     {
       "path": "apps/web/src/project-api.ts",
-      "bytes": 2532,
-      "sha256": "469f7b65deb5807ecfb1025f98498810ca1976c45581bca0be3e44517d5624c8",
-      "gitBlob": "20845d1a60f1b9eaebcbcbce3541e9ff077050b5"
+      "bytes": 2790,
+      "sha256": "9a56398ddf97b912d810a210ba610a1c8de5b711a446ab837f7c4c0a20c55621",
+      "gitBlob": "c9a745bb33cba1144f5e8ee783cdd99ca6584bd9"
     },
     {
       "path": "apps/web/src/saved-drafts.ts",
@@ -219,9 +219,9 @@
     },
     {
       "path": "scripts/browser-suites.ts",
-      "bytes": 6498,
-      "sha256": "e46b7cd09cce950d518f8a23a885521ef67ae97abb400f9d350f674584eb07e9",
-      "gitBlob": "e7fede04e8c189645bac3580a9a0a663e6f19a07"
+      "bytes": 6312,
+      "sha256": "210d98d5d42e5c8a9ee1a242d4aea8c6367404b341a08411388f0ca2d69bde2a",
+      "gitBlob": "004460b9451be8701b96e07eac9336ed9f70318b"
     },
     {
       "path": "scripts/m15-evidence-probe.mjs",
@@ -243,9 +243,9 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "bytes": 201135,
-      "sha256": "6b817b0f5d702b83200486a1c9d3ae8423f19faf28bb393406c572372dc4f9c8",
-      "gitBlob": "7a189ec132dfc84e043a284b42bfff4dc4468952"
+      "bytes": 216745,
+      "sha256": "f6eefd6cec1cdcb0201c508d2fb4df6f0fe6187c56989cadc1fae989d137c5aa",
+      "gitBlob": "0546b69354f68e5c3cab541e309f9ce001998deb"
     },
     {
       "path": "tests/accounts.test.ts",
@@ -333,15 +333,21 @@
     },
     {
       "path": "tests/e2e/workbench-app.spec.ts",
-      "bytes": 30734,
-      "sha256": "f7d8151795a3ee1706f65d381aa1f6c5df9d5e3f1993229ada00ee0065e73912",
-      "gitBlob": "b7a539f0955d69f310facf28ab4ef4239cff415a"
+      "bytes": 38469,
+      "sha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449",
+      "gitBlob": "ff72896758d339ccdfcfb79549932e8136479b84"
     },
     {
       "path": "tests/e2e/workbench-fixture.tsx",
       "bytes": 12840,
       "sha256": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71",
       "gitBlob": "3f582bde1c2172ea09342e1b7a1e324ed6645da7"
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "bytes": 10123,
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "gitBlob": "193c2bedae2b63f1aa8e47b546a29ed0cdf02a25"
     },
     {
       "path": "tests/e2e/workbench.playwright.config.ts",
@@ -405,9 +411,9 @@
     },
     {
       "path": "tests/source-workbench-host-v3.test.ts",
-      "bytes": 55691,
-      "sha256": "ecbe0e1ec4810cbd31812944416c0140a55594efe1e91c334486673b1f0104c8",
-      "gitBlob": "22a1d935752602295d35ef90fca41e560dc200ae"
+      "bytes": 64040,
+      "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281",
+      "gitBlob": "52413588df950d9ca7ce9878ac99a61d5e1a72b9"
     },
     {
       "path": "tests/workbench-input-recovery-v3.test.ts",

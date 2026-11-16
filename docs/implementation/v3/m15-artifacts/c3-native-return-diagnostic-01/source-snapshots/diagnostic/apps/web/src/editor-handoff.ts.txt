@@ -1,0 +1,31 @@
+// One registry per renderer, shared by browser navigation and native window handoffs.
+const guards=new Map<symbol,()=>Promise<void>>();
+let diagnosticHandoff=0;
+
+// Temporary C3 diagnostic. Only the native-return fixture enables this sink.
+export function recordNativeReturnDiagnostic(kind:string,detail:Record<string,unknown>={}){
+ const events=typeof window==='undefined'?undefined:(window as Window&{__m15NativeDiagnostics?:Array<Record<string,unknown>>}).__m15NativeDiagnostics;
+ if(events&&events.length<4000)events.push({at:performance.now(),kind,...detail});
+}
+
+export function registerEditorHandoff(key:string,guard:()=>Promise<void>){
+ const registration=Symbol(key);
+ guards.set(registration,guard);
+ return()=>{guards.delete(registration);};
+}
+
+export async function prepareEditorHandoff(){
+ const handoff=++diagnosticHandoff;
+ recordNativeReturnDiagnostic('editor-handoff:start',{handoff,guards:[...guards.keys()].map(key=>key.description)});
+ const results=await Promise.allSettled(Array.from(guards.entries(),([key,guard])=>Promise.resolve().then(()=>{
+  recordNativeReturnDiagnostic('editor-guard:start',{handoff,key:key.description});
+  try{
+   const pending=guard();
+   void pending.then(()=>recordNativeReturnDiagnostic('editor-guard:end',{handoff,key:key.description}),cause=>recordNativeReturnDiagnostic('editor-guard:error',{handoff,key:key.description,errorName:cause instanceof Error?cause.name:typeof cause}));
+   return pending;
+  }catch(cause){recordNativeReturnDiagnostic('editor-guard:error',{handoff,key:key.description,errorName:cause instanceof Error?cause.name:typeof cause});throw cause;}
+ })));
+ const failure=results.find(result=>result.status==='rejected');
+ recordNativeReturnDiagnostic('editor-handoff:end',{handoff,failed:Boolean(failure)});
+ if(failure?.status==='rejected')throw failure.reason;
+}

@@ -1,0 +1,260 @@
+{
+  "kind": "Independent read-only C3 v2 browser receipt and output-path review",
+  "reviewedAt": "2026-11-16T02:57:04.832729+00:00",
+  "disposition": "No material receipt-name or output-path mapping defect found in the frozen proposal.",
+  "scope": "Static reads and deterministic source/path comparison only. No workflow, PowerShell, browser, ingestion self-test or Windows execution. No active repository changes.",
+  "requiredReceiptCount": 16,
+  "namedSuiteCount": 13,
+  "directPlaywrightCount": 2,
+  "enabledSplitVitestCount": 1,
+  "uploadPaths": [
+    "test-results/m15/",
+    "test-results/browser/",
+    "docs/implementation/v3/m15-logs/c3-windows-*"
+  ],
+  "jobTimeoutMinutes": 45,
+  "entries": [
+    {
+      "label": "workbench",
+      "step": "Exercise source selection and output",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-workbench-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-workbench-<runId>-<attempt>.log",
+      "selection": "complete named suite: workbench",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/workbench/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/workbench/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "workbench-app",
+      "step": "Exercise the production App workbench integration",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-<runId>-<attempt>.log",
+      "selection": "complete named suite: workbench-app",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/workbench-app/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/workbench-app/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "saved-drafts",
+      "step": "Exercise saved drafts",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-<runId>-<attempt>.log",
+      "selection": "complete named suite: saved-drafts",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/saved-drafts/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/saved-drafts/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "chat-view-modes",
+      "step": "Exercise canonical chat layout and Escape ownership",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-<runId>-<attempt>.log",
+      "selection": "complete named suite: chat-view-modes",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/chat-view-modes/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/chat-view-modes/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "artifact-acknowledgment",
+      "step": "Exercise artifact acknowledgment ordering",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-<runId>-<attempt>.log",
+      "selection": "explicit Playwright spec/config",
+      "result": "test-results/m15/artifact-acknowledgment/results.json",
+      "artifacts": "test-results/m15/artifact-acknowledgment/artifacts/",
+      "uploadRoot": "test-results/m15/"
+    },
+    {
+      "label": "scoped-conversation",
+      "step": "Exercise scoped conversations in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-<runId>-<attempt>.log",
+      "selection": "complete named suite: scoped-conversation",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/scoped-conversation/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/scoped-conversation/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "ui-shell-overlays",
+      "step": "Exercise shared overlay placement and focus in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-<runId>-<attempt>.log",
+      "selection": "complete named suite: ui-shell-overlays",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/ui-shell-overlays/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/ui-shell-overlays/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "ui-shell-controls",
+      "step": "Exercise shared selection controls in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-<runId>-<attempt>.log",
+      "selection": "complete named suite: ui-shell-controls",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/ui-shell-controls/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/ui-shell-controls/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "usage-context",
+      "step": "Exercise usage and context in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-usage-context-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-usage-context-<runId>-<attempt>.log",
+      "selection": "complete named suite: usage-context",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/usage-context/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/usage-context/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "agents-workspace",
+      "step": "Exercise the agents workspace in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-<runId>-<attempt>.log",
+      "selection": "complete named suite: agents-workspace",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/agents-workspace/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/agents-workspace/artifacts/",
+      "uploadRoot": "test-results/browser/",
+      "extraEvidence": "test-results/m15/agents-candidate/"
+    },
+    {
+      "label": "agents-actual-app",
+      "step": "Exercise agents against the actual App in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-<runId>-<attempt>.log",
+      "selection": "explicit Playwright spec/config",
+      "result": "test-results/m15/agents-actual-app/results.json",
+      "artifacts": "test-results/m15/agents-actual-app/artifacts/",
+      "uploadRoot": "test-results/m15/"
+    },
+    {
+      "label": "workspace-host",
+      "step": "Exercise retained workspace ownership in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-<runId>-<attempt>.log",
+      "selection": "complete named suite: workspace-host",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/workspace-host/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/workspace-host/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "saved-layout-chooser",
+      "step": "Exercise saved layouts and retired records in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-<runId>-<attempt>.log",
+      "selection": "complete named suite: saved-layout-chooser",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/saved-layout-chooser/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/saved-layout-chooser/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "usage-app-integration",
+      "step": "Exercise App usage, shell errors and mobile navigation in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-<runId>-<attempt>.log",
+      "selection": "complete named suite: usage-app-integration",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/usage-app-integration/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/usage-app-integration/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "desktop-surfaces",
+      "step": "Exercise declared desktop bridge browser fixtures in Chromium",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-<runId>-<attempt>.log",
+      "selection": "complete named suite: desktop-surfaces",
+      "result": "test-results/browser/run-<timestamp>-<UUID>/desktop-surfaces/results.json",
+      "artifacts": "test-results/browser/run-<timestamp>-<UUID>/desktop-surfaces/artifacts/",
+      "uploadRoot": "test-results/browser/"
+    },
+    {
+      "label": "split-browser",
+      "step": "Exercise both explicitly enabled split browser suites in Edge",
+      "receipt": "docs/implementation/v3/m15-logs/c3-windows-split-browser-<runId>-<attempt>.json",
+      "log": "docs/implementation/v3/m15-logs/c3-windows-split-browser-<runId>-<attempt>.log",
+      "selection": [
+        "tests/split-workspace-renderer.test.ts",
+        "tests/split-app-browser.test.ts"
+      ],
+      "result": "test-results/m15/split-browser-results.json",
+      "source": "test-results/m15/split-browser-source.json",
+      "artifacts": "No Playwright trace/screenshot output is configured by these Vitest tests.",
+      "uploadRoot": "test-results/m15/"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/m15-evidence.push-draft.yml",
+      "bytes": 27719,
+      "sha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+      "bytes": 27299,
+      "sha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/split-browser-command.ps1",
+      "bytes": 1440,
+      "sha256": "17b457019a222eb6282360e8de57ac0e70040836a0785995f95f4e33ed70e7b8"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/test-browser.ts",
+      "bytes": 3310,
+      "sha256": "6aba884457c135fc19cec841a3060b76a5c75ac90afbe19ce425fbe0fcada513"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/browser-suites.ts",
+      "bytes": 6312,
+      "sha256": "210d98d5d42e5c8a9ee1a242d4aea8c6367404b341a08411388f0ca2d69bde2a"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-record.mjs",
+      "bytes": 2439,
+      "sha256": "971842beaeb9e0f1571afbe68407282603bbfef5b28aaab3df949af58e524cd6"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workspace-host.playwright.config.ts",
+      "bytes": 592,
+      "sha256": "00ed403cf5ff103af97519e45e910c0003db11e7062bf6f49bc2b948cb13c30e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.playwright.config.ts",
+      "bytes": 554,
+      "sha256": "43898e25e3781aaeaa659a786281c384b3db7ef7bf2ee7ee34d4d0d6d888b037"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.playwright.config.ts",
+      "bytes": 654,
+      "sha256": "d9537fb08383c2d0bff2ce90db83d6a4e98a40a57d2e573595be67ed1a8a1673"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.playwright.config.ts",
+      "bytes": 459,
+      "sha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/split-workspace-renderer.test.ts",
+      "bytes": 16328,
+      "sha256": "8d405ba4df4779bffa13cbe3959c8b196618bc5e1dea1979cdd6e2fcb83ecdeb"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/split-app-browser.test.ts",
+      "bytes": 68645,
+      "sha256": "83d3d8f2d66172f2de648ca8ee844c71fa0a1ac5411a489ec7c6b09db542088a"
+    }
+  ],
+  "findings": [
+    "All16 browser receipt labels occur exactly once and in the same order in workflow recorder commands and ingestion KINDS browser contract.",
+    "The13 named suite calls use actual scripts/test-browser.ts generated run/suite results and artifacts directories, all covered by test-results/browser/.",
+    "Direct artifact-acknowledgment and agents-actual-app JSON/artifacts paths are under test-results/m15/. Agents candidate metrics/screenshots use its explicit test-results/m15/agents-candidate override.",
+    "Both split source and result paths match the PowerShell source, embedded workflow command and ingestion constants; all are under the uploaded test-results/m15/ directory.",
+    "Recorder JSON and log paths match ingestion expectations and the upload glob.",
+    "Named-suite CLI --output redirects config fallback directories into the retained run directory. Examined screenshots/benchmark writes use Playwright outputPath except agents evidence, whose explicit directory is also retained."
+  ],
+  "limits": [
+    "45minutes is the retained job deadline, not measured assurance that all16 commands can finish after failures. Cancellation may omit later receipts/results or upload; these remain incomplete evidence.",
+    "Actual native Windows/Edge/PowerShell execution is pending. Static path matching is not execution proof.",
+    "Split Vitest tests do not configure Playwright tracing or screenshots; absence of those outputs is not cured by upload globs. Their planned retained materials are source record, Vitest JSON and recorder log.",
+    "This review checks path coverage and names. The ingester grants byte custody, not a suite PASS; original job/command/JSON outcomes still determine observed results.",
+    "Desktop-surfaces remains a scripted browser bridge fixture, not installed-desktop execution."
+  ]
+}

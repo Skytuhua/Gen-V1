@@ -1,0 +1,173 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - button "Native return A Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: RT
+                - generic [ref=e36]: Reusable task surfaces
+              - time [ref=e38]: 17d
+            - generic [ref=e39]: Native return A
+            - generic [ref=e40]: Ready
+          - button "Options for Native return A" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e47]:
+          - button "Native return B Ready" [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: RT
+                - generic [ref=e52]: Reusable task surfaces
+              - time [ref=e54]: 17d
+            - generic [ref=e55]: Native return B
+            - generic [ref=e56]: Ready
+          - button "Options for Native return B" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+    - generic "App controls" [ref=e63]:
+      - button "Settings" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e68]: Settings
+      - button "Pull requests" [ref=e69] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e74]: PRs
+      - button "Usage" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e78]: Usage
+      - button "Update" [disabled] [ref=e79]:
+        - img [ref=e80]
+        - generic [ref=e83]: Update
+  - separator "Resize sidebar" [ref=e84]
+  - generic [ref=e85]:
+    - generic [ref=e86]:
+      - status [ref=e87]:
+        - generic [ref=e88]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e89] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e90]:
+        - button "Workspace" [pressed] [ref=e91] [cursor=pointer]
+        - button "All Agents" [ref=e92] [cursor=pointer]
+        - button "Open workspace panel" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+        - button "Layouts" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+          - text: Layouts
+          - img [ref=e102]
+    - generic [ref=e108]:
+      - generic [ref=e109]:
+        - region "Native return B" [ref=e111]:
+          - generic [ref=e112]:
+            - button "Split this area" [ref=e113]: ◩
+            - tablist "Area views" [ref=e114]:
+              - tab "Native return A" [ref=e115] [cursor=pointer]:
+                - generic [ref=e116]: Native return A
+              - tab "Native return B" [selected] [ref=e117] [cursor=pointer]:
+                - generic [ref=e118]: Native return B
+            - button "Area actions" [ref=e120] [cursor=pointer]:
+              - img [ref=e121]
+            - button "Minimize area" [expanded] [ref=e125] [cursor=pointer]: ▴
+        - generic [ref=e136]:
+          - main "Chat" [ref=e137]:
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - img [ref=e140]
+                - generic [ref=e142]: Reusable task surfaces
+                - generic [ref=e143]: /
+                - strong [ref=e144]: Native return B
+              - button "Find in conversation" [ref=e147] [cursor=pointer]:
+                - img [ref=e148]
+            - generic "Conversation" [ref=e152]:
+              - generic [ref=e155]:
+                - generic [ref=e156]: Assistant
+                - generic [ref=e157]:
+                  - button "Copy message" [ref=e158] [cursor=pointer]:
+                    - img [ref=e159]
+                  - status [ref=e162]
+                  - paragraph [ref=e166]: Owner B has a different immutable source and draft.
+            - generic [ref=e170]:
+              - region "Prompt source context" [ref=e171]:
+                - generic [ref=e172]:
+                  - strong [ref=e173]: "Destination: Native return B"
+                  - generic [ref=e174]: Current task
+                  - button "Sources and evidence" [ref=e175] [cursor=pointer]
+                  - generic [ref=e176]:
+                    - text: Delivery
+                    - generic [ref=e177]:
+                      - combobox "Source delivery mode" [ref=e178] [cursor=pointer]:
+                        - generic [ref=e179]: Now
+                        - img [ref=e180]
+                      - combobox [ref=e182]
+                - article "Selected source Owner B message" [ref=e184]:
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: Owner B message · MESSAGE
+                    - button "Open source" [ref=e187] [cursor=pointer]
+                    - button "Remove source" [ref=e188] [cursor=pointer]
+                  - generic [ref=e189]: Revision bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589 · UTF-16 [0, 20) · Captured 2026-11-16T02:18:54.187Z
+                  - generic [ref=e190]: Owner B has a differ
+              - generic [ref=e191]:
+                - textbox "Message" [ref=e193]:
+                  - /placeholder: Ask anything…
+                  - text: Different authored draft owned by B
+                - group "Task actions" [ref=e194]:
+                  - button "Inspect changes" [ref=e195] [cursor=pointer]:
+                    - img [ref=e196]
+                    - generic [ref=e198]: Changes
+                  - button "Create PR" [ref=e199] [cursor=pointer]:
+                    - img [ref=e200]
+                    - generic [ref=e205]: Create PR
+              - status [ref=e206]
+              - generic [ref=e208]:
+                - group "Project and runtime" [ref=e209]:
+                  - button "Saved drafts" [ref=e210] [cursor=pointer]
+                  - button "Attach files" [ref=e211] [cursor=pointer]:
+                    - img [ref=e212]
+                  - button "Select project" [ref=e213] [cursor=pointer]:
+                    - img [ref=e214]
+                    - generic [ref=e216]: Reusable task surfaces
+                  - generic "Local workspace" [ref=e217]:
+                    - img [ref=e218]
+                    - text: Local
+                  - button "Task mode" [ref=e220] [cursor=pointer]:
+                    - img [ref=e221]
+                    - generic [ref=e224]: Build
+                  - button "Show live usage" [ref=e225] [cursor=pointer]:
+                    - img [ref=e226]
+                - group "Model and voice" [ref=e228]:
+                  - combobox "Model" [ref=e229] [cursor=pointer]:
+                    - img [ref=e230]
+                    - generic [ref=e233]: Fixture
+                    - img [ref=e234]
+                  - button "Inspect context usage" [ref=e237] [cursor=pointer]:
+                    - img [ref=e238]
+                  - button "Start voice input" [ref=e239] [cursor=pointer]:
+                    - img [ref=e240]
+                  - button "Send message" [ref=e244] [cursor=pointer]:
+                    - img [ref=e245]
+          - generic:
+            - img
+            - generic: Dock chat
+      - complementary "Conversation summaries" [ref=e248]:
+        - region "Project overview window" [ref=e249]:
+          - button "Expand Project overview" [ref=e251] [cursor=pointer]:
+            - strong [ref=e252]: Project overview
+            - img [ref=e253]
+  - region "Notifications"
+```

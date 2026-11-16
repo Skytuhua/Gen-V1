@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {test,expect,type Locator,type Page} from '@playwright/test';
 import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
+import {serveWorkbenchNativeReturnFixture} from './workbench-native-return-fixture';
 import type {CapturedSourceV1,LogicalOwnerV1,SelectedSourceV1,SourceRefV1,WorkbenchInputV1} from '../../packages/contracts/source-selection';
 const digest=(text:string)=>createHash('sha256').update(text).digest('hex');
 /** Production App, API client, journal and composer. Only host HTTP is a labeled
@@ -70,7 +71,21 @@ test('late source descriptions cannot attach to a replacement workspace',async({
  const h=await fixture(page);let release=()=>{};h.state.pauseDescriptions(new Promise<void>(resolve=>{release=resolve;}));await select(page);await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();h.snapshot.threads[0].workspaceId='replacement';await h.publish();await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeVisible();release();await expect.poll(()=>h.state.captureCount).toBe(0);await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);
 });
 test('after-current mode is explicit and queues through message.send while the task is working',async({page})=>{
- const h=await fixture(page);await attach(page);await editor(page).fill('Continue after the current run');await setDelivery(page,'AFTER_CURRENT');h.snapshot.threads[0].runId='active-run';h.snapshot.threads[0].status='working';await h.publish();await page.getByRole('button',{name:'Queue after current',exact:true}).click();await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);expect(h.commands.find(c=>c.type==='message.send')?.payload.sendMode).toBe('AFTER_CURRENT');expect(h.commands.filter(c=>c.type==='run.stop')).toHaveLength(0);
+ const h=await fixture(page);await attach(page);await editor(page).fill('Continue after the current run');
+ h.snapshot.threads[0].runId='active-run';h.snapshot.threads[0].status='working';await h.publish();
+ const hint=page.locator('.composer-hint');await expect(hint).toBeVisible();await expect(hint).toContainText('/btw');
+ await expect(page.getByRole('button',{name:'Queue after current',exact:true})).toHaveCount(0);
+ await setDelivery(page,'AFTER_CURRENT');await expect(hint).toHaveCount(0);
+ await expect(editor(page)).toHaveValue('Continue after the current run');
+ expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(0);
+ await page.getByRole('button',{name:'Queue after current',exact:true}).click();
+ await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);
+ const command=h.commands.find(c=>c.type==='message.send')!;
+ expect(command.threadId).toBe('task-thread');expect(command.payload.content).toBe('Continue after the current run');
+ expect(command.payload.sourceRefs).toEqual([h.captures.get('capture-1')!.ref]);expect(command.payload.sendMode).toBe('AFTER_CURRENT');
+ expect(h.commands.filter(c=>c.type==='run.stop')).toHaveLength(0);expect(h.commands.filter(c=>c.type==='thread.create')).toHaveLength(0);
+ await expect(editor(page)).toHaveValue('');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toHaveCount(0);
+ expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(1);
 });
 test('evidence preserves reported and observed grades, freshness and unsupported module state',async({page},info)=>{
  await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await dialog.getByRole('button',{name:'Evidence',exact:true}).click();await expect(dialog).toContainText('REPORTED');await expect(dialog).toContainText('OBSERVED');await expect(dialog).toContainText('STALE');await expect(dialog).toContainText('retained-check.log');await expect(dialog).toContainText('UNSUPPORTED');await expect(dialog).not.toContainText('VERIFIED');await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
@@ -86,7 +101,16 @@ test('context and run views use recorded or explicit unavailable states without 
 test('real activity integration bounds mounted rows and searches the authorized full read',async({page})=>{
  const h=await fixture(page);h.snapshot.messages.push({id:'activity',threadId:'task-thread',role:'activity',content:Array.from({length:1200},(_,index)=>`retained line ${index+1}`).join('\n'),createdAt:'2026-11-15T00:00:00.000Z',runId:null});await h.publish();await page.locator('details.activity summary').click();const output=page.getByRole('region',{name:'Retained work activity',exact:true});await expect(output.getByRole('button',{name:'Copy full result',exact:true})).toBeEnabled();expect(await output.locator('[data-output-row-id]').count()).toBeLessThanOrEqual(300);await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1199');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output).toContainText('1 of 1 matching lines');await expect(output.locator('[data-output-row-id="activity:1198"]')).toBeVisible();
  await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1200');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
- h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await page.reload();await expect(editor(page)).toBeEnabled();await page.locator('details.activity summary').click();await expect(page.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
+ h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();
+ await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');
+ const [returned]=await Promise.all([
+  page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.kind==='thread'&&command.payload.view.binding?.threadId==='task-thread';},{timeout:5000}),
+  page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),
+ ]);
+ expect(returned.status()).toBe(200);const receipt=await returned.json();expect(receipt.result.panes[receipt.result.focusedPaneId].activeViewId).toBe('thread:task-thread');
+ await expect(page.getByRole('tab',{name:'Source-bound task fixture',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('[data-split-view="thread:task-thread"]')).toBeVisible();
+ await page.reload();await expect(editor(page)).toBeEnabled();await page.locator('details.activity summary').click();await expect(page.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
 });
 test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{
  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toBeEnabled({timeout:15000});await expect(editor(page)).toHaveValue('Retain this source-aware draft');
@@ -174,4 +198,61 @@ test('actual source modal and shared controls remain within the viewport at 200 
  await expect(panel).toHaveCount(0);await expect(opener).toBeFocused();await expect(editor(page)).toHaveValue('Retain the authored draft at 200 percent zoom');
  expect(h.state.captureCount).toBe(1);expect(h.captures.get('capture-1')?.ref.source).toMatchObject({kind:'MESSAGE',range:{encoding:'UTF16',start:0,end:h.snapshot.messages[0].content.length}});
  expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+});
+
+test('native return waits for canonical placement and keeps delayed source work isolated between owners',async({page},info)=>{
+ const h=await serveWorkbenchNativeReturnFixture(page);
+ const view=(threadId:string)=>page.locator(`[data-split-view="thread:${threadId}"]`);
+ const input=(threadId:string)=>view(threadId).getByRole('textbox',{name:'Message',exact:true});
+ const selectSource=async(threadId:string,messageId:string)=>{
+  const source=view(threadId).locator(`[data-message-id="${messageId}"] .source-selection-text`);await source.focus();
+  await source.evaluate(element=>{const node=document.createTreeWalker(element,NodeFilter.SHOW_TEXT).nextNode()!,range=document.createRange();range.setStart(node,0);range.setEnd(node,20);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+  await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toBeVisible();
+ };
+ const readDrafts=()=>page.evaluate(async owners=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return Promise.all([recovery.composeDraftContext(owners.a),recovery.composeDraftContext(owners.b)]);},h.owners);
+ const expectDrafts=async()=>{
+  const drafts=await readDrafts();
+  expect(drafts[0]).toMatchObject({logicalOwner:h.owners.a,text:'Authored draft owned by A',sourceRefs:[h.captures.get('native-capture-1')!.ref],sendMode:'NOW'});
+  expect(drafts[1]).toMatchObject({logicalOwner:h.owners.b,text:'Different authored draft owned by B',sourceRefs:[h.captures.get('native-capture-2')!.ref],sendMode:'NOW'});
+  expect(drafts[0].sourceRefs).toHaveLength(1);expect(drafts[1].sourceRefs).toHaveLength(1);return drafts;
+ };
+ try{
+  await page.goto('/');await expect(input(h.owners.a.threadId)).toBeEnabled({timeout:15000});
+  await input(h.owners.a.threadId).fill('Authored draft owned by A');await selectSource(h.owners.a.threadId,'reply');
+  await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toBeVisible();
+  const delayed=h.holdNextDescription(h.owners.a.threadId);await selectSource(h.owners.a.threadId,'reply');
+  await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await delayed.arrived;
+  await page.getByRole('button',{name:'Options for Native return A',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();
+  await expect.poll(h.nativeCalls).toContainEqual({type:'detach',surface:{kind:'thread',threadId:h.owners.a.threadId}});
+  await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);
+  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await expect(page.getByRole('tab',{name:'Native return B',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(input(h.owners.b.threadId)).toBeVisible();await input(h.owners.b.threadId).fill('Different authored draft owned by B');
+  await selectSource(h.owners.b.threadId,'reply-b');await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toBeVisible();
+  delayed.release();await delayed.completed;
+  expect(h.captures.size).toBe(2);const beforeReturn=await expectDrafts();
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toHaveCount(0);
+  const layout=h.holdLayoutReads(),commandsBeforeReturn=h.splitCommands.length;
+  await page.reload({waitUntil:'domcontentloaded'});await layout.arrived;
+  await h.returnThread(h.owners.a.threadId);
+  expect(h.splitCommands).toHaveLength(commandsBeforeReturn);
+  layout.release();
+  await expect(page.getByRole('tab',{name:'Native return A',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(input(h.owners.a.threadId)).toHaveValue('Authored draft owned by A');
+  await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(false);
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toBeVisible();
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toHaveCount(0);
+  expect(h.splitCommands.slice(commandsBeforeReturn)).toContainEqual(expect.objectContaining({type:'split-workspace.view.open',payload:expect.objectContaining({view:expect.objectContaining({kind:'thread',binding:expect.objectContaining({threadId:h.owners.a.threadId})})})}));
+  const afterReturn=await expectDrafts();expect(h.captures.size).toBe(2);
+  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await expect(input(h.owners.b.threadId)).toHaveValue('Different authored draft owned by B');
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toBeVisible();
+  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(1);
+  const finalDrafts=await expectDrafts();
+  expect(h.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toHaveLength(0);
+  await info.attach('native-return-source-isolation.json',{body:Buffer.from(JSON.stringify({scope:'Real App with scripted browser desktop bridge and owner-bound source HTTP; no installed desktop execution',delayedDescriptionOutcome:delayed.outcome(),beforeReturn,afterReturn,finalDrafts,captures:[...h.captures.values()],events:h.events,commands:h.commands},null,2)),contentType:'application/json'});
+ }finally{h.releaseAll();}
 });

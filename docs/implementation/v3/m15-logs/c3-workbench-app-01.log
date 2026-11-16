@@ -1,0 +1,77 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:54) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:66) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 22 tests using 1 worker
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench-app.spec.ts:331:1 › default-off App retains its ordinary composer and hides source actions (5.8s)
+  ✓   2 tests/e2e/workbench-app.spec.ts:353:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (5.2s)
+  ✓   3 tests/e2e/workbench-app.spec.ts:379:1 › ask supplies a question only for an empty draft and never dispatches (2.7s)
+  ✓   4 tests/e2e/workbench-app.spec.ts:391:1 › stale capture remains exact until explicit keep or refresh and opens retained output (5.5s)
+  ✓   5 tests/e2e/workbench-app.spec.ts:425:1 › late source descriptions cannot attach to a replacement workspace (3.0s)
+  ✓   6 tests/e2e/workbench-app.spec.ts:450:1 › after-current mode is explicit and queues through message.send while the task is working (3.8s)
+  ✓   7 tests/e2e/workbench-app.spec.ts:488:1 › evidence preserves reported and observed grades, freshness and unsupported module state (3.4s)
+  ✓   8 tests/e2e/workbench-app.spec.ts:529:1 › rollback leaves retained source inspection and removal reachable (3.5s)
+  ✓   9 tests/e2e/workbench-app.spec.ts:560:1 › context and run views use recorded or explicit unavailable states without invented metrics (8.6s)
+  ✓  10 tests/e2e/workbench-app.spec.ts:588:1 › real activity integration bounds mounted rows and searches the authorized full read (6.4s)
+  ✓  11 tests/e2e/workbench-app.spec.ts:651:1 › source-aware navigation waits for journal handoff and preserves text on reload (6.0s)
+  ✓  12 tests/e2e/workbench-app.spec.ts:682:1 › pointing mode does not consume another pane focus or Escape (2.6s)
+  ✓  13 tests/e2e/workbench-app.spec.ts:696:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.8s)
+  ✓  14 tests/e2e/workbench-app.spec.ts:735:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (3.2s)
+  ✓  15 tests/e2e/workbench-app.spec.ts:771:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (6.1s)
+  ✓  16 tests/e2e/workbench-app.spec.ts:826:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (2.8s)
+  ✓  17 tests/e2e/workbench-app.spec.ts:865:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (3.5s)
+  ✓  18 tests/e2e/workbench-app.spec.ts:912:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (5.2s)
+  ✓  19 tests/e2e/workbench-app.spec.ts:958:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (3.4s)
+  ✓  20 tests/e2e/workbench-app.spec.ts:1005:1 › deferred source view failure retains the mounted composer and restores focus (4.5s)
+  ✓  21 tests/e2e/workbench-app.spec.ts:1037:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom (4.3s)
+  ✘  22 tests/e2e/workbench-app.spec.ts:1157:1 › native return waits for canonical placement and keeps delayed source work isolated between owners (12.8s)
+
+
+  1) tests/e2e/workbench-app.spec.ts:1157:1 › native return waits for canonical placement and keeps delayed source work isolated between owners 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('tab', { name: 'Native return A', exact: true })
+    Expected: [32m"[7mtru[27me"[39m
+    Received: [31m"[7mfals[27me"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('tab', { name: 'Native return A', exact: true })[22m
+    [2m    4 × locator resolved to <button role="tab" draggable="true" aria-selected="false" title="Native return A">…</button>[22m
+    [2m      - unexpected value "false"[22m
+
+
+      232 |   expect(h.splitCommands).toHaveLength(commandsBeforeReturn);
+      233 |   layout.release();
+    > 234 |   await expect(page.getByRole('tab',{name:'Native return A',exact:true})).toHaveAttribute('aria-selected','true');
+          |                                                                           ^
+      235 |   await expect(input(h.owners.a.threadId)).toHaveValue('Authored draft owned by A');
+      236 |   await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(false);
+      237 |   await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toBeVisible();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:234:75
+
+    Error Context: docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c3-workbench-app-01/artifacts/workbench-app-native-retur-cfd5d-ork-isolated-between-owners/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/workbench-app.spec.ts:1157:1 › native return waits for canonical placement and keeps delayed source work isolated between owners 
+  21 passed (1.9m)
