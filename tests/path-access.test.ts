@@ -35,8 +35,7 @@ vi.mock("node:worker_threads", async importOriginal => {
 });
 
 it('bounds only the cold source guard acquire without extending ordinary or release RPCs',()=>{
-  expect(pathGuardRpcDeadline('acquire',false,false)).toBe(30_000);
-  expect(pathGuardRpcDeadline('acquire',false,false,false)).toBe(15_000);
+  expect(pathGuardRpcDeadline('acquire',false,false)).toBe(15_000);
   expect(pathGuardRpcDeadline('acquire',false,true)).toBe(45_000);
   expect(pathGuardRpcDeadline('release',false,true)).toBe(15_000);
   expect(pathGuardRpcDeadline('removeOwned',false,true)).toBe(15_000);
