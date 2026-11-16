@@ -32,3 +32,17 @@ it('justifies a genuinely native surface with its attempted browser route', () =
   const file = mapFile('apps/web/src/DesktopBrowser.tsx');
   expect(file).toMatchObject({ category: 'excludedWebUi', reason: expect.stringContaining('WebContents'), attemptedRoute: expect.any(String) });
 });
+
+it.each([
+  'CodeReviewHost.tsx', 'ResearchHost.tsx', 'code-review-host.css', 'research-host.css',
+  'code-review-workspace/CodeReviewWorkspace.tsx', 'code-review-workspace/code-review-workspace.css',
+  'research-workspace/PassageInspector.tsx', 'research-workspace/ResearchWorkspace.tsx',
+  'research-workspace/SourceImport.tsx', 'research-workspace/SourceReader.tsx',
+  'research-workspace/research-workspace.css',
+])('captures the surviving workspace shell for retired renderer %s in recent PR history', path => {
+  expect(mapFile(`apps/web/src/${path}`)).toMatchObject({category: 'screen', screens: ['app-shell']});
+});
+
+it('still flags an unrelated unmapped renderer', () => {
+  expect(mapFile('apps/web/src/UnknownWidget.tsx').category).toBe('unmappedWebUi');
+});
