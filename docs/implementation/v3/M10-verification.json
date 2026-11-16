@@ -1,0 +1,632 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M10",
+  "baseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+  "sourceLockDigest": "14268e1b5dc9d9f509a57a51db7c005acb2ec466cf958cd883a3d54ba042ed71",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "m10.contracts-scheduler",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M10-C01",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-C02",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S01",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S04",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S11",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S12",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-T01",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-T06",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-G02",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-G03",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-D01",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-D02",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-D03",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log, m10-vitest-decisions-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:02.221Z",
+          "endedAt": "2026-11-16T14:31:22.244Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "7019e2d394bc19a4a2e4a425d2684089c527fd48dc9b9e37b33923f115f41ee4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:58.447Z",
+          "endedAt": "2026-11-16T14:32:05.481Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "1c74490574f8a57af1d3cab2649aa7b1e59e24707df1b4550aee652365b9ec1a"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+        "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log"
+      ]
+    },
+    {
+      "id": "m10.owned-commands",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M10-S02",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        },
+        {
+          "id": "M10-S03",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        },
+        {
+          "id": "M10-S08",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        },
+        {
+          "id": "M10-T02",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        },
+        {
+          "id": "M10-T03",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        },
+        {
+          "id": "M10-G01",
+          "status": "PASS",
+          "evidence": "m10-vitest-background-work-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:02.221Z",
+          "endedAt": "2026-11-16T14:31:22.244Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "7019e2d394bc19a4a2e4a425d2684089c527fd48dc9b9e37b33923f115f41ee4"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log"
+      ]
+    },
+    {
+      "id": "m10.human-handoffs",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M10-C03",
+          "status": "PASS",
+          "evidence": "m10-vitest-human-handoff-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S05",
+          "status": "PASS",
+          "evidence": "m10-vitest-human-handoff-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-T04",
+          "status": "PASS",
+          "evidence": "m10-vitest-human-handoff-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-D04",
+          "status": "PASS",
+          "evidence": "m10-vitest-human-handoff-final.log, m10-vitest-decisions-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/human-handoff-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:22.344Z",
+          "endedAt": "2026-11-16T14:31:36.117Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
+          "logDigest": "ceeaf261770699e5fd7aa4c08d2af5450534fe726ac4b9578b2204655ebe87b6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:58.447Z",
+          "endedAt": "2026-11-16T14:32:05.481Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "1c74490574f8a57af1d3cab2649aa7b1e59e24707df1b4550aee652365b9ec1a"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log"
+      ]
+    },
+    {
+      "id": "m10.external-intake",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M10-C04",
+          "status": "PASS",
+          "evidence": "m10-vitest-external-intake-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S09",
+          "status": "PASS",
+          "evidence": "m10-vitest-external-intake-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-S10",
+          "status": "PASS",
+          "evidence": "m10-vitest-external-intake-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-T05",
+          "status": "PASS",
+          "evidence": "m10-vitest-external-intake-final.log, m10-vitest-decisions-final.log"
+        },
+        {
+          "id": "M10-D05",
+          "status": "PASS",
+          "evidence": "m10-vitest-external-intake-final.log, m10-vitest-decisions-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/external-intake-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:36.216Z",
+          "endedAt": "2026-11-16T14:31:58.352Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
+          "logDigest": "46d459dcaf5604b92026eb20183a214b7ae46bb626db23e4c86dd763534e3cce"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:31:58.447Z",
+          "endedAt": "2026-11-16T14:32:05.481Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "1c74490574f8a57af1d3cab2649aa7b1e59e24707df1b4550aee652365b9ec1a"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log"
+      ]
+    },
+    {
+      "id": "m10.ui-drawer",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M10-U01",
+          "status": "PASS",
+          "evidence": "m10-browser-background-work-final.log"
+        },
+        {
+          "id": "M10-U02",
+          "status": "PASS",
+          "evidence": "m10-browser-background-work-final.log"
+        },
+        {
+          "id": "M10-U03",
+          "status": "PASS",
+          "evidence": "m10-browser-background-work-final.log"
+        },
+        {
+          "id": "M10-U04",
+          "status": "PASS",
+          "evidence": "m10-browser-background-work-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "background-work"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T21:39:17.088Z",
+          "endedAt": "2026-11-16T21:39:41.733Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log",
+          "logDigest": "02ff876e9e1c42f18d97e3a71859703291c3476d9a48e544727f33eb1e406199"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log"
+      ]
+    },
+    {
+      "id": "m10.gates",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "pnpm typecheck",
+          "status": "PASS",
+          "evidence": "m10-typecheck-final.log"
+        },
+        {
+          "id": "pnpm lint",
+          "status": "PASS",
+          "evidence": "m10-lint-final.log"
+        },
+        {
+          "id": "pnpm test",
+          "status": "FAIL",
+          "evidence": "m10-test-full-final.log"
+        },
+        {
+          "id": "pnpm build",
+          "status": "PASS",
+          "evidence": "m10-build-final.log"
+        },
+        {
+          "id": "pnpm test:browser",
+          "status": "FAIL",
+          "evidence": "m10-test-browser-full-final.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:32:05.557Z",
+          "endedAt": "2026-11-16T14:36:00.859Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-typecheck-final.log",
+          "logDigest": "e8c11f46739a56886e30fdf9d6cec329257e3b871d4eadbcdb7ba2b70f5e5c75"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:36:01.052Z",
+          "endedAt": "2026-11-16T14:38:24.336Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-lint-final.log",
+          "logDigest": "f43ed305112aec1ed77980693e14a7bd92fb4f97cf8de52d2191a82e20609bec"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T14:38:24.522Z",
+          "endedAt": "2026-11-16T15:01:27.332Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-test-full-final.log",
+          "logDigest": "088ddd49b3fbc62b817fb16e88ed7eac8b7799bc7fb49d953cbccfd292bf6517"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T15:01:27.440Z",
+          "endedAt": "2026-11-16T15:02:39.738Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
+          "logDigest": "7cd11c1d50f5fd907c754e6101cf93ed773c75f89c7a53dd8bfafefda39155a8"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-16T15:02:39.807Z",
+          "endedAt": "2026-11-16T18:18:12.097Z",
+          "exitCode": null,
+          "termination": "TIMEOUT",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-test-browser-full-final.log",
+          "logDigest": "b71239d075cb5cd300bde7800bcef4661dce12893000bb8234a316c6d2abbc1e"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/logs/m10-test-full-final.log",
+        "docs/implementation/v6/M10/logs/m10-test-browser-full-final.log",
+        "docs/implementation/v6/M10/logs/outcome-comparison.json"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "apps/server/background-routes.ts",
+    "apps/server/hermes-service.ts",
+    "apps/server/server.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/BackgroundWork.tsx",
+    "apps/web/src/background-work.css",
+    "docs/implementation/v3/M10-verification.json",
+    "docs/implementation/v6/M10/M10-source-lock.json",
+    "docs/implementation/v6/M10/build-evidence.mjs",
+    "docs/implementation/v6/M10/compare-outcomes.mjs",
+    "docs/implementation/v6/M10/handoff.md",
+    "docs/implementation/v6/M10/logs/build-widgets.log",
+    "docs/implementation/v6/M10/logs/driver-summary-r1.txt",
+    "docs/implementation/v6/M10/logs/driver-summary.txt",
+    "docs/implementation/v6/M10/logs/driver.log",
+    "docs/implementation/v6/M10/logs/evidence-build.log",
+    "docs/implementation/v6/M10/logs/evidence-validate.log",
+    "docs/implementation/v6/M10/logs/install.log",
+    "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log",
+    "docs/implementation/v6/M10/logs/m10-browser-background-work-r1.log",
+    "docs/implementation/v6/M10/logs/m10-browser-background-work-r2.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-context-connections.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-conversation-find.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-desktop-surfaces.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-m08-restore.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-project-search.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-terminal-excerpts.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-wo8-r2.log",
+    "docs/implementation/v6/M10/logs/m10-browser-isolated-wo8.log",
+    "docs/implementation/v6/M10/logs/m10-build-final.log",
+    "docs/implementation/v6/M10/logs/m10-lint-final.log",
+    "docs/implementation/v6/M10/logs/m10-test-browser-full-final.log",
+    "docs/implementation/v6/M10/logs/m10-test-full-final.log",
+    "docs/implementation/v6/M10/logs/m10-test-full-r1.log",
+    "docs/implementation/v6/M10/logs/m10-typecheck-final.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-background-work-r1.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-background-work-r2.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-decisions-r1.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-handoff-intake-r1.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-handoff-intake-r2.log",
+    "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
+    "docs/implementation/v6/M10/logs/outcome-comparison.json",
+    "docs/implementation/v6/M10/logs/post-driver.log",
+    "docs/implementation/v6/M10/logs/post-summary.txt",
+    "docs/implementation/v6/M10/logs/vitest-comparison.json",
+    "docs/implementation/v6/M10/post-gates.sh",
+    "docs/implementation/v6/M10/receipts-r1-archived.jsonl",
+    "docs/implementation/v6/M10/receipts.jsonl",
+    "docs/implementation/v6/M10/requirements.json",
+    "docs/implementation/v6/M10/run-command.mjs",
+    "docs/implementation/v6/M10/run-gates.sh",
+    "packages/contracts/background-work.ts",
+    "packages/core/background-work.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/durable-wakeups.ts",
+    "packages/core/external-intake.ts",
+    "packages/core/service.ts",
+    "scripts/browser-suites.ts",
+    "scripts/public-source-files.json",
+    "tests/background-contract-decisions-v6.test.ts",
+    "tests/background-work-v3.test.ts",
+    "tests/e2e/background-work.playwright.config.ts",
+    "tests/e2e/background-work.spec.ts",
+    "tests/e2e/background-work.vite.config.ts",
+    "tests/e2e/fixtures/background-work.html",
+    "tests/e2e/fixtures/background-work.tsx",
+    "tests/external-intake-v3.test.ts",
+    "tests/human-handoff-v3.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/background-work-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/execution-profile.ts",
+      "version": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/agent-work.ts",
+      "version": "f7969fc248647c5e0859c2c0811dc8fdd255951b",
+      "testIds": [
+        "tests/agent-work-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/runtime/model-capacity.ts",
+      "version": "62f46c92beb902f173bc070fea79d90802d67ec6",
+      "testIds": [
+        "tests/background-work-v3.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "jobs.backgroundV1",
+      "enabled": false
+    },
+    {
+      "key": "jobs.serviceLifetimeV1",
+      "enabled": false
+    },
+    {
+      "key": "jobs.idleReviewV1",
+      "enabled": false
+    },
+    {
+      "key": "integrations.intakeV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "HOLD_SUPERVISOR: APPROVED_SERVICE lifetime unavailable; no installed supervisor with target-platform PASS evidence.",
+    "HOLD_FORK_API: pinned Hermes wrapper exposes no callable fork API; review forks and idle model review remain UNSUPPORTED_FORK.",
+    "HOLD_EXECUTION_PROFILE: production command launch requires an operator-approved M03 profile, trust and installed backend; none is configured on this host.",
+    "Foreground-timeout Continue-in-background offer is not wired to the operation timeout surface; the permitted-profile command path itself is implemented and gated.",
+    "Windows/installed-desktop platform evidence absent; Linux aarch64 only.",
+    "Live GitHub polling evidence absent; intake tested with injected authenticated fetch fixtures.",
+    "Full pnpm test: 300 failed / 3854 passed / 58 skipped vs baseline 298 / 3805 / 58; 298 shared failure identities. The 2 candidate-only identities were investigated: one passes in isolation (load flake), one reproduces on the pristine baseline in isolation (environmental). The 51 new M10 unit tests all pass.",
+    "Full pnpm test:browser: 71 suites failed vs baseline 64 (missing Chrome/Edge channels, fixed-port collisions with concurrent agent worktrees, shared-machine load). All 7 candidate-only failing suites pass in isolated reruns on the candidate cut; the new background-work suite passes 11/11 in the full run and the focused receipt. Environmental failures are not waived.",
+    "bundleStatus computes FAIL because the required full-repository gates fail on this environment; the deterministic M10 phases pass and the milestone outcome is PARTIAL with the named holds."
+  ],
+  "reviewerApproval": false
+}
