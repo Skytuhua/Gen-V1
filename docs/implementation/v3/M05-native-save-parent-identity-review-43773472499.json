@@ -1,0 +1,448 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "runId": 43773472499,
+  "headSha": "e371b5e5c5636dd5ad75bea45710e01f04355737",
+  "treeSha": "8d550d3588640522029ad4baf478df860d2ae0fd",
+  "actualResult": "Both commands FAIL; no filename mutation or Save invocation occurred.",
+  "scope": "Exact parent identity measurement under matching client-provider initialization.",
+  "sampleCount": 7,
+  "samples": [
+    {
+      "mode": "policy",
+      "jobId": 132994342761,
+      "elapsedMs": 7068,
+      "proxyDescriptorCount": 40,
+      "pid": 5656,
+      "processStartTicks": "639303811862499504",
+      "dialogHwnd": "66054",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66182",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5656,
+        "uiaHwnd": "66182",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66178",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5656,
+          "uiaHwnd": "66178",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/policy-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 242809,
+        "sha256": "940f8c6049bec6e11e416a8a9dacbf06fa9a2e80d1d4a767bf5a73d43ef0ae0e"
+      }
+    },
+    {
+      "mode": "policy",
+      "jobId": 132994342761,
+      "elapsedMs": 16077,
+      "proxyDescriptorCount": 40,
+      "pid": 5656,
+      "processStartTicks": "639303811862499504",
+      "dialogHwnd": "66054",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66182",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5656,
+        "uiaHwnd": "66182",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66178",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5656,
+          "uiaHwnd": "66178",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/policy-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 242809,
+        "sha256": "940f8c6049bec6e11e416a8a9dacbf06fa9a2e80d1d4a767bf5a73d43ef0ae0e"
+      }
+    },
+    {
+      "mode": "policy",
+      "jobId": 132994342761,
+      "elapsedMs": 29087,
+      "proxyDescriptorCount": 40,
+      "pid": 5656,
+      "processStartTicks": "639303811862499504",
+      "dialogHwnd": "66054",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66182",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5656,
+        "uiaHwnd": "66182",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66178",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5656,
+          "uiaHwnd": "66178",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/policy-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 242809,
+        "sha256": "940f8c6049bec6e11e416a8a9dacbf06fa9a2e80d1d4a767bf5a73d43ef0ae0e"
+      }
+    },
+    {
+      "mode": "policy",
+      "jobId": 132994342761,
+      "elapsedMs": 34069,
+      "proxyDescriptorCount": 40,
+      "pid": 5656,
+      "processStartTicks": "639303811862499504",
+      "dialogHwnd": "66054",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66182",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5656,
+        "uiaHwnd": "66182",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66178",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5656,
+          "uiaHwnd": "66178",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/policy-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 242809,
+        "sha256": "940f8c6049bec6e11e416a8a9dacbf06fa9a2e80d1d4a767bf5a73d43ef0ae0e"
+      }
+    },
+    {
+      "mode": "direct",
+      "jobId": 132994342982,
+      "elapsedMs": 15862,
+      "proxyDescriptorCount": 40,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "dialogHwnd": "327796",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66204",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5316,
+        "uiaHwnd": "66204",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66200",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5316,
+          "uiaHwnd": "66200",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/direct-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 190770,
+        "sha256": "5454886bde857744c79243d34af3f6ac66973bb93a6bb3208b0f6ac168ef9c81"
+      }
+    },
+    {
+      "mode": "direct",
+      "jobId": 132994342982,
+      "elapsedMs": 28722,
+      "proxyDescriptorCount": 40,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "dialogHwnd": "327796",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66204",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5316,
+        "uiaHwnd": "66204",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66200",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5316,
+          "uiaHwnd": "66200",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/direct-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 190770,
+        "sha256": "5454886bde857744c79243d34af3f6ac66973bb93a6bb3208b0f6ac168ef9c81"
+      }
+    },
+    {
+      "mode": "direct",
+      "jobId": 132994342982,
+      "elapsedMs": 33792,
+      "proxyDescriptorCount": 40,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "dialogHwnd": "327796",
+      "exactSelectorCounts": {
+        "file": 1,
+        "save": 1
+      },
+      "child": {
+        "hwnd": "66204",
+        "nativeClass": "Edit",
+        "nativeOwnerMatches": true,
+        "uiaPid": 5316,
+        "uiaHwnd": "66204",
+        "uiaHandleMatches": true,
+        "nameKind": "file-name",
+        "type": "ControlType.Edit",
+        "className": "Edit",
+        "automationId": "1001",
+        "enabled": true,
+        "offscreen": false,
+        "valuePattern": true,
+        "valueReadOnly": false,
+        "invokePattern": false,
+        "patternError": false
+      },
+      "parent": {
+        "nativeOwnerMatches": true,
+        "hwnd": "66200",
+        "class": "ComboBox",
+        "uia": {
+          "nativeOwnerMatches": true,
+          "uiaPid": 5316,
+          "uiaHwnd": "66200",
+          "uiaHandleMatches": true,
+          "nameKind": "file-name",
+          "type": "ControlType.ComboBox",
+          "className": "other",
+          "automationId": "FileNameControlHost",
+          "enabled": true,
+          "offscreen": false,
+          "valuePattern": true,
+          "valueReadOnly": false,
+          "invokePattern": false,
+          "patternError": false
+        },
+        "uiaError": false
+      },
+      "sourceReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43773472499/direct-receipt.json",
+      "sourceReceiptHash": {
+        "bytes": 190770,
+        "sha256": "5454886bde857744c79243d34af3f6ac66973bb93a6bb3208b0f6ac168ef9c81"
+      }
+    }
+  ],
+  "finding": "Across all seven late observations, the native parent class is ComboBox, while its UIA ClassName is outside the fixed ComboBox/Edit/Button category. It is nevertheless the same owned HWND and has exact UIA ControlType.ComboBox, name File name:, AutomationId FileNameControlHost, enabled writable ValuePattern. The added candidate's UIA ClassName equality cannot admit this measured control.",
+  "correction": {
+    "previousHelperSha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2",
+    "candidateHelperSha256": "b29a7f3215f8e4506b8f377f9810f9925a3379a147671418c87ff4cb12bf205f",
+    "candidateBlob": "ebaad238be8012886c8f2c9964fd9abff2494372",
+    "soleDelta": "Replace parent UIA ClassName == ComboBox with exact observed AutomationId == FileNameControlHost.",
+    "unchanged": [
+      "native GetParent relationship to the unique exact Edit1001",
+      "same parent PID and HWND",
+      "UIA ComboBox type, exact File name: label, enabled and writable ValuePattern",
+      "unique exact Save1 and original owner/dialog checks",
+      "both parent and child exact destination readbacks",
+      "root lease, fixed absent file, native completion, byte readback and six-phase acceptance"
+    ],
+    "commandLineCheck": {
+      "includingNul": true,
+      "exclusiveLimit": 32767,
+      "observedDefaultRootLength": 10,
+      "defaultCommandCharacters": 32505,
+      "defaultMargin": 262,
+      "maximumAcceptedRootLength": 260,
+      "maximumRootCommandCharacters": 32755,
+      "maximumRootMargin": 12
+    }
+  },
+  "limitations": [
+    "The recorded ClassName category deliberately omits its arbitrary raw text.",
+    "This read-only observation does not itself prove the proposed parent SetValue selects the fixed destination.",
+    "Actual source b29a7f Windows lanes and full installed retention remain separate required evidence."
+  ]
+}

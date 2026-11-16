@@ -1,0 +1,22 @@
+2026-11-15T22:47:52.3561429Z ##[group]Run python -I -S -B tests/hermes_source_contract.py -v
+2026-11-15T22:47:52.3562051Z python -I -S -B tests/hermes_source_contract.py -v
+2026-11-15T22:47:52.3622414Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T22:47:52.3622697Z env:
+2026-11-15T22:47:52.3622915Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T22:47:52.3623251Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:47:52.3623613Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T22:47:52.3623968Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:47:52.3624285Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:47:52.3624597Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:47:52.3624942Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T22:47:52.3625292Z ##[endgroup]
+2026-11-15T22:47:52.8807423Z test_every_vendored_file_matches_its_official_blob_and_sha256 (__main__.OriginalHermesSource.test_every_vendored_file_matches_its_official_blob_and_sha256) ... ok
+2026-11-15T22:47:52.9362618Z test_fuzzy_patching_executes_the_original_function (__main__.OriginalHermesSource.test_fuzzy_patching_executes_the_original_function) ... ok
+2026-11-15T22:47:52.9439043Z test_learn_executes_the_original_function (__main__.OriginalHermesSource.test_learn_executes_the_original_function) ... ok
+2026-11-15T22:47:54.0069663Z test_original_acp_parser_preserves_object_arguments_without_double_encoding (__main__.OriginalHermesSource.test_original_acp_parser_preserves_object_arguments_without_double_encoding) ... ok
+2026-11-15T22:47:54.0105293Z test_source_batch_limit_remains_twenty (__main__.OriginalHermesSource.test_source_batch_limit_remains_twenty) ... ok
+2026-11-15T22:47:54.0105789Z 
+2026-11-15T22:47:54.0106135Z ----------------------------------------------------------------------
+2026-11-15T22:47:54.0106432Z Ran 5 tests in 1.264s
+2026-11-15T22:47:54.0106560Z 
+2026-11-15T22:47:54.0106632Z OK

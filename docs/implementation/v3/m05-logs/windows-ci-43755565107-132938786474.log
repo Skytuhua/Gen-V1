@@ -1,0 +1,526 @@
+GitHub Actions job 132938786474: Hermes contracts
+Run: 43755565107
+Head: 0e072230965d15e0bcad8bb7579653a1332085e4
+Conclusion: success
+Raw decoded UTF-8 SHA256: c0687fdd627e6364608e7b001371e4ed6efbcba253c3148956734545bc964793
+
+2026-11-15T20:00:33.6245456Z Current runner version: '2.338.2'
+2026-11-15T20:00:33.6262325Z ##[group]Runner Image Provisioner
+2026-11-15T20:00:33.6262820Z Hosted Compute Agent
+2026-11-15T20:00:33.6263135Z Version: 20261103.629
+2026-11-15T20:00:33.6263485Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T20:00:33.6263897Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T20:00:33.6264266Z Worker ID: {f7c36d9a-c552-40a1-bfd0-2e2512c2d52f}
+2026-11-15T20:00:33.6264687Z Region: westus3
+2026-11-15T20:00:33.6265008Z Cloud: Azure
+2026-11-15T20:00:33.6265296Z ##[endgroup]
+2026-11-15T20:00:33.6266270Z ##[group]Operating System
+2026-11-15T20:00:33.6266600Z Microsoft Windows Server 2025
+2026-11-15T20:00:33.6266967Z 10.0.26100
+2026-11-15T20:00:33.6267242Z Datacenter
+2026-11-15T20:00:33.6267542Z ##[endgroup]
+2026-11-15T20:00:33.6267986Z ##[group]Runner Image
+2026-11-15T20:00:33.6268374Z Image: windows-2025-vs2026
+2026-11-15T20:00:33.6268704Z Version: 20261103.298.1
+2026-11-15T20:00:33.6269590Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T20:00:33.6270499Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T20:00:33.6271039Z ##[endgroup]
+2026-11-15T20:00:33.6271638Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T20:00:33.6272749Z Contents: read
+2026-11-15T20:00:33.6273064Z Metadata: read
+2026-11-15T20:00:33.6273359Z ##[endgroup]
+2026-11-15T20:00:33.6274565Z Secret source: Actions
+2026-11-15T20:00:33.6275076Z Cache mode: write
+2026-11-15T20:00:33.6275495Z Prepare workflow directory
+2026-11-15T20:00:33.6520487Z Prepare all required actions
+2026-11-15T20:00:33.6552440Z Getting action download info
+2026-11-15T20:00:33.9317595Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T20:00:34.0860207Z Complete job name: Hermes contracts
+2026-11-15T20:00:34.1913397Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T20:00:34.1914185Z with:
+2026-11-15T20:00:34.1914413Z   persist-credentials: false
+2026-11-15T20:00:34.1914684Z   repository: skytuhua-org/Gen-V1
+2026-11-15T20:00:34.1916734Z   token: ***
+2026-11-15T20:00:34.1916951Z   ssh-strict: true
+2026-11-15T20:00:34.1917170Z   ssh-user: git
+2026-11-15T20:00:34.1917381Z   clean: true
+2026-11-15T20:00:34.1917608Z   sparse-checkout-cone-mode: true
+2026-11-15T20:00:34.1917875Z   fetch-depth: 1
+2026-11-15T20:00:34.1918092Z   fetch-tags: false
+2026-11-15T20:00:34.1918318Z   show-progress: true
+2026-11-15T20:00:34.1918544Z   lfs: false
+2026-11-15T20:00:34.1918750Z   submodules: false
+2026-11-15T20:00:34.1918980Z   set-safe-directory: true
+2026-11-15T20:00:34.1919240Z   allow-unsafe-pr-checkout: false
+2026-11-15T20:00:34.1919597Z ##[endgroup]
+2026-11-15T20:00:34.2902344Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T20:00:34.2903352Z ##[group]Getting Git version info
+2026-11-15T20:00:34.2903674Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T20:00:34.3330925Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T20:00:34.7333480Z git version 2.56.0.windows.4
+2026-11-15T20:00:34.7369909Z ##[endgroup]
+2026-11-15T20:00:34.7382824Z Temporarily overriding HOME='D:\a\_temp\9c8f4e7a-028c-4638-887b-40226af253a8' before making global git config changes
+2026-11-15T20:00:34.7383587Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T20:00:34.7389849Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T20:00:34.7895190Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T20:00:34.7899395Z ##[group]Determining repository object format
+2026-11-15T20:00:34.7901291Z ##[endgroup]
+2026-11-15T20:00:34.7901735Z ##[group]Initializing the repository
+2026-11-15T20:00:34.7907952Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T20:00:34.8561765Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T20:00:34.8598847Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T20:00:34.9177698Z ##[endgroup]
+2026-11-15T20:00:34.9178245Z ##[group]Disabling automatic garbage collection
+2026-11-15T20:00:34.9184516Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T20:00:34.9442995Z ##[endgroup]
+2026-11-15T20:00:34.9443419Z ##[group]Setting up auth
+2026-11-15T20:00:34.9444218Z Removing SSH command configuration
+2026-11-15T20:00:34.9451558Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:00:34.9699104Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:00:36.1604694Z Removing HTTP extra header
+2026-11-15T20:00:36.1611078Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:00:36.1854494Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:00:36.6248610Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:00:36.6257316Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:00:36.6533257Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:00:37.0613741Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T20:00:37.0857349Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:37.1095706Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:37.1387442Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:37.1650142Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:37.1893828Z ##[endgroup]
+2026-11-15T20:00:37.1894226Z ##[group]Fetching the repository
+2026-11-15T20:00:37.1903681Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60:refs/remotes/pull/347/merge
+2026-11-15T20:00:40.8262779Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T20:00:40.8263397Z  * [new ref]         4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60 -> pull/347/merge
+2026-11-15T20:00:40.8291696Z ##[endgroup]
+2026-11-15T20:00:40.8292320Z ##[group]Determining the checkout info
+2026-11-15T20:00:40.8292695Z ##[endgroup]
+2026-11-15T20:00:40.8299518Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T20:00:40.8705579Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T20:00:40.8942284Z ##[group]Checking out the ref
+2026-11-15T20:00:40.8942981Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/347/merge
+2026-11-15T20:00:41.9357678Z Note: switching to 'refs/remotes/pull/347/merge'.
+2026-11-15T20:00:41.9359097Z 
+2026-11-15T20:00:41.9359526Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-15T20:00:41.9359989Z changes and commit them, and you can discard any commits you make in this
+2026-11-15T20:00:41.9360251Z state without impacting any branches by switching back to a branch.
+2026-11-15T20:00:41.9360413Z 
+2026-11-15T20:00:41.9360520Z If you want to create a new branch to retain commits you create, you may
+2026-11-15T20:00:41.9360763Z do so (now or later) by using -c with the switch command. Example:
+2026-11-15T20:00:41.9360905Z 
+2026-11-15T20:00:41.9361132Z   git switch -c <new-branch-name>
+2026-11-15T20:00:41.9361283Z 
+2026-11-15T20:00:41.9361370Z Or undo this operation with:
+2026-11-15T20:00:41.9361476Z 
+2026-11-15T20:00:41.9361521Z   git switch -
+2026-11-15T20:00:41.9361590Z 
+2026-11-15T20:00:41.9361705Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-15T20:00:41.9361903Z 
+2026-11-15T20:00:41.9362139Z HEAD is now at 4ba53a2 Merge 0e072230965d15e0bcad8bb7579653a1332085e4 into 399cde39ff4ee82272c7a7700944325c44b36070
+2026-11-15T20:00:41.9540033Z ##[endgroup]
+2026-11-15T20:00:41.9898453Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T20:00:42.0126900Z 4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60
+2026-11-15T20:00:42.0154247Z ##[group]Removing auth
+2026-11-15T20:00:42.0154493Z Removing SSH command configuration
+2026-11-15T20:00:42.0160262Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:00:42.0399435Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:00:42.4234171Z Removing HTTP extra header
+2026-11-15T20:00:42.4241083Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:00:42.4482083Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:00:42.8205295Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:00:42.8211331Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:00:42.8432949Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:00:42.8433336Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:00:42.8433655Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T20:00:42.8433986Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T20:00:42.8462027Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:00:42.8679110Z D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.8706899Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.8967273Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:00:42.9177372Z D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.9204017Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.9448826Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T20:00:42.9657530Z /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.9685018Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:42.9979121Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T20:00:43.0201269Z /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:43.0229371Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:00:43.0472030Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:00:43.4608058Z Removing credentials config 'D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config'
+2026-11-15T20:00:43.4618305Z ##[endgroup]
+2026-11-15T20:00:43.4985872Z Prepare all required actions
+2026-11-15T20:00:43.4986313Z Getting action download info
+2026-11-15T20:00:43.6395442Z Download action repository 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-15T20:00:44.2702377Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-15T20:00:44.3630889Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-11-15T20:00:44.4719373Z Download action repository 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-15T20:00:44.6115419Z ##[group]Run ./.github/actions/setup
+2026-11-15T20:00:44.6115569Z with:
+2026-11-15T20:00:44.6115670Z   python: true
+2026-11-15T20:00:44.6115781Z   playwright: false
+2026-11-15T20:00:44.6115898Z ##[endgroup]
+2026-11-15T20:00:44.6154686Z ##[start-action display=Install pnpm;id=__self.__pnpm_action-setup]
+2026-11-15T20:00:44.6266557Z ##[group]Run pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+2026-11-15T20:00:44.6266754Z with:
+2026-11-15T20:00:44.6266852Z   version: 10.30.3
+2026-11-15T20:00:44.6266957Z   dest: ~/setup-pnpm
+2026-11-15T20:00:44.6267060Z   run_install: null
+2026-11-15T20:00:44.6267164Z   cache: false
+2026-11-15T20:00:44.6267276Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-15T20:00:44.6267421Z   package_json_file: package.json
+2026-11-15T20:00:44.6267545Z   standalone: false
+2026-11-15T20:00:44.6267649Z ##[endgroup]
+2026-11-15T20:00:44.7451385Z ##[group]Running self-installer...
+2026-11-15T20:00:45.0354919Z (node:1896) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T20:00:45.0356091Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T20:00:45.2077629Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T20:00:45.2144372Z Packages: +1
+2026-11-15T20:00:45.2144585Z +
+2026-11-15T20:00:46.8310240Z Progress: resolved 1, reused 0, downloaded 1, added 0
+2026-11-15T20:00:47.2019335Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-11-15T20:00:47.3001128Z 
+2026-11-15T20:00:47.3001497Z dependencies:
+2026-11-15T20:00:47.3095304Z + pnpm 10.30.3 (12.21.0 is available)
+2026-11-15T20:00:47.3095500Z 
+2026-11-15T20:00:47.3095563Z Done in 2.4s
+2026-11-15T20:00:47.3262393Z ##[endgroup]
+2026-11-15T20:00:47.3262724Z Installation Completed!
+2026-11-15T20:00:47.3394747Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=2723]
+2026-11-15T20:00:47.3397514Z ##[start-action display=Install Node.js;id=__self.__actions_setup-node]
+2026-11-15T20:00:47.3536959Z ##[group]Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+2026-11-15T20:00:47.3537287Z with:
+2026-11-15T20:00:47.3537391Z   node-version: 24.22.2
+2026-11-15T20:00:47.3537496Z   cache: pnpm
+2026-11-15T20:00:47.3537591Z   check-latest: false
+2026-11-15T20:00:47.3538753Z   token: ***
+2026-11-15T20:00:47.3538857Z   package-manager-cache: true
+2026-11-15T20:00:47.3538979Z env:
+2026-11-15T20:00:47.3539121Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:00:47.3539292Z ##[endgroup]
+2026-11-15T20:00:47.4691438Z Found in cache @ C:\hostedtoolcache\windows\node\24.22.2\x64
+2026-11-15T20:00:47.4695939Z ##[group]Environment details
+2026-11-15T20:00:51.6127371Z node: v24.22.2
+2026-11-15T20:00:51.6127573Z npm: 11.19.1
+2026-11-15T20:00:51.6127712Z yarn: 1.22.22
+2026-11-15T20:00:51.6128438Z ##[endgroup]
+2026-11-15T20:00:51.6473464Z [command]C:\Windows\system32\cmd.exe /D /S /C "C:\Users\runneradmin\setup-pnpm\node_modules\.bin\pnpm.CMD store path --silent"
+2026-11-15T20:00:52.2392438Z D:\.pnpm-store\v10
+2026-11-15T20:00:52.5378234Z Cache hit for: node-cache-Windows-x64-pnpm-31896e7095fc3be2e8a21c30ce28e80a8c9387ee0c672b3f6f01b40a5d21cb44
+2026-11-15T20:00:53.7611294Z Received 92274688 of 471429367 (19.6%), 88.0 MBs/sec
+2026-11-15T20:00:54.7651326Z Received 239075328 of 471429367 (50.7%), 113.8 MBs/sec
+2026-11-15T20:00:55.7739938Z Received 398458880 of 471429367 (84.5%), 126.1 MBs/sec
+2026-11-15T20:00:56.6487207Z Received 471429367 of 471429367 (100.0%), 115.8 MBs/sec
+2026-11-15T20:00:56.6487534Z Cache Size: ~450 MB (471429367 B)
+2026-11-15T20:00:56.6531805Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/637120d8-8b28-452b-b1f3-3a08a3c2405b/cache.tzst -P -C D:/a/Gen-V1/Gen-V1 --force-local --use-compress-program "zstd -d"
+2026-11-15T20:01:08.1581025Z Cache restored successfully
+2026-11-15T20:01:08.1834643Z Cache restored from key: node-cache-Windows-x64-pnpm-31896e7095fc3be2e8a21c30ce28e80a8c9387ee0c672b3f6f01b40a5d21cb44
+2026-11-15T20:01:08.1963916Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=20856]
+2026-11-15T20:01:08.1965938Z ##[start-action display=Install locked dependencies;id=__self.__run]
+2026-11-15T20:01:08.2067939Z ##[group]Run pnpm install --frozen-lockfile
+2026-11-15T20:01:08.2068167Z pnpm install --frozen-lockfile
+2026-11-15T20:01:08.2626344Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:08.2626573Z env:
+2026-11-15T20:01:08.2626738Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:08.2626925Z ##[endgroup]
+2026-11-15T20:01:08.8857586Z Lockfile is up to date, resolution step is skipped
+2026-11-15T20:01:08.9375132Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T20:01:08.9963536Z Packages: +997
+2026-11-15T20:01:08.9964582Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-15T20:01:09.9379730Z Progress: resolved 997, reused 686, downloaded 0, added 0
+2026-11-15T20:01:10.9389294Z Progress: resolved 997, reused 994, downloaded 0, added 10
+2026-11-15T20:01:11.9432697Z Progress: resolved 997, reused 994, downloaded 0, added 36
+2026-11-15T20:01:12.9457943Z Progress: resolved 997, reused 994, downloaded 0, added 213
+2026-11-15T20:01:13.9455277Z Progress: resolved 997, reused 994, downloaded 0, added 266
+2026-11-15T20:01:14.9484107Z Progress: resolved 997, reused 994, downloaded 0, added 391
+2026-11-15T20:01:15.9497103Z Progress: resolved 997, reused 994, downloaded 0, added 583
+2026-11-15T20:01:16.9587310Z Progress: resolved 997, reused 994, downloaded 0, added 633
+2026-11-15T20:01:17.9589399Z Progress: resolved 997, reused 994, downloaded 0, added 740
+2026-11-15T20:01:18.7581540Z Progress: resolved 997, reused 994, downloaded 0, added 997, done
+2026-11-15T20:01:19.5909780Z 
+2026-11-15T20:01:19.5910368Z dependencies:
+2026-11-15T20:01:19.5910708Z + @anthropic-ai/claude-agent-sdk 0.3.316
+2026-11-15T20:01:19.5911009Z + @biomejs/biome 2.6.4
+2026-11-15T20:01:19.5911241Z + @biomejs/cli-win32-x64 2.6.4
+2026-11-15T20:01:19.5912966Z + @cursor/sdk 1.0.38
+2026-11-15T20:01:19.5913231Z + @earendil-works/pi-coding-agent 1.4.0
+2026-11-15T20:01:19.5913510Z + @fontsource-variable/inter 5.3.0
+2026-11-15T20:01:19.5913775Z + @fontsource/caveat 5.3.0
+2026-11-15T20:01:19.5914029Z + @fontsource/dancing-script 5.3.0
+2026-11-15T20:01:19.5914292Z + @google/gemini-cli 0.66.0
+2026-11-15T20:01:19.5914564Z + @json-render/core 0.21.3
+2026-11-15T20:01:19.5914797Z + @json-render/react 0.21.3
+2026-11-15T20:01:19.5915262Z + @modelcontextprotocol/sdk 1.32.2
+2026-11-15T20:01:19.5915526Z + @remote-dom/polyfill 1.6.0
+2026-11-15T20:01:19.5915768Z + @sinclair/typebox 0.34.41
+2026-11-15T20:01:19.5915994Z + @upstash/context7-mcp 4.4.4
+2026-11-15T20:01:19.5916219Z + @xterm/addon-fit 0.11.0
+2026-11-15T20:01:19.5916428Z + @xterm/xterm 6.0.0
+2026-11-15T20:01:19.5916604Z + ajv 8.18.0
+2026-11-15T20:01:19.5916883Z + ajv-formats 3.0.1
+2026-11-15T20:01:19.5917091Z + electron-updater 6.8.11
+2026-11-15T20:01:19.5917314Z + fastify 5.12.7
+2026-11-15T20:01:19.5918361Z + lucide-react 0.468.0
+2026-11-15T20:01:19.5918636Z + node-pty 1.1.0
+2026-11-15T20:01:19.5918829Z + pdf-lib 1.17.1
+2026-11-15T20:01:19.5919010Z + pdfjs-dist 6.4.299
+2026-11-15T20:01:19.5919200Z + promptfoo 0.125.1
+2026-11-15T20:01:19.5919427Z + react 19.2.3
+2026-11-15T20:01:19.5919613Z + react-dom 19.2.3
+2026-11-15T20:01:19.5919793Z + semver 7.8.5
+2026-11-15T20:01:19.5919958Z + tsx 4.20.6
+2026-11-15T20:01:19.5920130Z + zod 4.6.6
+2026-11-15T20:01:19.5920235Z 
+2026-11-15T20:01:19.5920320Z devDependencies:
+2026-11-15T20:01:19.5920736Z + @playwright/test 1.56.1
+2026-11-15T20:01:19.5920992Z + @types/node 24.10.0
+2026-11-15T20:01:19.5922030Z + @types/react 19.2.2
+2026-11-15T20:01:19.5922270Z + @types/react-dom 19.2.2
+2026-11-15T20:01:19.5922532Z + @vitejs/plugin-react 5.1.1
+2026-11-15T20:01:19.5923541Z + electron 45.2.0
+2026-11-15T20:01:19.5923757Z + electron-builder 26.18.0
+2026-11-15T20:01:19.5924019Z + esbuild 0.25.12
+2026-11-15T20:01:19.5924234Z + typescript 5.9.3
+2026-11-15T20:01:19.5924460Z + vite 7.3.7
+2026-11-15T20:01:19.5924659Z + vitest 4.1.12
+2026-11-15T20:01:19.5924773Z 
+2026-11-15T20:01:19.6151097Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+2026-11-15T20:01:19.6151579Z │                                                                              │
+2026-11-15T20:01:19.6151931Z │   Ignored build scripts: @github/keytar@7.10.6, @google/genai@2.21.0,        │
+2026-11-15T20:01:19.6152298Z │   electron-winstaller@5.4.0, node-pty@1.0.0, node-pty@1.1.0,                 │
+2026-11-15T20:01:19.6152654Z │   protobufjs@7.6.6.                                                          │
+2026-11-15T20:01:19.6152997Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+2026-11-15T20:01:19.6153330Z │   to run scripts.                                                            │
+2026-11-15T20:01:19.6153607Z │                                                                              │
+2026-11-15T20:01:19.6153959Z ╰──────────────────────────────────────────────────────────────────────────────╯
+2026-11-15T20:01:19.6232601Z Done in 11s using pnpm v10.30.3
+2026-11-15T20:01:19.7486594Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=11551]
+2026-11-15T20:01:19.7488583Z ##[start-action display=Install Python;id=__self.__actions_setup-python]
+2026-11-15T20:01:19.7609029Z ##[group]Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+2026-11-15T20:01:19.7609247Z with:
+2026-11-15T20:01:19.7609364Z   python-version: 3.14
+2026-11-15T20:01:19.7609484Z   architecture: x64
+2026-11-15T20:01:19.7609603Z   cache: pip
+2026-11-15T20:01:19.7609780Z   cache-dependency-path: third-party/hermes-agent/runtime-requirements.txt
+2026-11-15T20:01:19.7609995Z   check-latest: false
+2026-11-15T20:01:19.7611288Z   token: ***
+2026-11-15T20:01:19.7611403Z   update-environment: true
+2026-11-15T20:01:19.7611536Z   allow-prereleases: false
+2026-11-15T20:01:19.7611811Z   freethreaded: false
+2026-11-15T20:01:19.7611944Z env:
+2026-11-15T20:01:19.7612087Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:19.7612267Z ##[endgroup]
+2026-11-15T20:01:19.8787317Z ##[group]Installed versions
+2026-11-15T20:01:19.8943899Z Successfully set up CPython (3.14.10)
+2026-11-15T20:01:19.8944223Z ##[endgroup]
+2026-11-15T20:01:24.3045943Z Cache hit for: setup-python-Windows-x64-python-3.14.10-pip-e7f98e16fe4d8148adc37a495a75f29664d3bb6fe3155ee82178c0a0c1940285
+2026-11-15T20:01:25.2190732Z Received 11334933 of 11334933 (100.0%), 15.4 MBs/sec
+2026-11-15T20:01:25.2192195Z Cache Size: ~11 MB (11334933 B)
+2026-11-15T20:01:25.2211010Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/34c954b2-648d-4e95-8bc1-f07dae98dadc/cache.tzst -P -C D:/a/Gen-V1/Gen-V1 --force-local --use-compress-program "zstd -d"
+2026-11-15T20:01:25.5040815Z Cache restored successfully
+2026-11-15T20:01:25.5050994Z Cache restored from key: setup-python-Windows-x64-python-3.14.10-pip-e7f98e16fe4d8148adc37a495a75f29664d3bb6fe3155ee82178c0a0c1940285
+2026-11-15T20:01:25.5191437Z ##[end-action id=__self.__actions_setup-python;outcome=success;conclusion=success;duration_ms=5770]
+2026-11-15T20:01:25.5193524Z ##[start-action display=Cache pinned Python test dependencies;id=__self.python-deps]
+2026-11-15T20:01:25.6150751Z ##[group]Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+2026-11-15T20:01:25.6151079Z with:
+2026-11-15T20:01:25.6151711Z   path: .harness-hermes-python-deps
+.harness-integrations-python-deps
+
+2026-11-15T20:01:25.6152271Z   key: python-deps-Windows-7447087bceb89c88a6ad8971c0cd430bb8d7237e9a271efd2df8f487555bbea6
+2026-11-15T20:01:25.6152729Z   enableCrossOsArchive: false
+2026-11-15T20:01:25.6152967Z   fail-on-cache-miss: false
+2026-11-15T20:01:25.6153186Z   lookup-only: false
+2026-11-15T20:01:25.6153383Z   save-always: false
+2026-11-15T20:01:25.6153571Z env:
+2026-11-15T20:01:25.6153806Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:25.6154216Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:25.6154658Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:25.6155080Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:25.6155459Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:25.6155824Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:25.6156128Z ##[endgroup]
+2026-11-15T20:01:25.7103929Z (node:3988) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T20:01:25.7104377Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T20:01:25.9563711Z Cache hit for: python-deps-Windows-7447087bceb89c88a6ad8971c0cd430bb8d7237e9a271efd2df8f487555bbea6
+2026-11-15T20:01:25.9694239Z (node:3988) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T20:01:27.2309666Z Received 71722239 of 71722239 (100.0%), 64.5 MBs/sec
+2026-11-15T20:01:27.2313272Z Cache Size: ~68 MB (71722239 B)
+2026-11-15T20:01:27.2377877Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/611a4b24-e13a-418e-8fb6-1973aca235a2/cache.tzst -P -C D:/a/Gen-V1/Gen-V1 --force-local --use-compress-program "zstd -d"
+2026-11-15T20:01:29.8279883Z Cache restored successfully
+2026-11-15T20:01:29.8403553Z Cache restored from key: python-deps-Windows-7447087bceb89c88a6ad8971c0cd430bb8d7237e9a271efd2df8f487555bbea6
+2026-11-15T20:01:29.8524449Z ##[end-action id=__self.python-deps;outcome=success;conclusion=success;duration_ms=4333]
+2026-11-15T20:01:29.8528182Z ##[start-action display=Install pinned Python test dependencies;id=__self.__run_2]
+2026-11-15T20:01:29.8535766Z ##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:01:29.8537180Z ##[start-action display=Read the pinned browser version;id=__self.playwright-version]
+2026-11-15T20:01:29.8539522Z ##[end-action id=__self.playwright-version;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:01:29.8540562Z ##[start-action display=Cache the test browser;id=__self.playwright-cache]
+2026-11-15T20:01:29.8542232Z ##[end-action id=__self.playwright-cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:01:29.8543126Z ##[start-action display=Install test browser;id=__self.__run_3]
+2026-11-15T20:01:29.8545213Z ##[end-action id=__self.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:01:29.8546091Z ##[start-action display=Select the isolated worker interpreter;id=__self.__run_4]
+2026-11-15T20:01:29.8637594Z ##[group]Run $workerPython = (Get-Command python).Source
+2026-11-15T20:01:29.8637838Z $workerPython = (Get-Command python).Source
+2026-11-15T20:01:29.8638187Z "HARNESS_HERMES_PYTHON=$workerPython" >> $env:GITHUB_ENV
+2026-11-15T20:01:29.8685100Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:29.8685293Z env:
+2026-11-15T20:01:29.8685443Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:29.8685676Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:29.8685920Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:29.8686168Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:29.8686386Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:29.8686604Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:29.8686778Z ##[endgroup]
+2026-11-15T20:01:30.1489037Z ##[end-action id=__self.__run_4;outcome=success;conclusion=success;duration_ms=294]
+2026-11-15T20:01:30.1602995Z ##[group]Run python -I -S -B tests/hermes_source_contract.py -v
+2026-11-15T20:01:30.1603325Z python -I -S -B tests/hermes_source_contract.py -v
+2026-11-15T20:01:30.1652793Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:30.1653003Z env:
+2026-11-15T20:01:30.1653166Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:30.1653406Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:30.1653661Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:30.1653916Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:30.1654143Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:30.1654370Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:30.1654615Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:01:30.1654874Z ##[endgroup]
+2026-11-15T20:01:30.5891367Z test_every_vendored_file_matches_its_official_blob_and_sha256 (__main__.OriginalHermesSource.test_every_vendored_file_matches_its_official_blob_and_sha256) ... ok
+2026-11-15T20:01:30.6093907Z test_fuzzy_patching_executes_the_original_function (__main__.OriginalHermesSource.test_fuzzy_patching_executes_the_original_function) ... ok
+2026-11-15T20:01:30.6159648Z test_learn_executes_the_original_function (__main__.OriginalHermesSource.test_learn_executes_the_original_function) ... ok
+2026-11-15T20:01:31.5061654Z test_original_acp_parser_preserves_object_arguments_without_double_encoding (__main__.OriginalHermesSource.test_original_acp_parser_preserves_object_arguments_without_double_encoding) ... ok
+2026-11-15T20:01:31.5094513Z test_source_batch_limit_remains_twenty (__main__.OriginalHermesSource.test_source_batch_limit_remains_twenty) ... ok
+2026-11-15T20:01:31.5094944Z 
+2026-11-15T20:01:31.5095178Z ----------------------------------------------------------------------
+2026-11-15T20:01:31.5095692Z Ran 5 tests in 0.997s
+2026-11-15T20:01:31.5096087Z 
+2026-11-15T20:01:31.5096142Z OK
+2026-11-15T20:01:31.8534954Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T20:01:31.8535266Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T20:01:31.8582263Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:31.8582469Z env:
+2026-11-15T20:01:31.8582661Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:31.8583050Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:31.8583424Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:31.8583686Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:31.8583921Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:31.8584157Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:31.8584415Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:01:31.8584675Z ##[endgroup]
+2026-11-15T20:01:34.6243289Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T20:01:34.6747188Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T20:01:34.7375148Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T20:01:34.7971124Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T20:01:34.7995222Z 
+2026-11-15T20:01:34.7995511Z ----------------------------------------------------------------------
+2026-11-15T20:01:34.7996013Z Ran 4 tests in 2.559s
+2026-11-15T20:01:34.7996167Z 
+2026-11-15T20:01:34.7996254Z OK
+2026-11-15T20:01:35.2395805Z ##[group]Run python -I -S -B tests/hermes_source_worker.py -v
+2026-11-15T20:01:35.2396153Z python -I -S -B tests/hermes_source_worker.py -v
+2026-11-15T20:01:35.2442477Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:35.2442688Z env:
+2026-11-15T20:01:35.2442849Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:35.2443104Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:35.2443360Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:35.2443620Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:35.2443850Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:35.2444080Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:35.2444335Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:01:35.2444594Z ##[endgroup]
+2026-11-15T20:01:39.3703999Z test_actual_source_steering_ticket_reaches_a_model_request (__main__.WorkerFixture.test_actual_source_steering_ticket_reaches_a_model_request) ... ok
+2026-11-15T20:01:41.6325544Z test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies (__main__.WorkerFixture.test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies) ... ok
+2026-11-15T20:01:45.6470518Z test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate (__main__.WorkerFixture.test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate) ... ok
+2026-11-15T20:01:49.5516951Z test_current_host_protection_applies_to_an_ordinary_declared_name_alias (__main__.WorkerFixture.test_current_host_protection_applies_to_an_ordinary_declared_name_alias) ... ok
+2026-11-15T20:01:52.0230538Z test_expected_source_state_refuses_stale_user_write (__main__.WorkerFixture.test_expected_source_state_refuses_stale_user_write) ... ok
+2026-11-15T20:01:54.2663753Z test_explicit_user_save_applies_when_model_write_approval_is_enabled (__main__.WorkerFixture.test_explicit_user_save_applies_when_model_write_approval_is_enabled) ... ok
+2026-11-15T20:01:57.4298954Z test_host_controls_pin_original_curator_and_preserve_existing_pin (__main__.WorkerFixture.test_host_controls_pin_original_curator_and_preserve_existing_pin) ... ok
+2026-11-15T20:01:59.7282499Z test_linked_skill_node_is_rejected_before_source_writes (__main__.WorkerFixture.test_linked_skill_node_is_rejected_before_source_writes) ... ok
+2026-11-15T20:02:03.5192104Z test_original_approval_store_replays_only_after_user_decides (__main__.WorkerFixture.test_original_approval_store_replays_only_after_user_decides) ... ok
+2026-11-15T20:02:06.6978826Z test_original_atomic_batch_fuzzy_patch_and_ledger_rollback (__main__.WorkerFixture.test_original_atomic_batch_fuzzy_patch_and_ledger_rollback) ... ok
+2026-11-15T20:02:11.1461410Z test_original_curator_consolidation_reads_then_patches_an_eligible_skill (__main__.WorkerFixture.test_original_curator_consolidation_reads_then_patches_an_eligible_skill) ... ok
+2026-11-15T20:02:14.9092176Z test_original_summary_compaction_executes_with_the_retained_dependency_subset (__main__.WorkerFixture.test_original_summary_compaction_executes_with_the_retained_dependency_subset) ... ok
+2026-11-15T20:02:19.4472942Z test_parent_instance_and_source_iteration_counter_survive_turns (__main__.WorkerFixture.test_parent_instance_and_source_iteration_counter_survive_turns) ... ok
+2026-11-15T20:02:24.0584582Z test_real_engine_creates_skill_with_full_frontmatter (__main__.WorkerFixture.test_real_engine_creates_skill_with_full_frontmatter) ... ok
+2026-11-15T20:02:28.3479149Z test_source_cancel_waits_for_actual_turn_settlement (__main__.WorkerFixture.test_source_cancel_waits_for_actual_turn_settlement) ... ok
+2026-11-15T20:02:34.0455560Z test_ten_plain_iterations_launch_the_original_review_fork (__main__.WorkerFixture.test_ten_plain_iterations_launch_the_original_review_fork) ... ok
+2026-11-15T20:02:34.0458385Z 
+2026-11-15T20:02:34.0458732Z ----------------------------------------------------------------------
+2026-11-15T20:02:34.0459088Z Ran 16 tests in 58.527s
+2026-11-15T20:02:34.0459216Z 
+2026-11-15T20:02:34.0459299Z OK
+2026-11-15T20:02:34.1295449Z ##[group]Run python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T20:02:34.1295778Z python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T20:02:34.1296002Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T20:02:34.1296227Z python -B tests/memory_native_checkpoint_worker_v3.py -v
+2026-11-15T20:02:34.1345500Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:02:34.1345714Z env:
+2026-11-15T20:02:34.1345883Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:02:34.1346127Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:34.1346395Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:02:34.1346661Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:34.1346899Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:34.1347290Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:34.1347545Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:02:34.1347771Z ##[endgroup]
+2026-11-15T20:02:34.5238775Z test_capability_probes_the_actual_pinned_facade_and_api (__main__.NativeCheckpoint.test_capability_probes_the_actual_pinned_facade_and_api) ... ok
+2026-11-15T20:02:34.5239743Z test_receipt_failure_blocks_the_actual_native_facade_before_it_can_run (__main__.NativeCheckpoint.test_receipt_failure_blocks_the_actual_native_facade_before_it_can_run) ... ok
+2026-11-15T20:02:34.5241214Z test_success_preserves_original_native_arguments_result_and_order (__main__.NativeCheckpoint.test_success_preserves_original_native_arguments_result_and_order) ... ok
+2026-11-15T20:02:34.5242306Z test_unopted_source_uses_the_unchanged_native_method (__main__.NativeCheckpoint.test_unopted_source_uses_the_unchanged_native_method) ... ok
+2026-11-15T20:02:34.5244622Z test_unsupported_missing_malformed_or_stale_receipts_never_call_native (__main__.NativeCheckpoint.test_unsupported_missing_malformed_or_stale_receipts_never_call_native) ... ok
+2026-11-15T20:02:34.5245096Z 
+2026-11-15T20:02:34.5245230Z ----------------------------------------------------------------------
+2026-11-15T20:02:34.5245434Z Ran 5 tests in 0.001s
+2026-11-15T20:02:34.5245512Z 
+2026-11-15T20:02:34.5245566Z OK
+2026-11-15T20:02:38.5993453Z test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt) ... ok
+2026-11-15T20:02:42.3224812Z test_cancellation_while_persistence_is_pending_blocks_native_compaction (__main__.NativeCheckpointWorker.test_cancellation_while_persistence_is_pending_blocks_native_compaction) ... ok
+2026-11-15T20:02:45.7762576Z test_persistence_failure_prevents_native_inference_and_preserves_exact_history (__main__.NativeCheckpointWorker.test_persistence_failure_prevents_native_inference_and_preserves_exact_history) ... ok
+2026-11-15T20:02:45.7763597Z 
+2026-11-15T20:02:45.7763859Z ----------------------------------------------------------------------
+2026-11-15T20:02:45.7764218Z Ran 3 tests in 11.139s
+2026-11-15T20:02:45.7764340Z 
+2026-11-15T20:02:45.7764418Z OK
+2026-11-15T20:02:45.8946204Z Post job cleanup.
+2026-11-15T20:02:45.8950139Z ##[start-action display=Cache pinned Python test dependencies;id=__bc856102-f677-436d-91e3-6af84961865e.python-deps]
+2026-11-15T20:02:45.9804060Z Post job cleanup.
+2026-11-15T20:02:46.0749533Z Cache hit occurred on the primary key python-deps-Windows-7447087bceb89c88a6ad8971c0cd430bb8d7237e9a271efd2df8f487555bbea6, not saving cache.
+2026-11-15T20:02:46.0751378Z (node:5292) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T20:02:46.0751914Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T20:02:46.0846414Z ##[end-action id=__bc856102-f677-436d-91e3-6af84961865e.python-deps;outcome=success;conclusion=success;duration_ms=189]
+2026-11-15T20:02:46.0848416Z ##[start-action display=Install Python;id=__bc856102-f677-436d-91e3-6af84961865e.__actions_setup-python]
+2026-11-15T20:02:46.0968250Z Post job cleanup.
+2026-11-15T20:02:46.2053099Z Cache hit occurred on the primary key setup-python-Windows-x64-python-3.14.10-pip-e7f98e16fe4d8148adc37a495a75f29664d3bb6fe3155ee82178c0a0c1940285, not saving cache.
+2026-11-15T20:02:46.2145647Z ##[end-action id=__bc856102-f677-436d-91e3-6af84961865e.__actions_setup-python;outcome=success;conclusion=success;duration_ms=129]
+2026-11-15T20:02:46.2147600Z ##[start-action display=Install Node.js;id=__bc856102-f677-436d-91e3-6af84961865e.__actions_setup-node]
+2026-11-15T20:02:46.2257138Z Post job cleanup.
+2026-11-15T20:02:46.3290854Z Cache hit occurred on the primary key node-cache-Windows-x64-pnpm-31896e7095fc3be2e8a21c30ce28e80a8c9387ee0c672b3f6f01b40a5d21cb44, not saving cache.
+2026-11-15T20:02:46.3394147Z ##[end-action id=__bc856102-f677-436d-91e3-6af84961865e.__actions_setup-node;outcome=success;conclusion=success;duration_ms=124]
+2026-11-15T20:02:46.3396071Z ##[start-action display=Install pnpm;id=__bc856102-f677-436d-91e3-6af84961865e.__pnpm_action-setup]
+2026-11-15T20:02:46.3507178Z Post job cleanup.
+2026-11-15T20:02:46.4874592Z Pruning is unnecessary.
+2026-11-15T20:02:46.4983190Z ##[end-action id=__bc856102-f677-436d-91e3-6af84961865e.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=158]
+2026-11-15T20:02:46.5114323Z Post job cleanup.
+2026-11-15T20:02:46.6189122Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T20:02:46.6446731Z git version 2.56.0.windows.4
+2026-11-15T20:02:46.6501453Z Temporarily overriding HOME='D:\a\_temp\f1fd4647-1b81-4d9a-b825-afeab1c8fdcd' before making global git config changes
+2026-11-15T20:02:46.6502529Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T20:02:46.6508744Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T20:02:46.6791445Z Removing SSH command configuration
+2026-11-15T20:02:46.6801237Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:02:46.7092756Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:02:47.1744241Z Removing HTTP extra header
+2026-11-15T20:02:47.1764782Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:02:47.2053043Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:02:47.6497901Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:02:47.6498408Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:02:47.6756170Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:02:47.6756525Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:02:47.6798691Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:02:47.7050783Z D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:02:47.7094840Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:02:47.7392322Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:02:47.7646052Z D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:02:47.7687670Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config
+2026-11-15T20:02:47.7989235Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:02:48.2535913Z Removing credentials config 'D:\a\_temp\git-credentials-abec5f54-122b-45ad-bc33-ab11b89fae56.config'
+2026-11-15T20:02:48.2723235Z Cleaning up orphan processes
+2026-11-15T20:02:48.3206200Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830, pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

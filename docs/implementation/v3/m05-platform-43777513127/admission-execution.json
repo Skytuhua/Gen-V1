@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "kind": "ACTUAL_OFFLINE_EVIDENCE_VALIDATION",
+  "argv": [
+    "python",
+    "/workspace/scratch/36f66011d961/m05_installed_admission_v3.py",
+    "--repo",
+    "/workspace/scratch/36f66011d961/m05-restored",
+    "--inputs",
+    "/workspace/scratch/36f66011d961/m05-installed-phase-43777513127-package/files/docs/implementation/v3/m05-platform-43777513127/admission-inputs.json",
+    "--report",
+    "/workspace/scratch/36f66011d961/m05-installed-phase-43777513127-package/files/docs/implementation/v3/m05-platform-43777513127/admission-report.json"
+  ],
+  "cwd": "/workspace/scratch/36f66011d961",
+  "startedAt": "2026-11-16T00:34:25.821716+00:00",
+  "endedAt": "2026-11-16T00:34:26.139897+00:00",
+  "elapsedMs": 318,
+  "exitCode": 1,
+  "log": {
+    "path": "admission-execution.log",
+    "bytes": 13221,
+    "sha256": "8fff52c0b10fac276c0a43b88a58ffab2aaa5296d6744b531c244a1486b86366"
+  },
+  "validatorSha256": "8192b7133aac35697597860f08064c75fe8b09582f7a568f7304a30e53e5c02f",
+  "scope": "An offline check of the actual failed artifact. Not a Windows test or installed execution; no expectation override or predicate relaxation."
+}

@@ -3,10 +3,10 @@
   "status": "PASS",
   "purpose": "Evidence integrity only; not release approval or a passing implementation bundle.",
   "implementationBundleStatus": "PARTIAL",
-  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "inspectedPaths": 63,
-  "verifiedCommandRecords": 637,
-  "changedFiles": 1297,
+  "verifiedCommandRecords": 954,
+  "changedFiles": 2503,
   "reviewerApproval": false,
   "errors": []
 }

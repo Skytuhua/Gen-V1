@@ -1,0 +1,53 @@
+{
+  "scope": {
+    "projectId": "installed-memory-project",
+    "projectIdentity": "6313747a36dd26be10af75d6cb2e7814db66f5f1bdee0aa636817a0d8f5c10f3",
+    "threadId": "installed-memory-thread",
+    "accountId": null,
+    "bindingDigest": "c92b88a7dcfc5a1ef9c43e84b625cff05e45be5ec0418428223033c2a8286650"
+  },
+  "redacted": true,
+  "items": [
+    {
+      "id": "adb7125a-d8c3-4120-966b-09b048ba5409",
+      "revision": 3,
+      "kind": "CONSTRAINT",
+      "state": "ACCEPTED",
+      "text": "Use ISO 8601 UTC dates for installed retention reports.",
+      "sourceDigests": [
+        "1cd9f1584c8176f2a0ff5d2e40c1eec62a41c430793ddbbc5be06b6d5b4d2c9a"
+      ]
+    },
+    {
+      "id": "a28c94f1-24ae-4bc1-ae5d-c35f442e430a",
+      "revision": 2,
+      "kind": "CONSTRAINT",
+      "state": "ACCEPTED",
+      "text": "Keep the installed retention checklist with the project.",
+      "sourceDigests": [
+        "70b5714584f1bd5886f48e9eb15693ebc6fcea5c62c09ea305c616eb00a4b1ea"
+      ]
+    },
+    {
+      "id": "c7635b97-3633-4f69-a301-7386c378cf42",
+      "revision": 2,
+      "kind": "CONSTRAINT",
+      "state": "EXPIRED",
+      "text": "Proposed: publish the disposable retention checklist globally.",
+      "sourceDigests": [
+        "4f9f7cb66fc380d8802ba930dfee0febb30f7cfb313780a058fa1a36b020f77e"
+      ]
+    },
+    {
+      "id": "e8b2335b-e2b4-4bd8-9e5c-4435e97d3d95",
+      "revision": 2,
+      "kind": "CONSTRAINT",
+      "state": "ACCEPTED",
+      "text": "[redacted]",
+      "sourceDigests": [
+        "6cfb671cd79688bf24b8e51973e17efa16e4b34c607c5512a8f20d7538a2f977"
+      ]
+    }
+  ],
+  "tombstones": []
+}

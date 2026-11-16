@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "scope": "EXACT_ARTIFACT_TRANSPORT_ONLY_NO_EXECUTION_ADMISSION",
+  "reviewedAt": "2026-11-15 20:41:02 UTC",
+  "source": {
+    "attempt": 1,
+    "conclusion": "failure",
+    "headSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+    "id": 43755565107,
+    "treeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9"
+  },
+  "sourceJob": {
+    "conclusion": "failure",
+    "id": 132938786198,
+    "name": "Installed desktop memory retention"
+  },
+  "artifact": {
+    "bytes": 397424,
+    "createdAt": "2026-11-15T20:35:00Z",
+    "id": 14179432077,
+    "name": "installed-memory-43755565107-1",
+    "sha256": "b2b2a76f38b4a7734d2f768a0ab4268021d5e3720a031b981f5ff17362cc5461"
+  },
+  "recovery": {
+    "attempt": 1,
+    "branch": "agent/m05-evidence-recovery-43755565107",
+    "headSha": "0eed90e758adc0a14c44d7cdebbfccdb3a5fa54d",
+    "runId": 43759061336,
+    "workflowPath": ".github/workflows/m05-evidence-recovery-43755565107.yml",
+    "workflowBlobSha": "46c3945ffd6b4921c8293b126f414ce2b4c98b28",
+    "workflowSha256": "a92b677a295ea76fa67f7b7ca3bd65bf093a785e27c8df85b59dafd758cb1244",
+    "jobs": [
+      {
+        "id": 132949492228,
+        "shard": 0,
+        "bytes": 135878,
+        "sha256": "640267bfde6a5aa4da746280fde69d3d42680092f7122bdde809ddc6c7074967",
+        "bodyBytes": 109292,
+        "bodySha256": "d8668b1dc5d6405a0ccb38b2ebd340ba53dd35145b681b2433761533975d727b",
+        "chunks": 7,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492228/logs"
+      },
+      {
+        "id": 132949492332,
+        "shard": 1,
+        "bytes": 130704,
+        "sha256": "1d8374dd1328ecb9289cceb6244235aba614dd0b777536725e8980dae984906f",
+        "bodyBytes": 104118,
+        "bodySha256": "aae6e1b03188d0e4083c5444203543af51046708547c6ed256a5cfe7c08fb329",
+        "chunks": 7,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492332/logs"
+      },
+      {
+        "id": 132949492680,
+        "shard": 2,
+        "bytes": 146653,
+        "sha256": "f1013f5e4c2b59dcda3ab4fbdc1e7013551195df7166331381d13036b2d67de1",
+        "bodyBytes": 120066,
+        "bodySha256": "9518fec3a70fb3b6c475eb0ad9c9b21a84a8ff08a0146da8e31478ebf4c37287",
+        "chunks": 7,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492680/logs"
+      },
+      {
+        "id": 132949492264,
+        "shard": 3,
+        "bytes": 129397,
+        "sha256": "27d6a84cee5aa8e5e72aa8e3df6c0041d1acde56ad77b9c0c48181efca541693",
+        "bodyBytes": 102808,
+        "bodySha256": "6a275040383376ec2646270d5494da948854e25b2c2609f93e9a79022f194094",
+        "chunks": 7,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492264/logs"
+      },
+      {
+        "id": 132949492249,
+        "shard": 4,
+        "bytes": 130069,
+        "sha256": "8ddaaa5ece084f0c98bb9ac43f5d5b52826a44e3b3c7371700763ee615de61d3",
+        "bodyBytes": 103512,
+        "bodySha256": "0e91ac4cc991cbc81381961034cb2f4c88010f2207e2ff2e6f0d7378d7bf5e19",
+        "chunks": 6,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492249/logs"
+      },
+      {
+        "id": 132949492065,
+        "shard": 5,
+        "bytes": 118120,
+        "sha256": "3479f5c6a27789d2cafe42002121e30953d0b95ee4db80271b4ded6ba7112269",
+        "bodyBytes": 91563,
+        "bodySha256": "2809ef28aa0b933d6fd24cbdda517533a70c8294dc02da3c8c18ab92cc60fb4e",
+        "chunks": 6,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492065/logs"
+      },
+      {
+        "id": 132949492263,
+        "shard": 6,
+        "bytes": 130067,
+        "sha256": "ed02b8f2a35b5e203c4154ea2da83d41ec855408f1ec27a215ab439af5222bb1",
+        "bodyBytes": 103512,
+        "bodySha256": "0918a51899f439a61982cfdc14e288f2f1b037e4d04dde9ba9652b8b2781caf3",
+        "chunks": 6,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492263/logs"
+      },
+      {
+        "id": 132949492265,
+        "shard": 7,
+        "bytes": 130072,
+        "sha256": "f79dc8b7969542b9bbb513ad04d27d2e569bb3e46e6062d01c575861aabb2ca0",
+        "bodyBytes": 103517,
+        "bodySha256": "52484f2f8e908afab8a417680343ada7982af8cf14769c577edcab37a5f59def",
+        "chunks": 6,
+        "conclusion": "success",
+        "logUrl": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132949492265/logs"
+      }
+    ]
+  },
+  "manifestSha256": "4f81a9b7c9c4322ae0638c6605eb0de413f5b3be2f0448ca10ba9b7b7325d72d",
+  "files": [
+    {
+      "bytes": 330,
+      "gitBlobSha": "a5ef2e0aebaf2bae30bff69a9792d264439fadc6",
+      "path": ".harness-desktop-installed/run-1794773811524-c6307da4-7b05-4c04-b4af-b741f5877200/owner.json",
+      "role": "owner",
+      "sha256": "e9e5e74e5eaea0b8c8791533980ce95d441d672f96fa371f56379554d5e57365",
+      "transport": "base64"
+    },
+    {
+      "bytes": 15570,
+      "gitBlobSha": "6c1384c75856e211fca3b0bb459496a441f9912c",
+      "path": ".harness-desktop-installed/run-1794773811524-c6307da4-7b05-4c04-b4af-b741f5877200/verification.json",
+      "role": "main",
+      "sha256": "b156c0749b2a28b4d70700df8412ac1a665b7d19aa4b96f7cd09552a6f3fe540",
+      "transport": "base64"
+    },
+    {
+      "bytes": 15611,
+      "gitBlobSha": "1a04c3d8117ffe8a150559d474a6f54e17298df8",
+      "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "role": "build",
+      "sha256": "aa3b2d3c19e757145c567d067136e7b9d6391aced523bc692d61c9cf2228cb2f",
+      "transport": "base64"
+    },
+    {
+      "bytes": 1511066,
+      "gitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "path": ".harness-installed-package/desktop-stage-1794772943534/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "publishedGitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "role": "canonical",
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "transport": "already-published-exact-bytes"
+    },
+    {
+      "bytes": 168091,
+      "gitBlobSha": "52acf86bd4ad4d611f430ba64530ee0faaabd6f8",
+      "path": ".harness-packaged-providers/run-1794774676725-93ac347e-fb4c-46b5-bcb3-a241ad8767b9/verification.json",
+      "role": "providers",
+      "sha256": "60f43509469a3e79f0f185970efedd3aed0ecf470a720aae95b2ac22f0214e13",
+      "transport": "base64"
+    }
+  ],
+  "zipDirectory": [
+    {
+      "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "compressedBytes": 5050,
+      "crc32": "0595067e",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 0,
+      "dataOffset": 98
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794773811524-c6307da4-7b05-4c04-b4af-b741f5877200/owner.json",
+      "bytes": 330,
+      "compressedBytes": 217,
+      "crc32": "debad65f",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 5164,
+      "dataOffset": 5286
+    },
+    {
+      "path": ".harness-installed-package/desktop-stage-1794772943534/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "compressedBytes": 348792,
+      "crc32": "3dc6a1af",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 5519,
+      "dataOffset": 5669
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794773811524-c6307da4-7b05-4c04-b4af-b741f5877200/verification.json",
+      "bytes": 15570,
+      "compressedBytes": 3202,
+      "crc32": "914fe77b",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 354477,
+      "dataOffset": 354606
+    },
+    {
+      "path": ".harness-packaged-providers/run-1794774676725-93ac347e-fb4c-46b5-bcb3-a241ad8767b9/verification.json",
+      "bytes": 168091,
+      "compressedBytes": 38723,
+      "crc32": "9d03184e",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 357824,
+      "dataOffset": 357954
+    }
+  ],
+  "verification": {
+    "completeOriginalArchive": true,
+    "eightShardFramingBodyHashes": true,
+    "perChunkSha256AndPartition": true,
+    "fullStreamSha256AndGitBlobSha": true,
+    "centralAndLocalDirectoryBindings": true,
+    "everyMemberCrc32": true,
+    "canonicalPublishedBytesIndependentlyRead": true,
+    "canonicalArchiveComparisonExecutedInRecovery": true,
+    "noScreenshotsOrExportMember": true
+  },
+  "limitations": [
+    "The original installed job failed before application-page readiness. This transport does not turn its result into a passing installed-memory run.",
+    "Native Save, retained-memory actions, Forget and restart did not execute; launches and memory observations are empty.",
+    "The original run's missing expected-origin page has no captured startup phase or child stderr. Its cause remains unmeasured.",
+    "The execution environment became unavailable after the0e072230 source and631-command ledger were published; this separate read-only workflow reconstructs the exact original artifact without changing the tested branch."
+  ]
+}

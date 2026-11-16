@@ -1,0 +1,533 @@
+2026-11-15T22:49:57.2445537Z ##[group]Run $failedSuites = @()
+2026-11-15T22:49:57.2445935Z $failedSuites = @()
+2026-11-15T22:49:57.2446413Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-15T22:49:57.2446901Z   pnpm test:browser --suite $suite
+2026-11-15T22:49:57.2447267Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-15T22:49:57.2447586Z }
+2026-11-15T22:49:57.2447805Z if ($failedSuites.Count -gt 0) {
+2026-11-15T22:49:57.2448196Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T22:49:57.2448554Z }
+2026-11-15T22:49:57.2523302Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T22:49:57.2523952Z env:
+2026-11-15T22:49:57.2524402Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T22:49:57.2524874Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:49:57.2525400Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T22:49:57.2525892Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:49:57.2526517Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:49:57.2526963Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T22:49:57.2527829Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T22:49:57.2528236Z ##[endgroup]
+2026-11-15T22:50:53.8357302Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-15T22:50:53.8358231Z > tsx scripts/test-browser.ts "--suite" "frontend-refinement"
+2026-11-15T22:50:53.8358701Z 
+2026-11-15T22:50:54.1430734Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136
+2026-11-15T22:50:54.1435920Z 
+2026-11-15T22:50:54.1436285Z Browser suite: frontend-refinement (12 spec files)
+2026-11-15T22:50:58.3541293Z 
+2026-11-15T22:50:58.3541834Z Running 91 tests using 1 worker
+2026-11-15T22:50:58.3542079Z 
+2026-11-15T22:51:15.8727010Z   x   1 tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 1440px (15.8s)
+2026-11-15T22:51:33.3792552Z   x   2 tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 960px (15.7s)
+2026-11-15T22:51:34.7133057Z   ok  3 tests\e2e\artifact-style.spec.ts:594:1 › new composition schemas are strict, bounded and preserve stable step identities (43ms)
+2026-11-15T22:52:20.8484428Z   x   4 tests\e2e\artifact-style.spec.ts:674:1 › current question and mapped form values survive expansion, thread switching and reload (45.1s)
+2026-11-15T22:52:28.7136250Z   x   5 tests\e2e\artifact-style.spec.ts:753:1 › the initial question persists its default step and focuses its matching PDF field (6.2s)
+2026-11-15T22:52:36.5760697Z   x   6 tests\e2e\artifact-style.spec.ts:770:1 › bound relationships expose source status and map the selected stable node to actions (6.2s)
+2026-11-15T22:52:44.1095921Z   x   7 tests\e2e\artifact-style.spec.ts:813:1 › status reads actual host operation states and keeps receipt details available (5.8s)
+2026-11-15T22:53:30.8905627Z   x   8 tests\e2e\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state (45.1s)
+2026-11-15T22:53:32.5832227Z   -   9 tests\e2e\artifact-style.spec.ts:933:1 › capture synthetic signing, operations and FAQ against supplied reference compositions
+2026-11-15T22:53:34.0631618Z   ok 10 tests\e2e\canvas-clarity.spec.ts:16:1 › agent families are contained by project and preserve edits through pin and collapse (1.4s)
+2026-11-15T22:53:35.0955652Z   ok 11 tests\e2e\canvas-clarity.spec.ts:44:1 › wheel zoom uses canvas chrome while transcript wheel input scrolls its content (1.0s)
+2026-11-15T22:53:36.6871349Z   ok 12 tests\e2e\canvas-clarity.spec.ts:73:1 › a delayed failed viewport write cannot roll back newer wheel input (1.6s)
+2026-11-15T22:53:37.4158317Z   ok 13 tests\e2e\canvas-clarity.spec.ts:98:1 › Fit and Arrange keep editors mounted and pointer cancellation clears drag state (709ms)
+2026-11-15T22:53:38.3779257Z   ok 14 tests\e2e\canvas-clarity.spec.ts:131:1 › switching canvases before debounce saves both owning viewports (941ms)
+2026-11-15T22:53:39.6977487Z   ok 15 tests\e2e\canvas-clarity.spec.ts:163:1 › an in-flight outgoing canvas save retains the second canvas viewport (1.3s)
+2026-11-15T22:53:42.4699632Z   ok 16 tests\e2e\composer-app-refinement.spec.ts:206:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (2.7s)
+2026-11-15T22:53:50.4563413Z   x  17 tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference (7.6s)
+2026-11-15T22:53:59.9089498Z   x  18 tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under reduce (7.8s)
+2026-11-15T22:54:12.4161843Z   x  19 tests\e2e\composer-app-refinement.spec.ts:299:1 › attachment band reverses an interrupted exit without removing the live row (7.7s)
+2026-11-15T22:54:24.8376000Z   x  20 tests\e2e\composer-app-refinement.spec.ts:334:1 › composer removes repeated captions and toggles Build Plan without changing its draft (3.3s)
+2026-11-15T22:54:31.9044944Z   x  21 tests\e2e\composer-app-refinement.spec.ts:385:1 › project selection uses the explicit local host binding and leaves attachments on plus (5.0s)
+2026-11-15T22:54:45.5236574Z   x  22 tests\e2e\composer-app-refinement.spec.ts:426:1 › started chat opens an explicitly new project chat and retains its original binding and draft (8.8s)
+2026-11-15T22:54:55.3132576Z   x  23 tests\e2e\composer-app-refinement.spec.ts:462:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only (8.0s)
+2026-11-15T22:55:04.7659693Z   x  24 tests\e2e\composer-app-refinement.spec.ts:498:1 › a ready plan opens automatically and right-side tools can only be minimized (7.9s)
+2026-11-15T22:55:14.0099712Z   x  25 tests\e2e\composer-app-refinement.spec.ts:567:38 › /btw still sends a side question without a header button (7.7s)
+2026-11-15T22:55:23.8230980Z   x  26 tests\e2e\composer-app-refinement.spec.ts:567:38 › /side still sends a side question without a header button (8.3s)
+2026-11-15T22:55:25.8779266Z   ok 27 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 1440px (1.0s)
+2026-11-15T22:55:26.7625643Z   ok 28 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 390px (863ms)
+2026-11-15T22:55:27.5868634Z   ok 29 tests\e2e\context-compact.spec.ts:51:1 › context popup closes through Escape, outside click and its toggle without an X (805ms)
+2026-11-15T22:55:28.3575071Z   ok 30 tests\e2e\context-compact.spec.ts:78:1 › unsupported compaction remains disabled and sends no command (747ms)
+2026-11-15T22:55:29.2326069Z   ok 31 tests\e2e\context-compact.spec.ts:105:1 › available compaction keeps its existing owning-thread command (853ms)
+2026-11-15T22:55:45.2719928Z   x  32 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px (15.4s)
+2026-11-15T22:55:50.8652067Z   ok 33 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1024px (4.2s)
+2026-11-15T22:55:53.5082063Z   ok 34 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1440px (2.6s)
+2026-11-15T22:55:56.0795402Z   ok 35 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 768px (2.6s)
+2026-11-15T22:55:58.6291444Z   ok 36 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1024px (2.5s)
+2026-11-15T22:56:01.1780348Z   ok 37 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1440px (2.5s)
+2026-11-15T22:56:07.1934159Z   x  38 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px (5.6s)
+2026-11-15T22:56:12.9402439Z   x  39 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px (3.9s)
+2026-11-15T22:56:19.2704218Z   x  40 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px (4.5s)
+2026-11-15T22:56:25.5200534Z   x  41 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px (4.4s)
+2026-11-15T22:56:31.5439074Z   x  42 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px (4.3s)
+2026-11-15T22:56:37.6100904Z   x  43 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px (4.3s)
+2026-11-15T22:56:47.8763186Z   ok 44 tests\e2e\document-smoothness.spec.ts:352:1 › inline field and signature navigation pans while edits retain the same frame and Fit page shows the whole page (8.9s)
+2026-11-15T22:56:52.0307494Z   ok 45 tests\e2e\document-smoothness.spec.ts:454:1 › a nearby PDF field settles promptly and stops requesting scroll work at rest (4.1s)
+2026-11-15T22:56:56.1169955Z   ok 46 tests\e2e\document-smoothness.spec.ts:469:1 › manual PDF scrolling owns the viewport through background rerender and resize until the next field choice (4.1s)
+2026-11-15T22:57:00.3043649Z   ok 47 tests\e2e\document-smoothness.spec.ts:501:1 › manual scrolling after a zoom choice wins over its still-preparing candidate (4.2s)
+2026-11-15T22:57:04.9663043Z   ok 48 tests\e2e\document-smoothness.spec.ts:524:1 › rapid same-page choices retain one preview and move toward the latest field without a viewport jump (4.6s)
+2026-11-15T22:57:09.8913548Z   ok 49 tests\e2e\document-smoothness.spec.ts:564:1 › reduced motion applies PDF focus without a travelling scroll or continuing frame loop (4.9s)
+2026-11-15T22:57:13.6436821Z   ok 50 tests\e2e\document-smoothness.spec.ts:586:1 › the focus highlight identifies the new field instead of floating through unrelated document text (3.7s)
+2026-11-15T22:57:14.3661196Z   ok 51 tests\e2e\drag-detach.spec.ts:41:3 › floating: supplied callbacks never expose detach controls (690ms)
+2026-11-15T22:57:16.4196458Z   ok 52 tests\e2e\drag-detach.spec.ts:52:3 › floating: release beyond every app edge stays in app and retains the editor (2.0s)
+2026-11-15T22:57:17.6222056Z   ok 53 tests\e2e\drag-detach.spec.ts:94:3 › floating: cancellation and blur outside never invoke callbacks or lose edits (1.2s)
+2026-11-15T22:57:18.3123223Z   ok 54 tests\e2e\drag-detach.spec.ts:41:3 › canvas: supplied callbacks never expose detach controls (674ms)
+2026-11-15T22:57:20.7393198Z   ok 55 tests\e2e\drag-detach.spec.ts:52:3 › canvas: release beyond every app edge stays in app and retains the editor (2.4s)
+2026-11-15T22:57:22.0043539Z   ok 56 tests\e2e\drag-detach.spec.ts:94:3 › canvas: cancellation and blur outside never invoke callbacks or lose edits (1.2s)
+2026-11-15T22:57:22.8485310Z   ok 57 tests\e2e\drag-detach.spec.ts:121:1 › crossing the canvas edge inside the app remains an ordinary saved move (827ms)
+2026-11-15T22:57:23.5694600Z   ok 58 tests\e2e\drag-detach.spec.ts:155:1 › a notes editor remains mounted through a cancelled outside canvas drag (704ms)
+2026-11-15T22:57:23.6028091Z   ok 59 tests\e2e\floating-windows.spec.ts:91:1 › floating geometry rejects nonfinite storage and confines windows to a narrow viewport (3ms)
+2026-11-15T22:57:28.1360378Z   ok 60 tests\e2e\floating-windows.spec.ts:126:1 › the protected context only minimizes and preserves its draft on reload (4.5s)
+2026-11-15T22:57:31.1083875Z   ok 61 tests\e2e\floating-windows.spec.ts:169:1 › minimizing and Escape retain the same task content without a delete control (3.0s)
+2026-11-15T22:57:36.0522845Z   ok 62 tests\e2e\floating-windows.spec.ts:212:1 › live usage stays available and remembers its minimized state without close or resize controls (4.9s)
+2026-11-15T22:57:38.8430549Z   ok 63 tests\e2e\floating-windows.spec.ts:242:1 › both summaries fit a narrow viewport, retain keyboard access and leave Stop available (2.8s)
+2026-11-15T22:57:39.7226597Z   ok 64 tests\e2e\free-floating.spec.ts:20:1 › closing a tool animates safely and an immediate reopen stays open (850ms)
+2026-11-15T22:57:40.4760489Z   ok 65 tests\e2e\free-floating.spec.ts:57:1 › reduced motion closes immediately and returns focus to the opener (738ms)
+2026-11-15T22:57:41.7163270Z   ok 66 tests\e2e\free-floating.spec.ts:89:1 › keyboard movement releases the rail in both axes and manual sizing preserves the draft (1.2s)
+2026-11-15T22:57:42.3971616Z   ok 67 tests\e2e\free-floating.spec.ts:121:1 › free floating on a narrow workspace releases the reserved tool area (661ms)
+2026-11-15T22:57:43.6242077Z   ok 68 tests\e2e\free-floating.spec.ts:145:1 › pointer drag leaves the anchor without remounting, and hidden scrollbar still scrolls (1.2s)
+2026-11-15T22:57:44.2775192Z   ok 69 tests\e2e\free-floating.spec.ts:201:1 › adapter recovery is read before any write and keeps its recovered free coordinates (627ms)
+2026-11-15T22:57:45.0308244Z   ok 70 tests\e2e\free-floating.spec.ts:216:1 › blur ends an active drag and viewport changes keep the tool reachable (746ms)
+2026-11-15T22:57:45.7020185Z   ok 71 tests\e2e\free-floating.spec.ts:247:1 › content-fit adapter recovery keeps free coordinates without taking input focus (656ms)
+2026-11-15T22:57:46.4257984Z   ok 72 tests\e2e\free-floating.spec.ts:266:1 › pointer cancellation ends a move without losing the window or draft (707ms)
+2026-11-15T22:57:47.6283062Z   ok 73 tests\e2e\frontend-refinement.spec.ts:15:1 › left ticked scrollbar supports keys, track clicks, dragging, and history during updates (1.2s)
+2026-11-15T22:57:48.6304400Z   ok 74 tests\e2e\frontend-refinement.spec.ts:70:1 › disconnected context is compact and connected context leads with useful project facts (986ms)
+2026-11-15T22:57:49.3491571Z   ok 75 tests\e2e\no-detach-canvas.spec.ts:17:1 › canvas offers only in-app panel controls even when a detach callback is supplied (692ms)
+2026-11-15T22:57:50.2408513Z   ok 76 tests\e2e\no-detach-canvas.spec.ts:32:1 › dragging outside the app saves an in-app placement with no detach cue or callback (876ms)
+2026-11-15T22:57:51.2798884Z   ok 77 tests\e2e\no-detach-canvas.spec.ts:73:1 › in-app movement resizing pinning and hiding still save ordinary panel state (1.0s)
+2026-11-15T22:57:52.6076550Z   ok 78 tests\e2e\no-detach-canvas.spec.ts:124:1 › embedded panels stay reachable after an outside drag without Fit or panning (1.3s)
+2026-11-15T22:58:01.2961062Z   x  79 tests\e2e\reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (8.3s)
+2026-11-15T22:58:05.8714832Z   ok 80 tests\e2e\reserved-rail.spec.ts:156:1 › expanded usage stays compact and readable instead of reserving an oversized tool (3.2s)
+2026-11-15T22:58:08.5877915Z   ok 81 tests\e2e\reserved-rail.spec.ts:179:1 › both protected tools minimize to a compact flow region on narrow screens (2.7s)
+2026-11-15T22:58:12.0510084Z   x  82 tests\e2e\reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over (3.1s)
+2026-11-15T22:58:16.3693630Z   ok 83 tests\e2e\reserved-rail.spec.ts:236:1 › expanded context keeps the header and composer across the full av
+[CI excerpt bounded; middle omitted]
+t: true })
+2026-11-15T22:58:29.9422081Z     Expected: visible
+2026-11-15T22:58:29.9422393Z     Timeout: 5000ms
+2026-11-15T22:58:29.9422690Z     Error: element(s) not found
+2026-11-15T22:58:29.9422938Z 
+2026-11-15T22:58:29.9423070Z     Call log:
+2026-11-15T22:58:29.9423479Z       - Expect "toBeVisible" with timeout 5000ms
+2026-11-15T22:58:29.9424268Z       - waiting for locator('.workspace-header').getByRole('button', { name: 'Open workspace panel', exact: true })
+2026-11-15T22:58:29.9424769Z 
+2026-11-15T22:58:29.9424781Z 
+2026-11-15T22:58:29.9425330Z       108 |  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
+2026-11-15T22:58:29.9426570Z       109 |  await expect(header.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)|side conversation|project context|thread options/i})).toHaveCount(0);
+2026-11-15T22:58:29.9427666Z     > 110 |  await expect(header.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
+2026-11-15T22:58:29.9428328Z           |                                                                                    ^
+2026-11-15T22:58:29.9428912Z       111 |  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
+2026-11-15T22:58:29.9429774Z       112 |  await expect(page.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)/i})).toHaveCount(0);
+2026-11-15T22:58:29.9430786Z       113 |  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();
+2026-11-15T22:58:29.9431446Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\composer-app-refinement.spec.ts:110:84
+2026-11-15T22:58:29.9431797Z 
+2026-11-15T22:58:29.9432644Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only\error-context.md
+2026-11-15T22:58:29.9433504Z 
+2026-11-15T22:58:29.9433943Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9435089Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only\trace.zip
+2026-11-15T22:58:29.9436371Z     Usage:
+2026-11-15T22:58:29.9436538Z 
+2026-11-15T22:58:29.9437461Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only\trace.zip
+2026-11-15T22:58:29.9438359Z 
+2026-11-15T22:58:29.9438742Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9439825Z 
+2026-11-15T22:58:29.9440431Z   15) tests\e2e\composer-app-refinement.spec.ts:498:1 › a ready plan opens automatically and right-side tools can only be minimized 
+2026-11-15T22:58:29.9440994Z 
+2026-11-15T22:58:29.9441384Z     Error: expect(locator).toBeVisible() failed
+2026-11-15T22:58:29.9441768Z 
+2026-11-15T22:58:29.9442276Z     Locator: getByRole('region', { name: 'Project overview window', exact: true }).getByText('Inspect the current draft', { exact: true })
+2026-11-15T22:58:29.9442949Z     Expected: visible
+2026-11-15T22:58:29.9443256Z     Timeout: 5000ms
+2026-11-15T22:58:29.9443554Z     Error: element(s) not found
+2026-11-15T22:58:29.9443760Z 
+2026-11-15T22:58:29.9443898Z     Call log:
+2026-11-15T22:58:29.9444315Z       - Expect "toBeVisible" with timeout 5000ms
+2026-11-15T22:58:29.9445227Z       - waiting for getByRole('region', { name: 'Project overview window', exact: true }).getByText('Inspect the current draft', { exact: true })
+2026-11-15T22:58:29.9445778Z 
+2026-11-15T22:58:29.9445784Z 
+2026-11-15T22:58:29.9446098Z       122 |  const context=page.getByRole('region',{name:'Project overview window',exact:true});
+2026-11-15T22:58:29.9447646Z       123 |  host.snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-04T00:00:00Z',value:{version:1,title:'Review the next steps',steps:[{id:'inspect',title:'Inspect the current draft',status:'working',requirements:[],agentIds:[]}],agents:[]}});
+2026-11-15T22:58:29.9449777Z     > 124 |  await host.publish();await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();await expect(draft).toHaveValue('Keep writing while the plan arrives');
+2026-11-15T22:58:29.9451091Z           |                                                                                                                                                                                       ^
+2026-11-15T22:58:29.9452097Z       125 |  await page.getByRole('button',{name:'Show live usage',exact:true}).click();const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();
+2026-11-15T22:58:29.9453275Z       126 |  for(const tool of [context,usage])await expect(tool.getByRole('button',{name:/close |detach|reset .*position|resize|^move /i})).toHaveCount(0);
+2026-11-15T22:58:29.9454529Z       127 |  await context.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context).toBeVisible();
+2026-11-15T22:58:29.9465161Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\composer-app-refinement.spec.ts:124:183
+2026-11-15T22:58:29.9467870Z 
+2026-11-15T22:58:29.9470601Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-a--52702-tools-can-only-be-minimized\error-context.md
+2026-11-15T22:58:29.9475150Z 
+2026-11-15T22:58:29.9476381Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9478280Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-a--52702-tools-can-only-be-minimized\trace.zip
+2026-11-15T22:58:29.9479700Z     Usage:
+2026-11-15T22:58:29.9479881Z 
+2026-11-15T22:58:29.9481440Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement-a--52702-tools-can-only-be-minimized\trace.zip
+2026-11-15T22:58:29.9482983Z 
+2026-11-15T22:58:29.9483585Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9484916Z 
+2026-11-15T22:58:29.9485755Z   16) tests\e2e\composer-app-refinement.spec.ts:567:38 › /btw still sends a side question without a header button 
+2026-11-15T22:58:29.9486513Z 
+2026-11-15T22:58:29.9487122Z     Error: expect(locator).toBeEnabled() failed
+2026-11-15T22:58:29.9487718Z 
+2026-11-15T22:58:29.9488008Z     Locator: locator('.side-chat-composer textarea')
+2026-11-15T22:58:29.9488526Z     Expected: enabled
+2026-11-15T22:58:29.9488880Z     Timeout: 5000ms
+2026-11-15T22:58:29.9489267Z     Error: element(s) not found
+2026-11-15T22:58:29.9489551Z 
+2026-11-15T22:58:29.9489672Z     Call log:
+2026-11-15T22:58:29.9490296Z       - Expect "toBeEnabled" with timeout 5000ms
+2026-11-15T22:58:29.9491156Z       - waiting for locator('.side-chat-composer textarea')
+2026-11-15T22:58:29.9491624Z 
+2026-11-15T22:58:29.9491633Z 
+2026-11-15T22:58:29.9492336Z       132 | for(const alias of ['btw','side'])test(`/${alias} still sends a side question without a header button`,async({page})=>{
+2026-11-15T22:58:29.9493330Z       133 |  const host=await fixture(page);
+2026-11-15T22:58:29.9494093Z     > 134 |  await expect(page.locator('.side-chat-composer textarea')).toBeEnabled();
+2026-11-15T22:58:29.9494899Z           |                                                             ^
+2026-11-15T22:58:29.9495908Z       135 |  await page.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
+2026-11-15T22:58:29.9497382Z       136 |  await page.getByRole('button',{name:'Send message',exact:true}).click();
+2026-11-15T22:58:29.9499441Z       137 |  await expect.poll(()=>host.commands.filter(command=>command.type==='message.send').map(command=>({threadId:command.threadId,content:command.payload.content}))).toEqual([{threadId:'side-thread',content:'Explain the next step'}]);
+2026-11-15T22:58:29.9501343Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\composer-app-refinement.spec.ts:134:61
+2026-11-15T22:58:29.9501860Z 
+2026-11-15T22:58:29.9503261Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--b-1b87b-ion-without-a-header-button\error-context.md
+2026-11-15T22:58:29.9504674Z 
+2026-11-15T22:58:29.9505356Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9507230Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--b-1b87b-ion-without-a-header-button\trace.zip
+2026-11-15T22:58:29.9508695Z     Usage:
+2026-11-15T22:58:29.9508871Z 
+2026-11-15T22:58:29.9510614Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--b-1b87b-ion-without-a-header-button\trace.zip
+2026-11-15T22:58:29.9512124Z 
+2026-11-15T22:58:29.9512715Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9514391Z 
+2026-11-15T22:58:29.9515200Z   17) tests\e2e\composer-app-refinement.spec.ts:567:38 › /side still sends a side question without a header button 
+2026-11-15T22:58:29.9515956Z 
+2026-11-15T22:58:29.9516843Z     Error: expect(locator).toBeEnabled() failed
+2026-11-15T22:58:29.9517432Z 
+2026-11-15T22:58:29.9517705Z     Locator: locator('.side-chat-composer textarea')
+2026-11-15T22:58:29.9518225Z     Expected: enabled
+2026-11-15T22:58:29.9518575Z     Timeout: 5000ms
+2026-11-15T22:58:29.9518951Z     Error: element(s) not found
+2026-11-15T22:58:29.9519212Z 
+2026-11-15T22:58:29.9519329Z     Call log:
+2026-11-15T22:58:29.9519840Z       - Expect "toBeEnabled" with timeout 5000ms
+2026-11-15T22:58:29.9520666Z       - waiting for locator('.side-chat-composer textarea')
+2026-11-15T22:58:29.9521108Z 
+2026-11-15T22:58:29.9521117Z 
+2026-11-15T22:58:29.9521879Z       132 | for(const alias of ['btw','side'])test(`/${alias} still sends a side question without a header button`,async({page})=>{
+2026-11-15T22:58:29.9522841Z       133 |  const host=await fixture(page);
+2026-11-15T22:58:29.9523686Z     > 134 |  await expect(page.locator('.side-chat-composer textarea')).toBeEnabled();
+2026-11-15T22:58:29.9524510Z           |                                                             ^
+2026-11-15T22:58:29.9525490Z       135 |  await page.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
+2026-11-15T22:58:29.9526696Z       136 |  await page.getByRole('button',{name:'Send message',exact:true}).click();
+2026-11-15T22:58:29.9528726Z       137 |  await expect.poll(()=>host.commands.filter(command=>command.type==='message.send').map(command=>({threadId:command.threadId,content:command.payload.content}))).toEqual([{threadId:'side-thread',content:'Explain the next step'}]);
+2026-11-15T22:58:29.9530604Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\composer-app-refinement.spec.ts:134:61
+2026-11-15T22:58:29.9531100Z 
+2026-11-15T22:58:29.9532506Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--s-062f4-ion-without-a-header-button\error-context.md
+2026-11-15T22:58:29.9533935Z 
+2026-11-15T22:58:29.9534625Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9536858Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--s-062f4-ion-without-a-header-button\trace.zip
+2026-11-15T22:58:29.9538276Z     Usage:
+2026-11-15T22:58:29.9538467Z 
+2026-11-15T22:58:29.9540341Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\composer-app-refinement--s-062f4-ion-without-a-header-button\trace.zip
+2026-11-15T22:58:29.9541278Z 
+2026-11-15T22:58:29.9541708Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9542021Z 
+2026-11-15T22:58:29.9542625Z   18) tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px 
+2026-11-15T22:58:29.9543157Z 
+2026-11-15T22:58:29.9543607Z     Error: expect(locator).toHaveAttribute(expected) failed
+2026-11-15T22:58:29.9544014Z 
+2026-11-15T22:58:29.9544144Z     Locator: locator('.document-preview')
+2026-11-15T22:58:29.9544501Z     Expected: "ready"
+2026-11-15T22:58:29.9544751Z     Timeout: 15000ms
+2026-11-15T22:58:29.9544990Z     Error: element(s) not found
+2026-11-15T22:58:29.9545153Z 
+2026-11-15T22:58:29.9545241Z     Call log:
+2026-11-15T22:58:29.9545603Z       - Expect "toHaveAttribute" with timeout 15000ms
+2026-11-15T22:58:29.9546076Z       - waiting for locator('.document-preview')
+2026-11-15T22:58:29.9547139Z         - locator resolved to <div role="status" data-preview-state="loading" class="document-preview muted">Loading document preview…</div>
+2026-11-15T22:58:29.9547874Z         - unexpected value "loading"
+2026-11-15T22:58:29.9549192Z         2 × locator resolved to <section data-fit="page" aria-busy="true" class="document-preview" aria-label="Agreement.pdf" data-preview-state="updating">…</section>
+2026-11-15T22:58:29.9550051Z           - unexpected value "updating"
+2026-11-15T22:58:29.9550963Z         12 × locator resolved to <section data-fit="page" aria-busy="false" class="document-preview" aria-label="Agreement.pdf" data-preview-state="error">…</section>
+2026-11-15T22:58:29.9553230Z            - unexpected value "error"
+2026-11-15T22:58:29.9553994Z 
+2026-11-15T22:58:29.9554004Z 
+2026-11-15T22:58:29.9554909Z       67 |   const fixturePath = encodeURI('/@fs/' + resolve('tests/e2e/document-pair-fixture.tsx').replaceAll('\\', '/'));
+2026-11-15T22:58:29.9557063Z       68 |   await page.route('**/document-pair-check', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixturePath}');</script></body></html>` }));
+2026-11-15T22:58:29.9559235Z     > 69 |   await page.goto('/document-pair-check'); await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15000 });
+2026-11-15T22:58:29.9560064Z          |                                                                                            ^
+2026-11-15T22:58:29.9560752Z       70 |   const pair = page.locator(':is(.surface-layout,.surface-split):has(>.document-preview):has(>.signature-pad)');
+2026-11-15T22:58:29.9561388Z       71 |   const geometry = () => pair.evaluate(node => {
+2026-11-15T22:58:29.9562206Z       72 |     const pdf = node.querySelector('.document-preview')!.getBoundingClientRect(), signature = node.querySelector('.signature-pad')!.getBoundingClientRect();
+2026-11-15T22:58:29.9563160Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:69:92
+2026-11-15T22:58:29.9563712Z 
+2026-11-15T22:58:29.9564539Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-PDF-an-d1fa9-ble-artifact-width-at-768px\error-context.md
+2026-11-15T22:58:29.9565508Z 
+2026-11-15T22:58:29.9566289Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9567565Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-PDF-an-d1fa9-ble-artifact-width-at-768px\trace.zip
+2026-11-15T22:58:29.9568403Z     Usage:
+2026-11-15T22:58:29.9568512Z 
+2026-11-15T22:58:29.9569353Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-PDF-an-d1fa9-ble-artifact-width-at-768px\trace.zip
+2026-11-15T22:58:29.9570215Z 
+2026-11-15T22:58:29.9570576Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9570869Z 
+2026-11-15T22:58:29.9571447Z   19) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px 
+2026-11-15T22:58:29.9571973Z 
+2026-11-15T22:58:29.9572380Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9572764Z 
+2026-11-15T22:58:29.9572892Z     Expected: < 2
+2026-11-15T22:58:29.9573175Z     Received:   12
+2026-11-15T22:58:29.9573440Z 
+2026-11-15T22:58:29.9573657Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9574858Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9575998Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9576720Z           |                                            ^
+2026-11-15T22:58:29.9577735Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9578396Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9579483Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9580373Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:44
+2026-11-15T22:58:29.9580660Z 
+2026-11-15T22:58:29.9581459Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-4e7e2--only-when-narrow-at-1440px\error-context.md
+2026-11-15T22:58:29.9582275Z 
+2026-11-15T22:58:29.9582714Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9583773Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-4e7e2--only-when-narrow-at-1440px\trace.zip
+2026-11-15T22:58:29.9584587Z     Usage:
+2026-11-15T22:58:29.9584694Z 
+2026-11-15T22:58:29.9585534Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-4e7e2--only-when-narrow-at-1440px\trace.zip
+2026-11-15T22:58:29.9586386Z 
+2026-11-15T22:58:29.9586708Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9586996Z 
+2026-11-15T22:58:29.9587563Z   20) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px 
+2026-11-15T22:58:29.9588082Z 
+2026-11-15T22:58:29.9588474Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9588844Z 
+2026-11-15T22:58:29.9588969Z     Expected: < 6
+2026-11-15T22:58:29.9589241Z     Received:   12
+2026-11-15T22:58:29.9589398Z 
+2026-11-15T22:58:29.9589609Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9590569Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9591924Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9593121Z           |                                                                                                                          ^
+2026-11-15T22:58:29.9594830Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9595640Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9596409Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9597231Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:122
+2026-11-15T22:58:29.9597674Z 
+2026-11-15T22:58:29.9599027Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-cfd0c-s-only-when-narrow-at-700px\error-context.md
+2026-11-15T22:58:29.9600401Z 
+2026-11-15T22:58:29.9601095Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9602902Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-cfd0c-s-only-when-narrow-at-700px\trace.zip
+2026-11-15T22:58:29.9604303Z     Usage:
+2026-11-15T22:58:29.9604478Z 
+2026-11-15T22:58:29.9605959Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-cfd0c-s-only-when-narrow-at-700px\trace.zip
+2026-11-15T22:58:29.9607485Z 
+2026-11-15T22:58:29.9608231Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9608751Z 
+2026-11-15T22:58:29.9609763Z   21) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px 
+2026-11-15T22:58:29.9610652Z 
+2026-11-15T22:58:29.9611355Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9612002Z 
+2026-11-15T22:58:29.9612234Z     Expected: < 6
+2026-11-15T22:58:29.9612697Z     Received:   12
+2026-11-15T22:58:29.9612965Z 
+2026-11-15T22:58:29.9613337Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9615134Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9617494Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9619145Z           |                                                                                                                          ^
+2026-11-15T22:58:29.9620517Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9621746Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9623169Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9624723Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:122
+2026-11-15T22:58:29.9625265Z 
+2026-11-15T22:58:29.9626781Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-d1dea-s-only-when-narrow-at-390px\error-context.md
+2026-11-15T22:58:29.9628332Z 
+2026-11-15T22:58:29.9629107Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9631364Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-d1dea-s-only-when-narrow-at-390px\trace.zip
+2026-11-15T22:58:29.9632906Z     Usage:
+2026-11-15T22:58:29.9633115Z 
+2026-11-15T22:58:29.9634704Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-d1dea-s-only-when-narrow-at-390px\trace.zip
+2026-11-15T22:58:29.9636610Z 
+2026-11-15T22:58:29.9637124Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9637443Z 
+2026-11-15T22:58:29.9638026Z   22) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px 
+2026-11-15T22:58:29.9638528Z 
+2026-11-15T22:58:29.9638950Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9639328Z 
+2026-11-15T22:58:29.9639462Z     Expected: < 2
+2026-11-15T22:58:29.9639750Z     Received:   12
+2026-11-15T22:58:29.9639907Z 
+2026-11-15T22:58:29.9640132Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9640950Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9642077Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9642807Z           |                                            ^
+2026-11-15T22:58:29.9643471Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9644113Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9644874Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9645672Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:44
+2026-11-15T22:58:29.9645958Z 
+2026-11-15T22:58:29.9646757Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-40a65--only-when-narrow-at-1440px\error-context.md
+2026-11-15T22:58:29.9647566Z 
+2026-11-15T22:58:29.9647953Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9649578Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-40a65--only-when-narrow-at-1440px\trace.zip
+2026-11-15T22:58:29.9650588Z     Usage:
+2026-11-15T22:58:29.9650701Z 
+2026-11-15T22:58:29.9651560Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-40a65--only-when-narrow-at-1440px\trace.zip
+2026-11-15T22:58:29.9652416Z 
+2026-11-15T22:58:29.9652795Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9653095Z 
+2026-11-15T22:58:29.9653637Z   23) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px 
+2026-11-15T22:58:29.9654137Z 
+2026-11-15T22:58:29.9654547Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9654931Z 
+2026-11-15T22:58:29.9655071Z     Expected: < 6
+2026-11-15T22:58:29.9655777Z     Received:   12
+2026-11-15T22:58:29.9655955Z 
+2026-11-15T22:58:29.9656182Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9657001Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9658126Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9658959Z           |                                                                                                                          ^
+2026-11-15T22:58:29.9659704Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9660348Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9661118Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9661938Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:122
+2026-11-15T22:58:29.9662228Z 
+2026-11-15T22:58:29.9663030Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-ff736-s-only-when-narrow-at-700px\error-context.md
+2026-11-15T22:58:29.9663924Z 
+2026-11-15T22:58:29.9664664Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9665759Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-ff736-s-only-when-narrow-at-700px\trace.zip
+2026-11-15T22:58:29.9666584Z     Usage:
+2026-11-15T22:58:29.9666698Z 
+2026-11-15T22:58:29.9667560Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-ff736-s-only-when-narrow-at-700px\trace.zip
+2026-11-15T22:58:29.9668420Z 
+2026-11-15T22:58:29.9668761Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9669053Z 
+2026-11-15T22:58:29.9669585Z   24) tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px 
+2026-11-15T22:58:29.9670072Z 
+2026-11-15T22:58:29.9670469Z     Error: expect(received).toBeLessThan(expected)
+2026-11-15T22:58:29.9670894Z 
+2026-11-15T22:58:29.9671121Z     Expected: < 6
+2026-11-15T22:58:29.9672301Z     Received:   12
+2026-11-15T22:58:29.9674132Z 
+2026-11-15T22:58:29.9675083Z       104 |  expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
+2026-11-15T22:58:29.9676385Z       105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+2026-11-15T22:58:29.9678043Z     > 106 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+2026-11-15T22:58:29.9678909Z           |                                                                                                                          ^
+2026-11-15T22:58:29.9679672Z       107 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+2026-11-15T22:58:29.9680325Z       108 |  expect(pdf!.height).toBeLessThan(650);
+2026-11-15T22:58:29.9681093Z       109 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+2026-11-15T22:58:29.9681902Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\document-smoothness.spec.ts:106:122
+2026-11-15T22:58:29.9682196Z 
+2026-11-15T22:58:29.9683007Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-a02be-s-only-when-narrow-at-390px\error-context.md
+2026-11-15T22:58:29.9683825Z 
+2026-11-15T22:58:29.9684285Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9685367Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-a02be-s-only-when-narrow-at-390px\trace.zip
+2026-11-15T22:58:29.9686178Z     Usage:
+2026-11-15T22:58:29.9686288Z 
+2026-11-15T22:58:29.9687137Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\document-smoothness-paired-a02be-s-only-when-narrow-at-390px\trace.zip
+2026-11-15T22:58:29.9688003Z 
+2026-11-15T22:58:29.9688336Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9688648Z 
+2026-11-15T22:58:29.9689234Z   25) tests\e2e\reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+2026-11-15T22:58:29.9690016Z 
+2026-11-15T22:58:29.9691671Z     Error: expect(locator).toBeHidden() failed
+2026-11-15T22:58:29.9692146Z 
+2026-11-15T22:58:29.9692495Z     Locator:  getByRole('region', { name: 'Live usage', exact: true })
+2026-11-15T22:58:29.9692984Z     Expected: hidden
+2026-11-15T22:58:29.9693458Z     Received: visible
+2026-11-15T22:58:29.9693961Z     Timeout:  5000ms
+2026-11-15T22:58:29.9694112Z 
+2026-11-15T22:58:29.9694201Z     Call log:
+2026-11-15T22:58:29.9694601Z       - Expect "toBeHidden" with timeout 5000ms
+2026-11-15T22:58:29.9695368Z       - waiting for getByRole('region', { name: 'Live usage', exact: true })
+2026-11-15T22:58:29.9696407Z         9 × locator resolved to <section data-collapsed="true" aria-label="Live usage" data-summary-id="usage" class="docked-summary summary-usage">…</section>
+2026-11-15T22:58:29.9697233Z           - unexpected value "visible"
+2026-11-15T22:58:29.9697452Z 
+2026-11-15T22:58:29.9697459Z 
+2026-11-15T22:58:29.9698156Z       23 |  const text=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
+2026-11-15T22:58:29.9699606Z       24 |  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true}),artifact=page.locator('.artifact-in-workspace');await expect(panel).toBeVisible();await expect(artifact).toBeVisible();
+2026-11-15T22:58:29.9701021Z     > 25 |  await expect(page.getByRole('region',{name:'Project overview window',exact:true})).toBeHidden();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
+2026-11-15T22:58:29.9702009Z          |                                                                                                                                                                        ^
+2026-11-15T22:58:29.9703253Z       26 |  await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1920)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
+2026-11-15T22:58:29.9704915Z       27 |  expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,text)).toBe(true);
+2026-11-15T22:58:29.9705544Z       28 | });
+2026-11-15T22:58:29.9706014Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\reserved-rail.spec.ts:25:168
+2026-11-15T22:58:29.9706577Z 
+2026-11-15T22:58:29.9707440Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer\error-context.md
+2026-11-15T22:58:29.9708258Z 
+2026-11-15T22:58:29.9708706Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9709780Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer\trace.zip
+2026-11-15T22:58:29.9710591Z     Usage:
+2026-11-15T22:58:29.9710700Z 
+2026-11-15T22:58:29.9712080Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer\trace.zip
+2026-11-15T22:58:29.9712937Z 
+2026-11-15T22:58:29.9713296Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9713592Z 
+2026-11-15T22:58:29.9714134Z   26) tests\e2e\reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over 
+2026-11-15T22:58:29.9714665Z 
+2026-11-15T22:58:29.9715177Z     Error: expect(received).toBeCloseTo(expected, precision)
+2026-11-15T22:58:29.9715607Z 
+2026-11-15T22:58:29.9715746Z     Expected: 1216
+2026-11-15T22:58:29.9716030Z     Received: 1600
+2026-11-15T22:58:29.9716186Z 
+2026-11-15T22:58:29.9716288Z     Expected precision:    0
+2026-11-15T22:58:29.9716605Z     Expected difference: < 0.5
+2026-11-15T22:58:29.9716951Z     Received difference:   384
+2026-11-15T22:58:29.9717138Z 
+2026-11-15T22:58:29.9717221Z       37 | });
+2026-11-15T22:58:29.9717719Z       38 | test('minimized summaries retain their rail until an explicit artifact panel takes over',async({page})=>{
+2026-11-15T22:58:29.9720362Z     > 39 |  await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();const main=(await page.locator('main.workspace').boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
+2026-11-15T22:58:29.9723172Z          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+2026-11-15T22:58:29.9725590Z       40 |  await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(plan).toBeHidden();await expect.poll(async()=>{const main=await page.locator('main.workspace').boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
+2026-11-15T22:58:29.9727074Z       41 | });
+2026-11-15T22:58:29.9727582Z       42 | test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
+2026-11-15T22:58:29.9728220Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\reserved-rail.spec.ts:39:455
+2026-11-15T22:58:29.9728480Z 
+2026-11-15T22:58:29.9729290Z     Error Context: test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over\error-context.md
+2026-11-15T22:58:29.9730110Z 
+2026-11-15T22:58:29.9730535Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9732036Z     test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over\trace.zip
+2026-11-15T22:58:29.9733061Z     Usage:
+2026-11-15T22:58:29.9733179Z 
+2026-11-15T22:58:29.9734043Z         pnpm exec playwright show-trace test-results\browser\run-1794783054140-df9b5783-1acc-4ccc-992f-2f74f88ca136\frontend-refinement\artifacts\reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over\trace.zip
+2026-11-15T22:58:29.9734913Z 
+2026-11-15T22:58:29.9735267Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T22:58:29.9735559Z 
+2026-11-15T22:58:29.9735640Z   26 failed
+2026-11-15T22:58:29.9736233Z     tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 1440px 
+2026-11-15T22:58:29.9737421Z     tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 960px 
+2026-11-15T22:58:29.9742169Z     tests\e2e\artifact-style.spec.ts:674:1 › current question and mapped form values survive expansion, thread switching and reload 
+2026-11-15T22:58:29.9744131Z     tests\e2e\artifact-style.spec.ts:753:1 › the initial question persists its default step and focuses its matching PDF field 
+2026-11-15T22:58:29.9748126Z     tests\e2e\artifact-style.spec.ts:770:1 › bound relationships expose source status and map the selected stable node to actions 
+2026-11-15T22:58:29.9749916Z     tests\e2e\artifact-style.spec.ts:813:1 › status reads actual host operation states and keeps receipt details available 
+2026-11-15T22:58:29.9751363Z     tests\e2e\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state 
+2026-11-15T22:58:29.9752982Z     tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference 
+2026-11-15T22:58:29.9755225Z     tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under reduce 
+2026-11-15T22:58:29.9757215Z     tests\e2e\composer-app-refinement.spec.ts:299:1 › attachment band reverses an interrupted exit without removing the live row 
+2026-11-15T22:58:29.9759002Z     tests\e2e\composer-app-refinement.spec.ts:334:1 › composer removes repeated captions and toggles Build Plan without changing its draft 
+2026-11-15T22:58:29.9760825Z     tests\e2e\composer-app-refinement.spec.ts:385:1 › project selection uses the explicit local host binding and leaves attachments on plus 
+2026-11-15T22:58:29.9762695Z     tests\e2e\composer-app-refinement.spec.ts:426:1 › started chat opens an explicitly new project chat and retains its original binding and draft 
+2026-11-15T22:58:29.9764883Z     tests\e2e\composer-app-refinement.spec.ts:462:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only 
+2026-11-15T22:58:29.9766968Z     tests\e2e\composer-app-refinement.spec.ts:498:1 › a ready plan opens automatically and right-side tools can only be minimized 
+2026-11-15T22:58:29.9768587Z     tests\e2e\composer-app-refinement.spec.ts:567:38 › /btw still sends a side question without a header button 
+2026-11-15T22:58:29.9770071Z     tests\e2e\composer-app-refinement.spec.ts:567:38 › /side still sends a side question without a header button 
+2026-11-15T22:58:29.9771752Z     tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px 
+2026-11-15T22:58:29.9773535Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px 
+2026-11-15T22:58:29.9775406Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px 
+2026-11-15T22:58:29.9777319Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px 
+2026-11-15T22:58:29.9779801Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px 
+2026-11-15T22:58:29.9781184Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px 
+2026-11-15T22:58:29.9782365Z     tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px 
+2026-11-15T22:58:29.9783435Z     tests\e2e\reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+2026-11-15T22:58:29.9784485Z     tests\e2e\reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over 
+2026-11-15T22:58:29.9785143Z   1 skipped
+2026-11-15T22:58:29.9785440Z   64 passed (7.6m)
+2026-11-15T22:58:29.9785931Z 
+2026-11-15T22:58:29.9786221Z Failed browser suites: frontend-refinement (exit 1)
+2026-11-15T22:58:30.0022896Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-15T22:58:30.3802790Z 

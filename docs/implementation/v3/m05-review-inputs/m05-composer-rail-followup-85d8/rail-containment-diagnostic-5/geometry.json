@@ -1,0 +1,1196 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "artifact": {
+    "tag": "SECTION",
+    "className": "artifact artifact-width-standard artifact-frame-card  artifact-in-workspace ",
+    "box": {
+      "x": 1165,
+      "y": 122,
+      "width": 495,
+      "height": 853.203125
+    },
+    "position": "fixed",
+    "contain": "none",
+    "containerType": "normal",
+    "containerName": "none",
+    "transform": "none",
+    "translate": "none",
+    "scale": "none",
+    "rotate": "none",
+    "filter": "none",
+    "backdropFilter": "none",
+    "perspective": "none",
+    "willChange": "auto",
+    "contentVisibility": "visible",
+    "clipPath": "none",
+    "overflowX": "hidden",
+    "overflowY": "hidden",
+    "clientLeft": 1,
+    "clientTop": 1,
+    "scrollLeft": 0,
+    "scrollTop": 0,
+    "offsetParent": null,
+    "slot": [
+      "1165px",
+      "122px",
+      "495px",
+      "853.203125px"
+    ]
+  },
+  "panel": {
+    "tag": "ASIDE",
+    "className": "workspace-right",
+    "box": {
+      "x": 1400,
+      "y": 92.796875,
+      "width": 520,
+      "height": 987.203125
+    },
+    "position": "relative",
+    "contain": "none",
+    "containerType": "normal",
+    "containerName": "none",
+    "transform": "none",
+    "translate": "none",
+    "scale": "none",
+    "rotate": "none",
+    "filter": "none",
+    "backdropFilter": "none",
+    "perspective": "none",
+    "willChange": "auto",
+    "contentVisibility": "visible",
+    "clipPath": "none",
+    "overflowX": "visible",
+    "overflowY": "visible",
+    "clientLeft": 1,
+    "clientTop": 0,
+    "scrollLeft": 0,
+    "scrollTop": 0,
+    "offsetParent": {
+      "tag": "DIV",
+      "className": "shell-workarea"
+    },
+    "slot": [
+      "1165px",
+      "122px",
+      "495px",
+      "853.203125px"
+    ]
+  },
+  "ancestors": [
+    {
+      "tag": "DIV",
+      "className": "message message-assistant",
+      "box": {
+        "x": 281,
+        "y": 203.796875,
+        "width": 755,
+        "height": 23.09375
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "conversation-frame"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "conversation ",
+      "box": {
+        "x": 281,
+        "y": 203.796875,
+        "width": 755,
+        "height": 73.09375
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "conversation-frame"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "box": {
+        "x": 281,
+        "y": 203.796875,
+        "width": 755,
+        "height": 73.09375
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "conversation-frame"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "conversation-scroll",
+      "box": {
+        "x": 249,
+        "y": 179.796875,
+        "width": 819,
+        "height": 765
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "auto",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "conversation-frame"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "conversation-frame",
+      "box": {
+        "x": 249,
+        "y": 179.796875,
+        "width": 819,
+        "height": 765
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "MAIN",
+        "className": "workspace chat-view-surface"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "MAIN",
+      "className": "workspace chat-view-surface",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 819,
+        "height": 951
+      },
+      "position": "absolute",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "workspace chat-view-slot"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "workspace chat-view-slot",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "summary-layout-owner"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": null,
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "summary-layout",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "summary-layout-owner"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "summary-layout-owner",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "summary-owner",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "shell-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "shell-workarea",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "conversation-tools",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "personal-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "personal-workarea",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "workspace-layout-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "workspace-layout-workarea",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-surface"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "app-shell embedded-thread-app  desktop-thread-only  ",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-surface"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "split-thread-owner",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-surface"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "split-surface",
+      "box": {
+        "x": 249,
+        "y": 127.796875,
+        "width": 818.796875,
+        "height": 951.203125
+      },
+      "position": "absolute",
+      "contain": "style",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-surface-plane"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "split-surface-plane",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1146,
+        "height": 987.203125
+      },
+      "position": "absolute",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-workspace "
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "split-workspace ",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1146,
+        "height": 987.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-root-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "summary-layout",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1146,
+        "height": 987.203125
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-root-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "summary-layout-owner",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1146,
+        "height": 987.203125
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "summary-owner",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "split-root-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "split-root-workarea",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1146,
+        "height": 987.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "shell-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "shell-workarea",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1672,
+        "height": 987.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "size",
+      "containerName": "conversation-tools",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "personal-workarea"
+      },
+      "slot": [
+        "1165px",
+        "122px",
+        "495px",
+        "853.203125px"
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "personal-workarea",
+      "box": {
+        "x": 248,
+        "y": 92.796875,
+        "width": 1672,
+        "height": 987.203125
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "DIV",
+        "className": "workspace-layout-workarea"
+      },
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "workspace-layout-workarea",
+      "box": {
+        "x": 248,
+        "y": 0,
+        "width": 1672,
+        "height": 1080
+      },
+      "position": "relative",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "BODY",
+        "className": ""
+      },
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "app-shell    has-right-panel ",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "BODY",
+        "className": ""
+      },
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "tag": "DIV",
+      "className": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": {
+        "tag": "BODY",
+        "className": ""
+      },
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "tag": "BODY",
+      "className": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": null,
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "tag": "HTML",
+      "className": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1080
+      },
+      "position": "static",
+      "contain": "none",
+      "containerType": "normal",
+      "containerName": "none",
+      "transform": "none",
+      "translate": "none",
+      "scale": "none",
+      "rotate": "none",
+      "filter": "none",
+      "backdropFilter": "none",
+      "perspective": "none",
+      "willChange": "auto",
+      "contentVisibility": "visible",
+      "clipPath": "none",
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "clientLeft": 0,
+      "clientTop": 0,
+      "scrollLeft": 0,
+      "scrollTop": 0,
+      "offsetParent": null,
+      "slot": [
+        "",
+        "",
+        "",
+        ""
+      ]
+    }
+  ]
+}

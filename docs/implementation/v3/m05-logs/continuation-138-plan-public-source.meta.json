@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/plan-timeline-ui.test.ts",
+      "tests/public-source.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T00:17:09.409431+00:00",
+    "endedAt": "2026-11-16T00:17:15.133304+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-plan-public-source.log",
+    "logDigest": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 5720,
+  "rawOutputBytes": 231,
+  "rawOutputSha256": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7",
+  "excerptInputBytes": 231,
+  "excerptInputSha256": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

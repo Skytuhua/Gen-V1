@@ -1,0 +1,652 @@
+{
+  "schemaVersion": 1,
+  "kind": "HISTORICAL_INDEPENDENT_M05_REQUIREMENT_REVIEW",
+  "recordedAt": "2026-11-15T22:17:55.979526+00:00",
+  "status": "SOURCE_COVERAGE_REVIEW_COMPLETE_EVIDENCE_PARTIAL",
+  "reviewedAcceptedBase": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+  "reviewedHeadAtStart": "4ff48c43699c8c1500a74b4eea9f67f506c57a15",
+  "reviewedUncommittedCoreAndWorkspaceBytesNowCommittedAt": "a76187aa450e1a90577e3077a42c3799473dc4ac",
+  "bindingMethod": "Source review was completed before the subsequent accepted-main 4941 merge. Bindings below are freshly reconstructed from immutable a76187aa, which records the previously reviewed core/App/workspace bytes. They are historical, not current 4941 merge execution proof. Native helper was separately reviewed at SHA26073e70 and is not represented by the older helper in a76187aa.",
+  "prompt": {
+    "upload": {
+      "ref": "/workspace/scratch/36f66011d961/upload/Pasted markdown(5).md",
+      "bytes": 32849,
+      "sha256": "1a2ddf83497f6e454c0982aa71c1a99df39df3cb4c0a4987da50c46f86bb8bbd"
+    },
+    "storedSpec": {
+      "ref": "/workspace/scratch/36f66011d961/m05-restored/docs/implementation/v3/M05-spec.md",
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee"
+    },
+    "comparisonMethod": "This review compared the M05 section after stripping trailing newlines and found equality. Root separately preserved exact 15385-byte extraction proof; it is not overwritten."
+  },
+  "implementationSteps": [
+    {
+      "id": 1,
+      "specLine": 45,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Separate host memory; task notes, learning and skills unchanged; Hermes global memory remains disabled.",
+      "sourceRefs": [
+        "packages/core/project-memory.ts:35-85",
+        "packages/core/task-memory.ts",
+        "packages/core/learning.ts",
+        "packages/core/skills.ts",
+        "packages/runtime-hermes/worker.py:219,604"
+      ],
+      "testRefs": [
+        "tests/project-memory-v3.test.ts",
+        "tests/task-memory.test.ts"
+      ]
+    },
+    {
+      "id": 2,
+      "specLine": 47,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Physical profile/project/account binding, explicit project/source opt-in and authenticated project-only preference confirmation. Automatic global preferences and cross-project sharing remain disabled.",
+      "sourceRefs": [
+        "packages/core/project-memory.ts:174-281,464-530",
+        "apps/web/src/ProjectMemoryReview.tsx:100-107,147-158"
+      ],
+      "testRefs": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-native-file-capture-v3.test.ts"
+      ]
+    },
+    {
+      "id": 3,
+      "specLine": 49,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Immutable revision rows and CAS edits preserve provenance and competing conflicts; resolution explicitly chooses one or two survivors with a note.",
+      "sourceRefs": [
+        "packages/core/project-memory.ts:285-320,497-530"
+      ],
+      "testRefs": [
+        "tests/project-memory-v3.test.ts"
+      ]
+    },
+    {
+      "id": 4,
+      "specLine": 51,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Authorized current accepted nonexpired items, tombstone/source checks, project/symbol overlap then recency/stable ID, eight-item and complete serialized 4KiB cap.",
+      "sourceRefs": [
+        "packages/core/memory-retrieval.ts:85-167",
+        "packages/core/project-memory-host.ts:62-90,109-145"
+      ],
+      "testRefs": [
+        "tests/memory-retrieval-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "id": 5,
+      "specLine": 53,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "M04 token/generation captures the source selection; unsent-only exclusion, owner/draft invalidation, final post-await synchronous authority assertion and 750ms bounded foreground wait.",
+      "sourceRefs": [
+        "packages/core/memory-retrieval.ts:170-269",
+        "packages/core/project-memory-host.ts:72-145",
+        "packages/core/service.ts:1023-1032",
+        "apps/web/src/useProjectMemoryPreparation.ts"
+      ],
+      "testRefs": [
+        "tests/memory-retrieval-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    },
+    {
+      "id": 6,
+      "specLine": 55,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Explicitly disabled optional provider adapter has approved-provider/egress gates, per-profile/project/account/provider circuits, one pending request, bounded keys/capacity and occupancy retained until actual orphan settlement.",
+      "sourceRefs": [
+        "packages/core/memory-retrieval.ts:272-388"
+      ],
+      "testRefs": [
+        "tests/memory-retrieval-v3.test.ts"
+      ]
+    },
+    {
+      "id": 7,
+      "specLine": 57,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Settled outbox-drained authorized source cut; exact references and secret rejection; decisions/facts/constraints/procedures and unresolved-work distinctions; production proposals only. Preferences require separate user confirmation. Ephemeral tool-free Pi session, shared account/provider scheduling, final dispatch fences and durable pending usage preserve scope and cost uncertainty.",
+      "sourceRefs": [
+        "packages/core/project-memory.ts:335-384",
+        "packages/core/memory-consolidation.ts:299-339",
+        "packages/core/memory-extraction.ts",
+        "packages/core/project-memory-host.ts:189-263",
+        "apps/server/hermes-service.ts:33",
+        "packages/runtime-pi/session.ts:33-45",
+        "packages/runtime/model-only.ts:19-28"
+      ],
+      "testRefs": [
+        "tests/memory-extraction-runtime-v3.test.ts",
+        "tests/memory-extraction-scheduler-v3.test.ts",
+        "tests/memory-extraction-native-v3.test.ts"
+      ]
+    },
+    {
+      "id": 8,
+      "specLine": 59,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "One reference-only derived index per profile/project/account; accepted revision digest/output skip; lease token/expiry/watermark and current snapshot fences at provider dispatch and synchronous publication; cancellation retains actual-call capacity. Production consolidation is local.",
+      "sourceRefs": [
+        "packages/core/memory-consolidation.ts:123-258",
+        "packages/core/project-memory.ts:285-331",
+        "packages/core/project-memory-host.ts:51-58,233-245"
+      ],
+      "testRefs": [
+        "tests/memory-consolidation-v3.test.ts",
+        "tests/memory-forget-v3.test.ts"
+      ]
+    },
+    {
+      "id": 9,
+      "specLine": 61,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Host checkpoint persists accepted constraints/decisions and source references before native compaction, with exact model/account/run/session checks. Pinned Pi hook and Hermes source/version gate fail required unsupported or failed persistence; unopted native behavior is retained.",
+      "sourceRefs": [
+        "packages/core/project-memory-host.ts:171-188",
+        "packages/core/project-memory.ts:424-443",
+        "packages/core/memory-consolidation.ts:341-408",
+        "packages/runtime-pi/memory-checkpoint.ts",
+        "packages/runtime-hermes/memory_checkpoint.py",
+        "packages/runtime/index.ts",
+        "packages/runtime-hermes/index.ts"
+      ],
+      "testRefs": [
+        "tests/memory-native-checkpoint-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/account-parity.test.ts"
+      ]
+    },
+    {
+      "id": 10,
+      "specLine": 63,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Authenticated revision-bound Forget persists external sibling deletion fence before synchronous Store mutation, immediately excludes item/source and invalidates derived entries. Bounded seven-day local-copy purge records completion only after physical/WAL conditions; supported old DB/profile replays cannot resurrect claims. Original history remains; external deletion is NOT_SUPPORTED.",
+      "sourceRefs": [
+        "packages/core/project-memory.ts:44-130,293-323,460-496,531-576",
+        "apps/server/project-memory-routes.ts:44-59"
+      ],
+      "testRefs": [
+        "tests/memory-forget-v3.test.ts",
+        "tests/memory-storage-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "id": 11,
+      "specLine": 65,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Ten offline cases cover all required topics. Study runner requires supplied host/model/project and fresh output, compares thread-note-only control with memory and records correctness/usefulness proxy, injection bytes, retrieval latency and all known auxiliary spend. Retained result is MANIFEST_ONLY with null quality/cost metrics.",
+      "sourceRefs": [
+        "evals/fixtures/project-memory-v3.json",
+        "evals/project-memory-study.ts",
+        "packages/core/project-memory.ts:387-423",
+        "packages/core/service.ts:1473-1500"
+      ],
+      "testRefs": [
+        "tests/memory-study-v3.test.ts"
+      ]
+    },
+    {
+      "id": 12,
+      "specLine": 67,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Personal session/origin/CSRF actions exclusively own review; agents propose only. Memory is CONTEXT_ONLY evidence, not permission. Both finite M05 flags default false; rollback retains reviewable records/tombstones and stops injection/extraction.",
+      "sourceRefs": [
+        "apps/server/server.ts:66-99,193",
+        "apps/server/project-memory-routes.ts:14-59",
+        "packages/core/project-memory.ts:444-530",
+        "packages/core/capability-flags.ts",
+        "packages/core/memory-retrieval.ts:71-84"
+      ],
+      "testRefs": [
+        "tests/project-memory-http-v3.test.ts",
+        "tests/project-memory-v3.test.ts"
+      ]
+    }
+  ],
+  "uiRequirements": [
+    {
+      "id": 1,
+      "specLine": 71,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Four named tabs and row metadata; exact immutable source detail with server authority and client body-digest verification.",
+      "sourceRefs": [
+        "apps/web/src/ProjectMemoryReview.tsx:10,111-145",
+        "apps/web/src/project-memory-api.ts:40-57",
+        "packages/core/project-memory.ts:444-459"
+      ],
+      "testRefs": [
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    },
+    {
+      "id": 2,
+      "specLine": 73,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Accept, Edit and accept, Reject; revision-bound editor and explicit conflict survivor/both-with-note resolution.",
+      "sourceRefs": [
+        "apps/web/src/ProjectMemoryReview.tsx:52-80,130-169",
+        "packages/core/project-memory.ts:497-530"
+      ],
+      "testRefs": [
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    },
+    {
+      "id": 3,
+      "specLine": 75,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Forget preview lists affected derived artifacts and immediate versus pending purge. Explicit host-redacted export uses browser Blob initiation or strict native one-use download; native saved status requires actual done/completed bytes, no silent fallback. Exact legitimate main/thread/plan/workspace bindings are admitted; plugin/browser surfaces denied.",
+      "sourceRefs": [
+        "apps/web/src/ProjectMemoryReview.tsx:82-97,123-127",
+        "apps/web/src/project-memory-api.ts:74-104",
+        "packages/core/project-memory.ts:460-463,572-576",
+        "apps/desktop/memory-export.ts",
+        "apps/desktop/main.ts",
+        "apps/desktop/preload.ts"
+      ],
+      "testRefs": [
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    },
+    {
+      "id": 4,
+      "specLine": 77,
+      "coverage": "IMPLEMENTED_PATH_REVIEWED",
+      "finding": "Why recalled exposes scope and source; exclusion changes only the current unsent preparation. Sending carries the same immutable request identity, and captured recall cannot be edited.",
+      "sourceRefs": [
+        "apps/web/src/ContextInspector.tsx:149-155",
+        "apps/web/src/useProjectMemoryPreparation.ts",
+        "apps/web/src/project-memory-preparation.ts",
+        "apps/web/src/App.tsx:412",
+        "packages/core/project-memory-host.ts:103-145"
+      ],
+      "testRefs": [
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "apps/desktop/main.ts",
+      "gitBlobSha": "75a8b98d5e8468e24be8ae40ca00b466c640daf1",
+      "bytes": 55919,
+      "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "gitBlobSha": "18c6d593e07c5f1d6703436b3b4d19619a9e6b24",
+      "bytes": 3936,
+      "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0"
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "gitBlobSha": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af",
+      "bytes": 4153,
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381"
+    },
+    {
+      "path": "apps/server/project-memory-routes.ts",
+      "gitBlobSha": "831de697aa0961028c5d91874a45a1d2dee51b3c",
+      "bytes": 5818,
+      "sha256": "60f6e4e9d6ff04fe35f6935cac902b917989c40fe96de6432851e9532b33cb02"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "gitBlobSha": "cd788ed0412870fde971a0f62104203ff4b017d3",
+      "bytes": 28344,
+      "sha256": "121b245641033ceae65184d1ebb801e2156e8dda14e7b4ac59f689751361d303"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "gitBlobSha": "1aad429c3b1f1da677e1e9d0ec6862ceb527d2f2",
+      "bytes": 154712,
+      "sha256": "1316968eca5184a032741f4a8adc40fe5c26f35ec3281d92ea1654e908cfae59"
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "gitBlobSha": "0548641327ee0b0e728e3a8d031095e8cb5a658a",
+      "bytes": 13617,
+      "sha256": "ac7553af4321cc87663e9e7b3bafe97515e4dea4d7233b90ee7d9bde5c204677"
+    },
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "gitBlobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a",
+      "bytes": 21955,
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "gitBlobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0"
+    },
+    {
+      "path": "apps/web/src/project-memory-preparation.ts",
+      "gitBlobSha": "ea5a90610481baa1a1059700a79b2762a459506e",
+      "bytes": 4656,
+      "sha256": "85bd333a0edff8fca8cba8135289ca022a4ddc49638027ed814faf927c635e46"
+    },
+    {
+      "path": "apps/web/src/useProjectMemoryPreparation.ts",
+      "gitBlobSha": "253a64d1b9a55fbfd84ad51683020c87329c7afe",
+      "bytes": 2230,
+      "sha256": "9db725a05016eba31a564cde2209a824a62594b79f719116a945168155f018f9"
+    },
+    {
+      "path": "evals/fixtures/project-memory-v3.json",
+      "gitBlobSha": "23e79220aedd551b21e07b95aeebd96231bde728",
+      "bytes": 7939,
+      "sha256": "741ef55807797f0d98e0514ccbf7fd79e5fc1955ef10829f8f9e7c2428559b3e"
+    },
+    {
+      "path": "evals/project-memory-study.ts",
+      "gitBlobSha": "3964744bb135e52347813612ebd094b5d630907a",
+      "bytes": 26188,
+      "sha256": "7ccdaddbee7532982ab41c0aedfcea2c8961b20a8ddffb7bffaedfabb809cbd0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "gitBlobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41"
+    },
+    {
+      "path": "packages/core/learning.ts",
+      "gitBlobSha": "dfc53335151a50d87912de17f7a19166491dd3bc",
+      "bytes": 8958,
+      "sha256": "fd8f9c0300752a1bf4d6b90268e17b1802f693212910b4c03b31cab748a100a7"
+    },
+    {
+      "path": "packages/core/memory-consolidation.ts",
+      "gitBlobSha": "845fadf4329da01e1c39c3cd85fd79daf5711439",
+      "bytes": 27956,
+      "sha256": "c27c22384b3739e3499922416c5d41818ea708c8fccae94228b591f9b14cb073"
+    },
+    {
+      "path": "packages/core/memory-extraction.ts",
+      "gitBlobSha": "f830401bc2e76e20105fa79a93287bc48c7cb8d6",
+      "bytes": 14935,
+      "sha256": "93cd4a69b00dedcc26a2afbe2a2025878256c5a24997885b964884ea74cef9ee"
+    },
+    {
+      "path": "packages/core/memory-retrieval.ts",
+      "gitBlobSha": "85b8ca85a57b5033cf5178ebb112d9ac809c4c79",
+      "bytes": 26823,
+      "sha256": "e3f88f9bc94dfcad6404be75b64c2ffeb16b7978997683f660767ead71e73e83"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "gitBlobSha": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c",
+      "bytes": 22162,
+      "sha256": "8a522f1ca2b33d1968f921e19b6d972cbaf5bf52ed781efc0e0ccc27f7ab5809"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "gitBlobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b",
+      "bytes": 63143,
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "gitBlobSha": "d15a6bfb9bbdf81018cf7756851cd3c233525cae",
+      "bytes": 150475,
+      "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451"
+    },
+    {
+      "path": "packages/core/skills.ts",
+      "gitBlobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae",
+      "bytes": 20032,
+      "sha256": "6288dfc57a0520774c2e8c1826cef69162dbe5777ce94996a510648716776ef0"
+    },
+    {
+      "path": "packages/core/task-memory.ts",
+      "gitBlobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "bytes": 2903,
+      "sha256": "e3f0ae02e787d0ec1463199014a39a5301e3ab5b60cecf6a02cf031b4fb44786"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "gitBlobSha": "801a47a3760af4a59274d75488b8af67744f76b3",
+      "bytes": 39038,
+      "sha256": "59ca3d23177e8f1f9015d7c28d2159aed813cff19525675d12439635aef98d07"
+    },
+    {
+      "path": "packages/runtime-hermes/memory_checkpoint.py",
+      "gitBlobSha": "e68ad8bab9fbf0eb0272b481e0a32cdacfd59300",
+      "bytes": 4586,
+      "sha256": "a10ff9887305d977a2eb0ceb54b700373e43a15cc079905485a482e42f835cff"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "gitBlobSha": "c736b8a9165b8265b6de527021d50f8068900549",
+      "bytes": 80043,
+      "sha256": "f8eaa6ee240226645f5c99c5e30d8fbd769da3a689cfad43ccbdbad1a5e8bc62"
+    },
+    {
+      "path": "packages/runtime-pi/memory-checkpoint.ts",
+      "gitBlobSha": "eeb370eb8365200b13b06559da9ca3e04a18cce0",
+      "bytes": 2647,
+      "sha256": "5f430e0c87917ba6b66e5a4a02dfe8eb9caa8de0a144f18aec7935f7db558988"
+    },
+    {
+      "path": "packages/runtime-pi/session.ts",
+      "gitBlobSha": "045c142cbaad8d58499e21492ac901b5ee191f99",
+      "bytes": 2693,
+      "sha256": "9d97c4b84a4eb532a676a06742d4a4998374338e7d8209625df4a592a5f97da3"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "gitBlobSha": "b2cd7c14bb9ac6037e6564c724d363e4528e0f0e",
+      "bytes": 16993,
+      "sha256": "0d30825a2ec4983951e332a59e13131130364823179e12d0d4bc4fac1f9b675b"
+    },
+    {
+      "path": "packages/runtime/model-only.ts",
+      "gitBlobSha": "0a935e18dc10dc3f586967654829f351a7167b5d",
+      "bytes": 4354,
+      "sha256": "9f03722847039504ce4f36bd6c04b3f4abb9fcaa1265ffffe1b016605bc32ffe"
+    },
+    {
+      "path": "tests/account-parity.test.ts",
+      "gitBlobSha": "a1249944b3c65a976ab6a4c52bd954a3063c4968",
+      "bytes": 11733,
+      "sha256": "d95e253dd706798d66fa61f0c17419418b056f662cb1283f317911bcae038dc2"
+    },
+    {
+      "path": "tests/desktop-memory-export.test.ts",
+      "gitBlobSha": "327a3c4e8a07411f0f5b5866597120b1078a4c24",
+      "bytes": 17324,
+      "sha256": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f"
+    },
+    {
+      "path": "tests/e2e/project-memory.spec.ts",
+      "gitBlobSha": "2784d460b64476cee01dd2ee207923a881ffe0df",
+      "bytes": 23572,
+      "sha256": "e4d86fa4d01ff6e17ef886312af43bf0f4beed41e515144c39b79b5a64b60285"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "gitBlobSha": "63a217a7f0850f68b93f848c49ea2b0dd6540519",
+      "bytes": 10247,
+      "sha256": "3278040d888e48774abb6f77971d57003bc5c9f037b90d6ec9eb72966a0c95c3"
+    },
+    {
+      "path": "tests/e2e/workspace-components-fixture.tsx",
+      "gitBlobSha": "2a49a18b1664ee0a3f15e69a8e1919b75a4880db",
+      "bytes": 6171,
+      "sha256": "18b15f6646baeac6bd2c0d84923df32adc86e77322880539301f74dbf67e0327"
+    },
+    {
+      "path": "tests/e2e/workspace-components.spec.ts",
+      "gitBlobSha": "f0a0adfb934f9280e144528dd021cfa3786d07d8",
+      "bytes": 6742,
+      "sha256": "fe66ea00271e4258fd7483fd7a6cfa129b77f979fa336f26fc5f3a2c1ba903d7"
+    },
+    {
+      "path": "tests/e2e/workspace-ui.spec.ts",
+      "gitBlobSha": "a7cbf2d0a010fba88f919b31669284ee81b8937b",
+      "bytes": 41360,
+      "sha256": "77b1631955f48708789a2bfdf29f753efb20d00d383b6567de3438bae83e18f0"
+    },
+    {
+      "path": "tests/memory-consolidation-v3.test.ts",
+      "gitBlobSha": "9b8b37f5e35b5859664411665cbfe405eb8922c5",
+      "bytes": 34397,
+      "sha256": "fa54168474c033567b3ac65ca490bdc4c8abfbfc975b0d15406d2fc1d5f00b14"
+    },
+    {
+      "path": "tests/memory-export-client-v3.test.ts",
+      "gitBlobSha": "a3a2104b6f02594dc5686805e6e3c9839ee02550",
+      "bytes": 5349,
+      "sha256": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8"
+    },
+    {
+      "path": "tests/memory-extraction-native-v3.test.ts",
+      "gitBlobSha": "f4942b3e9f5368f3c8c798d55e6f80cd2cc9c9c8",
+      "bytes": 6600,
+      "sha256": "4205c095e7467f43d82b855b96cf9f07c34eb72fa16d791585b884fed212d4ec"
+    },
+    {
+      "path": "tests/memory-extraction-runtime-v3.test.ts",
+      "gitBlobSha": "d88c161dc718d551807349147023917a28b861d8",
+      "bytes": 14532,
+      "sha256": "d9453101c1f9a4cf1bc6b6e07dd44355b23abf4241ff392a02c48bab1d6b7dd3"
+    },
+    {
+      "path": "tests/memory-extraction-scheduler-v3.test.ts",
+      "gitBlobSha": "7797be3ab599c8623a0110445086976bccf8d6ad",
+      "bytes": 17066,
+      "sha256": "0ee0b1ba7685212252f89a17b9d87f0d8affd2c09b9c73109fd86d4212dc2e32"
+    },
+    {
+      "path": "tests/memory-forget-v3.test.ts",
+      "gitBlobSha": "0ad7f99460947f22fc2ab2013948c7b17e090afd",
+      "bytes": 15338,
+      "sha256": "fdcb400a721b1e7ca07632e5fc96ed396aedad131ebf0fffd7279197789b4851"
+    },
+    {
+      "path": "tests/memory-native-checkpoint-v3.test.ts",
+      "gitBlobSha": "296c0e2e7430b16352f24970126b207038b8b088",
+      "bytes": 16014,
+      "sha256": "f014d42f752a480fea6f103f17f41c697bdccacf0658ed1dd84c3f18f1d37b70"
+    },
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "gitBlobSha": "c2bc4a908a46e6daa454879b7ba3c11a99c73f69",
+      "bytes": 7623,
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5"
+    },
+    {
+      "path": "tests/memory-retrieval-v3.test.ts",
+      "gitBlobSha": "197a97a4384a7e812dbd2487c08b55ced89ce889",
+      "bytes": 24620,
+      "sha256": "58dc7e453dd8132cae59509f6206c1685bd3722d59a72f0e35d7981687eb6225"
+    },
+    {
+      "path": "tests/memory-storage-boundary-v3.test.ts",
+      "gitBlobSha": "21b823f771d85e8cf0c57e0250350dbe7714e849",
+      "bytes": 6602,
+      "sha256": "0a90a4109dd7ad62bd985b85e04053cbb8c7fb92488eda37a8de81d101fa0919"
+    },
+    {
+      "path": "tests/memory-study-v3.test.ts",
+      "gitBlobSha": "348b6566c2fe4ca634c26acffd66f98cfe318bc5",
+      "bytes": 13344,
+      "sha256": "0cc14fa68aebb20b58f8171642204198d2a02465114a6101b540770acade1f4f"
+    },
+    {
+      "path": "tests/project-memory-http-v3.test.ts",
+      "gitBlobSha": "f455cbb6d24c5e5ef440ca80a278c6942929770e",
+      "bytes": 5581,
+      "sha256": "d92c9a7006535e9b0c465736ba8da6451cb10ee77ffd397e018efb7456ec7ee6"
+    },
+    {
+      "path": "tests/project-memory-service-v3.test.ts",
+      "gitBlobSha": "22f01ffc044f64ec1eb43df9d8467969a53c259f",
+      "bytes": 36512,
+      "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0"
+    },
+    {
+      "path": "tests/project-memory-v3.test.ts",
+      "gitBlobSha": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46",
+      "bytes": 9090,
+      "sha256": "ed593877bc75d583751099a8e8056cf7104a1314ca905e2c021e2aa7ee544969"
+    },
+    {
+      "path": "tests/task-memory.test.ts",
+      "gitBlobSha": "2ada92f323eda1d39131c3a5a17835392f857cac",
+      "bytes": 4912,
+      "sha256": "88700d6a8a8a2021b54527686c043315a58efd42e98ab7cc00a7db24d5ca5313"
+    }
+  ],
+  "deltaReview": {
+    "App": "The embedded tool forwarder captures view.binding and preserves exact conversation ownership while targeting the shared tools panel. Duplicate embedded panels are suppressed without changing memory API/preparation authority.",
+    "browserFixtures": "Real split reducer/current components, owner/cancellation/draft/rollback assertions retained. Canvas pin and native bridge callbacks remain synthetic component evidence. Final 33-pass log was read; fixture hashes were captured immediately before the run and remain unchanged per UI reviewer. Reporter source locations are not used as source anchors.",
+    "nativeHelper": {
+      "sha256": "26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741",
+      "change": "Bounded exact-owned-PID EnumWindows to UIA FromHandle replaces the proven incomplete RootElement.Children scan. Exact owner/title/type/control IDs, stable handle, path lease, ambiguity checks and deadlines remain.",
+      "actualFullInstalledProof": "PENDING"
+    }
+  },
+  "execution": {
+    "lastFullRun": 43760736519,
+    "status": "FAIL",
+    "head": "013c044d66f40136752df4f1903132d601d57851",
+    "tree": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "checkout": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "successfulJobs": 8,
+    "failedJobs": 1,
+    "receipt": {
+      "ref": "/workspace/scratch/36f66011d961/m05-installed-admission-v2/ci-receipt.json",
+      "bytes": 44339,
+      "sha256": "8f651e988187a2ce70a657b9b2878c632c0616e6509f1c61e973344b1e5673dc"
+    },
+    "installedFailure": "Native Save refused: dialog-timeout. Source/default-off/edit/accept/reject were reached; export readback, Forget, second launch and post-exit retention admission were not reached.",
+    "actualInstalledReview": {
+      "ref": "/workspace/scratch/36f66011d961/M05-installed-independent-phase-review-43760736519.json",
+      "bytes": 35672,
+      "sha256": "ed41a38e03d07e3c075e3461d63595a11d6a0aeca2dd16c6a81d870f7433a665"
+    },
+    "actualUiReview": {
+      "ref": "/workspace/scratch/36f66011d961/M05-installed-ui-review-43760736519.json",
+      "bytes": 25170,
+      "sha256": "0c7becc947fb7c38e31afb164182e134946ce6c303740eb72133e12b2ac80328"
+    },
+    "localWorkspace": {
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-workspace-final-check.log",
+        "bytes": 5627,
+        "sha256": "4b2ef26dc274fbadba7abd9d807ae29f39c91a7aae62e66e93650dd0e4af7f4e"
+      },
+      "observedSummary": "33 passed (1.9m)",
+      "scope": "Local authored browser fixture evidence only; no native/installed inference."
+    },
+    "newCommandsRunByThisReview": []
+  },
+  "remainingGates": [
+    "New exact combined-source full CI after accepted-main advancement.",
+    "Completed installed default-off native Save/file readback/Forget/two-launch retention/cleanup admission.",
+    "Full enabled installed memory remains NOT_RUN.",
+    "Live repeated-task quality and total auxiliary cost remain NOT_RUN; retained study is MANIFEST_ONLY.",
+    "External recall experiment remains disabled; no live embedding or deletion API admitted.",
+    "Final evidence must refresh accepted base/source contracts and preserve every failure; unchanged verifier must actually execute."
+  ],
+  "activation": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false
+  },
+  "concreteUnresolvedImplementationFindings": [],
+  "verdict": "No additional missed implementation requirement was found across all 12 steps and four UI requirements at this historical bc5 cut. This is source coverage, not a full implementation/activation PASS. Bundle PARTIAL and failed current installed evidence are preserved. The later 4941 accepted-main merge requires a separate compatibility/lock review."
+}

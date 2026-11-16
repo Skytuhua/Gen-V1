@@ -1,0 +1,47 @@
+[WebServer] (node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 28 tests using 1 worker
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/28] tests/e2e/artifact-style.spec.ts:555:34 › long email choices retain readable width and compact navigation at 1440px
+[2/28] tests/e2e/artifact-style.spec.ts:555:34 › long email choices retain readable width and compact navigation at 960px
+[3/28] tests/e2e/artifact-style.spec.ts:596:1 › new composition schemas are strict, bounded and preserve stable step identities
+[4/28] tests/e2e/artifact-style.spec.ts:676:1 › current question and mapped form values survive expansion, thread switching and reload
+[5/28] tests/e2e/artifact-style.spec.ts:755:1 › the initial question persists its default step and focuses its matching PDF field
+[6/28] tests/e2e/artifact-style.spec.ts:772:1 › bound relationships expose source status and map the selected stable node to actions
+[7/28] tests/e2e/artifact-style.spec.ts:815:1 › status reads actual host operation states and keeps receipt details available
+[8/28] tests/e2e/artifact-style.spec.ts:902:1 › connected FAQ branches and follow-up draft retain independent state
+[9/28] tests/e2e/artifact-style.spec.ts:935:1 › capture synthetic signing, operations and FAQ against supplied reference compositions
+[10/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px
+[11/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1024px
+[12/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1440px
+[13/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 768px
+[14/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1024px
+[15/28] tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1440px
+[16/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px
+[17/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px
+[18/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px
+[19/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px
+[20/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px
+[21/28] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px
+[22/28] tests/e2e/document-smoothness.spec.ts:352:1 › inline field and signature navigation pans while edits retain the same frame and Fit page shows the whole page
+[23/28] tests/e2e/document-smoothness.spec.ts:454:1 › a nearby PDF field settles promptly and stops requesting scroll work at rest
+[24/28] tests/e2e/document-smoothness.spec.ts:469:1 › manual PDF scrolling owns the viewport through background rerender and resize until the next field choice
+[25/28] tests/e2e/document-smoothness.spec.ts:501:1 › manual scrolling after a zoom choice wins over its still-preparing candidate
+[26/28] tests/e2e/document-smoothness.spec.ts:524:1 › rapid same-page choices retain one preview and move toward the latest field without a viewport jump
+[27/28] tests/e2e/document-smoothness.spec.ts:564:1 › reduced motion applies PDF focus without a travelling scroll or continuing frame loop
+[28/28] tests/e2e/document-smoothness.spec.ts:586:1 › the focus highlight identifies the new field instead of floating through unrelated document text
+  1 skipped
+  27 passed (2.5m)

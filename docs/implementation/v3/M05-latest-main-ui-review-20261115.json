@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "review": "M05 compatibility after accepted main 4941b744 merge",
+  "createdAt": "2026-11-15T22:21:21.325981+00:00",
+  "status": "READ_ONLY_REVIEW_ACCEPTED; LOCAL_WORKSPACE33_AND_FULL_TYPECHECK_PASS",
+  "priorReview": {
+    "path": "/workspace/scratch/36f66011d961/M05-accepted-main-ui-repair-review-20261115-final.json",
+    "bytes": 26310,
+    "sha256": "b28c4cdedecfa3bfd2ddf5144abe08de3f53c8fc7fbf418e22178777536b49e8",
+    "gitBlobSha": "eae71da2984b0135e40583bef73c004844927952"
+  },
+  "sourceContext": {
+    "previousAcceptedMain": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "acceptedMain": "4941b74496c808b5318888ca6b68378c3329b87e",
+    "uiRepairCommit": "a76187aa450e1a90577e3077a42c3799473dc4ac",
+    "localMergeCommit": "8fddb569d73ca33041be085da2b0ee9119d77f52",
+    "localMergeTree": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+    "workingDiffSha256": "acd454b501efe87e7fd60ce5222742c51a1c4bce7b35d88ae07574c21a3b7b29",
+    "workingDifference": "The separate native Save helper repair is still uncommitted and checksum-bound below. The UI repair files and new fixture are tracked in the merge. These are local captured checks, not a published Windows CI result."
+  },
+  "sources": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 155173,
+      "sha256": "64d2bc115dcda75156b5dcb26d5b84fdcc59967b4ea1f190c518c62606a1acf0",
+      "gitBlobSha": "a0ed6009a0fb5fa2746a7fd3ec93daa2b4ac6be4"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 27834,
+      "sha256": "d8de56ece0803e2b6b334a2394f72b0295542499a69f1b49973f6289079c0e3b",
+      "gitBlobSha": "d9512f6edc87a250ef900eb90f6a125a158f3e25"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25191,
+      "sha256": "26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741",
+      "gitBlobSha": "67bf25bec79ec2b64a013ca469b95522668d04d4"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 10247,
+      "sha256": "3278040d888e48774abb6f77971d57003bc5c9f037b90d6ec9eb72966a0c95c3",
+      "gitBlobSha": "63a217a7f0850f68b93f848c49ea2b0dd6540519"
+    },
+    {
+      "path": "tests/e2e/workspace-ui.spec.ts",
+      "bytes": 41360,
+      "sha256": "77b1631955f48708789a2bfdf29f753efb20d00d383b6567de3438bae83e18f0",
+      "gitBlobSha": "a7cbf2d0a010fba88f919b31669284ee81b8937b"
+    },
+    {
+      "path": "tests/e2e/workspace-components.spec.ts",
+      "bytes": 6742,
+      "sha256": "fe66ea00271e4258fd7483fd7a6cfa129b77f979fa336f26fc5f3a2c1ba903d7",
+      "gitBlobSha": "f0a0adfb934f9280e144528dd021cfa3786d07d8"
+    },
+    {
+      "path": "tests/e2e/workspace-components-fixture.tsx",
+      "bytes": 6171,
+      "sha256": "18b15f6646baeac6bd2c0d84923df32adc86e77322880539301f74dbf67e0327",
+      "gitBlobSha": "2a49a18b1664ee0a3f15e69a8e1919b75a4880db"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 137640,
+      "sha256": "81020e42b16e61a28bc09d4cc588a5991a8c994c5af338862b5f7029c90f6a17",
+      "gitBlobSha": "6c687ad7d242f0cb42e95b653884b0ea53c20a52"
+    }
+  ],
+  "reviewFindings": [
+    {
+      "area": "App tool owner and panel lifetime",
+      "result": "No concrete merge conflict. The hostWorkspaceContext gate still suppresses embedded duplicate panels. renderConversationView captures view.binding, and custom/different/remote owner actions use existing openSplitTool with that explicit binding. Ordinary main actions keep the shared panel."
+    },
+    {
+      "area": "App Stop action",
+      "result": "The accepted-main shortcut reads the focused placed-thread owner from snapshotRef and otherwise uses the current model thread. Embedded workspaces do not install a second global shortcut listener. The added Stop logic does not replace or weaken the explicit tool owner binding."
+    },
+    {
+      "area": "Connect project lifecycle",
+      "result": "Opening clears its local error; closing clears the captured target. Async completion and error publication require the same target object. Existing project/thread ownership validation and draft/focus tests remain."
+    },
+    {
+      "area": "host-loop conflict",
+      "result": "The resolved test retains the new exact rationale locator, visible ten-character help and matching accessible description. It also preserves role=status for the actual schema error and all pending request, delivery-count, runtime-owner, accepted-response, stale-response and reload assertions. Source has320CRLF lines and no lone LF; it was not normalized."
+    },
+    {
+      "area": "Modal and artifact changes",
+      "result": "Read the accepted focusability filter, artifact entrance and MotionRegion deltas. No concrete conflict with the memory modal or shared panel found. This bounded review does not claim every one of the98 changed main files was audited."
+    }
+  ],
+  "actualChecks": [
+    {
+      "label": "continuation-latest-main-workspace-check",
+      "caseCounts": {
+        "passed": 33,
+        "failed": 0,
+        "skipped": 0
+      },
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "tests/e2e/workspace.playwright.config.ts",
+          "--reporter=line",
+          "--trace",
+          "retain-on-failure",
+          "--output",
+          "/workspace/scratch/36f66011d961/m05-local-checks/continuation-latest-main-workspace-check-artifacts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-15T22:17:29.076160+00:00",
+        "endedAt": "2026-11-15T22:19:21.114051+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-latest-main-workspace-check.log",
+        "logDigest": "e9fa6a83a1fa63af1f1c3229ad8f1800906509d4a7475d08389f612fd6db16f0"
+      },
+      "elapsedMs": 112029,
+      "metadata": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-latest-main-workspace-check.meta.json",
+        "bytes": 1610,
+        "sha256": "9fcdabdcbb203c26a7444bd1be516d0729218b48d4bf2e37bbd2cec5866dfb3f",
+        "gitBlobSha": "faf45b1414983a12217a0f3c27f4cb37d6decb54"
+      },
+      "log": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-latest-main-workspace-check.log",
+        "bytes": 5627,
+        "sha256": "e9fa6a83a1fa63af1f1c3229ad8f1800906509d4a7475d08389f612fd6db16f0",
+        "gitBlobSha": "183dec5b1c7849d13dbf42e41062bfdadeaf79d5"
+      },
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "acd454b501efe87e7fd60ce5222742c51a1c4bce7b35d88ae07574c21a3b7b29",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    },
+    {
+      "label": "continuation-latest-main-typecheck",
+      "caseCounts": null,
+      "command": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-15T22:19:25.474553+00:00",
+        "endedAt": "2026-11-15T22:20:41.026977+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-latest-main-typecheck.log",
+        "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "elapsedMs": 75544,
+      "metadata": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-latest-main-typecheck.meta.json",
+        "bytes": 1305,
+        "sha256": "8f5bad1630b040a35252e55a5f40b7a7b9a2102735f1ed050133bcdb64cfa838",
+        "gitBlobSha": "30b1bffdc6c177daf1e40ab0cb6ceb2cb139bfdf"
+      },
+      "log": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-latest-main-typecheck.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+        "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+      },
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "acd454b501efe87e7fd60ce5222742c51a1c4bce7b35d88ae07574c21a3b7b29",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    }
+  ],
+  "reporterLineNumberResolution": {
+    "observation": "Actual cached transformed JavaScript declares tests at the exact expanded reporter lines, while each source-map sourcesContent hashes to the compact repository source. No repository formatting rewrite occurred.",
+    "bindings": [
+      {
+        "source": "tests/e2e/workspace-ui.spec.ts",
+        "sourceContentSha256": "77b1631955f48708789a2bfdf29f753efb20d00d383b6567de3438bae83e18f0",
+        "javascript": {
+          "path": "/tmp/playwright-transform-cache-1000/1a/1a4257977c_391a043_workspaceuispec.js",
+          "bytes": 188180,
+          "sha256": "39eaea74439cca66e4a6355ef59d789e9d74b3daac9a28edf499d50e597a1cfc",
+          "gitBlobSha": "17cab262a1cedae7599062862014a291b6f8ed0e"
+        },
+        "sourceMap": {
+          "path": "/tmp/playwright-transform-cache-1000/1a/1a4257977c_391a043_workspaceuispec.map",
+          "bytes": 102751,
+          "sha256": "e3d1b32f526fdbadca2c336676badb043c5edc5703e889ece10971971929bcf4",
+          "gitBlobSha": "d1498c4bd37a689db064da001bced5a95734b6db"
+        },
+        "observedTransformedDeclarations": [
+          {
+            "line": 403,
+            "titlePrefix": "primary Workspace keeps tools"
+          },
+          {
+            "line": 1269,
+            "titlePrefix": "a completed old project action"
+          }
+        ]
+      },
+      {
+        "source": "tests/e2e/workspace-components.spec.ts",
+        "sourceContentSha256": "fe66ea00271e4258fd7483fd7a6cfa129b77f979fa336f26fc5f3a2c1ba903d7",
+        "javascript": {
+          "path": "/tmp/playwright-transform-cache-1000/e0/e00290d83b_45e63b0_workspacecomponentsspec.js",
+          "bytes": 27438,
+          "sha256": "42ec097dd697227bdd5dee8d2b45193e96193acea02519dfbcd94db7979f03e4",
+          "gitBlobSha": "dfa704410a289d478ee498cf918bc1999bf80ecd"
+        },
+        "sourceMap": {
+          "path": "/tmp/playwright-transform-cache-1000/e0/e00290d83b_45e63b0_workspacecomponentsspec.map",
+          "bytes": 15100,
+          "sha256": "83f9c28c9544237d311dbadec4b65d02bd63bc4db6c120b9a0b9df7f59837da9",
+          "gitBlobSha": "3798652e298ebbb7a5eedbcd7b255024a8594597"
+        },
+        "observedTransformedDeclarations": [
+          {
+            "line": 61,
+            "titlePrefix": "automatic context-plan expansion"
+          }
+        ]
+      }
+    ]
+  },
+  "changesByThisReview": [],
+  "scopeLimits": [
+    "host-loop was source-reviewed here; its native host execution is not included in the33-case workspace command.",
+    "Workspace DesktopBridge and host callbacks remain synthetic even though Chromium execution is real.",
+    "The native Save helper, installed retention/restart/cleanup and provider/live gates require their separate actual evidence.",
+    "No full enabled installed M05 lifecycle or live repeated-task study PASS is claimed; feature flags remain false.",
+    "The prior review and every failed attempt remain immutable historical evidence.",
+    "No source, branch, ref or ledger mutation was performed by ui_audit for this latest-main review."
+  ]
+}

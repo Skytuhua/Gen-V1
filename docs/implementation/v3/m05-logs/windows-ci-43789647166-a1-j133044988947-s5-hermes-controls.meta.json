@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "python",
+      "-I",
+      "-S",
+      "-B",
+      "tests/hermes_atomic_controls.py",
+      "-v"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "python",
+    "startedAt": "2026-11-16T02:03:14Z",
+    "endedAt": "2026-11-16T02:03:19Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s5-hermes-controls.log",
+    "logDigest": "2210947992aef1a7a509085394bcb9f218ee27c7cc66d8002c48cc6bef6dcb9d"
+  },
+  "phaseIds": [
+    "INTEGRATION_NATIVE_CHECKPOINT"
+  ],
+  "runId": 43789647166,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "testedCheckout": {
+    "commitSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "parents": [
+      "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+    ],
+    "matchesPublishedTree": true,
+    "matchesPublishedCommit": true,
+    "event": "push",
+    "expectedBranch": "agent/m05-v3",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/299aa79fce281bacc370bd76373f760082046941",
+    "rawResponseSha256": "8c954e27bf7ed5f38a65db700112e0124262c8ff0e939f28ed2899b23388c0d4"
+  },
+  "job": {
+    "id": 133044988947,
+    "name": "Hermes contracts",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789647166/job/133044988947",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001997,
+      "name": "GitHub Actions 1000001997",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Verify atomic learning controls",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-11-16T02:03:14Z",
+    "completed_at": "2026-11-16T02:03:19Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43789647166.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133044988947/logs",
+  "rawJobLogDigest": "bd5f270021d369a1afeb154a0efa357132d94e713d45a1030e7f27924b8aba15",
+  "rawJobLogBytes": 51203,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      424,
+      444
+    ]
+  ],
+  "excerptInputSha256": "160fda934984b7b38f42a22d0eeb5e252e022cca16848de32014a28c5a424d74",
+  "excerptInputBytes": 2050,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 2018,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "python -I -S -B tests/hermes_atomic_controls.py -v",
+  "receiptSha256": "a5be303f63e53d901d42101ac9b5d08fb9ffc75f0a00986f8e0a076dabd29555"
+}

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "$worker",
+      "-NoLogo",
+      "-NoProfile",
+      "-NonInteractive",
+      "-MTA",
+      "-File",
+      "$script",
+      "-Mode",
+      "copied"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "$worker",
+    "startedAt": "2026-11-15T22:31:31Z",
+    "endedAt": "2026-11-15T22:31:36Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43769735863-a1-j132982741634-s3-copied.log",
+    "logDigest": "185ab6c700af7e2f6196f25449bb918a3c871a987ddbf71c5b794d3e724da844"
+  },
+  "argvBasis": "OBSERVED_SHELL_ARGUMENT_EXPRESSIONS",
+  "ledgerEligible": false,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43769735863,
+  "runAttempt": 1,
+  "headSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+  "testedCheckout": {
+    "commitSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+    "treeSha": "a122b7ca215c9deb52004d2d01640fefb2443a4b",
+    "parents": [
+      "10343f068aae88544a1a3d3c2d1d2ceda55767fe"
+    ]
+  },
+  "job": {
+    "id": 132982741634,
+    "run_id": 43769735863,
+    "workflow_name": "M05 native Save proxy registration",
+    "head_branch": "agent/m05-native-save-proxy-registration-43769197860",
+    "run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43769735863",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVfvPQM8AAAAe9mOagg",
+    "head_sha": "3bde4a38aca263cc386acebfbacc61202328609c",
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132982741634",
+    "html_url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43769735863/job/132982741634",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-11-15T22:31:14Z",
+    "started_at": "2026-11-15T22:31:16Z",
+    "completed_at": "2026-11-15T22:31:41Z",
+    "name": "UI Automation registration (copied)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-11-15T22:31:18Z",
+        "completed_at": "2026-11-15T22:31:19Z"
+      },
+      {
+        "name": "Check out the isolated diagnostic source",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-11-15T22:31:19Z",
+        "completed_at": "2026-11-15T22:31:31Z"
+      },
+      {
+        "name": "Measure actual Windows PowerShell provider registration",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 3,
+        "started_at": "2026-11-15T22:31:31Z",
+        "completed_at": "2026-11-15T22:31:36Z"
+      },
+      {
+        "name": "Preserve bounded registration observations",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T22:31:36Z",
+        "completed_at": "2026-11-15T22:31:37Z"
+      },
+      {
+        "name": "Post Check out the isolated diagnostic source",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-11-15T22:31:37Z",
+        "completed_at": "2026-11-15T22:31:40Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-11-15T22:31:40Z",
+        "completed_at": "2026-11-15T22:31:40Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/check-runs/132982741634",
+    "labels": [
+      "windows-latest"
+    ],
+    "runner_id": 1000001654,
+    "runner_name": "GitHub Actions 1000001654",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "step": {
+    "name": "Measure actual Windows PowerShell provider registration",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 3,
+    "started_at": "2026-11-15T22:31:31Z",
+    "completed_at": "2026-11-15T22:31:36Z"
+  },
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "observedScript": "git rev-parse HEAD\ngit rev-parse 'HEAD^{tree}'\n$worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'\n$script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'\n& $worker -NoLogo -NoProfile -NonInteractive -MTA -File $script -Mode 'copied'\nexit $LASTEXITCODE",
+  "sourceSha256": "2beefdcf175f0fb4f5772320d74a7ae9a84f645ce588967f29033391e683a3d0",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132982741634/logs",
+  "rawJobLogDigest": "c278a9c489a2ca609d698cb24eeb8bbe3d546e65b27f493b5197d52705654a3d",
+  "rawJobLogBytes": 23519,
+  "rawPolicy": "Exact connector-decoded log string encoded as UTF-8; no original HTTP archive-byte claim.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      166,
+      180
+    ]
+  ],
+  "excerptInputSha256": "625b217970ec264c2c64aaa045c29e4f819ba7c4a68c9c92a0d90e7c73d5e9b8",
+  "excerptInputBytes": 2557,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 2476,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "exitBasis": "The exact command group reports Process completed with exit code 1, the jobs API step concludes failure, and the hash-verified receipt reports passed:false.",
+  "receiptRef": "docs/implementation/v3/m05-proxy-registration-43769735863/copied-receipt.json",
+  "receiptBytes": 909,
+  "receiptSha256": "2afc063e8e3af81231cfe98c06c8654d0bc01fdfbf34a4b696eef0a69182106b",
+  "scope": "Read-only UI Automation assembly registration; no native dialog, account, provider request or control action.",
+  "limitations": [
+    "Resolved executable and script arguments were not emitted; only shell expressions and actual outcomes are known."
+  ]
+}

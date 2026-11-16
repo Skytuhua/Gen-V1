@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "status": "LOCAL_LAUNCHER_FAILURE_RESOLVED_WITH_UNCHANGED_VERIFIER",
+  "recordedAt": "2026-11-16T02:58:59.908Z",
+  "source": {
+    "headSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "acceptedBundleBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "equivalentMergedImplementation": "34d8dd1e0e68af44265cea69b082ce4088366017"
+  },
+  "verifier": {
+    "path": "scripts/verify-m05-evidence.ts",
+    "bytes": 4034,
+    "sha256": "e7b21bf7bda64fca76c1347f8e77e830c3a17f47ce6bba2a2c2cf3459b6add3e",
+    "modified": false
+  },
+  "firstInvocation": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "scripts/verify-m05-evidence.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T02:56:23.953522+00:00",
+    "endedAt": "2026-11-16T02:56:24.929540+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/final-evidence-integrity-299-20261116.log",
+    "logDigest": "9a96a78c26e0e62a000e6d531ecbe9c3f3b228a8c8cdc2ab93daf4f047189fac",
+    "metadataRef": "docs/implementation/v3/m05-logs/final-evidence-integrity-299-20261116.meta.json",
+    "bodyExecuted": false,
+    "observation": "The tsx CLI failed while opening its own /tmp named-pipe IPC server with listen EPERM, before loading the evidence verifier."
+  },
+  "loaderInvocation": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "scripts/verify-m05-evidence.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-16T02:57:33.792792+00:00",
+    "endedAt": "2026-11-16T02:57:35.387177+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/final-evidence-integrity-node-299-20261116.log",
+    "logDigest": "85ba3d69fc45cb84ef73ef5c3934869f10193b92ba061e45fb61c81651738dee",
+    "metadataRef": "docs/implementation/v3/m05-logs/final-evidence-integrity-node-299-20261116.meta.json",
+    "bodyExecuted": true,
+    "observedReport": {
+      "schemaVersion": 1,
+      "status": "PASS",
+      "purpose": "Evidence integrity only; not release approval or a passing implementation bundle.",
+      "implementationBundleStatus": "PARTIAL",
+      "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+      "inspectedPaths": 63,
+      "verifiedCommandRecords": 954,
+      "changedFiles": 2498,
+      "reviewerApproval": false,
+      "errors": []
+    },
+    "scope": "Actual validation of the first materialized evidence snapshot, before these finalization records were added."
+  },
+  "resolution": "Invoke the same unchanged TypeScript verifier through Node's --import tsx loader. This avoids the CLI's unnecessary IPC listener; no sandbox escalation, permission change, verifier predicate change or source-code change was used.",
+  "captureLimit": "The capture metadata binds the committed source tree and tracked working diff. It does not relabel the tracked diff as a complete snapshot of then-untracked evidence artifacts.",
+  "ledgerScope": "These actual offline evidence-finalization invocations are retained separately, like the offline installed-admission execution. They are not application/native test cases and are not appended recursively to the frozen 948-record implementation-command ledger.",
+  "finalResultRef": "docs/implementation/v3/M05-evidence-integrity.json",
+  "finalResultScope": "The authoritative final integrity report is produced by executing the unchanged verifier again on the complete final documentation shape. The earlier 2498-path result above is preserved with its original counts."
+}

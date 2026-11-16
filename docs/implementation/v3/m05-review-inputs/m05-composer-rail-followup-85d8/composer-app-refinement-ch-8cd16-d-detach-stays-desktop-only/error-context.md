@@ -1,0 +1,522 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e31]:
+        - button "Original chat Ready" [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: FP
+              - generic [ref=e36]: First project
+            - time [ref=e38]: 17d
+          - generic [ref=e39]: Original chat
+          - generic [ref=e40]: Ready
+        - button "Options for Original chat" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+    - generic "App controls" [ref=e47]:
+      - button "Settings" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e52]: Settings
+      - button "Pull requests" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e58]: PRs
+      - button "Usage" [ref=e59] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: Usage
+      - button "Update" [disabled] [ref=e63]:
+        - img [ref=e64]
+        - generic [ref=e67]: Update
+  - separator "Resize sidebar" [ref=e68]
+  - generic [ref=e69]:
+    - generic [ref=e70]:
+      - status [ref=e71]:
+        - generic [ref=e72]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e73] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e74]:
+        - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+        - button "All Agents" [ref=e76] [cursor=pointer]
+        - button "Code Review" [ref=e77] [cursor=pointer]
+        - button "Research" [ref=e78] [cursor=pointer]
+        - button "Custom" [ref=e79] [cursor=pointer]
+        - button "Open workspace panel" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+        - button "Layouts" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+          - text: Layouts
+          - img [ref=e89]
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - region "Original chat" [ref=e98]:
+          - generic [ref=e99]:
+            - button "Split this area" [ref=e100]: ◩
+            - tablist "Area views" [ref=e101]:
+              - tab "Original chat" [selected] [ref=e102] [cursor=pointer]
+            - button "Area actions" [ref=e104] [cursor=pointer]:
+              - img [ref=e105]
+            - button "Minimize area" [expanded] [ref=e109] [cursor=pointer]: ▴
+        - generic [ref=e120]:
+          - main "Chat" [ref=e121]:
+            - generic [ref=e122]:
+              - generic [ref=e123]:
+                - img [ref=e124]
+                - generic [ref=e126]: First project
+                - generic [ref=e127]: /
+                - strong [ref=e128]: Original chat
+              - button "Find in conversation" [ref=e131] [cursor=pointer]:
+                - img [ref=e132]
+            - generic [ref=e135]:
+              - scrollbar "Scroll conversation" [ref=e136] [cursor=pointer]
+              - generic "Conversation" [ref=e138]:
+                - generic [ref=e140]:
+                  - generic [ref=e141]:
+                    - generic [ref=e142]: Assistant
+                    - generic [ref=e143]:
+                      - button "Copy message" [ref=e144] [cursor=pointer]:
+                        - img [ref=e145]
+                      - status [ref=e148]
+                      - paragraph [ref=e150]: Original conversation message 0
+                  - generic [ref=e151]:
+                    - generic [ref=e152]: Assistant
+                    - generic [ref=e153]:
+                      - button "Copy message" [ref=e154] [cursor=pointer]:
+                        - img [ref=e155]
+                      - status [ref=e158]
+                      - paragraph [ref=e160]: Original conversation message 1
+                  - generic [ref=e161]:
+                    - generic [ref=e162]: Assistant
+                    - generic [ref=e163]:
+                      - button "Copy message" [ref=e164] [cursor=pointer]:
+                        - img [ref=e165]
+                      - status [ref=e168]
+                      - paragraph [ref=e170]: Original conversation message 2
+                  - generic [ref=e171]:
+                    - generic [ref=e172]: Assistant
+                    - generic [ref=e173]:
+                      - button "Copy message" [ref=e174] [cursor=pointer]:
+                        - img [ref=e175]
+                      - status [ref=e178]
+                      - paragraph [ref=e180]: Original conversation message 3
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: Assistant
+                    - generic [ref=e183]:
+                      - button "Copy message" [ref=e184] [cursor=pointer]:
+                        - img [ref=e185]
+                      - status [ref=e188]
+                      - paragraph [ref=e190]: Original conversation message 4
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: Assistant
+                    - generic [ref=e193]:
+                      - button "Copy message" [ref=e194] [cursor=pointer]:
+                        - img [ref=e195]
+                      - status [ref=e198]
+                      - paragraph [ref=e200]: Original conversation message 5
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: Assistant
+                    - generic [ref=e203]:
+                      - button "Copy message" [ref=e204] [cursor=pointer]:
+                        - img [ref=e205]
+                      - status [ref=e208]
+                      - paragraph [ref=e210]: Original conversation message 6
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: Assistant
+                    - generic [ref=e213]:
+                      - button "Copy message" [ref=e214] [cursor=pointer]:
+                        - img [ref=e215]
+                      - status [ref=e218]
+                      - paragraph [ref=e220]: Original conversation message 7
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: Assistant
+                    - generic [ref=e223]:
+                      - button "Copy message" [ref=e224] [cursor=pointer]:
+                        - img [ref=e225]
+                      - status [ref=e228]
+                      - paragraph [ref=e230]: Original conversation message 8
+                  - generic [ref=e231]:
+                    - generic [ref=e232]: Assistant
+                    - generic [ref=e233]:
+                      - button "Copy message" [ref=e234] [cursor=pointer]:
+                        - img [ref=e235]
+                      - status [ref=e238]
+                      - paragraph [ref=e240]: Original conversation message 9
+                  - generic [ref=e241]:
+                    - generic [ref=e242]: Assistant
+                    - generic [ref=e243]:
+                      - button "Copy message" [ref=e244] [cursor=pointer]:
+                        - img [ref=e245]
+                      - status [ref=e248]
+                      - paragraph [ref=e250]: Original conversation message 10
+                  - generic [ref=e251]:
+                    - generic [ref=e252]: Assistant
+                    - generic [ref=e253]:
+                      - button "Copy message" [ref=e254] [cursor=pointer]:
+                        - img [ref=e255]
+                      - status [ref=e258]
+                      - paragraph [ref=e260]: Original conversation message 11
+                  - generic [ref=e261]:
+                    - generic [ref=e262]: Assistant
+                    - generic [ref=e263]:
+                      - button "Copy message" [ref=e264] [cursor=pointer]:
+                        - img [ref=e265]
+                      - status [ref=e268]
+                      - paragraph [ref=e270]: Original conversation message 12
+                  - generic [ref=e271]:
+                    - generic [ref=e272]: Assistant
+                    - generic [ref=e273]:
+                      - button "Copy message" [ref=e274] [cursor=pointer]:
+                        - img [ref=e275]
+                      - status [ref=e278]
+                      - paragraph [ref=e280]: Original conversation message 13
+                  - generic [ref=e281]:
+                    - generic [ref=e282]: Assistant
+                    - generic [ref=e283]:
+                      - button "Copy message" [ref=e284] [cursor=pointer]:
+                        - img [ref=e285]
+                      - status [ref=e288]
+                      - paragraph [ref=e290]: Original conversation message 14
+                  - generic [ref=e291]:
+                    - generic [ref=e292]: Assistant
+                    - generic [ref=e293]:
+                      - button "Copy message" [ref=e294] [cursor=pointer]:
+                        - img [ref=e295]
+                      - status [ref=e298]
+                      - paragraph [ref=e300]: Original conversation message 15
+                  - generic [ref=e301]:
+                    - generic [ref=e302]: Assistant
+                    - generic [ref=e303]:
+                      - button "Copy message" [ref=e304] [cursor=pointer]:
+                        - img [ref=e305]
+                      - status [ref=e308]
+                      - paragraph [ref=e310]: Original conversation message 16
+                  - generic [ref=e311]:
+                    - generic [ref=e312]: Assistant
+                    - generic [ref=e313]:
+                      - button "Copy message" [ref=e314] [cursor=pointer]:
+                        - img [ref=e315]
+                      - status [ref=e318]
+                      - paragraph [ref=e320]: Original conversation message 17
+                  - generic [ref=e321]:
+                    - generic [ref=e322]: Assistant
+                    - generic [ref=e323]:
+                      - button "Copy message" [ref=e324] [cursor=pointer]:
+                        - img [ref=e325]
+                      - status [ref=e328]
+                      - paragraph [ref=e330]: Original conversation message 18
+                  - generic [ref=e331]:
+                    - generic [ref=e332]: Assistant
+                    - generic [ref=e333]:
+                      - button "Copy message" [ref=e334] [cursor=pointer]:
+                        - img [ref=e335]
+                      - status [ref=e338]
+                      - paragraph [ref=e340]: Original conversation message 19
+                  - generic [ref=e341]:
+                    - generic [ref=e342]: Assistant
+                    - generic [ref=e343]:
+                      - button "Copy message" [ref=e344] [cursor=pointer]:
+                        - img [ref=e345]
+                      - status [ref=e348]
+                      - paragraph [ref=e350]: Original conversation message 20
+                  - generic [ref=e351]:
+                    - generic [ref=e352]: Assistant
+                    - generic [ref=e353]:
+                      - button "Copy message" [ref=e354] [cursor=pointer]:
+                        - img [ref=e355]
+                      - status [ref=e358]
+                      - paragraph [ref=e360]: Original conversation message 21
+                  - generic [ref=e361]:
+                    - generic [ref=e362]: Assistant
+                    - generic [ref=e363]:
+                      - button "Copy message" [ref=e364] [cursor=pointer]:
+                        - img [ref=e365]
+                      - status [ref=e368]
+                      - paragraph [ref=e370]: Original conversation message 22
+                  - generic [ref=e371]:
+                    - generic [ref=e372]: Assistant
+                    - generic [ref=e373]:
+                      - button "Copy message" [ref=e374] [cursor=pointer]:
+                        - img [ref=e375]
+                      - status [ref=e378]
+                      - paragraph [ref=e380]: Original conversation message 23
+                  - generic [ref=e381]:
+                    - generic [ref=e382]: Assistant
+                    - generic [ref=e383]:
+                      - button "Copy message" [ref=e384] [cursor=pointer]:
+                        - img [ref=e385]
+                      - status [ref=e388]
+                      - paragraph [ref=e390]: Original conversation message 24
+                  - generic [ref=e391]:
+                    - generic [ref=e392]: Assistant
+                    - generic [ref=e393]:
+                      - button "Copy message" [ref=e394] [cursor=pointer]:
+                        - img [ref=e395]
+                      - status [ref=e398]
+                      - paragraph [ref=e400]: Original conversation message 25
+                  - generic [ref=e401]:
+                    - generic [ref=e402]: Assistant
+                    - generic [ref=e403]:
+                      - button "Copy message" [ref=e404] [cursor=pointer]:
+                        - img [ref=e405]
+                      - status [ref=e408]
+                      - paragraph [ref=e410]: Original conversation message 26
+                  - generic [ref=e411]:
+                    - generic [ref=e412]: Assistant
+                    - generic [ref=e413]:
+                      - button "Copy message" [ref=e414] [cursor=pointer]:
+                        - img [ref=e415]
+                      - status [ref=e418]
+                      - paragraph [ref=e420]: Original conversation message 27
+                  - generic [ref=e421]:
+                    - generic [ref=e422]: Assistant
+                    - generic [ref=e423]:
+                      - button "Copy message" [ref=e424] [cursor=pointer]:
+                        - img [ref=e425]
+                      - status [ref=e428]
+                      - paragraph [ref=e430]: Original conversation message 28
+                  - generic [ref=e431]:
+                    - generic [ref=e432]: Assistant
+                    - generic [ref=e433]:
+                      - button "Copy message" [ref=e434] [cursor=pointer]:
+                        - img [ref=e435]
+                      - status [ref=e438]
+                      - paragraph [ref=e440]: Original conversation message 29
+                  - generic [ref=e441]:
+                    - generic [ref=e442]: Assistant
+                    - generic [ref=e443]:
+                      - button "Copy message" [ref=e444] [cursor=pointer]:
+                        - img [ref=e445]
+                      - status [ref=e448]
+                      - paragraph [ref=e450]: Original conversation message 30
+                  - generic [ref=e451]:
+                    - generic [ref=e452]: Assistant
+                    - generic [ref=e453]:
+                      - button "Copy message" [ref=e454] [cursor=pointer]:
+                        - img [ref=e455]
+                      - status [ref=e458]
+                      - paragraph [ref=e460]: Original conversation message 31
+                  - generic [ref=e461]:
+                    - generic [ref=e462]: Assistant
+                    - generic [ref=e463]:
+                      - button "Copy message" [ref=e464] [cursor=pointer]:
+                        - img [ref=e465]
+                      - status [ref=e468]
+                      - paragraph [ref=e470]: Original conversation message 32
+                  - generic [ref=e471]:
+                    - generic [ref=e472]: Assistant
+                    - generic [ref=e473]:
+                      - button "Copy message" [ref=e474] [cursor=pointer]:
+                        - img [ref=e475]
+                      - status [ref=e478]
+                      - paragraph [ref=e480]: Original conversation message 33
+                  - generic [ref=e481]:
+                    - generic [ref=e482]: Assistant
+                    - generic [ref=e483]:
+                      - button "Copy message" [ref=e484] [cursor=pointer]:
+                        - img [ref=e485]
+                      - status [ref=e488]
+                      - paragraph [ref=e490]: Original conversation message 34
+                  - generic [ref=e491]:
+                    - generic [ref=e492]: Assistant
+                    - generic [ref=e493]:
+                      - button "Copy message" [ref=e494] [cursor=pointer]:
+                        - img [ref=e495]
+                      - status [ref=e498]
+                      - paragraph [ref=e500]: Original conversation message 35
+                  - generic [ref=e501]:
+                    - generic [ref=e502]: Assistant
+                    - generic [ref=e503]:
+                      - button "Copy message" [ref=e504] [cursor=pointer]:
+                        - img [ref=e505]
+                      - status [ref=e508]
+                      - paragraph [ref=e510]: Original conversation message 36
+                  - generic [ref=e511]:
+                    - generic [ref=e512]: Assistant
+                    - generic [ref=e513]:
+                      - button "Copy message" [ref=e514] [cursor=pointer]:
+                        - img [ref=e515]
+                      - status [ref=e518]
+                      - paragraph [ref=e520]: Original conversation message 37
+                  - generic [ref=e521]:
+                    - generic [ref=e522]: Assistant
+                    - generic [ref=e523]:
+                      - button "Copy message" [ref=e524] [cursor=pointer]:
+                        - img [ref=e525]
+                      - status [ref=e528]
+                      - paragraph [ref=e530]: Original conversation message 38
+                  - generic [ref=e531]:
+                    - generic [ref=e532]: Assistant
+                    - generic [ref=e533]:
+                      - button "Copy message" [ref=e534] [cursor=pointer]:
+                        - img [ref=e535]
+                      - status [ref=e538]
+                      - paragraph [ref=e540]: Original conversation message 39
+                  - generic [ref=e541]:
+                    - generic [ref=e542]: Assistant
+                    - generic [ref=e543]:
+                      - button "Copy message" [ref=e544] [cursor=pointer]:
+                        - img [ref=e545]
+                      - status [ref=e548]
+                      - paragraph [ref=e550]: Original conversation message 40
+                  - generic [ref=e551]:
+                    - generic [ref=e552]: Assistant
+                    - generic [ref=e553]:
+                      - button "Copy message" [ref=e554] [cursor=pointer]:
+                        - img [ref=e555]
+                      - status [ref=e558]
+                      - paragraph [ref=e560]: Original conversation message 41
+                  - generic [ref=e561]:
+                    - generic [ref=e562]: Assistant
+                    - generic [ref=e563]:
+                      - button "Copy message" [ref=e564] [cursor=pointer]:
+                        - img [ref=e565]
+                      - status [ref=e568]
+                      - paragraph [ref=e570]: Original conversation message 42
+                  - generic [ref=e571]:
+                    - generic [ref=e572]: Assistant
+                    - generic [ref=e573]:
+                      - button "Copy message" [ref=e574] [cursor=pointer]:
+                        - img [ref=e575]
+                      - status [ref=e578]
+                      - paragraph [ref=e580]: Original conversation message 43
+                  - generic [ref=e581]:
+                    - generic [ref=e582]: Assistant
+                    - generic [ref=e583]:
+                      - button "Copy message" [ref=e584] [cursor=pointer]:
+                        - img [ref=e585]
+                      - status [ref=e588]
+                      - paragraph [ref=e590]: Original conversation message 44
+                  - generic [ref=e591]:
+                    - generic [ref=e592]: Assistant
+                    - generic [ref=e593]:
+                      - button "Copy message" [ref=e594] [cursor=pointer]:
+                        - img [ref=e595]
+                      - status [ref=e598]
+                      - paragraph [ref=e600]: Original conversation message 45
+                  - generic [ref=e601]:
+                    - generic [ref=e602]: Assistant
+                    - generic [ref=e603]:
+                      - button "Copy message" [ref=e604] [cursor=pointer]:
+                        - img [ref=e605]
+                      - status [ref=e608]
+                      - paragraph [ref=e610]: Original conversation message 46
+                  - generic [ref=e611]:
+                    - generic [ref=e612]: Assistant
+                    - generic [ref=e613]:
+                      - button "Copy message" [ref=e614] [cursor=pointer]:
+                        - img [ref=e615]
+                      - status [ref=e618]
+                      - paragraph [ref=e620]: Original conversation message 47
+                  - generic [ref=e621]:
+                    - generic [ref=e622]: Assistant
+                    - generic [ref=e623]:
+                      - button "Copy message" [ref=e624] [cursor=pointer]:
+                        - img [ref=e625]
+                      - status [ref=e628]
+                      - paragraph [ref=e630]: Original conversation message 48
+                  - generic [ref=e631]:
+                    - generic [ref=e632]: Assistant
+                    - generic [ref=e633]:
+                      - button "Copy message" [ref=e634] [cursor=pointer]:
+                        - img [ref=e635]
+                      - status [ref=e638]
+                      - paragraph [ref=e640]: Original conversation message 49
+                  - generic [ref=e641]:
+                    - generic [ref=e642]: Assistant
+                    - generic [ref=e643]:
+                      - button "Copy message" [ref=e644] [cursor=pointer]:
+                        - img [ref=e645]
+                      - status [ref=e648]
+                      - paragraph [ref=e650]: Original conversation message 50
+                  - generic [ref=e651]:
+                    - generic [ref=e652]: Assistant
+                    - generic [ref=e653]:
+                      - button "Copy message" [ref=e654] [cursor=pointer]:
+                        - img [ref=e655]
+                      - status [ref=e658]
+                      - paragraph [ref=e660]: Original conversation message 51
+                  - generic [ref=e661]:
+                    - generic [ref=e662]: Assistant
+                    - generic [ref=e663]:
+                      - button "Copy message" [ref=e664] [cursor=pointer]:
+                        - img [ref=e665]
+                      - status [ref=e668]
+                      - paragraph [ref=e670]: Original conversation message 52
+                  - generic [ref=e671]:
+                    - generic [ref=e672]: Assistant
+                    - generic [ref=e673]:
+                      - button "Copy message" [ref=e674] [cursor=pointer]:
+                        - img [ref=e675]
+                      - status [ref=e678]
+                      - paragraph [ref=e680]: Original conversation message 53
+                  - generic [ref=e681]:
+                    - generic [ref=e682]: Assistant
+                    - generic [ref=e683]:
+                      - button "Copy message" [ref=e684] [cursor=pointer]:
+                        - img [ref=e685]
+                      - status [ref=e688]
+                      - paragraph [ref=e690]: Original conversation message 54
+            - generic [ref=e694]:
+              - generic [ref=e695]:
+                - textbox "Message" [ref=e697]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e698]:
+                  - button "Inspect changes" [ref=e699] [cursor=pointer]:
+                    - img [ref=e700]
+                    - generic [ref=e702]: Changes
+                  - button "Create PR" [ref=e703] [cursor=pointer]:
+                    - img [ref=e704]
+                    - generic [ref=e709]: Create PR
+              - status [ref=e710]
+              - generic [ref=e712]:
+                - group "Project and runtime" [ref=e713]:
+                  - button "Saved drafts" [disabled] [ref=e714]
+                  - button "Attach files" [ref=e715] [cursor=pointer]:
+                    - img [ref=e716]
+                  - button "Select project" [ref=e717] [cursor=pointer]:
+                    - img [ref=e718]
+                    - generic [ref=e720]: First project
+                  - generic "Local workspace" [ref=e721]:
+                    - img [ref=e722]
+                    - text: Local
+                  - button "Task mode" [ref=e724] [cursor=pointer]:
+                    - img [ref=e725]
+                    - generic [ref=e728]: Build
+                  - button "Show live usage" [ref=e729] [cursor=pointer]:
+                    - img [ref=e730]
+                - group "Model and voice" [ref=e732]:
+                  - combobox "Model" [ref=e733] [cursor=pointer]:
+                    - img [ref=e734]
+                    - generic [ref=e737]: Fixture
+                    - img [ref=e738]
+                  - button "Inspect context usage" [ref=e741] [cursor=pointer]:
+                    - img [ref=e742]
+                  - button "Start voice input" [ref=e743] [cursor=pointer]:
+                    - img [ref=e744]
+                  - button "Send message" [disabled] [ref=e748]:
+                    - img [ref=e749]
+          - generic:
+            - img
+            - generic: Dock chat
+      - complementary "Conversation summaries" [ref=e752]:
+        - region "Project overview window" [ref=e753]:
+          - button "Expand Project overview" [ref=e755] [cursor=pointer]:
+            - strong [ref=e756]: Project overview
+            - img [ref=e757]
+  - region "Notifications"
+```

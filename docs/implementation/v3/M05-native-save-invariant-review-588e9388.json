@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_INVARIANTS_REVIEWED_KNOWN_NATIVE_STARTUP_FAILURE_OPEN",
+  "recordedAt": "2026-11-15T22:44:03.371934+00:00",
+  "scope": "Independent read-only review of the complete current native Save helper, complete memory export policy and all seven focused tests, plus exact caller/authority/readback seams. No source edit, test execution, process launch, artifact download, ledger or ref change.",
+  "sourceFiles": [
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25352,
+      "sha256": "588e9388eea40761686d59bc165d65b7607f5bf12cb79375a45922e6edf86f96",
+      "gitBlobSha": "89ef211946422198d00fe6ed8881e0fc65c7e293"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+      "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+    },
+    {
+      "path": "tests/installed-native-save.test.ts",
+      "bytes": 6874,
+      "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+      "gitBlobSha": "50eb06e7769eec94c875654eee1e2661c2334b0f"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+      "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 44330,
+      "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+      "gitBlobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "bytes": 55667,
+      "sha256": "0b8806045dfda8d1467a4d7864041c3d4ff19a2b9eb1e015471e8f02e2f12d97",
+      "gitBlobSha": "5726cc646eb84618c2c47ac00d6217fae02072d8"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+      "gitBlobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+    }
+  ],
+  "fullyRead": [
+    "scripts/installed-native-save.ts",
+    "apps/desktop/memory-export.ts",
+    "tests/installed-native-save.test.ts"
+  ],
+  "knownObservedBlocker": {
+    "runId": 43769197860,
+    "scope": "Isolated native Save helper candidate, not full installed verification.",
+    "result": "Both helper lanes failed startup before the helper ready event; Electron fixtures themselves were ready. No trigger, dialog input or saved completion ran.",
+    "newFinding": false,
+    "repairOwner": "dependency_audit"
+  },
+  "newActionableFindings": [],
+  "finalCandidateChecklist": [
+    {
+      "id": "OWNER",
+      "source": "scripts/installed-native-save.ts; scripts/verify-installed-desktop.ts",
+      "invariant": "Use the actual spawned installed child PID and exact installed executable after CDP nonce/executable verification. Node liveness remains active. PowerShell validates image and stable process-start ticks before discovery and each action; PID reuse or exit refuses. No app-name/title-only owner lookup."
+    },
+    {
+      "id": "DIALOG_DISCOVERY",
+      "source": "scripts/installed-native-save.ts",
+      "invariant": "Only exact-PID top-level EnumWindows results are converted with UIA FromHandle. Enumeration remains capped at 32 owned windows. Match exact Export project memory title and Window type. Refuse pre-existing or multiple matching dialogs, bind one nonzero native handle, and recheck Win32 and UIA process identity. Provider initialization may repair accessibility discovery; it must not remove these constraints."
+    },
+    {
+      "id": "CONTROL_IDENTITY",
+      "source": "scripts/installed-native-save.ts",
+      "invariant": "Within that admitted dialog require exactly one Edit with AutomationId1001 and Name File name:, plus exactly one Button with AutomationId1 and Name Save. Require exact owned PID, enabled state, writable ValuePattern and InvokePattern. No ID-only, coordinate, SendKeys, arbitrary Win32-input or force-click fallback."
+    },
+    {
+      "id": "ACTION_RECHECK",
+      "source": "scripts/installed-native-save.ts",
+      "invariant": "Check dialog/owner/target before setting the fixed destination; read Value back exactly; rediscover the unique same dialog and fresh controls before invoking Save; recheck destination absence and exact Value. Unknown layout remains a fixed failure with bounded metadata."
+    },
+    {
+      "id": "DESTINATION",
+      "source": "scripts/installed-native-save.ts; scripts/installed-memory-retention.ts",
+      "invariant": "Only installed-memory-redacted-export.json inside the canonical identity-verified evidence root is accepted. It is absent before dispatch. The native lease pins ordinary local ancestors, exact root volume/index and the existing single-link owner.json without deletion sharing. It stays held through completed receipt and file readback, then explicit release acknowledgement. No renderer-controlled destination or production setSavePath override."
+    },
+    {
+      "id": "READBACK",
+      "source": "scripts/installed-native-save.ts; scripts/installed-memory-retention.ts",
+      "invariant": "Read only an ordinary non-symlink regular file, 1 through1048576 bytes, through a handle whose device/inode/size match before and after. Revalidate physical profile/evidence root. Actual bytes/hash must match renderer native completion; parsed strict export must bind the current scope, redact sensitive text and omit source bodies."
+    },
+    {
+      "id": "PRODUCTION_EXPORT",
+      "source": "apps/desktop/main.ts; apps/desktop/memory-export.ts; apps/web/src/project-memory-api.ts",
+      "invariant": "Authenticated same-origin/CSRF export and strict scope checks precede the native bridge. IPC uses the authorized exact main frame/current document and eligible bound surface. The main policy parses strict redacted schema, rejects secret-bearing/NUL item text, generates canonical JSON, digest and Windows-safe fixed filename, and accepts no path parameter."
+    },
+    {
+      "id": "ONE_USE_DOWNLOAD",
+      "source": "apps/desktop/memory-export.ts",
+      "invariant": "Default-deny session guard stays active for arbitrary, remote, plug-in and unrelated downloads. One pending export per WebContents and at most4 overall; 8MiB input/canonical bounds. Admission requires exact contents/mainFrame/current document/initiator origin/random URL/single URL chain/filename. Consume before callbacks; a second event is denied. Main navigation/destruction cancels the grant/item."
+    },
+    {
+      "id": "REAL_SAVE",
+      "source": "apps/desktop/memory-export.ts; scripts/installed-memory-retention.ts",
+      "invariant": "Native setSaveDialogOptions retains the exact title and filename-only default; no setSavePath. CDP download behavior must be default, with reset acknowledgement. Saved status requires DownloadItem completed and exact received byte count; cancellation stays separate. Renderer verifies filename/bytes/SHA. The installed proof waits for saved acknowledgement plus actual file readback, not only will-download admission."
+    },
+    {
+      "id": "BOUNDS",
+      "source": "scripts/installed-native-save.ts; apps/desktop/memory-export.ts",
+      "invariant": "Preserve10s download admission,5min native policy completion; helper30s discovery bounded by60s script polling and75s outer wall deadline,100ms liveness/polling,32768 stdout bytes,16384 stderr-count bound, at most7 parsed events and24 bounded control identities. Any final fixed-script argv remains below32767 UTF-16 characters including executable, flags, quotes and NUL; the existing guard fails closed."
+    },
+    {
+      "id": "COMPLETION_AND_FAILURE",
+      "source": "scripts/installed-native-save.ts",
+      "invariant": "Require ready,dialog-found,file-name-set,save-invoked,dialog-closed,target-released in order for the same PID/start ticks/handle and monotonic elapsed time. No success before completion callback and physical readback. Release while the lease is still held; require explicit target-released, worker close0/null signal and live installed owner. Worker failure terminates only its owned process tree, preserves refusal and cannot become success through late async settlement."
+    },
+    {
+      "id": "DIAGNOSTIC_PRIVACY",
+      "source": "scripts/installed-native-save.ts; apps/desktop/memory-export.ts",
+      "invariant": "Fixed metadata-only stages/reasons, bounded fixed control identity spellings and counts only. Do not retain input values, source text, arbitrary native window text, provider exceptions or stderr bodies. JSON/schema validation errors remain sanitized. Worker stdin contains only validated owner/path identity, never command code."
+    }
+  ],
+  "commandMeasurement": {
+    "method": "Read-only extraction of the fixed String.raw script and the same indentation removal/base64 encoding used by installedNativeSaveCommand; no PowerShell execution.",
+    "systemRoot": "C:\\Windows",
+    "fixedScriptCharacters": 12209,
+    "encodedCharacters": 32560,
+    "completeCharactersIncludingNul": 32677,
+    "exclusiveLimit": 32767,
+    "headroom": 90,
+    "result": "WITHIN_BOUND_AT_REVIEWED_BYTES"
+  },
+  "existingTestScope": {
+    "path": "tests/installed-native-save.test.ts",
+    "caseCount": 7,
+    "coverage": [
+      "Complete argv length, declared Windows path validation and absence of ExecutionPolicy override",
+      "Absent fixed destination and ordinary readback",
+      "Redirected directory/output rejection with preserved original bytes",
+      "Replaced root and empty/oversized readback rejection",
+      "Ordered same-owner/same-dialog lifecycle admission",
+      "PID reuse, changed handles, backward time, missing stages and forged-field rejection",
+      "Bounded fixed failure metadata without unrelated control text or false completion"
+    ],
+    "executionDuringThisReview": "NOT_RUN",
+    "limits": "These source-level/fixture tests do not execute Windows provider initialization, UIA discovery, native controls or a real Save dialog."
+  },
+  "futureAdmission": "A successful direct-dialog or production-policy diagnostic is narrower than the complete installed default-off retained-memory flow. Final full CI and the real artifact must separately supply source-bound native completion, saved bytes, Forget/restart and owned cleanup; no new optional proof gate is introduced.",
+  "candidateDiffStatus": "WAITING_FOR_FROZEN_PROVIDER_INITIALIZATION_REPAIR_AND_ACTUAL_PROBE_RESULT"
+}

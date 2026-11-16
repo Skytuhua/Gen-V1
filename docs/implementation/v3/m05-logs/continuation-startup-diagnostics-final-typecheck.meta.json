@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "typecheck"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:54:48.427521+00:00",
+    "endedAt": "2026-11-16T00:55:47.330073+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.log",
+    "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 58873,
+  "rawOutputBytes": 87,
+  "rawOutputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "excerptInputBytes": 87,
+  "excerptInputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "sourceCapture": {
+    "metadataRef": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-typecheck.meta.json",
+    "bytes": 1778,
+    "sha256": "4882ee58e01759572bf4967b94786ef8f07800d3280a6a22e0ca962b34967e65",
+    "blobSha": "155c5a3b71f04c8fac6fd5033746928a9700c02f",
+    "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-typecheck.raw.log",
+    "rawLogBytes": 87,
+    "rawLogSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+    "captureScript": {
+      "path": "docs/implementation/v3/m05-review-inputs/m05-capture-local-check-094fba22.py",
+      "bytes": 2657,
+      "sha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "blobSha": "b99a0600fc25a3ef3175f39d55fcece501bd9f32"
+    }
+  },
+  "normalizationScope": "Exact original log and original metadata are preserved before ANSI/LF normalization. No command, outcome, timing, phase or recorded working-diff hash is rewritten.",
+  "reviewedOutputPrivacy": "Output contains disposable authored error sentinels, controlled fixtures and tool paths. No user-source body or credential was emitted by the new diagnostics or included in these command inputs.",
+  "evidenceScope": "Actual local Linux execution. The captured committed-tree and working-diff digest are retained; this is not an immutable final Windows checkout or installed application proof.",
+  "testSummary": null,
+  "reviewedOutcome": "Actual complete pnpm typecheck passes after the final placement-only startupSettled correction. No installed native result is inferred."
+}

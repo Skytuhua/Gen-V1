@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "review": "M05 shared task fixture browser compatibility repair",
+  "status": "LOCAL_SCOPED_PASS_CURRENT_WINDOWS_REVALIDATION_PENDING",
+  "sourceContext": {
+    "publishedHead": "0aacdacdf835ec95710ae3674b260d654060f446",
+    "publishedTree": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+    "localHeadDuringChecks": "2412b250052fbe137a8564afbf1d7234b77f0c5f",
+    "priorFixture": {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13070,
+      "sha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+      "blobSha": "67a7609a54f37fdb5fed4ec2fb050b0c46f86f8a"
+    },
+    "finalBindings": [
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "bytes": 13385,
+        "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+        "blobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+      },
+      {
+        "path": "tests/task-interface-fixture.test.ts",
+        "bytes": 5388,
+        "sha256": "20d23e655cf2a6848e10a210505dd9681c28e6ceb8637392734a98c69bd4eba0",
+        "blobSha": "0aad350c8cbb357fabfd7bad9cd24f4117695bca"
+      },
+      {
+        "path": "tests/artifact-settle.test.ts",
+        "bytes": 30905,
+        "sha256": "30cf4dfd142ecffe6183945ec8494f4ac3b835ee2e3d0e1ccfbd2ac41cc5e41a",
+        "blobSha": "38fa69d17cbb3840a15c45b33de0cbddb82f63de"
+      },
+      {
+        "path": "tests/e2e/composer-app-refinement.spec.ts",
+        "bytes": 16268,
+        "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+        "blobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+      },
+      {
+        "path": "tests/e2e/frontend-refinement.playwright.config.ts",
+        "bytes": 998,
+        "sha256": "7e548b378b42e178d8080df57bc48d1289a3a8decdd301de397ef34936ec0acf",
+        "blobSha": "1eeb8bcf183fe7b58662dbed429a3a7af2ae792b"
+      },
+      {
+        "path": "packages/contracts/workspace.ts",
+        "bytes": 7304,
+        "sha256": "9c7a394138a027f713a30f14b29c36c5b465df11afa70803cbb4391ff71d3887",
+        "blobSha": "88e08fbaee575c8ab5414ad055ec5639c812fdc2"
+      },
+      {
+        "path": "packages/core/split-workspace.ts",
+        "bytes": 10699,
+        "sha256": "57be7828ccf6c47cea935d82f501ebcfdd2abdef3dbdf58d2db86ec613471a59",
+        "blobSha": "edde88019d11fff48e6eeb531eec3d1c5f6bc7de"
+      }
+    ]
+  },
+  "observedFailure": {
+    "runId": 43777513127,
+    "jobId": 133007063380,
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43777513127/job/133007063380",
+    "caseFile": "tests/artifact-settle.test.ts",
+    "phase": "beforeAll browser esbuild",
+    "error": "Could not resolve node:util from tests/e2e/task-interface-fixture.ts:2:32",
+    "scope": "The shared fixture imported a Node-only comparator. The actual browser bundle failed before its eleven cases could execute. This is a fixture defect; no production behavior is changed."
+  },
+  "repair": {
+    "changedPaths": [
+      "tests/e2e/task-interface-fixture.ts",
+      "tests/task-interface-fixture.test.ts"
+    ],
+    "details": [
+      "Remove the node:util import from the fixture shared by browser and host tests.",
+      "For the strictly parsed local PanelBinding, compare exact own-key membership/count and all non-authority primitive values with Object.is; require expected local authority.",
+      "Retain field-order independence and distinguish absent optional fields from present undefined fields.",
+      "Keep every workspace identity, base revision, payload key, strict schema, target-view, thread-owner, canonical-project, layout update and returned-schema check unchanged."
+    ],
+    "notChanged": [
+      "Production application code",
+      "Existing artifact-settle assertions",
+      "Existing composer project-binding assertions",
+      "Browser or test timeouts",
+      "Non-fixture Node-only isDeepStrictEqual uses"
+    ]
+  },
+  "browserImportInspection": {
+    "directEntryFiles": [
+      "tests/e2e/artifact-settle-fixture.tsx",
+      "tests/e2e/files-reading-fixture.tsx",
+      "tests/e2e/shared-panels-fixture.tsx",
+      "tests/e2e/redundant-ui-fixture.tsx",
+      "tests/e2e/project-search-fixture.tsx",
+      "tests/e2e/file-checkpoints-fixture.tsx",
+      "tests/e2e/m08-restore-fixture.tsx"
+    ],
+    "otherVerifiedCallsites": [
+      "tests/artifact-settle.test.ts browser esbuild stdin",
+      "tests/redundant-ui.test.ts Node SSR",
+      "tests/e2e/composer-app-refinement.spec.ts actual host route reconciliation"
+    ],
+    "limit": "Only the listed executed suites below are claimed as runtime proof. Other direct fixture import sites were inspected; they were not separately executed in this repair."
+  },
+  "focusedCoverage": {
+    "finalNewCases": 19,
+    "cases": [
+      "Valid exact binding with reversed key order updates only matching local canonical conversation views and increments revision once.",
+      "Changing projectId, threadId, agentId, artifactId, resourceId, terminalId, browserId or liveProject rejects without layout mutation.",
+      "Omitted or undefined captured identity, plugin authority and unknown binding keys reject without mutation.",
+      "An absent optional field differs from a present undefined field.",
+      "Wrong workspace, stale revision, missing view, noncanonical project and extra payload key reject without mutation."
+    ]
+  },
+  "execution": [
+    {
+      "label": "continuation-shared-fixture-browser-bundle-red",
+      "outcome": "FAIL",
+      "cases": {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 11
+      },
+      "suiteFailures": 1,
+      "meaning": "Intended browser-bundle red reproduces the exact Node builtin import failure."
+    },
+    {
+      "label": "continuation-shared-fixture-owner-baseline",
+      "outcome": "PASS",
+      "cases": {
+        "passed": 18,
+        "failed": 0
+      },
+      "meaning": "Owner guard tests pass against the original Node comparator before the fixture edit; the final added absent-versus-undefined case is covered by the later nineteen-case run."
+    },
+    {
+      "label": "continuation-shared-fixture-browser-bundle-green",
+      "outcome": "PASS",
+      "cases": {
+        "passed": 30,
+        "failed": 0
+      },
+      "meaning": "Eleven original artifact browser cases plus nineteen fixture owner regressions execute successfully after the repair."
+    },
+    {
+      "label": "continuation-shared-fixture-project-binding-green",
+      "outcome": "PASS",
+      "cases": {
+        "passed": 2,
+        "failed": 0
+      },
+      "meaning": "Existing project-selection and started-chat browser tests execute against the actual frontend configuration and canonical reconciliation adapter."
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/artifact-settle.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T00:10:10.487150+00:00",
+      "endedAt": "2026-11-16T00:10:14.403951+00:00",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-browser-bundle-red.log",
+      "logDigest": "644e35153b73dcb28cfd87bee7152657ccdfa56075285b05a672c903302d1d1b"
+    },
+    {
+      "argv": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/task-interface-fixture.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T00:12:01.182600+00:00",
+      "endedAt": "2026-11-16T00:12:03.158284+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-owner-baseline.log",
+      "logDigest": "c5a06e433244c42acdf6bdd59876acaf14d4b11a9cb009fcafc738f75e693433"
+    },
+    {
+      "argv": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/artifact-settle.test.ts",
+        "tests/task-interface-fixture.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T00:12:51.124708+00:00",
+      "endedAt": "2026-11-16T00:13:20.362286+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-browser-bundle-green.log",
+      "logDigest": "ba23c539b8d400c5917936875806b3220c70ccf73aa1a1df69fadf262d3dd54a"
+    },
+    {
+      "argv": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/composer-app-refinement.spec.ts",
+        "--config",
+        "tests/e2e/frontend-refinement.playwright.config.ts",
+        "--grep",
+        "project selection uses|started chat opens"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T00:15:37.454694+00:00",
+      "endedAt": "2026-11-16T00:15:55.456887+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-project-binding-green.log",
+      "logDigest": "0899b15dab9d7dbefb0cbffda67490a5a8589d7b4fd692f52f4897b4e18576d5"
+    }
+  ],
+  "captureLimit": "The recorder pins the committed tree and tracked working diff. The new test was untracked during these checks, so those capture fields do not prove a complete immutable source tree. Its final exact bytes are separately bound above. A future exact-source Windows CI run remains required.",
+  "proofLimits": [
+    "These are actual local Linux process and Chromium results, not a new Windows job result.",
+    "No installed application, native Save, model provider or live memory study is proved by this fixture repair.",
+    "The current Windows run still contains the original pre-repair shard failure.",
+    "No command ledger or branch/ref was changed by this package."
+  ],
+  "reviewConclusion": "No remaining concrete guard or browser compatibility issue was found in this bounded repair. Full typecheck and final exact-source Windows validation remain parent-owned gates."
+}

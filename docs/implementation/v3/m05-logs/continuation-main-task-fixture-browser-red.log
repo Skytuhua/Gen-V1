@@ -1,0 +1,54 @@
+[1A[2K[2m[WebServer] [22m(node:42) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:59) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+[1A[2K(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection
+[1A[2K  1) tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('checkbox', { name: 'Select row 1', exact: true })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })[22m
+
+
+      32 |     // The shell bootstraps through a dynamic import after the load event.
+      33 |     // Bound initial readiness separately from the selection assertions below.
+    > 34 |     await expect(selected).toBeVisible({ timeout: 15_000 });
+         |                            ^
+      35 |     await expect(selected).toBeChecked();
+      36 |     await selected.click();
+      37 |     await expect.poll(() => saves.length).toBe(1);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/artifact-acknowledgment.spec.ts:34:28
+
+    Error Context: ../m05-local-checks/continuation-main-task-fixture-browser-red-artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../m05-local-checks/continuation-main-task-fixture-browser-red-artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../m05-local-checks/continuation-main-task-fixture-browser-red-artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 

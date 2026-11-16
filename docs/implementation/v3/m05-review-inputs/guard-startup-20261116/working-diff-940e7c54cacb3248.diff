@@ -1,0 +1,12 @@
+diff --git a/scripts/public-source-files.json b/scripts/public-source-files.json
+index c29ff397..e056432e 100644
+--- a/scripts/public-source-files.json
++++ b/scripts/public-source-files.json
+@@ -1196,6 +1196,7 @@
+     "tests/execution-boundary-v3.test.ts",
+     "tests/expanded-review-fixtures.test.ts",
+     "tests/exploration-catalog.test.ts",
++    "tests/file-access-startup.test.ts",
+     "tests/file-checkpoints.test.ts",
+     "tests/fixtures/hermes-protocol-worker.mjs",
+     "tests/fixtures/linux-path-guard/native.mjs",

@@ -1,0 +1,32 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/composer-app-refinement.spec.ts:176:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (7.7s)
+  ✓   2 tests/e2e/composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under no-preference (3.7s)
+  ✓   3 tests/e2e/composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under reduce (3.1s)
+  ✓   4 tests/e2e/composer-app-refinement.spec.ts:269:1 › attachment band reverses an interrupted exit without removing the live row (2.7s)
+  ✓   5 tests/e2e/composer-app-refinement.spec.ts:304:1 › composer removes repeated captions and toggles Build Plan without changing its draft (3.9s)
+  ✓   6 tests/e2e/composer-app-refinement.spec.ts:355:1 › project selection uses the explicit local host binding and leaves attachments on plus (3.3s)
+  ✓   7 tests/e2e/composer-app-refinement.spec.ts:396:1 › started chat opens an explicitly new project chat and retains its original binding and draft (3.7s)
+  ✓   8 tests/e2e/composer-app-refinement.spec.ts:432:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only (2.6s)
+  ✓   9 tests/e2e/composer-app-refinement.spec.ts:468:1 › a ready plan opens automatically and right-side tools can only be minimized (3.7s)
+  ✓  10 tests/e2e/composer-app-refinement.spec.ts:537:38 › /btw still sends a side question without a header button (2.9s)
+  ✓  11 tests/e2e/composer-app-refinement.spec.ts:537:38 › /side still sends a side question without a header button (2.6s)
+  ✓  12 tests/e2e/reserved-rail.spec.ts:127:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (3.2s)
+  ✓  13 tests/e2e/reserved-rail.spec.ts:166:1 › expanded usage stays compact and readable instead of reserving an oversized tool (2.8s)
+  ✓  14 tests/e2e/reserved-rail.spec.ts:189:1 › both protected tools minimize to a compact flow region on narrow screens (2.5s)
+  ✓  15 tests/e2e/reserved-rail.spec.ts:214:1 › minimized summaries retain their rail until an explicit artifact panel takes over (3.2s)
+  ✓  16 tests/e2e/reserved-rail.spec.ts:248:1 › expanded context keeps the header and composer across the full available chat frame (2.9s)
+  ✓  17 tests/e2e/reserved-rail.spec.ts:272:1 › protected context has only minimize controls while keeping the composer draft (3.1s)
+  ✓  18 tests/e2e/reserved-rail.spec.ts:301:1 › minimizing context releases the chat frame and preserves the artifact renderer (3.0s)
+  ✓  19 tests/e2e/reserved-rail.spec.ts:326:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop (3.2s)
+
+  19 passed (1.1m)

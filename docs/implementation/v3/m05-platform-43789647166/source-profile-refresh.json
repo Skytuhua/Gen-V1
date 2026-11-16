@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_PREPARATION_COMPLETE_ADMISSION_NOT_RUN",
+  "recordedAt": "2026-11-16T02:05:44.879855+00:00",
+  "sourceHeadSha": "299aa79fce281bacc370bd76373f760082046941",
+  "sourceTreeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "review": {
+    "bytes": 32978,
+    "sha256": "4db778c7466a3e70daf71dc219255d280eccc53d8f0afc6ccc676864c634ac14",
+    "gitBlobSha": "14a91594a23470d1c58e042ac3c266a60af723a0"
+  },
+  "originalProfile": {
+    "bytes": 10418,
+    "sha256": "9ba194493ec490ddce5d475df4de2daa9f35020260d60c9aafcbe7e6ffcfea1b",
+    "gitBlobSha": "e7a619894c4fb591193535256a7d5ff5a0bbe872"
+  },
+  "profile": {
+    "bytes": 10418,
+    "sha256": "b3f77c787e0131021f0c75efe144a87ff8c642a5e6c62bcc6ce5fecf7c0c4f09",
+    "gitBlobSha": "a7c813a35c98ad94bde273a3c39c95088f888d96"
+  },
+  "sourceBindings": {
+    "bytes": 8326,
+    "sha256": "7a4375b6034a1b7397f4a432b64ac35197d9096960ba87fe67ea7705e742aef5",
+    "gitBlobSha": "34423b64f3489e2380599981c769e6c84b134e04"
+  },
+  "supplementalSourceBindings": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "gitBlobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+    },
+    {
+      "path": "apps/desktop/layout-transaction.ts",
+      "bytes": 3068,
+      "sha256": "191fdbf3334d68608a42a6acd75710bd31dc1ff0578c95590575081c6a4b2ec1",
+      "gitBlobSha": "de539faa0cfb6ac4fa71fd9a5c5749736f47c921"
+    },
+    {
+      "path": "apps/desktop/workspace-events.ts",
+      "bytes": 3811,
+      "sha256": "cae5bcaf672501df0045d0b3c74d404b602f741904efd872ff3baf052dc30355",
+      "gitBlobSha": "90bdf3b684ecd0f52c7b9d7acd06faa7ed9b63ba"
+    },
+    {
+      "path": "apps/server/main.ts",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "gitBlobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "bytes": 28180,
+      "sha256": "e2cfcb9cc0989d4a081583f99511b76fad224d2f802d69be957df3988b81735b",
+      "gitBlobSha": "c4151c1eeb491eaca0d395d744077084e645fcbc"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 156966,
+      "sha256": "2c371849c93afa0b897fcdc82640ca0f4136f112ee6713c811689a8899c41dbb",
+      "gitBlobSha": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e"
+    },
+    {
+      "path": "apps/web/src/PlanStatus.tsx",
+      "bytes": 13305,
+      "sha256": "5f45c775b93e4557a21474c521daef5c5d9fa54d00cf9054b52876fe61e8a2f6",
+      "gitBlobSha": "3f1af434201f1620509bcd8361076070687eea4e"
+    },
+    {
+      "path": "apps/web/src/ProjectPicker.tsx",
+      "bytes": 10007,
+      "sha256": "0987985bda3c64235d26785fdef361cb9742c6ef6967aab2dfa482a233381e4f",
+      "gitBlobSha": "1ed175e576c5b4fbbda20b9f9772e77ed6207c12"
+    },
+    {
+      "path": "apps/web/src/SurfaceBoundary.tsx",
+      "bytes": 1078,
+      "sha256": "877ff198f52dda58e9e639ffa54d9b7ceedc080ef60c67ddddbade92db92b22d",
+      "gitBlobSha": "6f3cb0c2a589ca9c6d7397372ed0979aaf812dd0"
+    },
+    {
+      "path": "apps/web/src/ViewSkeletons.tsx",
+      "bytes": 3336,
+      "sha256": "a7a31304a8608fb1c3bd48e3a6dc08ff9e5faf6efac86bb63ba5aa0695ec8f0a",
+      "gitBlobSha": "df8c0ba471bfcdd0783412f25f3edc604524141a"
+    },
+    {
+      "path": "apps/web/src/WorkspaceControls.tsx",
+      "bytes": 12411,
+      "sha256": "e9f40b5055d01973f782ff7c77bcef6a9a09c4fd1f03f50a3f449f0e8c4bd8e0",
+      "gitBlobSha": "55302102ad9694b908c39844c00a8e867c8e3525"
+    },
+    {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "bytes": 28096,
+      "sha256": "f64334af613f794a3798fb49a73a6bc6fc1846fa4bf40096d934b54c5706325f",
+      "gitBlobSha": "13032a7b12ceae0a2de39366e38e0d022da93196"
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "bytes": 28381,
+      "sha256": "e8c532841c6ffd223b7d5a18aa806c5e87c3284a23b2152889dfba7737266c19",
+      "gitBlobSha": "ab46274986562b7b51ebae5e6aaa3452059f7c7f"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/AgentsWorkspace.tsx",
+      "bytes": 21331,
+      "sha256": "4bccdf5fba1cd6524ae26475e2617473e31805974a05b97a5786effdc5d55211",
+      "gitBlobSha": "14604480acbc115bd8e0f6ccf3082bf2c229a79a"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/agents-workspace.css",
+      "bytes": 10114,
+      "sha256": "40ec639689095512a7dacbafcb99c4ed8efe1b2f08b734162feb5ef7b7892598",
+      "gitBlobSha": "06f8d745a9e087095463fbc73fd8189d5b291e29"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/TimelineRows.tsx",
+      "bytes": 11469,
+      "sha256": "80626739d7ed09d1aa12964b5da3156230aadc9261d51642c15ad8fc8c8815de",
+      "gitBlobSha": "641388024d27155516be430d18a0077d29beb54a"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/timeline.css",
+      "bytes": 8205,
+      "sha256": "c9c05c46c09da12b277c2c89dc5048025979ab38795da48ab30e48a0e95e8d00",
+      "gitBlobSha": "b1d87dfb05b1a82f6f2754e5911af4d7884974e6"
+    },
+    {
+      "path": "apps/web/src/project-api.ts",
+      "bytes": 2758,
+      "sha256": "5552e7fbf2db0ef761aa13203f0b356d199f4b108773c6344fd75e8c4729c514",
+      "gitBlobSha": "73d17a1661e87173a238d07042e2a1945137234b"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "bytes": 5085,
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805",
+      "gitBlobSha": "90544731c91845bd2e6b2c3c5b89a84134e4d7fe"
+    },
+    {
+      "path": "apps/web/src/styles.css",
+      "bytes": 36503,
+      "sha256": "0ffa2c354faa3b3da8dc8bd4a2fe0df6a8f3b72af64782ada2580342a4a63ca8",
+      "gitBlobSha": "52f0f7ca79dcbaabd4ccdae71b85da7b2cdab12c"
+    },
+    {
+      "path": "apps/web/src/task-table-model.ts",
+      "bytes": 4930,
+      "sha256": "7189f9650c473454fdab6de53c5847d0e264d7a650dbd8c031b73cd89686defc",
+      "gitBlobSha": "8d191091a3d9cf2e5a529a814e36196e17ece6b6"
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "bytes": 2443,
+      "sha256": "ae4ca268d220afd0c84331ceb84a9a357952cea72089fad2c65fdba1dedbb83a",
+      "gitBlobSha": "9b6fbb49cb97e29250a5cee1576ba942be055da1"
+    },
+    {
+      "path": "apps/web/src/workspace-split.css",
+      "bytes": 7287,
+      "sha256": "7e33beea115f2adcbdd468367adc9d666c78ffe7c211648b795fc0dac33b333f",
+      "gitBlobSha": "3f9525f1d42c1ace6bbb433865d2ca835a06d948"
+    },
+    {
+      "path": "docs/public/features.md",
+      "bytes": 5454,
+      "sha256": "df2c4398ead8a2f8ac5e693bb39ce1104d791233888a3f76b1508435ed5ee54a",
+      "gitBlobSha": "597954e6a89aa08d0c98be521e8f269b27d15814"
+    },
+    {
+      "path": "docs/public/getting-started.md",
+      "bytes": 6715,
+      "sha256": "e4c8a84e7b554a039b6ca5e8645145eb74f76770a14887c3deeb9f2817177ab8",
+      "gitBlobSha": "da4c43d1608cb2918a9f5c9e4d5996ff0ba57d04"
+    },
+    {
+      "path": "packages/contracts/workspace.ts",
+      "bytes": 7750,
+      "sha256": "d7f0c5e199ca901105cadb1869d47075ff5e50786ab77cabe6204cf0e6190d1c",
+      "gitBlobSha": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "bytes": 12366,
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "gitBlobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "bytes": 12833,
+      "sha256": "f130b708297368baa20fe7a0b7c202566ebd19ed6d342d2e5a686505133c9c67",
+      "gitBlobSha": "09c95164b7065a5bb255f802a67f978f24d74a3e"
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "bytes": 2032,
+      "sha256": "9366285b50f98bde66076d3496aedcf74037672b4a8a7b6823c331cf9f09453a",
+      "gitBlobSha": "7179d1d8fd7151413e367c0acc772bf1a508a73b"
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "bytes": 6235,
+      "sha256": "4d9f2b3c8a655255a0d25270b5da7bff80f133f9f5435aa07c801cc03af9f4af",
+      "gitBlobSha": "021117cacbd3970428be2d79e31008fb3183ae13"
+    },
+    {
+      "path": "scripts/capture-ui/screen-map.ts",
+      "bytes": 39251,
+      "sha256": "eb8f23afab335bba4a4c6471ecaf9a6a6c3cb1c1e01e6ea7e4e7f368240c3d50",
+      "gitBlobSha": "551ae0651509d02ca145fdc7b612517540600554"
+    },
+    {
+      "path": "tests/desktop-backend-handoff.test.ts",
+      "bytes": 2441,
+      "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+      "gitBlobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+    },
+    {
+      "path": "tests/e2e/agents-workspace.spec.ts",
+      "bytes": 27431,
+      "sha256": "a2f6244f17cd664e35636dadda6de77ae539df5ca0f57a8b06fa2aa17e5f7f2e",
+      "gitBlobSha": "4b6d614b3014b6d49e70c9e3ece2fb16e5e40470"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "bytes": 24417,
+      "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0",
+      "gitBlobSha": "e1464d64b3f802166bc495fe52fb4bf9a373da3b"
+    },
+    {
+      "path": "tests/e2e/composer-app-refinement.spec.ts",
+      "bytes": 16268,
+      "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+      "gitBlobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+    },
+    {
+      "path": "tests/e2e/desktop-surfaces.spec.ts",
+      "bytes": 30657,
+      "sha256": "8a5770cdb0609fa2bfca573b2825b75c3efbb6bb3d0431a04db67b287fcd5acd",
+      "gitBlobSha": "ca3346a503e21e64b4217f3066b43fd78646e0a7"
+    },
+    {
+      "path": "tests/e2e/frontend-refinement.spec.ts",
+      "bytes": 4078,
+      "sha256": "84f710eb09e5c0ff091d7a29482fd80c9b21dd5cb7145ca072b46f02ddc0513f",
+      "gitBlobSha": "7151cb870dbb7758e9c3934a2b0c11ec14e2c2c9"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 28082,
+      "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b",
+      "gitBlobSha": "733db88e031cd8c3b148842c21c4f7d46adf7389"
+    },
+    {
+      "path": "tests/e2e/plan-timeline.spec.ts",
+      "bytes": 12270,
+      "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+      "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+    },
+    {
+      "path": "tests/e2e/reserved-rail.spec.ts",
+      "bytes": 11360,
+      "sha256": "ef7588f9e28933acec25e231bb87a23b779ba31528085770a05006b2af348e9e",
+      "gitBlobSha": "18d6a326ef5d207d50f81592f4fb108a11439900"
+    },
+    {
+      "path": "tests/e2e/saved-layout-chooser.spec.ts",
+      "bytes": 13480,
+      "sha256": "0d18bf02ec72e1d0f2e086bd6ab75a2bb785d0bc154e63f393b32d8e6bd54718",
+      "gitBlobSha": "bbfb821bec9297908104145f37598adcd33f3a31"
+    },
+    {
+      "path": "tests/e2e/shell-error-ownership.spec.ts",
+      "bytes": 6061,
+      "sha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+      "gitBlobSha": "cdba2f38bf5e59d65bc38154a7a69fb6458db490"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13385,
+      "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+      "gitBlobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "bytes": 61185,
+      "sha256": "9f35e05deaa3dadb03b8ffce74a08b3e60fbd7a21a80ec01a150260817a299d8",
+      "gitBlobSha": "4d3dd98bbb3c86933fb39e9357e3f929c6465825"
+    },
+    {
+      "path": "tests/file-access-startup.test.ts",
+      "bytes": 7489,
+      "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+      "gitBlobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    },
+    {
+      "path": "tests/path-access.test.ts",
+      "bytes": 27648,
+      "sha256": "e8fa6cbf0d67be5463811f891c7bd80b698b7a002a27ae714e3712ba7ccafff2",
+      "gitBlobSha": "b823cebc4e5f58cadf1f042a744a0c49bc750956"
+    },
+    {
+      "path": "tests/plan-timeline-ui.test.ts",
+      "bytes": 15275,
+      "sha256": "6a3cde88be2d2c4120b98b7896383ffcc08e1b54a5416488d5ff95673227bcd6",
+      "gitBlobSha": "576f6bdbf5f5ac078208f1876d2773f35c73b4fa"
+    },
+    {
+      "path": "tests/plugin-visuals-retirement.test.ts",
+      "bytes": 3995,
+      "sha256": "699189f6e9cd89989675d4a41429b49e8adb58a31fde1331d738b1b5d10c824c",
+      "gitBlobSha": "ee4d16fc533ff7c291ea47c4b0429306897b7672"
+    },
+    {
+      "path": "tests/project-context-owner.test.ts",
+      "bytes": 2368,
+      "sha256": "695f82652cf4ba5105215c9e3b8fcb9e77339b499f65eaf7f7eb23109348258e",
+      "gitBlobSha": "00d84c6e8aa6960fedf4ff60505cce28035a39ca"
+    },
+    {
+      "path": "tests/research-service-integration.test.ts",
+      "bytes": 5726,
+      "sha256": "37fcf58724f5f33916248933c516f8b042a2e2ef820ef9a89e7615db90a2fdf2",
+      "gitBlobSha": "fe670db6b41bbbbffcdee099dd6f3b47c3bdc2ef"
+    },
+    {
+      "path": "tests/split-workspace-renderer.test.ts",
+      "bytes": 16328,
+      "sha256": "8d405ba4df4779bffa13cbe3959c8b196618bc5e1dea1979cdd6e2fcb83ecdeb",
+      "gitBlobSha": "125dee0b679e524702bebc117f465ba7c5747598"
+    },
+    {
+      "path": "tests/task-interface-fixture.test.ts",
+      "bytes": 5388,
+      "sha256": "20d23e655cf2a6848e10a210505dd9681c28e6ceb8637392734a98c69bd4eba0",
+      "gitBlobSha": "0aad350c8cbb357fabfd7bad9cd24f4117695bca"
+    },
+    {
+      "path": "tests/view-loading-state.test.ts",
+      "bytes": 9442,
+      "sha256": "9ee4f3c32ff767b90ff5daeb3a1e74fe340645c97e1003c4d11b481a1ddfcfff",
+      "gitBlobSha": "f05529a1b685d7de232b2177e259d4f5b9df6d5c"
+    },
+    {
+      "path": "tests/workspace-layout.test.ts",
+      "bytes": 14187,
+      "sha256": "7f07cb9c813023bfaaedbabfaea84cedb6a1dd696c7432a1edb6addf6163247a",
+      "gitBlobSha": "adab6745c702b04aae0cb830eb20d9679cdab98d"
+    }
+  ],
+  "supplementalScope": "Supplemental runtime and UI bindings do not claim that default-off installed retention exercises enabled memory extraction, consolidation or checkpoints.",
+  "validatorExecuted": false,
+  "installedArtifactAdmitted": false,
+  "remainingGates": {
+    "actualFullWindowsCI": "REQUIRED",
+    "actualInstalledArtifact": "REQUIRED",
+    "independentVisualReview": "REQUIRED",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN"
+  }
+}

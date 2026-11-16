@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "kind": "Read-only PR347 final merge and evidence materialization gate snapshot",
+  "recordedAt": "2026-11-16T02:38:04.815Z",
+  "repository": "skytuhua-org/Gen-V1",
+  "pr": {
+    "url": "https://github.com/skytuhua-org/Gen-V1/pull/347",
+    "state": "open",
+    "draft": true,
+    "headSha": "299aa79fce281bacc370bd76373f760082046941",
+    "headRef": "agent/m05-v3",
+    "baseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "baseRef": "main",
+    "mergeable": true,
+    "mergeableState": "clean",
+    "rebaseable": false,
+    "temporaryMergeCommitSha": "3afb1235760c135dc0648f7b79f621b7b4669eda",
+    "requestedReviewers": [],
+    "requestedTeams": []
+  },
+  "baseBranch": {
+    "sha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "protected": false,
+    "protectionSummary": {
+      "enabled": false,
+      "required_status_checks": {
+        "enforcement_level": "off",
+        "contexts": [],
+        "checks": []
+      }
+    }
+  },
+  "rulesetsIncludingParents": [],
+  "detailedProtectionAccess": {
+    "error": "GitHub API error 403: {\"message\":\"Resource not accessible by integration\",\"documentation_url\":\"https://docs.github.com/rest/branches/branch-protection#get-branch-protection\",\"status\":\"403\"}",
+    "errorCode": "FORBIDDEN"
+  },
+  "effectiveBranchRulesAccess": {
+    "error": "HTTPError: 400: GitHub Fetch URL is not an allowed public GitHub repository or search endpoint. (Response: None)",
+    "errorCode": "INVALID_ARGUMENT"
+  },
+  "repositoryMergePolicy": {
+    "allowMergeCommit": true,
+    "allowSquashMerge": true,
+    "allowRebaseMerge": true,
+    "allowAutoMerge": false,
+    "deleteBranchOnMerge": true
+  },
+  "reviews": [],
+  "legacyStatuses": {
+    "state": "pending",
+    "totalCount": 0,
+    "statuses": []
+  },
+  "checkRunsByWorkflow": {
+    "43789647166": [
+      {
+        "id": 133044988947,
+        "name": "Hermes contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:51Z",
+        "completedAt": "2026-11-16T02:05:05Z"
+      },
+      {
+        "id": 133044988939,
+        "name": "Tests (shard 2/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:51Z",
+        "completedAt": "2026-11-16T02:07:17Z"
+      },
+      {
+        "id": 133044988913,
+        "name": "Installed desktop memory retention",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:51Z",
+        "completedAt": "2026-11-16T02:35:20Z"
+      },
+      {
+        "id": 133044988903,
+        "name": "Windows checks",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:50Z",
+        "completedAt": "2026-11-16T02:03:52Z"
+      },
+      {
+        "id": 133044988899,
+        "name": "Tests (shard 3/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:50Z",
+        "completedAt": "2026-11-16T02:07:16Z"
+      },
+      {
+        "id": 133044988874,
+        "name": "Tests (shard 4/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:50Z",
+        "completedAt": "2026-11-16T02:07:07Z"
+      },
+      {
+        "id": 133044988873,
+        "name": "Browser tests",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:51Z",
+        "completedAt": "2026-11-16T02:16:28Z"
+      },
+      {
+        "id": 133044988834,
+        "name": "Tests (shard 1/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:51Z",
+        "completedAt": "2026-11-16T02:09:28Z"
+      },
+      {
+        "id": 133044988754,
+        "name": "Desktop build",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:50Z",
+        "completedAt": "2026-11-16T02:02:59Z"
+      }
+    ],
+    "43789652077": [
+      {
+        "id": 133044973190,
+        "name": "Agents grid UI evidence (Windows, pinned Edge)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T02:01:45Z",
+        "completedAt": "2026-11-16T02:01:37Z"
+      }
+    ],
+    "43789652301": [
+      {
+        "id": 133044935111,
+        "name": "Desktop build",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:03:08Z"
+      },
+      {
+        "id": 133044935039,
+        "name": "Installed desktop memory retention",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:26:09Z"
+      },
+      {
+        "id": 133044935034,
+        "name": "Browser tests",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:16:10Z"
+      },
+      {
+        "id": 133044935022,
+        "name": "Tests (shard 3/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:07:21Z"
+      },
+      {
+        "id": 133044935019,
+        "name": "Tests (shard 4/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:06:51Z"
+      },
+      {
+        "id": 133044934986,
+        "name": "Hermes contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:39Z",
+        "completedAt": "2026-11-16T02:04:48Z"
+      },
+      {
+        "id": 133044934973,
+        "name": "Tests (shard 2/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:39Z",
+        "completedAt": "2026-11-16T02:07:18Z"
+      },
+      {
+        "id": 133044934963,
+        "name": "Tests (shard 1/4)",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:08:55Z"
+      },
+      {
+        "id": 133044934781,
+        "name": "Windows checks",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-11-16T02:01:40Z",
+        "completedAt": "2026-11-16T02:04:27Z"
+      }
+    ]
+  },
+  "observedMergeGates": [
+    "PR is still a draft. Ready-for-review transition is required before the ordinary merge action.",
+    "The readable main-branch summary reports protection off and no required status-check contexts; repository/inherited ruleset listing is empty. The detailed protection endpoint is forbidden to this integration and the effective-rules endpoint is unsupported, so no inaccessible policy is asserted absent.",
+    "Canonical exact-source run43789647166 and separate PR run43789652301 each have9 successful jobs in this snapshot. A separate Agents grid workflow is skipped. Legacy status API pending with0 statuses does not contradict the actual successful check runs.",
+    "Current main49cd equals the reviewed accepted base and the PR reports clean mergeability. The final expected-head/base identities must remain exact when the already-authorized merge is performed.",
+    "Project finalization still requires terminal receipt/command import, independent actual installed admission, reviewed documentation and actual unchanged evidence-verifier output. Current check success alone is not installed artifact admission."
+  ],
+  "evidencePrerequisites": {
+    "verifier": {
+      "path": "scripts/verify-m05-evidence.ts",
+      "bytes": 4034,
+      "sha256": "e7b21bf7bda64fca76c1347f8e77e830c3a17f47ce6bba2a2c2cf3459b6add3e"
+    },
+    "contract": {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "bytes": 10262,
+      "sha256": "149654583eb30c23922deb3c75e2e1b4113083b064b7b95ad6a7ada903d984df"
+    },
+    "requiredFinalState": [
+      "Final source/code/test/workflow bytes equal reviewed299; the new commit changes only reviewed documentation/evidence.",
+      "Source lock uses accepted49cd, exact63 base blobs and16 contracts; its digest matches M05-verification.",
+      "changedFiles equals actual Git difference plus untracked admitted files, and includes final generated evidence/integrity/inventory outputs. All artifacts exist and each command log is at most65536bytes with its recorded SHA256.",
+      "Actual verifier runs in restored Linux checkout; its path containment uses root+'/' and all declared base/ancestor objects must be present.",
+      "Keep actual verifier PASS separate from implementation bundle PARTIAL. reviewerApproval staysfalse, memory flags stayfalse, full enabled installed and live-study cases remainNOT_RUN/BLOCKED.",
+      "After actual verifier writes its result, bind those exact bytes in the final inventory and preserve the frozen input identities. No repeated fullCI is added for documentation-only finalization."
+    ],
+    "admissionBranchReview": "Reviewed the patched assembler/finalizer path with all9 jobs successful and a valid exact-head installed admission. Retained-memory required case may PASS while the encompassing installed phase remains BLOCKED because full enabled installed flow is NOT_RUN. Native FILE selection requires its separate current observation. Remaining enabled/live gates and false activation flags survive. No additional concrete defect found."
+  },
+  "mutations": {
+    "repository": false,
+    "refs": false,
+    "branchSettings": false,
+    "merge": false,
+    "ciLogsDownloaded": false,
+    "artifactsDownloaded": false,
+    "testsRun": false
+  }
+}
+
