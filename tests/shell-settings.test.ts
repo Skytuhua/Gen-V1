@@ -41,11 +41,11 @@ describe('pinned T3 settings inventory', () => {
     expect(SETTINGS_ROWS.find(row => row.id === 'harness-skills')).toMatchObject({section:'skills',title:'Skills & learning'});
     expect(new Set(SETTINGS_ROWS.map(row => row.id)).size).toBe(SETTINGS_ROWS.length);
     for (const [section] of SETTINGS_SECTIONS) expect(SETTINGS_ROWS.some(row => row.section === section), section).toBe(true);
-    expect(SETTINGS_ROWS.every(row => settingAvailability(row) === 'Working')).toBe(true);
+    expect(SETTINGS_ROWS.every(row => settingAvailability(row) === 'Registered')).toBe(true);
   });
   it('removes unsupported desktop and service placeholders from the visible index', () => {
     expect(SETTINGS_ROWS.filter(row => ['devices', 'snap-shot', 'scheduled-tasks', 'secrets', 'worktrees', 'source-control', 'access'].includes(row.section))).toEqual([]);
-    expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'chat-width')!)).toBe('Working');
+    expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'chat-width')!)).toBe('Registered');
     expect(SETTINGS_ROWS.some(row => row.id === 'delete-confirmation')).toBe(false);
   });
 });

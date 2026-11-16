@@ -18,9 +18,9 @@ for (const savedSelection of ['Details', 'Stale selection']) {
     await expect(page.getByRole('alert')).toHaveCount(1);
     await expect(page.getByRole('alert')).toHaveText('This saved tab view is invalid because its labels are not unique.');
     await expect(page.getByRole('alert')).toBeVisible();
-    await expect(page.getByRole('tablist', { includeHidden: true })).toHaveCount(0);
-    await expect(page.getByRole('tab', { includeHidden: true })).toHaveCount(0);
-    await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(0);
+    await expect(page.locator('.artifact-content').getByRole('tablist', { includeHidden: true })).toHaveCount(0);
+    await expect(page.locator('.artifact-content').getByRole('tab', { includeHidden: true })).toHaveCount(0);
+    await expect(page.locator('.artifact-content').getByRole('tabpanel', { includeHidden: true })).toHaveCount(0);
     await expect(page.locator('.artifact-content input')).toHaveCount(0);
     // Allow the real state save debounce to elapse before asserting no writes.
     expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
@@ -33,22 +33,22 @@ test('unique tabs retain saved selection and mounted drafts', async ({ page }) =
   const spec = tabsSpec(['Details', 'Preview']); validateSurface(spec);
   const host = await serveTaskFixture(page, taskFixture(spec, { operation }, { selectedTab: 'Preview' }));
   await page.goto('/');
-  const details = page.getByRole('tab', { name: 'Details', exact: true });
-  const preview = page.getByRole('tab', { name: 'Preview', exact: true });
+  const details = page.locator('.artifact-content').getByRole('tab', { name: 'Details', exact: true });
+  const preview = page.locator('.artifact-content').getByRole('tab', { name: 'Preview', exact: true });
   const first = page.getByRole('textbox', { name: 'First draft', includeHidden: true });
   const second = page.getByRole('textbox', { name: 'Second draft', includeHidden: true });
-  const assertSelected = async (label: string) => {
-    await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
-    await expect(page.getByRole('tab', { name: label, exact: true })).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('tab', { name: label, exact: true })).toHaveAttribute('tabindex', '0');
-    await expect(page.locator('[role="tab"][tabindex="0"]')).toHaveCount(1);
-    await expect(page.getByRole('tabpanel')).toHaveCount(1);
-    await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(2);
+  const assertSelected = async (label: string, mountedPanels = 2) => {
+    await expect(page.locator('.artifact-content').getByRole('tab', { selected: true })).toHaveCount(1);
+    await expect(page.locator('.artifact-content').getByRole('tab', { name: label, exact: true })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.artifact-content').getByRole('tab', { name: label, exact: true })).toHaveAttribute('tabindex', '0');
+    await expect(page.locator('.artifact-content [role="tab"][tabindex="0"]')).toHaveCount(1);
+    await expect(page.locator('.artifact-content').getByRole('tabpanel')).toHaveCount(1);
+    await expect(page.locator('.artifact-content').getByRole('tabpanel', { includeHidden: true })).toHaveCount(mountedPanels);
   };
-  await assertSelected('Preview');
+  await assertSelected('Preview', 1);
   await second.fill('Preview draft retained');
-  const firstNode = await first.elementHandle(), secondNode = await second.elementHandle();
   await details.click(); await assertSelected('Details'); await first.fill('Details draft retained');
+  const firstNode = await first.elementHandle(), secondNode = await second.elementHandle();
   await details.press('ArrowRight'); await assertSelected('Preview'); await expect(preview).toBeFocused();
   await preview.press('ArrowLeft'); await assertSelected('Details'); await expect(details).toBeFocused();
   await details.press('End'); await assertSelected('Preview'); await expect(preview).toBeFocused();
@@ -75,9 +75,9 @@ test('an unknown saved label falls back without rewriting state on render', asyn
   const spec = tabsSpec(['Details', 'Preview']); validateSurface(spec);
   const host = await serveTaskFixture(page, taskFixture(spec, { operation }, { selectedTab: 'Unknown label' }));
   await page.goto('/');
-  await expect(page.getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
-  await expect(page.getByRole('tabpanel')).toHaveCount(1);
+  await expect(page.locator('.artifact-content').getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.artifact-content').getByRole('tab', { selected: true })).toHaveCount(1);
+  await expect(page.locator('.artifact-content').getByRole('tabpanel')).toHaveCount(1);
   await expect(page.getByRole('textbox', { name: 'First draft' })).toBeVisible();
   expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
   expect(host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type))).toEqual([]);
