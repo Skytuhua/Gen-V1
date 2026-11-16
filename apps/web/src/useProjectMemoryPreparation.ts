@@ -4,7 +4,8 @@ import {MemoryPreparationController, memoryRequestKey, type MemoryRequestInput} 
 
 export function useProjectMemoryPreparation(input: MemoryRequestInput | undefined, open: boolean, disabled = false) {
   const controller = useMemo(() => new MemoryPreparationController(), []), key = memoryRequestKey(input);
-  const current = useRef({input, disabled}); current.current = {input, disabled};
+  const current = useRef({input, disabled});
+  useLayoutEffect(() => {current.current = {input, disabled};});
   const state = useSyncExternalStore(controller.subscribe, controller.snapshot, controller.snapshot);
   useLayoutEffect(() => {controller.bind(current.current.input);}, [controller, key]);
   useEffect(() => {const {input, disabled} = current.current; if (open && input && (!disabled || !input.prompt)) void controller.inspect(input);}, [controller, open, key]);
