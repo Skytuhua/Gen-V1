@@ -176,6 +176,37 @@ test('pending account actions block duplicate submissions and expose recoverable
   await expect(provider.getByRole('radio', { name: 'Work', exact: true })).toBeEnabled();
 });
 
+test('Settings search and section navigation retain the unsaved account choice',async({page})=>{
+  const h=await host(page);await page.goto('/');const provider=await openAccounts(page),owner=await provider.elementHandle();
+  await provider.getByRole('radio',{name:'Work',exact:true}).check();
+  const dialog=page.getByRole('dialog',{name:'Settings',exact:true});await dialog.getByRole('searchbox',{name:'Search all settings',exact:true}).fill('ChatGPT');
+  await dialog.getByRole('button',{name:/^ChatGPT \/ Codex Models & accounts/}).click();
+  await expect(provider.getByRole('radio',{name:'Work',exact:true})).toBeChecked();expect(await owner!.evaluate(node=>node.isConnected)).toBe(true);
+  await dialog.getByRole('navigation',{name:'Settings sections'}).getByRole('button',{name:'General',exact:true}).click();
+  await dialog.getByRole('navigation',{name:'Settings sections'}).getByRole('button',{name:'Models & Accounts',exact:true}).click();
+  await expect(provider.getByRole('radio',{name:'Work',exact:true})).toBeChecked();expect(h.snapshot.settings.selectedAccounts?.openai).toBe(personal);expect(h.commands).toHaveLength(0);
+});
+
+test('Settings search retains the pending account write and its hidden failure for retry',async({page})=>{
+  const h=await host(page),attempts:HostCommand[]=[];let release!:()=>void,started!:()=>void,failed!:()=>void,fail=true;
+  const pending=new Promise<void>(resolve=>{release=resolve;}),seen=new Promise<void>(resolve=>{started=resolve;}),rejected=new Promise<void>(resolve=>{failed=resolve;});
+  await page.route('**/api/commands',async route=>{
+    const request=route.request().postDataJSON() as HostCommand;if(request.type!=='account.select')return route.fallback();attempts.push(request);
+    if(!fail)return route.fallback();fail=false;started();await pending;await route.fulfill({status:409,json:{error:{code:'ACCOUNT_BUSY',message:'Synthetic held account update failed.'}}});failed();
+  });
+  try{
+    await page.goto('/');const provider=await openAccounts(page);await provider.getByRole('radio',{name:'Work',exact:true}).check();await provider.getByRole('button',{name:'Use account',exact:true}).click();await seen;
+    const dialog=page.getByRole('dialog',{name:'Settings',exact:true}),search=dialog.getByRole('searchbox',{name:'Search all settings',exact:true});
+    await search.fill('ChatGPT');await dialog.getByRole('button',{name:/^ChatGPT \/ Codex Models & accounts/}).click();
+    await expect(provider.getByRole('radio',{name:'Work',exact:true})).toBeChecked();await expect(provider.getByRole('radio',{name:'Personal',exact:true})).toBeDisabled();
+    const saving=provider.getByRole('button',{name:'Saving default…',exact:true});await expect(saving).toBeDisabled();await saving.dispatchEvent('click');expect(attempts).toHaveLength(1);
+    await search.fill('ChatGPT');release();await rejected;await dialog.getByRole('button',{name:/^ChatGPT \/ Codex Models & accounts/}).click();
+    const error=dialog.getByRole('status').filter({hasText:'Synthetic held account update failed.'});await expect(error).toBeVisible();await expect(provider.getByRole('radio',{name:'Work',exact:true})).toBeChecked();
+    await provider.getByRole('button',{name:'Use account',exact:true}).click();await expect(provider.locator(`[data-account-id="${work}"]`).getByText('Default',{exact:true})).toBeVisible();await expect(error).toHaveCount(0);
+    expect(attempts).toHaveLength(2);expect(attempts.every(request=>request.payload.accountId===work)).toBe(true);expect(h.commands.filter(request=>request.type==='account.select')).toHaveLength(1);
+  }finally{release();}
+});
+
 test('an account radio is a pending choice until the new-task default is saved', async ({ page }) => {
   const h = await host(page); await page.goto('/'); const provider = await openAccounts(page);
   const personalRow = provider.locator(`[data-account-id="${personal}"]`), workRow = provider.locator(`[data-account-id="${work}"]`);

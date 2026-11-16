@@ -100,6 +100,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const [query, setQuery] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
   const [pendingTarget, setPendingTarget] = useState<string | null>(null);
   const [connectionProvider,setConnectionProvider]=useState('openai');
+  const [connectionsOpened,setConnectionsOpened]=useState(target==='providers');
   const [revealedTarget,setRevealedTarget]=useState<HTMLElement|null>(null);
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]), [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
@@ -154,8 +155,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const showAppearance = !searching && section === 'appearance';
   const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
-  const chooseSection = (id: string) => { setQuery(''); setSection(id); };
-  const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));setQuery(''); setSection(item.section); setPendingTarget(item.targetId); };
+  const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
+  const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
     if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
@@ -195,13 +196,13 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {matches('harness-runtime') && <div data-setting-id="harness-runtime">{environmentSettings}</div>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
       {matches('harness-integrations') && <div data-setting-id="harness-integrations"><IntegrationSettings/></div>}
-      {matches('harness-accounts') && <div data-setting-id="harness-accounts"><Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/></div>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
       {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
       {matches('app-version') && <div data-setting-id="app-version"><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></div>}
       {matches('browser-start-page') && <section className="settings-card" data-setting-id="browser-start-page"><h2>Manual browser</h2>{openBrowser ? <form onSubmit={event => { event.preventDefault(); void persist({ preferences: { browserStartUrl: browserUrl } }); }}><label className="field">Start page<input aria-label="Browser start page" type="url" placeholder="Blank page" maxLength={2048} value={browserUrl} disabled={busy} onChange={event => setBrowserUrl(event.target.value)}/></label><div className="settings-inline-controls"><button className="secondary" disabled={busy || browserUrl === preferences.browserStartUrl}>Save start page</button><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void openBrowser(preferences.browserStartUrl).then(close).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Open browser</button></div></form> : <p className="settings-card-intro">Open the manual browser from the Windows desktop workspace. Navigation, reload and stop stay in its toolbar.</p>}</section>}
       </>}
+      {connectionsOpened && <div data-setting-id="harness-accounts" hidden={searching||section!=='providers'}><Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/></div>}
     </main>
   </div>;
 }
