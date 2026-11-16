@@ -3,6 +3,7 @@ import type { ArtifactRecord, HostCommand, Snapshot, Thread } from '../../packag
 import { widgetShellDocument } from '../../packages/widgets/document';
 import { build } from 'esbuild';
 import { WIDGET_WORKER_CSP } from '../../packages/widgets/protocol';
+import {serveTaskSplitLayout} from './task-interface-fixture';
 
 const workerBundle = build({ entryPoints: ['packages/widgets/worker.ts'], bundle: true, platform: 'browser', format: 'iife', write: false });
 
@@ -124,13 +125,15 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
     }
     state.snapshot.seq++;
     await state.afterCommand?.(cmd);
-    return route.fulfill({ json: { commandId: cmd.id, eventSeq: state.snapshot.seq, result } });
+    await route.fulfill({ json: { commandId: cmd.id, eventSeq: state.snapshot.seq, result } });
+    if(cmd.type==='thread.archive')await emit(page,state.snapshot.seq);
   });
   await page.route('http://localhost:4318/widget/**', async route => {
     const id = new URL(route.request().url()).pathname.split('/')[2];
     return route.fulfill({ contentType: 'text/html', body: widgetShellDocument(id) });
   });
   await page.route('**/widget-runtime/worker.js', async route => route.fulfill({ contentType: 'text/javascript', headers: { 'Content-Security-Policy': WIDGET_WORKER_CSP, 'X-Content-Type-Options': 'nosniff' }, body: Buffer.from((await workerBundle).outputFiles[0]!.contents) }));
+  await serveTaskSplitLayout(page,state.snapshot);
   return state;
 }
 
@@ -934,9 +937,15 @@ test('dirty widgets require a checkpoint or explicit discard before thread archi
   await expect(page.getByRole('dialog', { name: 'Uncheckpointed widget edits' })).toBeVisible(); expect(state.commands.filter(cmd => cmd.type === 'thread.archive')).toHaveLength(0);
   await page.getByRole('button', { name: 'Return to checkpoint' }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Preserve before archive'); expect(state.mounts).toBe(1);
+  expect(await page.getByText('Checkpoint widget edits before moving this artifact.',{exact:true}).count()).toBe(0);
   await frame.getByRole('button', { name: 'Checkpoint note' }).click(); await expect(frame.locator('#receipt')).toHaveText('Saved revision 1'); expect(await unloadIsGuarded(page)).toBe(false);
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Explicitly discarded'); await expect(page.getByText('Uncheckpointed edits', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Options for First task', exact: true }).click(); await page.getByRole('menuitem', { name: 'Archive thread', exact: true }).click();
+  state.failRelease=true;await page.getByRole('button',{name:'Discard edits and archive',exact:true}).click();
+  await expect(page.getByText('Lease release failed; retain your draft.',{exact:true})).toBeVisible();
+  expect(state.commands.filter(cmd=>cmd.type==='thread.archive')).toHaveLength(0);expect(await unloadIsGuarded(page)).toBe(true);
+  await expect(frame.getByRole('textbox',{name:'Widget note'})).toHaveValue('Explicitly discarded');
+  state.failRelease=false;
   await page.getByRole('button', { name: 'Discard edits and archive', exact: true }).click(); await expect(page.locator('iframe')).toHaveCount(0);
   expect(state.snapshot.userStates[0].values).toEqual({ note: 'Preserve before archive' }); expect(await unloadIsGuarded(page)).toBe(false);
 });

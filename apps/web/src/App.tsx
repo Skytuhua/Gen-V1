@@ -788,7 +788,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const archive = async (id: string, discard = false, confirmed = false) => {
     if (!discard && Object.values(dirtyWidgets).includes(id)) { setArchiveThread(id);  return; }
     if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id);  return; }
-    try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); if (id === thread?.id) select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
+    try { if(discard)for(const artifactId of Object.keys(dirtyWidgets).filter(key=>dirtyWidgets[key]===id)){const release=widgetDiscards.current.get(artifactId);if(!release)throw Error('Reopen the owning conversation before discarding its widget edits.');await release();} await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); if (id === thread?.id) select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
   };
   // Windowed threads' older messages are not in the snapshot; ask the server
   // which of them still match the query.
@@ -898,7 +898,10 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   },[desktop?.state.focusSurface,workspaceEnvelope,splitEnabled,splitSelectionReady]);
   const placeSplitThread=async(threadId:string,paneId=convSplitState.layout?.focusedPaneId,edge:SplitDropEdge='center',outer=false)=>{
     const current=convSplitState.layout;if(!current||!paneId)throw Error('Wait for the workspace to load.');
-    await prepareWorkspace();const next=threadPlacementCommand(current,snapshotRef.current.threads,threadId,paneId,edge,outer);
+    const next=threadPlacementCommand(current,snapshotRef.current.threads,threadId,paneId,edge,outer);
+    const existing=current.panes[paneId]?.viewIds.find(id=>current.views[id]?.kind==='thread'&&current.views[id]?.binding.authority.kind==='local'&&current.views[id]?.binding.threadId===threadId);
+    if(edge==='center'&&existing){await journalFlush();next.type='view.activate';next.payload={workspaceId:current.id,baseRevision:current.revision,paneId,viewId:existing};}
+    else await prepareWorkspace();
     const placed=await convSplitState.send(next.type,next.payload);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Current selection remains usable. */}placedThread.current=threadId;setSelectedId(threadId);setSelectedPluginId(null);setSelectedPluginWorkspace(null);publishMainSelection(placed);
   };
   useEffect(()=>{
@@ -1129,7 +1132,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     </div>}</div>{openedPlugins.map(id=>{const plugin=plugins.find(value=>value.id===id);return plugin?<PluginFrame key={id} plugin={plugin} projectColors={preferences.projectColors} theme={theme} active={selectedPluginId===id&&!selectedPluginWorkspace}/>:null;})}{openedPluginWorkspaces.map(item=>{const plugin=plugins.find(value=>value.id===item.pluginId),contribution=plugin?.workspaces?.find(value=>value.id===item.workspaceId);return plugin&&contribution?<PluginFrame key={item.pluginId+':'+item.workspaceId} plugin={plugin} projectColors={preferences.projectColors} workspace={contribution} theme={theme} active={selectedPluginWorkspace===item.pluginId+':'+item.workspaceId}/>:null;})}</div>}
     {!embeddedThreadId&&<><Toaster/><TooltipLayer/></>}
     {confirmArchive && <Dialog title="Archive thread?" close={() => setConfirmArchive(null)}><p>The saved conversation will move to Archive in Settings. Restore it there whenever you need it.</p><footer className="dialog-actions"><button className="quiet" onClick={() => setConfirmArchive(null)}>Cancel</button><button className="primary" onClick={() => { const id = confirmArchive; setConfirmArchive(null); void archive(id, false, true); }}>Archive thread</button></footer></Dialog>}
-    {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p><footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
+    {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p>{error&&<p role="status" className="error-text">{error}</p>}<footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
     {resourcePicker && <ResourcePicker key={resourcePicker.session} threadId={resourcePicker.threadId} opener={resourcePicker.opener}
       close={() => setResourcePicker(current => current === resourcePicker ? null : current)} refresh={refresh} />}
     {projectPicker&&<ProjectPicker open authority={{kind:'local'}} projects={workspaceEnvelope?.projects??[]} selectedProjectId={snapshot.threads.find(value=>value.id===projectPicker.threadId)?.projectId}
