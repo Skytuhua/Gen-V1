@@ -1,5 +1,6 @@
 import {_electron,expect,type ElectronApplication,type Page} from '@playwright/test';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdtemp,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
@@ -11,7 +12,8 @@ import {PLANNING_PROVENANCE,planDataId} from '../packages/contracts/planning.ts'
 import type {DesktopSurface} from '../packages/desktop-contract/index.ts';
 import {verificationPorts} from './portable-verification.ts';
 
-const root=resolve('.'),directory=resolve('.harness-desktop-native/run-'+Date.now()+'-'+randomUUID());await mkdir(directory,{recursive:true});
+// Keep the owned Chromium profile below Windows IndexedDB backing-store path limits.
+const root=resolve('.'),directory=await mkdtemp(join(tmpdir(),'gen-native-'));
 const [hostPort,widgetPort]=await verificationPorts();
 const store=new Store(join(directory,'host'));
 const fixture=taskFixture({root:'fields',elements:{fields:{type:'Input',props:{stateKey:'note',label:'Delivery note'}}}},{},{note:'Original native fixture'});
