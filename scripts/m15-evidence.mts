@@ -13,7 +13,7 @@ const hash=(path:string)=>createHash('sha256').update(readFileSync(path)).digest
 const write=(path:string,value:unknown)=>writeFileSync(path,JSON.stringify(value,null,2)+'\n');
 const git=(...args:string[])=>execFileSync('git',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
 const plan=json(prefix+'evidence-plan.json') as {executionBaseSha:string;auditAncestorSha:string;acceptedDependencyCommits:string[];dependencyContracts:{name:string;testIds:string[]}[];inspectedPaths:string[];remainingGates:string[];phases:{id:string;status:PhaseEvidence['status'];cases:PhaseEvidence['requiredCases'];commandIds:string[];artifactRefs:string[]}[]};
-const paths=(base:string)=>[...new Set([...git('diff','--name-only',base).split('\n'),...git('ls-files','--others','--exclude-standard').split('\n')].filter(Boolean))].sort();
+const paths=(base:string)=>[...new Set([...git('diff','--name-only',base).split('\n'),...git('ls-files','--others','--exclude-standard').split('\n')].filter(Boolean).filter(path=>existsSync(path)))].sort();
 const walk=(path:string):string[]=>readdirSync(path).sort().flatMap(name=>{const file=join(path,name);return statSync(file).isDirectory()?walk(file):[file];});
 const records=()=>readdirSync(`${root}/m15-logs`).filter(name=>name.endsWith('.json')).sort().flatMap(name=>{
  const file=`${root}/m15-logs/${name}`,value=json(file);
