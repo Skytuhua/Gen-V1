@@ -96,11 +96,15 @@ test('Environments and every section stay free of stray scalars through blank, m
     await expect(dialog.getByRole('heading', { level: 1, name: label, exact: true })).toBeVisible();
     expect(await scalarText(dialog.locator('main')), `${label}: blank`).toEqual([]);
     await search.fill('chat width');
-    await expect(dialog.getByRole('combobox', {name:'Chat width',exact:true})).toBeVisible();
+    const chatWidthResult = dialog.getByRole('button', { name: /^Chat width/ });
+    await expect(chatWidthResult).toBeVisible();
     await expect(nav.locator('[aria-current]')).toHaveCount(0);
     expect(await scalarText(dialog.locator('main')), `${label}: matching`).toEqual([]);
+    await chatWidthResult.click();
+    await expect(dialog.getByRole('combobox', { name: 'Chat width', exact: true })).toBeVisible();
+    await nav.getByRole('button', { name: label, exact: true }).click();
     await search.fill('no-match-9f8c7b6a');
-    if (label !== 'Skills & Integrations') await expect(dialog.getByText('No matching settings.', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('No matching settings.', { exact: true })).toBeVisible();
     expect(await scalarText(dialog.locator('main')), `${label}: empty results`).toEqual([]);
     await search.fill('   ');
     await expect(nav.getByRole('button', { name: label, exact: true })).toHaveAttribute('aria-current', 'page');
@@ -109,22 +113,47 @@ test('Environments and every section stay free of stray scalars through blank, m
   await nav.getByRole('button', { name: 'About & Licenses', exact: true }).click();
   await expect(dialog.getByRole('region', { name: 'Gen updates' })).toBeVisible();
   await search.fill('update');
+  await dialog.getByRole('button', { name: /^Version & updates/ }).click();
   await expect(dialog.getByRole('region', { name: 'Gen updates' })).toBeVisible();
   await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await expect(composer).toHaveValue('Retain this conversation draft');
 });
 
-test('search filters the appearance panel to matching rows and syncs the nav highlight', async ({ page }) => {
+test('search results navigate to the real target with reveal and focus; Escape clears search before closing (T06)', async ({ page }) => {
   const { dialog, nav, search } = await openSettings(page);
   await search.fill('theme');
-  await expect(dialog.getByRole('heading', { name: 'Search results (1)', exact: true })).toBeVisible();
-  await expect(dialog.getByRole('combobox', { name: 'Color scheme', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Search results (2)', exact: true })).toBeVisible();
   await expect(dialog.getByRole('combobox', { name: 'Density', exact: true })).toHaveCount(0);
-  await expect(dialog.getByRole('heading', { name: 'Project colors', exact: true })).toHaveCount(0);
-  await expect(nav.getByRole('button', { name: 'Appearance', exact: true })).toHaveClass(/selected/);
-  await expect(nav.locator('[aria-current]')).toHaveCount(0);
-  await search.fill('   ');
-  await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
+  await dialog.getByRole('button', { name: /^Theme/ }).click();
+  await expect(nav.getByRole('button', { name: 'Appearance', exact: true })).toHaveAttribute('aria-current', 'page');
+  const scheme = dialog.getByRole('combobox', { name: 'Color scheme', exact: true });
+  await expect(scheme).toBeVisible();
+  await expect(scheme).toBeFocused();
+  await expect(dialog.locator('[data-setting-id="appearance-theme"]')).toHaveClass(/settings-row-revealed/);
+  await expect(dialog.locator('[data-setting-id="appearance-theme"]')).not.toHaveClass(/settings-row-revealed/,{timeout:3000});
+  // The whole appearance panel renders — no independent child query filter remains.
+  await expect(dialog.getByRole('combobox', { name: 'Density', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Project colors', exact: true })).toBeVisible();
+  await search.fill('density');
+  await expect(dialog.getByRole('heading', { name: /Search results/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog.getByRole('heading', { name: 'Appearance', exact: true })).toBeVisible();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+});
+
+for(const provider of [{query:'OpenCode runtime',id:'opencode',name:/^OpenCode runtime/},{query:'Meta / Muse',id:'meta',name:/^Meta \/ Muse/}])test(`unavailable-provider search keeps keyboard focus on an enabled target (${provider.id})`,async({page})=>{
+  const {dialog,search}=await openSettings(page);await search.fill(provider.query);await dialog.getByRole('button',{name:provider.name}).click();
+  const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
+  await expect(target.getByRole('link',{name:'Connection details',exact:true})).toBeFocused();
+});
+
+test('runtime search reveals one environment controls target and keeps focus in its section',async({page})=>{
+  const {dialog,search}=await openSettings(page);await search.fill('environment variables');await dialog.getByRole('button',{name:/^Local runtime & environments/}).click();
+  await expect(dialog.locator('[data-setting-id="harness-runtime"]')).toHaveCount(1);
+  const target=dialog.locator('[data-setting-id="harness-runtime"]');await expect(target.locator('.environment-settings')).toBeVisible();
+  await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
 });
 
 test('browser task-notification preference saves without permission requests and labels platform delivery (T07)', async ({ page }) => {
@@ -183,6 +212,7 @@ test('a dropdown opened during the dialog entrance re-anchors when the entrance 
 test('preferences and supported environment actions remain usable after search reset', async ({ page }) => {
   const { dialog, nav, search, snapshot, commands } = await openSettings(page);
   await search.fill('chat width');
+  await dialog.getByRole('button', { name: /^Chat width/ }).click();
   await dialog.getByRole('combobox', { name: 'Chat width', exact: true }).click();
   await dialog.getByRole('option', { name: 'Full available width', exact: true }).click();
   await dialog.getByRole('button', {name:'Apply',exact:true}).click();
@@ -218,7 +248,7 @@ for (const theme of ['dark', 'light'] as const) for (const zoom of [1, 1.25, 1.5
   test(`${theme} navigation keeps selection, hover and keyboard focus separate at ${zoom * 100}% CSS zoom`, async ({ page }, info) => {
     const { dialog, nav } = await openSettings(page, theme);
     await page.evaluate(value => { document.documentElement.style.zoom = String(value); }, zoom);
-    const labs = nav.getByRole('button', { name: 'Data & Recovery', exact: true }), about = nav.getByRole('button', { name: 'About & Licenses', exact: true });
+    const labs = nav.getByRole('button', { name: 'Projects & Working Copies', exact: true }), about = nav.getByRole('button', { name: 'Source Control & Reviews', exact: true });
     await labs.click();
     await about.hover();
     await dialog.screenshot({ path: info.outputPath('navigation.png') });
