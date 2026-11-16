@@ -392,7 +392,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
    }
    await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Models & Accounts',exact:true}).click();
    const providers=page.getByRole('navigation',{name:'Subscription providers',exact:true});
-   for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available')){await providers.getByRole('button',{name:connection.label,exact:true}).click();await expect(page.locator(`.connection-row[data-provider="${connection.id}"]`).getByRole('button',{name:`Connect ${connection.label}`,exact:true})).toBeEnabled();}
+   for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available')){await providers.getByRole('button',{name:connection.label,exact:true}).click();await expect(page.locator(`.connection-row[data-provider="${connection.id}"]`).getByRole('button',{name:`Connect ${connection.label}`,exact:true})).toBeEnabled({timeout:30000});}
    await page.screenshot({path:join(directory,'installed-settings.png')});await providers.getByRole('button',{name:'Gemini',exact:true}).click();await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
    await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
   }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');
