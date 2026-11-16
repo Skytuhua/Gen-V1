@@ -52,7 +52,13 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     onPointerDown={event => { pressedBackdrop.current = onBackdrop(event); }}
     onClick={event => { if (pressedBackdrop.current && onBackdrop(event)) onClose(); pressedBackdrop.current = false; }}
     onKeyDown={event => {
-      if (event.key === 'Escape' && isComposing(event)) event.preventDefault();
+      if (event.key === 'Escape') {
+        if (isComposing(event)) event.preventDefault();
+        const target = event.target;
+        // Esc inside a native picker (date/time input, open select) must close
+        // the picker, not the dialog: preventDefault suppresses dialog cancel.
+        if (target instanceof HTMLSelectElement || (target instanceof HTMLInputElement && ['date', 'datetime-local', 'month', 'time', 'week'].includes(target.type))) event.preventDefault();
+      }
       if (event.key === 'Tab' && dialog.current) {
         const scope = dialog.current;
         const focusable = Array.from(scope.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, summary, [contenteditable="true"], [tabindex]')).filter(element => {
