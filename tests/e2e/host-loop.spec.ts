@@ -246,6 +246,67 @@ test('generated app validates mount tickets, source/channel/current nonce/state;
   await performanceEvidence(info, { checkpointToDurableAcknowledgmentMs: checkpointMs, sameIframeExpansion: true });
 });
 
+test('real widget checkpoint ACK immediately submits the accepted state through Artifact', async ({ page, host }) => {
+  test.skip(!GENERATED_APPS_ENABLED, 'Generated apps are disabled.');
+  await openHost(page); await sendFixture(page, 'widget');
+  const frame = await widgetFrame(page), artifact = host.artifact('widget');
+  const value = 'Checkpoint and submit without a second UI turn.';
+  await frame.getByRole('textbox', { name: 'Notebook note' }).fill(value);
+  const checkpointResponse = page.waitForResponse(response => response.url().endsWith('/api/commands') && response.request().postDataJSON()?.type === 'widget.checkpoint');
+  await frame.getByRole('button', { name: 'Checkpoint and continue', exact: true }).click();
+  const accepted = (await (await checkpointResponse).json()).result;
+  await expect(page.getByText('Fixture continued the durable decision in the same owning runtime.', { exact: true })).toBeVisible();
+  const state = host.snapshot().userStates.find(item => item.id === artifact.stateId)!;
+  const actions = host.commands.filter(item => item.type === 'action.submit');
+  expect(actions).toHaveLength(1);
+  expect(actions[0]).toMatchObject({ threadId: artifact.threadId, payload: { artifactId: artifact.id, revision: artifact.revision, actionId: 'continue', baseStateRevision: accepted.revision, submittedState: { note: value } } });
+  expect(accepted).toMatchObject({ id: artifact.stateId, values: { note: value } });
+  expect(state.values).toEqual({ note: value });
+  expect(host.runtime.deliveries.map(item => item.method)).toEqual(['start', 'followUp']);
+  const checkpoint = host.commands.findIndex(item => item.type === 'widget.checkpoint');
+  expect(host.commands.indexOf(actions[0]!)).toBeGreaterThan(checkpoint);
+});
+
+for (const replacementEditing of [false, true]) test(`real widget replacement during lease acquisition preserves the ${replacementEditing ? 'replacement lease' : 'released old lease'}`, async ({ page, host }) => {
+  test.skip(!GENERATED_APPS_ENABLED, 'Generated apps are disabled.');
+  await openHost(page); await sendFixture(page, 'widget');
+  const frame = await widgetFrame(page), artifact = host.artifact('widget');
+  const firstUrl = await page.locator('iframe').getAttribute('src');
+  let release!: () => void, entered!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  const acquiring = new Promise<void>(resolve => { entered = resolve; });
+  let oldClient: unknown;
+  host.beforeCommand = async command => {
+    if (command.type === 'edit.begin' && !oldClient) { oldClient = command.payload.clientId; entered(); await held; }
+  };
+  try {
+    // Checkpoint unchanged values so no dirty-edit hold prevents the new revision from mounting.
+    await frame.getByRole('button', { name: 'Checkpoint notebook', exact: true }).click();
+    await acquiring;
+    await host.runtime.tool({ name: 'ui_create_widget', args: { ...artifact.widget!, artifactId: artifact.id, baseRevision: artifact.revision, title: artifact.title, purpose: artifact.purpose, actions: artifact.actions } });
+    await expect.poll(() => page.locator('iframe').getAttribute('src')).not.toBe(firstUrl);
+    const replacement = await widgetFrame(page);
+    let replacementClient: unknown;
+    if (replacementEditing) {
+      await replacement.getByRole('textbox', { name: 'Notebook note' }).fill('Replacement draft remains owned.');
+      await expect.poll(() => host.store.get<{ clientId: string }>('lease', artifact.stateId)?.clientId).toBeTruthy();
+      replacementClient = host.store.get<{ clientId: string }>('lease', artifact.stateId)?.clientId;
+      expect(replacementClient).toBeTruthy(); expect(replacementClient).not.toBe(oldClient);
+    }
+    release();
+    await expect.poll(() => host.commands.filter(item => item.type === 'edit.end' && item.payload.clientId === oldClient).length).toBe(1);
+    if (replacementEditing) expect(host.store.get('lease', artifact.stateId)).toMatchObject({ clientId: replacementClient });
+    else await expect.poll(() => host.store.get('lease', artifact.stateId)).toBeNull();
+    expect(host.commands.filter(item => item.type === 'action.submit')).toHaveLength(0);
+    const rejected = host.commands.filter(item => item.type === 'widget.checkpoint');
+    expect(rejected).toHaveLength(replacementEditing ? 0 : 1);
+    if (!replacementEditing) expect(rejected[0]).toMatchObject({ threadId: artifact.threadId, payload: { artifactId: artifact.id, revision: artifact.revision, clientId: oldClient } });
+    expect(host.artifact('widget').revision).toBe(artifact.revision + 1);
+    expect(host.snapshot().userStates.find(item => item.id === artifact.stateId)).toMatchObject({ revision: 0, values: { note: 'A small, source-linked notebook.' } });
+    await expect(replacement.getByRole('textbox', { name: 'Notebook note' })).toHaveValue(replacementEditing ? 'Replacement draft remains owned.' : 'A small, source-linked notebook.');
+  } finally { release(); host.beforeCommand = undefined; }
+});
+
 test('cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive', async ({ page, host }, info) => {
   test.skip(!GENERATED_APPS_ENABLED, 'Positive execution scenario retained for future enablement; generated apps are disabled in the current host.');
   test.setTimeout(30_000);
