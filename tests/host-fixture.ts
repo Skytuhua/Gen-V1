@@ -147,9 +147,11 @@ export class HostFixture {
   readonly commands: HostCommand[] = [];
   readonly generations: ContractRuntime[] = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
+  private closing?: Promise<void>;
   constructor(readonly folder: string, readonly sourceFile: string) {}
   async start() {
     this.store = new Store(join(this.folder, 'storage'));
+    this.closing = undefined;
     this.runtime = new ContractRuntime(this.folder); this.generations.push(this.runtime);
     this.service = new Service(this.store, this.runtime); await this.service.recover();
     const mounts: MountRegistry = new Map();
@@ -162,7 +164,17 @@ export class HostFixture {
       await this.widgets.listen({ port: 4338, host: 'localhost' });
     } catch (error) { await this.close(); throw error; }
   }
-  async close() { await this.host?.close(); await this.widgets?.close(); await this.service?.dispose(); this.store?.close(); }
+  close(): Promise<void> {
+    // A test restart and runner teardown can both try to close this generation.
+    // Share its outcome rather than disposing the same SQLite connection again.
+    const { host, widgets, service, store } = this;
+    return this.closing ??= (async () => {
+      await host?.close();
+      await widgets?.close();
+      await service?.dispose();
+      store?.close();
+    })();
+  }
   async restart() { await this.close(); await this.start(); }
   snapshot(): Snapshot { return this.store.snapshot(); }
   artifact(kind: 'structured' | 'widget'): ArtifactRecord { const item = this.snapshot().artifacts.find(value => value.kind === kind); if (!item) throw new Error(`Missing ${kind} artifact`); return item; }
