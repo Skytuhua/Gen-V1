@@ -105,6 +105,20 @@ describe('Inspect point — immutable fixed cut', () => {
     f.store.internal('fixture.remove', f.thread.id, () => f.store.remove('thread', f.thread.id));
     expect(throwsHarness(() => f.reads.captureMessages(result.capture.captureId)).code).toBe('CAPABILITY_DENIED');
   });
+  it('keeps an archived source resolvable — archived is not removed — while the cut stays fixed', async () => {
+    // M14-S11: a capture survives source archival deterministically; only a
+    // pointer that no longer resolves (removal, revocation) goes unavailable.
+    // Compaction cannot move it — the cut is a host Store projection that
+    // never reads native transcript state.
+    __setCapabilityFlagForTests('sessions.branchV1', true);
+    const f = await fixture();
+    f.message('m1', 'archived history');
+    const result = (await f.send('session.branch', { intent: 'INSPECT' }, f.thread.id)).result as { capture: { captureId: string } };
+    f.store.internal('fixture.archive', f.thread.id, () => f.store.put('archivedThread', f.thread.id, f.thread.id, { id: f.thread.id, archivedAt: 'x' }));
+    const page = f.reads.captureMessages(result.capture.captureId);
+    expect(page.messages.map(item => item.id)).toEqual(['m1']);
+    expect(f.runtime.compact).not.toHaveBeenCalled();
+  });
   it('denies Inspect and every branch command while sessions.branchV1 is off', async () => {
     const f = await fixture();
     expect((await rejectsHarness(f.send('session.branch', { intent: 'INSPECT' }, f.thread.id))).code).toBe('CAPABILITY_DENIED');
