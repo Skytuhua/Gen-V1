@@ -122,7 +122,7 @@ it('renders catalog Timeline status aliases with fixed theme semantics under cus
  const {createElement}=await import('react'),{renderToStaticMarkup}=await import('react-dom/server');
  const {StateProvider,Renderer,VisibilityProvider,ActionProvider}=await import('@json-render/react'),{registry}=await import('../apps/web/src/registry');
  const {chromium}=await import('@playwright/test');
- const statuses=[['running','--accent-fg'],['working','--accent-fg'],['succeeded','--success'],['completed','--success'],['success','--success'],['failed','--danger'],['error','--danger'],['cancelled','--muted'],['stopped','--muted'],['needs-input','--pending'],['awaiting_input','--pending'],['prepared','--pending'],['unknown','--pending'],['source-specific-state','--muted']];
+ const statuses=[['running','--accent-fg'],['working','--accent-fg'],['succeeded','--success'],['completed','--success'],['success','--success'],['failed','--danger'],['error','--danger'],['cancelled','--muted'],['stopped','--muted'],['needs-input','--pending'],['awaiting_input','--pending'],['prepared','--pending'],['unknown','--pending'],['source-specific-state','--muted'],['constructor','--muted'],['__proto__','--muted']];
  const spec={root:'timeline',elements:{timeline:{type:'Timeline',props:{rowsBinding:'events'}}}};
  const html=renderToStaticMarkup(createElement(StateProvider,{initialState:{inputs:{events:statuses.map(([status])=>({status,title:'Supplied '+status}))},values:{}},children:createElement(VisibilityProvider,null,createElement(ActionProvider,null,createElement(Renderer,{spec,registry})))}));
  const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})}),page=await browser.newPage();
