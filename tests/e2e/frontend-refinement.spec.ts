@@ -22,6 +22,18 @@ test('left ticked scrollbar supports keys, track clicks, dragging, and history d
  await bar.focus();await page.keyboard.press('End');await expect.poll(()=>scroll.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop)).toBeLessThan(2);
  await page.getByRole('textbox',{name:'Outside draft'}).fill('Keep this draft');await page.getByRole('button',{name:'Grow transcript'}).click();await expect(page.getByRole('textbox',{name:'Outside draft'})).toHaveValue('Keep this draft');
 });
+test('a different pointer cannot end the active scrollbar drag',async({page})=>{
+ const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});
+ await bar.focus();await page.keyboard.press('Home');
+ const bounds=(await bar.boundingBox())!,thumb=(await page.locator('.chat-scroll-thumb').boundingBox())!;
+ await page.mouse.move(thumb.x+1,thumb.y+3);await page.mouse.down();
+ await bar.dispatchEvent('pointerup',{pointerId:77,pointerType:'touch',bubbles:true});
+ await bar.dispatchEvent('pointercancel',{pointerId:77,pointerType:'touch',bubbles:true});
+ await bar.dispatchEvent('lostpointercapture',{pointerId:77,pointerType:'touch',bubbles:true});
+ await page.mouse.move(bounds.x+10,bounds.y+bounds.height*.7,{steps:3});
+ await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(100);
+ await page.mouse.up();
+});
 test('disconnected context is compact and connected context leads with useful project facts',async({page})=>{
  const card=page.getByLabel('Project context',{exact:true});await expect(card).toContainText('Fixture project');
  await expect(card.getByRole('button',{name:'Connect project'})).toBeVisible();expect((await card.boundingBox())!.height).toBeLessThan(140);
