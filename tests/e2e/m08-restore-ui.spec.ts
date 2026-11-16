@@ -3,6 +3,7 @@
 // client-schema-shaped payloads. The live path could not reach this UI during
 // M08 testing (see report: readRestorePlan strict-schema mismatch).
 import {expect,test} from '@playwright/test';
+import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 
 const review=async(page:import('@playwright/test').Page,mode='working')=>{
  await page.goto('/m08-restore?mode='+mode);
@@ -71,4 +72,37 @@ test('disabled restore adapter shows its reason and no file checkboxes',async({p
  await expect(page.getByRole('button',{name:'Restore selected files',exact:true})).toBeDisabled();
  await expect(page.getByText('Restore is unavailable until checkpoint recovery is connected',{exact:false})).toBeVisible();
  await expect(page.getByText('Files to restore')).toHaveCount(0);
+});
+
+
+test('actual App reports an uncertain restore without claiming success',async({page})=>{
+ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic checkpoint test'}}}});
+ snapshot.threads[0].projectId='project';
+ await serveTaskFixture(page,snapshot);
+ const hash='a'.repeat(64),owner={projectId:'project',threadId:'task-thread',workingCopyId:'copy',binding:hash};
+ const checkpoint={id:'checkpoint',label:'Before edit',createdAt:'2026-11-10T18:42:00Z',provenance:{kind:'guarded_write',operationId:'operation'},revision:hash,fileCount:1,expiresAt:null};
+ const calls:string[]=[]; let approval='';
+ await page.route('**/api/projects/project/**',async route=>{
+  const url=new URL(route.request().url()); calls.push(url.pathname);
+  if(route.request().method()==='POST'&&url.pathname.includes('/checkpoints/')){const body=route.request().postDataJSON();expect(body.owner).toEqual(owner);expect(body.threadId).toBe('task-thread');if(url.pathname.endsWith('/plan'))approval=body.approvalId;if(url.pathname.endsWith('/apply')){expect(body.planId).toBe('plan');expect(body.approvalId).toBe(approval);}}
+  if(url.pathname.endsWith('/checkpoints/capability'))return route.fulfill({json:{available:true,restore:true,owner}});
+  if(url.pathname.endsWith('/checkpoints/list'))return route.fulfill({json:{owner,items:[checkpoint],nextCursor:null}});
+  if(url.pathname.endsWith('/checkpoints/detail'))return route.fulfill({json:{owner,checkpoint,files:[{path:'note.txt',targetHash:hash,bytes:4,restorable:true,reason:null}]}});
+  if(url.pathname.endsWith('/checkpoints/review'))return route.fulfill({json:{owner,reviewId:'review',checkpointRevision:hash,expiresAt:'2099-01-01T00:00:00Z',files:[{path:'note.txt',currentHash:hash,targetHash:hash,diff:'-old\n+new',diffTruncated:false,status:'ready'}]}});
+  if(url.pathname.includes('/checkpoints/restore/')){const body=route.request().postDataJSON();return route.fulfill({json:{version:1,id:'plan',checkpointId:checkpoint.id,scope:owner,currentRevision:hash,selectedPaths:['note.txt'],beforeDigests:[{path:'note.txt',digest:hash}],targetDigests:[{path:'note.txt',digest:hash}],preRestoreCheckpointId:'backup',approvalId:body.approvalId,state:url.pathname.endsWith('/plan')?'PREVIEW':'PARTIAL_RECOVERY_REQUIRED',conflicts:[],createdAt:'2026-11-10T18:42:00Z'}});}
+  if(url.pathname.endsWith('/git'))return route.fulfill({json:{head:'a'.repeat(40),revision:hash,branch:'fixture',files:[],diff:'',stagedDiff:'',truncated:false,gitWrite:false}});
+  return route.fulfill({status:404,json:{error:{code:'UNAVAILABLE',message:'Synthetic route unavailable'}}});
+ });
+ await page.route('**/m08-actual-app',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('/apps/web/src/main.tsx');</script></body></html>`}));
+ await page.goto('/m08-actual-app');
+ await page.getByRole('button',{name:'Inspect changes',exact:true}).click();
+ await page.getByRole('tab',{name:'History',exact:true}).click();
+ await page.getByRole('button',{name:'Review Before edit',exact:true}).click();
+ await page.getByRole('checkbox',{name:'note.txt',exact:true}).check();
+ await page.getByRole('button',{name:'Restore selected files',exact:true}).click();
+ await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
+ const result=page.getByRole('region',{name:'Checkpoint restore result'});
+ await expect(result).toContainText('Check the files and recovery checkpoint');
+ await expect(result).not.toContainText('Restored.');
+ expect(calls.filter(path=>path.endsWith('/checkpoints/restore/apply'))).toHaveLength(1);
 });
