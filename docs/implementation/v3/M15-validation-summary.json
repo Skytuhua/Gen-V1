@@ -1,12 +1,12 @@
 {
-  "validatedAt": "2026-11-16T02:38:10.872Z",
+  "validatedAt": "2026-11-16T03:26:49.718Z",
   "integrityStatus": "PASS",
   "bundleStatus": "FAIL",
-  "commandRecords": 134,
-  "artifactHashes": 379,
-  "implementationFiles": 53,
-  "changedFiles": 438,
-  "sourceLockDigest": "3e7aaf9e0feb1e59cccb8d925ac090cf329dda9c35b4c5c29e8cd1a2c90a1997",
+  "commandRecords": 202,
+  "artifactHashes": 736,
+  "implementationFiles": 73,
+  "changedFiles": 815,
+  "sourceLockDigest": "bbc56f465980dd638ee5ca6df60dc3e44804f48d09fd99cfde0790b061664b04",
   "reviewerApproval": false,
   "issues": []
 }

@@ -1,13 +1,32 @@
 argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts"]
 cwd: C:\Users\Administrator\repos\Gen-V1-m15
-exitCode: 0
+exitCode: 1
 termination: NONE
 
  RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15
 
+ ❯ tests/source-workbench-host-v3.test.ts (47 tests | 1 failed | 1 skipped) 25514ms
+   × admits the first captured file under its selected account [Windows native guard, runtime fixture] 13843ms
 
- Test Files  8 passed (8)
-      Tests  101 passed | 1 skipped (102)
-   Start at  02:20:15
-   Duration  25.99s (transform 21.18s, setup 0ms, import 10.81s, tests 26.37s, environment 1ms)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > admits the first captured file under its selected account [Windows native guard, runtime fixture]
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/source-workbench-host-v3.test.ts:193:92
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 110 passed | 1 skipped (112)
+   Start at  02:48:16
+   Duration  27.54s (transform 3.47s, setup 0ms, import 3.39s, tests 27.28s, environment 1ms)
 
