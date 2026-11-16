@@ -50,7 +50,7 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
     })().catch(error => { leaseSuspended.current = wasSuspended; throw error; }).finally(() => { releasePending.current = null; });
     releasePending.current = pending;
     return pending;
-  } }));
+  } }), []);
   const resumeLease = () => {
     if (releasePending.current) return Promise.reject(new Error('An edit lease release is in progress.'));
     const wasSuspended = leaseSuspended.current;

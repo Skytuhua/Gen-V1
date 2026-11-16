@@ -3,6 +3,9 @@ import type { ArtifactRecord, HostCommand, Snapshot, Thread } from '../../packag
 import { widgetShellDocument } from '../../packages/widgets/document';
 import { build } from 'esbuild';
 import { WIDGET_WORKER_CSP } from '../../packages/widgets/protocol';
+import {serveTaskSplitLayout} from './task-interface-fixture';
+
+test.afterEach(async ({ page }) => { if (!page.isClosed()) await page.evaluate(() => (window as unknown as { __closeStreams?: () => void }).__closeStreams?.()); await page.unrouteAll({ behavior: 'wait' }); });
 
 const workerBundle = build({ entryPoints: ['packages/widgets/worker.ts'], bundle: true, platform: 'browser', format: 'iife', write: false });
 
@@ -50,7 +53,7 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
       close() { const index = streams.indexOf(this); if (index >= 0) streams.splice(index, 1); }
     }
     Object.defineProperty(window, 'EventSource', { value: MockEventSource });
-    Object.assign(window, { __disconnect: () => streams.forEach(stream => (stream as MockEventSource).onerror?.()), __emitWorkspace: (seq: number) => streams.forEach(stream => stream.dispatchEvent(new MessageEvent('workspace', { data: JSON.stringify({ seq, id: `event-${seq}`, type: 'test', threadId: null, payload: {}, occurredAt: new Date().toISOString() }) }))) });
+    Object.assign(window, { __closeStreams: () => [...streams].forEach(stream => (stream as MockEventSource).close()), __disconnect: () => [...streams].forEach(stream => (stream as MockEventSource).onerror?.()), __emitWorkspace: (seq: number) => [...streams].forEach(stream => stream.dispatchEvent(new MessageEvent('workspace', { data: JSON.stringify({ seq, id: `event-${seq}`, type: 'test', threadId: null, payload: {}, occurredAt: new Date().toISOString() }) }))) });
   });
   await page.route('**/api/**', async route => {
     const url = new URL(route.request().url());
@@ -124,13 +127,15 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
     }
     state.snapshot.seq++;
     await state.afterCommand?.(cmd);
-    return route.fulfill({ json: { commandId: cmd.id, eventSeq: state.snapshot.seq, result } });
+    await route.fulfill({ json: { commandId: cmd.id, eventSeq: state.snapshot.seq, result } });
+    await emit(page,state.snapshot.seq);
   });
   await page.route('http://localhost:4318/widget/**', async route => {
     const id = new URL(route.request().url()).pathname.split('/')[2];
     return route.fulfill({ contentType: 'text/html', body: widgetShellDocument(id) });
   });
   await page.route('**/widget-runtime/worker.js', async route => route.fulfill({ contentType: 'text/javascript', headers: { 'Content-Security-Policy': WIDGET_WORKER_CSP, 'X-Content-Type-Options': 'nosniff' }, body: Buffer.from((await workerBundle).outputFiles[0]!.contents) }));
+  await serveTaskSplitLayout(page,state.snapshot);
   return state;
 }
 
@@ -180,10 +185,12 @@ test('the default interface loads the pinned T3 variable font while explicit fon
   const state = await host(page, populated()); await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
   await expect.poll(() => page.evaluate(() => [...document.fonts].filter(font => font.family.includes('Inter Variable') && font.status === 'loaded').length)).toBeGreaterThan(0);
-  await expect(page.locator('.app-shell')).toHaveCSS('font-family', /Inter Variable/);
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveCSS('font-family', /Inter Variable/);
+  await expect(page.locator('.app-shell.embedded-thread-app')).toHaveCSS('font-family', /Inter Variable/);
   state.snapshot.settings.preferences = { interfaceFont: 'Arial' }; state.snapshot.seq++;
   await page.evaluate(seq => (window as unknown as { __emitWorkspace: (seq: number) => void }).__emitWorkspace(seq), state.snapshot.seq);
-  await expect(page.locator('.app-shell')).toHaveCSS('font-family', 'Arial');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveCSS('font-family', 'Arial');
+  await expect(page.locator('.app-shell.embedded-thread-app')).toHaveCSS('font-family', 'Arial');
 });
 
 test('source-bound operation tabs retain selection and mount identity while status and contextual SQL update', async ({ page }) => {
@@ -249,7 +256,10 @@ test('settings inventory is searchable across all sections and unavailable capab
   }
   await settings.getByRole('searchbox', { name: 'Search all settings' }).fill('shortcut');
   await expect(settings.getByText('Send shortcut', { exact: true })).toBeVisible();
-  expect(await settings.locator('[data-setting-id]').count()).toBeGreaterThan(2);
+  await settings.getByRole('button', { name: /^Send shortcut/ }).click();
+  await expect(settings.getByRole('searchbox', { name: 'Search all settings' })).toHaveValue('');
+  await expect(settings.locator('[data-setting-id="send-shortcut"]')).toBeVisible();
+  await expect(settings.getByRole('combobox', { name: 'Send shortcut', exact: true })).toBeFocused();
 });
 
 test('accepted preferences survive reload and preserve the composer and structured draft', async ({ page }) => {
@@ -270,14 +280,14 @@ test('accepted preferences survive reload and preserve the composer and structur
   await page.getByRole('option', { name: 'Ctrl / ⌘ Enter to send', exact: true }).click();
   await expect.poll(() => state.snapshot.settings.preferences?.sendShortcut).toBe('mod-enter');
   await settings.getByRole('button', { name: 'Close dialog' }).click();
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width', 'full');
-  expect((await page.locator('.composer-dock').boundingBox())!.width).toBeGreaterThan(760);
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-chat-width', 'full');
+  expect((await page.locator('.composer-dock:visible').boundingBox())!.width).toBeGreaterThan(760);
   await expect(page.getByRole('textbox', { name: 'Review name' })).toHaveValue('Keep my local review');
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Keep my next message');
   await page.getByRole('textbox', { name: 'Message', exact: true }).press('Enter');
   expect(state.commands.some(item => item.type === 'message.send')).toBe(false);
   await page.reload();
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width', 'full');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-chat-width', 'full');
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Keep my next message\n');
 });
 
@@ -285,19 +295,21 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await page.setViewportSize({ width: 1440, height: 1000 });
   await host(page, populated()); await page.goto('/');
   await page.getByRole('button', { name: 'Collapse sidebar', exact: true }).click();
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-sidebar-collapsed', 'true');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
   await page.getByRole('button', { name: 'Open workspace panel', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Open a surface', exact: true })).toBeVisible();
   const launcher = page.getByRole('region', { name: 'Workspace launcher' });
   await expect(launcher.getByRole('button', { name: 'Device', exact: true })).toBeDisabled();
   await expect(launcher.getByRole('button', { name: 'Files', exact: true })).toBeEnabled();
-  await page.getByRole('tab', { name: 'Usage', exact: true }).click();
+  await page.getByRole('complementary', { name: 'Workspace panel', exact: true }).getByRole('button', { name: 'Add surface', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Usage', exact: true }).click();
   const usageDialog = page.getByRole('dialog', { name: 'Usage', exact: true });
   await expect(usageDialog).toContainText('No usage reported yet');
   await usageDialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await page.reload();
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-sidebar-collapsed', 'true');
-  await expect(page.getByRole('tab', { name: 'Notes', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
+  await expect(page.getByRole('complementary', { name: 'Workspace panel', exact: true })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Artifact', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('button', { name: 'Hide workspace panel', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect context usage' }).click();
   await expect(page.getByRole('dialog', { name: 'Context inspector' })).toContainText('Not reported');
@@ -313,8 +325,13 @@ test('workspace artifact tabs preserve the exact authenticated widget mount and 
   await page.getByRole('button', { name: 'Open artifact in workspace', exact: true }).click();
   await expect(page.locator('.artifact-in-workspace')).toBeVisible();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Keep the same mounted editor');
-  await page.getByRole('tab', { name: 'Notes', exact: true }).click();
-  await page.getByRole('tab', { name: 'Artifact', exact: true }).click();
+  const tools = page.getByRole('complementary', { name: 'Workspace panel', exact: true });
+  await tools.getByRole('button', { name: 'Add surface', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Notes', exact: true }).click();
+  await tools.getByRole('tab', { name: 'Notes', exact: true }).click();
+  await tools.getByRole('tab', { name: 'Artifact', exact: true }).click();
+  await frame.getByRole('textbox', { name: 'Widget note' }).click();
+  await expect(frame.getByRole('textbox', { name: 'Widget note' })).toBeFocused();
   await page.getByRole('button', { name: 'Return artifact to conversation', exact: true }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Keep the same mounted editor');
   expect(await page.evaluate(() => document.querySelector('iframe') === (window as unknown as { __workspaceEditor: Element }).__workspaceEditor)).toBe(true);
@@ -333,14 +350,17 @@ test('workspace files, diffs and executor output show actual scoped snapshot evi
   await page.goto('/');
   await page.getByRole('button', { name: 'Open workspace panel', exact: true }).click();
   const panel = page.getByRole('complementary', { name: 'Workspace panel' });
-  await panel.getByRole('tab', { name: 'Files', exact: true }).click();
+  await panel.getByRole('button', { name: 'Add surface', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Files', exact: true }).click();
   await panel.getByRole('button', { name: /example.txt/ }).click();
   await expect(panel.getByText('Scoped fixture contents', { exact: true })).toBeVisible();
   expect(reads).toEqual(['/api/resources/project-one/tree', '?path=example.txt']);
-  await panel.getByRole('tab', { name: 'Diff', exact: true }).click();
+  await panel.getByRole('button', { name: 'Add surface', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Diff', exact: true }).click();
   await expect(panel.getByText('old value', { exact: true })).toBeVisible();
   await expect(panel.getByText('new value', { exact: true })).toBeVisible();
-  await panel.getByRole('tab', { name: 'Output', exact: true }).click();
+  await panel.getByRole('button', { name: 'Add surface', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Output', exact: true }).click();
   await expect(panel).toContainText('one real fixture check passed');
   await expect(panel).toContainText('Recorded executor receipts and output. Open Terminal for an interactive host session.');
 });
@@ -429,7 +449,7 @@ test('capture shell and settings review batch', async ({ page }, testInfo) => {
   await page.screenshot({ path: testInfo.outputPath('shell-context.png'), fullPage: true });
   await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect.poll(() => page.locator('.app-shell').evaluate(element => Math.round(element.getBoundingClientRect().height))).toBe(844);
+  await expect.poll(() => page.locator('.app-shell:not(.embedded-thread-app)').evaluate(element => Math.round(element.getBoundingClientRect().height))).toBe(844);
   await page.screenshot({ path: testInfo.outputPath('shell-narrow.png'), fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -934,9 +954,15 @@ test('dirty widgets require a checkpoint or explicit discard before thread archi
   await expect(page.getByRole('dialog', { name: 'Uncheckpointed widget edits' })).toBeVisible(); expect(state.commands.filter(cmd => cmd.type === 'thread.archive')).toHaveLength(0);
   await page.getByRole('button', { name: 'Return to checkpoint' }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Preserve before archive'); expect(state.mounts).toBe(1);
+  expect(await page.getByText('Checkpoint widget edits before moving this artifact.',{exact:true}).count()).toBe(0);
   await frame.getByRole('button', { name: 'Checkpoint note' }).click(); await expect(frame.locator('#receipt')).toHaveText('Saved revision 1'); expect(await unloadIsGuarded(page)).toBe(false);
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Explicitly discarded'); await expect(page.getByText('Uncheckpointed edits', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Options for First task', exact: true }).click(); await page.getByRole('menuitem', { name: 'Archive thread', exact: true }).click();
+  state.failRelease=true;await page.getByRole('button',{name:'Discard edits and archive',exact:true}).click();
+  await expect(page.getByText('Lease release failed; retain your draft.',{exact:true})).toBeVisible();
+  expect(state.commands.filter(cmd=>cmd.type==='thread.archive')).toHaveLength(0);expect(await unloadIsGuarded(page)).toBe(true);
+  await expect(frame.getByRole('textbox',{name:'Widget note'})).toHaveValue('Explicitly discarded');
+  state.failRelease=false;
   await page.getByRole('button', { name: 'Discard edits and archive', exact: true }).click(); await expect(page.locator('iframe')).toHaveCount(0);
   expect(state.snapshot.userStates[0].values).toEqual({ note: 'Preserve before archive' }); expect(await unloadIsGuarded(page)).toBe(false);
 });
@@ -983,7 +1009,7 @@ test('closed mobile navigation is inert and expansion contains and restores focu
 
 test('long conversations restore reading positions and follow the tail only near latest', async ({ page }) => {
   const initial = populated(); initial.messages = Array.from({ length: 150 }, (_, index) => ({ id: `history-${index}`, threadId: 'one', role: 'assistant' as const, content: `History entry ${index}\n\n${'Readable conversation body. '.repeat(10)}`, createdAt: timestamp, runId: null })); initial.artifacts = [];
-  const state = await host(page, initial); await page.goto('/'); const scroller = page.locator('.conversation-scroll');
+  const state = await host(page, initial); await page.goto('/'); const scroller = page.locator('[data-split-view="thread:one"] .conversation-scroll');
   await expect(page.getByText('History entry 149', { exact: false })).toBeVisible();
   await scroller.evaluate(el => { el.scrollTop = 160; el.dispatchEvent(new Event('scroll')); });
   const position = await scroller.evaluate(el => el.scrollTop);
@@ -1129,7 +1155,7 @@ test('reconcile is read only, interrupted startup can resume, and a gated active
   initial.operations = [{ id: 'uncertain', threadId: 'one', revision: 4, kind: 'file.write', description: 'An interrupted write requires inspection.', args: {}, resourceIds: [], preconditions: {}, status: 'unknown', approved: true, createdAt: timestamp }];
   const state = await host(page, initial); await page.goto('/');
   await expect(page.getByRole('button', { name: 'Resume', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Reconcile outcome' }).click();
+  await page.getByRole('button', { name: 'Inspect outcome', exact: true }).click();
   await expect.poll(() => state.commands.filter(item => item.type === 'operation.reconcile').length).toBe(1);
   expect(state.commands.some(item => item.type === 'operation.approve')).toBe(false);
   state.snapshot.threads[0]!.status = 'awaiting_input'; state.snapshot.threads[0]!.runId = 'active-gated-run'; state.snapshot.seq += 10;
@@ -1192,10 +1218,15 @@ test('arbitrary sandboxed widget checkpoints only through its current authentica
   await expect(page.locator('iframe')).toHaveAttribute('sandbox', 'allow-scripts');
   await page.evaluate(() => window.postMessage({ channel: 'harness-widget', token: 'token-1', mountId: 'mount-1', artifactId: 'artifact-one', type: 'checkpoint', payload: { values: { note: 'forged' }, stateSchemaVersion: 1, requestId: 'forged' } }, '*'));
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Edited inside the sandbox');
+  await page.evaluate(() => Object.assign(window, { __retainedWidget: document.querySelector('iframe.widget-frame') }));
   await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await expect(page.locator('[data-split-view="thread:two"]')).toBeVisible();
+  expect(await page.getByText('Checkpoint widget edits before moving this artifact.', { exact: true }).count()).toBe(0);
+  expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __retainedWidget: Element }).__retainedWidget)).toBe(true);
+  expect(await unloadIsGuarded(page)).toBe(true);
   await expect(page.getByText('Widget edits remain open in another conversation.')).toBeVisible();
   expect(state.mounts).toBe(1);
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('tab', { name: 'First task', exact: true }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Edited inside the sandbox');
   await page.getByRole('button', { name: 'Expand artifact', exact: true }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Edited inside the sandbox');
@@ -1217,11 +1248,72 @@ test('arbitrary sandboxed widget checkpoints only through its current authentica
   expect(state.commands.filter(item => item.type === 'widget.checkpoint')).toHaveLength(1);
   await page.getByRole('button', { name: 'Collapse artifact', exact: true }).click();
   await page.getByRole('button', { name: 'Second task Ready' }).click();
+  state.failRelease = true;
   await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click();
-  await expect(page.locator('iframe')).toHaveCount(0);
+  await expect(page.locator('.workspace-error[role="status"]')).toContainText('The edits for 1 widget could not be discarded. Reopen the conversation and try again.');
+  expect(state.mounts).toBe(2); expect(await unloadIsGuarded(page)).toBe(true);
+  state.failRelease = false;
+  await page.evaluate(() => Object.assign(window, { __discardedWidget: document.querySelector('iframe.widget-frame') }));
+  await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click();
+  await expect.poll(() => state.mounts).toBe(3);
+  expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __discardedWidget: Element }).__discardedWidget)).toBe(false);
+  expect(await unloadIsGuarded(page)).toBe(false);
   await page.getByRole('button', { name: 'First task Ready' }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Edited inside the sandbox');
   expect(state.mounts).toBe(3);
+});
+
+for (const edge of ['center', 'right'] as const) test(`dirty widget ownership survives a sidebar thread drop at ${edge}`, async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  const state = await host(page, widgetWorkspace()); await page.goto('/');
+  const frame = page.frameLocator('iframe.widget-frame');
+  await frame.getByRole('textbox', { name: 'Widget note' }).fill('Retain during drop');
+  await page.evaluate(() => Object.assign(window, { __dropWidget: document.querySelector('iframe.widget-frame') }));
+  const bounds = await page.locator('.split-pane-slot').boundingBox(); expect(bounds).not.toBeNull();
+  const dataTransfer = await page.evaluateHandle(() => { const data = new DataTransfer(); data.setData('application/x-gen-thread', JSON.stringify({ threadId: 'two', binding: { authority: { kind: 'local' }, threadId: 'two' } })); return data; });
+  await page.locator('.split-workspace').dispatchEvent('drop', { dataTransfer, clientX: bounds!.x + (edge === 'center' ? bounds!.width * .5 : bounds!.width - 24), clientY: bounds!.y + bounds!.height * .5 });
+  await expect(page.locator('[data-split-view="thread:two"]')).toBeVisible();
+  if (edge === 'center') await page.getByRole('tab', { name: 'First task', exact: true }).click();
+  else await expect(page.locator('.split-divider')).toHaveCount(1);
+  await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Retain during drop');
+  expect(state.mounts).toBe(1); expect(await unloadIsGuarded(page)).toBe(true);
+  expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __dropWidget: Element }).__dropWidget)).toBe(true);
+});
+
+test('hidden widget discard accepts its unchanged owner after an unrelated committed refresh', async ({ page }) => {
+  const state = await host(page, widgetWorkspace()); await page.goto('/');
+  const frame = page.frameLocator('iframe.widget-frame');
+  await frame.getByRole('textbox', { name: 'Widget note' }).fill('Discard this generation');
+  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  const requested = gate(), acknowledgment = gate();
+  state.afterCommand = async command => { if (command.type === 'edit.end') { requested.release(); await acknowledgment.promise; } };
+  await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click(); await requested.promise;
+  state.snapshot.settings.theme = 'light'; state.snapshot.seq++; await emit(page, state.snapshot.seq);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light'); expect(state.mounts).toBe(1);
+  acknowledgment.release(); await expect.poll(() => state.mounts).toBe(2);
+  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Original checkpoint');
+  expect(await unloadIsGuarded(page)).toBe(false);
+});
+
+test('hidden widget discard preserves edits made while its lease release acknowledgment is pending', async ({ page }) => {
+  const state = await host(page, widgetWorkspace()); await page.goto('/');
+  const frame = page.frameLocator('iframe.widget-frame');
+  await frame.getByRole('textbox', { name: 'Widget note' }).fill('Original discard intent');
+  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  const requested = gate(), acknowledgment = gate();
+  state.afterCommand = async command => { if (command.type === 'edit.end') { requested.release(); await acknowledgment.promise; } };
+  await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click();
+  await requested.promise;
+  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await frame.getByRole('textbox', { name: 'Widget note' }).fill('Newer edit after discard started');
+  acknowledgment.release();
+  await expect(page.locator('.workspace-error[role="status"]')).toContainText('The edits for 1 widget could not be discarded.');
+  await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Newer edit after discard started');
+  expect(state.mounts).toBe(1); expect(await unloadIsGuarded(page)).toBe(true);
+  await frame.getByRole('button', { name: 'Checkpoint note' }).click();
+  await expect(frame.locator('#receipt')).toHaveText('Saved revision 1');
+  expect(state.snapshot.userStates[0].values).toEqual({ note: 'Newer edit after discard started' });
 });
 
 test('model-labelled operation action focuses its exact approval without executing it', async ({ page }) => {
