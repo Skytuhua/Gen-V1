@@ -371,6 +371,7 @@
     "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
     "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
     "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
+    "docs/implementation/v6/M14/handoff.md",
     "docs/implementation/v6/M14/requirements.json",
     "docs/implementation/v6/M14/source-lock.json",
     "docs/implementation/v6/M14/verify-evidence.mjs",
