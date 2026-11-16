@@ -10,6 +10,21 @@ const signingSpec = (fit?: 'width' | 'page'): TaskSpec => ({ root: 'pair', eleme
   signature: { type: 'SignaturePad', props: { stateKey: 'signature', nameStateKey: 'name', label: 'Add your signature', initialMode: 'generate' } },
 } });
 
+test('window blur ends a pointer stroke without accepting later movement',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ await canvas.evaluate(node=>{const rect=node.getBoundingClientRect();for(const x of [.3,.4])node.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:rect.left+rect.width*x,clientY:rect.top+rect.height*.5,bubbles:true}));window.dispatchEvent(new Event('blur'));});
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+ const before=await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL());
+ await page.mouse.move(box.x+box.width*.8,box.y+box.height*.5);await page.mouse.up();
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL())).toBe(before);
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+});
+
 test('canonical dark signature ink stays readable in the image-backed well in dark theme',async({page})=>{
  const fixture=await signingFixture(page,undefined,{step:'signature'});fixture.snapshot.settings.theme='dark';await page.goto('/');await expect(page.locator('.signature-image-preview img')).toBeVisible();
  const contrast=await page.locator('.signature-well[data-mode="generate"]').evaluate(node=>{const color=getComputedStyle(node).backgroundColor.match(/[\d.]+/g)!.slice(0,3).map(Number);const luminance=(rgb:number[])=>rgb.map(value=>{const n=value/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);const background=luminance(color),ink=luminance([25,27,48]);return(Math.max(background,ink)+.05)/(Math.min(background,ink)+.05);});expect(contrast).toBeGreaterThan(7);
