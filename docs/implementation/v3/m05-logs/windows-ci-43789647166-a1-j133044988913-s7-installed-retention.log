@@ -1,0 +1,24 @@
+2026-11-16T02:19:22.4193186Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-16T02:19:22.4194098Z $ErrorActionPreference = 'Stop'
+2026-11-16T02:19:22.4194821Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-16T02:19:22.4195528Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-16T02:19:22.4196342Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-16T02:19:22.4197138Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-16T02:19:22.4198146Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-16T02:19:22.4199284Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-16T02:19:22.4200274Z & pnpm @verifyArgs
+2026-11-16T02:19:22.4200649Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-16T02:19:22.4302865Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T02:19:22.4303303Z env:
+2026-11-16T02:19:22.4303649Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T02:19:22.4304185Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:19:22.4304714Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T02:19:22.4305274Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:19:22.4305779Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:19:22.4306245Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:19:22.4306788Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T02:19:22.4307445Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-b5ecb4c28c63460e871b2842300ddc1b
+2026-11-16T02:19:22.4307953Z ##[endgroup]
+2026-11-16T02:19:22.9379825Z HARNESS_INSTALLED_VERIFY_ARGV={"executable":"pnpm","args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"]}
+2026-11-16T02:33:25.5362156Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794796397277-a7822493-36c1-4e53-aa05-5899e90c78ec","passed":true}
+2026-11-16T02:35:11.9791649Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb","passed":true}

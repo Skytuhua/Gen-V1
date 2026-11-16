@@ -1,0 +1,625 @@
+{
+  "version": 1,
+  "mode": "direct",
+  "createdAt": "2026-11-15T22:46:30.156Z",
+  "sourceBaseSha": "013c044d66f40136752df4f1903132d601d57851",
+  "scope": "Direct native Save and reviewed helper; not production export admission.",
+  "nativeHelperChanged": true,
+  "nativeHelperBaselineSha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d",
+  "savePathBypass": false,
+  "providerOrAccountCodeLoaded": false,
+  "fixture": true,
+  "passed": false,
+  "sourceHashes": {
+    "scripts/installed-native-save.ts": {
+      "bytes": 25009,
+      "sha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67"
+    },
+    "apps/desktop/memory-export.ts": {
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    "packages/contracts/project-memory.ts": {
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9"
+    },
+    "packages/core/memory-publication.ts": {
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711"
+    },
+    "package.json": {
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+    },
+    "pnpm-lock.yaml": {
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+    },
+    ".github/actions/setup/action.yml": {
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    }
+  },
+  "cleanup": {
+    "observerOwned": true,
+    "fixtureOwned": true,
+    "fixtureExitCode": 0,
+    "fixtureSignal": null,
+    "fixtureStderrBytes": 297,
+    "ownedProcessesExited": true
+  },
+  "checkout": {
+    "sha": "9e2d8261754c15f549e8b594c12e4fdc66e63dd6",
+    "tree": "78abe64dfb5124b966fb512c80acced98f4a5a0e"
+  },
+  "electronExecutable": {
+    "sha256": "010ea51bfb528c8143513439aa93fb40754403daa2023f9decd4517da71706ab",
+    "expectedVersion": "45.2.0"
+  },
+  "fixtureReady": {
+    "pid": 6224,
+    "electron": "45.2.0",
+    "elapsedMs": 946
+  },
+  "downloadBehavior": {
+    "mode": "default",
+    "resetAcknowledged": true
+  },
+  "fixtureBeforeTrigger": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 6224,
+    "electron": "45.2.0",
+    "status": "waiting",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 792
+      }
+    ]
+  },
+  "failure": {
+    "stage": "native-save-through-reviewed-helper",
+    "error": "Diagnostic boundary failed; inspect the bounded stage metadata."
+  },
+  "nativeSave": {
+    "status": "running",
+    "pid": 6224,
+    "processStartTicks": "639303795909328852",
+    "dialogHandle": "262224",
+    "dialogTitle": "Export project memory",
+    "events": [
+      {
+        "phase": "ready",
+        "pid": 6224,
+        "processStartTicks": "639303795909328852",
+        "dialogHandle": null,
+        "elapsedMs": 566
+      },
+      {
+        "phase": "dialog-found",
+        "pid": 6224,
+        "processStartTicks": "639303795909328852",
+        "dialogHandle": "262224",
+        "elapsedMs": 1508
+      },
+      {
+        "phase": "file-name-set",
+        "pid": 6224,
+        "processStartTicks": "639303795909328852",
+        "dialogHandle": "262224",
+        "elapsedMs": 2108
+      },
+      {
+        "phase": "save-invoked",
+        "pid": 6224,
+        "processStartTicks": "639303795909328852",
+        "dialogHandle": "262224",
+        "elapsedMs": 3219
+      },
+      {
+        "phase": "dialog-closed",
+        "pid": 6224,
+        "processStartTicks": "639303795909328852",
+        "dialogHandle": "262224",
+        "elapsedMs": 3432
+      }
+    ]
+  },
+  "fixtureAfterProbe": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 6224,
+    "electron": "45.2.0",
+    "status": "failed",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 792
+      },
+      {
+        "phase": "trigger-admitted",
+        "elapsedMs": 6188,
+        "mode": "direct"
+      },
+      {
+        "phase": "direct-dialog-requested",
+        "elapsedMs": 6188
+      },
+      {
+        "phase": "direct-dialog-returned",
+        "elapsedMs": 8946,
+        "cancelled": false,
+        "selectedExactTarget": false
+      },
+      {
+        "phase": "export-failed",
+        "elapsedMs": 8947,
+        "refusal": null,
+        "productionError": false
+      }
+    ]
+  },
+  "fixtureAfterFailure": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 6224,
+    "electron": "45.2.0",
+    "status": "failed",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 792
+      },
+      {
+        "phase": "trigger-admitted",
+        "elapsedMs": 6188,
+        "mode": "direct"
+      },
+      {
+        "phase": "direct-dialog-requested",
+        "elapsedMs": 6188
+      },
+      {
+        "phase": "direct-dialog-returned",
+        "elapsedMs": 8946,
+        "cancelled": false,
+        "selectedExactTarget": false
+      },
+      {
+        "phase": "export-failed",
+        "elapsedMs": 8947,
+        "refusal": null,
+        "productionError": false
+      }
+    ]
+  },
+  "windowObserver": {
+    "exitCode": 1,
+    "error": null,
+    "stderrBytes": 0,
+    "bytes": 5762,
+    "sha256": "e424d0e91ef8b446c58580d81eb5b9293c400698ff049d4839ef36e6ad4f601c"
+  },
+  "windowObservations": [
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 2614,
+      "pid": 6224,
+      "processStartTicks": "639303795909328852",
+      "rootChildren": [
+        {
+          "pid": 6224,
+          "hwnd": "131372",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": true,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "131372",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "131372",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131444",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131444",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "131444",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196950",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196950",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196950",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196734",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196952",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196734",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196952",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131372",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196952",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 6224,
+              "hwnd": "131372",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 2672,
+      "pid": 6224,
+      "processStartTicks": "639303795909328852",
+      "rootChildren": [
+        {
+          "pid": 6224,
+          "hwnd": "131372",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": true,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "131372",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "131372",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131444",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131444",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "131444",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196950",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196950",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196950",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196734",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196952",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196734",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196952",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131372",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131372",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 6224,
+            "hwnd": "196952",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 6224,
+              "hwnd": "131372",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "pid": 6224,
+      "reason": "owned-window-observation-failed",
+      "elapsedMs": 6398,
+      "phase": "failed",
+      "processStartTicks": "639303795909328852"
+    }
+  ],
+  "fixtureStartup": {
+    "phases": [
+      {
+        "phase": "module-entered",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "config-read",
+        "elapsedMs": 1
+      },
+      {
+        "phase": "server-listening",
+        "elapsedMs": 10
+      },
+      {
+        "phase": "ready-scheduled",
+        "elapsedMs": 10
+      },
+      {
+        "phase": "app-ready",
+        "elapsedMs": 34
+      },
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 794
+      }
+    ],
+    "stderr": {
+      "observedBytes": 297,
+      "observedSha256": "898158b8037854c543cbb0595134be70f5d5b07441a33c8629a4f1a1728e58e8",
+      "capturedBytes": 297,
+      "normalized": true,
+      "truncated": false,
+      "head": "\r\nDevTools listening on <owned-devtools-endpoint>\r\nError occurred in handler for 'diagnostic:native-save': Error: The fixture export failed.\n    at file:///<owned-root>/electron.mjs:20119:13\n",
+      "tail": ""
+    }
+  },
+  "completedAt": "2026-11-15T22:47:10.329Z"
+}

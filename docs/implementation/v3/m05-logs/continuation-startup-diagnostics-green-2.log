@@ -1,0 +1,78 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ✓ tests/desktop-backend-handoff.test.ts > does not activate a backend that stops while the old relay closes ({"exitCode":7,"signalCode":null}) 5ms
+ ✓ tests/desktop-backend-handoff.test.ts > does not activate a backend that stops while the old relay closes ({"exitCode":null,"signalCode":"SIGTERM"}) 1ms
+ ✓ tests/desktop-backend-handoff.test.ts > activates a live backend only after the old relay is closed 1ms
+ ✓ tests/desktop-backend-handoff.test.ts > keeps the original relay rejection when diagnostic observation fails 3ms
+ ✓ tests/desktop-backend-handoff.test.ts > records a backend stopped during relay close without changing refusal 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > accepts the exact owned ready message after the former 25-second limit 11ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > still refuses a backend that never becomes ready at the 60-second bound 5ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > ignores foreign tokens, origins, PIDs and errors until its own ready message 2ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on a child error and removes readiness listeners 3ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on child exit with the bounded diagnostic tail 2ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately when the startup sidecar loses its IPC channel 5ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on an authenticated backend startup error 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > retains the original personal sidecar and immutable native document URL 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > restricts plug-in native IPC to its window lifecycle 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps plug-in task ownership distinct from personal surfaces 6ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > passes only an explicitly supported subscription provider into the fixed sign-in helper 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > rejects unrecognized provider or executable-shaped sign-in input before process creation 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > launches the real Node sidecar loader through a file URL, including Windows paths with spaces 521ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > admits only bounded typed identities and registered surface properties 4ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps task-specific windows distinct without accepting arbitrary window URLs 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the original main frame, exact URL and webContents identity 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the actual matching editor to flush when detachment starts in a sidebar 1ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > resolves once and returns a numeric destination, rejecting private rebinds and custom ports 11ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > sends HTTP only to the approved numeric address and rejects a later private response 33ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > pins CONNECT to the approved numeric address and rejects loopback before opening a socket 8ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > allows independent X/Y placement on a connected negative-coordinate display 1ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > recovers removed-monitor bounds and oversized/invalid values inside a reachable work area 1ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > closes explicitly removed browser views and frees their budget while preserving a reparented view 1ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > rejects local/private/credentialled/non-web pages before native navigation 2ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > fails closed for DNS failures and mixed public/private DNS responses 1ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > does not admit mapped/private IPv6 addresses or arbitrary browser control arguments 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > classifies only native error kinds and known codes without reading private error text 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > emits fixed metadata and swallows an optional sink failure 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > observes only authenticated backend errors and retains the original rejection 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > rejects extra diagnostic fields without changing an authenticated error 0ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > cannot change exact ready admission or rejection when the optional observer throws 0ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend exit boundary without extending readiness 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend disconnect boundary without extending readiness 1ms
+ ✓ tests/desktop-native.test.ts > private desktop startup diagnostics > records the actual backend deadline boundary without extending readiness 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence 9ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events 2ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination 15ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them 5ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller 14ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner 94ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents 3ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it 21ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff 7ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata 32ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck 3ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck 1ms
+ ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion 2ms
+ ✓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > reassembles only strict chunked markers while retaining separate output digest and byte counts 2ms
+ ✓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > drops malformed, private and extra fields and accepts the next complete line 1ms
+ ✓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > bounds parsing, retained events and hash bytes while continuing to drain later output 12ms
+ ✓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > retains the first startup failure while separately observing later process exit and close 1ms
+
+ Test Files  3 passed (3)
+      Tests  69 passed (69)
+   Start at  08:48:48
+   Duration  1.94s (transform 1.04s, setup 0ms, import 2.01s, tests 892ms, environment 0ms)
+

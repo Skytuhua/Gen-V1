@@ -1,0 +1,785 @@
+{
+  "schemaVersion": 1,
+  "status": "READ_ONLY_ACCEPTED_BASE_REFRESH_REVIEWED_NO_EXECUTION_CLAIM",
+  "recordedAt": "2026-11-15T23:29:12.430283+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "priorAcceptedBaseSha": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+  "acceptedBaseSha": "673ca733d306ade463635def2d09299bc37043ec",
+  "acceptedBaseTreeSha": "b3a2fb2d472c0708b7d159776bde9319566a217b",
+  "acceptedCommitCountSincePrior": 1,
+  "commits": [
+    {
+      "commitSha": "673ca733d306ade463635def2d09299bc37043ec",
+      "parentSha": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "subject": "Give users a retry when the main workspace layout cannot load (#389)"
+    }
+  ],
+  "historicalLock": {
+    "path": "M05-source-lock-85d8c267.json",
+    "bytes": 22303,
+    "sha256": "633202fe5fa88a7e0a77a7baae4ddcecc8942eff54fbbd8ab903e0c1841907da",
+    "blobSha": "52b33aae9cf0087bdc146b791ccfeaf78363107b"
+  },
+  "priorReview": {
+    "path": "M05-accepted-base-review-85d8c267.json",
+    "bytes": 30856,
+    "sha256": "1851660d2bc100eb73ad024a802ca657428360b2e78f8528ef7069dbd21bff6c",
+    "blobSha": "2f6e99063df2e7df79b503354450209bb2ec9026"
+  },
+  "preservedEarlierHistoricalCuts": [
+    "399cde39ff4ee82272c7a7700944325c44b36070",
+    "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "4941b74496c808b5318888ca6b68378c3329b87e",
+    "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+    "02a50eca13c2deb720738a89ec0abc126e6fb3e6"
+  ],
+  "proposedLock": {
+    "path": "M05-source-lock.proposed.json",
+    "bytes": 22351,
+    "sha256": "9f7a729112e4548ec7a75e05f734e8ea1d69a81f8c55eec997554c5872a34234",
+    "blobSha": "ab8e004ccb5a159534edaea79b2c2299c7941214"
+  },
+  "dependencyContracts": {
+    "path": "M05-dependency-contracts.proposed.json",
+    "bytes": 3408,
+    "sha256": "f0e8c782db02de0317369c010ad1aa4ff3752039d41bc870f63d0f784a6327be",
+    "blobSha": "65d075532bc917dc48dbaea77019d3dc7e7a6e52"
+  },
+  "evidenceContractUpdate": {
+    "path": "M05-evidence-contract-update.proposed.json",
+    "bytes": 3838,
+    "sha256": "d53d6b749c6f0f6db3a54d3b10cb1b290f2c1a4cef3d8224552395e2cd9ab4eb",
+    "blobSha": "80de3178a2075f6ba1439c21507b84761850528f"
+  },
+  "inspectedPaths": [
+    {
+      "path": ".github/actions/setup/action.yml",
+      "priorBlobSha": "1751a7153b9ef0b30c8a081774e47990827613ef",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef",
+      "changed": false
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "priorBlobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b",
+      "bytes": 4132,
+      "sha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2",
+      "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b",
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "priorBlobSha": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d",
+      "bytes": 55441,
+      "sha256": "0f069121473becb80a755a23862989afdc7325687590864cb8ebf41fc2c3704b",
+      "blobSha": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d",
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "priorBlobSha": "2063e498d4131b608baf3ba74d7eead023db6d87",
+      "bytes": 3836,
+      "sha256": "50eddc33bff426d57cc7aeda21f4481189be0800f5f3c021014accd86e873873",
+      "blobSha": "2063e498d4131b608baf3ba74d7eead023db6d87",
+      "changed": false
+    },
+    {
+      "path": "apps/desktop/window-policy.ts",
+      "priorBlobSha": "c75a4658539a572fb31fe8fcd30b42ddd4b5a15e",
+      "bytes": 9868,
+      "sha256": "fe3614c9240458235cc73f5405466f9f3b552e2251419659c6acd66fbc555b63",
+      "blobSha": "c75a4658539a572fb31fe8fcd30b42ddd4b5a15e",
+      "changed": false
+    },
+    {
+      "path": "apps/server/host.ts",
+      "priorBlobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492",
+      "bytes": 9118,
+      "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b",
+      "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492",
+      "changed": false
+    },
+    {
+      "path": "apps/server/profile-lease.ts",
+      "priorBlobSha": "8ba9106aa0607c27403f69035355612ab1a138b4",
+      "bytes": 2100,
+      "sha256": "53d0f31ee28855c1cab2713d48847b075f28090ff1aa14f136e56eeb9fa46b87",
+      "blobSha": "8ba9106aa0607c27403f69035355612ab1a138b4",
+      "changed": false
+    },
+    {
+      "path": "apps/server/server.ts",
+      "priorBlobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+      "bytes": 28200,
+      "sha256": "302c3581f277c3e11b0bf8e6bf359d7c2cefb814a4e37ae9824b35c119fb2a2a",
+      "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+      "changed": false
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "priorBlobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea",
+      "bytes": 7920,
+      "sha256": "b1a79351be6cc72f0b6137f586a6cc913757e9d59b2ee21a417012aafb6c25c0",
+      "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea",
+      "changed": false
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "priorBlobSha": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+      "bytes": 10077,
+      "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+      "blobSha": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+      "changed": false
+    },
+    {
+      "path": "apps/web/src/ProjectContextSurface.tsx",
+      "priorBlobSha": "0008281500bc9bb2216160978b81565885afa27d",
+      "bytes": 1693,
+      "sha256": "646d829badca65d937760364f815618b0843335d262d86b6efcc5c5667abd224",
+      "blobSha": "0008281500bc9bb2216160978b81565885afa27d",
+      "changed": false
+    },
+    {
+      "path": "docs/architecture.md",
+      "priorBlobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c",
+      "bytes": 9216,
+      "sha256": "7d0b9b8403391c76563cbfd7bb9c9d83e7b0e975ecec3f10bc7dc5f940fb75dc",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c",
+      "changed": false
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "priorBlobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+      "bytes": 30977,
+      "sha256": "806f844d92c05f1a280b7cec72bdae73b39365eef4417e654a3bf4bbc7bd1daf",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+      "changed": false
+    },
+    {
+      "path": "docs/implementation/v3/M02-source-lock.json",
+      "priorBlobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+      "bytes": 1804,
+      "sha256": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a",
+      "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+      "changed": false
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "priorBlobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+      "bytes": 6889,
+      "sha256": "cfcd648127baedf633f59e736177e3c26e2b33758cd5cffec8f46bd63e3bf26e",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+      "changed": false
+    },
+    {
+      "path": "docs/implementation/v3/M04-core-verification.json",
+      "priorBlobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d",
+      "bytes": 10015,
+      "sha256": "f6f501a6f69261d3780bded0800be925640c6e7315b354a3ea9d5da06102e8e1",
+      "blobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d",
+      "changed": false
+    },
+    {
+      "path": "evals/cases.ts",
+      "priorBlobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae",
+      "bytes": 9804,
+      "sha256": "5f55c1b8df50eff8d192e52701beb1ca5d23a95cb16f1742f83dfea15925add2",
+      "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae",
+      "changed": false
+    },
+    {
+      "path": "evals/runner.ts",
+      "priorBlobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f",
+      "bytes": 10180,
+      "sha256": "5b0f77dab350869cb6412079ea56eb13879c2e883fe0320ac8d91042f4ebba2c",
+      "blobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f",
+      "changed": false
+    },
+    {
+      "path": "package.json",
+      "priorBlobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+      "changed": false
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "priorBlobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "bytes": 10262,
+      "sha256": "149654583eb30c23922deb3c75e2e1b4113083b064b7b95ad6a7ada903d984df",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "changed": false
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "priorBlobSha": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "bytes": 8820,
+      "sha256": "16fa49f9d8ef4f7fe4fc810a8ce746048da3a8d3afcce93761d0ebf594fb6530",
+      "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "changed": false
+    },
+    {
+      "path": "packages/contracts/model-request.ts",
+      "priorBlobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "bytes": 6820,
+      "sha256": "5d7c38c634ec68ce3bab99d52eaf189a6a0e55c5867c9847dde280a627e49efa",
+      "blobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "changed": false
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "priorBlobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "bytes": 4120,
+      "sha256": "6f1dc5669b95a2697aa97df44a3d9c86d48ed15ec23bc75db4f20b257a1d2957",
+      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "changed": false
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "priorBlobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "bytes": 3275,
+      "sha256": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "changed": false
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "priorBlobSha": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "bytes": 6377,
+      "sha256": "3691ec52adffd1d0cbc0d8307dbb7b32928e622eedd924dd8072179a127da52f",
+      "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "changed": false
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "priorBlobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "bytes": 5999,
+      "sha256": "c26065d87202b051faad3564db8d4a7912333496ef9de963b345336abbf1f423",
+      "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "changed": false
+    },
+    {
+      "path": "packages/core/effect-recovery.ts",
+      "priorBlobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "bytes": 7089,
+      "sha256": "bb217f1b3859c8609e04c0b84b93e88dd8b33745818ca6f1d1a5705320c4d10d",
+      "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "changed": false
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "priorBlobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412",
+      "bytes": 11703,
+      "sha256": "c4388f71a70b530774dd1ea60933cef20bcafe2ddb8ec01b7b8514e2c33b1f6f",
+      "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412",
+      "changed": false
+    },
+    {
+      "path": "packages/core/learning.ts",
+      "priorBlobSha": "dfc53335151a50d87912de17f7a19166491dd3bc",
+      "bytes": 8958,
+      "sha256": "fd8f9c0300752a1bf4d6b90268e17b1802f693212910b4c03b31cab748a100a7",
+      "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc",
+      "changed": false
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "priorBlobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "bytes": 16211,
+      "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee",
+      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "changed": false
+    },
+    {
+      "path": "packages/core/security.ts",
+      "priorBlobSha": "693f251361bc464caee26df795c57002d120c9a7",
+      "bytes": 3604,
+      "sha256": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7",
+      "changed": false
+    },
+    {
+      "path": "packages/core/service.ts",
+      "priorBlobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "bytes": 145131,
+      "sha256": "5ef9d6267b9e79db04e5a97e2eec732198c6c5544ce44d970e817783f527171c",
+      "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "changed": false
+    },
+    {
+      "path": "packages/core/skills.ts",
+      "priorBlobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae",
+      "bytes": 20032,
+      "sha256": "6288dfc57a0520774c2e8c1826cef69162dbe5777ce94996a510648716776ef0",
+      "blobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae",
+      "changed": false
+    },
+    {
+      "path": "packages/core/task-memory.ts",
+      "priorBlobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "bytes": 2903,
+      "sha256": "e3f0ae02e787d0ec1463199014a39a5301e3ab5b60cecf6a02cf031b4fb44786",
+      "blobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "changed": false
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "priorBlobSha": "1d654522d9842838276d162a33dac6141f731c26",
+      "bytes": 9666,
+      "sha256": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26",
+      "changed": false
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "priorBlobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "bytes": 18058,
+      "sha256": "d43983df718cc497dc85fe92cc719afe35b85df0361d265b131c7313fc94e317",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "changed": false
+    },
+    {
+      "path": "packages/desktop-contract/index.ts",
+      "priorBlobSha": "a149b2c3bb89f3b712feba4e94d646ebb0544c18",
+      "bytes": 11269,
+      "sha256": "92d6c74874f790611fca4f654ba6dccd184ef59430aace168fbaebc6d65be311",
+      "blobSha": "a149b2c3bb89f3b712feba4e94d646ebb0544c18",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "priorBlobSha": "3e9a425b28b150874cfee1a29725308133bf193b",
+      "bytes": 36643,
+      "sha256": "679d20fff1ac1e14cf1a40c8035679f471c8cd2215f51635cc19948e1d76fa92",
+      "blobSha": "3e9a425b28b150874cfee1a29725308133bf193b",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "priorBlobSha": "ba0bf768e44ee9385065401a067028131fe3392c",
+      "bytes": 31421,
+      "sha256": "33249415a437d8ca1ed4107f081801d6e5202a671a3aaf48a9ef99db2d6692d9",
+      "blobSha": "ba0bf768e44ee9385065401a067028131fe3392c",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "priorBlobSha": "ce8d20eae27cc81716669365257bb34ce9575420",
+      "bytes": 77803,
+      "sha256": "b8de842ddec1f5feeccfefd31a66c10d8e887302e918a3fbea73416d8d4d2be6",
+      "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "priorBlobSha": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6",
+      "bytes": 15301,
+      "sha256": "b20e084be9021a121a87a606e042eb18a1c39c13f02a2f31e5cadb047fbaf67e",
+      "blobSha": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime/request-capabilities.ts",
+      "priorBlobSha": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "bytes": 2393,
+      "sha256": "9280427e2f2ce9d401db85515224f96cd7af0c0e503f03eb6cca6ac6818566b3",
+      "blobSha": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "changed": false
+    },
+    {
+      "path": "packages/runtime/request-scheduler.ts",
+      "priorBlobSha": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+      "bytes": 10955,
+      "sha256": "678c207a0ff62616d9c2b04fa7ad77cbda2c468d690cbff047436a827a478632",
+      "blobSha": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+      "changed": false
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "priorBlobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "bytes": 15079,
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "changed": false
+    },
+    {
+      "path": "packages/workspace/tools.ts",
+      "priorBlobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "bytes": 25568,
+      "sha256": "419148db0f57678c51df9def6b8379b3078193df954a716a81817417a5aa629e",
+      "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "changed": false
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "priorBlobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+      "changed": false
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "priorBlobSha": "ee530157e1d0ae825df3717a0e04d10cb8f842bb",
+      "bytes": 6394,
+      "sha256": "ce9ccc6b3d2bdb4a520166e6d7acad95e715c8d31bda153b23b4bed0b690f279",
+      "blobSha": "ee530157e1d0ae825df3717a0e04d10cb8f842bb",
+      "changed": false
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "priorBlobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50",
+      "bytes": 8965,
+      "sha256": "24e5c8ac61fa8711b7663e0b8e44231cce87de4e97d8a7d870d9ce9c4fe24118",
+      "blobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50",
+      "changed": false
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "priorBlobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf",
+      "bytes": 6583,
+      "sha256": "f138034b2cd5f1ead9f2459c770453b6ca3157b5a27de0b3a1aeee2e0021f6ef",
+      "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf",
+      "changed": false
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "priorBlobSha": "d6e81f30baabe12fb4516b01770b1a4551c9f822",
+      "bytes": 134600,
+      "sha256": "9176f333565f93961e5e629c9f2c4303f2d91e07a4e14b56cdc8707192ea4927",
+      "blobSha": "d6e81f30baabe12fb4516b01770b1a4551c9f822",
+      "changed": false
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "priorBlobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25",
+      "bytes": 25667,
+      "sha256": "84473abad3144d1d2ee50a7c5662a1b2887d7f060f821c6ee34057e542dc9c1d",
+      "blobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25",
+      "changed": false
+    },
+    {
+      "path": "tests/context-compiler-v3.test.ts",
+      "priorBlobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+      "bytes": 5484,
+      "sha256": "5ae96021557ff129c2abc99cfcbc7d1a4da996c2f17536800a1a6a736ab98dd9",
+      "blobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+      "changed": false
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "priorBlobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00",
+      "bytes": 17652,
+      "sha256": "33d87e8beb15ca39a9cc5437d8d8f79de343da587a50706e79aa24ed9c5a63ac",
+      "blobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00",
+      "changed": false
+    },
+    {
+      "path": "tests/desktop-preload-accounts.test.ts",
+      "priorBlobSha": "0dadeefca7b3cb98c6084f32cb84d5e0f2440ad6",
+      "bytes": 1428,
+      "sha256": "3ccdd3c4501f61c2229c6c31068459bd011658e5970687ac7de91f37c0776957",
+      "blobSha": "0dadeefca7b3cb98c6084f32cb84d5e0f2440ad6",
+      "changed": false
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "priorBlobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+      "bytes": 12127,
+      "sha256": "5968523be60c6086577c38088c2fa7f18afc733700b2daba9c107653cc0d0ae8",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+      "changed": false
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "priorBlobSha": "ea70ad3f662754095df20f6686457317266a5e23",
+      "bytes": 5270,
+      "sha256": "3dabd6b506315c1d696765197ea4bf99c68bb36aa54ff1487dc476e0625e52a8",
+      "blobSha": "ea70ad3f662754095df20f6686457317266a5e23",
+      "changed": false
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "priorBlobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+      "bytes": 1519,
+      "sha256": "9736e8cc531bc59103895f103a1caf07406d8be24ea01db22d2db8d86029982a",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+      "changed": false
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "priorBlobSha": "aa26bcf8997e450de648ac26006770d745a0434c",
+      "bytes": 20640,
+      "sha256": "c798c6dca02c9ae558bab2fbd0082e360fb0ead30713b34895a5338743dde196",
+      "blobSha": "aa26bcf8997e450de648ac26006770d745a0434c",
+      "changed": false
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "priorBlobSha": "a44a20573b4feee888f4709011658a6d50635893",
+      "bytes": 19509,
+      "sha256": "ae6eda779cc4581f086aea8a68f5fac169dd1fb860975b0fb34c6cc0785021f2",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893",
+      "changed": false
+    },
+    {
+      "path": "tests/task-memory.test.ts",
+      "priorBlobSha": "2ada92f323eda1d39131c3a5a17835392f857cac",
+      "bytes": 4912,
+      "sha256": "88700d6a8a8a2021b54527686c043315a58efd42e98ab7cc00a7db24d5ca5313",
+      "blobSha": "2ada92f323eda1d39131c3a5a17835392f857cac",
+      "changed": false
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "priorBlobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+      "bytes": 5754,
+      "sha256": "0114a5eb94f270c7ee5d5cac2e5fa6263997a7417fae597116f27a59dfb60235",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+      "changed": false
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "priorBlobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+      "bytes": 15652,
+      "sha256": "fcf19bff01dd5da09f504e5074fcdf0b9648b6c37b6a88c38b1d8d7c2eb70783",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+      "changed": false
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "priorBlobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "blobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66",
+      "changed": false
+    }
+  ],
+  "inspectedPathSummary": {
+    "total": 63,
+    "unchanged": 63,
+    "changed": 0
+  },
+  "publicContracts": {
+    "total": 16,
+    "uniqueNames": 16,
+    "allVersionsUnchanged": true,
+    "noDifferingVersionCollision": true,
+    "bindings": [
+      {
+        "name": "M01.ImplementationEvidenceV3",
+        "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+        "path": "packages/contracts/implementation-evidence.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M01.CapabilityFlags",
+        "version": "829f51f534524beaafe81010ba4fc9aa25498537",
+        "path": "packages/core/capability-flags.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M02.ToolEffectsV3",
+        "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+        "path": "packages/contracts/tool-effects.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M02.ToolAuthority",
+        "version": "1d654522d9842838276d162a33dac6141f731c26",
+        "path": "packages/core/tool-authority.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M02.EffectRecovery",
+        "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+        "path": "packages/core/effect-recovery.ts",
+        "unchanged": true
+      },
+      {
+        "name": "Store.SynchronousCommand",
+        "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+        "path": "packages/storage/store.ts",
+        "unchanged": true
+      },
+      {
+        "name": "Workspace.PhysicalBinding",
+        "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+        "path": "packages/workspace/tools.ts",
+        "unchanged": true
+      },
+      {
+        "name": "ResourceGrant.StorageBoundary",
+        "version": "693f251361bc464caee26df795c57002d120c9a7",
+        "path": "packages/core/security.ts",
+        "unchanged": true
+      },
+      {
+        "name": "Existing.TaskMemory",
+        "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+        "path": "packages/core/task-memory.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M04.RequestContextV1",
+        "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+        "path": "packages/contracts/request-context.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M04.RequestCustody",
+        "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+        "path": "packages/core/request-custody.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M04.ContextCompiler",
+        "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+        "path": "packages/core/context-compiler.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M04.HostRequestPreparation",
+        "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "path": "packages/core/service.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M11.ModelRequestObservationV1",
+        "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+        "path": "packages/contracts/model-request.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M11.RequestScheduler",
+        "version": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+        "path": "packages/runtime/request-scheduler.ts",
+        "unchanged": true
+      },
+      {
+        "name": "M11.RequestCapabilities",
+        "version": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+        "path": "packages/runtime/request-capabilities.ts",
+        "unchanged": true
+      }
+    ]
+  },
+  "acceptedDependencyAncestors": [
+    {
+      "commitSha": "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "f331cf16b268282da888a41da42fc776ea7befd5",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "4941b74496c808b5318888ca6b68378c3329b87e",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "02a50eca13c2deb720738a89ec0abc126e6fb3e6",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "isAncestorOrSelf": true
+    },
+    {
+      "commitSha": "673ca733d306ade463635def2d09299bc37043ec",
+      "isAncestorOrSelf": true
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "before": {
+        "bytes": 152969,
+        "sha256": "76e9f374f183ccc07f4a74a38a576152b3dd8ecc84a764b08b774e5c5fab82a6",
+        "blobSha": "4616bc6284fc9f57b94461e7915c87cd8d7c5839"
+      },
+      "after": {
+        "bytes": 153466,
+        "sha256": "a3b7252bd57ec61f54cd8c92bb6b7b543da86b71babf2cdd18b5c90cea8a0a42",
+        "blobSha": "3e7e450c4bec4aa0e7ab0f3a9346231d67a3f9b7"
+      }
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "before": {
+        "bytes": 4896,
+        "sha256": "18b191c197a41f58f954ccd1679717ca514d7e6246cd8aad8dcae4cd5b81571d",
+        "blobSha": "dbfab0cff5a007689f037f5e8f1a3bdf425b1cc8"
+      },
+      "after": {
+        "bytes": 5085,
+        "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805",
+        "blobSha": "90544731c91845bd2e6b2c3c5b89a84134e4d7fe"
+      }
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "before": {
+        "bytes": 77346,
+        "sha256": "57bee16477bf270c899f2b03211782e5aba459571cea8840314e2d64d1f7eaa5",
+        "blobSha": "210072bbe4239daf1cecf6cba66e18599c912695"
+      },
+      "after": {
+        "bytes": 78469,
+        "sha256": "ad541decfda409bfea5d82dc6224b1e21c8f2a168ef01b8eac454276168b321b",
+        "blobSha": "1662067edf010f187c248c1a076538f377d050b2"
+      }
+    }
+  ],
+  "reviewFindings": [
+    {
+      "scope": "Main layout retry and memory owner binding",
+      "finding": "Accepted App adds a guarded retry state and visible retry button for an initial split-layout error. Its successful-layout branch retains the same ProjectContextSurface thread/snapshot callbacks and memory owner chain. The pending M05 summary-visibility guard must be retained when resolving this shared renderSplitRoot line."
+    },
+    {
+      "scope": "Split workspace asynchronous ownership",
+      "finding": "refresh now records a per-read identifier and only publishes an initial-load error when the component is alive, workspace owner and generation match, the read is latest, and no current layout exists. Existing accept still checks workspace identity and nondecreasing layout revision. Disabled effects set alive=false and clear prior errors; command captured-revision authority is unchanged."
+    },
+    {
+      "scope": "Accepted regression",
+      "finding": "The added workspace-host test drives a real user retry after a503 fixture, requires the composer to become visible, requires another layout read, and asserts no page navigation. It is accepted source evidence; this review did not run the test."
+    },
+    {
+      "scope": "M05 core/native/flags/contracts",
+      "finding": "The three-path accepted-main delta does not touch M05 core, server, storage, extraction, checkpoint, native export, retained-memory verifier, capability flags or the16 locked dependency contracts. No new authority or activation boundary was found in the full reviewed diff."
+    }
+  ],
+  "currentCiIdentity": {
+    "runId": 43771171183,
+    "runTerminalConclusion": "failure",
+    "publishedHeadSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "publishedTreeSha": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "actualCheckoutSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "actualCheckoutTreeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "status": "NOT_ADMITTED_FOR_94b",
+    "note": "The historical failed run tested the85d PR merge. It does not test this later673 accepted base or current uncommitted fixes."
+  },
+  "scope": "All63 inspected base blobs were freshly read and hashed from immutable673 Git objects; all16 contract versions and11 accepted dependency ancestors were checked. The exact85d lock and earlier historical cuts remain unchanged. No source, branch, working tree, ledger or execution-admission state was changed."
+}

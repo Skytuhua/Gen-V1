@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_PREPARATION_COMPLETE_ADMISSION_NOT_RUN",
+  "recordedAt": "2026-11-16T01:00:06.186675+00:00",
+  "sourceHeadSha": "de8700651e6eb97c5a60bf849802b51086244857",
+  "sourceTreeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+  "acceptedBaseSha": "bfd4247994674c5a60ed14b12ff2dda223b07879",
+  "review": {
+    "bytes": 24816,
+    "sha256": "0d6ca5c43a78654dcb7c936f608344067796e983647f74bcb793eddba7a6154c",
+    "gitBlobSha": "714c75fd2dbe8f6debc1516103c38c861b63f794"
+  },
+  "originalProfile": {
+    "bytes": 10418,
+    "sha256": "6b775d20019a096ffe81267e355f20382978f1844c4c09d131bf95ce822d00f3",
+    "gitBlobSha": "1beaeda59d18dc90ce74068e4f2f24a1186d3b94"
+  },
+  "profile": {
+    "bytes": 10418,
+    "sha256": "48b2d0d1e9a3575c56dc4cda07dd1514ea054f10d8d13432739d4631b4279094",
+    "gitBlobSha": "6ebd251a2a624daa6b90838a5c163e0c3ee93e5e"
+  },
+  "sourceBindings": {
+    "bytes": 8326,
+    "sha256": "a48c7f3766f35fd492a8118cec5d32c9808948c9a03695f9507836b02bcdcd09",
+    "gitBlobSha": "db7551f92de130e50e7a43ff7458e4ae8d799c32"
+  },
+  "supplementalSourceBindings": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "gitBlobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+    },
+    {
+      "path": "apps/desktop/layout-transaction.ts",
+      "bytes": 3068,
+      "sha256": "191fdbf3334d68608a42a6acd75710bd31dc1ff0578c95590575081c6a4b2ec1",
+      "gitBlobSha": "de539faa0cfb6ac4fa71fd9a5c5749736f47c921"
+    },
+    {
+      "path": "apps/desktop/workspace-events.ts",
+      "bytes": 3811,
+      "sha256": "cae5bcaf672501df0045d0b3c74d404b602f741904efd872ff3baf052dc30355",
+      "gitBlobSha": "90bdf3b684ecd0f52c7b9d7acd06faa7ed9b63ba"
+    },
+    {
+      "path": "apps/server/main.ts",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "gitBlobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 155708,
+      "sha256": "3009dba92c0b8d0465bfd9fb2b3f2206129855d2af554a4e3beedecf4cec8f2c",
+      "gitBlobSha": "da7bf376245efa5b976f255c673413f16e669fef"
+    },
+    {
+      "path": "apps/web/src/PlanStatus.tsx",
+      "bytes": 13305,
+      "sha256": "5f45c775b93e4557a21474c521daef5c5d9fa54d00cf9054b52876fe61e8a2f6",
+      "gitBlobSha": "3f1af434201f1620509bcd8361076070687eea4e"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/AgentsWorkspace.tsx",
+      "bytes": 21331,
+      "sha256": "4bccdf5fba1cd6524ae26475e2617473e31805974a05b97a5786effdc5d55211",
+      "gitBlobSha": "14604480acbc115bd8e0f6ccf3082bf2c229a79a"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/agents-workspace.css",
+      "bytes": 10114,
+      "sha256": "40ec639689095512a7dacbafcb99c4ed8efe1b2f08b734162feb5ef7b7892598",
+      "gitBlobSha": "06f8d745a9e087095463fbc73fd8189d5b291e29"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/TimelineRows.tsx",
+      "bytes": 11469,
+      "sha256": "80626739d7ed09d1aa12964b5da3156230aadc9261d51642c15ad8fc8c8815de",
+      "gitBlobSha": "641388024d27155516be430d18a0077d29beb54a"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/timeline.css",
+      "bytes": 8205,
+      "sha256": "c9c05c46c09da12b277c2c89dc5048025979ab38795da48ab30e48a0e95e8d00",
+      "gitBlobSha": "b1d87dfb05b1a82f6f2754e5911af4d7884974e6"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "bytes": 5085,
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805",
+      "gitBlobSha": "90544731c91845bd2e6b2c3c5b89a84134e4d7fe"
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "bytes": 2443,
+      "sha256": "ae4ca268d220afd0c84331ceb84a9a357952cea72089fad2c65fdba1dedbb83a",
+      "gitBlobSha": "9b6fbb49cb97e29250a5cee1576ba942be055da1"
+    },
+    {
+      "path": "apps/web/src/workspace-split.css",
+      "bytes": 7132,
+      "sha256": "e2c23d116a7acf958f8eed69b6d1f340339bcafcf9dde346b347e0d37ac89f09",
+      "gitBlobSha": "ece5f12e04faccc501f82b08335f0d8b2288ccb6"
+    },
+    {
+      "path": "docs/public/features.md",
+      "bytes": 5454,
+      "sha256": "df2c4398ead8a2f8ac5e693bb39ce1104d791233888a3f76b1508435ed5ee54a",
+      "gitBlobSha": "597954e6a89aa08d0c98be521e8f269b27d15814"
+    },
+    {
+      "path": "docs/public/getting-started.md",
+      "bytes": 6715,
+      "sha256": "e4c8a84e7b554a039b6ca5e8645145eb74f76770a14887c3deeb9f2817177ab8",
+      "gitBlobSha": "da4c43d1608cb2918a9f5c9e4d5996ff0ba57d04"
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    {
+      "path": "tests/desktop-backend-handoff.test.ts",
+      "bytes": 2441,
+      "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+      "gitBlobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+    },
+    {
+      "path": "tests/e2e/agents-workspace.spec.ts",
+      "bytes": 27431,
+      "sha256": "a2f6244f17cd664e35636dadda6de77ae539df5ca0f57a8b06fa2aa17e5f7f2e",
+      "gitBlobSha": "4b6d614b3014b6d49e70c9e3ece2fb16e5e40470"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "bytes": 24417,
+      "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0",
+      "gitBlobSha": "e1464d64b3f802166bc495fe52fb4bf9a373da3b"
+    },
+    {
+      "path": "tests/e2e/composer-app-refinement.spec.ts",
+      "bytes": 16268,
+      "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+      "gitBlobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 28082,
+      "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b",
+      "gitBlobSha": "733db88e031cd8c3b148842c21c4f7d46adf7389"
+    },
+    {
+      "path": "tests/e2e/plan-timeline.spec.ts",
+      "bytes": 12270,
+      "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+      "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+    },
+    {
+      "path": "tests/e2e/reserved-rail.spec.ts",
+      "bytes": 11360,
+      "sha256": "ef7588f9e28933acec25e231bb87a23b779ba31528085770a05006b2af348e9e",
+      "gitBlobSha": "18d6a326ef5d207d50f81592f4fb108a11439900"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13385,
+      "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+      "gitBlobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "bytes": 78469,
+      "sha256": "ad541decfda409bfea5d82dc6224b1e21c8f2a168ef01b8eac454276168b321b",
+      "gitBlobSha": "1662067edf010f187c248c1a076538f377d050b2"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    },
+    {
+      "path": "tests/plan-timeline-ui.test.ts",
+      "bytes": 15275,
+      "sha256": "6a3cde88be2d2c4120b98b7896383ffcc08e1b54a5416488d5ff95673227bcd6",
+      "gitBlobSha": "576f6bdbf5f5ac078208f1876d2773f35c73b4fa"
+    },
+    {
+      "path": "tests/task-interface-fixture.test.ts",
+      "bytes": 5388,
+      "sha256": "20d23e655cf2a6848e10a210505dd9681c28e6ceb8637392734a98c69bd4eba0",
+      "gitBlobSha": "0aad350c8cbb357fabfd7bad9cd24f4117695bca"
+    }
+  ],
+  "supplementalScope": "Supplemental runtime and UI bindings do not claim that default-off installed retention exercises enabled memory extraction, consolidation or checkpoints.",
+  "validatorExecuted": false,
+  "installedArtifactAdmitted": false,
+  "remainingGates": {
+    "actualFullWindowsCI": "REQUIRED",
+    "actualInstalledArtifact": "REQUIRED",
+    "independentVisualReview": "REQUIRED",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "--input-type=module",
+      "-e",
+      "import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T20:02:02Z",
+    "endedAt": "2026-11-15T20:02:07Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43755565107-a1-j132938786198-s5-installed-git-custody.log",
+    "logDigest": "3722a2dbd58ab0a9e145f2e00dcaa1ea1d898d67bec546c65e5ae83066434104"
+  },
+  "runId": 43755565107,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+  "testedCheckout": {
+    "commitSha": "4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60",
+    "treeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "0e072230965d15e0bcad8bb7579653a1332085e4"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60",
+    "rawResponseSha256": "c923c1c6087319406098c71e0bfa9da6a3a4da46d49023791e0e4bae118145bb"
+  },
+  "job": {
+    "id": 132938786198,
+    "name": "Installed desktop memory retention",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43755565107/job/132938786198",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001390,
+      "name": "GitHub Actions 1000001390",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Stage declared Git and GitHub CLI packaging inputs",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-11-15T20:02:02Z",
+    "completed_at": "2026-11-15T20:02:07Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43755565107.json",
+  "receiptSha256": "df575e204204b94f6075a2319d0f5c506ac711823f5c8b4e0fa6be17eda4f408",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132938786198/logs",
+  "rawJobLogDigest": "dce8d328fdb086eaeee2dcd728fc4a4b94dbd88dce75fcfd0c9d050568d2e912",
+  "rawJobLogBytes": 127315,
+  "rawPolicy": "Exact connector-decoded strings encoded as UTF-8; BOM and original line endings retained in agent memory after workspace loss. Raw source API URLs and UTF-8 hashes identify the original job logs; original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      429,
+      477
+    ]
+  ],
+  "excerptInputSha256": "d510ced3655c32df8d77dad76b14052ce87d121cef0625e929282790c0e21dbe",
+  "excerptInputBytes": 5226,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 4781,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "The literal node invocation and its bounded files/bytes result are observed in the exact reviewed staging script. The jobs API reports the observed command step completed successfully.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "$ErrorActionPreference = 'Stop'\n$manifest = Get-Content -Raw -LiteralPath third-party/git-tools/manifest.json | ConvertFrom-Json\n$scratch = Join-Path $env:RUNNER_TEMP ('gen-installed-inputs-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $scratch | Out-Null\nforeach ($tool in @(@{name='git'; pin=$manifest.git}, @{name='gh'; pin=$manifest.github})) {\n  $pin = $tool.pin\n  if ($pin.url -notmatch '^https://github\\.com/(git-for-windows/git|cli/cli)/releases/download/[^?#\\s]+\\.zip$' -or $pin.archiveSha256 -notmatch '^[0-9a-f]{64}$') {\n    throw 'Invalid declared Git packaging archive identity'\n  }\n  $archive = Join-Path $scratch ($tool.name + '.zip')\n  Invoke-WebRequest -Uri $pin.url -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.archiveSha256) {\n    throw 'Declared Git packaging archive checksum mismatch'\n  }\n  $expanded = Join-Path $scratch $tool.name\n  Expand-Archive -LiteralPath $archive -DestinationPath $expanded\n  $source = $expanded\n  if ($tool.name -eq 'gh' -and -not (Test-Path -LiteralPath (Join-Path $source 'bin/gh.exe'))) {\n    $source = Join-Path $expanded ('gh_' + $pin.version + '_windows_amd64')\n  }\n  $prefix = '.harness-tool-bundles/' + $tool.name + '/'\n  $destination = Join-Path $PWD ('.harness-tool-bundles/' + $tool.name)\n  if (Test-Path -LiteralPath $destination) { throw 'Packaging input destination already exists' }\n  New-Item -ItemType Directory -Path $destination | Out-Null\n  foreach ($file in @($manifest.files | Where-Object { $_.path.StartsWith($prefix) })) {\n    $relative = $file.path.Substring($prefix.Length)\n    if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '(^|/)\\.\\.?(/|$)|[\\\\:]|^/|//|/$' -or $file.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid declared Git payload path' }\n    $payloadInput = Join-Path $source $relative\n    $payloadOutput = Join-Path $destination $relative\n    if ((Get-Item -LiteralPath $payloadInput).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $payloadInput -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw 'Declared Git payload checksum mismatch' }\n    New-Item -ItemType Directory -Path (Split-Path -Parent $payloadOutput) -Force | Out-Null\n    Copy-Item -LiteralPath $payloadInput -Destination $payloadOutput\n  }\n}\nnode --import tsx --input-type=module -e \"import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+  "observedInputStaging": [
+    {
+      "kind": "REVIEWED_POWERSHELL_STEP_OBSERVATION",
+      "commandRecordCreated": false,
+      "step": {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T20:01:51Z",
+        "completed_at": "2026-11-15T20:02:02Z"
+      },
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "stagingCompleted": true,
+      "pinnedWheels": {
+        "count": 91,
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+      },
+      "runnerStepExitCode": 0,
+      "exitBasis": "The jobs API and runner step establish the reviewed PowerShell step result; no individual command exit is claimed.",
+      "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+      "observedScript": "$ErrorActionPreference = 'Stop'\n$lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n$wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $wheels | Out-Null\n$names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\nforeach ($distribution in $lock.distributions) {\n  if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n  $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n  if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n  $archive = Join-Path $wheels $name\n  Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n}\n\"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\nWrite-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))",
+      "scriptSha256": "fc099bc06d01c5836285f649d5d9cc2b4db3fdd36176b5fcf2c8f4137f21eda5",
+      "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132938786198/logs",
+      "rawJobLogDigest": "dce8d328fdb086eaeee2dcd728fc4a4b94dbd88dce75fcfd0c9d050568d2e912",
+      "rawJobLogBytes": 127315,
+      "excerptLineRanges1BasedInclusive": [
+        [
+          402,
+          428
+        ]
+      ],
+      "excerptInputSha256": "f584f2245f25ea98d07e60467f1ca9945804ee53d278f03b7aba50966c9f2a93",
+      "excerptInputBytes": 3174,
+      "boundedExcerpt": "2026-11-15T20:01:51.2954633Z ##[group]Run $ErrorActionPreference = 'Stop'\n2026-11-15T20:01:51.2955080Z $ErrorActionPreference = 'Stop'\n2026-11-15T20:01:51.2955621Z $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n2026-11-15T20:01:51.2956365Z $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\n2026-11-15T20:01:51.2956935Z New-Item -ItemType Directory -Path $wheels | Out-Null\n2026-11-15T20:01:51.2957539Z $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\n2026-11-15T20:01:51.2958118Z foreach ($distribution in $lock.distributions) {\n2026-11-15T20:01:51.2959017Z   if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n2026-11-15T20:01:51.2960044Z   $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n2026-11-15T20:01:51.2960773Z   if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n2026-11-15T20:01:51.2961356Z   $archive = Join-Path $wheels $name\n2026-11-15T20:01:51.2962081Z   Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n2026-11-15T20:01:51.2963213Z   if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n2026-11-15T20:01:51.2963994Z }\n2026-11-15T20:01:51.2964257Z \"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\n2026-11-15T20:01:51.2965320Z Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))\n2026-11-15T20:01:51.3037044Z shell: C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"\n2026-11-15T20:01:51.3037405Z env:\n2026-11-15T20:01:51.3037671Z   PNPM_HOME: C:\\Users\\runneradmin\\setup-pnpm\\node_modules\\.bin\n2026-11-15T20:01:51.3038099Z   pythonLocation: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T20:01:51.3038575Z   PKG_CONFIG_PATH: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64/lib/pkgconfig\n2026-11-15T20:01:51.3039045Z   Python_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T20:01:51.3039481Z   Python2_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T20:01:51.3039927Z   Python3_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T20:01:51.3040662Z   HARNESS_HERMES_PYTHON: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\\python.exe\n2026-11-15T20:01:51.3041241Z ##[endgroup]\n2026-11-15T20:02:02.8629349Z HARNESS_PINNED_INTEGRATION_WHEELS={\"count\":91,\"sourceLockSha256\":\"264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700\"}\n",
+      "boundedExcerptSha256": "8e5cfcf3c53c6cf3d374c2bf989ac57103ee55703fac6c6124956583c491a9ed",
+      "boundedExcerptBytes": 2982,
+      "transformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Only actual jobs-API step timestamps are preserved. No separate download, command process or archive-verification duration is inferred.",
+      "executionLimit": "The script uses PowerShell built-ins. An external executable argv is not fabricated, and this observation creates no CommandEvidence ledger row.",
+      "runId": 43755565107,
+      "runAttempt": 1,
+      "jobId": 132938786198,
+      "headSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+      "testedCheckout": {
+        "commitSha": "4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60",
+        "treeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+        "parents": [
+          "399cde39ff4ee82272c7a7700944325c44b36070",
+          "0e072230965d15e0bcad8bb7579653a1332085e4"
+        ],
+        "matchesPublishedTree": true,
+        "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60",
+        "rawResponseSha256": "c923c1c6087319406098c71e0bfa9da6a3a4da46d49023791e0e4bae118145bb"
+      },
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43755565107.json",
+      "receiptSha256": "df575e204204b94f6075a2319d0f5c506ac711823f5c8b4e0fa6be17eda4f408"
+    }
+  ]
+}

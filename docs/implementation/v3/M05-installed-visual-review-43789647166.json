@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS_NINE_ACTUAL_INSTALLED_RENDERER_IMAGES_VISUALLY_REVIEWED",
+  "reviewedAt": "2026-11-16T02:42:29.419377+00:00",
+  "intendedRepositoryPath": "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+  "reviewer": "ui_audit",
+  "source": {
+    "id": 43789647166,
+    "headSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "actualCheckoutSha": "299aa79fce281bacc370bd76373f760082046941",
+    "acceptedMainSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+  },
+  "job": {
+    "id": 133044988913,
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789647166/job/133044988913"
+  },
+  "artifact": {
+    "id": 14193350904,
+    "name": "installed-memory-43789647166-1",
+    "bytes": 1047038,
+    "sha256": "c7c9432e99b2ec9934e2f597f87ad5118eb3bf582ce64b5bdaf49171bcc6ca8b",
+    "memberCount": 15,
+    "pngCount": 9,
+    "downloadOwnership": "Original archive downloaded once by root; this review reused the verified shared extraction."
+  },
+  "verificationReceipt": {
+    "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/verification.json",
+    "bytes": 34592,
+    "sha256": "2798c411ca211a64652bb16438013bd4042c0c8ddc6f4fbfcfea1cbc48098d3f",
+    "gitBlobSha": "a4c3c25492fcb97f5f4e56bd76172ab9cba701c1"
+  },
+  "method": [
+    "Viewed all nine original PNGs individually with the image viewer.",
+    "Independently recomputed each image byte count, SHA-256, Git blob identity and PNG dimensions against the original artifact index.",
+    "Compared the displayed review and deletion states across the first and second launch images."
+  ],
+  "images": [
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-main.png",
+      "bytes": 49552,
+      "sha256": "2dec60501011eddaf7c1265ef3483be52bbf760e474ca294a7ff8a09241c33f4",
+      "gitBlobSha": "a9a44ff3c2b1907339378921a3eae1f9bdb1da83",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The installed Gen V1 workspace is visible with the completed Installed memory review conversation in the sidebar and a collapsed Project overview disclosure.",
+        "The main conversation is empty and displays Connect a model to get started. The composer and Select model control are visible; no model response is displayed."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-settings.png",
+      "bytes": 80732,
+      "sha256": "da8f7b2efb51df502c53e583d52cac19c5acdc2afbb5ee846c94bb4d1ce5a8c2",
+      "gitBlobSha": "39e340f44a7eb2225cc9c33744068e4321d8a195",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The Settings modal is open on Models & Accounts with the normal sidebar and close control visible.",
+        "Available models reports 0 models. The Environment variables section reports no variables configured and its secret-value input is empty."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-official-connections.png",
+      "bytes": 85704,
+      "sha256": "ab850ac45e1942a24b1b7469b596424e9016743ee85daeaf02b102092a0e6e78",
+      "gitBlobSha": "52e250c3540b3ebcd7d32ab396ec9d742f8a1f36",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The scrolled Models & Accounts view displays the Claude connection action, Gemini section and Cursor section with ordinary connection controls.",
+        "Gemini and Cursor show Ready to connect. Visible status text says connection status is not checked and identity is unavailable; the image does not demonstrate an authenticated account."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-source.png",
+      "bytes": 79129,
+      "sha256": "a860d619eae20c40eb1001cb41f86927d07d12d056ab091cba76d004ceb28520",
+      "gitBlobSha": "d8cd2507daf376e59605f574fd94d82e71fd8fe4",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The pinned source panel is open inside Project memory, with the source message identifier, revision, captured sequence and digest displayed.",
+        "The synthetic UTC retention sentence and script-shaped sentinel appear as literal source text in the panel. This visual observation does not independently establish the no-execution assertion.",
+        "The Close source control and adjacent review actions remain visible."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-reviewed.png",
+      "bytes": 73169,
+      "sha256": "b3470708075c1b6c612ea18977040ddfef5a6d318ac508a0be98ca09aaf97468",
+      "gitBlobSha": "caaa99f3660a90ac302fbf8d1884193ed4c07145",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The project-memory panel states Not enabled for this project and that this host disables memory while existing records remain reviewable.",
+        "The Accepted tab is selected. The edited UTC/ISO 8601 constraint is visible as Accepted revision 3 with its source link and Edit, Expire and Forget actions.",
+        "The selected Installed memory review source conversation remains visible and the Enable for this project control is disabled."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-rejected.png",
+      "bytes": 74203,
+      "sha256": "7635d9549215f4a8819585427af8807d432ded1e5015f8262789b3e596f12b5f",
+      "gitBlobSha": "d8a67bcab9d58d89eaac2f73f1db26f5bb9072bc",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The rejected synthetic proposal remains visible in the review list as Expired revision 2 with an expiry timestamp.",
+        "Its source link and Edit and Forget actions are visible. A separate sensitive accepted constraint remains below it; the rejected record is not labeled accepted."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-forgotten.png",
+      "bytes": 81618,
+      "sha256": "01f77838d1ec46f7d7f06d96ae3a87d6a843646625e9585ede026a90717239b1",
+      "gitBlobSha": "832028a9b5e6e2ea2664f1698baa75c525d3a9bb",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The panel displays the Forgotten notice and has Deleted history selected while the host remains disabled.",
+        "The tombstone identifies item e8b2335b-e2b4-4bd8-9e5c-4435e97d3d95 with deletion revision 3 and an exclusion timestamp.",
+        "Physical purge pending and Invalidated summaries and indexes (0) are visible. The screenshot does not claim physical deletion has completed."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-reviewed.png",
+      "bytes": 73173,
+      "sha256": "343a00a00c21b0b0beed545fcb27631a200a1faefa914dce92c44f409ba598fc",
+      "gitBlobSha": "d990409fea0ed91930d7bd53e0c5b6578d2132f6",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The second-launch review image again shows the disabled-host notice and selected source conversation.",
+        "The Accepted tab displays the same edited UTC/ISO 8601 constraint as Accepted revision 3, with the source link and review controls still available.",
+        "Its placement in the second launch is bound by the verification receipt; the image alone is a view of the retained record."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-tombstone.png",
+      "bytes": 77138,
+      "sha256": "19702a7e4fa27d3a6524a7cb5b087b95f3b2decfe3df34d6f6f878ea9a7be226",
+      "gitBlobSha": "dcabce38b3a8d5c542672beccfa8292c504a2517",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "visuallyInspected": true,
+      "observations": [
+        "The second-launch Deleted history view shows the same item identifier and deletion revision 3 with the same exclusion timestamp.",
+        "Physical purge pending remains visible, together with Invalidated summaries and indexes (0). The disabled-host notice and source selection remain present.",
+        "The renderer image establishes the displayed tombstone state; the receipt separately binds restart, storage and process ownership."
+      ]
+    }
+  ],
+  "findings": [],
+  "scope": {
+    "actualInstalledRendererScreenshots": true,
+    "syntheticDisposableProfileData": true,
+    "defaultOffHost": true,
+    "globalProviderNetworkMeasurement": null,
+    "noActionableVisualDefectObserved": true,
+    "limits": [
+      "This is an independent visual review, not the strict installed-admission result.",
+      "The screenshots do not show a native operating-system Save dialog. The native Save receipt, exact saved file and process/target ownership establish that separate proof.",
+      "Renderer images alone do not prove persistence, cleanup, source no-execution, exclusion from backend retrieval, or native ownership; the independently reviewed receipt and strict validator provide those checks.",
+      "Physical purge is explicitly pending in both tombstone images. Retrieval exclusion and a retained tombstone must not be relabeled completed physical purge.",
+      "These images cover seeded retained-memory review in the default-off installed host. Enabled installed extraction/recall/checkpoint behavior and live provider study remain unproven; both production feature flags stay false."
+    ]
+  }
+}

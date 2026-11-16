@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "node_modules/.pnpm/node-gyp@12.4.0/node_modules/node-gyp/bin/node-gyp.js",
+      "rebuild",
+      "--directory=node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty",
+      "--nodedir=/home/agent/.cache/node-gyp/24.22.1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-15T23:14:42.574649+00:00",
+    "endedAt": "2026-11-15T23:14:45.437401+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-explicit-rebuild.log",
+    "logDigest": "1be80aac6260845586b6819780b56548eb954d4756407c21d134a2eff75a5f8a"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 2836,
+  "rawOutputBytes": 2868,
+  "rawOutputSha256": "1be80aac6260845586b6819780b56548eb954d4756407c21d134a2eff75a5f8a",
+  "excerptInputBytes": 2868,
+  "excerptInputSha256": "1be80aac6260845586b6819780b56548eb954d4756407c21d134a2eff75a5f8a",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

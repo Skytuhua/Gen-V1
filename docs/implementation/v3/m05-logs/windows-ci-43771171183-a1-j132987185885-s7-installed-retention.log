@@ -1,0 +1,40 @@
+2026-11-15T23:00:57.7737418Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T23:00:57.7737843Z $ErrorActionPreference = 'Stop'
+2026-11-15T23:00:57.7738204Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T23:00:57.7738670Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T23:00:57.7739206Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T23:00:57.7739680Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T23:00:57.7740159Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T23:00:57.7754848Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T23:00:57.7755347Z & pnpm @verifyArgs
+2026-11-15T23:00:57.7755587Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T23:00:57.7815716Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T23:00:57.7815956Z env:
+2026-11-15T23:00:57.7816186Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T23:00:57.7816538Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:00:57.7816893Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T23:00:57.7817222Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:00:57.7817544Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:00:57.7817841Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:00:57.7818186Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T23:00:57.7818591Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-d26af10fa3124c948eeef90571eb47f6
+2026-11-15T23:00:57.7818913Z ##[endgroup]
+2026-11-15T23:00:58.1144592Z HARNESS_INSTALLED_VERIFY_ARGV={"args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"],"executable":"pnpm"}
+2026-11-15T23:09:37.0214500Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794784172473-e332b4b4-6097-49e5-beae-76d8538f5418","passed":true}
+2026-11-15T23:10:30.4313728Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794783659584-90dccc5a-0aa3-47df-84ca-3c3fc701a29f","passed":false}
+2026-11-15T23:10:30.4372831Z node:internal/fs/promises:1741
+2026-11-15T23:10:30.4376476Z   const result = await PromisePrototypeThen(
+2026-11-15T23:10:30.4377087Z                  ^
+2026-11-15T23:10:30.4377241Z 
+2026-11-15T23:10:30.4381989Z Error: ENOENT: no such file or directory, lstat 'D:\a\Gen-V1\Gen-V1\.harness-desktop-installed\run-1794783659584-90dccc5a-0aa3-47df-84ca-3c3fc701a29f\installed-memory-redacted-export.json'
+2026-11-15T23:10:30.4382914Z     at async lstat (node:internal/fs/promises:1741:18)
+2026-11-15T23:10:30.4383782Z     at async readInstalledNativeSave (D:\a\Gen-V1\Gen-V1\scripts\installed-native-save.ts:37:18)
+2026-11-15T23:10:30.4385601Z     at async nativeDialog (D:\a\Gen-V1\Gen-V1\scripts\installed-memory-retention.ts:187:25) {
+2026-11-15T23:10:30.4386127Z   errno: -4058,
+2026-11-15T23:10:30.4386455Z   code: 'ENOENT',
+2026-11-15T23:10:30.4389398Z   syscall: 'lstat',
+2026-11-15T23:10:30.4390396Z   path: 'D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794783659584-90dccc5a-0aa3-47df-84ca-3c3fc701a29f\\installed-memory-redacted-export.json'
+2026-11-15T23:10:30.4391124Z }
+2026-11-15T23:10:30.4393525Z 
+2026-11-15T23:10:30.4393657Z Node.js v24.22.2
+2026-11-15T23:10:30.5548426Z ##[error]Process completed with exit code 1.

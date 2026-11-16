@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.config.ts",
+      "tests/e2e/artifact-acknowledgment.spec.ts",
+      "--reporter=line",
+      "--output",
+      "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-task-fixture-browser-red-artifacts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T21:45:46.602847+00:00",
+    "endedAt": "2026-11-15T21:46:11.817307+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-task-fixture-browser-red.log",
+    "logDigest": "476feb63219ca6c71dac94603ae0a07ceb7912b4617fc21e0cedd1fffb976cd0"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "indexTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+  "elapsedMs": 25188,
+  "rawOutputBytes": 3176,
+  "rawOutputSha256": "476feb63219ca6c71dac94603ae0a07ceb7912b4617fc21e0cedd1fffb976cd0",
+  "excerptInputBytes": 3176,
+  "excerptInputSha256": "476feb63219ca6c71dac94603ae0a07ceb7912b4617fc21e0cedd1fffb976cd0",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

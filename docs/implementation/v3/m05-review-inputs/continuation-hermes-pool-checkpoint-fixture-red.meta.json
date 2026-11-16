@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/hermes-runtime.test.ts",
+      "-t",
+      "production pool"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-15T22:22:31.499275+00:00",
+    "endedAt": "2026-11-15T22:22:34.759006+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-fixture-red.log",
+    "logDigest": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+  "workingDiffSha256": "1bedfce97739e13dda0dd5305af14cf48b476b044a6f54df2a636c4c0fb33d1a",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 3250,
+  "rawOutputBytes": 4192,
+  "rawOutputSha256": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f",
+  "excerptInputBytes": 4192,
+  "excerptInputSha256": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "scripts/verify-m05-evidence.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-16T02:57:33.792792+00:00",
+    "endedAt": "2026-11-16T02:57:35.387177+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/final-evidence-integrity-node-299-20261116.log",
+    "logDigest": "85ba3d69fc45cb84ef73ef5c3934869f10193b92ba061e45fb61c81651738dee"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "workingDiffSha256": "fe00e5280da2d75f6d80df72abfc941f4b0b5176baf66826561584cb5a04f9ad",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 1483,
+  "rawOutputBytes": 378,
+  "rawOutputSha256": "85ba3d69fc45cb84ef73ef5c3934869f10193b92ba061e45fb61c81651738dee",
+  "excerptInputBytes": 378,
+  "excerptInputSha256": "85ba3d69fc45cb84ef73ef5c3934869f10193b92ba061e45fb61c81651738dee",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

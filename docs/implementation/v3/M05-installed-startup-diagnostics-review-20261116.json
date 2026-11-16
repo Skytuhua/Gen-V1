@@ -1,0 +1,746 @@
+{
+  "schemaVersion": 1,
+  "status": "LOCAL_STARTUP_DIAGNOSTICS_VERIFIED_WINDOWS_EXECUTION_PENDING",
+  "recordedAt": "2026-11-16T00:57:59.281067+00:00",
+  "source": {
+    "sourceBaseHead": "ba9918bd47f30ba8c4c5d22361adabec6eed3ad9",
+    "sourceBaseTree": "64504a5a4007461210c99d21f57fb438fdcf2116",
+    "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+    "files": [
+      {
+        "path": "apps/desktop/backend-policy.ts",
+        "bytes": 11523,
+        "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+        "blobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+      },
+      {
+        "path": "apps/desktop/main.ts",
+        "bytes": 57407,
+        "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+        "blobSha": "f33ec5d099b6345dc9c38d72cf94dd54e1d2a513"
+      },
+      {
+        "path": "apps/server/main.ts",
+        "bytes": 4041,
+        "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+        "blobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+      },
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "bytes": 46360,
+        "sha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+        "blobSha": "b87c4271a4f5a1fde468e18e5667aeecd85eb377"
+      },
+      {
+        "path": "tests/desktop-backend-handoff.test.ts",
+        "bytes": 2441,
+        "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+        "blobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+      },
+      {
+        "path": "tests/desktop-native.test.ts",
+        "bytes": 24494,
+        "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+        "blobSha": "672db4b716bdcfd4f088324b49592dd843106436"
+      },
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "bytes": 31253,
+        "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+        "blobSha": "b4b847a5503ef4c6d3768d8f0656339e99905b6d"
+      }
+    ]
+  },
+  "finalPatch": {
+    "path": "docs/implementation/v3/m05-review-inputs/M05-startup-diagnostics-final.diff",
+    "bytes": 53561,
+    "sha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+    "blobSha": "357652ef8f68867d6ccef795a387eaabfd07c79e"
+  },
+  "frozenSourceMap": {
+    "path": "docs/implementation/v3/m05-review-inputs/M05-startup-diagnostics-frozen-source.json",
+    "bytes": 1829,
+    "sha256": "0d93e3021aa033aae41a30209f1ef652b5efdd2bc4151db280c5ac38007c0f3d",
+    "blobSha": "1c2707fdd4ea22290720c082a25bd195bdbe1bfe"
+  },
+  "observedFailure": {
+    "runId": 43777513127,
+    "jobId": 133007063329,
+    "headSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+    "treeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+    "artifact": {
+      "id": 14188460877,
+      "bytes": 397526,
+      "sha256": "78a5cfa8a79d249efb482d801bc10b4dfcf1e04915c2f9495384f3d665cbe265"
+    },
+    "verificationMember": {
+      "originalMember": ".harness-desktop-installed/run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9/verification.json",
+      "bytes": 16538,
+      "sha256": "1bc151527209af73ec33ee91f380ac6e3fa86e45ff2c77f2ac901ee5afb079f1",
+      "blobSha": "a4e94784923ff0fb45a5203ca4985d9f5fa924e6"
+    },
+    "result": "The owned app exited with code1 before an exact-origin main page was admitted. The last earlier poll saw one file-origin page. The original process stderr was discarded, so no startup cause is established.",
+    "readinessClock": "The19488ms value begins at the main-page readiness helper after CDP connection and initial owner verification, not at spawn.",
+    "memoryUI": "NOT_RUN",
+    "screenshots": "NOT_RUN: the archive has exactly five JSON members and no PNG."
+  },
+  "implementation": {
+    "desktop": "Existing test-data mode emits finite startup stages, native error-kind categories and known Node/OS codes. Backend IPC token, origin and PID admission remain unchanged. Marker serialization and optional observer/sink failures cannot change startup outcomes.",
+    "server": "Existing main.ts has a self-contained finite classifier; no unstaged desktop import remains. Its fixed fallback uses owned stdout, leaving original stderr and error IPC message unchanged. The existing token gate and test-data mode gate precede fallback emission.",
+    "verifier": "The same spawned executable has piped output that is always drained. Only strict marker metadata, stream byte counts, explicit hash-prefix summaries and separate exit/close observations enter launchDiagnostics. Optional setup is inside the existing cleanup try; unavailable capture is fixed metadata, not an admission change.",
+    "bounds": {
+      "hashAndParseBytesPerStream": 262144,
+      "hashScope": "prefix",
+      "lineBytes": 2048,
+      "retainedEvents": 32,
+      "firstFailureRetainedSeparately": true,
+      "overlongLineMode": "drop until newline",
+      "afterCap": "continue draining and counting; no raw tail, further hashing or parsing"
+    },
+    "clockSemantics": "Producer elapsedMs starts at its desktop module startup; observedElapsedMs and process lifecycle values start when the launch observer attaches immediately after spawn. Existing readiness and readyMs clocks remain unchanged.",
+    "preserved": [
+      "60000ms backend readiness",
+      "20000ms production main-surface readiness",
+      "80000ms installed main-page helper",
+      "immediate owned process-death refusal",
+      "exact nonce/executable/current-page/origin checks",
+      "all retained-memory, native Save, source, edit, rejection, export, Forget, restart and cleanup assertions",
+      "source runtime allowlist and contract files"
+    ],
+    "unknowns": "Bounded diagnostic output is observational metadata. It cannot establish a successful launch or memory action, and a capped or unavailable stream can omit later diagnostics. The original failure is not relabeled as diagnosed."
+  },
+  "reviewedCorrections": [
+    "Server-to-desktop import rejected by actual staged-host bundling and removed.",
+    "Fallback marker moved off original stderr after a real sidecar regression.",
+    "Renderer-gone remains the first failure before a later generic startup-failed.",
+    "Optional constructor/later-clock failures cannot escape; fallback drains both streams.",
+    "Final success marker suppression moves after all existing successful startup registrations."
+  ],
+  "validation": {
+    "cases": [
+      {
+        "label": "continuation-startup-diagnostics-red",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.meta.json",
+          "bytes": 3617,
+          "sha256": "ba5417fbc0e9e90fdbc8ec1d2f974a2ce351bf4e39db0cbe650ea941f9f249a5",
+          "blobSha": "8aae83a412dc7554829b06725633da2da5f58b6c"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.log",
+          "bytes": 21123,
+          "sha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+          "blobSha": "57786cfc4eb26d1273dae001d1b8696e63ebcfe6"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-red.meta.json",
+          "bytes": 1966,
+          "sha256": "0cb753a3c3f19b99a967d9eb39c9a46ec3368844f764148e60e472c9cb1bfb71",
+          "blobSha": "d354dc736386a7c53c2b37632054ed957dabc397"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-red.raw.log",
+          "bytes": 21123,
+          "sha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+          "blobSha": "57786cfc4eb26d1273dae001d1b8696e63ebcfe6"
+        },
+        "testSummary": {
+          "passed": 56,
+          "failed": 13,
+          "skipped": 0
+        },
+        "outcome": "Intentional fail-first diagnostic cases. Existing startup/custody behavior passes; new observer and collector contracts are absent.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:46:12.786577+00:00",
+          "endedAt": "2026-11-16T00:46:16.109726+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.log",
+          "logDigest": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584"
+        },
+        "workingDiffSha256": "2ba23e303f4f11aba8b24c6ad1e7b9eda1f2794ad1f6edf5038fb254e10d8f25"
+      },
+      {
+        "label": "continuation-startup-diagnostics-green-1",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.meta.json",
+          "bytes": 3677,
+          "sha256": "13c7d082593d3b8c88e5bfb55f4da77d077615447ff048f1b9c25af8d14afaee",
+          "blobSha": "3fd0094a41ed62ed063f4a95eeebacd109338f79"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.log",
+          "bytes": 21120,
+          "sha256": "19cfb5b8a4433ecd64f4bdea842fb7be9c72a990b51ab956f30180ed3a1b58ba",
+          "blobSha": "19029d61c23eb7086100d41e8ef56eda3d98eebe"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-1.meta.json",
+          "bytes": 1970,
+          "sha256": "eef620ffee8693345f292e9777e132ac7d9df151c073cb0e4f4f9c20f1e8abc8",
+          "blobSha": "9160d316f949e0168ba9c04d0567c4f4e503b569"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-1.raw.log",
+          "bytes": 21120,
+          "sha256": "19cfb5b8a4433ecd64f4bdea842fb7be9c72a990b51ab956f30180ed3a1b58ba",
+          "blobSha": "19029d61c23eb7086100d41e8ef56eda3d98eebe"
+        },
+        "testSummary": {
+          "passed": 56,
+          "failed": 13,
+          "skipped": 0
+        },
+        "outcome": "Actual failed rerun of the unchanged baseline after the edit script stopped at an unmatched existing comment before writing production source. The green label is not a PASS claim.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:48:27.136493+00:00",
+          "endedAt": "2026-11-16T00:48:30.374407+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.log",
+          "logDigest": "19cfb5b8a4433ecd64f4bdea842fb7be9c72a990b51ab956f30180ed3a1b58ba"
+        },
+        "workingDiffSha256": "2ba23e303f4f11aba8b24c6ad1e7b9eda1f2794ad1f6edf5038fb254e10d8f25"
+      },
+      {
+        "label": "continuation-startup-diagnostics-green-2",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-2.meta.json",
+          "bytes": 3637,
+          "sha256": "25dce4f82944cd66b90716f1b64b72f35c9c94c0574de7f87ba987aab80ff418",
+          "blobSha": "6380b7698e7e93cf02c52f6d0eb51aacb62fb440"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-2.log",
+          "bytes": 11243,
+          "sha256": "137866616c4412394467976a87196d96dad10ffdefffbc9c6ac25b5570931777",
+          "blobSha": "30ed361924743b5f06ee2d435219aa38a8a8993b"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-2.meta.json",
+          "bytes": 1970,
+          "sha256": "22b043ffb92dd92c340c52e8b4c0da4ee380cf11a073de732fb2c47eed9b60c3",
+          "blobSha": "773955bfcdbe782c685608fa930397a0a70720ab"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-2.raw.log",
+          "bytes": 11243,
+          "sha256": "137866616c4412394467976a87196d96dad10ffdefffbc9c6ac25b5570931777",
+          "blobSha": "30ed361924743b5f06ee2d435219aa38a8a8993b"
+        },
+        "testSummary": {
+          "passed": 69,
+          "failed": 0,
+          "skipped": 0
+        },
+        "outcome": "First implementation passes the existing and new focused suites. Later reviewed producer and setup-boundary issues are preserved separately.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:48:47.081930+00:00",
+          "endedAt": "2026-11-16T00:48:50.207893+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-2.log",
+          "logDigest": "137866616c4412394467976a87196d96dad10ffdefffbc9c6ac25b5570931777"
+        },
+        "workingDiffSha256": "b8965db6c5a1528f5c4f436b8806e7b6c2cf2cbf9e25de96db54f1cc809296b8"
+      },
+      {
+        "label": "continuation-startup-diagnostics-producer-red",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.meta.json",
+          "bytes": 3667,
+          "sha256": "a13dd46482267e5e849a5afd63ecc164ecad2b4422d60558dfe9eafde9d7274e",
+          "blobSha": "36af894050849d5d1433deebb22a8d591e4bd86a"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.log",
+          "bytes": 12538,
+          "sha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+          "blobSha": "116be7d315eef359c8374277c12b7b1deb960b33"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-producer-red.meta.json",
+          "bytes": 1996,
+          "sha256": "52c4e8243af3734820c1493fa6ff9d9bc70ccc8a08f96bacbfc233e69005f165",
+          "blobSha": "fc2008a18ef44d0d1ffb9f8262ef6ac949bd8ddf"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-producer-red.raw.log",
+          "bytes": 12538,
+          "sha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+          "blobSha": "116be7d315eef359c8374277c12b7b1deb960b33"
+        },
+        "testSummary": {
+          "passed": 0,
+          "failed": 2,
+          "skipped": 64
+        },
+        "outcome": "Actual sidecar proves the initial fallback contaminated original stderr; the renderer-gone sequence proves its first-failure omission.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "-t",
+            "preserves real sidecar|retains a renderer loss",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:50:01.584989+00:00",
+          "endedAt": "2026-11-16T00:50:09.458736+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.log",
+          "logDigest": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df"
+        },
+        "workingDiffSha256": "d74d0a916afa8cf919c314920cd9fc95675cf6d221eb5503231a1021b29f48ca"
+      },
+      {
+        "label": "continuation-startup-diagnostics-runtime-closure-red",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.meta.json",
+          "bytes": 3668,
+          "sha256": "9f9cf5e38db5dc24e8fdf4ffdddbb793113cc6ba93807dff08d89708726ea451",
+          "blobSha": "4858312c558e93b07378140f5b6e7ae246b8ae75"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.log",
+          "bytes": 3622,
+          "sha256": "1480ca3a085e1d2f2b46e0fd9a3a0a6c54ea053ac73a1eb8b810599eccd1dea1",
+          "blobSha": "12ac30e665e0b7d9ded47239473d49c0f0ba2ed7"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-runtime-closure-red.meta.json",
+          "bytes": 1943,
+          "sha256": "5f1bc42591a36e22a59de85118694b25db9575236e8e65dc7b9442c50a369d3a",
+          "blobSha": "2967c4f840709281608a093886cdceaeab9f7b7d"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-runtime-closure-red.raw.log",
+          "bytes": 3622,
+          "sha256": "1480ca3a085e1d2f2b46e0fd9a3a0a6c54ea053ac73a1eb8b810599eccd1dea1",
+          "blobSha": "12ac30e665e0b7d9ded47239473d49c0f0ba2ed7"
+        },
+        "testSummary": {
+          "passed": 0,
+          "failed": 1,
+          "skipped": 10
+        },
+        "outcome": "Existing staged-host resolution fails because the initial server import referenced an unstaged desktop source. No runtime roots or public allowlist were broadened to fix this.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "-t",
+            "resolves the staged host and worker entries",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:50:22.650837+00:00",
+          "endedAt": "2026-11-16T00:50:25.209133+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.log",
+          "logDigest": "1480ca3a085e1d2f2b46e0fd9a3a0a6c54ea053ac73a1eb8b810599eccd1dea1"
+        },
+        "workingDiffSha256": "d74d0a916afa8cf919c314920cd9fc95675cf6d221eb5503231a1021b29f48ca"
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-green",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-green.meta.json",
+          "bytes": 3690,
+          "sha256": "8a357fefebfee3874830fd214ff939744ccfde3d4e5f25282cfe10e3f52cb636",
+          "blobSha": "efa98c94f0e9529c5425b09d6def85fe44d47d67"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-green.log",
+          "bytes": 13221,
+          "sha256": "bffb913f93da783479ddf806634725dc8d70ca4e521f82af043be92196bb1d9f",
+          "blobSha": "ff335c397bc12f25a1fa9d965d82719756e5358f"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-green.meta.json",
+          "bytes": 2011,
+          "sha256": "eeea5704f8e977f4480913d8f6ba120392090f5088037d009d587d0de0eebcb3",
+          "blobSha": "38912d4221d7a867db929443b6d61197d773c7e9"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-green.raw.log",
+          "bytes": 13221,
+          "sha256": "bffb913f93da783479ddf806634725dc8d70ca4e521f82af043be92196bb1d9f",
+          "blobSha": "ff335c397bc12f25a1fa9d965d82719756e5358f"
+        },
+        "testSummary": {
+          "passed": 82,
+          "failed": 0,
+          "skipped": 0
+        },
+        "outcome": "Corrected server-local metadata writer, unchanged original stderr/IPC, renderer-loss retention and complete existing public source closure pass.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "tests/public-source.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:50:49.520915+00:00",
+          "endedAt": "2026-11-16T00:50:54.317308+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-green.log",
+          "logDigest": "bffb913f93da783479ddf806634725dc8d70ca4e521f82af043be92196bb1d9f"
+        },
+        "workingDiffSha256": "3b77dc017ff745384d66b8054a1d39c69b9dae8326ca17bca07954ef6336b627"
+      },
+      {
+        "label": "continuation-startup-diagnostics-observer-red",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.meta.json",
+          "bytes": 3623,
+          "sha256": "d4cade0f053ec126dbba9a5f209a1dbff2aa02a1dc66108995c967a6cb48f6de",
+          "blobSha": "81701e900436c88b33c6e948c4412801a6f4ada5"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.log",
+          "bytes": 7532,
+          "sha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+          "blobSha": "81da5ecbd8e6f55df7c8eb364f08b2b41d636d3c"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-red.meta.json",
+          "bytes": 1963,
+          "sha256": "7232352145f12c52f86e445a21a906148527dc1e27387660fc1cf1e371abee17",
+          "blobSha": "1bb65ea6b2376ebbc5c7a9273f76627a478c4c43"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-red.raw.log",
+          "bytes": 7532,
+          "sha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+          "blobSha": "81da5ecbd8e6f55df7c8eb364f08b2b41d636d3c"
+        },
+        "testSummary": {
+          "passed": 0,
+          "failed": 2,
+          "skipped": 31
+        },
+        "outcome": "Fault injection reproduces optional observer construction and later clock exceptions escaping into launch/process callbacks.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "-t",
+            "optional diagnostic construction|optional clock later",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:51:49.675927+00:00",
+          "endedAt": "2026-11-16T00:51:52.288079+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.log",
+          "logDigest": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84"
+        },
+        "workingDiffSha256": "e0377d23ae9e88158eb569d5662f57ea8d4306565424291dc6f09d207a4a862e"
+      },
+      {
+        "label": "continuation-startup-diagnostics-observer-green",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.meta.json",
+          "bytes": 3735,
+          "sha256": "76d60337108266f4af0c7de99ee31aaf026d1d06c0e2eafe4616dd848c40c038",
+          "blobSha": "2b5a4836e517571b179de9226d3f0cb8f9b7d025"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.log",
+          "bytes": 14086,
+          "sha256": "4a9fee7589fb18b3f76e3c7e1c8c313c4ee938d4914f9a05d7ee9ec8488d261a",
+          "blobSha": "ede599ed9ee560ae969ed9c3258d54333a40dab9"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-green.meta.json",
+          "bytes": 2014,
+          "sha256": "1e189c1d690dc6d04bd4725287e986769344156f4e804ef115f6b751de796fdd",
+          "blobSha": "22d544e8ad39344810db396163baf410c92a3163"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-green.raw.log",
+          "bytes": 14086,
+          "sha256": "4a9fee7589fb18b3f76e3c7e1c8c313c4ee938d4914f9a05d7ee9ec8488d261a",
+          "blobSha": "ede599ed9ee560ae969ed9c3258d54333a40dab9"
+        },
+        "testSummary": {
+          "passed": 83,
+          "failed": 1,
+          "skipped": 0
+        },
+        "outcome": "Initial observer repair preserves exceptions but resume alone had not drained the fixture synchronously. Fixed by adding an explicit noop data drain; the failure remains preserved.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "tests/public-source.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:52:40.853447+00:00",
+          "endedAt": "2026-11-16T00:52:45.891214+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.log",
+          "logDigest": "4a9fee7589fb18b3f76e3c7e1c8c313c4ee938d4914f9a05d7ee9ec8488d261a"
+        },
+        "workingDiffSha256": "cb7c30d01cfa1639e2f6d4c1914bd42f1136c92bf07e9b493e7320140efb9fdd"
+      },
+      {
+        "label": "continuation-startup-diagnostics-typecheck",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.meta.json",
+          "bytes": 3410,
+          "sha256": "b9c0ab295a99b4ecf47c712d7318402a4fd799c9a4a7fa849b2326ca51bd68c4",
+          "blobSha": "b480245385390f72bf0b93c6bb92182b5ccdb3b5"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.log",
+          "bytes": 1069,
+          "sha256": "9c72a907f8de5973e8b0c07a2d849bbe95cb969125496bb36d6ef43de987f675",
+          "blobSha": "30e9accb02400944c922b36ad9f97f08375c00b7"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-typecheck.meta.json",
+          "bytes": 1776,
+          "sha256": "05d14b1dafa3e0d2517226af79e811f37ec7f002415b9dda928313dad51c3bdd",
+          "blobSha": "058be833bb45b3107e2b8f9bab61f5ba80d818fa"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-typecheck.raw.log",
+          "bytes": 1069,
+          "sha256": "9c72a907f8de5973e8b0c07a2d849bbe95cb969125496bb36d6ef43de987f675",
+          "blobSha": "30e9accb02400944c922b36ad9f97f08375c00b7"
+        },
+        "testSummary": null,
+        "outcome": "Actual full typecheck fails on nullable lifecycle type inference and strict test environment/stdout typings. These are corrected without changing assertions.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:53:29.433941+00:00",
+          "endedAt": "2026-11-16T00:54:18.780495+00:00",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.log",
+          "logDigest": "9c72a907f8de5973e8b0c07a2d849bbe95cb969125496bb36d6ef43de987f675"
+        },
+        "workingDiffSha256": "cb7c30d01cfa1639e2f6d4c1914bd42f1136c92bf07e9b493e7320140efb9fdd"
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-custody-green",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-custody-green.meta.json",
+          "bytes": 3696,
+          "sha256": "1b16692fbf3030072b03aaa97dfc28f2b059d212398d5e251902cf59788db3d2",
+          "blobSha": "6215ed25db40976282fd24ae8d25332dba00646a"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-custody-green.log",
+          "bytes": 13566,
+          "sha256": "351985a977a22b8b9e4819190b58c76c92445b7dc91387e838d3401d00b50aa1",
+          "blobSha": "e6f6dbe0efce37328113b8461aea265a82af3809"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-custody-green.meta.json",
+          "bytes": 2019,
+          "sha256": "0a9c7c3267a1880dc5f79531eff25c163e0369df50ae7f17bbfb731d83897a52",
+          "blobSha": "1a898f4294af1ab0feb37964e25734d4c7f10845"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-custody-green.raw.log",
+          "bytes": 13566,
+          "sha256": "351985a977a22b8b9e4819190b58c76c92445b7dc91387e838d3401d00b50aa1",
+          "blobSha": "e6f6dbe0efce37328113b8461aea265a82af3809"
+        },
+        "testSummary": {
+          "passed": 84,
+          "failed": 0,
+          "skipped": 0
+        },
+        "outcome": "Final four-file regression passes all84 cases, including the actual sidecar and staged host/browser/desktop source resolution.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-desktop-verification.test.ts",
+            "tests/desktop-native.test.ts",
+            "tests/desktop-backend-handoff.test.ts",
+            "tests/public-source.test.ts",
+            "--reporter=verbose"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:54:34.480452+00:00",
+          "endedAt": "2026-11-16T00:54:40.932068+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-custody-green.log",
+          "logDigest": "351985a977a22b8b9e4819190b58c76c92445b7dc91387e838d3401d00b50aa1"
+        },
+        "workingDiffSha256": "4d6f59e66efb27f6d4079330ca29c22f42efc6611d7b93517a3c30e395dc5faf"
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-typecheck",
+        "metadata": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.meta.json",
+          "bytes": 3400,
+          "sha256": "b316caabef007c3bd3add98b2bd81e411c87306d8f5c06455fe07e5eaa9232e5",
+          "blobSha": "7e40f8f19eb53cf2a17b831986fd7ee6906c36e9"
+        },
+        "log": {
+          "path": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.log",
+          "bytes": 87,
+          "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+          "blobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+        },
+        "originalMetadata": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-typecheck.meta.json",
+          "bytes": 1778,
+          "sha256": "4882ee58e01759572bf4967b94786ef8f07800d3280a6a22e0ca962b34967e65",
+          "blobSha": "155c5a3b71f04c8fac6fd5033746928a9700c02f"
+        },
+        "rawLog": {
+          "path": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-typecheck.raw.log",
+          "bytes": 87,
+          "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+          "blobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+        },
+        "testSummary": null,
+        "outcome": "Actual complete pnpm typecheck passes after the final placement-only startupSettled correction. No installed native result is inferred.",
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-16T00:54:48.427521+00:00",
+          "endedAt": "2026-11-16T00:55:47.330073+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.log",
+          "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+        },
+        "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28"
+      }
+    ],
+    "finalFocused": {
+      "passed": 84,
+      "failed": 0,
+      "skipped": 0,
+      "files": 4
+    },
+    "finalTypecheck": "PASS",
+    "fullWindowsCI": "NOT_RUN_FOR_THIS_PATCH",
+    "installedNativeLaunch": "NOT_RUN_FOR_THIS_PATCH"
+  },
+  "sourceTimingQualification": "The84-case run precedes only the root-reviewed placement of startupSettled after the final screen registrations. The final full typecheck binds the exact seven-file frozen diff. All original command working-diff digests are retained.",
+  "proofLimits": "No new startup retry or deadline expansion, production activation, live provider measurement, retained-memory pass or overall M05 completion is claimed. Existing flags remain false. Full enabled installed lifecycle and live study remain separate unproven gates.",
+  "custody": "All11 actual command captures, including seven failures, are preserved. This package does not modify source, refs or the root evidence ledger."
+}

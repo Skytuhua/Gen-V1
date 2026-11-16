@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "inspectedPaths": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -13,7 +13,7 @@
     },
     {
       "path": "apps/desktop/main.ts",
-      "blobSha": "8ff44c2c6f1757d3a6c6291c1fd0c5add07d6712"
+      "blobSha": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d"
     },
     {
       "path": "apps/desktop/preload.ts",
@@ -33,7 +33,7 @@
     },
     {
       "path": "apps/server/server.ts",
-      "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45"
+      "blobSha": "71098c4e07f7ac2c68e7a68df6d616fd29eed56f"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -85,7 +85,7 @@
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "14c59034b8bb2c37137a266320fbeca90af95a52"
+      "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57"
     },
     {
       "path": "packages/contracts/model-request.ts",
@@ -153,7 +153,7 @@
     },
     {
       "path": "packages/runtime-hermes/index.ts",
-      "blobSha": "08e1c4b1db2ef47da609364fcba4d28de3078167"
+      "blobSha": "3e9a425b28b150874cfee1a29725308133bf193b"
     },
     {
       "path": "packages/runtime-hermes/library.ts",
@@ -165,15 +165,15 @@
     },
     {
       "path": "packages/runtime/index.ts",
-      "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
+      "blobSha": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6"
     },
     {
       "path": "packages/runtime/request-capabilities.ts",
-      "blobSha": "45df1e61813b4bd9548841561b8a6c49dfc44ffa"
+      "blobSha": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43"
     },
     {
       "path": "packages/runtime/request-scheduler.ts",
-      "blobSha": "95f3fa03c2ab80288a434c95c3e215cd4943a917"
+      "blobSha": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5"
     },
     {
       "path": "packages/storage/store.ts",
@@ -189,7 +189,7 @@
     },
     {
       "path": "scripts/browser-suites.ts",
-      "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+      "blobSha": "42051c22c746a00191b232cee3f46ae297b27941"
     },
     {
       "path": "scripts/integration-assets.ts",
@@ -201,7 +201,7 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "7ead37fd2a30d0ef030f18525df6cae556881a65"
+      "blobSha": "60ce04a0dcf7d7f5971e46afcec23af44f20eaef"
     },
     {
       "path": "scripts/verify-installed-desktop.ts",
@@ -213,7 +213,7 @@
     },
     {
       "path": "tests/desktop-native.test.ts",
-      "blobSha": "f388036f11d8e6d60b611b1834e1717711b83d91"
+      "blobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00"
     },
     {
       "path": "tests/desktop-preload-accounts.test.ts",
@@ -369,7 +369,7 @@
     },
     {
       "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "version": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
       "testIds": [
         "tests/model-scheduling-v3.test.ts",
         "tests/memory-extraction-runtime-v3.test.ts",
@@ -378,297 +378,7 @@
     },
     {
       "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
-      "testIds": [
-        "tests/model-transport-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestContextV1",
-      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts",
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestCustody",
-      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.ContextCompiler",
-      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.HostRequestPreparation",
-      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-request-http-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.ModelRequestObservationV1",
-      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
-      "testIds": [
-        "tests/model-transport-v3.test.ts",
-        "tests/usage-accounting-v3.test.ts",
-        "tests/hermes-runtime.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
-      "testIds": [
-        "tests/model-scheduling-v3.test.ts",
-        "tests/memory-extraction-runtime-v3.test.ts",
-        "tests/memory-extraction-scheduler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
-      "testIds": [
-        "tests/model-transport-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestContextV1",
-      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts",
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestCustody",
-      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.ContextCompiler",
-      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.HostRequestPreparation",
-      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-request-http-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.ModelRequestObservationV1",
-      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
-      "testIds": [
-        "tests/model-transport-v3.test.ts",
-        "tests/usage-accounting-v3.test.ts",
-        "tests/hermes-runtime.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
-      "testIds": [
-        "tests/model-scheduling-v3.test.ts",
-        "tests/memory-extraction-runtime-v3.test.ts",
-        "tests/memory-extraction-scheduler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
-      "testIds": [
-        "tests/model-transport-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestContextV1",
-      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts",
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestCustody",
-      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.ContextCompiler",
-      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.HostRequestPreparation",
-      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-request-http-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.ModelRequestObservationV1",
-      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
-      "testIds": [
-        "tests/model-transport-v3.test.ts",
-        "tests/usage-accounting-v3.test.ts",
-        "tests/hermes-runtime.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
-      "testIds": [
-        "tests/model-scheduling-v3.test.ts",
-        "tests/memory-extraction-runtime-v3.test.ts",
-        "tests/memory-extraction-scheduler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
-      "testIds": [
-        "tests/model-transport-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestContextV1",
-      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts",
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestCustody",
-      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.ContextCompiler",
-      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.HostRequestPreparation",
-      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-request-http-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.ModelRequestObservationV1",
-      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
-      "testIds": [
-        "tests/model-transport-v3.test.ts",
-        "tests/usage-accounting-v3.test.ts",
-        "tests/hermes-runtime.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
-      "testIds": [
-        "tests/model-scheduling-v3.test.ts",
-        "tests/memory-extraction-runtime-v3.test.ts",
-        "tests/memory-extraction-scheduler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
-      "testIds": [
-        "tests/model-transport-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestContextV1",
-      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts",
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.RequestCustody",
-      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.ContextCompiler",
-      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
-      "testIds": [
-        "tests/context-compiler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M04.HostRequestPreparation",
-      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
-      "testIds": [
-        "tests/request-preparation-service-v3.test.ts",
-        "tests/project-memory-request-http-v3.test.ts",
-        "tests/project-memory-service-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.ModelRequestObservationV1",
-      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
-      "testIds": [
-        "tests/model-transport-v3.test.ts",
-        "tests/usage-accounting-v3.test.ts",
-        "tests/hermes-runtime.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestScheduler",
-      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
-      "testIds": [
-        "tests/model-scheduling-v3.test.ts",
-        "tests/memory-extraction-runtime-v3.test.ts",
-        "tests/memory-extraction-scheduler-v3.test.ts"
-      ]
-    },
-    {
-      "name": "M11.RequestCapabilities",
-      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "version": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
       "testIds": [
         "tests/model-transport-v3.test.ts"
       ]
@@ -679,7 +389,17 @@
     "f331cf16b268282da888a41da42fc776ea7befd5",
     "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
     "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
-    "399cde39ff4ee82272c7a7700944325c44b36070"
+    "399cde39ff4ee82272c7a7700944325c44b36070",
+    "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "4941b74496c808b5318888ca6b68378c3329b87e",
+    "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+    "02a50eca13c2deb720738a89ec0abc126e6fb3e6",
+    "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+    "673ca733d306ade463635def2d09299bc37043ec",
+    "138b1356495bb3a2c9b35020240513f8faa84964",
+    "bfd4247994674c5a60ed14b12ff2dda223b07879",
+    "ec36f4887a0a7d504bf49e18df8f45df1f4a6bc3",
+    "49cd633273a3f61c14a4191a9877e99ab23ec88f"
   ],
   "approvedDrift": [
     {
@@ -735,6 +455,96 @@
       "fromBlob": "8cb3efe75c120185f957ab3df73255756adcf7b8",
       "toBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
       "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime/request-capabilities.ts",
+      "fromBlob": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "toBlob": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "note": "Accepted main PR360 (ef6919803f8c6993efb836ac084221b6c8c6e0ed) copies capability reasons before normalization, preserving frozen/shared caller input. Function signature and RequestCapabilitiesV1 schema are unchanged; no provider/account/grant authority is added. The original 399cde39 lock is retained byte-for-byte as historical evidence. Current merged-source runtime verification remains a separate required gate."
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "fromBlob": "8ff44c2c6f1757d3a6c6291c1fd0c5add07d6712",
+      "toBlob": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d",
+      "note": "Accepted main adds safer native close delivery, per-window state broadcast isolation and the owned launch token on workspace event bootstrap. M05 trusted IPC/export policy is retained in the merged feature source; no download or sender predicate is broadened."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "fromBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "toBlob": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "note": "Accepted main adds optional RuntimeAdapter.invalidateModels. Existing M04 requestContext and M05 memoryCheckpoint/callback/compact contracts remain present in the feature merge. Production Hermes pool forwarding required a separate captured repair; this lock does not claim that repair executed on Windows."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "fromBlob": "08e1c4b1db2ef47da609364fcba4d28de3078167",
+      "toBlob": "3e9a425b28b150874cfee1a29725308133bf193b",
+      "note": "Accepted main adds catalog invalidation delegation. The feature merge retains pinned checkpoint capability negotiation, source ownership, maintenance observation ownership and required compaction persistence paths. The separate production pool repair is reviewed with actual local red/green evidence."
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "fromBlob": "c944011f863d8e54cefb027ccde24e4445a4738b",
+      "toBlob": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6",
+      "note": "Conflict resolution keeps the complete M05 start structuredClone/checkpoint reservation and follow-up extraction/account/checkpoint guards, while adding the accepted optional per-account catalog invalidation method. Manual compact preserves checkpoint forwarding and legacy argument behavior."
+    },
+    {
+      "path": "packages/runtime/request-scheduler.ts",
+      "fromBlob": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "toBlob": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+      "note": "Accepted main uses a monotonic clock per waiter and queue position to break equal-priority ties; provider/account lanes, limits, abort removal and permit lifetime remain. M05 background admission and actual teardown ownership are unchanged."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
+      "toBlob": "f839822ffbfbc1d601f3f327db1f4504f4e7a40f",
+      "note": "Accepted main source inventory advancement. M05 final inventory union and current-file hashes are separate feature evidence; this row binds only the exact accepted base inventory."
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "fromBlob": "f388036f11d8e6d60b611b1834e1717711b83d91",
+      "toBlob": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00",
+      "note": "Accepted native startup regression now covers IPC disconnect and listener cleanup without increasing the existing production deadline. Test source is bound here; current-cut execution remains a separate gate."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "f839822ffbfbc1d601f3f327db1f4504f4e7a40f",
+      "toBlob": "269f0be5f741b55b2a6d529f14ec55fe991163c5",
+      "note": "Accepted main PR325 adds tests/gesture-cleanup.test.ts to the exact source inventory. The three UI changes only clean up interrupted pointer gestures and validate docking previews against existing minimum-fit rules. All other 62 inspected accepted-base blobs and all 16 public contract versions remain unchanged. This row does not assert execution of the newly merged source."
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "fromBlob": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb",
+      "toBlob": "ee530157e1d0ae825df3717a0e04d10cb8f842bb",
+      "note": "Accepted main PR311 registers its new agents-workspace evidence spec in the existing agents-workspace suite. The M05 project-memory, usage-context, frontend-refinement and root suite assignments remain unchanged at the accepted base. Full merged browser execution and the known plan-disclosure fixture compatibility repairs are separately recorded; no execution admission is made by this source lock."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "269f0be5f741b55b2a6d529f14ec55fe991163c5",
+      "toBlob": "d6e81f30baabe12fb4516b01770b1a4551c9f822",
+      "note": "Accepted main PR311 registers three agent-grid fixture/test paths. This row binds the exact accepted base inventory only. Final M05 inventory remains a separate feature-source union and must be hashed at the final source cut."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "d6e81f30baabe12fb4516b01770b1a4551c9f822",
+      "toBlob": "a6f996b2ac83a3519da66b08ce1b8e4abf6fef59",
+      "note": "Reviewed accepted main PR397/PR396 from exact bfd42479 to ec36f488. Semantic source inventory change adds only apps/web/src/SurfaceBoundary.tsx; runtime inventory and the16 dependency contracts are unchanged. The large textual inventory diff is CRLF normalization. M05 integration retains its existing60 source and12 runtime additions, tool-routing callback and usage-visibility guard alongside the new surface boundaries. Historical bfd lock and exact incoming/merged source review are preserved."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "fromBlob": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+      "toBlob": "71098c4e07f7ac2c68e7a68df6d616fd29eed56f",
+      "note": "Accepted main49cd removes the retired first-party Research HTTP route import and registration. It does not remove the separate M05 project-memory routes in the combined source. Exact52-path incoming changes and deleted paths are preserved in M05-accepted-base-review-49cd6332.json."
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "fromBlob": "ee530157e1d0ae825df3717a0e04d10cb8f842bb",
+      "toBlob": "42051c22c746a00191b232cee3f46ae297b27941",
+      "note": "Accepted main49cd removes four retired Code Review/Research browser suites whose source and fixtures are removed. M05 memory-recovery and current root suites remain; subsequent exact-source CI must report actual executed counts without reusing prior totals."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "a6f996b2ac83a3519da66b08ce1b8e4abf6fef59",
+      "toBlob": "60ce04a0dcf7d7f5971e46afcec23af44f20eaef",
+      "note": "Accepted main49cd removes29 retired first-party Research/Code Review source entries, removes the retired Research route from runtime, and adds the plugin retirement regression. Combined inventory must preserve these accepted removals plus all M05 source/runtime additions and the new guard behavioral fixture."
     }
   ]
 }

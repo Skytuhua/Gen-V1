@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-proxy-repair",
+  "startedAt": "2026-11-15T22:22:36.427802+00:00",
+  "endedAt": "2026-11-15T22:22:54.622262+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "logPath": "/workspace/scratch/36f66011d961/m05-native-save-proxy-repair/continuation-native-save-proxy-registration-custody.log",
+  "logBytes": 260,
+  "logDigest": "0eda4c748d52aef896d3228082313ba2992c83bff223cc5931676b8812d2b8ed",
+  "scope": "Existing seven portable custody tests against candidate helper; no Windows native execution."
+}

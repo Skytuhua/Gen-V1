@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "READ_ONLY_REVIEWED_ACTUAL_CHECKOUT_DRIFT_NO_CURRENT_ADMISSION",
+  "recordedAt": "2026-11-15T23:03:26.018188+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "runId": 43771171183,
+  "runAttempt": 1,
+  "headSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+  "treeSha": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+  "checkoutSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+  "checkoutTreeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "acceptedBaseSha": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+  "admissionStatus": "NOT_ADMITTED_FOR_94b",
+  "sourceReview": {
+    "bytes": 30856,
+    "sha256": "1851660d2bc100eb73ad024a802ca657428360b2e78f8528ef7069dbd21bff6c",
+    "ref": "docs/implementation/v3/M05-accepted-base-review-85d8c267.json",
+    "capturedLocalPath": "/workspace/scratch/36f66011d961/m05-base-refresh-85d8c267/M05-accepted-base-review-85d8c267.json"
+  },
+  "scope": "Only authentic historical command/job evidence under the actual tested checkout. Published-source exact-tree admission must continue to reject this run. No terminal outcome or installed admission is asserted by this preterminal source review."
+}

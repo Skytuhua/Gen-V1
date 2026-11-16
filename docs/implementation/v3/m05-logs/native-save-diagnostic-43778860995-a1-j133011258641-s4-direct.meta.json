@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "diagnostics/native-save/run.ts",
+      "direct"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-16T00:12:16Z",
+    "endedAt": "2026-11-16T00:13:05Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43778860995-a1-j133011258641-s4-direct.log",
+    "logDigest": "d57995d7d839fb1e182195a8c52f9b1de630bf67934a8bf90b28ce1e8fc39e7a"
+  },
+  "runId": 43778860995,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "c4ebd6ea8d76c87d787463233cab6fcb8343c74b",
+  "testedCheckout": {
+    "commitSha": "c4ebd6ea8d76c87d787463233cab6fcb8343c74b",
+    "treeSha": "1b7891394e09deb689430735584028ff409bd99e",
+    "parents": [
+      "d29cbd5014863b709cd85c5e29f59740fbfc7b3e"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/c4ebd6ea8d76c87d787463233cab6fcb8343c74b",
+    "rawResponseSha256": "553b7d95edb73d00417467f5fcee84f457a07bb0d3286a1999b67502b461def0"
+  },
+  "job": {
+    "id": 133011258641,
+    "name": "Native Save diagnostic (direct)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43778860995/job/133011258641",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001828,
+      "name": "GitHub Actions 1000001828",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run the actual native Save lane",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 4,
+    "started_at": "2026-11-16T00:12:16Z",
+    "completed_at": "2026-11-16T00:13:05Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-native-save-diagnostic-43778860995.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133011258641/logs",
+  "rawJobLogDigest": "48e590c5904a535a1fa44928dd5bc6f78d4b53d99960beda1feae92beccaa7fd",
+  "rawJobLogBytes": 162460,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained in scratch and agent memory. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      333,
+      350
+    ]
+  ],
+  "excerptInputSha256": "f33314f52bae2f013dbc33b685eebc90ead5f296d9c4f0e3260c368d494e1569",
+  "excerptInputBytes": 127443,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Timestamps are jobs-API execution-step bounds. A separate native process or dialog duration is not inferred from them.",
+  "exitBasis": "The jobs API reports the exact observed command step completed successfully; the hash-verified native receipt reports passed:true.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked pnpm command name; no resolved launcher executable path is claimed.",
+  "cwdBasis": "Observed checkout working directory; the selected script contains no directory change.",
+  "observedScript": "pnpm exec tsx diagnostics/native-save/run.ts direct",
+  "interpretation": {
+    "kind": "Actual Windows native Save direct and production-policy lanes after only the read-only observer closure classification changed. Both command outcomes are PASS; all previous failures remain immutable. This is an isolated fixture, not installed retention or live-provider proof.",
+    "expectedNegativeRelabelledAsPass": false,
+    "nativeSaveDispatched": true,
+    "nativeResult": "completed",
+    "scope": "Direct native Save and reviewed helper; not production export admission."
+  },
+  "receiptSha256": "3b358fefcbdb97a00f6708c040544f48fad7330a7c24801eb5ad4e8744afd826"
+}

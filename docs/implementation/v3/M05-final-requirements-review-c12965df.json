@@ -1,0 +1,426 @@
+{
+  "schemaVersion": 1,
+  "kind": "FINAL_IMMUTABLE_M05_REQUIREMENT_DELTA_REVIEW",
+  "status": "SOURCE_REVIEW_COMPLETE_NO_NEW_DEFECT_REQUIRED_PLATFORM_AND_LIVE_GATES_OPEN",
+  "recordedAt": "2026-11-16T00:29:10.038510+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "source": {
+    "commitSha": "c12965df7e90550dac0606752cb9f980387c2d3b",
+    "treeSha": "64504a5a4007461210c99d21f57fb438fdcf2116",
+    "localEquivalentCommitSha": "ba9918bd47f30ba8c4c5d22361adabec6eed3ad9",
+    "parentShas": [
+      "0aacdacdf835ec95710ae3674b260d654060f446",
+      "138b1356495bb3a2c9b35020240513f8faa84964"
+    ],
+    "acceptedBaseSha": "138b1356495bb3a2c9b35020240513f8faa84964",
+    "bindingMethod": "Root-created immutable GitHub commit was read through the Git API. Its exact tree equals the local frozen tree; source hashes below come from immutable local Git blobs. No ref or source mutation by this review."
+  },
+  "prompt": {
+    "upload": {
+      "ref": "/workspace/scratch/36f66011d961/upload/Pasted markdown(5).md",
+      "bytes": 32849,
+      "sha256": "1a2ddf83497f6e454c0982aa71c1a99df39df3cb4c0a4987da50c46f86bb8bbd",
+      "gitBlobSha": "63cd0a2b87fbff9c7455721553d06e77bcf3cf5f"
+    },
+    "storedM05Spec": {
+      "ref": "docs/implementation/v3/M05-spec.md",
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee",
+      "gitBlobSha": "7eb69de5bd24057e4841d0418fba05c929e086ba"
+    },
+    "match": "The complete upload was read. Its M05 section including trailing newline equals the stored spec byte-for-byte; the complete M04 section was read for dependency scope."
+  },
+  "priorRequirementReview": {
+    "ref": "/workspace/scratch/36f66011d961/M05-final-requirements-review-3aa90a6e.json",
+    "bytes": 49043,
+    "sha256": "1c86046f7967d8b8ae286e3d8fc8973599a504bb898ee9cfcea7f999126191e7",
+    "gitBlobSha": "1286530bb2355b8c7264f0ffe471a94b2d4de1da"
+  },
+  "reuseProof": {
+    "priorBindings": 71,
+    "unchanged": 69,
+    "changed": [
+      {
+        "path": "scripts/installed-native-save.ts",
+        "priorSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+        "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+        "bytes": 25381,
+        "gitBlobSha": "a709a77a4fb926e21402d790ec516ddcf572fe75",
+        "unchanged": false
+      },
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "priorSha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+        "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+        "bytes": 13385,
+        "gitBlobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806",
+        "unchanged": false
+      }
+    ],
+    "method": "Every one of the71 prior source bindings was freshly read and hashed. This review references the retained prior matrix instead of duplicating its complete binding list."
+  },
+  "acceptedDependencies": {
+    "baseSha": "138b1356495bb3a2c9b35020240513f8faa84964",
+    "lockedPaths": 63,
+    "publicContracts": 16,
+    "acceptedDependencyAncestors": 12,
+    "sourceLock": {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-138b1356/M05-source-lock.proposed.json",
+      "bytes": 22399,
+      "sha256": "18c24ea528ed8c5af84d6a834ea33374f4f6e4cf1d155374578bbf1c7b5906a3",
+      "gitBlobSha": "1b6f422e8dd327d242bd5c46a5521627e1f40773"
+    },
+    "review": {
+      "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-138b1356/M05-accepted-base-review-138b1356.json",
+      "bytes": 37582,
+      "sha256": "f7eed394bf0f5834b7c8ac7ff18dd6aa1cb93aba66b14a1e3062ad1aa83ffad9",
+      "gitBlobSha": "de093759c0b883e52fc5a61e5d64aefe98f86c92"
+    },
+    "m04Scope": "Accepted PR351 core request-custody dependency only. Original M04 progressive tools/result handles/repository map/compaction bundle completion is not claimed; draftPR326 remains separate.",
+    "m04CurrentBoundary": "Persistent owner generation, immutable preparation token/source cut, deterministic measured supplemental framing, current binding/source/grant final assertion and fatal preparation failure remain unchanged by this nine-path delta. M05 request exclusion/send uses the same prepared identity.",
+    "m04Receipt": {
+      "ref": "docs/implementation/v3/M04-core-verification.json",
+      "bytes": 10015,
+      "sha256": "f6f501a6f69261d3780bded0800be925640c6e7315b354a3ea9d5da06102e8e1",
+      "gitBlobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d"
+    },
+    "contractTestBoundary": "Existing current-contract test paths and their historical actual executions remain retained; this source review executes no replacement test or newly expanded M04 suite."
+  },
+  "deltaFromPublished0aac": {
+    "pathCount": 9,
+    "paths": [
+      {
+        "path": "apps/web/src/PlanStatus.tsx",
+        "bytes": 13305,
+        "sha256": "5f45c775b93e4557a21474c521daef5c5d9fa54d00cf9054b52876fe61e8a2f6",
+        "gitBlobSha": "3f1af434201f1620509bcd8361076070687eea4e"
+      },
+      {
+        "path": "apps/web/src/agents-workspace/AgentsWorkspace.tsx",
+        "bytes": 21331,
+        "sha256": "4bccdf5fba1cd6524ae26475e2617473e31805974a05b97a5786effdc5d55211",
+        "gitBlobSha": "14604480acbc115bd8e0f6ccf3082bf2c229a79a"
+      },
+      {
+        "path": "docs/public/features.md",
+        "bytes": 5454,
+        "sha256": "df2c4398ead8a2f8ac5e693bb39ce1104d791233888a3f76b1508435ed5ee54a",
+        "gitBlobSha": "597954e6a89aa08d0c98be521e8f269b27d15814"
+      },
+      {
+        "path": "docs/public/getting-started.md",
+        "bytes": 6715,
+        "sha256": "e4c8a84e7b554a039b6ca5e8645145eb74f76770a14887c3deeb9f2817177ab8",
+        "gitBlobSha": "da4c43d1608cb2918a9f5c9e4d5996ff0ba57d04"
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "bytes": 137861,
+        "sha256": "80e515a7806772aafc84cac6f1b59a91930a1d2b6ffcd20c6aee6766e3ec3401",
+        "gitBlobSha": "98d45a0401be3fe868d8296b83fdc88ce35e0816"
+      },
+      {
+        "path": "tests/e2e/agents-workspace.spec.ts",
+        "bytes": 27431,
+        "sha256": "a2f6244f17cd664e35636dadda6de77ae539df5ca0f57a8b06fa2aa17e5f7f2e",
+        "gitBlobSha": "4b6d614b3014b6d49e70c9e3ece2fb16e5e40470"
+      },
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "bytes": 13385,
+        "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+        "gitBlobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+      },
+      {
+        "path": "tests/plan-timeline-ui.test.ts",
+        "bytes": 15275,
+        "sha256": "6a3cde88be2d2c4120b98b7896383ffcc08e1b54a5416488d5ff95673227bcd6",
+        "gitBlobSha": "576f6bdbf5f5ac078208f1876d2773f35c73b4fa"
+      },
+      {
+        "path": "tests/task-interface-fixture.test.ts",
+        "bytes": 5388,
+        "sha256": "20d23e655cf2a6848e10a210505dd9681c28e6ceb8637392734a98c69bd4eba0",
+        "gitBlobSha": "0aad350c8cbb357fabfd7bad9cd24f4117695bca"
+      }
+    ],
+    "sourceGuardFindings": [
+      "The accepted main changes affect bounded disclosure retention and virtual-card keyboard focus. Their code remains exact138b bytes; M05 core, contracts, server, runtime, desktop export, native helper and installed verifier bytes are unchanged from0aac.",
+      "The shared browser fixture removes only node:util isDeepStrictEqual. panelBindingSchema is strict; local authority has only kind and every other parsed binding field is primitive. The replacement requires both authorities local, equal own-key count and presence, then Object.is on every non-authority value. It retains key-order independence and distinguishes absent optional keys from present undefined. Target local-thread, workspace identity/revision, exact payload keys and canonical project checks remain.",
+      "The new19-case fixture suite covers every primitive owner field, reordered keys, omitted/present-undefined distinction, plugin/extra fields, foreign workspace, stale revision, missing target and incorrect canonical project; rejected requests must leave layout unchanged. The file is registered in the public source inventory.",
+      "The new accepted-main focus test changes only its initial exact first-card visibility wait from5seconds to15seconds, because setup includes a dynamic import. The20-second case budget, offscreen precondition, ArrowLeft action and exact destination-focus assertion remain. No production delay or weakened focus predicate is added.",
+      "The two public guide edits correct current Detach thread instructions. They do not create a permission, account, configuration, dependency or activation change."
+    ]
+  },
+  "implementationSteps": [
+    {
+      "id": 1,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Separate host memory; task notes, learning and skills unchanged; Hermes global memory remains disabled."
+    },
+    {
+      "id": 2,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Physical profile/project/account binding, explicit project/source opt-in and authenticated project-only preference confirmation. Automatic global preferences and cross-project sharing remain disabled."
+    },
+    {
+      "id": 3,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Immutable revision rows and CAS edits preserve provenance and competing conflicts; resolution explicitly chooses one or two survivors with a note."
+    },
+    {
+      "id": 4,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Authorized current accepted nonexpired items, tombstone/source checks, project/symbol overlap then recency/stable ID, eight-item and complete serialized 4KiB cap."
+    },
+    {
+      "id": 5,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "M04 token/generation captures the source selection; unsent-only exclusion, owner/draft invalidation, final post-await synchronous authority assertion and 750ms bounded foreground wait."
+    },
+    {
+      "id": 6,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Explicitly disabled optional provider adapter has approved-provider/egress gates, per-profile/project/account/provider circuits, one pending request, bounded keys/capacity and occupancy retained until actual orphan settlement."
+    },
+    {
+      "id": 7,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Settled outbox-drained authorized source cut; exact references and secret rejection; decisions/facts/constraints/procedures and unresolved-work distinctions; production proposals only. Preferences require separate user confirmation. Ephemeral tool-free Pi session, shared account/provider scheduling, final dispatch fences and durable pending usage preserve scope and cost uncertainty."
+    },
+    {
+      "id": 8,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "One reference-only derived index per profile/project/account; accepted revision digest/output skip; lease token/expiry/watermark and current snapshot fences at provider dispatch and synchronous publication; cancellation retains actual-call capacity. Production consolidation is local."
+    },
+    {
+      "id": 9,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Host checkpoint persists accepted constraints/decisions and source references before native compaction. The public Hermes task pool now forwards the exact fifth checkpoint requirement into the real engine; capability, host-receipt, model/account/run/session and source-owner gates remain. Required failure blocks scripted compaction and retains history. The same pool and borrowed catalog now forward account-scoped invalidation. This corrects the prior review which missed the public pool adapter."
+    },
+    {
+      "id": 10,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Authenticated revision-bound Forget persists external sibling deletion fence before synchronous Store mutation, immediately excludes item/source and invalidates derived entries. Bounded seven-day local-copy purge records completion only after physical/WAL conditions; supported old DB/profile replays cannot resurrect claims. Original history remains; external deletion is NOT_SUPPORTED."
+    },
+    {
+      "id": 11,
+      "status": "OFFLINE_EVALUATOR_IMPLEMENTED_LIVE_STUDY_NOT_RUN",
+      "finding": "Ten offline cases cover all required topics. Study runner requires supplied host/model/project and fresh output, compares thread-note-only control with memory and records correctness/usefulness proxy, injection bytes, retrieval latency and all known auxiliary spend. Retained result is MANIFEST_ONLY with null quality/cost metrics."
+    },
+    {
+      "id": 12,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Personal session/origin/CSRF actions exclusively own review; agents propose only. Memory is CONTEXT_ONLY evidence, not permission. Both finite M05 flags default false; rollback retains reviewable records/tombstones and stops injection/extraction."
+    }
+  ],
+  "uiRequirements": [
+    {
+      "id": 1,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Four named tabs and row metadata; exact immutable source detail with server authority and client body-digest verification."
+    },
+    {
+      "id": 2,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Accept, Edit and accept, Reject; revision-bound editor and explicit conflict survivor/both-with-note resolution."
+    },
+    {
+      "id": 3,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Forget preview lists affected derived artifacts and immediate versus pending purge. Explicit host-redacted export uses browser Blob initiation or strict native one-use download; native saved status requires actual done/completed bytes, no silent fallback. Exact legitimate main/thread/plan/workspace bindings are admitted; plugin/browser surfaces denied.",
+      "proofUpdate": "Exact helper463d and unchanged production export policy6c61 passed both isolated actual Windows native Save lanes in43778860995. This supplements the earlier failure history; it does not admit complete installed retention."
+    },
+    {
+      "id": 4,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Why recalled exposes scope and source; exclusion changes only the current unsent preparation. Sending carries the same immutable request identity, and captured recall cannot be edited."
+    }
+  ],
+  "nativeSaveProof": {
+    "helperSha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+    "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+    "review": {
+      "ref": "/workspace/scratch/36f66011d961/M05-native-save-final-source-proof-0aacdacd.json",
+      "bytes": 44715,
+      "sha256": "19e6bde2c66564798e85b271cdb708e13999350a4789b50dd0debcb6dbd2adcc",
+      "gitBlobSha": "8cdf70c9185ff6b3caa91e877153d5e1cd8fb198"
+    },
+    "prior437769": "Production-policy command PASS; direct command FAIL from its read-only observer, although exact native fixed-file completion succeeded. Preserved unchanged.",
+    "actual437788": "Both direct and exact production-policy command PASS, six ordered events with the five strict keys, fixed634-byte readback SHA905d70a960f8c2703222f1b4d10a9a64a0ddd82c36115220957f1d26dd94b387, exact destination, observer exit0 and owned cleanup exit0.",
+    "scope": "Auxiliary synthetic ordinary native Save mechanism proof, with no provider/account code and no SavePath bypass. Complete installed M05 retention is a separate gate."
+  },
+  "observedScopedLocalEvidence": [
+    {
+      "label": "continuation-shared-fixture-browser-bundle-red",
+      "status": "FAIL",
+      "exitCode": 1,
+      "startedAt": "2026-11-16T00:10:10.487150+00:00",
+      "endedAt": "2026-11-16T00:10:14.403951+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-browser-bundle-red.log",
+      "logDigest": "644e35153b73dcb28cfd87bee7152657ccdfa56075285b05a672c903302d1d1b",
+      "metadataSha256": "9f346213124821f1c0b1b001409131d543a1e2d16486b86aabadadd885b897ec",
+      "capturedTreeBefore": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failedSuites": 1,
+      "skippedCases": 11,
+      "detail": "Browser bundle rejected node:util before body execution."
+    },
+    {
+      "label": "continuation-shared-fixture-owner-baseline",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:12:01.182600+00:00",
+      "endedAt": "2026-11-16T00:12:03.158284+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-owner-baseline.log",
+      "logDigest": "c5a06e433244c42acdf6bdd59876acaf14d4b11a9cb009fcafc738f75e693433",
+      "metadataSha256": "1e9ff9a0f061a7e5e74fe9d6d98f32a2d0ac5d5a18b8cb24ffb87230cd1b8ab9",
+      "capturedTreeBefore": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passedCases": 18,
+      "detail": "Initial equivalence cases against the prior comparator; the separate absent-versus-present-undefined case was added before the final green."
+    },
+    {
+      "label": "continuation-shared-fixture-browser-bundle-green",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:12:51.124708+00:00",
+      "endedAt": "2026-11-16T00:13:20.362286+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-browser-bundle-green.log",
+      "logDigest": "ba23c539b8d400c5917936875806b3220c70ccf73aa1a1df69fadf262d3dd54a",
+      "metadataSha256": "a3f2f1d3ced92670b5c7c15d1f3f9785302f1e230617b4012d05c17d1042dbfe",
+      "capturedTreeBefore": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "capturedWorkingDiffSha256": "ce7abfe48369d9c3dfe765a75da1bf724641d60119f907afc6d882bc8e21cb84",
+      "passedCases": 30,
+      "detail": "11 actual artifact-settle cases plus19 final owner/revision fixtures."
+    },
+    {
+      "label": "continuation-shared-fixture-project-binding-green",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:15:37.454694+00:00",
+      "endedAt": "2026-11-16T00:15:55.456887+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-project-binding-green.log",
+      "logDigest": "0899b15dab9d7dbefb0cbffda67490a5a8589d7b4fd692f52f4897b4e18576d5",
+      "metadataSha256": "03f9a6c40b8a04e275c3e4ed0481e39264da8293fbcc329fe8596aeeeeecd1f6",
+      "capturedTreeBefore": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "capturedWorkingDiffSha256": "ce7abfe48369d9c3dfe765a75da1bf724641d60119f907afc6d882bc8e21cb84",
+      "passedCases": 2,
+      "detail": "Real browser explicit project binding and retained original-chat binding/draft cases."
+    },
+    {
+      "label": "continuation-138-plan-public-source",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:17:09.409431+00:00",
+      "endedAt": "2026-11-16T00:17:15.133304+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-plan-public-source.log",
+      "logDigest": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7",
+      "metadataSha256": "84f3d5f6e32248f6cd5a0054cfc66dc20696abe7611d95ccc9d5f8e4b4226f2e",
+      "capturedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passedCases": 35,
+      "detail": "Plan timeline and public source closure."
+    },
+    {
+      "label": "continuation-138-merged-typecheck",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:17:09.445471+00:00",
+      "endedAt": "2026-11-16T00:18:05.799025+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-merged-typecheck.log",
+      "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+      "metadataSha256": "ea26aa2101b62adceb0227d5e9dbbbcfce3d9d53a8fc510bd7e28a2801338878",
+      "capturedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": "Actual full typecheck on the integrated tree before the one-assertion readiness change."
+    },
+    {
+      "label": "continuation-138-keyboard-focus",
+      "status": "FAIL",
+      "exitCode": 1,
+      "startedAt": "2026-11-16T00:17:09.436680+00:00",
+      "endedAt": "2026-11-16T00:17:13.734279+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus.log",
+      "logDigest": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d",
+      "metadataSha256": "696fb384633b9986e0e64057cf070d35a918482c3e9ac0b16276755793966b3b",
+      "capturedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "detail": "Actual FAIL: no tests found under the first selected configuration; no body execution claimed."
+    },
+    {
+      "label": "continuation-138-keyboard-focus-chromium",
+      "status": "FAIL",
+      "exitCode": 1,
+      "startedAt": "2026-11-16T00:19:30.895673+00:00",
+      "endedAt": "2026-11-16T00:19:43.076822+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.log",
+      "logDigest": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+      "metadataSha256": "cab10ec1ccd3cacfd693b83140a6709aef7a53e4eed2e8bfa4846d26d747b6b9",
+      "capturedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "capturedWorkingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failedCases": 1,
+      "detail": "Actual initial card visibility deadline failure before keyboard action."
+    },
+    {
+      "label": "continuation-138-keyboard-focus-readiness-green",
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T00:21:29.863526+00:00",
+      "endedAt": "2026-11-16T00:21:40.403473+00:00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-readiness-green.log",
+      "logDigest": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0",
+      "metadataSha256": "b697398cb28647c648fbf812740df4ef19a8c6830dd2ff13b83f605008288ab5",
+      "capturedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "capturedWorkingDiffSha256": "c8c8d3040035e0dc2a3e828be6d48b81ae1402dedaf6d7d44357443f9a31c271",
+      "passedCases": 1,
+      "detail": "Actual browser case passes after only first-mount readiness becomes15seconds;8.7seconds is the whole reported test-run duration, not a measured import duration."
+    }
+  ],
+  "historicalCorrection": {
+    "requirement": 9,
+    "finding": "Preserve the prior review correction: the Hermes task-pool omission was reproduced and fixed before3aa. Exact fifth checkpoint argument and invalidation forwarding remain unchanged in this cut, with the already retained fail-first/46-case composition evidence."
+  },
+  "activation": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false,
+    "autoAcceptance": false,
+    "automaticCrossProjectOrUserWideSharing": false,
+    "proof": "Finite host registry still initializes every flag false. No flag or activation file is changed in the final delta; agents/plugins gain no setter."
+  },
+  "remainingGates": [
+    {
+      "gate": "EXACT_FINAL_SOURCE_FULL_WINDOWS_CI",
+      "status": "PENDING_PUBLICATION_AND_EXECUTION",
+      "detail": "All nine jobs and exact checkout/tree must be collected for the new immutable source. Existing0aac run43777513127 already has a shard2 fixture suite failure; later installed success cannot turn that run green."
+    },
+    {
+      "gate": "DEFAULT_OFF_INSTALLED_RETENTION",
+      "status": "PENDING_ACTUAL_ARTIFACT_AND_INDEPENDENT_ADMISSION",
+      "detail": "Current0aac installed job is still being collected. Require full review/export/Forget/two-launch/post-exit/cleanup evidence, exact source compatibility, images and strict admission. Isolated native Save is insufficient."
+    },
+    {
+      "gate": "FULL_ENABLED_INSTALLED_MEMORY",
+      "status": "NOT_RUN",
+      "detail": "Extraction, injection and native checkpoint production activation require their own enabled installed evidence."
+    },
+    {
+      "gate": "LIVE_REPEATED_TASK_QUALITY_AND_TOTAL_AUXILIARY_COST",
+      "status": "NOT_RUN_MANIFEST_ONLY",
+      "detail": "Retained study has no configured host/model/account, zero provider calls/submissions, empty runs and all six outcome/cost metrics null. No live endpoint or account execution inferred."
+    },
+    {
+      "gate": "EXTERNAL_RECALL_EMBEDDING_EXPERIMENT",
+      "status": "DISABLED_UNPROVEN",
+      "detail": "Separate provider/egress/capacity approvals remain; external deletion is NOT_SUPPORTED."
+    },
+    {
+      "gate": "FINAL_EVIDENCE_INTEGRITY",
+      "status": "PENDING_FINAL_ASSEMBLY_AND_ACTUAL_VERIFIER",
+      "detail": "Bind final source/base/contracts, preserve all failures and actual argv/exit/logs, then run the real evidence verifier. No generated manifest counts as execution."
+    }
+  ],
+  "newCommandsRunByThisReview": [],
+  "concreteNewImplementationFindings": [],
+  "verdict": "No additional implementation requirement or guard regression found across the original12 M05 steps, four UI requirements, accepted M04 core boundary and the complete nine-path final delta. The source is suitable for publication to the required exact-cut Windows validation. The bundle remains PARTIAL until its separately scoped platform/live and final evidence gates support stronger claims; no untested activation is introduced."
+}

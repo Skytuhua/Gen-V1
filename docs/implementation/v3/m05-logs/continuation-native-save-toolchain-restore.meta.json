@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "corepack",
+      "pnpm@10.30.3",
+      "install",
+      "--frozen-lockfile",
+      "--ignore-scripts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "corepack",
+    "startedAt": "2026-11-15T22:23:44.012384+00:00",
+    "endedAt": "2026-11-15T22:23:56.734285+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-toolchain-restore.log",
+    "logDigest": "7e82d99e6027ff4b9fbd83dd7ce4185a972a206e5b4eed229b684696d5853e04"
+  },
+  "observedMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-native-save-toolchain-restore.meta.json",
+  "observedMetadataSha256": "afa7c146c51053745d25ffc5fe6e5d0a1727d0250e7119cd6b02c296af514ffc",
+  "scope": "Restore pinned existing dependencies after scratch pnpm auto-prune; no source changes.",
+  "logBytes": 1697,
+  "rawLogDigest": "7e82d99e6027ff4b9fbd83dd7ce4185a972a206e5b4eed229b684696d5853e04",
+  "transformations": [],
+  "environment": {
+    "CI": "true"
+  },
+  "lockfile": {
+    "lockfileBefore": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+    "lockfileAfter": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+    "lockfileUnchanged": true
+  }
+}

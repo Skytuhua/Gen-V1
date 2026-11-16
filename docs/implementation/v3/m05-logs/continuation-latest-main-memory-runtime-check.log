@@ -1,0 +1,52 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/runtime-router.test.ts (18 tests | 3 failed) 245ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 130ms
+   × scopes named-account model discovery to its provider and blocks a profile being signed in 4ms
+   × rejects a resolver that changes the provider of an already acquired account profile 2ms
+ ❯ tests/account-auth-http.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-auth-http.test.ts [ tests/account-auth-http.test.ts ]
+Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.
+ ❯ receiverBytes packages/widgets/document.ts:10:17
+      8| function receiverBytes(): string {
+      9|   try { return readFileSync(resolve('dist/widget-runtime/receiver.js')…
+     10|   catch { throw new Error('Trusted widget receiver is missing. Run pnp…
+       |                 ^
+     11| }
+     12| const bootstrap = receiverBytes();
+ ❯ packages/widgets/document.ts:12:19
+ ❯ apps/server/server.ts:13:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+ FAIL  tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+ FAIL  tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.start packages/runtime/index.ts:120:291
+ ❯ tests/runtime-router.test.ts:134:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  2 failed | 6 passed (8)
+      Tests  3 failed | 99 passed (102)
+   Start at  06:17:36
+   Duration  9.67s (transform 3.16s, setup 0ms, import 5.42s, tests 5.05s, environment 1ms)
+

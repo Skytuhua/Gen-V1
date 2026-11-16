@@ -1,0 +1,105 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 17 tests using 1 worker
+
+(node:96) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:96) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (1.4s)
+  ✓   2 tests/e2e/plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (722ms)
+  ✓   3 tests/e2e/plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (891ms)
+  ✓   4 tests/e2e/plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (862ms)
+  ✓   5 tests/e2e/plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed (697ms)
+  ✘   6 tests/e2e/plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (30.1s)
+(node:273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/e2e/plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (838ms)
+  ✘   8 tests/e2e/plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details (5.7s)
+(node:368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/e2e/plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity (895ms)
+  ✓  10 tests/e2e/plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion (708ms)
+  ✓  11 tests/e2e/plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion (750ms)
+  ✓  12 tests/e2e/plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion (688ms)
+  ✓  13 tests/e2e/plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion (533ms)
+  ✓  14 tests/e2e/plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion (667ms)
+  ✓  15 tests/e2e/plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion (664ms)
+  ✓  16 tests/e2e/plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join (810ms)
+  ✓  17 tests/e2e/plan-timeline.spec.ts:240:40 › light desktop parallel branches and join (747ms)
+
+
+  1) tests/e2e/plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('menuitem', { name: 'Collapse all' })[22m
+
+
+      108 |   await expect(page.locator('[data-step-id="build"] > .plan-step-summary')).toBeFocused();
+      109 |   await page.getByRole("button", { name: "Plan actions" }).click();
+    > 110 |   await page.getByRole("menuitem", { name: "Collapse all" }).click();
+          |                                                              ^
+      111 |   await page.getByRole("button", { name: "Plan actions" }).click();
+      112 |   await page.getByRole("menuitem", { name: "Expand all" }).click();
+      113 |   await expect(page.locator('[data-step-id="verify"] > .plan-step-summary')).toHaveAttribute(
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/plan-timeline.spec.ts:110:62
+
+    Error Context: test-results/plan-timeline-host-replan--d8016-r-when-earlier-details-grow/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/plan-timeline-host-replan--d8016-r-when-earlier-details-grow/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/plan-timeline-host-replan--d8016-r-when-earlier-details-grow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator:  locator('[data-agent-id="nested-5"]')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-agent-id="nested-5"]')[22m
+    [2m    9 × locator resolved to <li data-agent-id="nested-5" class="plan-agent agent-completed">…</li>[22m
+    [2m      - unexpected value "hidden"[22m
+
+
+      160 |   plan.steps[1].outputs![0].label = "ExtremelyLongOutputLabelWithNoNaturalBreaks".repeat(3);
+      161 |   await page.evaluate((snapshot) => window.planFixture.update(snapshot), snapshot);
+    > 162 |   await expect(page.locator('[data-agent-id="nested-5"]')).toBeVisible();
+          |                                                            ^
+      163 |   expect(await page.locator("main").evaluate((el) => el.scrollWidth)).toBeLessThanOrEqual(280);
+      164 |   await page.locator('[data-step-id="build"]').scrollIntoViewIfNeeded();
+      165 |   await page.screenshot({ path: test.info().outputPath("deep-narrow.png") });
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/plan-timeline.spec.ts:162:60
+
+    Error Context: test-results/plan-timeline-deep-nested--71516-anel-without-hiding-details/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/plan-timeline-deep-nested--71516-anel-without-hiding-details/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/plan-timeline-deep-nested--71516-anel-without-hiding-details/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/e2e/plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+    tests/e2e/plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+  15 passed (54.8s)

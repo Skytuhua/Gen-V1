@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "status": "LOCAL_REPAIR_VERIFIED_FULL_CI_PENDING",
+  "recordedAt": "2026-11-15T22:26:41.061493+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "sourceBase": {
+    "commitSha": "8fddb569d73ca33041be085da2b0ee9119d77f52",
+    "treeSha": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+    "acceptedMainSha": "4941b74496c808b5318888ca6b68378c3329b87e"
+  },
+  "scope": "Two existing files only. No live/native installed proof, no provider/model calls, no source/ref or ledger mutation beyond the explicitly owned production/test fix.",
+  "originalDefects": [
+    {
+      "id": "M05_POOL_MANUAL_CHECKPOINT_DROPPED",
+      "severity": "BLOCKING_REQUIRED_CHECKPOINT_PATH",
+      "foundAt": {
+        "path": "packages/runtime-hermes/task-pool.ts",
+        "lines": [
+          24,
+          24
+        ],
+        "mergeBlob": "981255cbe962906c1f386a712321b61e5a4c8911"
+      },
+      "fact": "The public pool discarded the fifth memoryCheckpoint argument before the actual engine. Required manual compaction could proceed without invoking host persistence. This predates the latest accepted-main merge and corrects the historical step9 no-finding statement.",
+      "status": "FIXED_IN_WORKING_SOURCE_LOCAL_46_CASE_GREEN_PENDING_FULL_CI"
+    },
+    {
+      "id": "M05_POOL_CATALOG_INVALIDATION_NOT_FORWARDED",
+      "severity": "ACCEPTED_MAIN_INTEGRATION_GAP",
+      "foundAt": {
+        "path": "packages/runtime-hermes/task-pool.ts",
+        "lines": [
+          9,
+          20
+        ]
+      },
+      "fact": "The production pool and borrowed catalog omitted the new optional invalidation method, making the actual host sign-out invalidation a no-op.",
+      "status": "FIXED_IN_WORKING_SOURCE_LOCAL_46_CASE_GREEN_PENDING_FULL_CI"
+    }
+  ],
+  "repair": {
+    "productionFile": {
+      "ref": "/workspace/scratch/36f66011d961/m05-restored/packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    "testFile": {
+      "ref": "/workspace/scratch/36f66011d961/m05-restored/tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    },
+    "changes": [
+      "Forward the exact optional checkpoint requirement through the public pool compact method to the retained real engine.",
+      "Forward optional invalidateModels through the disposed-checked pool facade and the borrowed catalog adapter, preserving the caller account query and shared catalog custody."
+    ],
+    "engineGuardChanges": false,
+    "newManifestPaths": []
+  },
+  "regressionDesign": {
+    "composition": "The existing fixture constructs public createHermesRuntime, which creates the real task pool and real createHermesEngine. Only source transport and host persistence are scripted. This is not a stub forwarding-only test.",
+    "cases": [
+      "Required manual compaction waits for a held durable checkpoint receipt before scripted native history changes.",
+      "Missing host callback refuses required compaction before source dispatch.",
+      "Unsupported source capability refuses required compaction before source dispatch.",
+      "Rejected host persistence preserves scripted history and never emits successful compaction completion.",
+      "Unconfirmed persisted:false receipt preserves scripted history and never emits successful compaction completion.",
+      "Main pool invalidates only the requested account through the shared catalog.",
+      "Borrowed task engine invalidates only the requested account through the same catalog."
+    ],
+    "nativeHistoryLimit": "The retained history in these composition cases is a scripted source array. Actual pinned native-history tests and installed execution remain separately scoped."
+  },
+  "attempts": [
+    {
+      "label": "continuation-hermes-pool-checkpoint-red",
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/hermes-runtime.test.ts",
+          "-t",
+          "production pool"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm",
+        "startedAt": "2026-11-15T22:22:09.289259+00:00",
+        "endedAt": "2026-11-15T22:22:11.298711+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-red.log",
+        "logDigest": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-red.meta.json",
+        "bytes": 1392,
+        "sha256": "9a3e3d3071471fef9a15035faf82ea28efc84dff5c2e7db95a71ebb165e51087",
+        "gitBlobSha": "271772cc29a41797058368de0f0a053ec96f26e0"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-red.log",
+        "bytes": 2295,
+        "sha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+        "gitBlobSha": "016580c5679230839580a7611d7ff9b5a9aeb916"
+      },
+      "interpretation": "SETUP_FAILURE_BEFORE_TEST_COLLECTION: fallback pnpm implicit install refused no-TTY modules removal.",
+      "originalPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "reviewedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "rawOutputBytes": 2295,
+      "rawOutputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "1bedfce97739e13dda0dd5305af14cf48b476b044a6f54df2a636c4c0fb33d1a"
+    },
+    {
+      "label": "continuation-hermes-pool-checkpoint-fixture-red",
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/hermes-runtime.test.ts",
+          "-t",
+          "production pool"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "startedAt": "2026-11-15T22:22:31.499275+00:00",
+        "endedAt": "2026-11-15T22:22:34.759006+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-fixture-red.log",
+        "logDigest": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-fixture-red.meta.json",
+        "bytes": 1402,
+        "sha256": "daaa295dfd4ef2c495f19fe51b0be2e750a5c7e92b011d332c4e115890d36712",
+        "gitBlobSha": "ba9ab56988aa14730cccff4bad27c5462f1f9cc8"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-fixture-red.log",
+        "bytes": 4192,
+        "sha256": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f",
+        "gitBlobSha": "96423adb6ed3f5d1c7f88638e074d98127955d12"
+      },
+      "interpretation": "ACTUAL_INITIAL_SEMANTIC_RED: seven new public-pool cases failed and39existing cases skipped.",
+      "originalPhaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "reviewedPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "rawOutputBytes": 4192,
+      "rawOutputSha256": "5a263a4c64ad1610f80159bdf091e63dc1652ec8d91602dd66277343f7de521f",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "1bedfce97739e13dda0dd5305af14cf48b476b044a6f54df2a636c4c0fb33d1a"
+    },
+    {
+      "label": "continuation-hermes-pool-checkpoint-green",
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/hermes-runtime.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-15T22:23:07.574296+00:00",
+        "endedAt": "2026-11-15T22:23:08.200742+00:00",
+        "exitCode": 254,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-green.log",
+        "logDigest": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-green.meta.json",
+        "bytes": 1378,
+        "sha256": "b1d6e12f6ffb41a98cf3430be6a4b91ca92938e731faceb1f515d24a76e7f4c6",
+        "gitBlobSha": "c680a53f689958c3801df2f0952f14617c54fff1"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-green.log",
+        "bytes": 78,
+        "sha256": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724",
+        "gitBlobSha": "037caafa1d72e28c3999cf8455fcc99fba54cbb4"
+      },
+      "interpretation": "SETUP_FAILURE_BEFORE_TEST_COLLECTION: pinned pnpm could not resolve vitest after separate shared dependency pruning incident.",
+      "originalPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "reviewedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "rawOutputBytes": 78,
+      "rawOutputSha256": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "d8ad92da9de38d67f3c28e737a0bbfa18fcac8fc54cda1e1173c88960bc1efa4"
+    },
+    {
+      "label": "continuation-hermes-pool-checkpoint-green-direct",
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/hermes-runtime.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "startedAt": "2026-11-15T22:23:15.361456+00:00",
+        "endedAt": "2026-11-15T22:23:21.694277+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-green-direct.log",
+        "logDigest": "fcce5e634b3045b22c958c0179deb20c05a827365111955ebe63f5e3222afd10"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-green-direct.meta.json",
+        "bytes": 1366,
+        "sha256": "6f476f1bca31cc3a135f63d12dbe5d0986fa18248161d69bad0649a2212a59f9",
+        "gitBlobSha": "ffcdfcbf5868de2efa67ae0578a6766bff363703"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-checkpoint-green-direct.log",
+        "bytes": 2552,
+        "sha256": "fcce5e634b3045b22c958c0179deb20c05a827365111955ebe63f5e3222afd10",
+        "gitBlobSha": "b8ad62b7a171cd6c2ab6275757b59d47cac916bc"
+      },
+      "interpretation": "ACTUAL_INTERMEDIATE_FAILURE:43passed/3failed; three new tests passed a full StartRun as maintenance RunContext, and real strict checkpoint validation rejected extra fields. The fixture was corrected; no engine guard changed.",
+      "originalPhaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "reviewedPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "rawOutputBytes": 2552,
+      "rawOutputSha256": "fcce5e634b3045b22c958c0179deb20c05a827365111955ebe63f5e3222afd10",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "d8ad92da9de38d67f3c28e737a0bbfa18fcac8fc54cda1e1173c88960bc1efa4"
+    },
+    {
+      "label": "continuation-hermes-pool-corrected-red",
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/hermes-runtime.test.ts",
+          "-t",
+          "production pool"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-15T22:24:49.494055+00:00",
+        "endedAt": "2026-11-15T22:24:53.619911+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-corrected-red.log",
+        "logDigest": "8d50a4aa806a85db7baf43171072770ad869473b6c3d6c227fb110bf06cbe23a"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-corrected-red.meta.json",
+        "bytes": 1415,
+        "sha256": "635952bbf6dbe3d2bff1bc9fd74f2422018b1001ed1d177d0439edcb86617660",
+        "gitBlobSha": "9d50b40cd8ca3a7bd4d5fccc24dbbe8cda74f9de"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-corrected-red.log",
+        "bytes": 4205,
+        "sha256": "8d50a4aa806a85db7baf43171072770ad869473b6c3d6c227fb110bf06cbe23a",
+        "gitBlobSha": "8c642f35d290bee774eec57c58e97318947351fc"
+      },
+      "interpretation": "ACTUAL_FINAL_FIXTURE_RED: final seven cases all fail against original production pool,39existing skipped. Only the owned forwarding patch was temporarily removed and reapplied.",
+      "originalPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "reviewedPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "rawOutputBytes": 4205,
+      "rawOutputSha256": "8d50a4aa806a85db7baf43171072770ad869473b6c3d6c227fb110bf06cbe23a",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "40ad7b230e429e216d1e7034a7efa41e639bca81c32792ccf97b7874db7cd4f5"
+    },
+    {
+      "label": "continuation-hermes-pool-corrected-green",
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/hermes-runtime.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-15T22:25:00.510841+00:00",
+        "endedAt": "2026-11-15T22:25:06.351539+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-corrected-green.log",
+        "logDigest": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6"
+      },
+      "metadata": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-corrected-green.meta.json",
+        "bytes": 1378,
+        "sha256": "bf5b6842fb3730de83bbc0f4926faf1246b5e0f186d8de940c8bb992dc2b1fba",
+        "gitBlobSha": "70784cbbfa8ae434a096677ea71abed79f4fd262"
+      },
+      "log": {
+        "ref": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-hermes-pool-corrected-green.log",
+        "bytes": 231,
+        "sha256": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6",
+        "gitBlobSha": "610a4155c2a4ed8868584c85264cb4e4e721bd59"
+      },
+      "interpretation": "ACTUAL_FINAL_GREEN: complete existing Hermes runtime file46passed/0failed/0skipped.",
+      "originalPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "reviewedPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ],
+      "rawOutputBytes": 231,
+      "rawOutputSha256": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6",
+      "rawEqualsPublishedCapture": true,
+      "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+      "workingDiffSha256": "662e31546aecd7e7dd86b6c354a69046e5233bde504455be5660d2ecedf32737"
+    }
+  ],
+  "historicalCorrection": {
+    "review": {
+      "ref": "/workspace/scratch/36f66011d961/M05-final-requirements-review-bc5aad3c.json",
+      "bytes": 28532,
+      "sha256": "38297541bb205de82aa025e4dc4d1e7138e0bfa2f6bcd89298b10418ee246381",
+      "gitBlobSha": "fa8f0e5d6b398a4ba561abd88976674d631b076a"
+    },
+    "affectedClaims": [
+      "STEP09 source coverage and no-additional-finding verdict before inspection of the public task-pool facade."
+    ],
+    "correction": "The previous review covered Service, router and real engine but missed the public pool adapter. Its step9 conclusion was too broad. The dropped manual checkpoint was subsequently reproduced and fixed with the final7-red/46-green composition evidence. Historical bytes remain intact."
+  },
+  "baseRefreshReview": {
+    "ref": "/workspace/scratch/36f66011d961/m05-base-refresh-4941b744/M05-accepted-base-review-4941b744.json",
+    "bytes": 49734,
+    "sha256": "55c319568ffe9808da319e359c355ecb7ebffe565189a330bb3c3a19495d5bea",
+    "gitBlobSha": "1c4ca7053db98db828d1c24c8e1304a7ddb92657"
+  },
+  "typecheck": "PENDING_ROOT_COMBINED_GATE",
+  "currentFullWindowsRun": {
+    "runId": 43760736519,
+    "status": "FAIL",
+    "futureSourceRun": "PENDING"
+  },
+  "activation": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false
+  }
+}

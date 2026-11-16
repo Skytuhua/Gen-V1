@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "AGENTSUI_APP_CANDIDATE=1",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "/workspace/scratch/36f66011d961/m05-138-agents-workspace.playwright.config.mts",
+      "tests/e2e/agents-workspace.spec.ts",
+      "--grep",
+      "keyboard entry into a virtual agent",
+      "--workers=1",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:19:30.895673+00:00",
+    "endedAt": "2026-11-16T00:19:43.076822+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.log",
+    "logDigest": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 12167,
+  "rawOutputBytes": 3368,
+  "rawOutputSha256": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+  "excerptInputBytes": 3368,
+  "excerptInputSha256": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

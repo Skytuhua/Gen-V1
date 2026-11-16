@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "runId": 43766345613,
+  "headSha": "105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+  "treeSha": "e6239f0a8c033ea31069a48c2ce66a5fa3dd8c92",
+  "sourceBaseSha": "013c044d66f40136752df4f1903132d601d57851",
+  "scope": "Actual isolated Windows reproduction of native Save discovery with exact production policy and unmodified helper.",
+  "actual": {
+    "commands": 2,
+    "exitCodes": [
+      1,
+      1
+    ],
+    "statuses": [
+      "FAIL",
+      "FAIL"
+    ],
+    "nativeHelperDispatched": [
+      true,
+      true
+    ],
+    "nativeSaveCompleted": [
+      false,
+      false
+    ]
+  },
+  "cases": [
+    {
+      "lane": "direct",
+      "jobId": 132972184359,
+      "receipt": {
+        "path": "direct-receipt.json",
+        "bytes": 114983,
+        "sha256": "b8aefcbfef1b594c46d800f2fde52e232402fb6dd898d777c60be522647a1ec6"
+      },
+      "rawLog": {
+        "bytes": 190672,
+        "sha256": "814a21a65e442b7adc260181169fdc39fdabe53fe8fafafa52dfbb308a6bfd50"
+      },
+      "native": {
+        "status": "failed",
+        "pid": 9392,
+        "processStartTicks": "639303766308425144",
+        "dialogHandle": null,
+        "dialogTitle": "Export project memory",
+        "events": [
+          {
+            "phase": "ready",
+            "pid": 9392,
+            "processStartTicks": "639303766308425144",
+            "dialogHandle": null,
+            "elapsedMs": 614
+          },
+          {
+            "phase": "failed",
+            "pid": 9392,
+            "processStartTicks": "639303766308425144",
+            "dialogHandle": null,
+            "elapsedMs": 30686,
+            "reason": "dialog-timeout"
+          }
+        ],
+        "failure": "dialog-timeout"
+      },
+      "productionAdmission": [],
+      "modalSnapshots": [
+        {
+          "observerElapsedMs": 5377,
+          "pid": 9392,
+          "processStartTicks": "639303766308425144",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "327702",
+              "pid": 9392,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "131556",
+            "ownerHwnd": "327702",
+            "rootOwnerHwnd": "327702",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 9392,
+              "hwnd": "131556",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 9392,
+                "hwnd": "327702",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 15353,
+          "pid": 9392,
+          "processStartTicks": "639303766308425144",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "327702",
+              "pid": 9392,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "131556",
+            "ownerHwnd": "327702",
+            "rootOwnerHwnd": "327702",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 9392,
+              "hwnd": "131556",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 9392,
+                "hwnd": "327702",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 28346,
+          "pid": 9392,
+          "processStartTicks": "639303766308425144",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "327702",
+              "pid": 9392,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "131556",
+            "ownerHwnd": "327702",
+            "rootOwnerHwnd": "327702",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 9392,
+              "hwnd": "131556",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 9392,
+                "hwnd": "327702",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 33317,
+          "pid": 9392,
+          "processStartTicks": "639303766308425144",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "327702",
+              "pid": 9392,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "131556",
+            "ownerHwnd": "327702",
+            "rootOwnerHwnd": "327702",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 9392,
+              "hwnd": "131556",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 9392,
+                "hwnd": "327702",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        }
+      ],
+      "cleanup": {
+        "observerOwned": true,
+        "fixtureOwned": true,
+        "fixtureExitCode": 0,
+        "fixtureSignal": null,
+        "fixtureStderrBytes": 100,
+        "ownedProcessesExited": true
+      }
+    },
+    {
+      "lane": "policy",
+      "jobId": 132972184623,
+      "receipt": {
+        "path": "policy-receipt.json",
+        "bytes": 115416,
+        "sha256": "cb0dd026e9df986fca0ab0d03148bfef5108f7e5582ed4d41c588f29da4e60d9"
+      },
+      "rawLog": {
+        "bytes": 190941,
+        "sha256": "87b262a958ead972548c33107b755d9b564bec3b8cbe1ca28f13f743b4504665"
+      },
+      "native": {
+        "status": "failed",
+        "pid": 7160,
+        "processStartTicks": "639303766535948963",
+        "dialogHandle": null,
+        "dialogTitle": "Export project memory",
+        "events": [
+          {
+            "phase": "ready",
+            "pid": 7160,
+            "processStartTicks": "639303766535948963",
+            "dialogHandle": null,
+            "elapsedMs": 625
+          },
+          {
+            "phase": "failed",
+            "pid": 7160,
+            "processStartTicks": "639303766535948963",
+            "dialogHandle": null,
+            "elapsedMs": 30695,
+            "reason": "dialog-timeout"
+          }
+        ],
+        "failure": "dialog-timeout"
+      },
+      "productionAdmission": [
+        {
+          "phase": "download-observed",
+          "elapsedMs": 6729,
+          "prevented": false,
+          "senderMatches": true,
+          "frameMatches": true,
+          "originMatches": true,
+          "filenameMatches": true,
+          "dataUrl": true,
+          "chainLength": 1,
+          "titleMatches": true
+        }
+      ],
+      "modalSnapshots": [
+        {
+          "observerElapsedMs": 5398,
+          "pid": 7160,
+          "processStartTicks": "639303766535948963",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "262480",
+              "pid": 7160,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "327704",
+            "ownerHwnd": "262480",
+            "rootOwnerHwnd": "262480",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 7160,
+              "hwnd": "327704",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 7160,
+                "hwnd": "262480",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 15368,
+          "pid": 7160,
+          "processStartTicks": "639303766535948963",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "262480",
+              "pid": 7160,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "327704",
+            "ownerHwnd": "262480",
+            "rootOwnerHwnd": "262480",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 7160,
+              "hwnd": "327704",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 7160,
+                "hwnd": "262480",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 28348,
+          "pid": 7160,
+          "processStartTicks": "639303766535948963",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "262480",
+              "pid": 7160,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "327704",
+            "ownerHwnd": "262480",
+            "rootOwnerHwnd": "262480",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 7160,
+              "hwnd": "327704",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 7160,
+                "hwnd": "262480",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        },
+        {
+          "observerElapsedMs": 33325,
+          "pid": 7160,
+          "processStartTicks": "639303766535948963",
+          "rootQueryFailed": false,
+          "rootChildren": [
+            {
+              "hwnd": "262480",
+              "pid": 7160,
+              "nameKind": "fixture",
+              "type": "ControlType.Window"
+            }
+          ],
+          "dialog": {
+            "hwnd": "327704",
+            "ownerHwnd": "262480",
+            "rootOwnerHwnd": "262480",
+            "visible": true,
+            "enabled": true,
+            "uia": {
+              "pid": 7160,
+              "hwnd": "327704",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            "parents": [
+              {
+                "pid": 7160,
+                "hwnd": "262480",
+                "nameKind": "fixture",
+                "type": "ControlType.Window",
+                "automationId": "",
+                "enabled": false,
+                "offscreen": false
+              },
+              {
+                "foreignBoundary": true
+              }
+            ],
+            "uiaError": false
+          }
+        }
+      ],
+      "cleanup": {
+        "observerOwned": true,
+        "fixtureOwned": true,
+        "fixtureExitCode": 0,
+        "fixtureSignal": null,
+        "fixtureStderrBytes": 297,
+        "ownedProcessesExited": true
+      }
+    }
+  ],
+  "conclusions": [
+    "Both exact-owner Win32 dialogs are visible, enabled, carry the expected title and are exposed as UIA Window elements.",
+    "UIA exposes each modal beneath its owning main window. RootElement.Children contains only the main window at every modal observation, without a root query failure.",
+    "The exact production policy admits the download with matching sender, frame, origin, canonical filename, one-entry data URL chain and dialog title.",
+    "The unchanged helper's RootElement.Children lookup cannot find these observed modals. The helper emits ready then dialog-timeout in both lanes.",
+    "This establishes a discovery defect through the real Windows native boundary. It does not prove the subsequent edit/button controls or native save completion."
+  ],
+  "timingBasis": "The fixture, window observer and native helper each use an independent monotonic elapsed clock. Their elapsed values are not combined into a cross-process duration.",
+  "proposedRepair": {
+    "path": "scripts/installed-native-save.ts",
+    "blob": "67bf25bec79ec2b64a013ca469b95522668d04d4",
+    "bytes": 25191,
+    "sha256": "26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741",
+    "operation": "Enumerate at most 32 owned Win32 handles, convert through UIA FromHandle, retain exact PID/title/Window admission and all existing identity, ambiguity, control, lease and readback gates.",
+    "measuredCommandCharactersIncludingNul": 32677,
+    "windowsLimit": 32767,
+    "executionPolicyOverride": false,
+    "productionExportPolicyChanged": false,
+    "controlSelectorsChanged": false,
+    "actualGreen": "PENDING"
+  },
+  "independentReviews": {
+    "uiReviewer": "Reviewed actual receipts and exact helper proposal; no concrete source defect found.",
+    "memoryReviewer": "Verified exact receipt hashes and causal owner/modal relationships; no source mutation."
+  },
+  "limits": [
+    "Original installed-run receipt did not capture OS HWNDs; these causal observations come from the isolated reproduction.",
+    "Actual direct and policy native Save completion must pass after the repair.",
+    "Installed retention, Forget, restart, storage, enabled memory and live-provider proof are not closed by this diagnostic."
+  ]
+}

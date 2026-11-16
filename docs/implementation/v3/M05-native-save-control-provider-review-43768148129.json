@@ -1,0 +1,1035 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "scope": "Read-only controlled native Save probe; observation of the managed provider boundary, not successful native Save proof.",
+  "runId": 43768148129,
+  "headSha": "14a9d67fb160281819a9ae1f1760d19cf716c366",
+  "treeSha": "8122a7b20f1bf008566cf2e9303503906fc0bd2c",
+  "helperSha256": "26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741",
+  "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+  "result": {
+    "commands": 2,
+    "passed": 0,
+    "failed": 2,
+    "actualExitCodes": [
+      1,
+      1
+    ],
+    "nativeInputAttempted": false,
+    "nativeSaveInvoked": false
+  },
+  "lanes": [
+    {
+      "mode": "direct",
+      "jobId": 132977793918,
+      "receipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43768148129/direct-receipt.json",
+        "bytes": 210287,
+        "sha256": "8dce2d0a4885b024e578d07d521c40b8a4b2a78f1965ee29d966967634537b86"
+      },
+      "rawLog": {
+        "bytes": 315482,
+        "sha256": "282e9085d6c44c9d90d3d0c92bbf7461682d4cc9787154ec8517eb818869ea38"
+      },
+      "nativeEvents": [
+        {
+          "phase": "ready",
+          "elapsedMs": 348,
+          "reason": null
+        },
+        {
+          "phase": "dialog-found",
+          "elapsedMs": 1087,
+          "reason": null
+        },
+        {
+          "phase": "failed",
+          "elapsedMs": 1350,
+          "reason": "unknown-controls"
+        }
+      ],
+      "nativeStatus": "failed",
+      "nativeFailure": "unknown-controls",
+      "processStartTicks": "639303777059831017",
+      "observations": [
+        {
+          "elapsedMs": 5466,
+          "dialogHwnd": "66072",
+          "dialogPid": 1636,
+          "ownerHwnd": "459218",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66198",
+              "pid": 1636,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66198",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66104",
+              "pid": 1636,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66104",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66106",
+              "pid": 1636,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66124",
+              "pid": 1636,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66124",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 15311,
+          "dialogHwnd": "66072",
+          "dialogPid": 1636,
+          "ownerHwnd": "459218",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66198",
+              "pid": 1636,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66198",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66104",
+              "pid": 1636,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66104",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66106",
+              "pid": 1636,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66124",
+              "pid": 1636,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66124",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 28304,
+          "dialogHwnd": "66072",
+          "dialogPid": 1636,
+          "ownerHwnd": "459218",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66198",
+              "pid": 1636,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66198",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66104",
+              "pid": 1636,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66104",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66106",
+              "pid": 1636,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66124",
+              "pid": 1636,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66124",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 33361,
+          "dialogHwnd": "66072",
+          "dialogPid": 1636,
+          "ownerHwnd": "459218",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66198",
+              "pid": 1636,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66198",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66104",
+              "pid": 1636,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66104",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66106",
+              "pid": 1636,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66124",
+              "pid": 1636,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 1636,
+                "uiaHwnd": "66124",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "observerOwned": true,
+        "fixtureOwned": true,
+        "fixtureExitCode": 0,
+        "fixtureSignal": null,
+        "fixtureStderrBytes": 100,
+        "ownedProcessesExited": true
+      }
+    },
+    {
+      "mode": "policy",
+      "jobId": 132977793695,
+      "receipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43768148129/policy-receipt.json",
+        "bytes": 210838,
+        "sha256": "42d92d18a251d2e94e5666397c77f6c7fccc31765711e26d8584f5942691ed60"
+      },
+      "rawLog": {
+        "bytes": 318739,
+        "sha256": "477da75cf404957eb1d7b7d40e70a8ed5ede58cfe85f85e91ac65ffcb6ccc2d9"
+      },
+      "nativeEvents": [
+        {
+          "phase": "ready",
+          "elapsedMs": 542,
+          "reason": null
+        },
+        {
+          "phase": "dialog-found",
+          "elapsedMs": 1627,
+          "reason": null
+        },
+        {
+          "phase": "failed",
+          "elapsedMs": 2519,
+          "reason": "unknown-controls"
+        }
+      ],
+      "nativeStatus": "failed",
+      "nativeFailure": "unknown-controls",
+      "processStartTicks": "639303777267575911",
+      "observations": [
+        {
+          "elapsedMs": 6243,
+          "dialogHwnd": "197114",
+          "dialogPid": 7576,
+          "ownerHwnd": "393678",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66186",
+              "pid": 7576,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66186",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66082",
+              "pid": 7576,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66082",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66084",
+              "pid": 7576,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66084",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66102",
+              "pid": 7576,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66102",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 15650,
+          "dialogHwnd": "197114",
+          "dialogPid": 7576,
+          "ownerHwnd": "393678",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66186",
+              "pid": 7576,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66186",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66082",
+              "pid": 7576,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66082",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66084",
+              "pid": 7576,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66084",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66102",
+              "pid": 7576,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66102",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 28568,
+          "dialogHwnd": "197114",
+          "dialogPid": 7576,
+          "ownerHwnd": "393678",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66186",
+              "pid": 7576,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66186",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66082",
+              "pid": 7576,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66082",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66084",
+              "pid": 7576,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66084",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66102",
+              "pid": 7576,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66102",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        },
+        {
+          "elapsedMs": 33827,
+          "dialogHwnd": "197114",
+          "dialogPid": 7576,
+          "ownerHwnd": "393678",
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 0,
+            "save": 0
+          },
+          "targets": [
+            {
+              "hwnd": "66186",
+              "pid": 7576,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66186",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66082",
+              "pid": 7576,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66082",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Pane",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66084",
+              "pid": 7576,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66084",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Pane",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            },
+            {
+              "hwnd": "66102",
+              "pid": 7576,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 7576,
+                "uiaHwnd": "66102",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Pane",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              }
+            }
+          ]
+        }
+      ],
+      "cleanup": {
+        "observerOwned": true,
+        "fixtureOwned": true,
+        "fixtureExitCode": 0,
+        "fixtureSignal": null,
+        "fixtureStderrBytes": 297,
+        "ownedProcessesExited": true
+      }
+    }
+  ],
+  "findings": [
+    "At each of four later samples in each lane, the admitted exact-owned Save modal contained a visible enabled native Edit with ID1001 and a visible enabled native Button with ID1.",
+    "FromHandle returned the same PID and native HWND for these controls but represented them as ControlType.Pane without ValuePattern or InvokePattern. The original exact descendant selector counts remained zero through the final33-second sample.",
+    "A separate non-Edit native child also had ID1001; native ID alone is insufficient for admission.",
+    "The observed persistent mismatch supports checking managed client-side provider initialization. It does not establish the particular exception or loading failure on this runner. Increasing readiness time or weakening ID/type/pattern checks is not supported by these observations."
+  ],
+  "primaryReference": {
+    "repository": "dotnet/wpf",
+    "commit": "2dcaee7951ffd752dc11306e972297b35294a932",
+    "files": [
+      {
+        "name": "proxyManager",
+        "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/MS/Internal/Automation/ProxyManager.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+        "bytes": 35978,
+        "sha256": "9508f6e46f94fbcc20c8f929278087db9bbca7d0c057b3e5eb8771134641384b"
+      },
+      {
+        "name": "clientSettings",
+        "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/System/Windows/Automation/ClientSettings.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+        "bytes": 1976,
+        "sha256": "b08e5c75373eb103a3c87cc0fbdf976527ffcde5fd6e41abdcc9c63f688675fb"
+      },
+      {
+        "name": "uiaCore",
+        "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/MS/Internal/Automation/UiaCoreApi.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+        "bytes": 73306,
+        "sha256": "33de2a8dd8704472e25321bdf260af802233f39d72df18ca9ff79dda05deef9a"
+      },
+      {
+        "name": "providerTable",
+        "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/Main.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+        "bytes": 8775,
+        "sha256": "ce5d1c6597f568631ac547e42764ce39cc7431f49c595a0903747a480f72b54f"
+      }
+    ],
+    "lineEvidence": [
+      {
+        "file": "ProxyManager.cs",
+        "lines": "48-76",
+        "fact": "Public registration loads the specified assembly and registers its public provider description table."
+      },
+      {
+        "file": "ProxyManager.cs",
+        "lines": "321-392",
+        "fact": "Default registration is attempted once, with the provider assembly name derived from the loaded UIA client version, culture and public key token."
+      },
+      {
+        "file": "UiaCoreApi.cs",
+        "lines": "1564-1600",
+        "fact": "Native callback dispatch catches provider exceptions and returns no provider."
+      },
+      {
+        "file": "ClientSettings.cs",
+        "lines": "40-44",
+        "fact": "RegisterClientSideProviderAssembly is the public entry point to ProxyManager registration."
+      },
+      {
+        "file": "Main.cs",
+        "lines": "31-51",
+        "fact": "The default provider table maps standard Win32 Button and Edit classes."
+      }
+    ],
+    "limits": "Current upstream source is primary implementation guidance. Its binaries have not been compared to the exact Windows runner .NET Framework assemblies; no particular swallowed exception is claimed."
+  },
+  "candidate": {
+    "helperBlob": "89ef211946422198d00fe6ed8881e0fc65c7e293",
+    "helperSha256": "588e9388eea40761686d59bc165d65b7607f5bf12cb79375a45922e6edf86f96",
+    "change": "Explicitly register UIAutomationClientsideProviders with AssemblyName copied from the already-loaded AutomationElement assembly, changing only Name. Preserve all strict selectors, patterns, owner identities, fixed target custody, native actions and deadlines.",
+    "commandLineCharacters": 32677,
+    "hardLimitExclusive": 32767,
+    "portableTests": {
+      "passed": 7,
+      "failed": 0,
+      "logSha256": "5b3c54ea7757531bbe80c89693c4e025a345b852515795568926233a92f2d055"
+    },
+    "windowsProof": "PENDING in separate run43769197860; this review does not claim native success."
+  },
+  "independentReview": "UI audit independently read both receipt hashes and agreed with the native-vs-managed representation finding. No log or artifact retrieval was duplicated."
+}

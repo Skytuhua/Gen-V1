@@ -1,0 +1,6683 @@
+{
+  "version": 1,
+  "mode": "direct",
+  "createdAt": "2026-11-15T23:13:09.033Z",
+  "sourceBaseSha": "013c044d66f40136752df4f1903132d601d57851",
+  "scope": "Direct native Save and reviewed helper; not production export admission.",
+  "nativeHelperChanged": true,
+  "nativeHelperBaselineSha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d",
+  "savePathBypass": false,
+  "providerOrAccountCodeLoaded": false,
+  "fixture": true,
+  "passed": false,
+  "sourceHashes": {
+    "scripts/installed-native-save.ts": {
+      "bytes": 25411,
+      "sha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2"
+    },
+    "apps/desktop/memory-export.ts": {
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    "packages/contracts/project-memory.ts": {
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9"
+    },
+    "packages/core/memory-publication.ts": {
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711"
+    },
+    "package.json": {
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+    },
+    "pnpm-lock.yaml": {
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+    },
+    ".github/actions/setup/action.yml": {
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    }
+  },
+  "cleanup": {
+    "observerOwned": true,
+    "fixtureOwned": true,
+    "fixtureExitCode": 0,
+    "fixtureSignal": null,
+    "fixtureStderrBytes": 100,
+    "ownedProcessesExited": true
+  },
+  "checkout": {
+    "sha": "e371b5e5c5636dd5ad75bea45710e01f04355737",
+    "tree": "8d550d3588640522029ad4baf478df860d2ae0fd"
+  },
+  "electronExecutable": {
+    "sha256": "010ea51bfb528c8143513439aa93fb40754403daa2023f9decd4517da71706ab",
+    "expectedVersion": "45.2.0"
+  },
+  "fixtureReady": {
+    "pid": 5316,
+    "electron": "45.2.0",
+    "elapsedMs": 1063
+  },
+  "downloadBehavior": {
+    "mode": "default",
+    "resetAcknowledged": true
+  },
+  "fixtureBeforeTrigger": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 5316,
+    "electron": "45.2.0",
+    "status": "waiting",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 892
+      }
+    ]
+  },
+  "failure": {
+    "stage": "native-save-through-reviewed-helper",
+    "error": "Native Save refused: unknown-controls.",
+    "completionErrorCode": "other"
+  },
+  "fixedTarget": {
+    "exists": null,
+    "errorCode": "ENOENT"
+  },
+  "nativeSave": {
+    "status": "failed",
+    "pid": 5316,
+    "processStartTicks": "639303811904324570",
+    "dialogHandle": "327796",
+    "dialogTitle": "Export project memory",
+    "events": [
+      {
+        "phase": "ready",
+        "pid": 5316,
+        "processStartTicks": "639303811904324570",
+        "dialogHandle": null,
+        "elapsedMs": 689
+      },
+      {
+        "phase": "dialog-found",
+        "pid": 5316,
+        "processStartTicks": "639303811904324570",
+        "dialogHandle": "327796",
+        "elapsedMs": 1526
+      },
+      {
+        "phase": "failed",
+        "pid": 5316,
+        "processStartTicks": "639303811904324570",
+        "dialogHandle": "327796",
+        "elapsedMs": 2043,
+        "reason": "unknown-controls"
+      }
+    ],
+    "failure": "unknown-controls"
+  },
+  "completionStages": [],
+  "fixtureAfterProbe": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 5316,
+    "electron": "45.2.0",
+    "status": "pending",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 892
+      },
+      {
+        "phase": "trigger-admitted",
+        "elapsedMs": 8924,
+        "mode": "direct"
+      },
+      {
+        "phase": "direct-dialog-requested",
+        "elapsedMs": 8924
+      }
+    ]
+  },
+  "windowObservations": [
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 4618,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": true,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 4683,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": true,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 5031,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": true,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 15862,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": false,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "66244",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66244",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131786",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131786",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131786",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131742",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131742",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197280",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197280",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197280",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66226",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66226",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66184",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66184",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66240",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66240",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66238",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "41477",
+              "enabled": true,
+              "offscreen": true
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66126",
+              "nameKind": "empty",
+              "type": "other",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "131630",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "40965",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131728",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131728",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66152",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66152",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66130",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66130",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66120",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66120",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131622",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131622",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "327796",
+          "titleKind": "expected-export",
+          "classKind": "dialog",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "327796",
+            "nameKind": "expected-export",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [
+            {
+              "pid": 5316,
+              "hwnd": "66106",
+              "nameKind": "save",
+              "type": "ControlType.Button",
+              "automationId": "1",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66108",
+              "nameKind": "cancel",
+              "type": "ControlType.Button",
+              "automationId": "2",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "Close",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "HelpButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66204",
+              "nameKind": "file-name",
+              "type": "ControlType.Edit",
+              "automationId": "1001",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SplitMenuButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Edit",
+              "automationId": "SearchEditBox",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SearchBoxSearchButton",
+              "enabled": true,
+              "offscreen": false
+            }
+          ],
+          "uiaError": false,
+          "nativeChildren": [
+            {
+              "hwnd": "66164",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66166",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66198",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66200",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66200",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileNameControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66204",
+              "pid": 5316,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66204",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false,
+              "parent": {
+                "nativeOwnerMatches": true,
+                "hwnd": "66200",
+                "class": "ComboBox",
+                "uia": {
+                  "nativeOwnerMatches": true,
+                  "uiaPid": 5316,
+                  "uiaHwnd": "66200",
+                  "uiaHandleMatches": true,
+                  "nameKind": "file-name",
+                  "type": "ControlType.ComboBox",
+                  "className": "other",
+                  "automationId": "FileNameControlHost",
+                  "enabled": true,
+                  "offscreen": false,
+                  "valuePattern": true,
+                  "valueReadOnly": false,
+                  "invokePattern": false,
+                  "patternError": false
+                },
+                "uiaError": false
+              }
+            },
+            {
+              "hwnd": "196772",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66186",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66188",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66190",
+              "pid": 5316,
+              "id": 100,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66196",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66168",
+              "pid": 5316,
+              "id": 1121,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66170",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66176",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66178",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66180",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66182",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66218",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131634",
+              "pid": 5316,
+              "id": 0,
+              "class": "Button",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "131634",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66220",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66222",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66222",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileTypeControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131636",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66106",
+              "pid": 5316,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66108",
+              "pid": 5316,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66108",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "197176",
+              "pid": 5316,
+              "id": -1,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66076",
+              "pid": 5316,
+              "id": 1092,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66078",
+              "pid": 5316,
+              "id": 1091,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66080",
+              "pid": 5316,
+              "id": 1093,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66082",
+              "pid": 5316,
+              "id": 1120,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66084",
+              "pid": 5316,
+              "id": 1095,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66110",
+              "pid": 5316,
+              "id": 1038,
+              "class": "Button",
+              "visible": false,
+              "enabled": false,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66110",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1038",
+                "enabled": false,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131628",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131630",
+              "pid": 5316,
+              "id": 40965,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131632",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131624",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66116",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66118",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66124",
+              "pid": 5316,
+              "id": 41477,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66126",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66132",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66134",
+              "pid": 5316,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66134",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ToolBar",
+                "className": "other",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66128",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66236",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBoxEx32",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66236",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Pane",
+                "className": "other",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66238",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBox",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66238",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "ComboBox",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66242",
+              "pid": 5316,
+              "id": 41477,
+              "class": "Edit",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66242",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66138",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66142",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66144",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66146",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66148",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66154",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            }
+          ],
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 1,
+            "save": 1
+          }
+        },
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": false,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66224",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66224",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66222",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileTypeControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66202",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66202",
+            "nameKind": "file-name",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66200",
+              "nameKind": "file-name",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileNameControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66160",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66160",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131254",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131254",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131254",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66228",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131224",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66228",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131224",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131224",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66162",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "66160",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66162",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 28722,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": false,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "66244",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66244",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131786",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131786",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131786",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131742",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131742",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197280",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197280",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197280",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66226",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66226",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66184",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66184",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66240",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66240",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66238",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "41477",
+              "enabled": true,
+              "offscreen": true
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66126",
+              "nameKind": "empty",
+              "type": "other",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "131630",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "40965",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131728",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131728",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66152",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66152",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66130",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66130",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66120",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66120",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131622",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131622",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "327796",
+          "titleKind": "expected-export",
+          "classKind": "dialog",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "327796",
+            "nameKind": "expected-export",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [
+            {
+              "pid": 5316,
+              "hwnd": "66106",
+              "nameKind": "save",
+              "type": "ControlType.Button",
+              "automationId": "1",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66108",
+              "nameKind": "cancel",
+              "type": "ControlType.Button",
+              "automationId": "2",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "Close",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "HelpButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66204",
+              "nameKind": "file-name",
+              "type": "ControlType.Edit",
+              "automationId": "1001",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SplitMenuButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Edit",
+              "automationId": "SearchEditBox",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SearchBoxSearchButton",
+              "enabled": true,
+              "offscreen": false
+            }
+          ],
+          "uiaError": false,
+          "nativeChildren": [
+            {
+              "hwnd": "66164",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66166",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66198",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66200",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66200",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileNameControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66204",
+              "pid": 5316,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66204",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false,
+              "parent": {
+                "nativeOwnerMatches": true,
+                "hwnd": "66200",
+                "class": "ComboBox",
+                "uia": {
+                  "nativeOwnerMatches": true,
+                  "uiaPid": 5316,
+                  "uiaHwnd": "66200",
+                  "uiaHandleMatches": true,
+                  "nameKind": "file-name",
+                  "type": "ControlType.ComboBox",
+                  "className": "other",
+                  "automationId": "FileNameControlHost",
+                  "enabled": true,
+                  "offscreen": false,
+                  "valuePattern": true,
+                  "valueReadOnly": false,
+                  "invokePattern": false,
+                  "patternError": false
+                },
+                "uiaError": false
+              }
+            },
+            {
+              "hwnd": "196772",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66186",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66188",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66190",
+              "pid": 5316,
+              "id": 100,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66196",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66168",
+              "pid": 5316,
+              "id": 1121,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66170",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66176",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66178",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66180",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66182",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66218",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131634",
+              "pid": 5316,
+              "id": 0,
+              "class": "Button",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "131634",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66220",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66222",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66222",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileTypeControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131636",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66106",
+              "pid": 5316,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66108",
+              "pid": 5316,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66108",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "197176",
+              "pid": 5316,
+              "id": -1,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66076",
+              "pid": 5316,
+              "id": 1092,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66078",
+              "pid": 5316,
+              "id": 1091,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66080",
+              "pid": 5316,
+              "id": 1093,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66082",
+              "pid": 5316,
+              "id": 1120,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66084",
+              "pid": 5316,
+              "id": 1095,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66110",
+              "pid": 5316,
+              "id": 1038,
+              "class": "Button",
+              "visible": false,
+              "enabled": false,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66110",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1038",
+                "enabled": false,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131628",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131630",
+              "pid": 5316,
+              "id": 40965,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131632",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131624",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66116",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66118",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66124",
+              "pid": 5316,
+              "id": 41477,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66126",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66132",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66134",
+              "pid": 5316,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66134",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ToolBar",
+                "className": "other",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66128",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66236",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBoxEx32",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66236",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Pane",
+                "className": "other",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66238",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBox",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66238",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "ComboBox",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66242",
+              "pid": 5316,
+              "id": 41477,
+              "class": "Edit",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66242",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66138",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66142",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66144",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66146",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66148",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66154",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            }
+          ],
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 1,
+            "save": 1
+          }
+        },
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": false,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66224",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66224",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66222",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileTypeControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66202",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66202",
+            "nameKind": "file-name",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66200",
+              "nameKind": "file-name",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileNameControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66160",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66160",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131254",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131254",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131254",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66228",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131224",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66228",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131224",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131224",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66162",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "66160",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66162",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "phase": "snapshot",
+      "elapsedMs": 33792,
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "proxyDescriptorCount": 40,
+      "rootChildren": [
+        {
+          "pid": 5316,
+          "hwnd": "196792",
+          "nameKind": "fixture",
+          "type": "ControlType.Window",
+          "automationId": "",
+          "enabled": false,
+          "offscreen": false
+        }
+      ],
+      "rootQueryFailed": false,
+      "windows": [
+        {
+          "hwnd": "66244",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66244",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131786",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131786",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131786",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131742",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131742",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197280",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197280",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197280",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66226",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66226",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66184",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66184",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66240",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66240",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66238",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "41477",
+              "enabled": true,
+              "offscreen": true
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66126",
+              "nameKind": "empty",
+              "type": "other",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "131630",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "40965",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131728",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131728",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66152",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66152",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66130",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66130",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66120",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66120",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131622",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131622",
+            "nameKind": "empty",
+            "type": "other",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "327796",
+          "titleKind": "expected-export",
+          "classKind": "dialog",
+          "visible": true,
+          "enabled": true,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "327796",
+            "nameKind": "expected-export",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [
+            {
+              "pid": 5316,
+              "hwnd": "66106",
+              "nameKind": "save",
+              "type": "ControlType.Button",
+              "automationId": "1",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66108",
+              "nameKind": "cancel",
+              "type": "ControlType.Button",
+              "automationId": "2",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "Close",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "HelpButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66204",
+              "nameKind": "file-name",
+              "type": "ControlType.Edit",
+              "automationId": "1001",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "DropDown",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SplitMenuButton",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "<other>",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Edit",
+              "automationId": "SearchEditBox",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "0",
+              "nameKind": "other",
+              "type": "ControlType.Button",
+              "automationId": "SearchBoxSearchButton",
+              "enabled": true,
+              "offscreen": false
+            }
+          ],
+          "uiaError": false,
+          "nativeChildren": [
+            {
+              "hwnd": "66164",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66166",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66198",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66200",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66200",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileNameControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66204",
+              "pid": 5316,
+              "id": 1001,
+              "class": "Edit",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66204",
+                "uiaHandleMatches": true,
+                "nameKind": "file-name",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false,
+              "parent": {
+                "nativeOwnerMatches": true,
+                "hwnd": "66200",
+                "class": "ComboBox",
+                "uia": {
+                  "nativeOwnerMatches": true,
+                  "uiaPid": 5316,
+                  "uiaHwnd": "66200",
+                  "uiaHandleMatches": true,
+                  "nameKind": "file-name",
+                  "type": "ControlType.ComboBox",
+                  "className": "other",
+                  "automationId": "FileNameControlHost",
+                  "enabled": true,
+                  "offscreen": false,
+                  "valuePattern": true,
+                  "valueReadOnly": false,
+                  "invokePattern": false,
+                  "patternError": false
+                },
+                "uiaError": false
+              }
+            },
+            {
+              "hwnd": "196772",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66186",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66188",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66190",
+              "pid": 5316,
+              "id": 100,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66196",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66168",
+              "pid": 5316,
+              "id": 1121,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66170",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66176",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66178",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66180",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66182",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66218",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131634",
+              "pid": 5316,
+              "id": 0,
+              "class": "Button",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "131634",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66220",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66222",
+              "pid": 5316,
+              "id": 0,
+              "class": "ComboBox",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66222",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "other",
+                "automationId": "FileTypeControlHost",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131636",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66106",
+              "pid": 5316,
+              "id": 1,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66106",
+                "uiaHandleMatches": true,
+                "nameKind": "save",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66108",
+              "pid": 5316,
+              "id": 2,
+              "class": "Button",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66108",
+                "uiaHandleMatches": true,
+                "nameKind": "cancel",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "2",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "197176",
+              "pid": 5316,
+              "id": -1,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66076",
+              "pid": 5316,
+              "id": 1092,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66078",
+              "pid": 5316,
+              "id": 1091,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66080",
+              "pid": 5316,
+              "id": 1093,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66082",
+              "pid": 5316,
+              "id": 1120,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66084",
+              "pid": 5316,
+              "id": 1095,
+              "class": "other",
+              "visible": false,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66110",
+              "pid": 5316,
+              "id": 1038,
+              "class": "Button",
+              "visible": false,
+              "enabled": false,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66110",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Button",
+                "className": "Button",
+                "automationId": "1038",
+                "enabled": false,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": true,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "131628",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131630",
+              "pid": 5316,
+              "id": 40965,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131632",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "131624",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66116",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66118",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66124",
+              "pid": 5316,
+              "id": 41477,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66126",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66132",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66134",
+              "pid": 5316,
+              "id": 1001,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66134",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ToolBar",
+                "className": "other",
+                "automationId": "1001",
+                "enabled": true,
+                "offscreen": false,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66128",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66236",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBoxEx32",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66236",
+                "uiaHandleMatches": true,
+                "nameKind": "empty",
+                "type": "ControlType.Pane",
+                "className": "other",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": false,
+                "valueReadOnly": null,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66238",
+              "pid": 5316,
+              "id": 41477,
+              "class": "ComboBox",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66238",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.ComboBox",
+                "className": "ComboBox",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66242",
+              "pid": 5316,
+              "id": 41477,
+              "class": "Edit",
+              "visible": false,
+              "enabled": true,
+              "uia": {
+                "nativeOwnerMatches": true,
+                "uiaPid": 5316,
+                "uiaHwnd": "66242",
+                "uiaHandleMatches": true,
+                "nameKind": "other",
+                "type": "ControlType.Edit",
+                "className": "Edit",
+                "automationId": "41477",
+                "enabled": true,
+                "offscreen": true,
+                "valuePattern": true,
+                "valueReadOnly": false,
+                "invokePattern": false,
+                "patternError": false
+              },
+              "uiaError": false
+            },
+            {
+              "hwnd": "66138",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66142",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66144",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66146",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66148",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            },
+            {
+              "hwnd": "66154",
+              "pid": 5316,
+              "id": 0,
+              "class": "other",
+              "visible": true,
+              "enabled": true,
+              "uia": null,
+              "uiaError": false
+            }
+          ],
+          "ownedChildCount": 50,
+          "nativeCandidateCount": 11,
+          "exactSelectorCounts": {
+            "file": 1,
+            "save": 1
+          }
+        },
+        {
+          "hwnd": "196792",
+          "titleKind": "fixture",
+          "classKind": "chromium",
+          "visible": true,
+          "enabled": false,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196792",
+            "nameKind": "fixture",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66224",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66224",
+            "nameKind": "other",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66222",
+              "nameKind": "other",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileTypeControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66202",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": null,
+          "foreignRootOwner": true,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66202",
+            "nameKind": "file-name",
+            "type": "ControlType.List",
+            "automationId": "ListBox",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "66200",
+              "nameKind": "file-name",
+              "type": "ControlType.ComboBox",
+              "automationId": "FileNameControlHost",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "66164",
+              "nameKind": "empty",
+              "type": "ControlType.Pane",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66160",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66160",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131254",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "131254",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131254",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197002",
+          "titleKind": "empty",
+          "classKind": "chromium",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197002",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197002",
+            "nameKind": "empty",
+            "type": "ControlType.Window",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": true
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "197004",
+          "titleKind": "empty",
+          "classKind": "other",
+          "visible": false,
+          "enabled": true,
+          "ownerHwnd": null,
+          "foreignOwner": false,
+          "rootOwnerHwnd": "197004",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "197004",
+            "nameKind": "empty",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": true,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66228",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131224",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66228",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131224",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "327796",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131224",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "327796",
+              "nameKind": "expected-export",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": true,
+              "offscreen": false
+            },
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "196982",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "131452",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "196982",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "131452",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "196792",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "196792",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "131452",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "pid": 5316,
+              "hwnd": "196792",
+              "nameKind": "fixture",
+              "type": "ControlType.Window",
+              "automationId": "",
+              "enabled": false,
+              "offscreen": false
+            },
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        },
+        {
+          "hwnd": "66162",
+          "titleKind": "other",
+          "classKind": "other",
+          "visible": false,
+          "enabled": false,
+          "ownerHwnd": "66160",
+          "foreignOwner": false,
+          "rootOwnerHwnd": "66160",
+          "foreignRootOwner": false,
+          "uia": {
+            "pid": 5316,
+            "hwnd": "66162",
+            "nameKind": "other",
+            "type": "ControlType.Pane",
+            "automationId": "",
+            "enabled": false,
+            "offscreen": false
+          },
+          "parents": [
+            {
+              "foreignBoundary": true
+            }
+          ],
+          "controls": [],
+          "uiaError": false,
+          "nativeChildren": [],
+          "ownedChildCount": null,
+          "nativeCandidateCount": null,
+          "exactSelectorCounts": null
+        }
+      ]
+    },
+    {
+      "phase": "completed",
+      "pid": 5316,
+      "processStartTicks": "639303811904324570",
+      "version": 1,
+      "elapsedMs": 33796
+    }
+  ],
+  "windowObserver": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "bytes": 94134,
+    "sha256": "5f4af6d980bafba0473ea4a61ff1ae9362e236bed1e1118d84e85d34981f92b4"
+  },
+  "fixtureStartup": {
+    "phases": [
+      {
+        "phase": "module-entered",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "config-read",
+        "elapsedMs": 1
+      },
+      {
+        "phase": "server-listening",
+        "elapsedMs": 9
+      },
+      {
+        "phase": "ready-scheduled",
+        "elapsedMs": 9
+      },
+      {
+        "phase": "app-ready",
+        "elapsedMs": 29
+      },
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 894
+      }
+    ],
+    "stderr": {
+      "observedBytes": 100,
+      "observedSha256": "36b113a2af87d4efc8907df90e5fb2f5b7e33e1ef53cc78cf4bff03545bec754",
+      "capturedBytes": 100,
+      "normalized": true,
+      "truncated": false,
+      "head": "\r\nDevTools listening on <owned-devtools-endpoint>\r\n",
+      "tail": ""
+    }
+  },
+  "completedAt": "2026-11-15T23:13:47.774Z"
+}

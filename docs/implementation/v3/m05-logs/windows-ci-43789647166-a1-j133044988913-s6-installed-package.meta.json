@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "desktop:package",
+      "--output-root",
+      ".harness-installed-package"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-16T02:03:26Z",
+    "endedAt": "2026-11-16T02:19:22Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988913-s6-installed-package.log",
+    "logDigest": "66a5e0695693f98655024960b8cdc7b0faa24d082c1eded0053e08eeeec7b707"
+  },
+  "phaseIds": [
+    "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+  ],
+  "runId": 43789647166,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "testedCheckout": {
+    "commitSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "parents": [
+      "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+    ],
+    "matchesPublishedTree": true,
+    "matchesPublishedCommit": true,
+    "event": "push",
+    "expectedBranch": "agent/m05-v3",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/299aa79fce281bacc370bd76373f760082046941",
+    "rawResponseSha256": "8c954e27bf7ed5f38a65db700112e0124262c8ff0e939f28ed2899b23388c0d4"
+  },
+  "job": {
+    "id": 133044988913,
+    "name": "Installed desktop memory retention",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789647166/job/133044988913",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001990,
+      "name": "GitHub Actions 1000001990",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Package the production Windows installer",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 6,
+    "started_at": "2026-11-16T02:03:26Z",
+    "completed_at": "2026-11-16T02:19:22Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43789647166.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133044988913/logs",
+  "rawJobLogDigest": "73bb111faa24e1fceef520d8cb08ee97514bba3e380fa1c95e92e812e66b15f6",
+  "rawJobLogBytes": 126626,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      471,
+      649
+    ]
+  ],
+  "excerptInputSha256": "844bf07ae8083ebaebe09686785d9c2741a8ef3cd176d4af12f8c0bb8aaedd13",
+  "excerptInputBytes": 72699,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "pnpm desktop:package --output-root .harness-installed-package",
+  "receiptSha256": "a5be303f63e53d901d42101ac9b5d08fb9ffc75f0a00986f8e0a076dabd29555",
+  "observedInputStaging": [
+    {
+      "kind": "REVIEWED_POWERSHELL_STEP_OBSERVATION",
+      "commandRecordCreated": false,
+      "step": {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-16T02:03:14Z",
+        "completed_at": "2026-11-16T02:03:21Z"
+      },
+      "observedScript": "$ErrorActionPreference = 'Stop'\n$lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n$wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $wheels | Out-Null\n$names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\nforeach ($distribution in $lock.distributions) {\n  if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n  $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n  if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n  $archive = Join-Path $wheels $name\n  Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n}\n\"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\nWrite-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))",
+      "scriptSha256": "fc099bc06d01c5836285f649d5d9cc2b4db3fdd36176b5fcf2c8f4137f21eda5",
+      "pinnedWheels": {
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+        "count": 91
+      },
+      "runnerStepExitCode": 0,
+      "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "excerptLineRanges1BasedInclusive": [
+        [
+          395,
+          421
+        ]
+      ],
+      "rawJobLogDigest": "73bb111faa24e1fceef520d8cb08ee97514bba3e380fa1c95e92e812e66b15f6"
+    }
+  ]
+}

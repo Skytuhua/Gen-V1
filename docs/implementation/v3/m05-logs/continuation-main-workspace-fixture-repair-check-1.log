@@ -1,0 +1,147 @@
+[1A[2K[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 33 tests using 1 worker
+
+[1A[2K(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/33] tests/e2e/workspace-components.spec.ts:3:1 › canvas pin targets its panel without changing a native window or stopping a task
+[1A[2K[2/33] tests/e2e/workspace-components.spec.ts:34:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates
+[1A[2K[3/33] tests/e2e/workspace-components.spec.ts:61:1 › automatic context-plan expansion preserves composer focus and reduced motion
+[1A[2K  1) tests/e2e/workspace-components.spec.ts:61:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Validated fixture plan', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Validated fixture plan', { exact: true })[22m
+
+
+      11 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+      12 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+    > 13 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Progress not reported.',{exact:true})).toHaveCount(2);});
+         |                                                                                                                                                                                                                                                                                                                                                                                    ^
+      14 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Recover Fixture recovery',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+      15 | test('a refused draft flush prevents profile mutation and hiding does not stop tasks',async({page})=>{await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.evaluate(()=>(window as any).__failPrepare=true);await page.getByRole('button',{name:'Recover Fixture recovery',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic draft flush refused');expect(await page.evaluate(()=>(window as any).__workspaceCalls.some((value:any)=>value[0]==='workspace.profile.apply'))).toBe(false);await page.evaluate(()=>(window as any).__failPrepare=false);await page.getByRole('button',{name:'Panels',exact:false}).click();await expect(page.getByRole('button',{name:'Hide main window',exact:true})).toHaveCount(0);await page.getByRole('menuitemcheckbox',{name:'Hide Granted files',exact:true}).click();await expect(page.locator('[data-panel-id="source-panel"]')).toHaveCount(0);expect(await page.evaluate(()=>(window as any).__workspaceCalls.some((value:any)=>String(value[0]).includes('stop')))).toBe(false);});
+      16 |
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:13:372
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-components-autom-567d6-er-focus-and-reduced-motion/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-components-autom-567d6-er-focus-and-reduced-motion/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-components-autom-567d6-er-focus-and-reduced-motion/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/33] tests/e2e/workspace-components.spec.ts:82:1 › failed native profile restoration restores the prior host layout
+[1A[2K[5/33] tests/e2e/workspace-components.spec.ts:107:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks
+[1A[2K[6/33] tests/e2e/workspace-components.spec.ts:137:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false
+[1A[2K[7/33] tests/e2e/workspace-ui.spec.ts:403:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload
+[1A[2K[2m[WebServer] [22m5:59:13 AM [vite] http proxy error: /api/models?threadId=task-thread
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m5:59:13 AM [vite] http proxy error: /api/workspace
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K  2) tests/e2e/workspace-ui.spec.ts:403:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('complementary', { name: 'Workspace panel', exact: true })
+    Expected: visible
+    Error: strict mode violation: getByRole('complementary', { name: 'Workspace panel', exact: true }) resolved to 2 elements:
+        1) <aside class="workspace-right" aria-label="Workspace panel">…</aside> aka getByRole('complementary', { name: 'Workspace panel' }).first()
+        2) <aside class="workspace-right" aria-label="Workspace panel">…</aside> aka getByRole('complementary', { name: 'Workspace panel' }).nth(1)
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('complementary', { name: 'Workspace panel', exact: true })[22m
+
+
+      75 |  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+      76 |  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
+    > 77 |  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
+         |                                          ^
+      78 |  expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
+      79 |  expect(host.envelope.state.canvases[0].panels).toHaveLength(0);
+      80 | });
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:77:42
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-ui-primary-Works-7ec7e-ugh-close-reopen-and-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-ui-primary-Works-7ec7e-ugh-close-reopen-and-reload/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-ui-primary-Works-7ec7e-ugh-close-reopen-and-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[8/33] tests/e2e/workspace-ui.spec.ts:451:1 › retained navigation directs tools to the main workspace without creating detached owners
+[1A[2K[9/33] tests/e2e/workspace-ui.spec.ts:470:1 › delegated agent panels page the actual child transcript without a composer
+[1A[2K[10/33] tests/e2e/workspace-ui.spec.ts:492:1 › main and side composers keep independent drafts across reload and rejected sends
+[1A[2K[11/33] tests/e2e/workspace-ui.spec.ts:534:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged
+[1A[2K[12/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized thread restores its saved originating tile using canonical native identity
+[1A[2K[13/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized agent restores its saved originating tile using canonical native identity
+[1A[2K[14/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized artifact restores its saved originating tile using canonical native identity
+[1A[2K[15/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized context restores its saved originating tile using canonical native identity
+[1A[2K[16/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized plan restores its saved originating tile using canonical native identity
+[1A[2K[17/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized usage restores its saved originating tile using canonical native identity
+[1A[2K[18/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized navigation restores its saved originating tile using canonical native identity
+[1A[2K[19/33] tests/e2e/workspace-ui.spec.ts:581:106 › docking specialized browser restores its saved originating tile using canonical native identity
+[1A[2K[20/33] tests/e2e/workspace-ui.spec.ts:601:1 › live native dock retries a concurrent layout revision without losing either draft
+[1A[2K[21/33] tests/e2e/workspace-ui.spec.ts:663:1 › native dock refuses a panel retargeted by a concurrent profile change
+[1A[2K[22/33] tests/e2e/workspace-ui.spec.ts:696:43 › canvas command retries native geometry only without rebasing its owner
+[1A[2K[23/33] tests/e2e/workspace-ui.spec.ts:696:43 › canvas command refuses a changed canvas without rebasing its owner
+[1A[2K[24/33] tests/e2e/workspace-ui.spec.ts:723:42 › saved native selected task binding survives reload and dock
+[1A[2K[25/33] tests/e2e/workspace-ui.spec.ts:723:42 › saved native live project binding survives reload and dock
+[1A[2K[26/33] tests/e2e/workspace-ui.spec.ts:747:1 › keyboard and refreshed browser panel geometry updates native bounds while menus still occlude it
+[1A[2K[27/33] tests/e2e/workspace-ui.spec.ts:872:1 › canvas owner tool callbacks open fixed Files and Diff panels while another conversation is selected
+[1A[2K[28/33] tests/e2e/workspace-ui.spec.ts:997:1 › canvas project selection targets its owner and cancellation restores independent drafts and focus
+[1A[2K[29/33] tests/e2e/workspace-ui.spec.ts:1075:1 › canvas Connect project captures its owner across selection updates and preserves drafts and focus
+[1A[2K[30/33] tests/e2e/workspace-ui.spec.ts:1156:1 › obsolete model reads cancel on panel disposal and selection without cancelling another live owner
+[1A[2K[31/33] tests/e2e/workspace-ui.spec.ts:1194:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive
+[1A[2K[32/33] tests/e2e/workspace-ui.spec.ts:1232:1 › disposing a project context cancels its read while another context still loads successfully
+[1A[2K[33/33] tests/e2e/workspace-ui.spec.ts:1260:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh
+[1A[2K  2 failed
+    tests/e2e/workspace-components.spec.ts:61:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+    tests/e2e/workspace-ui.spec.ts:403:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload 
+  31 passed (2.2m)

@@ -1,0 +1,369 @@
+diff --git a/apps/web/src/App.tsx b/apps/web/src/App.tsx
+index da7bf376..16229011 100644
+--- a/apps/web/src/App.tsx
++++ b/apps/web/src/App.tsx
+@@ -39,6 +39,7 @@ import {createPlanVisibility,selectPlanRecord} from './plan-visibility';
+ import {ComposerToolbar,ComposerTaskActions} from './ComposerToolbar';
+ import {ComposerView} from './ComposerView';
+ import {LoadingState} from './LoadingState';
++import {SurfaceBoundary} from './SurfaceBoundary';
+ import {ComposerSkeleton, ConversationSkeleton, SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
+ import {ComposerAttachments} from './ComposerAttachments';
+ import {Modal} from '../../../packages/ui-shell/Modal';
+@@ -386,6 +387,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
+     {thread && !working && ['stopped', 'interrupted', 'failed'].includes(thread.status) && <div className="resume-strip" role="status"><span>{thread.status === 'interrupted' ? 'This session was interrupted.' : thread.status === 'stopped' ? 'Agent stopped. Your work is saved.' : 'The agent could not finish this run.'}</span><button className="secondary" disabled={!modelId} title={!modelId ? 'Choose an available model before resuming.' : undefined} onClick={resume}>Resume<ChevronRight size={13} /></button></div>}
+     {localSkills.error&&!shared&&<p role="alert" className="composer-error">{localSkills.error}</p>}
+     {error && <div className="composer-error" role="alert"><span>{error}</span><span className="composer-error-actions">{resumeRequired&&thread&&<button className="quiet" disabled={!modelId} onClick={resume}>Resume thread</button>}<button className="icon-button" aria-label="Dismiss composer error" onClick={dismissError}><X size={14} /></button></span></div>}
++    {working && draft.trim() && !/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim()) && <p className="composer-hint">The agent is working — start the message with /btw to send a side question.</p>}
+     <ComposerView className={dragging ? 'dragging' : ''} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
+       <ComposerAttachments resources={resources} excerpts={excerpts} disabled={busy||!ready||retry} onEditExcerpt={(id,text)=>updateExcerpt(id,text)} onRemoveExcerpt={id=>updateExcerpt(id)}/>
+       <ComposerSkillBindings bindings={skills} retry={retry} onRemove={id=>{void (sharedComposers&&sharedTarget?sharedComposers.removeSkill(sharedTarget,id):localSkills.remove(id)).catch(cause=>fail(cause));}}/>
+@@ -830,7 +832,8 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
+   };
+   const resolvePanelBinding=(panel:PanelPlacement):PanelBinding=>{const binding=panel.binding;if(binding.authority.kind!=='local')return binding;if(binding.liveProject&&binding.projectId){const current=thread&&threadProject(thread)===binding.projectId?thread:snapshot.threads.filter(item=>threadProject(item)===binding.projectId&&!threadParent(item)).toSorted((a,b)=>b.updatedAt.localeCompare(a.updatedAt))[0];return {...binding,threadId:current?.id};}return binding.threadId?binding:{...binding,...(thread?{threadId:thread.id}:{}),...(thread&&threadProject(thread)!=='unassigned'&&!binding.projectId?{projectId:threadProject(thread)}:{})};};
+   const canvasBody=(panel:PanelPlacement,visible:boolean)=>{const binding=resolvePanelBinding(panel),owner=snapshot.threads.find(item=>item.id===binding.threadId),native=desktop&&panelNativeWindow({...panel,binding},desktop.windows.filter(value=>value.id!==desktop.context.windowId));if(native)return <div className="panel-note"><p>This view is open in another window.</p><button className="quiet" onClick={()=>void desktop?.bridge.focus(native.id).catch(cause=>setError(messageOf(cause)))}>Focus window</button></div>;if(binding.authority.kind==='plugin'){const authority=binding.authority,plugin=plugins.find(value=>value.id===authority.pluginId),surface=panelDesktopSurface({...panel,binding});return plugin&&surface.kind==='plugin'?<PluginFrame key={panel.id} plugin={plugin} theme={theme} surface={surface} active={visible}/>:<p className="panel-note" role="alert">The owning plug-in is unavailable. Saved panel data is retained.</p>;}if(panel.kind==='thread')return owner?<CanvasThread sharedComposers={host?.composers??sharedComposers} liveMessages={liveMessages.current} key={owner.id} thread={owner} snapshot={snapshot} visible={visible} blocked={Boolean(desktop?.closing)||settingsOpen||usageOpen||Boolean(resourcePicker)||rename} refresh={refresh} setup={()=>{setSettingsSection('providers');setSettingsOpen(true);}} openResource={(_id,opener)=>openResourcePicker(owner.id,opener)} browseProject={id=>{void addCanvasPanel('files',{...binding,resourceId:id,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} inspectChanges={()=>{void addCanvasPanel('diff',{...binding,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} reportError={setError} selectProject={openProjectSelection}/>:<p role="alert" className="panel-note">The owning conversation is unavailable.</p>;if(panel.kind==='agent')return binding.threadId&&binding.agentId?<DelegatedAgentTranscript key={binding.threadId+':'+binding.agentId} threadId={binding.threadId} agentId={binding.agentId} snapshot={snapshot}/>:<p role='alert'>The owning subagent is unavailable.</p>;if(panel.kind==='plan')return <PlanStatus snapshot={snapshot} threadId={binding.threadId}/>;if(panel.kind==='context')return <ProjectContextSurface key={owner?.id??panel.id} thread={owner} snapshot={snapshot} onSelectThread={select} onShowChanges={()=>{void addCanvasPanel('diff',{...binding,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} onConnect={()=>openProjectConnect(binding)}/>;if(panel.kind==='browser'){const docked=desktop?.state.dockedBrowser;return docked&&docked.browserId===binding.browserId?<div style={{display:'flex',flexDirection:'column',height:'100%'}}><DesktopBrowserToolbar state={docked.state}/><DesktopBrowserSlot/></div>:<div className="panel-note"><p>No browser is currently docked in this workspace.</p></div>;}return <WorkspaceSurfaceBody excerptComposer={excerptComposerFor(binding)} panelId={panel.id} kind={panel.kind} binding={binding} snapshot={snapshot} refresh={refresh} active={visible} preferences={preferences} onSelectThread={async id=>{await prepareWorkspace();select(id);}} onOpenTool={kind=>addCanvasPanel(kind,{...binding,liveProject:false})}/>;};
+-  const renderWorkspaceCanvas=(embedded=false)=>activeCanvas&&workspaceEnvelope?<WorkspaceCanvas embedded={embedded} threads={snapshot.threads} canvas={activeCanvas} panels={embedded?canvasPanels.filter(panel=>!(panel.kind==='thread'&&panel.binding.authority.kind==='local'&&resolvePanelBinding(panel).threadId===thread?.id)):canvasPanels} projects={workspaceEnvelope.projects} disabledKinds={workspaceEnvelope.state.disabledKinds} title={panelTitle} updatePanel={updateCanvasPanel} updateViewport={async viewport=>{await workspaceState.send('workspace.canvas.viewport',{canvasId:activeCanvas.id,...viewport});}} setFilter={async filter=>{await workspaceState.send('workspace.canvas.filter',{canvasId:activeCanvas.id,filter});}} renderBody={canvasBody}/>:null;
++  const canvasBodyGuarded=(panel:PanelPlacement,visible:boolean)=><SurfaceBoundary resetKey={panel.id}>{canvasBody(panel,visible)}</SurfaceBoundary>;
++  const renderWorkspaceCanvas=(embedded=false)=>activeCanvas&&workspaceEnvelope?<WorkspaceCanvas embedded={embedded} threads={snapshot.threads} canvas={activeCanvas} panels={embedded?canvasPanels.filter(panel=>!(panel.kind==='thread'&&panel.binding.authority.kind==='local'&&resolvePanelBinding(panel).threadId===thread?.id)):canvasPanels} projects={workspaceEnvelope.projects} disabledKinds={workspaceEnvelope.state.disabledKinds} title={panelTitle} updatePanel={updateCanvasPanel} updateViewport={async viewport=>{await workspaceState.send('workspace.canvas.viewport',{canvasId:activeCanvas.id,...viewport});}} setFilter={async filter=>{await workspaceState.send('workspace.canvas.filter',{canvasId:activeCanvas.id,filter});}} renderBody={canvasBodyGuarded}/>:null;
+   const openSidebarTool=(kind:'usage'|'linked-pull-requests')=>{if(navigationOnly){toast('Open this tool in the main workspace.');return;}if(kind==='usage'){openUsage();return;}setSelectedPluginId(null);if(canvasActive)void addCanvasPanel(kind).catch(cause=>setError(messageOf(cause)));else if(splitEnabled&&splitState.layout)void openSplitTool(kind,undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)));else setLayout(value=>({...value,rightPanelOpen:true,activeTab:kind,openTabs:value.openTabs.includes(kind)?value.openTabs:[...value.openTabs,kind]}));};
+   const handledDockTarget=useRef<unknown>(null);
+   useEffect(()=>{
+@@ -1010,16 +1013,16 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
+     if(view.kind==='thread')return <div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>;
+     if(view.kind==='workspace'&&view.binding.resourceId==='agent-inbox')return <AgentInbox active={active} onOpenThread={select}/>;
+     if(view.kind==='plan')return <PlanStatus snapshot={snapshot} threadId={view.binding.threadId}/>;
+-    const panel:PanelPlacement={...view,canvasId:activeCanvas?.id??'workspace-default',placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:480,height:380},order:0,alwaysOnTop:false};return canvasBody(panel,active);
++    const panel:PanelPlacement={...view,canvasId:activeCanvas?.id??'workspace-default',placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:480,height:380},order:0,alwaysOnTop:false};return canvasBodyGuarded(panel,active);
+   };
+   const renderConversationView=(view:SurfaceRef,active:boolean)=>view.kind==='thread'
+     ?<div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} hostWorkspaceContext={workspaceContext} onRequestWorkspaceTool={(kind,resourceId,artifactId)=>revealWorkspaceTool(kind,resourceId,artifactId,view.binding)} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>
+-    :renderSplitView(view,active);
++    :<SurfaceBoundary resetKey={view.id}>{renderSplitView(view,active)}</SurfaceBoundary>;
+   const splitRoot=splitEnabled&&Boolean(thread||convSplitState.layout&&Object.keys(convSplitState.layout.views).length);
+   const panelToggle=!embeddedThreadId?<button type="button" className={`icon-button workspace-panel-toggle ${layout.rightPanelOpen ? 'selected' : ''}`} aria-label={layout.rightPanelOpen ? 'Hide workspace panel' : 'Open workspace panel'} aria-pressed={layout.rightPanelOpen} title={layout.rightPanelOpen ? 'Close right panel' : 'Open right panel'} onClick={() => setLayout(value => value.rightPanelOpen ? { ...value, rightPanelOpen: false, rightPanelMaximized: false } : { ...value, rightPanelOpen: true })}><PanelRight size={17} /></button>:null;
+   const rightWindowOpen=layout.rightPanelOpen||sideOpen||Boolean(documentWindow&&documentWindow.placement==='docked')||Boolean(desktop?.state.dockedBrowser);
+   const contextSummaries=<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
+-    defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={()=>openUsage()}/></SummaryDock>;
++    defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><SurfaceBoundary resetKey={thread?.id??'new'}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></SurfaceBoundary></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={()=>openUsage()}/></SummaryDock>;
+   const [retryingMainLayout,setRetryingMainLayout]=useState(false);
+   const retryMainLayout=()=>{
+     if(retryingMainLayout)return;
+@@ -1052,7 +1055,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
+     {!navigationOnly&&!pinnedThreadId&&!detachedNavigation&&!mobile && !layout.sidebarCollapsed && <ResizeHandle label="Resize sidebar" value={layout.sidebarWidth} minimum={200} maximum={380} side="left" change={sidebarWidth => setLayout(value => ({ ...value, sidebarWidth }))} />}
+     {!navigationOnly&&<div className="workspace-layout-workarea">{!pinnedThreadId&&!detachedNavigation&&(layout.sidebarCollapsed||mobile)&&<button type="button" className="icon-button sidebar-recovery" aria-label={mobile?"Open navigation":"Open sidebar"} aria-expanded={mobile?sidebarOpen:false} onClick={event=>{prepareSidebarToggle(event);setLayout(value=>({...value,sidebarCollapsed:false}));if(mobile)setSidebarOpen(true);requestAnimationFrame(()=>searchRef.current?.focus());}}>{mobile?<Menu size={18}/>:<PanelLeftOpen size={17}/>}</button>}{!pinnedThreadId&&<WorkspaceControls onChoosePreset={host?.choosePreset} pluginWorkspaces={pluginWorkspaces} selectedPluginWorkspace={selectedPluginWorkspace} onSelectPluginWorkspace={(pluginId,id)=>void selectPluginWorkspace(pluginId,id).catch(cause=>setError(messageOf(cause)))} pluginCatalogError={pluginCatalog.error||(pluginCatalog.failed?'Plug-ins could not be loaded.':'')} onRetryPluginCatalog={pluginCatalog.retry} onSelectBuiltin={()=>{setSelectedPluginId(null);setSelectedPluginWorkspace(null);setWorkspaceMode('chat');}} panelToggle={panelToggle} workspaceMode={workspaceMode} onWorkspaceMode={setWorkspaceMode} retainedWorkspace={retainedWorkspace} retainedAvailable={activeCanvas?.preset==='workspace'&&activeCanvas.panels.length>0} onLayoutOpenChange={setLayoutChooserOpen} splitProfiles={splitProfiles.profiles} splitLayout={layoutSplitState.layout} splitProfilesLoading={splitProfiles.loading} splitProfilesError={splitProfiles.error} refreshSplitProfiles={splitProfiles.refresh} saveSplitProfile={savedLayoutActions.save} applySplitProfile={savedLayoutActions.apply} renameSplitProfile={savedLayoutActions.rename} removeSplitProfile={savedLayoutActions.remove} splitWorkspace={splitEnabled} activeBinding={thread?{authority:{kind:'local'},threadId:thread.id,...(thread.projectId?{projectId:thread.projectId}:{})}:undefined} envelope={workspaceEnvelope} error={workspaceState.error} onActionError={setError} send={workspaceState.send} prepare={prepareWorkspace} panels={canvasPanels} title={panelTitle} addPanel={customDock?kind=>openSplitTool(kind):addCanvasPanel} updatePanel={updateCanvasPanel}/>} {error && <div className="workspace-error" role="status">{error}<button className="quiet" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Refresh</button><button className="icon-button" aria-label="Dismiss error" onClick={() => setError('')}><X size={15} /></button></div>} <div className="personal-workarea" hidden={Boolean(selectedPluginId)}> {canvasActive?renderWorkspaceCanvas():<div className="shell-workarea" ref={setPanelOwner} data-tool-layout={panelBounds.stacked?'stacked':'side'}>{splitRoot?renderSplitRoot():
+     <SummaryLayout active={!embeddedThreadId&&!rightWindowOpen&&(!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen))} summaries={!embeddedThreadId&&<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
+-      defaultCollapsed focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest||undefined}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} planOpen={planOpen} onOpenDetailedPlan={()=>revealWorkspaceTool('plan')} onTogglePlan={()=>{if(planOpen)dismissPlan();else{planVisibility.show(thread);setPlanFocusOnOpen(false);setPlanExpandRequest(value=>value+1);setPlanOpen(true);}}} onSelectThread={select} onShowChanges={()=>revealWorkspaceTool('diff')} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={openUsage}/></SummaryDock>}>
++      defaultCollapsed focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest||undefined}><SurfaceBoundary resetKey={thread?.id??'new'}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} planOpen={planOpen} onOpenDetailedPlan={()=>revealWorkspaceTool('plan')} onTogglePlan={()=>{if(planOpen)dismissPlan();else{planVisibility.show(thread);setPlanFocusOnOpen(false);setPlanExpandRequest(value=>value+1);setPlanOpen(true);}}} onSelectThread={select} onShowChanges={()=>revealWorkspaceTool('diff')} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></SurfaceBoundary></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={openUsage}/></SummaryDock>}>
+     <div ref={findScope} style={{display:'contents'}}><ChatView enabled={!embeddedThreadId} header={<div className="breadcrumb">{thread?.projectName && <><Folder size={13} /><span>{thread.projectName}</span><span className="breadcrumb-slash">/</span></>}<strong>{thread?.title ?? 'New conversation'}</strong></div>} actions={<><ConversationFind ownerKey={thread?.id??'new'} transcript={conversation} scope={findScope} active={loaded&&embeddedActive&&!threadHeld} onNavigate={()=>setLatestAvailable(false)} onLoadEarlier={canLoadActiveHistory?()=>activeHistoryControl.current?.click():undefined}/>{!online&&<span className="connection-state" title="Reconnecting"><WifiOff size={13}/>Reconnecting</span>}</>}>
+       
+       {Object.values(dirtyWidgets).some(id => id !== thread?.id) && <div className="workspace-error retained-widget-notice"><span>Widget edits remain open in another conversation.</span><button className="quiet" onClick={() => void discardHiddenWidgets()}>Discard hidden widget edits</button></div>}
+@@ -1075,7 +1078,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
+         const messageRows = groupWorkActivity(allMessages, artifactMessageIds).filter(({ message, updates }) => artifactMessageIds.has(message.id) || (updates ?? [message]).some(update => visibleMessageIds.has(update.id)));
+         return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (mainDetached?undefined:resolvedMainId)}><div className={`conversation ${!allMessages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
+         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<ConversationSkeleton/>}/>}
+-        {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>What are we working on?</h1><p>Start with a question, file, or project.</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
++        {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>{thread?.status==='working'?'Run in progress':'What are we working on?'}</h1><p>{thread?.status==='working'?'The transcript will appear here as the agent works.':'Start with a question, file, or project.'}</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
+         {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (historyStart > 0) { captureHistoryAnchor(historyId); historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); captureHistoryAnchor(historyId); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
+         {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{!updates&&<CopyButton text={message.content} label="Copy message"/>}{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} />:<Markdown text={message.content} />}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
+         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}
+@@ -1092,7 +1095,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
+     {!hostWorkspaceContext&&(customDock||layout.rightPanelOpen||panelLeaving||!embeddedThreadId&&Boolean(desktop?.state.dockedBrowser))&&<div className="workspace-tools" hidden={customDock&&!layout.rightPanelOpen}>
+     {(customDock||layout.rightPanelOpen||panelLeaving) && (customDock?<aside className="custom-tools-dock" aria-label="Custom tools">
+       {!panelBounds.stacked&&<ResizeHandle label="Resize workspace panel" value={panelWidth} minimum={panelBounds.minimum} maximum={panelBounds.maximum} side="right" change={rightPanelWidth=>setLayout(value=>({...value,rightPanelWidth}))}/>}
+-      {toolSplitState.layout?<WorkspaceSplitLayout toolDock layout={toolSplitState.layout} onCommand={sendSplitCommand} prepare={prepareWorkspace} renderView={renderSplitView} title={view=>panelLabels[view.kind]} editorOptions={['files','terminal','browser','diff','plan','notes','artifact','output','pull-request','linked-pull-requests'].map(id=>({id,title:panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>openSplitTool(kind as WorkspacePanelKind,paneId)}/>:<p role="status" className="panel-note">Opening tools?</p>}
++      {toolSplitState.layout?<WorkspaceSplitLayout toolDock layout={toolSplitState.layout} onCommand={sendSplitCommand} prepare={prepareWorkspace} renderView={(view,active)=><SurfaceBoundary resetKey={view.id}>{renderSplitView(view,active)}</SurfaceBoundary>} title={view=>panelLabels[view.kind]} editorOptions={['files','terminal','browser','diff','plan','notes','artifact','output','pull-request','linked-pull-requests'].map(id=>({id,title:panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>openSplitTool(kind as WorkspacePanelKind,paneId)}/>:<p role="status" className="panel-note">Opening tools?</p>}
+       {toolSplitState.error&&<ErrorState className="split-layout-error" message={toolSplitState.error} onRetry={()=>void toolSplitState.refresh().catch(cause=>setError(messageOf(cause)))}/>}
+     </aside>:<WorkspacePanel excerptComposer={excerptComposerFor({authority:{kind:'local'},threadId:thread?.id})} refresh={refresh} snapshot={snapshot} preferredResourceId={focusedResource} threadId={thread?.id} preferences={preferences} layout={layout} leaving={panelLeaving&&!layout.rightPanelOpen} onLeave={()=>setPanelLeaving(false)} setWidth={rightPanelWidth => setLayout(value => ({ ...value, rightPanelWidth }))} resizeBounds={panelBounds} />)}
+     {!embeddedThreadId&&!customDock&&<DesktopBrowserDock/>}
+diff --git a/apps/web/src/ProjectPicker.tsx b/apps/web/src/ProjectPicker.tsx
+index ae522627..1ed175e5 100644
+--- a/apps/web/src/ProjectPicker.tsx
++++ b/apps/web/src/ProjectPicker.tsx
+@@ -107,9 +107,9 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
+     {(failure || error) && <ErrorState className="project-picker-error" message={failure || error || ''}/>}
+     <footer className="project-picker-footer">
+       <button type="button" disabled={locked} onClick={() => void run(onAddProject)}><FolderPlus size={15} />Add project</button>
+-      {active && <button type="button" ref={colorAnchor} disabled={locked} aria-label={`Color for ${active.name}`} aria-expanded={Boolean(editing)} onClick={() => {
++      <button type="button" ref={colorAnchor} disabled={locked || !active} aria-label={active ? `Color for ${active.name}` : 'Project color'} aria-expanded={Boolean(editing)} onClick={() => { if (!active) return;
+         setColorKey(keyOf(active)); setCustom(projectColor(active.authority, active.id, colors) ?? ''); setColorError('');
+-      }}><Palette size={15} /><span>Color</span></button>}
++      }}><Palette size={15} /><span>Color</span></button>
+       <button type="button" disabled={locked} onClick={onClose}>Cancel</button>
+     </footer>
+     <p className="project-picker-hint">↑↓ navigate · Enter select · Esc cancel</p>
+diff --git a/apps/web/src/SurfaceBoundary.tsx b/apps/web/src/SurfaceBoundary.tsx
+new file mode 100644
+index 00000000..6f3cb0c2
+--- /dev/null
++++ b/apps/web/src/SurfaceBoundary.tsx
+@@ -0,0 +1,11 @@
++import { Component, type ErrorInfo, type ReactNode } from 'react';
++import { RotateCcw } from 'lucide-react';
++
++/** Isolates a render failure to one workspace surface so a bad panel cannot unmount the app. */
++export class SurfaceBoundary extends Component<{ children: ReactNode; resetKey: string }, { error: string }> {
++  state = { error: '' };
++  static getDerivedStateFromError(error: Error) { return { error: error.message }; }
++  componentDidCatch(_error: Error, _info: ErrorInfo) { /* Failure is isolated to this surface. */ }
++  componentDidUpdate(previous: { resetKey: string }) { if (previous.resetKey !== this.props.resetKey && this.state.error) this.setState({ error: '' }); }
++  render() { return this.state.error ? <div className="notice" role="alert">This surface could not be displayed. Your conversation and saved state are retained.<details><summary>Error details</summary>{this.state.error}</details><button className="secondary" onClick={() => this.setState({ error: '' })}><RotateCcw size={14} />Retry rendering</button></div> : this.props.children; }
++}
+diff --git a/apps/web/src/WorkspaceSplitLayout.tsx b/apps/web/src/WorkspaceSplitLayout.tsx
+index 5b0a4b73..2d8d3137 100644
+--- a/apps/web/src/WorkspaceSplitLayout.tsx
++++ b/apps/web/src/WorkspaceSplitLayout.tsx
+@@ -126,7 +126,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
+   return <section key={paneId} className={`split-pane${pane.collapsed?' is-collapsed':''}${layout.focusedPaneId===paneId?' is-focused':''}`} data-split-pane={paneId} aria-label={current?title(current):'Empty area'}>
+     <header className="split-pane-header" onPointerDown={event=>{if(!(event.target as HTMLElement).closest('button,summary,select')&&!busy&&layout.focusedPaneId!==paneId)void send('pane.focus',{paneId},false);}}>
+     <button className="split-corner" aria-label="Split this area" title="Drag to split. Use the area menu for keyboard actions." disabled={busy} onPointerDown={event=>beginCorner(event,paneId)} onPointerMove={moveCorner} onPointerUp={endCorner} onPointerCancel={cancel} onLostPointerCapture={()=>{if(corner.current)cancel();}} onContextMenu={event=>{event.preventDefault();cancel();}}>◩</button>
+-    <div className="split-tab-strip" role="tablist" aria-label="Area views">{pane.viewIds.map(viewId=><button key={viewId} role="tab" aria-selected={pane.activeViewId===viewId} draggable={!busy} onDragStart={event=>{draggingView.current=layout.views[viewId]??null;event.dataTransfer.setData(GEN_VIEW_DRAG_TYPE,JSON.stringify({workspaceId:layout.id,viewId,revision:layout.revision}));event.dataTransfer.effectAllowed='move';}} onDragEnd={()=>{draggingView.current=null;}} onClick={()=>{void send('view.activate',{paneId,viewId});}}>{title(layout.views[viewId]!)}</button>)}</div>
++    <div className="split-tab-strip" role="tablist" aria-label="Area views">{pane.viewIds.map(viewId=><button key={viewId} role="tab" aria-selected={pane.activeViewId===viewId} draggable={!busy} onDragStart={event=>{draggingView.current=layout.views[viewId]??null;event.dataTransfer.setData(GEN_VIEW_DRAG_TYPE,JSON.stringify({workspaceId:layout.id,viewId,revision:layout.revision}));event.dataTransfer.effectAllowed='move';}} onDragEnd={()=>{draggingView.current=null;}} onClick={()=>{void send('view.activate',{paneId,viewId});}} title={title(layout.views[viewId]!)}><span className="split-tab-label">{title(layout.views[viewId]!)}</span></button>)}</div>
+     <div className="split-area-controls"><ActionMenu label="Area actions" icon={<MoreHorizontal size={16} aria-hidden="true"/>} iconOnly open={menuPane===paneId} onOpenChange={open=>setMenuPane(open?paneId:null)} disabled={busy} items={[
+      {id:'split-columns',label:'Split left / right',disabled:busy||narrow,onSelect:()=>{void splitPane(paneId,'right');}},
+      {id:'split-rows',label:'Split above / below',disabled:busy||narrow,onSelect:()=>{void splitPane(paneId,'bottom');}},
+diff --git a/apps/web/src/project-api.ts b/apps/web/src/project-api.ts
+index a2d0d12b..73d17a16 100644
+--- a/apps/web/src/project-api.ts
++++ b/apps/web/src/project-api.ts
+@@ -11,7 +11,7 @@ export function useProjectContext(projectId?:string,threadId?:string){
+   const captured=++generation.current;pending.current?.abort();pending.current=null;if(!projectId){setState({owner,context:null,loading:false,error:''});return;}
+   const controller=new AbortController();pending.current=controller;
+   setState(previous=>({owner,context:previous.owner===owner?previous.context:null,loading:true,error:''}));
+-  try{const next=await authenticated(()=>fetch(`/api/projects/${encodeURIComponent(projectId)}/context${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store',signal:controller.signal})).then(read<ProjectContext>);if(captured===generation.current)setState({owner,context:next,loading:false,error:''});}
++  try{const next=await authenticated(()=>fetch(`/api/projects/${encodeURIComponent(projectId)}/context${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store',signal:controller.signal})).then(read<ProjectContext>);if(captured!==generation.current)return;const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next,loading:false,error:malformed?'The project context response was malformed.':''});}
+   catch(reason){if(captured===generation.current&&!controller.signal.aborted)setState({owner,context:null,loading:false,error:reason instanceof Error?reason.message:'Project context could not be loaded.'});}
+   finally{if(pending.current===controller)pending.current=null;}
+  },[projectId,threadId,owner]);
+diff --git a/apps/web/src/styles.css b/apps/web/src/styles.css
+index 1479f45c..52f0f7ca 100644
+--- a/apps/web/src/styles.css
++++ b/apps/web/src/styles.css
+@@ -2,8 +2,8 @@
+ 
+ :root { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; color-scheme: light; --canvas:#fff; --sidebar:#fafafa; --surface:#fff; --subtle:#f5f5f5; --hover:#ededed; --border:#e5e5e5; --text:#202020; --muted:#707070; --placeholder:#737373; --selection-bg:#ededed; --selection-border:#a3a3a3; --selection-ink:var(--text); --accent:#3b5bdb; --accent-solid:#3b5bdb; --accent-hover:#304bc4; --accent-soft:var(--selection-bg); --danger:#c92a3e; --danger-soft:#fff0f1; --pending:#946200; --success:#087f5b; --elevation:0 10px 32px -14px #16161638; }
+ :root[data-theme="dark"] { color-scheme:dark; --canvas:#000; --sidebar:#080808; --surface:#0f0f0f; --subtle:#171717; --hover:#262626; --border:#282828; --text:#e6e6e6; --muted:#a0a0a0; --placeholder:#969696; --selection-bg:#1f1f1f; --selection-border:#737373; --selection-ink:var(--text); --accent:#91a7ff; --accent-solid:#3b5bdb; --accent-hover:#4263eb; --danger:#ff6b7e; --danger-soft:#3b2028; --pending:#ffc247; --success:#2dd4a0; --elevation:0 12px 34px -12px #0009; }
+-:root { --accent-fg:#3b5bdb; --accent-bg:#e9edff; --success-fg:#06724f; --success-bg:#e2f5ed; --danger-fg:#c92a3e; --danger-bg:#fff0f1; --warning-fg:#815400; --warning-bg:#fff2d2; --category-fg:#6d3ea2; --category-bg:#f2eaff; }
+-:root[data-theme="dark"] { --accent-fg:#91a7ff; --accent-bg:#1b2440; --success-fg:var(--success); --success-bg:#123329; --danger-fg:var(--danger); --danger-bg:#3b2028; --warning-fg:var(--pending); --warning-bg:#3c2c0c; --category-fg:#d0adff; --category-bg:#302340; }
++:root { --accent-fg:#3b5bdb; --accent-bg:#e9edff; --success-fg:#06724f; --success-bg:#e2f5ed; --danger-fg:#c92a3e; --danger-bg:#fff0f1; --warning-fg:#815400; --warning-bg:#fff2d2; --category-fg:#6d3ea2; --category-bg:#f2eaff; }
++:root[data-theme="dark"] { --accent-fg:#91a7ff; --accent-bg:#1b2440; --success-fg:var(--success); --success-bg:#123329; --danger-fg:var(--danger); --danger-bg:#3b2028; --warning-fg:var(--pending); --warning-bg:#3c2c0c; --category-fg:#d0adff; --category-bg:#302340; }
+ * { box-sizing:border-box; }
+ body { margin:0; background:var(--canvas); color:var(--text); }
+ button,input,textarea,select { font:inherit; }
+@@ -18,12 +18,12 @@ button { transition:background-color var(--ui-motion-hover) var(--ui-ease-move),
+ a,summary { transition:color var(--ui-motion-hover) var(--ui-ease-move),background-color var(--ui-motion-hover) var(--ui-ease-move); }
+ input,textarea,select { transition:border-color var(--ui-motion-hover) var(--ui-ease-move),background-color var(--ui-motion-hover) var(--ui-ease-move); }
+ @media(prefers-reduced-motion:reduce) { :where(button:active) { transform:none; } }
+-:root:is([data-motion="reduced"],[data-motion="off"]) :where(button:active) { transform:none; }
++:root:is([data-motion="reduced"],[data-motion="off"]) :where(button:active) { transform:none; }
+ input,textarea,select { color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 11px; min-width:0; accent-color:var(--accent); caret-color:var(--accent); }
+ input::placeholder,textarea::placeholder { color:var(--placeholder); opacity:1; }
+ input[type="checkbox"] { padding:0; width:15px; height:15px; flex-shrink:0; }
+ textarea { resize:vertical; }
+-a { color:var(--accent-fg); text-underline-offset:3px; overflow-wrap:anywhere; }
++a { color:var(--accent-fg); text-underline-offset:3px; overflow-wrap:anywhere; }
+ ::selection { background:var(--accent-soft); color:var(--text); }
+ * { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+ ::-webkit-scrollbar { width:6px; height:6px; }
+@@ -162,6 +162,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
+ .resource-chip { display:flex; gap:5px; align-items:center; border:1px solid var(--border); padding:4px 7px; font-size:10px; border-radius:6px; max-width:220px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+ .composer-error,.workspace-error { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:10px 13px; color:var(--danger); background:var(--subtle); border-radius:9px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+ .composer-error { margin-bottom:8px; }
++.composer-hint { font-size:11px; color:var(--muted); margin:0 0 8px; padding:0 3px; line-height:1.4; }
+ .workspace-error { margin:0 26px 8px; }
+ .retained-widget-notice { color:var(--muted); }
+ .artifact { border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden; margin:16px auto 22px; width:100%; min-width:0; }
+@@ -222,9 +223,9 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
+ .evidence-list li { display:flex; gap:8px; font-size:12px; line-height:1.6; }
+ .evidence-list li>svg { margin-top:3px; color:var(--success); }
+ .evidence-list small { display:block; }
+-.surface-metric { display:flex; align-items:baseline; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:13px; font-variant-numeric:tabular-nums; }
+-.surface-metric strong { min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; font-size:16px; font-weight:550; color:var(--text); }
+-.surface-metric>span { min-width:0; overflow-wrap:anywhere; }
++.surface-metric { display:flex; align-items:baseline; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:13px; font-variant-numeric:tabular-nums; }
++.surface-metric strong { min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; font-size:16px; font-weight:550; color:var(--text); }
++.surface-metric>span { min-width:0; overflow-wrap:anywhere; }
+ .surface-text.size-sm { font-size:12px; }
+ .surface-text.size-lg { font-size:16px; }
+ @media(max-width:700px) { .surface-split:not(:has(>.document-preview)) { grid-template-columns:1fr!important; } }
+@@ -281,12 +282,12 @@ tbody tr:hover { background:var(--subtle); }
+ .code-block { margin:0; }
+ .code-block figcaption { padding-bottom:10px; font-size:12px; }
+ .code-block pre,.diff { background:var(--subtle); border-radius:8px; padding:10px 12px; white-space:pre; font-size:11px; line-height:1.65; }
+-.diff .added { color:var(--success-fg); background:var(--success-bg); }
+-.diff .removed { color:var(--danger-fg); background:var(--danger-bg); }
++.diff .added { color:var(--success-fg); background:var(--success-bg); }
++.diff .removed { color:var(--danger-fg); background:var(--danger-bg); }
+ .document { border-radius:9px; padding:14px 18px; background:var(--canvas); }
+ .document-heading { display:flex; align-items:center; gap:8px; font-size:12px; padding-bottom:14px; margin-bottom:16px; border-bottom:1px solid var(--border); }
+-.surface-progress>div { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:7px; }
+-progress { height:8px; border:0; width:100%; border-radius:4px; background:var(--subtle); overflow:hidden; accent-color:var(--text); }
++.surface-progress>div { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:7px; }
++progress { height:8px; border:0; width:100%; border-radius:4px; background:var(--subtle); overflow:hidden; accent-color:var(--text); }
+ .surface-progress>div>span,.task-step-label>span { white-space:nowrap; }
+ progress::-webkit-progress-bar { background:var(--subtle); }
+ progress::-webkit-progress-value { background:var(--text); border-radius:4px; }
+@@ -349,9 +350,9 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
+ @media(prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+ 
+ /* List and disclosure motion: new rows, chips and native details get the documented insert/remove timings. */
+-@keyframes ui-item-in { from { opacity:0; transform:translateY(4px); } }
+-:where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
+-:where([role="tabpanel"], [role="tabpanel"] > *) { animation: ui-item-in var(--ui-motion-tab) var(--ui-ease-enter); }
++@keyframes ui-item-in { from { opacity:0; transform:translateY(4px); } }
++:where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
++:where([role="tabpanel"], [role="tabpanel"] > *) { animation: ui-item-in var(--ui-motion-tab) var(--ui-ease-enter); }
+ @keyframes ui-item-out { to { opacity:0; transform:translateY(3px); } }
+ :where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
+ :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+diff --git a/apps/web/src/task-table-model.ts b/apps/web/src/task-table-model.ts
+index 3e856a8a..8d191091 100644
+--- a/apps/web/src/task-table-model.ts
++++ b/apps/web/src/task-table-model.ts
+@@ -45,12 +45,14 @@ const emptyValue = (value: unknown) => value == null || typeof value === 'string
+   || typeof value === 'number' && Number.isNaN(value) || value instanceof Date && Number.isNaN(value.getTime());
+ // One type order keeps mixed comparisons transitive: number, string, date, boolean, object, other.
+ const valueType = (value: unknown) => typeof value === 'number' ? 0 : typeof value === 'string' ? 1 : value instanceof Date ? 2 : typeof value === 'boolean' ? 3 : typeof value === 'object' ? 4 : 5;
++// Fold case and accents so "wis" matches "Wiśniewska" — filters should find what users mean to type.
++const fold = (value: string) => value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+ export function tableView(rows: unknown[], columns: TableColumn[], query: string, sort: TableSort) {
+-  const needle = query.trim().toLowerCase();
++  const needle = fold(query.trim());
+   const result = rows.map((row, index) => ({ item: tableObject(row), index })).filter(({ item }) => !needle || columns.some(column => {
+     const value = item[column.key];
+-    return tableText(value).toLowerCase().includes(needle)
+-      || (column.type === 'number' && typeof value === 'number' && tableCellText(value, column).toLowerCase().includes(needle));
++    return fold(tableText(value)).includes(needle)
++      || (column.type === 'number' && typeof value === 'number' && fold(tableCellText(value, column)).includes(needle));
+   }));
+   if (!sort) return result;
+   return result.sort((a, b) => {
+diff --git a/apps/web/src/workspace-split.css b/apps/web/src/workspace-split.css
+index ece5f12e..3f9525f1 100644
+--- a/apps/web/src/workspace-split.css
++++ b/apps/web/src/workspace-split.css
+@@ -7,7 +7,7 @@
+ .split-pane{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel,#0f0f0f);overflow:hidden;border:1px solid var(--border,#252525);box-sizing:border-box}.split-pane.is-focused{border-color:var(--focus,#747ec9)}
+ .split-pane-header{display:flex;align-items:center;gap:2px;height:34px;min-height:34px;padding:0 3px;border-bottom:1px solid var(--border,#252525);position:relative;z-index:3;background:var(--panel,#0f0f0f)}
+ .split-pane-header button{background:transparent;color:inherit;border:0;border-radius:4px;font:inherit}.split-pane-header button:hover{background:var(--hover,#242424)}.split-pane-header button:focus-visible,.split-area-controls button:focus-visible{outline:2px solid var(--focus,#8f9cff);outline-offset:-2px}
+-.split-corner{width:20px;min-width:20px;height:24px;opacity:.5;cursor:crosshair;touch-action:none}.split-corner:hover,.split-corner:focus-visible{opacity:1}.split-tab-strip{display:flex;flex:1;overflow:auto;min-width:0;scrollbar-width:none}.split-tab-strip::-webkit-scrollbar{display:none}.split-tab-strip button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;min-width:70px;font-size:12px;padding:5px 8px}.split-tab-strip button[aria-selected=true]{background:var(--selected,#252525)}
++.split-corner{width:20px;min-width:20px;height:24px;opacity:.5;cursor:crosshair;touch-action:none}.split-corner:hover,.split-corner:focus-visible{opacity:1}.split-tab-strip{display:flex;flex:1;overflow:auto;min-width:0;scrollbar-width:none}.split-tab-strip::-webkit-scrollbar{display:none}.split-tab-strip button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-content:flex-start;text-align:start;max-width:240px;min-width:70px;font-size:12px;padding:5px 8px}.split-tab-strip button>.split-tab-label{overflow:hidden;text-overflow:ellipsis;min-width:0;white-space:nowrap}.split-tab-strip button[aria-selected=true]{background:var(--selected,#252525)}
+ .split-collapse{width:26px;height:26px;flex:none}.split-pane-slot{flex:1;min-height:0;min-width:0}.split-pane.is-collapsed .split-pane-header{border:0;padding:0;gap:0;height:100%;min-height:34px}.split-pane.is-collapsed .split-corner,.split-pane.is-collapsed .split-tab-strip,.split-pane.is-collapsed .split-area-controls{display:none}.split-pane.is-collapsed .split-collapse{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;min-height:32px;overflow:hidden}.split-collapsed-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.split-horizontal>.split-pane.is-collapsed .split-collapse{writing-mode:vertical-rl}
+ .split-area-controls{flex:none}.split-area-controls .ui-action-trigger{width:32px;height:32px;min-height:32px;padding:4px;justify-content:center}
+ .split-divider{position:relative;background:var(--workspace-bg,#000);touch-action:none;z-index:5;outline:none}.split-horizontal>.split-divider{cursor:col-resize}.split-vertical>.split-divider{cursor:row-resize}.split-divider:hover,.split-divider:focus-visible,.split-divider.is-dragging{background:var(--focus,#8b97f5)}.split-divider span{position:absolute;left:50%;top:8px;transform:translateX(-50%);padding:4px 7px;border-radius:5px;background:var(--panel,#1c1c1c);color:var(--text,#fff);border:1px solid var(--border,#2a2a2a);font-size:11px;white-space:nowrap;pointer-events:none}.split-vertical>.split-divider span{top:50%;left:10px;transform:translateY(-50%)}
+diff --git a/scripts/public-source-files.json b/scripts/public-source-files.json
+index 98d45a04..c29ff397 100644
+--- a/scripts/public-source-files.json
++++ b/scripts/public-source-files.json
+@@ -123,6 +123,7 @@
+     "apps/web/src/SignaturePad.tsx",
+     "apps/web/src/SkillLibrary.tsx",
+     "apps/web/src/SoftwareDevelopment.tsx",
++    "apps/web/src/SurfaceBoundary.tsx",
+     "apps/web/src/TaskDisclosure.tsx",
+     "apps/web/src/TaskHistory.tsx",
+     "apps/web/src/TaskMemory.tsx",
+diff --git a/tests/e2e/desktop-surfaces.spec.ts b/tests/e2e/desktop-surfaces.spec.ts
+index f6380c34..bf349254 100644
+--- a/tests/e2e/desktop-surfaces.spec.ts
++++ b/tests/e2e/desktop-surfaces.spec.ts
+@@ -1,5 +1,5 @@
+ import {test,expect,type Page} from '@playwright/test';
+-import {taskFixture,serveTaskFixture} from './task-interface-fixture';
++import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
+ import {EMPTY_USAGE} from '../../packages/contracts';
+ import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
+ const fixture=()=>{const s=taskFixture({root:'field',elements:{field:{type:'Input',props:{stateKey:'name',label:'Review name'}}}});s.usage['task-thread']={...EMPTY_USAGE,inputTokens:1234};s.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-10-30T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'inspect',title:'Inspect the task boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});return s;};
+@@ -16,7 +16,30 @@ async function bridge(page:Page,surface:Record<string,unknown>={kind:'main'}){
+    focus:async(id:string)=>{w.__desktopCalls.push(['focus',id]);},browser:async(command:unknown)=>{w.__desktopCalls.push(['browser',command]);if(w.__desktopFail)throw Error('Native browser action failed');}};
+  },surface);
+ }
+-test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const overview=page.getByRole('region',{name:'Project overview window',exact:true});await expect(overview).toBeVisible({timeout:15000});const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await page.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(toggle).toHaveAttribute('aria-expanded','false');await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();await page.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeHidden();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:/^Detach (thread|artifact|workspace|plan|navigation|browser)|^Minimize chat window$/})).toHaveCount(0);await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Detach thread',exact:true})).toBeVisible();await page.keyboard.press('Escape');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>['detach','minimize'].includes(call[0])))).toEqual([]);});
++test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{
++ await bridge(page);
++ await serveTaskFixture(page,fixture());
++ await serveTaskSplitLayout(page);
++ await page.goto('/');
++ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
++ const overview=page.getByRole('region',{name:'Project overview window',exact:true});
++ await expect(overview).toBeVisible({timeout:15000});
++ const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
++ await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');
++ await page.getByRole('button',{name:'Collapse Project overview',exact:true}).click();
++ await expect(toggle).toHaveAttribute('aria-expanded','false');
++ await page.getByRole('button',{name:'Show live usage',exact:true}).click();
++ await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();
++ await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();
++ await page.getByRole('button',{name:'Minimize live usage',exact:true}).click();
++ await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeHidden();
++ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
++ await expect(page.getByRole('button',{name:/^Detach (thread|artifact|workspace|plan|navigation|browser)|^Minimize chat window$/})).toHaveCount(0);
++ await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();
++ await expect(page.getByRole('menuitem',{name:'Detach thread',exact:true})).toBeVisible();
++ await page.keyboard.press('Escape');
++ expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>['detach','minimize'].includes(call[0])))).toEqual([]);
++});
+ test('authoritative detached plan ignores URL descriptors and restores its owning thread',async({page})=>{await bridge(page,{kind:'plan',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/?desktopWindow=ignored&threadId=wrong');await expect(page.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Return to workspace',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+ test('an artifact stays editable in the main window with no new-detachment entry',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Ada');await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Ada');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+ test('browser clients expose no native window controls',async({page})=>{await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('button',{name:'Minimize chat window',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);});
+@@ -39,7 +62,34 @@ test('browser draft export is explicit and does not clear the source',async({pag
+ 
+ test('native close saves the latest edit and lease before acknowledgment, retaining source DOM',async({page})=>{await bridge(page);const host=await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Final acknowledged value');const node=await input.elementHandle();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(host.snapshot.userStates[0].values.name).toBe('Final acknowledged value');expect(await node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);expect(await node!.evaluate(element=>element.isConnected)).toBe(true);const saved=host.commands.findIndex(command=>command.type==='state.save'),ended=host.commands.findIndex((command,index)=>index>saved&&command.type==='edit.end');expect(saved).toBeGreaterThanOrEqual(0);expect(ended).toBeGreaterThan(saved);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+ test('native close freezes the same workspace editor alias after acknowledged saving',async({page})=>{await bridge(page);const host=await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Workspace edit');const node=await input.elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(page.getByRole('button',{name:'Detach workspace',exact:true})).toHaveCount(0);expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);await expect.poll(()=>node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);expect(await node!.evaluate(element=>element.isConnected)).toBe(true);expect(host.commands.some(command=>command.type==='state.save'&&(command.payload.values as any).name==='Workspace edit')).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+-test('sidebar detaches a thread into its own window and the main workspace stays usable',async({page})=>{await bridge(page);const s=fixture();s.threads.push({...s.threads[0],id:'second-thread',title:'Second conversation'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Sidebar edit');await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['detach',{kind:'thread',threadId:'task-thread'}]);await expect(page.locator('.notice',{hasText:'This conversation is open in another window.'})).toBeVisible();await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();await expect(page.getByText('What are we working on?',{exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['focus','detached-1']);await page.getByRole('button',{name:'Second conversation Ready',exact:true}).click();await expect(page.locator('.breadcrumb')).toContainText('Second conversation');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Sidebar edit');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();});
++test('sidebar detaches a thread into its own window and the main workspace stays usable',async({page})=>{
++ await bridge(page);
++ const s=fixture();s.threads.push({...s.threads[0],id:'second-thread',title:'Second conversation'});
++ await serveTaskFixture(page,s);
++ await serveTaskSplitLayout(page);
++ await page.goto('/');
++ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
++ const input=page.getByRole('textbox',{name:'Review name',exact:true});
++ await input.fill('Sidebar edit');
++ await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();
++ await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();
++ await expect.poll(()=>page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['detach',{kind:'thread',threadId:'task-thread'}]);
++ await expect(page.locator('.notice',{hasText:'Conversation open in another window.'})).toBeVisible();
++ await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();
++ const heldComposer=page.getByRole('textbox',{name:'Message',exact:true});
++ await expect.poll(()=>heldComposer.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
++ await expect.poll(()=>input.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
++ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
++ expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['focus','detached-1']);
++ await page.getByRole('button',{name:'Second conversation Ready',exact:true}).click();
++ await expect(page.locator('.breadcrumb:visible').filter({hasText:'Second conversation'})).toHaveCount(1);
++ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
++ await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));
++ // Canonical split selection follows the workspace layout, not a snapshot activeThreadId.
++ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
++ await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Sidebar edit');
++ await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();
++});
+ test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Open this artifact from the main workspace. Your current editor is kept open.');await expect(page.locator('[data-artifact-id="second-artifact"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+ test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+ 
+diff --git a/tests/e2e/frontend-refinement.spec.ts b/tests/e2e/frontend-refinement.spec.ts
+index cf5baf5d..7151cb87 100644
+--- a/tests/e2e/frontend-refinement.spec.ts
++++ b/tests/e2e/frontend-refinement.spec.ts
+@@ -17,7 +17,7 @@ test('left ticked scrollbar supports keys, track clicks, dragging, and history d
+  const saved=await scroll.evaluate(node=>node.scrollTop);await page.getByRole('button',{name:'Grow transcript'}).click();
+  await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBe(saved);
+  await bar.click({position:{x:12,y:bounds!.height*.7}});await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(saved);
+- const thumb=await page.locator('.chat-scroll-thumb').boundingBox();const beforeDrag=await scroll.evaluate(node=>node.scrollTop);await page.mouse.move(thumb!.x+1,thumb!.y+3);await page.mouse.down();expect(await scroll.evaluate(node=>node.scrollTop)).toBeCloseTo(beforeDrag,0);await page.mouse.move(thumb!.x+1,bounds!.y+20,{steps:8});await page.mouse.up();
++ const beforeDrag=await scroll.evaluate(node=>node.scrollTop);await expect(bar).toHaveAttribute('aria-valuenow',String(Math.round(beforeDrag)));const thumb=await page.locator('.chat-scroll-thumb').boundingBox();await page.mouse.move(thumb!.x+1,thumb!.y+3);await page.mouse.down();expect(await scroll.evaluate(node=>node.scrollTop)).toBeCloseTo(beforeDrag,0);await page.mouse.move(thumb!.x+1,bounds!.y+20,{steps:8});await page.mouse.up();
+  await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeLessThan(100);
+  await bar.focus();await page.keyboard.press('End');await expect.poll(()=>scroll.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop)).toBeLessThan(2);
+  await page.getByRole('textbox',{name:'Outside draft'}).fill('Keep this draft');await page.getByRole('button',{name:'Grow transcript'}).click();await expect(page.getByRole('textbox',{name:'Outside draft'})).toHaveValue('Keep this draft');
+diff --git a/tests/project-context-owner.test.ts b/tests/project-context-owner.test.ts
+index 27cad27c..00d84c6e 100644
+--- a/tests/project-context-owner.test.ts
++++ b/tests/project-context-owner.test.ts
+@@ -29,7 +29,7 @@ function render(project?: string, thread?: string) {
+ afterEach(() => { vi.unstubAllGlobals(); fixture.slots.length = 0; fixture.effect = undefined; });
+ 
+ it('does not show one thread’s project context after selecting a different thread', async () => {
+-  const context = { status: 'ready', title: 'Previous context' };
++  const context = { status: 'ready', title: 'Previous context', project: { id: 'project', name: 'Previous context' }, machineName: 'runner', editor: { available: false, label: '' }, branch: null, head: null, changes: { added: null, removed: null, files: null }, lineage: [], scripts: [], capabilities: { git: false, terminal: false, pullRequests: false } };
+   vi.stubGlobal('fetch', vi.fn(async () => Response.json(context)));
+   render('project', 'first'); fixture.effect!();
+   await vi.waitFor(() => expect(render('project', 'first').context).toEqual(context));

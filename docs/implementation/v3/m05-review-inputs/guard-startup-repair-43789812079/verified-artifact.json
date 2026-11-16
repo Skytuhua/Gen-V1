@@ -1,0 +1,53 @@
+{
+  "artifactId": 14192205125,
+  "artifactName": "guard-startup-production-43789812079-1",
+  "bytes": 1241,
+  "sha256": "f292cd134f67c7f04b18ca513c664be7e170e00511d277672881108b344ed1a4",
+  "zipCrcVerified": true,
+  "member": {
+    "originalMember": "receipt-production.json",
+    "bytes": 1911,
+    "sha256": "ec846fffd74d64783fc7be210e880c9b71246114c1d5e545eed87e97a4dfda19",
+    "gitBlobSha": "16bca831b3e8344e27bb9803356633686975283d",
+    "crc32": 4273862363,
+    "matchesConsoleReceipt": true
+  },
+  "files": [
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/job-133045434425.log",
+      "bytes": 40945,
+      "sha256": "967bfa340a71b0909eba85aba6b116f7e40f686614ee829cec70c7168f807d51",
+      "gitBlobSha": "29092ebe414027d962cbc88bb76987f7fc72e5cd"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/production-receipt-original.json",
+      "bytes": 1911,
+      "sha256": "ec846fffd74d64783fc7be210e880c9b71246114c1d5e545eed87e97a4dfda19",
+      "gitBlobSha": "16bca831b3e8344e27bb9803356633686975283d"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/run-api-final.json",
+      "bytes": 13807,
+      "sha256": "85ae2be404955603da319349416face2a26b0bb067ba4605742f3980c500e83e",
+      "gitBlobSha": "7b6eae2a7d5ff5100a65192a0bf87e9616c81b67"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/jobs-api-final.json",
+      "bytes": 3587,
+      "sha256": "918f49e2c132dec641b5733661b2b291d046adbb417eff789896e52f9eec7c5b",
+      "gitBlobSha": "fd737cfa0b39d4af45e758fbaca962d14b19d1b3"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/artifacts-api-final.json",
+      "bytes": 950,
+      "sha256": "82bd3792d3ac0c66b538cb436b0d48592c0d60dc120cdb8d0ab20da059db9814",
+      "gitBlobSha": "60bccc0c91a403021a8f080f51a45825e9fef9ee"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/guard-startup-production-43789812079-1.zip",
+      "bytes": 1241,
+      "sha256": "f292cd134f67c7f04b18ca513c664be7e170e00511d277672881108b344ed1a4",
+      "gitBlobSha": "52ba87925421867e8074c9f8afda859544afd962"
+    }
+  ]
+}

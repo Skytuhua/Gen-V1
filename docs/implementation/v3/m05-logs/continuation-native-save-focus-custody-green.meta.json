@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-focus-repair",
+  "startedAt": "2026-11-15T23:28:51.549722+00:00",
+  "endedAt": "2026-11-15T23:28:52.689473+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "logPath": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-green.log",
+  "logBytes": 1641,
+  "logDigest": "51717f4e806aab719e16800a21cbe76277a4d8e2213ddec175fdd6fc66d6518a",
+  "sourceSha256": "5596e40d6c61c6afab1042fce4b649d33be231dca675b3544279a1e483dada1f",
+  "testSha256": "ba74972faaeeb0f5c29ed4ceccbbc365e4d109b8faf1ba2ffe860b762e296e4c",
+  "scope": "Eight portable custody cases including bounded owner/action-bound focus evidence and full 260-character SystemRoot command bound. Actual native destination requires both Windows lanes.",
+  "rawLogBytes": 1641,
+  "rawLogDigest": "51717f4e806aab719e16800a21cbe76277a4d8e2213ddec175fdd6fc66d6518a",
+  "transformations": [
+    "LOCAL_STDOUT_STDERR_CAPTURE",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "command": {
+    "argv": [
+      "node",
+      "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--reporter=verbose",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-focus-repair",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T23:28:51.549722+00:00",
+    "endedAt": "2026-11-15T23:28:52.689473+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-green.log",
+    "logDigest": "51717f4e806aab719e16800a21cbe76277a4d8e2213ddec175fdd6fc66d6518a"
+  }
+}

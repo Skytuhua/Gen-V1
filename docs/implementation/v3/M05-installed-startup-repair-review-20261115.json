@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-installed-startup-repair-review-20261115",
+  "reviewedAt": "2026-11-15T21:02:37.963Z",
+  "status": "REMOTE_VERIFIER_CHECKS_PASS_INSTALLED_REVALIDATION_PENDING",
+  "scope": "Verifier-only main-page readiness repair. The exact published helper and tests passed isolated real Windows unit checks and full TypeScript checking. These checks do not execute or admit an installed application, native Save dialog or retained-memory lifecycle.",
+  "repository": "skytuhua-org/Gen-V1",
+  "publication": {
+    "sourceHead": "013c044d66f40136752df4f1903132d601d57851",
+    "sourceTree": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "parentHead": "0e072230965d15e0bcad8bb7579653a1332085e4",
+    "parentTree": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+    "changedPaths": [
+      "scripts/verify-installed-desktop.ts",
+      "tests/installed-desktop-verification.test.ts"
+    ],
+    "sourceIdentityCheck": "Both files were fetched at the published source head and their exact bytes matched the reviewed green blobs.",
+    "evidenceMapping": "Canonical evidence paths below are paired with immutable Git blobs. The parent owns their repository-tree publication; this review author creates only an immutable JSON blob."
+  },
+  "priorInstalledFailure": {
+    "runId": 43755565107,
+    "jobId": 132938786198,
+    "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43755565107",
+    "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43755565107/job/132938786198",
+    "sourceHead": "0e072230965d15e0bcad8bb7579653a1332085e4",
+    "sourceTree": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+    "rawLog": {
+      "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132938786198/logs",
+      "bytes": 127315,
+      "sha256": "dce8d328fdb086eaeee2dcd728fc4a4b94dbd88dce75fcfd0c9d050568d2e912",
+      "representation": "Exact connector-decoded log encoded as UTF-8, preserved by the collector. It is not the normalized repository log."
+    },
+    "artifact": {
+      "id": 14179432077,
+      "name": "installed-memory-43755565107-1",
+      "bytes": 397424,
+      "sha256": "b2b2a76f38b4a7734d2f768a0ab4268021d5e3720a031b981f5ff17362cc5461",
+      "members": 5,
+      "pngMembers": 0
+    },
+    "phaseReview": {
+      "ref": "docs/implementation/v3/M05-installed-independent-phase-review-43755565107.json",
+      "gitBlobSha": "d6ff185dac4ddb5d0baec165cb3e20e5f0fbf487",
+      "bytes": 29142,
+      "sha256": "b46fb86ecc224a0d3209310f4cb3f0abde982a680bd16720aa2a2d575ceca5f1"
+    },
+    "observedFailure": "The 30-second expected-origin page predicate at launchInstalled line 296 returned false until timeout. It follows the CDP connection and executable/nonce checks in the tested source, but no completed launch was serialized.",
+    "completedPhases": [
+      "Clear preflights",
+      "Natural installer exit and close with code 0",
+      "Full installed payload comparison",
+      "Per-user installation registry custody",
+      "Declared packaged provider startup/import and distribution custody",
+      "Identity-bound uninstall and owned cache cleanup"
+    ],
+    "installerElapsedMs": 671829,
+    "uninstallerElapsedMs": 113096,
+    "completedLaunches": 0,
+    "memoryObservations": 0,
+    "exportExecuted": false,
+    "nativeSaveExecuted": false,
+    "screenshotReview": "No PNG members exist; no image inspection is claimed.",
+    "underlyingMissingPageCause": "UNMEASURED",
+    "causalLimit": "The failure receipt contains no startup-phase diagnostics, child output, screenshot or successful page readiness receipt. It does not establish whether the backend was slow, had failed, or encountered another startup condition."
+  },
+  "sourceBudgetMismatch": {
+    "classification": "SOURCE_PROVEN_VERIFIER_BUDGET_MISMATCH",
+    "backend": {
+      "ref": "apps/desktop/backend-policy.ts",
+      "gitBlobSha": "9fba9293a0e504119fa09a9850d0f03a203fb60a",
+      "bytes": 2514,
+      "sha256": "af9cc6db21c00ad2f73de7c74cc71edafaf32d53df395549cb125accf95684f8",
+      "function": "waitForBackendReady",
+      "existingTimeoutMs": 60000
+    },
+    "surface": {
+      "ref": "apps/desktop/main.ts",
+      "gitBlobSha": "75a8b98d5e8468e24be8ae40ca00b466c640daf1",
+      "bytes": 55919,
+      "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f",
+      "function": "openSurface",
+      "existingTimeoutMs": 20000
+    },
+    "ordering": "Production startup awaits startBackend before mainWindow. The former verifier page poll allowed only 30 seconds after CDP ownership admission, so it could end while the existing backend allowance remained valid.",
+    "inferenceLimit": "This establishes an incorrect verifier bound. It is not a measured explanation of the missing page in the original run.",
+    "productionBudgetsChanged": false
+  },
+  "sourceFiles": [
+    {
+      "ref": "scripts/verify-installed-desktop.ts",
+      "gitBlobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7",
+      "bytes": 44330,
+      "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2"
+    },
+    {
+      "ref": "tests/installed-desktop-verification.test.ts",
+      "gitBlobSha": "c0795d20ec91e7b37780a7a56f0c7dca0329be74",
+      "bytes": 25212,
+      "sha256": "f82de49b1c9dba1e195df4e6fcf755ea33fec6955f84b5c295a1e90496b971a2"
+    }
+  ],
+  "historicalSources": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "commitSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+      "gitBlobSha": "e5518a95ab926a5e69eb843182d580ff2e5d2e91",
+      "bytes": 39012,
+      "sha256": "3bd899aa1196d484a76f420a354ead6398270d9005b2b0ab7e4a8af43d39e8bf"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "commitSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+      "gitBlobSha": "93056e029d2d55a86124a4345ff19f38d4501c30",
+      "bytes": 18352,
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "commitSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+      "gitBlobSha": "ea0d6b99358a4fa35e95bc79040de97424ffb386",
+      "bytes": 44218,
+      "sha256": "e3d62eed21df251491fa30911297bbfc3e4654fe827968410bd7566ecb4c61c3"
+    }
+  ],
+  "preservation": {
+    "wholeOriginalSourceReconstruction": "Removing the new helper and replacing the extracted launch block with its previous bytes reconstructs the full original verifier exactly.",
+    "sourceOutsideTargetedInsertionAndLaunchBlockUnchanged": true,
+    "downstreamSuffix": {
+      "anchor": "const message=page.getByRole('textbox',{name:'Message',exact:true});",
+      "bytes": 11515,
+      "sha256": "59bfa614bacc4832c273defe38c1f081775c0a069b4a33f6b902ba132972ff7a",
+      "matchesExactly": true
+    },
+    "existingTests": "All 19 prior tests retain their exact source bytes except the import addition of vi. Seven new readiness tests are appended.",
+    "redToGreen": "Within the verifier source, only the helper's 30000 constant changes to 80000, with a two-line comment explaining the existing 60-second backend plus 20-second native surface envelope. The test blob is identical. The separate green workflow also expands the selected-test command to both custody/native Save helper suites and adds full typecheck.",
+    "unchangedAssertions": [
+      "45-second CDP endpoint readiness",
+      "Exact executable and unique command-line nonce custody",
+      "30-second Message-enabled readiness",
+      "Main desktop surface and node isolation",
+      "Settings and connection controls",
+      "Pinned source and literal rendering",
+      "Review, edit, acceptance and rejection",
+      "Ordinary native Save, redacted export and exact saved bytes",
+      "Forget, tombstone and restart persistence",
+      "Clean owned process exit and backend shutdown",
+      "Identity-bound installer, full payload, provider and uninstall checks"
+    ],
+    "unchangedOtherBounds": {
+      "installerMs": 1200000,
+      "readOnlyPreflightMs": 60000,
+      "uninstallerMs": 180000,
+      "nativeSaveWorkerMs": 75000
+    }
+  },
+  "repair": {
+    "helper": "waitForInstalledMainPage",
+    "mainPageDeadlineMs": 80000,
+    "scope": "Only expected-origin application-page discovery inside the installed verifier.",
+    "ownerRevalidation": "The same Browser.getBrowserCommandLine executable and nonce assertions are extracted into one callback. A candidate is revalidated after awaiting that callback. A rejected ownership check fails without retry.",
+    "processLiveness": "Spawned-child exit, signal or launch failure is checked on discovery iterations and a 250-millisecond guard that remains active during an awaited ownership recheck. The guard rejects without waiting for the full deadline.",
+    "candidateAdmission": "Candidate must be open, have exactly the expected loopback origin, have no URL credentials, remain the same object in the current browser page list, and retain that origin after owner revalidation.",
+    "lateCompletion": "One whole-operation deadline covers waiting and pending owner revalidation. Settlement clears timers; a late owner completion cannot emit new observations or return a page.",
+    "cleanup": "Existing cleanup statements are unchanged. Revalidation clears the verifiedOwner claim before checking again; a failed claim cannot authorize browser-close adoption. The originally spawned child remains the only process-tree termination target.",
+    "diagnostics": {
+      "receiptField": "launchReadiness",
+      "outerIdentity": [
+        "iteration",
+        "spawned PID",
+        "timeoutMs",
+        "status"
+      ],
+      "phases": [
+        "waiting",
+        "candidate",
+        "ready",
+        "failed"
+      ],
+      "fields": [
+        "elapsedMs",
+        "child alive/exitCode/signalCode",
+        "aggregate page counts by ownedOrigin/file/blank/other/closed",
+        "fixed failure enum"
+      ],
+      "checkpointMs": 15000,
+      "noRawUrls": true,
+      "noQueryOrFragment": true,
+      "noPageTitles": true,
+      "noSourceText": true,
+      "noChildStdoutOrStderr": true,
+      "fixtureObservationCountAssertion": {
+        "maximum": 8,
+        "case": "bounds missing-page waiting and records only bounded metadata",
+        "basis": "The fake-clock fixture with a stable missing page asserts at most eight observations. This is not an explicit runtime array-length cap."
+      },
+      "runtimeBound": "The helper has an 80000-ms operation deadline, 15000-ms waiting checkpoints and fixed metadata fields. Candidate revalidation may emit additional observations; no hard eight-entry cap is implemented."
+    }
+  },
+  "meaningfulRed": {
+    "runId": 43760214518,
+    "headSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+    "treeSha": "ae69c78c890b3de36ca8bab7985614af74f90351",
+    "conclusion": "failure",
+    "tests": {
+      "passed": 0,
+      "failed": 1,
+      "skipped": 25,
+      "total": 26,
+      "failedFiles": 1,
+      "failedCase": "installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff",
+      "wholeCaseDurationMs": 15,
+      "observedError": "The installed main page exceeded its readiness deadline.",
+      "assertion": {
+        "file": "tests/installed-desktop-verification.test.ts",
+        "line": 248,
+        "expected": "undefined",
+        "received": "Error with the fixed readiness-deadline message"
+      }
+    },
+    "jobId": 132953117298,
+    "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760214518/job/132953117298",
+    "sourceTimeoutMs": 30000,
+    "rawLog": {
+      "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132953117298/logs",
+      "bytes": 42063,
+      "sha256": "251d43596e762b7416b7ef9db9f8bda9ac9a0a28341847a7ee648a15ba4b3a1e"
+    },
+    "receipt": {
+      "ref": "docs/implementation/v3/M05-installed-startup-boundary-43760214518.json",
+      "gitBlobSha": "60150569f1cf9779c30836a717e0e7672fcafc54",
+      "bytes": 7928,
+      "sha256": "483b99f9bc85a96126cd608f38de5ab31c475ed1f84b8d5cea78f475c032be9c"
+    },
+    "command": {
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts",
+          "-t",
+          "waits for a correctly owned main page beyond the old 30-second cutoff",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+        "executableIdentity": "pnpm",
+        "startedAt": "2026-11-15T20:50:49Z",
+        "endedAt": "2026-11-15T20:50:52Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.log",
+        "logDigest": "1da1352e90284b5dcf9182b428aa40bec0932336cb5a1a2a2754c3e18cc6700d"
+      },
+      "metadata": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.meta.json",
+        "gitBlobSha": "ae7d8ec19509ef9d5f8f55a823cc524f207f9930",
+        "bytes": 3544,
+        "sha256": "778ecdc34c8738422593d4726cc3dad7906a6f4cb6d5dcfb6345b1992351dc79"
+      },
+      "boundedLog": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.log",
+        "gitBlobSha": "d0a982c897d989e2131e76d5e7261a04ddee8b94",
+        "bytes": 8255,
+        "sha256": "1da1352e90284b5dcf9182b428aa40bec0932336cb5a1a2a2754c3e18cc6700d"
+      },
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Command times are observed GitHub step envelopes, not per-process durations.",
+      "exitBasis": "The runner explicitly logged this failing process exit code."
+    },
+    "interpretation": "The selected test advances a fake clock to 35000 ms and requires the real helper to admit the correctly owned page. The retained 30000-ms implementation instead produces its fixed deadline error. The raw output establishes an intended assertion failure, not an import or setup error."
+  },
+  "greenValidation": {
+    "runId": 43760489286,
+    "headSha": "9d6e0ac976ea0a594baf9a4866da1bbb0e14952d",
+    "treeSha": "5d1308b45b392365b7ae288f1d76a549b174911e",
+    "conclusion": "success",
+    "tests": {
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "total": 33,
+      "passedFiles": 2,
+      "files": [
+        {
+          "path": "tests/installed-desktop-verification.test.ts",
+          "passed": 26
+        },
+        {
+          "path": "tests/installed-native-save.test.ts",
+          "passed": 7
+        }
+      ],
+      "delayedPageCase": {
+        "title": "installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff",
+        "status": "PASS",
+        "wholeCaseDurationMs": 6,
+        "clock": "Vitest fake timers"
+      }
+    },
+    "jobId": 132953964852,
+    "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760489286/job/132953964852",
+    "sourceTimeoutMs": 80000,
+    "rawLog": {
+      "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132953964852/logs",
+      "bytes": 40872,
+      "sha256": "503c4462ea2fd05804a8784df487c53c1eed7bf19a2d98f5716f352724213cf8"
+    },
+    "receipt": {
+      "ref": "docs/implementation/v3/M05-installed-startup-boundary-43760489286.json",
+      "gitBlobSha": "d6aa7cd48a182b4034fd70c1b291b2954369c23a",
+      "bytes": 8432,
+      "sha256": "3bd8fd42e8b0e75632e4a8761ca15e7fc7b50ce05e732d875a17089e914469c7"
+    },
+    "focusedCommand": {
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts",
+          "tests/installed-native-save.test.ts",
+          "--reporter=verbose",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+        "executableIdentity": "pnpm",
+        "startedAt": "2026-11-15T20:53:37Z",
+        "endedAt": "2026-11-15T20:53:41Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s4-custody-native-save-green.log",
+        "logDigest": "9b33fa9b3bd70fee01a2c0720d709cf10002e81e74aabc85c94e70f7bd6524f1"
+      },
+      "metadata": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s4-custody-native-save-green.meta.json",
+        "gitBlobSha": "9ca474676e30f961cdfb8d9a534995cc0d7700e9",
+        "bytes": 3534,
+        "sha256": "a2e4847722bb5a2d8aaeea2d5e8859ddd110c314b3f289fca312ccce6358507c"
+      },
+      "boundedLog": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s4-custody-native-save-green.log",
+        "gitBlobSha": "bf58db7fb9ade2acf9c91770d3706ece887b85b3",
+        "bytes": 7799,
+        "sha256": "9b33fa9b3bd70fee01a2c0720d709cf10002e81e74aabc85c94e70f7bd6524f1"
+      },
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Command times are observed GitHub step envelopes, not per-process durations.",
+      "exitBasis": "The jobs API reports the observed command step completed successfully."
+    },
+    "fullTypecheckCommand": {
+      "command": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+        "executableIdentity": "pnpm",
+        "startedAt": "2026-11-15T20:53:41Z",
+        "endedAt": "2026-11-15T20:54:06Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s5-full-typecheck.log",
+        "logDigest": "6169339a7ce77da718450573c94ee9c85da30335eec9591d069a9caaf3dc9f50"
+      },
+      "metadata": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s5-full-typecheck.meta.json",
+        "gitBlobSha": "71bf7eaa45ed41285c8300b95908a77fba4eb0dd",
+        "bytes": 3198,
+        "sha256": "40fe7ddd0ddf86b628106750cc5d307c6ce2e2b9750d74f36c8e58fadf772ba7"
+      },
+      "boundedLog": {
+        "ref": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s5-full-typecheck.log",
+        "gitBlobSha": "41ebe665f26b2089c1aa317c75cd7bac972aed88",
+        "bytes": 540,
+        "sha256": "6169339a7ce77da718450573c94ee9c85da30335eec9591d069a9caaf3dc9f50"
+      },
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Command times are observed GitHub step envelopes, not per-process durations.",
+      "exitBasis": "The jobs API reports the observed command step completed successfully."
+    },
+    "testBreakdown": {
+      "existingInstalledCustody": 19,
+      "newMainPageReadiness": 7,
+      "existingNativeSaveHelper": 7,
+      "total": 33
+    },
+    "newBehaviorCoverage": [
+      "A correctly owned page appearing after the former deadline is admitted",
+      "Closed, credentialed and wrong-origin candidates are refused",
+      "Missing-page waiting and metadata are bounded",
+      "Exit, termination and launch error are detected during pending owner revalidation",
+      "Ownership rejection fails immediately",
+      "Navigation during owner revalidation cannot admit a stale candidate",
+      "An unresolved owner recheck reaches the deadline and late completion has no effect"
+    ],
+    "limits": "The checks execute on real Windows runners, but use controlled page/process objects and fake time for readiness behavior. They are not actual installed app, native UIAutomation or native Save execution. Reported case durations are whole-test durations, not installed startup measurements."
+  },
+  "canonicalEvidence": {
+    "mapGitBlobSha": "166ef974a8f58f2c4265d7526b0654bc51b54f6d",
+    "mapBytes": 7732,
+    "mapSha256": "9de9635f73212de1b7658bc4bfb182669c3b1b4620ed8c62548a71e772fa9e19",
+    "records": 3,
+    "passedCommands": 2,
+    "failedCommands": 1,
+    "rawAndNormalizedLogIdentitiesAreDistinct": true,
+    "metadataBindingsVerified": true,
+    "timing": "Command times are observed CI step envelopes. No per-process pnpm duration or resolved executable path is inferred."
+  },
+  "independentReviews": [
+    {
+      "reviewer": "Parent implementation owner",
+      "scope": "Full helper/test diff, final diagnostic assertion and published two-file cut",
+      "unresolvedConcreteFindings": []
+    },
+    {
+      "reviewer": "Dependency audit",
+      "scope": "Deadline and liveness during async owner checks, candidate continuity, fixed metadata, unchanged cleanup and exact red-to-green delta",
+      "unresolvedConcreteFindings": []
+    },
+    {
+      "reviewer": "Memory integration audit",
+      "scope": "Read-only owner/origin/current-page checks, settlement suppression, bounded diagnostics and byte-identical downstream verifier tail",
+      "unresolvedConcreteFindings": []
+    }
+  ],
+  "pendingActualVerification": {
+    "runId": 43760736519,
+    "jobId": 132954742228,
+    "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760736519",
+    "headSha": "013c044d66f40136752df4f1903132d601d57851",
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "status": "PENDING_TERMINAL_REPORT_AT_REVIEW",
+    "actualInstalledMainPageSuccess": "NOT_ADMITTED",
+    "actualNativeSave": "NOT_ADMITTED",
+    "retainedMemoryReviewExportForgetRestart": "NOT_ADMITTED"
+  },
+  "proofLimits": {
+    "productionMemoryFlags": "Unchanged and false by default",
+    "fullEnabledInstalledMemoryLifecycle": "NOT_PROVEN",
+    "liveRepeatedTaskStudy": "NOT_RUN",
+    "globalProviderNetworkCalls": null,
+    "globalProviderSpend": null,
+    "sourceFixDoesNotConvertPriorFailedReceiptToPass": true
+  },
+  "mutationPolicy": "This review author created immutable source/test/review blobs only. Parent-owned isolated workflows supplied the actual red and green evidence. The parent owns source-branch and durable evidence publication; no source or ledger is changed by creating this review.",
+  "amendment": {
+    "reviewedAt": "2026-11-15 21:42:01 UTC",
+    "priorReview": {
+      "gitBlobSha": "16f885c279c2ac977374d322f8412e5494006a95",
+      "bytes": 21451,
+      "sha256": "0be251501515cc64dfbc3204dbb8c86943805eb468f3db606c412a9d58e94c0b"
+    },
+    "scope": "Correct the diagnostic-bound wording and distinguish verifier-source changes from the diagnostic workflow's expanded command set. Original red/green outcomes and the review-time pending snapshot are preserved."
+  },
+  "laterInstalledObservation": {
+    "runId": 43760736519,
+    "reviewRef": "docs/implementation/v3/M05-installed-independent-phase-review-43760736519.json",
+    "status": "FAILED_NATIVE_SAVE_AFTER_MAIN_READINESS",
+    "mainPageElapsedMs": 17206,
+    "priorPageBudgetMs": 30000,
+    "interpretation": "This later application page became ready below the former budget. It neither identifies the earlier missing-page cause nor establishes that the larger allowance caused readiness."
+  }
+}

@@ -1,0 +1,97 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/hermes-runtime.test.ts (46 tests | 7 failed | 39 skipped) 1342ms
+   × production pool forwards required manual checkpoints and waits for host persistence before source compaction 1086ms
+   × production pool blocks required manual compaction with missing host callback 65ms
+   × production pool blocks required manual compaction with unsupported source capability 60ms
+   × production pool preserves retained source history after a rejected required checkpoint 60ms
+   × production pool preserves retained source history after a unconfirmed required checkpoint 60ms
+   × production pool routes account catalog invalidation through the main pool only to its shared catalog 6ms
+   × production pool routes account catalog invalidation through the borrowed task engine only to its shared catalog 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool forwards required manual checkpoints and waits for host persistence before source compaction
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/hermes-runtime.test.ts:98:40
+     96|   await f.runtime.start(run({memoryCheckpoint:requiredCheckpoint}));co…
+     97|   work=f.runtime.compact(maintenance,source.sessionPath as string,main…
+     98|   await vi.waitFor(()=>expect(persist).toHaveBeenCalledOnce());
+       |                                        ^
+     99|   expect(scripted.calls).toEqual([expect.objectContaining({memoryCheck…
+    100|   expect(persist.mock.calls[0][0]).toMatchObject({ctx:{threadId:mainte…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool blocks required manual compaction with missing host callback
+ FAIL  tests/hermes-runtime.test.ts > production pool blocks required manual compaction with unsupported source capability
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/hermes-runtime.test.ts:111:118
+    109|  try{
+    110|   await f.runtime.start(run());const path=f.start().sessionPath as str…
+    111|   await expect(f.runtime.compact(run({runId:'pool-maintenance',epoch:2…
+       |                                                                                                                      ^
+    112|   expect(scripted.calls).toEqual([]);expect(scripted.history).toEqual(…
+    113|  }finally{await f.runtime.dispose();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool preserves retained source history after a rejected required checkpoint
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/hermes-runtime.test.ts:120:44
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool preserves retained source history after a unconfirmed required checkpoint
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/hermes-runtime.test.ts:120:127
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool routes account catalog invalidation through the main pool only to its shared catalog
+ FAIL  tests/hermes-runtime.test.ts > production pool routes account catalog invalidation through the borrowed task engine only to its shared catalog
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { accountId: 'account-a' } ]
+
+Number of calls: 0
+
+ ❯ tests/hermes-runtime.test.ts:132:38
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 39 skipped (46)
+   Start at  06:22:31
+   Duration  2.80s (transform 597ms, setup 0ms, import 1.20s, tests 1.34s, environment 0ms)
+

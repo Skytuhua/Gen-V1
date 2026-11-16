@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "root"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T20:58:07Z",
+    "endedAt": "2026-11-15T21:08:41Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43760736519-a1-j132954741853-s6-browser-root.log",
+    "logDigest": "ca04773945251896c9cc3ba30368c38765cc65f335db1a96f4dd2608d3edcee4"
+  },
+  "runId": 43760736519,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "013c044d66f40136752df4f1903132d601d57851",
+  "testedCheckout": {
+    "commitSha": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "013c044d66f40136752df4f1903132d601d57851"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "rawResponseSha256": "9ab78f7a172b24904f5bcf0b200e1418283771b0739ba93b28acc5aa6cd53216"
+  },
+  "job": {
+    "id": 132954741853,
+    "name": "Browser tests",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760736519/job/132954741853",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001435,
+      "name": "GitHub Actions 1000001435",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Exercise project memory and affected context browser flows",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 6,
+    "started_at": "2026-11-15T20:58:07Z",
+    "completed_at": "2026-11-15T21:08:41Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43760736519.json",
+  "receiptSha256": "8f651e988187a2ce70a657b9b2878c632c0616e6509f1c61e973344b1e5673dc",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132954741853/logs",
+  "rawJobLogDigest": "9aeeb4898d85fbcd127c9a85a1443103fa1f33e48289a24a94eb0feeee92d296",
+  "rawJobLogBytes": 113701,
+  "rawPolicy": "Exact connector-decoded strings encoded as UTF-8; BOM and original line endings retained in agent memory after workspace loss. Raw source API URLs and UTF-8 hashes identify the original job logs; original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      614,
+      632
+    ],
+    [
+      798,
+      922
+    ]
+  ],
+  "excerptInputSha256": "c259e59c8269b01d341bd4a53576595a7c74ab9a1500ec3ddff9ba750665ef75",
+  "excerptInputBytes": 20772,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 20540,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "The exact observed wrapper checks every LASTEXITCODE; the successful step and all four observed suite invocations establish exit 0 for each suite.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "$failedSuites = @()\nforeach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {\n  pnpm test:browser --suite $suite\n  if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }\n}\nif ($failedSuites.Count -gt 0) {\n  throw \"Failed browser suites: $($failedSuites -join ', ')\"\n}"
+}
