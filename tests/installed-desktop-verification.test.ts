@@ -3,6 +3,7 @@ import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {EventEmitter} from 'node:events';
+import {createHash} from 'node:crypto';
 import {PassThrough} from 'node:stream';
 import type {ChildProcess} from 'node:child_process';
 import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertWindowsDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
@@ -316,4 +317,59 @@ describe('installed main-page readiness',()=>{
   expect(state.events.at(-1)).toMatchObject({phase:'failed',failure:'deadline'});
   const before=JSON.stringify(state.events);release();await vi.advanceTimersByTimeAsync(0);expect(JSON.stringify(state.events)).toBe(before);
  }));
+});
+
+
+describe('bounded installed startup output custody',()=>{
+ const fixture=()=>{
+  const observe=(installedVerification as unknown as {observeInstalledStartup:(child:ChildProcess,iteration:number,clock:()=>number)=>{read:()=>any}}).observeInstalledStartup;expect(typeof observe).toBe('function');
+  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let now=100;
+  return {child,capture:observe(child as unknown as ChildProcess,1,()=>now),advance:(value:number)=>{now+=value;}};
+ };
+ const marker=(value:unknown)=>Buffer.from('HARNESS_STARTUP_V1 '+JSON.stringify(value)+'\n');
+ it('keeps draining when optional diagnostic construction fails',()=>{
+  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let capture:ReturnType<typeof installedVerification.observeInstalledStartup>|undefined;
+  expect(()=>{capture=installedVerification.observeInstalledStartup(child as unknown as ChildProcess,1,()=>{throw Error('PRIVATE_CLOCK_FAILURE');});}).not.toThrow();
+  child.stdout.write('PRIVATE_STDOUT');child.stderr.write('PRIVATE_STDERR');
+  expect(child.stdout.readableLength).toBe(0);expect(child.stderr.readableLength).toBe(0);expect(capture!.read()).toMatchObject({available:false,reason:'capture-unavailable'});expect(JSON.stringify(capture!.read())).not.toContain('PRIVATE');
+ });
+ it('cannot throw from process lifecycle listeners when the optional clock later fails',()=>{
+  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let calls=0;
+  const capture=installedVerification.observeInstalledStartup(child as unknown as ChildProcess,1,()=>{if(++calls>2)throw Error('PRIVATE_CLOCK_FAILURE');return 0;});
+  expect(()=>{child.emit('exit',1,null);child.emit('close',1,null);}).not.toThrow();
+  expect(capture.read()).toMatchObject({exit:{elapsedMs:null,code:1,signal:null},close:{elapsedMs:null,code:1,signal:null}});expect(JSON.stringify(capture.read())).not.toContain('PRIVATE');
+ });
+ it('reassembles only strict chunked markers while retaining separate output digest and byte counts',()=>{
+  const state=fixture(),event={stage:'backend-error',elapsedMs:15,error:{category:'error',code:'EADDRINUSE'}},line=marker(event);
+  state.child.stderr.write(Buffer.from('PRIVATE_SOURCE_TOKEN\n'));state.advance(20);
+  state.child.stderr.write(line.subarray(0,7));state.child.stderr.write(line.subarray(7));
+  const value=state.capture.read(),bytes=Buffer.concat([Buffer.from('PRIVATE_SOURCE_TOKEN\n'),line]);
+  expect(value.events).toEqual([{...event,stream:'stderr',observedElapsedMs:20}]);
+  expect(value.streams.stderr).toEqual({bytes:bytes.length,hashedBytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),truncated:false});
+  expect(JSON.stringify(value)).not.toContain('PRIVATE_SOURCE_TOKEN');expect(value.firstFailure).toEqual(value.events[0]);
+ });
+ it('drops malformed, private and extra fields and accepts the next complete line',()=>{
+  const state=fixture(),good={stage:'main-ready',elapsedMs:1,error:null};
+  for(const value of [{...good,private:'PRIVATE_TOKEN'},{...good,stage:'PRIVATE_TOKEN'},{...good,error:{category:'error',code:'PRIVATE_TOKEN'}},{...good,error:{category:'error',code:null,stack:'PRIVATE_TOKEN'}},{...good,elapsedMs:-1}])state.child.stderr.write(marker(value));
+  state.child.stderr.write('HARNESS_STARTUP_V1 {PRIVATE_MALFORMED}\n');state.child.stderr.write(Buffer.alloc(3000,65));state.child.stderr.write('\n');state.child.stderr.write(marker(good));
+  const value=state.capture.read();expect(value.events).toEqual([{...good,stream:'stderr',observedElapsedMs:0}]);expect(value.rejectedLines).toBe(6);expect(value.overlongLines).toBe(1);expect(JSON.stringify(value)).not.toContain('PRIVATE');
+ });
+ it('bounds parsing, retained events and hash bytes while continuing to drain later output',()=>{
+  const state=fixture(),line=marker({stage:'main-opening',elapsedMs:1,error:null});for(let index=0;index<50;index++)state.child.stdout.write(line);
+  const failure=marker({stage:'startup-failed',elapsedMs:2,error:{category:'error',code:null}});state.child.stdout.write(failure);
+  const bulk=Buffer.alloc(400000,80);state.child.stdout.write(bulk);state.child.stdout.write(Buffer.alloc(400000,81));
+  const value=state.capture.read();expect(value.events).toHaveLength(32);expect(value.firstFailure).toMatchObject({stage:'startup-failed'});
+  expect(value.streams.stdout).toMatchObject({bytes:50*line.length+failure.length+800000,hashedBytes:262144,truncated:true});
+  expect(value.streams.stdout.sha256).toBe(createHash('sha256').update(Buffer.concat([...Array.from({length:50},()=>line),failure,bulk]).subarray(0,262144)).digest('hex'));
+  expect(state.child.stdout.readableLength).toBe(0);expect(JSON.stringify(value).length).toBeLessThan(9000);
+ });
+ it('retains a renderer loss before the final generic failure',()=>{
+  const state=fixture();state.child.stderr.write(marker({stage:'main-renderer-gone',elapsedMs:1,error:null}));state.child.stderr.write(marker({stage:'startup-failed',elapsedMs:2,error:{category:'error',code:null}}));expect(state.capture.read().firstFailure).toMatchObject({stage:'main-renderer-gone'});
+ });
+ it('retains the first startup failure while separately observing later process exit and close',()=>{
+  const state=fixture();state.child.stderr.write(marker({stage:'backend-error',elapsedMs:5,error:{category:'error',code:'ENOENT'}}));state.advance(10);
+  state.child.emit('error',Object.assign(Error('PRIVATE_LATE_ERROR'),{code:'EACCES'}));state.child.emit('exit',1,null);state.advance(3);state.child.emit('close',1,null);
+  const value=state.capture.read();expect(value.firstFailure).toMatchObject({stage:'backend-error',error:{category:'error',code:'ENOENT'}});
+  expect(value.exit).toEqual({elapsedMs:10,code:1,signal:null});expect(value.close).toEqual({elapsedMs:13,code:1,signal:null});expect(JSON.stringify(value)).not.toContain('PRIVATE_LATE_ERROR');
+ });
 });

@@ -10,6 +10,7 @@ import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 import {verificationPorts,assertWrapperArguments} from './portable-verification.ts';
 import {verifyPackagedProviders} from './verify-packaged-providers.ts';
 import type {InstalledMemorySeed,InstalledMemoryObservation} from './installed-memory-retention.ts';
+import {createStartupOutputCapture,startupErrorDiagnostic} from '../apps/desktop/backend-policy.ts';
 
 const APP_ID='local.generativeharness.desktop';
 const APP_FILE='Gen V1.exe',UNINSTALL_FILE='Uninstall Gen V1.exe';
@@ -348,12 +349,33 @@ export async function waitForInstalledMainPage<T extends InstalledPageCandidate>
  catch{failure??='page-query';emit('failed');throw refuse(failure);}
  finally{settled=true;clearTimeout(pollTimer);clearTimeout(deadlineTimer);clearInterval(livenessTimer);}
 }
+/** Optional evidence only: no output contents, startup decision, timer or child action. */
+export function observeInstalledStartup(child:ChildProcess,iteration:number,clock:()=>number=Date.now){
+ const unavailable={iteration,pid:child.pid??null,available:false,reason:'capture-unavailable'} as const;
+ try{
+  type ObservedEnd=Omit<ProcessEnd,'elapsedMs'>&{elapsedMs:number|null};
+  const started=clock(),capture=createStartupOutputCapture(clock);let exit:ObservedEnd|null=null,close:ObservedEnd|null=null,spawnError:ReturnType<typeof startupErrorDiagnostic>|null=null;
+  const elapsed=()=>{try{return Math.max(0,clock()-started);}catch{return null;}};
+  child.stdout?.on('data',(chunk:Buffer)=>capture.write('stdout',chunk));child.stderr?.on('data',(chunk:Buffer)=>capture.write('stderr',chunk));
+  child.stdout?.on('error',()=>{});child.stderr?.on('error',()=>{});
+  child.once('error',error=>{spawnError??=startupErrorDiagnostic(error);});
+  child.once('exit',(code,signal)=>{exit={elapsedMs:elapsed(),code,signal};});child.once('close',(code,signal)=>{close={elapsedMs:elapsed(),code,signal};});
+  return {read:()=>{try{return {iteration,pid:child.pid??null,available:true,clock:'since-launch-observer-attached',...capture.read(),spawnError,exit,close};}catch{return unavailable;}}};
+ }catch{
+  for(const stream of [child.stdout,child.stderr])try{stream?.on('error',()=>{});stream?.on('data',()=>{});stream?.resume();}catch{}
+  return {read:()=>unavailable};
+ }
+}
 async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
- const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:'ignore'});
+ const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:['ignore','pipe','pipe']});
+ let startupCapture:ReturnType<typeof observeInstalledStartup>|undefined;const startupDiagnostic:Record<string,unknown>={};
+ const refreshStartup=()=>{try{if(startupCapture)Object.assign(startupDiagnostic,startupCapture.read());}catch{}};
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
  try{
+  startupCapture=observeInstalledStartup(child,iteration);refreshStartup();child.once('close',refreshStartup);
+  ((receipt.launchDiagnostics??=[]) as unknown[]).push(startupDiagnostic);
   await expect.poll(async()=>{if(launchError)throw launchError;if(child.exitCode!==null||child.signalCode!==null)throw Error('Installed application exited before readiness.');try{return (await fetch(debugOrigin+'/json/version',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:45000,intervals:[100,250,500]}).toBe(true);
   browser=await chromium.connectOverCDP(debugOrigin);
   const verifyBrowserOwner=async()=>{verifiedOwner=false;const session=await browser!.newBrowserCDPSession();try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}};
@@ -383,6 +405,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  }finally{
   if(verifiedOwner)await browser?.close().catch(()=>{});
   if(child.exitCode===null&&child.signalCode===null)await terminateProcessTree(child);
+  refreshStartup();
  }
 }
 

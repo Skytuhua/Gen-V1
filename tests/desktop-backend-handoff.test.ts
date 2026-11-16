@@ -29,3 +29,15 @@ it('activates a live backend only after the old relay is closed', async () => {
   await result;
   expect(activate).toHaveBeenCalledOnce();
 });
+
+
+it('keeps the original relay rejection when diagnostic observation fails',async()=>{
+ const original=Error('PRIVATE_RELAY_FAILURE'),events:unknown[]=[],activate=vi.fn();
+ const outcome=(finishBackendStartup as unknown as (...args:unknown[])=>Promise<void>)({exitCode:null,signalCode:null},Promise.reject(original),()=>'',activate,(event:unknown)=>{events.push(event);throw Error('PRIVATE_OBSERVER_FAILURE');}).catch(error=>error);
+ expect(await outcome).toBe(original);expect(activate).not.toHaveBeenCalled();expect(events).toEqual([{stage:'backend-relay-error',error:{category:'error',code:null}}]);
+});
+it('records a backend stopped during relay close without changing refusal',async()=>{
+ const events:unknown[]=[],activate=vi.fn();
+ const outcome=(finishBackendStartup as unknown as (...args:unknown[])=>Promise<void>)({exitCode:9,signalCode:null},undefined,()=>'',activate,(event:unknown)=>events.push(event)).catch(error=>error);
+ expect(await outcome).toBeInstanceOf(Error);expect(activate).not.toHaveBeenCalled();expect(events).toEqual([{stage:'backend-activation-stopped',error:null}]);
+});
