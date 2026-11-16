@@ -38,10 +38,10 @@ function Fixture() {
         toggleCollapsed={() => setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}))}
         setFolded={(key, folded) => setLayout(value => ({...value, folded: {...value.folded, [key]: folded}}))}
         select={id => calls.push({select: id})} create={() => {}} settings={() => {}}
-        presentation={async(thread,value)=>{calls.push({presentation:thread,value});
-          if(window.sidebarPresentation.mode==='reject')throw Error('Presentation was rejected.');
-          if(window.sidebarPresentation.mode==='hold')await new Promise<void>((resolve,reject)=>{window.sidebarPresentation.accept=resolve;window.sidebarPresentation.reject=()=>reject(Error('Presentation was rejected.'));});
-          setRows(current=>current.map(row=>row.id===thread.id?{...row,presentation:{...row.presentation,...value}}:row));return true;
+        presentation={async(thread,value)=>{calls.push({presentation:thread,value});const mode=window.sidebarPresentation.mode;
+          if(mode==='reject')throw Error('Presentation was rejected.');
+          if(mode==='hold')await new Promise<void>((resolve,reject)=>{window.sidebarPresentation.accept=resolve;window.sidebarPresentation.reject=()=>reject(Error('Presentation was rejected.'));});
+          if(mode==='hold')setRows(current=>current.map(row=>row.id===thread.id?{...row,presentation:{...row.presentation,...value}}:row));return true;
         }} rename={thread => calls.push({rename: thread})}
         archive={id => calls.push({archive: id})} detachThread={() => calls.push({detach: true})}
         {...(!query.has('custom') ? {onPlaceThread: (thread: ThreadNavigationRow) => calls.push({place: thread})} : {})}

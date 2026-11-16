@@ -252,12 +252,12 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     if (mutationPending.current) return false;
     mutationPending.current = true; setMutationBusy(true);
     try {await prepare(); await action(); return true;}
-    catch (cause) {if (alive.current) setError(message(cause)); return false;}
-    finally {mutationPending.current = false; if (alive.current) setMutationBusy(false);}
+    catch (cause) {fail(() => Promise.reject(cause)); return false;}
+    finally {mutationPending.current = false; setMutationBusy(false);}
   };
   const present = async (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
     if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return false;}
-    return mutate(async () => {await command('thread.presentation', patch, row.id); void navigation.refresh().catch(cause => {if (alive.current) setError(message(cause));});});
+    return mutate(async () => {await command('thread.presentation', patch, row.id); fail(navigation.refresh);});
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
   return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} data-panel-animations={preferences.panelAnimations} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
