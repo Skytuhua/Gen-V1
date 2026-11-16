@@ -80,8 +80,17 @@ function VirtualSlot({children, className, label}: {children: ReactNode; classNa
   const observer = new IntersectionObserver(([entry]) => setNear(entry.isIntersecting), {rootMargin: '200px'});
   if (ref.current) observer.observe(ref.current); return () => observer.disconnect();
  }, []);
+ const mounted = near || held;
+ useLayoutEffect(() => {
+  const slot = ref.current;
+  // Arrow navigation and the reveal control can focus the stable slot before its card mounts.
+  if (mounted && slot && slot.ownerDocument.activeElement === slot) {
+   slot.querySelector<HTMLElement>(':scope > .agents-agent')?.focus({preventScroll: true});
+  }
+ }, [mounted]);
+ const reveal = () => {ref.current?.focus(); setHeld(true);};
  return <div ref={ref} tabIndex={-1} className={className} onFocusCapture={() => setHeld(true)} onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false);}}>
-  {near || held ? children : <button type="button" className="agents-virtual-reveal" onFocus={() => setHeld(true)} onClick={() => setHeld(true)}>Show {label}</button>}
+  {mounted ? children : <button type="button" className="agents-virtual-reveal" onFocus={reveal} onClick={reveal}>Show {label}</button>}
  </div>;
 }
 function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWorkspaceProps, 'projects'>) {

@@ -223,6 +223,22 @@ describe("explicit disclosure choices", () => {
     expect(planDefaultCollapsed("agent", "completed")).toBe(true);
     expect(planDefaultCollapsed("agent", "queued")).toBe(false);
   });
+  it("keeps a recently changed old choice when persisting at capacity", async () => {
+    const { togglePlanCollapse, resolvePlanOpen, boundPlanCollapse, readPlanCollapse, collapseStorageKey } = await import("../apps/web/src/PlanStatus");
+    const oldest = collapseKey("step", "scope");
+    const nextOldest = collapseKey("step", "other-0");
+    const old: Record<string, boolean> = { [oldest]: true };
+    for (let i = 0; i < 127; i++) old[collapseKey("step", `other-${i}`)] = true;
+
+    const reopened = togglePlanCollapse(old, oldest, "step", "completed");
+    const newest = togglePlanCollapse(reopened, collapseKey("step", "new"), "step", "running");
+    const stored = JSON.stringify(boundPlanCollapse(newest));
+    const reloaded = readPlanCollapse((key) => key === collapseStorageKey ? stored : null);
+
+    expect(Object.keys(reloaded)).toHaveLength(128);
+    expect(resolvePlanOpen(reloaded, oldest, "step", "completed")).toBe(true);
+    expect(reloaded[nextOldest]).toBeUndefined();
+  });
   it("reads the v2 record, merging legacy closed choices without dropping explicit opens", async () => {
     const { readPlanCollapse, boundPlanCollapse, collapseStorageKey: v2Key } = await import("../apps/web/src/PlanStatus");
     const legacy = JSON.stringify({

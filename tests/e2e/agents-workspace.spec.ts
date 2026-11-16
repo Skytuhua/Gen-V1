@@ -324,3 +324,16 @@ test('a message board post acknowledgement preserves edits for the next post', a
   expect(sent[0]).toMatchObject({recipientThreadId: 'child-active', topic: 'First topic', text: 'First note'});
  } finally {finish();}
 });
+
+test('keyboard entry into a virtual agent keeps focus on that card', async ({page}) => {
+ await page.setViewportSize({width: 1440, height: 780});
+ await setup(page);
+ const grid = page.getByRole('region', {name: 'Alpha agents', exact: true});
+ await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible();
+ await grid.focus();
+ // ArrowLeft from the grid entry targets the last agent, outside the mounted viewport.
+ const destination = grid.getByRole('group', {name: 'Agent parent-32', exact: true});
+ await expect(destination).toHaveCount(0);
+ await page.keyboard.press('ArrowLeft');
+ await expect(destination).toBeFocused();
+});
