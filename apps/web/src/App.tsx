@@ -599,7 +599,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const modelThreadRef = useRef(modelThread); modelThreadRef.current = modelThread;
   const modelBinding = hasPinnedAccount(modelThread, snapshot) ? modelThread?.accountId ?? null : undefined;
   const selectedAccountsKey = JSON.stringify(Object.entries(snapshot.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
-  const modelOwner = `${modelThread?.id ?? 'new'}:${modelBinding === undefined ? 'unbound' : modelBinding ?? 'legacy'}`;
+  const modelOwner = `${modelThread?.id ?? 'new'}:${modelThread?.modelId ?? 'unset'}:${modelBinding === undefined ? 'unbound' : modelBinding ?? 'legacy'}`;
   const modelContext = modelBinding === undefined ? `${modelOwner}:${selectedAccountsKey}` : modelOwner;
   const modelContextRef = useRef(modelContext); modelContextRef.current = modelContext;
   const loadedModelOwner = useRef('');
@@ -616,7 +616,9 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         if (previous && result.models.some(item => item.id === previous)) return previous;
         // Bound tasks never silently move to another account or model when its
         // pinned connection is unavailable. Setup and model changes are explicit.
-        if (hasPinnedAccount(owner, snapshotRef.current)) return owner?.modelId ?? previous;
+        // A binding whose model has not propagated yet keeps the current
+        // selection or the first advertised model instead of an empty one.
+        if (hasPinnedAccount(owner, snapshotRef.current)) return owner?.modelId ?? (previous || result.models[0]?.id || '');
         const preferred = owner?.modelId ?? snapshotRef.current.settings.modelId;
         return result.models.some(item => item.id === preferred) ? preferred! : result.models[0]?.id ?? preferred ?? '';
       });
