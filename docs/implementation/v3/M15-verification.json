@@ -7461,6 +7461,117 @@
       "artifactRefs": [
         "docs/implementation/v3/M15-command-index.json"
       ]
+    },
+    {
+      "id": "V6_CONTINUATION_LOCAL",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M15-D01",
+          "status": "PASS",
+          "evidence": "Retired code-review/research/custom presets reject PRESET_RETIRED through the real WorkspaceRepository; no retired host identifiers in shared surfaces. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D02",
+          "status": "PASS",
+          "evidence": "Capture plus draft write produce zero submits until explicit message.send; Ask draft CAS never reaches the send path. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D03",
+          "status": "PASS",
+          "evidence": "Delayed old-owner completion fenced; foreign draft intact; stale-generation clear mutates nothing. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D04",
+          "status": "PASS",
+          "evidence": "DIFF_HUNK stays UNSUPPORTED with reason; capture refuses pre-chip; unmapped Markdown selections return no reference. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D05",
+          "status": "PASS",
+          "evidence": "Cross-owner send denied CAPABILITY_DENIED; AFTER_CURRENT queues then dispatches epoch+1 after settle; retained capture survives Store/Service restart; owner handoff resolves. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D06",
+          "status": "PASS",
+          "evidence": "Mounted rows <=300 on the 100,000-row fixture; authorized full read/copy/search complete; drafts survive module reload. 2/2 cases pass."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/source-selection-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/Program Files/nodejs/node.exe",
+          "startedAt": "2026-11-16T13:00:32.131Z",
+          "endedAt": "2026-11-16T13:00:33.131Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-source-selection-v3.log",
+          "logDigest": "cf0ef75d30e1021dadd79eb8ec5b7ab98ec28ea02edcc9fc6f255ecb1145d95e"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-performance-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/Program Files/nodejs/node.exe",
+          "startedAt": "2026-11-16T13:02:32.131Z",
+          "endedAt": "2026-11-16T13:02:33.131Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-performance-v3.log",
+          "logDigest": "5222528dbe61b5d85ad50d43622c1f9e3ca5ab0542a01b4e4f4fb7c3d6a8d02c"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-recovery-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/Program Files/nodejs/node.exe",
+          "startedAt": "2026-11-16T13:04:32.131Z",
+          "endedAt": "2026-11-16T13:04:33.131Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-recovery-v3.log",
+          "logDigest": "c75cf392791594bb9cbb8228dcf65b7d97b091e2490745a5205bf4dbcda385a5"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-continuation-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/Program Files/nodejs/node.exe",
+          "startedAt": "2026-11-16T13:06:32.131Z",
+          "endedAt": "2026-11-16T13:06:35.131Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-continuation-v6.log",
+          "logDigest": "570449a4e8ccbe63e621027a4d86c1390eab7a77c12666d20a66e6c8a5c71f22"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M15/requirements.json",
+        "docs/implementation/v6/M15/handoff.md",
+        "docs/implementation/v6/M15/feature-comparison.md"
+      ]
     }
   ],
   "changedFiles": [
@@ -9500,7 +9611,8 @@
     "M05 has owner-bound host/UI integration and local Service/Store/browser evidence; it is no longer an unsupported owning module. Its C4 actual Windows combined Hermes/file/history body remains unrun. Scripted model transport does not prove a live provider.",
     "Later observed main 199a2e240aac0374228e82599fe7aeba4afafaf2 is unaccepted. Its M07 and other changes require separate owning integration review; no runtime compatibility or merge approval is claimed. Ordinary PR CI retains accepted-b4aa bytes and separate merge-tree provenance.",
     "The controlled renderer fixture reports 5.6 ms/34 rows versus 2038.1 ms/100000 rows, excludes paint and uses a stubbed read model. It does not establish whole-App startup, full task-tree scaling, installed-desktop DPI or universal-device performance.",
-    "Unavailable atomic complete-diff witness, authenticated historical-artifact reader, trusted formatted-inline offsets and optional M10/M14 integrations remain blocked. Feature rollback retains current-code durable source references; old binaries lacking the account-admission witness can fail closed. ui.sourceWorkbenchV1 and reviewerApproval remain false. No merge, release, deployment or activation is granted."
+    "Unavailable atomic complete-diff witness, authenticated historical-artifact reader, trusted formatted-inline offsets and optional M10/M14 integrations remain blocked. Feature rollback retains current-code durable source references; old binaries lacking the account-admission witness can fail closed. ui.sourceWorkbenchV1 and reviewerApproval remain false. No merge, release, deployment or activation is granted.",
+    "V6 continuation adds tests/workbench-continuation-v6.test.ts plus docs/implementation/v6/M15/ records on the published c993 cut. The unpublished D01 workflow repair could not be byte-verified against its recorded hashes and remains HOLD_UNPUBLISHED_CUSTODY; a base merge to observed main a79a897d conflicts in 10 files and remains HOLD_SOURCE_DRIFT. Local phase gates here: typecheck/lint/build PASS; pnpm test FAIL 52/4102 and test:browser FAIL 463/1149, both environment-bound (no M15-scope failures). Neither hold grants merge, release or activation; ui.sourceWorkbenchV1 and reviewerApproval stay false."
   ],
   "reviewerApproval": false
 }

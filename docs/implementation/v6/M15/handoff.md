@@ -1,0 +1,44 @@
+# M15 V6 continuation handoff
+
+## Custody
+
+- Worktree: `C:\Users\Administrator\repos\Gen-V1-m15-v6` (fresh recovery clone of `skytuhua-org/Gen-V1`; the pre-cloned `C:\Users\Administrator\repos\Gen-V1` fork checkout was not used).
+- Branch: `agent/m15-v3`. Preserved starting head: `c993cb5fdf46894c2e89fff5a9c663bfcce36691`.
+- Accepted base / merge-base: `b4aa2caa5a3cedb29a0fddb510e49b5abd802a73`. Observed `origin/main`: `a79a897dbd11c21d3d8e114275315facdf14def0`.
+- The original previous checkout, its worktrees and untracked files were not touched (no reset/clean/stash/force-update). This worktree required `git -c core.longpaths=true` per command; repository git config on this machine is read-only.
+
+## R03 merge attempt — HOLD_SOURCE_DRIFT
+
+`git merge --no-commit --no-ff a79a897d` into `agent/m15-v3` produced content conflicts in 10 files and was aborted; the worktree remains clean at `c993cb5`. Recorded stage1(base)/stage2(ours)/stage3(theirs) blob prefixes:
+
+- apps/server/server.ts — c4151c1e / 73466c15 / f47211cc
+- apps/web/src/App.tsx — 85409cb9 / 52433591 / 6858a165
+- apps/web/src/ProjectMemoryReview.tsx — c8f26f9e / 1e9c95c7 / 85c050fe
+- apps/web/src/SavedDrafts.tsx — 9123a826 / 2477035d / d50abf22
+- apps/web/src/WorkActivity.tsx — fef4b8e9 / 63773bb0 / 5af15ce8
+- apps/web/src/WorkspaceSplitLayout.tsx — ab462749 / c93c735d / 217b909b
+- packages/ui-shell/ChatView.tsx — 12812060 / df1074a2 / 1d5d2e70
+- scripts/public-source-files.json — c189a34e / 6fae31cb / 6557a3a2
+- tests/e2e/desktop-surfaces.spec.ts — ca3346a5 / ad7238eb / a3678efd
+- tests/e2e/saved-drafts.playwright.config.ts — 09223103 / ace738ca / 74b92bc3
+
+Resolution requires an owning integration review; not performed in this continuation.
+
+## D01 workflow repair — HOLD_UNPUBLISHED_CUSTODY (BLOCKED)
+
+The existing PR handoff records a lost, unpublished checkout repair adding a workflow-level `env:` block (`GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=core.longpaths`, `GIT_CONFIG_VALUE_0=true`) to `.github/workflows/m15-evidence.yml` and `.github/workflows/ci.yml`, with recorded after-repair SHA-256s (`fa59674b…82ccc` and `127cbb5f…0da8b`).
+
+Exhaustive byte-level reconstruction (top-level/job-level/step-level placement, all quoting/ordering/indentation/glue variants, CRLF and BOM, plus git-blob hashing — 6 generation scripts) reproduced neither recorded hash. The expected before/after hashes therefore do not match any payload that can be produced, so per D01 the repair is **blocked** and was **not** applied. Both workflow files are byte-identical to published head `c993cb5` (SHA-256 `2503858a…` / `49c2af68…`). A semantically equivalent env block is a trivial new change, but substituting it would claim recovery of the lost payload; that needs an explicit decision.
+
+## V6 changes in this commit
+
+- `tests/workbench-continuation-v6.test.ts` — new: M15-D01..M15-D06 decision cases (12 tests) through the real Service/Store, WorkspaceRepository, journal and recovery APIs.
+- `docs/implementation/v6/M15/requirements.json` — new: full C/S/U/T/G/D requirement disposition matrix.
+- `docs/implementation/v6/M15/feature-comparison.md` — new: M15-S14 record.
+- `docs/implementation/v3/M15-verification.json` — appended V6 phase entry with the observed targeted-suite receipts.
+
+## Tested / untested
+
+- Tested (local, this worktree, Node v24.22.2 + pnpm 10.30.3): `vitest run` on `source-selection-v3` (7), `workbench-performance-v3` (5), `workbench-recovery-v3` (14), `workbench-continuation-v6` (12) — all pass; plus the phase gates recorded in the verification bundle.
+- Not run here: C4 actual Windows native suites, Edge/Chromium browser suites, repository shards and base/candidate comparison — those are CI-side per the m15-evidence workflow and were already NOT_RUN in the published bundle.
+- Named holds: HOLD_SOURCE_DRIFT (main merge conflicts, above), HOLD_UNPUBLISHED_CUSTODY (D01 repair, above). Flags `ui.sourceWorkbenchV1` and `reviewerApproval` remain false.
