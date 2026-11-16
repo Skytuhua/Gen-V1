@@ -8,10 +8,11 @@ import './credential-entry.css';
 export function CredentialEntry(props:CredentialEntryProps){
   const declaration=EVERYDAY_SCHEMAS.CredentialEntry.parse(props),scope=useSecureArtifact(),id=useId(),field=useRef<HTMLInputElement>(null);
   const [metadata,setMetadata]=useState<CredentialMetadata|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[hasInput,setHasInput]=useState(false),[revealed,setRevealed]=useState(false);
-  const sequence=useRef(0),current=useRef(scope);current.current=scope;
+  const sequence=useRef(0),current=useRef(scope);
   const identity=JSON.stringify([scope?.artifactId,scope?.threadId,declaration.slotKey,declaration.service,declaration.label,declaration.purpose]);
-  const active=useRef(identity);active.current=identity;
-  useLayoutEffect(()=>{const input=field.current;if(input)input.value='';setHasInput(false);setRevealed(false);setError('');return()=>{if(input)input.value='';sequence.current++;};},[identity,scope?.active]);
+  const active=useRef(identity);
+  useLayoutEffect(()=>{if(active.current!==identity||current.current?.active!==scope?.active||current.current?.revision!==scope?.revision){sequence.current++;setError('');}current.current=scope;active.current=identity;});
+  useLayoutEffect(()=>{const input=field.current;if(input)input.value='';setHasInput(false);setRevealed(false);return()=>{if(input)input.value='';};},[identity,scope?.active]);
   const refresh=async()=>{
     if(!scope||scope.active===false)return;const generation=++sequence.current;setBusy(true);
     try{const next=await getCredentialSlot(scope,declaration.slotKey);if(sequence.current===generation){setMetadata(next);setError('');}}

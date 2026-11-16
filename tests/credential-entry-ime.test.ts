@@ -8,19 +8,20 @@ import type {SecureArtifactScope} from '../apps/web/src/secure-artifact-context'
 const scope:SecureArtifactScope={artifactId:'synthetic-artifact',threadId:'synthetic-thread',revision:1,active:true};
 const fixture='SYNTHETIC_OFFLINE_FIXTURE';
 type Operation={operation:'get'|'save'|'remove';scope:SecureArtifactScope;slot:string;version?:number;tokenBytes?:number};
-type Harness={operations:Operation[];setActive:(active:boolean)=>void;releaseStatus:()=>void};
+type Harness={operations:Operation[];setActive:(active:boolean)=>void;releaseStatus:()=>void;holdMutation?:boolean;speculateInactive:()=>void;inactiveRendered?:boolean;resolveMutation:()=>void;rejectMutation:()=>void;hide:()=>void;reveal:()=>void};
 let browser:Browser,server:Server,origin:string;
 
 beforeAll(async()=>{
   // Exercise the real component/provider. Only the dedicated API boundary is
   // substituted; the recorder retains token byte counts, never token values.
   const bundle=await build({stdin:{resolveDir:process.cwd(),loader:'tsx',contents:`
-    import {createRoot} from 'react-dom/client';
+    import React from 'react';import {flushSync} from 'react-dom';import {createRoot} from 'react-dom/client';
     import {CredentialEntry} from './apps/web/src/CredentialEntry';
     import {SecureArtifactProvider} from './apps/web/src/secure-artifact-context';
     const root=createRoot(document.getElementById('root'));
-    const render=active=>root.render(<SecureArtifactProvider value={{artifactId:'synthetic-artifact',threadId:'synthetic-thread',revision:1,active}}><CredentialEntry slotKey="syntheticSlot" label="Synthetic test value" service="Offline fixture"/></SecureArtifactProvider>);
-    window.setActive=render;render(true);
+    const held=new Promise(()=>{});function Block({active,hidden}){if(hidden||!active&&window.suspend){if(!active)window.inactiveRendered=true;throw held;}return null;}
+    function Harness(){const[active,setActive]=React.useState(true),[hidden,setHidden]=React.useState(false);window.setActive=setActive;window.hide=()=>flushSync(()=>setHidden(true));window.reveal=()=>flushSync(()=>setHidden(false));window.speculateInactive=()=>{window.suspend=true;React.startTransition(()=>setActive(false));};return <React.Suspense fallback={<p>Suspended</p>}><SecureArtifactProvider value={{artifactId:'synthetic-artifact',threadId:'synthetic-thread',revision:1,active}}><CredentialEntry slotKey="syntheticSlot" label="Synthetic test value" service="Offline fixture"/></SecureArtifactProvider><Block active={active} hidden={hidden}/></React.Suspense>;}
+    root.render(<Harness/>);
   `},bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',loader:{'.css':'empty'},define:{'process.env.NODE_ENV':'"production"'},plugins:[{
     name:'offline-credential-api',setup(plugin){
       plugin.onResolve({filter:/^\.\/api$/},args=>basename(args.importer)==='CredentialEntry.tsx'?{path:'credential-api',namespace:'offline'}:undefined);
@@ -35,6 +36,7 @@ beforeAll(async()=>{
         }
         export async function saveCredentialSlot(scope,slot,token,version){
           window.operations.push({operation:'save',scope:{...scope},slot,version,tokenBytes:new TextEncoder().encode(token).length});
+          if(window.holdMutation)await new Promise((resolve,reject)=>{window.resolveMutation=resolve;window.rejectMutation=()=>reject(new Error('Synthetic interrupted acknowledgment'));});
           return {present:true,version:version+1,expiresAt:null};
         }
         export async function removeCredentialSlot(scope,slot,version){
@@ -111,6 +113,40 @@ it('explicit Remove still submits the existing metadata version once',async()=>{
     await page.getByRole('button',{name:'Remove token',exact:true}).click();await flush(page);
     expect(await mutations(page)).toEqual([{operation:'remove',scope,slot:'syntheticSlot',version:7}]);
     await browserExpect(page.getByRole('status')).toHaveText('No token saved');
+  });
+});
+
+for(const outcome of ['success','error'] as const)it(`settles the visible save ${outcome} when an inactive render suspends before commit`,async()=>{
+  await withFixture(false,async page=>{
+    const input=page.getByLabel('Synthetic test value');await input.fill(fixture);
+    await page.evaluate(()=>{(window as unknown as Harness).holdMutation=true;});
+    await page.getByRole('button',{name:'Save token',exact:true}).click();
+    await expect.poll(()=>mutations(page)).toHaveLength(1);
+    await page.evaluate(()=>(window as unknown as Harness).speculateInactive());
+    await expect.poll(()=>page.evaluate(()=>(window as unknown as Harness).inactiveRendered)).toBe(true);
+    await browserExpect(input).toBeVisible();await browserExpect(page.getByText('Suspended',{exact:true})).toHaveCount(0);
+    await page.evaluate(outcome=>{const harness=window as unknown as Harness;outcome==='success'?harness.resolveMutation():harness.rejectMutation();},outcome);
+    await browserExpect(input).toBeEnabled();await browserExpect(input).toHaveValue('');
+    if(outcome==='success')await browserExpect(page.getByRole('status')).toHaveText('Saved for this host session');
+    else await browserExpect(page.getByText(/The acknowledgment was interrupted/)).toBeVisible();
+    expect(await mutations(page)).toEqual([{operation:'save',scope,slot:'syntheticSlot',version:0,tokenBytes:25}]);
+  });
+});
+
+for(const outcome of ['success','error'] as const)for(const timing of ['hidden','revealed'] as const)it(`recovers a save ${outcome} settled while ${timing} after urgent Suspense hide`,async()=>{
+  await withFixture(false,async page=>{
+    const input=page.getByLabel('Synthetic test value');await input.fill(fixture);
+    await page.evaluate(()=>{(window as unknown as Harness).holdMutation=true;});
+    await page.getByRole('button',{name:'Save token',exact:true}).click();await expect.poll(()=>mutations(page)).toHaveLength(1);
+    await page.evaluate(()=>(window as unknown as Harness).hide());await browserExpect(page.getByText('Suspended',{exact:true})).toBeVisible();await browserExpect(input).toBeHidden();
+    if(timing==='revealed')await page.evaluate(()=>(window as unknown as Harness).reveal());
+    await page.evaluate(outcome=>{const harness=window as unknown as Harness;outcome==='success'?harness.resolveMutation():harness.rejectMutation();},outcome);
+    await flush(page);
+    if(timing==='hidden')await page.evaluate(()=>(window as unknown as Harness).reveal());
+    await browserExpect(input).toBeEnabled();await browserExpect(input).toHaveValue('');
+    if(outcome==='success')await browserExpect(page.getByRole('status')).toHaveText('Saved for this host session');
+    else await browserExpect(page.getByText(/The acknowledgment was interrupted/)).toBeVisible();
+    expect(await mutations(page)).toHaveLength(1);
   });
 });
 
