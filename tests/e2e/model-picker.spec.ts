@@ -27,14 +27,15 @@ test('model search groups the advertised catalog and keyboard selection reaches 
   await expect(list.getByRole('group', { name: 'Claude', exact: true }).getByRole('option')).toHaveCount(1);
   await expect(list.getByRole('option', { name: 'GPT-6.1 Sol', exact: true })).toHaveAttribute('aria-selected', 'true');
   await search.fill('gpt'); await search.press('ArrowDown'); await search.press('Enter');
-  await expect(trigger).toContainText('GPT-6.1 Terra'); await expect(trigger).toBeFocused();
+  await expect(trigger).toContainText('GPT-6.1 Terra');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');await search.press('Escape');await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Use this model');
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect.poll(() => host.commands.find(command => command.type === 'message.send')?.payload.modelId).toBe('openai/terra');
 });
 
-test('model search has an empty state and Escape, outside click, and Tab dismiss without choosing', async ({ page }) => {
+test('model search has an empty state, Escape and outside click dismiss, and Tab stays in the combined dialog', async ({ page }) => {
   const host = await mount(page), trigger = page.getByRole('combobox', { name: 'Model', exact: true });
   await trigger.click(); const search = page.getByRole('searchbox', { name: 'Search models', exact: true });
   await search.fill('no matching model');
@@ -46,6 +47,8 @@ test('model search has an empty state and Escape, outside click, and Tab dismiss
   const message = page.getByRole('textbox', { name: 'Message', exact: true }); await message.click({ position: { x: 8, y: 8 } });
   await expect(trigger).toHaveAttribute('aria-expanded', 'false'); await expect(message).toBeFocused();
   await trigger.click(); await search.press('Tab');
+  const dialog=page.getByRole('dialog',{name:'Model and reasoning',exact:true});await expect(dialog).toBeVisible();await expect.poll(()=>dialog.evaluate(node=>node.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false'); await expect(search).not.toBeVisible();
   await expect(trigger).toContainText('GPT-6.1 Sol'); expect(host.commands).toHaveLength(0);
 });
