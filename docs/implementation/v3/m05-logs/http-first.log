@@ -1,0 +1,26 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-http-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-http-v3.test.ts [ tests/project-memory-http-v3.test.ts ]
+Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.
+ ❯ receiverBytes packages/widgets/document.ts:10:17
+      8| function receiverBytes(): string {
+      9|   try { return readFileSync(resolve('dist/widget-runtime/receiver.js')…
+     10|   catch { throw new Error('Trusted widget receiver is missing. Run pnp…
+       |                 ^
+     11| }
+     12| const bootstrap = receiverBytes();
+ ❯ packages/widgets/document.ts:12:19
+ ❯ apps/server/server.ts:13:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:27:54
+   Duration  566ms (transform 267ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

@@ -1,0 +1,184 @@
+2026-11-15T15:29:06.7039410Z ##[group]Run $failedSuites = @()
+2026-11-15T15:29:06.7039796Z $failedSuites = @()
+2026-11-15T15:29:06.7040258Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-15T15:29:06.7040766Z   pnpm test:browser --suite $suite
+2026-11-15T15:29:06.7041137Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-15T15:29:06.7041453Z }
+2026-11-15T15:29:06.7041665Z if ($failedSuites.Count -gt 0) {
+2026-11-15T15:29:06.7042061Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T15:29:06.7042669Z }
+2026-11-15T15:29:06.7118260Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T15:29:06.7118622Z env:
+2026-11-15T15:29:06.7118910Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T15:29:06.7119355Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:29:06.7119904Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T15:29:06.7120393Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:29:06.7120841Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:29:06.7121272Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:29:06.7121748Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T15:29:06.7122150Z ##[endgroup]
+2026-11-15T15:34:06.0350929Z Browser suite: root (16 spec files)
+2026-11-15T15:34:19.3289335Z 
+2026-11-15T15:34:19.3289934Z Running 113 tests using 1 worker
+2026-11-15T15:34:19.3290255Z 
+2026-11-15T15:34:26.0823947Z   x    1 tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (5.5s)
+2026-11-15T15:34:29.7320334Z   ok   2 tests\e2e\clarity-data-work.spec.ts:16:1 › trend gives its actual scale and units without hiding gaps or fabricating a zero baseline (2.7s)
+2026-11-15T15:34:32.1587718Z   ok   3 tests\e2e\clarity-data-work.spec.ts:63:1 › flat and unavailable trends describe only supplied values (2.4s)
+2026-11-15T15:34:34.5766960Z   ok   4 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px light (2.4s)
+2026-11-15T15:34:36.9151153Z   ok   5 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 390px light (2.3s)
+2026-11-15T15:34:39.3767974Z   ok   6 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px dark (2.4s)
+2026-11-15T15:34:43.8564465Z   ok   7 tests\e2e\clarity-data-work.spec.ts:162:40 › light architecture is legible before selecting a node (4.5s)
+2026-11-15T15:34:48.3716755Z   ok   8 tests\e2e\clarity-data-work.spec.ts:162:40 › dark architecture is legible before selecting a node (4.5s)
+2026-11-15T15:34:50.8861413Z   ok   9 tests\e2e\clarity-data-work.spec.ts:190:1 › save feedback reserves its checkmark for acknowledged saves (2.5s)
+2026-11-15T15:34:51.0842317Z   ok  10 tests\e2e\dark-default.spec.ts:3:1 › the document paints dark before the application module starts (161ms)
+2026-11-15T15:34:52.2906030Z   ok  11 tests\e2e\dark-default.spec.ts:20:1 › the mounted shell stays dark while fresh settings are still loading on a light device (1.2s)
+2026-11-15T15:34:54.5920078Z   ok  12 tests\e2e\dark-default.spec.ts:61:42 › an existing light preference still controls the loaded application (2.3s)
+2026-11-15T15:34:56.9635903Z   ok  13 tests\e2e\dark-default.spec.ts:61:42 › an existing system preference still controls the loaded application (2.4s)
+2026-11-15T15:35:00.9527892Z   ok  14 tests\e2e\document-window.spec.ts:5:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately (3.8s)
+2026-11-15T15:35:06.5105829Z   ok  15 tests\e2e\document-window.spec.ts:64:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload (5.5s)
+2026-11-15T15:35:09.9177404Z   ok  16 tests\e2e\document-window.spec.ts:117:1 › new source never overwrites edited text and the document can explicitly adopt the update (3.4s)
+2026-11-15T15:35:12.2284157Z   ok  17 tests\e2e\document-window.spec.ts:145:1 › granted text clears immediately on revocation and retry rereads the authorized source (2.3s)
+2026-11-15T15:35:14.8179913Z   ok  18 tests\e2e\document-window.spec.ts:213:1 › narrow document window has no page overflow and keyboard undocking retains its editor (2.6s)
+2026-11-15T15:35:26.4694332Z   ok  19 tests\e2e\document-window.spec.ts:251:1 › large edited source fits the real host state limit without duplicating the source text (11.6s)
+2026-11-15T15:35:31.3191126Z   ok  20 tests\e2e\document-window.spec.ts:271:1 › closing and reloading the handoff preserves its reading position (4.8s)
+2026-11-15T15:35:34.8419519Z   ok  21 tests\e2e\document-window.spec.ts:309:1 › oversized UTF-8 edits are rejected without replacing the last durable draft (3.5s)
+2026-11-15T15:35:38.2485401Z   ok  22 tests\e2e\document-window.spec.ts:333:1 › retargeting a document cannot overwrite a draft belonging to its previous source (3.4s)
+2026-11-15T15:35:41.1826326Z   ok  23 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px (2.9s)
+2026-11-15T15:35:44.1087751Z   ok  24 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px (2.9s)
+2026-11-15T15:35:47.0309973Z   ok  25 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px (2.9s)
+2026-11-15T15:35:49.8522148Z   ok  26 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px (2.8s)
+2026-11-15T15:35:53.2755390Z   ok  27 tests\e2e\host-loop.spec.ts:46:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload (2.6s)
+2026-11-15T15:35:56.0142322Z   ok  28 tests\e2e\host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once (2.7s)
+2026-11-15T15:36:05.1651555Z   ok  29 tests\e2e\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects (9.1s)
+2026-11-15T15:36:06.5695796Z   ok  30 tests\e2e\host-loop.spec.ts:343:1 › stale structured action shows rejection and retains its local review UI (1.4s)
+2026-11-15T15:36:10.2836478Z   ok  31 tests\e2e\host-loop.spec.ts:372:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe (3.7s)
+2026-11-15T15:36:15.2665295Z   ok  32 tests\e2e\host-loop.spec.ts:623:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive (5.0s)
+2026-11-15T15:36:17.3984942Z   ok  33 tests\e2e\host-loop.spec.ts:731:1 › generated program startup failure preserves host controls and durable artifact state (2.1s)
+2026-11-15T15:36:17.5102900Z   -   34 tests\e2e\host-loop.spec.ts:786:1 › the real host rejects generated apps while preserving its trusted interface
+2026-11-15T15:36:18.4660956Z   ok  35 tests\e2e\journal-reload.spec.ts:2:1 › a last edit survives reload before IndexedDB opens its write transaction (936ms)
+2026-11-15T15:36:20.1131477Z   ok  36 tests\e2e\journal-reload.spec.ts:44:1 › successful CAS clear stays newer across clock rollback (1.6s)
+2026-11-15T15:36:20.4367589Z   ok  37 tests\e2e\journal-reload.spec.ts:122:1 › repeated CAS replacements advance when the wall clock stays fixed (307ms)
+2026-11-15T15:36:21.9360502Z   ok  38 tests\e2e\journal-reload.spec.ts:147:1 › a later peer edit survives an acknowledgment of the captured generation (1.5s)
+2026-11-15T15:36:29.6968045Z   ok  39 tests\e2e\latency.spec.ts:5:1 › records local, committed-event and specification latency independently of inference (7.7s)
+2026-11-15T15:36:32.2881487Z   ok  40 tests\e2e\map-theme.spec.ts:3:40 › map follows the shell until a style is chosen (local) (2.6s)
+2026-11-15T15:36:34.8184218Z   ok  41 tests\e2e\map-theme.spec.ts:3:40 › map follows the shell until a style is chosen (saved) (2.5s)
+2026-11-15T15:36:37.1961595Z   ok  42 tests\e2e\map-theme.spec.ts:53:1 › a carousel that mounts when map data arrives begins observing viewport size (2.4s)
+2026-11-15T15:36:40.1852661Z   ok  43 tests\e2e\migration-redesign.spec.ts:114:1 › migration leads with workspace relationships, visible value changes and inspectable SQL (3.0s)
+2026-11-15T15:36:43.2047553Z   ok  44 tests\e2e\migration-redesign.spec.ts:164:1 › completed inspection retains table identity, keyboard navigation and chat-only scrolling (3.0s)
+2026-11-15T15:36:44.7754387Z   ok  45 tests\e2e\migration-redesign.spec.ts:203:1 › generic tables keep unchanged values plain and reject untrusted change metadata (1.6s)
+2026-11-15T15:36:48.0026724Z   ok  46 tests\e2e\operational-motion.spec.ts:5:1 › PR phases retain busy actions and add resolution history before merged checks exit (3.2s)
+2026-11-15T15:36:50.8524310Z   ok  47 tests\e2e\operational-motion.spec.ts:51:1 › vertical row dots and existing SVG endpoints remain attached throughout history insertion (2.8s)
+2026-11-15T15:36:53.0626387Z   ok  48 tests\e2e\operational-motion.spec.ts:99:1 › accepted cell values reveal with the change highlight and sweep follows declared rows without replay (2.2s)
+2026-11-15T15:36:55.0704187Z   ok  49 tests\e2e\operational-motion.spec.ts:176:1 › column geometry arrives continuously while the existing header stays mounted (2.0s)
+2026-11-15T15:36:56.9110495Z   ok  50 tests\e2e\operational-motion.spec.ts:246:1 › context shell keeps header, body and footer bands and compacting shimmers without predicting token totals (1.8s)
+2026-11-15T15:36:59.4408408Z   ok  51 tests\e2e\operational-motion.spec.ts:302:1 › reduced motion skips graph travel and context shimmer while preserving source state (2.5s)
+2026-11-15T15:37:01.3692400Z   ok  52 tests\e2e\operational-motion.spec.ts:345:1 › a token decrease without a host receipt never claims freed tokens and keeps controls responsive (1.9s)
+2026-11-15T15:37:04.3269525Z   ok  53 tests\e2e\overnight-shell.spec.ts:19:1 › sidebar group folding retains its rows, becomes inert immediately and reverses without losing identity (2.9s)
+2026-11-15T15:37:05.8221809Z   ok  54 tests\e2e\overnight-shell.spec.ts:54:51 › sidebar groups settle immediately with reduced shell motion (1.5s)
+2026-11-15T15:37:07.2834943Z   ok  55 tests\e2e\overnight-shell.spec.ts:54:51 › sidebar groups settle immediately with disabled shell motion (1.4s)
+2026-11-15T15:37:07.8027148Z   ok  56 tests\e2e\plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (482ms)
+2026-11-15T15:37:08.3490606Z   ok  57 tests\e2e\plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (529ms)
+2026-11-15T15:37:09.0266517Z   ok  58 tests\e2e\plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (662ms)
+2026-11-15T15:37:09.6696003Z   ok  59 tests\e2e\plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (627ms)
+2026-11-15T15:37:10.1856734Z   ok  60 tests\e2e\plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed (504ms)
+2026-11-15T15:37:11.5075781Z   ok  61 tests\e2e\plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (1.3s)
+2026-11-15T15:37:12.1506493Z   ok  62 tests\e2e\plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (628ms)
+2026-11-15T15:37:12.7640672Z   ok  63 tests\e2e\plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details (600ms)
+2026-11-15T15:37:13.4717219Z   ok  64 tests\e2e\plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity (692ms)
+2026-11-15T15:37:14.0348012Z   ok  65 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion (547ms)
+2026-11-15T15:37:14.6677300Z   ok  66 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion (616ms)
+2026-11-15T15:37:15.2864843Z   ok  67 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion (607ms)
+2026-11-15T15:37:15.8313761Z   ok  68 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion (529ms)
+2026-11-15T15:37:16.4174659Z   ok  69 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion (570ms)
+2026-11-15T15:37:16.9892886Z   ok  70 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion (555ms)
+2026-11-15T15:37:17.6789670Z   ok  71 tests\e2e\plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join (673ms)
+2026-11-15T15:37:18.3288406Z   ok  72 tests\e2e\plan-timeline.spec.ts:240:40 › light desktop parallel branches and join (634ms)
+2026-11-15T15:37:18.3480348Z   ok  73 tests\e2e\review-capture-theme.spec.ts:3:1 › capture theme defaults dark and rejects accidental unrecognized values (3ms)
+2026-11-15T15:37:18.5071355Z   ok  74 tests\e2e\review-capture-theme.spec.ts:8:1 › theme audit catches a transient opposite theme even after it returns (149ms)
+2026-11-15T15:37:22.0088400Z   ok  75 tests\e2e\shell-micro-motion.spec.ts:21:1 › the empty composer is compact, grows for multiline work and keeps its draft (3.5s)
+2026-11-15T15:37:23.6073339Z   ok  76 tests\e2e\shell-micro-motion.spec.ts:43:1 › desktop navigation becomes inert immediately on collapse and restores on reopen (1.6s)
+2026-11-15T15:37:25.2300726Z   ok  77 tests\e2e\shell-micro-motion.spec.ts:67:1 › a published plan flags the collapsed overview once without replaying on snapshot or theme updates (1.6s)
+2026-11-15T15:37:27.2841476Z   ok  78 tests\e2e\shell-micro-motion.spec.ts:129:1 › settings opens with bounded motion and reduced motion removes travel (2.0s)
+2026-11-15T15:37:28.6956746Z   ok  79 tests\e2e\shell-micro-motion.spec.ts:157:1 › navigation shows actual recency without repeating idle status but retains accessible task state (1.4s)
+2026-11-15T15:37:31.2955766Z   ok  80 tests\e2e\shell-micro-motion.spec.ts:173:1 › completed operation receipts are compact, truthful and retain full evidence on inspection (2.6s)
+2026-11-15T15:37:33.6586204Z   ok  81 tests\e2e\shell-micro-motion.spec.ts:231:1 › failed and cancelled receipts do not claim success and prepared approval retains exact authority (2.3s)
+2026-11-15T15:37:48.6660282Z   ok  82 tests\e2e\shell-micro-motion.spec.ts:305:1 › shell notice enters, pauses on hover, auto-expires and exits before unmount (15.0s)
+2026-11-15T15:37:50.1971490Z   ok  83 tests\e2e\shell-micro-motion.spec.ts:355:1 › shell notice stays visible when the pointer leaves but keyboard focus remains (1.5s)
+2026-11-15T15:37:59.6615452Z   ok  84 tests\e2e\signing-motion.spec.ts:211:1 › ordinary draft edits do not restart field navigation (9.3s)
+2026-11-15T15:38:03.0623581Z   ok  85 tests\e2e\signing-motion.spec.ts:235:37 › generated signature reveal respects normal motion and never animates direct drawing (3.4s)
+2026-11-15T15:38:06.4551536Z   ok  86 tests\e2e\signing-motion.spec.ts:235:37 › generated signature reveal respects reduced motion and never animates direct drawing (3.4s)
+2026-11-15T15:38:10.8227771Z   ok  87 tests\e2e\signing-motion.spec.ts:301:1 › verified export keeps the same visible canvas while a candidate loads, then commits (4.4s)
+2026-11-15T15:38:15.6913862Z   ok  88 tests\e2e\signing-motion.spec.ts:319:1 › completion holds editing geometry until the verified candidate and receipt can enter together (4.9s)
+2026-11-15T15:38:19.2020549Z   ok  89 tests\e2e\signing-motion.spec.ts:365:119 › failed denied handoff clears retained source pixels (3.5s)
+2026-11-15T15:38:22.6234483Z   ok  90 tests\e2e\signing-motion.spec.ts:365:119 › failed hash handoff clears retained source pixels (3.4s)
+2026-11-15T15:38:26.0887662Z   ok  91 tests\e2e\signing-motion.spec.ts:365:119 › failed cross-thread handoff clears retained source pixels (3.5s)
+2026-11-15T15:38:29.5426729Z   ok  92 tests\e2e\signing-motion.spec.ts:365:119 › failed original-hash handoff clears retained source pixels (3.4s)
+2026-11-15T15:38:32.8605303Z   ok  93 tests\e2e\signing-motion.spec.ts:365:119 › failed original-grant handoff clears retained source pixels (3.3s)
+2026-11-15T15:38:36.3237638Z   ok  94 tests\e2e\signing-motion.spec.ts:365:119 › failed unapproved handoff clears retained source pixels (3.5s)
+2026-11-15T15:38:39.8157794Z   ok  95 tests\e2e\signing-motion.spec.ts:365:119 › failed unknown handoff clears retained source pixels (3.5s)
+2026-11-15T15:38:43.2341862Z   ok  96 tests\e2e\signing-motion.spec.ts:379:1 › revoked grant clears an already committed preview (3.4s)
+2026-11-15T15:38:47.6891871Z   ok  97 tests\e2e\signing-motion.spec.ts:393:1 › cloned export evidence does not refetch or replay a committed handoff (4.4s)
+2026-11-15T15:38:51.9894385Z   ok  98 tests\e2e\signing-motion.spec.ts:412:1 › cancelling the continuity reference clears the predecessor while the destination is loading (4.3s)
+2026-11-15T15:38:54.5087923Z   ok  99 tests\e2e\skills.spec.ts:325:1 › source history retains metadata and disables unavailable views while current instructions stay editable (2.5s)
+2026-11-15T15:38:56.7994430Z   ok 100 tests\e2e\skills.spec.ts:361:1 › a retained source revision can be viewed without replacing current instructions (2.3s)
+2026-11-15T15:39:01.0144893Z   ok 101 tests\e2e\skills.spec.ts:386:1 › retirement during a history read marks only that row and preserves a newer draft generation (4.2s)
+2026-11-15T15:39:03.5443414Z   ok 102 tests\e2e\skills.spec.ts:429:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft (2.5s)
+2026-11-15T15:39:05.9715564Z   ok 103 tests\e2e\skills.spec.ts:476:1 › ordinary history transport failures stay retryable and do not retire source rows (2.4s)
+2026-11-15T15:39:08.1890226Z   ok 104 tests\e2e\skills.spec.ts:511:1 › empty libraries and automatic review controls work with old snapshots (2.2s)
+2026-11-15T15:39:10.5019044Z   ok 105 tests\e2e\skills.spec.ts:561:1 › pending legacy migration keeps saved instructions and supporting files readable (2.3s)
+2026-11-15T15:39:13.5229691Z   ok 106 tests\e2e\skills.spec.ts:588:1 › inspect, edit, supporting files, flags and recoverable archive use current revisions (3.0s)
+2026-11-15T15:39:18.0537118Z   ok 107 tests\e2e\skills.spec.ts:640:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version (4.5s)
+2026-11-15T15:39:20.1562318Z   ok 108 tests\e2e\skills.spec.ts:690:1 › pending changes show the proposed text and require an explicit approval or rejection (2.1s)
+2026-11-15T15:39:22.5231990Z   ok 109 tests\e2e\skills.spec.ts:719:1 › version history restores a prior version through a new current revision (2.4s)
+2026-11-15T15:39:24.7021640Z   ok 110 tests\e2e\skills.spec.ts:755:1 › a proposal can create a skill and its supporting file before the skill exists (2.2s)
+2026-11-15T15:39:27.5827889Z   ok 111 tests\e2e\skills.spec.ts:797:1 › rejecting a proposed change preserves the active skill (2.9s)
+2026-11-15T15:39:29.5923936Z   ok 112 tests\e2e\skills.spec.ts:820:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry (2.0s)
+2026-11-15T15:39:38.6644399Z   ok 113 tests\e2e\skills.spec.ts:854:1 › skill controls and editors fit desktop and narrow light and dark views (9.1s)
+2026-11-15T15:39:39.5682039Z 
+2026-11-15T15:39:39.5692138Z 
+2026-11-15T15:39:39.5707479Z   1) tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 
+2026-11-15T15:39:39.5708865Z 
+2026-11-15T15:39:39.5710093Z     Error: expect(locator).toBeChecked() failed
+2026-11-15T15:39:39.5710912Z 
+2026-11-15T15:39:39.5711447Z     Locator: getByRole('checkbox', { name: 'Select row 1', exact: true })
+2026-11-15T15:39:39.5712274Z     Expected: checked
+2026-11-15T15:39:39.5712806Z     Timeout: 5000ms
+2026-11-15T15:39:39.5713341Z     Error: element(s) not found
+2026-11-15T15:39:39.5713709Z 
+2026-11-15T15:39:39.5713916Z     Call log:
+2026-11-15T15:39:39.5714626Z       - Expect "toBeChecked" with timeout 5000ms
+2026-11-15T15:39:39.5716324Z       - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })
+2026-11-15T15:39:39.5717014Z 
+2026-11-15T15:39:39.5717025Z 
+2026-11-15T15:39:39.5717303Z       30 |     await page.goto('/');
+2026-11-15T15:39:39.5718266Z       31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });
+2026-11-15T15:39:39.5719235Z     > 32 |     await expect(selected).toBeChecked();
+2026-11-15T15:39:39.5720243Z          |                            ^
+2026-11-15T15:39:39.5720897Z       33 |     await selected.click();
+2026-11-15T15:39:39.5721621Z       34 |     await expect.poll(() => saves.length).toBe(1);
+2026-11-15T15:39:39.5722551Z       35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });
+2026-11-15T15:39:39.5723631Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\artifact-acknowledgment.spec.ts:32:28
+2026-11-15T15:39:39.5724200Z 
+2026-11-15T15:39:39.5725566Z     Error Context: test-results\browser\run-1794756846033-e50da10c-7c6b-4548-b32d-2960eae28f0d\root\artifacts\artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection\error-context.md
+2026-11-15T15:39:39.5726973Z 
+2026-11-15T15:39:39.5727804Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T15:39:39.5730191Z     test-results\browser\run-1794756846033-e50da10c-7c6b-4548-b32d-2960eae28f0d\root\artifacts\artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection\trace.zip
+2026-11-15T15:39:39.5731595Z     Usage:
+2026-11-15T15:39:39.5731839Z 
+2026-11-15T15:39:39.5733225Z         pnpm exec playwright show-trace test-results\browser\run-1794756846033-e50da10c-7c6b-4548-b32d-2960eae28f0d\root\artifacts\artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection\trace.zip
+2026-11-15T15:39:39.5734661Z 
+2026-11-15T15:39:39.5735283Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T15:39:39.5735841Z 
+2026-11-15T15:39:39.5736309Z   1 failed
+2026-11-15T15:39:39.5737418Z     tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 
+2026-11-15T15:39:39.5738420Z   1 skipped
+2026-11-15T15:39:39.5738858Z   111 passed (5.5m)
+2026-11-15T15:39:39.6184164Z 
+2026-11-15T15:39:39.6185133Z Failed browser suites: root (exit 1)
+2026-11-15T15:39:39.6708129Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-15T15:39:39.9153478Z Exception: D:\a\_temp\2acc295c-e95a-4311-8d0a-7001a4e42338.ps1:8
+2026-11-15T15:39:39.9154652Z Line |
+2026-11-15T15:39:39.9155974Z    8 |    throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T15:39:39.9157608Z      |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-11-15T15:39:39.9158921Z      | Failed browser suites: root
+2026-11-15T15:39:39.9414426Z ##[error]Process completed with exit code 1.

@@ -16,11 +16,11 @@ export interface UserStateRecord { id: string; threadId: string; revision: numbe
 export interface InputRequest { id: string; threadId: string; artifactId: string | null; revision: number; title: string; prompt: string; responseSchema: Record<string, unknown>; basis: DataRef[]; status: "pending" | "accepted" | "withdrawn" | "superseded"; response?: unknown; presentation?: import('./planning-question.ts').PlanningQuestionDefinition; detailRequests?: {id:string;kind:'explain'|'examples'|'more-options';optionId?:string;status:'pending'|'resolved'|'failed';error?:string}[] }
 export interface Operation { id: string; threadId: string; revision: number; kind: string; description: string; args: Record<string, unknown>; resourceIds: string[]; preconditions: Record<string, string>; status: "prepared" | "running" | "succeeded" | "failed" | "cancelled" | "unknown"; approved: boolean; result?: unknown; error?: string; createdAt: string }
 export interface ResourceGrant { id: string; threadId: string; kind: "project" | "file" | "database" | "export" | "attachment"; path: string; label: string; writable: boolean; createdAt: string; identity?: {dev:string;ino:string} }
-export interface RuntimeUsage { contextTokens: number | null; contextWindow: number | null; inputTokens: number | null; outputTokens: number | null; cost: number | null; activity: "idle" | "running" | "compacting" | "retrying"; sessionPercent: number | null; weeklyPercent: number | null; contextBreakdown?: { label: string; tokens: number }[] }
+export interface RuntimeUsage { contextTokens: number | null; contextWindow: number | null; inputTokens: number | null; outputTokens: number | null; cacheReadTokens?: number | null; cacheWriteTokens?: number | null; cost: number | null; activity: "idle" | "running" | "compacting" | "retrying" | "queued" | "starting" | "generating" | "tool" | "cleanup"; sessionPercent: number | null; weeklyPercent: number | null; contextBreakdown?: { label: string; tokens: number }[] }
 export interface LearningReviewSummary {sourceThreadId:string;sourceRunId:string;modelId:string;accountId:string|null;status:'reviewing'|'completed'|'settled'|'cancelled'|'failed'|'limit'|'timeout';startedAt:string;finishedAt?:string;toolCalls:number;inputBytes:number;appliedChanges:number;usage?:Partial<RuntimeUsage>;error?:string;cleanupConfirmed?:boolean;engine?:'hermes-source';summary?:string}
 export interface LearningStatus {supported:boolean;status:'idle'|'reviewing'|'blocked';lastReview:LearningReviewSummary|null;lastCuratedAt?:string}
 export interface WorkspaceEvent { seq: number; id: string; type: string; threadId: string | null; payload: unknown; occurredAt: string }
-export interface Snapshot { seq: number; threads: Thread[]; archivedThreads?: Thread[]; accounts?: import('./accounts.ts').ConnectionAccount[]; skills?:import('./skills.ts').SkillSummary[];skillProposals?:import('./skills.ts').SkillProposalSummary[];learning?:LearningStatus; messages: Message[]; messagesTruncated?: Record<string, number>; artifacts: ArtifactRecord[]; userStates: UserStateRecord[]; data: DataRecord[]; requests: InputRequest[]; operations: Operation[]; resources: ResourceGrant[]; memory?: TaskMemory[]; usage: Record<string, RuntimeUsage>; settings: { theme: "light" | "dark" | "system"; modelId: string | null; selectedAccounts?: import('./accounts.ts').AccountSelections; preferences?: import('./preferences.ts').PreferencePatch }; activeThreadId: string | null }
+export interface Snapshot { seq: number; threads: Thread[]; archivedThreads?: Thread[]; accounts?: import('./accounts.ts').ConnectionAccount[]; skills?:import('./skills.ts').SkillSummary[];skillProposals?:import('./skills.ts').SkillProposalSummary[];learning?:LearningStatus; messages: Message[]; messagesTruncated?: Record<string, number>; artifacts: ArtifactRecord[]; userStates: UserStateRecord[]; data: DataRecord[]; requests: InputRequest[]; operations: Operation[]; resources: ResourceGrant[]; memory?: TaskMemory[]; usage: Record<string, RuntimeUsage>; modelRequests?: Record<string, import('./model-request.ts').ModelRequestObservationV1[]>; settings: { theme: "light" | "dark" | "system"; modelId: string | null; selectedAccounts?: import('./accounts.ts').AccountSelections; preferences?: import('./preferences.ts').PreferencePatch }; activeThreadId: string | null }
 export interface RunContext { threadId: string; runId: string; epoch: number }
 /** Host custody only: never accepted from tool arguments or encoded into model prompts. */
 export interface ApprovedWriteOrigin extends RunContext {sessionPath:string;modelId:string;accountId:string|null;projectId:string;workspaceId:string;projectRoot:string}
@@ -30,19 +30,21 @@ export interface HostCommand { id: string; type: string; threadId?: string; payl
 export interface CommandReceipt { commandId: string; eventSeq: number; result: unknown }
 export interface ToolCall { name: string; args: Record<string, unknown> }
 export interface RuntimeEvent { type: string; threadId: string; runId: string; epoch: number; [key: string]: unknown }
-export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown> }
-export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[] }
+export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown>; onMemoryCheckpoint?: (request: import('./memory-checkpoint.ts').MemoryCheckpointRequestV1) => Promise<import('./memory-checkpoint.ts').MemoryCheckpointAckV1> }
+export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1 }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
   models(options?: { refresh?: boolean; accountId?: string | null }): Promise<ModelInfo[]>;
+  /** Drop cached model catalogs for an account (or all) after sign-out so a stale catalog is never served. */
+  invalidateModels?(options?: { accountId?: string | null }): Promise<void>;
   start(input: StartRun): Promise<void>;
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;
-  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null): Promise<void>;
+  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1): Promise<void>;
   history(sessionPath: string, accountId?: string | null): Promise<string[]>;
   dispose(): Promise<void>;
 }
 export interface Capability { name: string; category: string; description: string; props: Record<string, unknown>; example?: unknown }
-export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
+export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
 export class HarnessError extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
 export * from "./tool-effects.ts";

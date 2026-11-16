@@ -14,9 +14,9 @@ test('failed handoffs have one dismissible shell presenter and keep drafts and c
  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');
  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);
  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);
- const custom=page.getByRole('button',{name:'Custom',exact:true});await custom.click();await expect(custom).toBeEnabled();await expect(alerts).toHaveCount(1);
+ const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);
  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);
- await custom.click();await expect(custom).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');
+ await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');
  expect(workspaceCommands).toHaveLength(0);expect(fixture.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
 });
 

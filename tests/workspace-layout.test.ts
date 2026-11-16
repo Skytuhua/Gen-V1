@@ -5,7 +5,7 @@ import {afterEach,expect,it} from 'vitest';
 import {Store} from '../packages/storage/store.ts';
 import {WorkspaceRepository,createWorkspaceCanvas} from '../packages/core/workspace-layout.ts';
 import {threadNavigationRevision} from '../packages/contracts/shell-read-models.ts';
-import {workspaceStateSchema,surfaceRefSchema} from '../packages/contracts/workspace.ts';
+import {workspaceStateSchema,surfaceRefSchema,SUPPORTED_WORKSPACE_PRESETS,isSupportedWorkspacePreset} from '../packages/contracts/workspace.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const cleanup of cleanups.splice(0).reverse())await cleanup();});
@@ -21,7 +21,7 @@ it('binds Research conversation and notes to the selected personal thread and sp
 
 it('creates a default workspace, persists a snapped panel and saves/restores only layout preferences',async()=>{
  const{workspace}=await fixture();const initial=workspace.read();expect(initial.state.canvases[0]?.preset).toBe('workspace');
- const created=command(workspace,'create','canvas.create',{name:'Review',preset:'code-review'}).result as ReturnType<WorkspaceRepository['read']>;
+ const created=command(workspace,'create','canvas.create',{name:'Layout',preset:'workspace'}).result as ReturnType<WorkspaceRepository['read']>;
  const canvasId=created.state.activeCanvasId;
  command(workspace,'panel','panel.add',{canvasId,panel:{id:'diff-one',kind:'diff',binding:{authority:{kind:'local'},threadId:'task-one'}},bounds:{x:16,y:24,width:640,height:480}});
  command(workspace,'save','profile.save',{name:'Coding'});
@@ -79,7 +79,7 @@ it('hiding windows never changes running task state or account records',async()=
  expect(workspace.read().state.disabledKinds).toContain('thread');
 });
 
-for (const preset of ['research', 'code-review'] as const) it(`binds first ${preset} canvas to the explicit thread and canonical project instead of the active server thread`, async () => {
+it('keeps legacy retired-canvas bindings on the explicit stored thread, never the active server thread (T05/R12)', async () => {
  const {store, workspace} = await fixture();
  const base = {title:'Owner', createdAt:'2026-01-01', updatedAt:'2026-01-01', epoch:0, modelId:null, sessionPath:null};
  store.internal('fixture', null, () => {
@@ -87,16 +87,25 @@ for (const preset of ['research', 'code-review'] as const) it(`binds first ${pre
   store.put('thread', 'selected-b', 'selected-b', {...base,id:'selected-b',projectId:'project-b',projectName:'B',status:'ready',runId:null});
  });
  expect(store.snapshot().activeThreadId).toBe('active-a');
- command(workspace, 'first-'+preset, 'canvas.create', {name:preset,preset,threadId:'selected-b',baseRevision:workspace.read().state.revision});
- const state=workspace.read().state, canvas=state.canvases.find(canvas=>canvas.id===state.activeCanvasId)!;
- expect(canvas.projectIds).toEqual(['project-b']);
- expect(canvas.panels.every(panel=>panel.binding.threadId==='selected-b'&&panel.binding.projectId==='project-b'&&panel.binding.authority.kind==='local')).toBe(true);
+ for (const preset of ['research', 'code-review'] as const) {
+  const legacy=createWorkspaceCanvas(preset,'Legacy '+preset,'legacy-'+preset,{authority:{kind:'local'},threadId:'selected-b',projectId:'project-b'});
+  const state=workspace.read().state;
+  command(workspace,'restore-'+preset,'profile.restore',{state:{...state,canvases:[...state.canvases,legacy],activeCanvasId:legacy.id},baseRevision:state.revision});
+  const canvas=workspace.read().state.canvases.find(item=>item.id===legacy.id)!;
+  expect(canvas.projectIds).toEqual(['project-b']);
+  expect(canvas.panels.every(panel=>panel.binding.threadId==='selected-b'&&panel.binding.projectId==='project-b'&&panel.binding.authority.kind==='local')).toBe(true);
+  expect(()=>command(workspace,'recreate-'+preset,'canvas.create',{name:preset,preset,threadId:'selected-b'})).toThrow(/no longer available/i);
+ }
 });
 
 it('selects Code Review and changes its owner in one transaction, preserving the previous canvas on failure',async()=>{
  const {store,workspace}=await fixture(),original=workspace.read().state.activeCanvasId;
  store.internal('fixture',null,()=>{for(const id of ['review-a','review-b'])store.put('thread',id,id,{id,projectId:'project-a',workspaceId:id==='review-a'?'copy-a':'copy-b',updatedAt:'2026-01-01T00:00:00Z',epoch:1,status:'ready',kind:'main'});});
- const opened=command(workspace,'open','canvas.create',{name:'Review',preset:'code-review',threadId:'review-a'}).result as ReturnType<WorkspaceRepository['read']>;
+ const legacyReview=createWorkspaceCanvas('code-review','Review','review-legacy',{authority:{kind:'local'},threadId:'review-a',projectId:'project-a'});
+ legacyReview.panels.push({id:'review-owner-review-legacy',kind:'thread',binding:{authority:{kind:'local'},threadId:'review-a',projectId:'project-a'},canvasId:'review-legacy',placement:'canvas',visible:true,collapsed:false,bounds:{x:24,y:24,width:540,height:380},order:legacyReview.panels.length,alwaysOnTop:false});
+ legacyReview.projectIds=['project-a'];
+ const baseState=workspace.read().state;
+ const opened=command(workspace,'open','profile.restore',{state:{...baseState,canvases:[...baseState.canvases,legacyReview],activeCanvasId:'review-legacy'},baseRevision:baseState.revision}).result as ReturnType<WorkspaceRepository['read']>;
  const reviewId=opened.state.activeCanvasId;
  expect(opened.state.canvases.find(item=>item.id===reviewId)?.panels.find(item=>item.kind==='thread')?.binding.threadId).toBe('review-a');
  command(workspace,'back','canvas.select',{canvasId:original});
@@ -116,4 +125,32 @@ it('selects Code Review and changes its owner in one transaction, preserving the
  expect(selected.state.revision).toBe(before.revision+1);
  expect(selected.state.canvases.find(item=>item.id===reviewId)?.panels.find(item=>item.kind==='thread')?.binding.threadId).toBe('review-b');
  expect(selected.state.canvases.find(item=>item.id===reviewId)?.panels.filter(item=>item.kind==='thread')).toHaveLength(1);
+});
+
+it('supports only Workspace and All Agents for new creation while retired presets stay readable (T05/R12)',async()=>{
+ expect(SUPPORTED_WORKSPACE_PRESETS).toEqual(['workspace','all-agents']);
+ expect(isSupportedWorkspacePreset('workspace')).toBe(true);
+ expect(isSupportedWorkspacePreset('all-agents')).toBe(true);
+ for(const preset of ['code-review','research','custom'] as const)expect(isSupportedWorkspacePreset(preset)).toBe(false);
+ const{workspace}=await fixture();
+ for(const preset of ['code-review','research','custom'] as const){
+  const before=workspace.read().state;
+  expect(()=>command(workspace,'retired-'+preset,'canvas.create',{name:preset,preset})).toThrow(/no longer available/i);
+  expect(workspace.read().state).toEqual(before);
+ }
+ // Legacy records: a retired canvas nested in saved state restores, selects and saves byte-for-byte.
+ const legacy=createWorkspaceCanvas('research','Old research','legacy-research',{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'});
+ const state=workspace.read().state;
+ command(workspace,'restore-legacy','profile.restore',{state:{...state,canvases:[...state.canvases,legacy],activeCanvasId:'legacy-research'},baseRevision:state.revision});
+ const current=workspace.read().state;
+ expect(current.canvases.find(canvas=>canvas.id==='legacy-research')).toEqual(legacy);
+ expect(current.activeCanvasId).toBe('legacy-research');
+ command(workspace,'select-legacy','canvas.select',{canvasId:'legacy-research'});
+ expect(workspace.read().state.canvases.find(canvas=>canvas.id==='legacy-research')).toEqual(legacy);
+ command(workspace,'save-legacy','profile.save',{name:'With retired canvas'});
+ const saved=workspace.read().state.profiles[0]!;
+ expect(saved.canvases.find(canvas=>canvas.id==='legacy-research')).toEqual(legacy);
+ const beforeApply=workspace.read().state.revision;
+ command(workspace,'apply-legacy','profile.apply',{profileId:saved.id,baseRevision:beforeApply});
+ expect(workspace.read().state.canvases.find(canvas=>canvas.id==='legacy-research')).toEqual(legacy);
 });

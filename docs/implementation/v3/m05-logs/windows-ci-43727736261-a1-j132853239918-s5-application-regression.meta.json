@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "test",
+      "--maxWorkers=2",
+      "--shard=3/4"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T15:04:59Z",
+    "endedAt": "2026-11-15T15:08:16Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s5-application-regression.log",
+    "logDigest": "258d9f4e548c382a140756e5fb68dba7175cff2af03847a91dae311abe4381a4"
+  },
+  "runId": 43727736261,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+  "testedCheckout": {
+    "commitSha": "a8629917231acf1950145684a38d2c0ff937e3eb",
+    "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "5e835ff71ad02298ce3a7c6c080d92f5f04deb47"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/checkout-commit.json",
+    "rawResponseSha256": "3c94c1b8174ab56d1562433c391700a1145b37733bca6d7abae38f64c0a08f11"
+  },
+  "job": {
+    "id": 132853239918,
+    "name": "Tests (shard 3/4)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239918",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001097,
+      "name": "GitHub Actions 1000001097",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run application regression tests",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-11-15T15:04:59Z",
+    "completed_at": "2026-11-15T15:08:16Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43727736261.json",
+  "receiptSha256": "1b6dcfd82877abf30a81e012982c071cb45c64b736c13d499e7accd64ffc8d7f",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239918.log",
+  "rawJobLogDigest": "f3d8c7a9ae56f7a2a06c85c2b2c3d78961f3df6206b83181fdd0154e86b80d5c",
+  "rawJobLogBytes": 107345,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      525,
+      882
+    ]
+  ],
+  "excerptInputSha256": "b557dbf6cbbb7eae42279ce0f0996d15ff8eefffcbda83445c0da921ac9c45bb",
+  "excerptInputBytes": 50505,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 37950,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Single-command step completed successfully in the jobs API.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "pnpm test --maxWorkers=2 --shard=3/4"
+}

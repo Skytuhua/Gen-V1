@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "kind": "independent-actual-windows-canonical-python-package-review",
+  "reviewedAt": "2026-11-15T16:54:38.196478+00:00",
+  "identity": {
+    "runId": 43736761161,
+    "head": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
+    "tree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b",
+    "actualCheckout": "ce93c20a3394157af18f585f794c97dd067f37a5",
+    "jobId": 132880966492
+  },
+  "scopeConclusion": "Actual canonical Python packaging custody verified; installed-retention verification remains failed before installation. No unresolved concrete canonical packaging finding.",
+  "sourceFiles": [
+    {
+      "path": "scripts/integration_python_projection.py",
+      "bytes": 17295,
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f",
+      "readFromTree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "bytes": 14137,
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f",
+      "readFromTree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+      "readFromTree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+    },
+    {
+      "path": "tests/integration-packaging-canonical-negative.test.ts",
+      "bytes": 16843,
+      "sha256": "f273e8246bb1be2fe32804af44bc93e6580e86cce57e6d1bd058265881265cad",
+      "readFromTree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "readFromTree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+    }
+  ],
+  "artifact": {
+    "id": 14171500306,
+    "name": "installed-memory-43736761161-1",
+    "archiveRef": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306.zip",
+    "bytes": 355244,
+    "sha256": "f205f14fb5456ed1f934acc9512a409ddcd698503f54be7d99c1ea5d22b0cbcb",
+    "extractedRoot": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306",
+    "entries": [
+      {
+        "path": ".harness-installed-package/desktop-stage-1794760904370/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+        "bytes": 1511066,
+        "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+      },
+      {
+        "path": ".harness-desktop-installed/run-1794761429044-962ed3b7-cc21-46e0-9970-674a44e1bcd1/verification.json",
+        "bytes": 987,
+        "sha256": "7a0f27427cb7394d1245a8544a6666139c7648a18cf1145884d3128254d868e9"
+      },
+      {
+        "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+        "bytes": 15611,
+        "sha256": "a2fb7b54fcdd1adede5b46a1dfe84e20a41e6178b5faa267d19f6e5204e757c3"
+      }
+    ],
+    "retrievalOwner": "ui_audit",
+    "independentArchiveAndEntryDigestsVerified": true,
+    "retrievalsByThisReviewer": 0
+  },
+  "originalLock": {
+    "path": "third-party/integrations/PYTHON_LOCK.json",
+    "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+    "unchanged": true,
+    "files": 7415,
+    "bytes": 254072246
+  },
+  "actualProjection": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306/.harness-installed-package/desktop-stage-1794760904370/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+    "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+    "receiptBytes": 1511066,
+    "version": 2,
+    "mode": "wheel-canonical-record-v2",
+    "wheelCount": 91,
+    "allNameVersionArchiveHashPinsExact": true,
+    "originalPathSetExact": true,
+    "projectedFiles": 7415,
+    "projectedBytes": 254070241,
+    "protectedNonRecordFiles": 7324,
+    "protectedNonRecordBytes": 253401145,
+    "allProtectedRowsByteCountAndSha256Exact": true,
+    "recordFiles": 91,
+    "recordBytes": 669096,
+    "recordFilesUnchangedFromOriginalV1": 75,
+    "recordFilesChangedFromOriginalV1": 16,
+    "byteDeltaFromOriginalV1": -2005,
+    "changedRecords": [
+      {
+        "path": ".harness-integrations-python-deps/cffi-2.1.1.dist-info/RECORD",
+        "originalBytes": 2572,
+        "canonicalBytes": 2486,
+        "originalSha256": "a6728365f69fb1beec1d8492474351cb70b3fd376048043c42df45e3e825db88",
+        "canonicalSha256": "673a44170073c159112667ee74b781ec7390deeae4e771f0c8147c55ef210460"
+      },
+      {
+        "path": ".harness-integrations-python-deps/fonttools-4.68.0.dist-info/RECORD",
+        "originalBytes": 33565,
+        "canonicalBytes": 33232,
+        "originalSha256": "366d1176a23c5967348886120a295b59d0926455f7ed57bf71320039dffc60b2",
+        "canonicalSha256": "cd5c6b5cd3278ca7b04ae212ed6c71aef1bb0fe2ab4395fa0057c8aaf4aef3db"
+      },
+      {
+        "path": ".harness-integrations-python-deps/graphifyy-0.9.100.dist-info/RECORD",
+        "originalBytes": 22779,
+        "canonicalBytes": 22611,
+        "originalSha256": "ea373527846317781a81ab69772a7f04c713fd2d94c53d53d9a6cc5d0cb63108",
+        "canonicalSha256": "a84d3c36d3336d460435e759f3790012098b597fd1919a77010c4a6d72f52836"
+      },
+      {
+        "path": ".harness-integrations-python-deps/httpx2-2.16.0.dist-info/RECORD",
+        "originalBytes": 3109,
+        "canonicalBytes": 3029,
+        "originalSha256": "7fb1979a05d6c0c13f5b054f3649aa2aefd0c5fbfc28011dbe2f420d442a5665",
+        "canonicalSha256": "a2f4306528857dc681c6bed9aa03704dfce7396e68f27cb83ad922c4454dc7b4"
+      },
+      {
+        "path": ".harness-integrations-python-deps/idna-3.20.dist-info/RECORD",
+        "originalBytes": 1347,
+        "canonicalBytes": 1269,
+        "originalSha256": "64767cb749ae2505e119bf3ef0a96e72dc0c109503b7a6123bfd754375c7110e",
+        "canonicalSha256": "2be7ecda3f34be2299a512cc8f698b4ff30c899bea12e59fbfb21fce11924ca1"
+      },
+      {
+        "path": ".harness-integrations-python-deps/json5-0.17.3.dist-info/RECORD",
+        "originalBytes": 1236,
+        "canonicalBytes": 1155,
+        "originalSha256": "572cadcacf51dd046e5db77b8b38a9ea3f7d62fc50f57e5913ace313643253fb",
+        "canonicalSha256": "a1ecbf36fe5c91055bb9c00f903fa2b32c3e40e924830b22173145d0c8983645"
+      },
+      {
+        "path": ".harness-integrations-python-deps/jsonschema-4.26.0.dist-info/RECORD",
+        "originalBytes": 4046,
+        "canonicalBytes": 3962,
+        "originalSha256": "2f919f2b3bf115b42540a2a86ea8a151abc8611b926ffdcf2471d03bc2542ead",
+        "canonicalSha256": "35a23ff436da5e43507128706475a5d9477ddef646531d03fa5b0192d59434cc"
+      },
+      {
+        "path": ".harness-integrations-python-deps/markdown_it_py-4.2.0.dist-info/RECORD",
+        "originalBytes": 6819,
+        "canonicalBytes": 6734,
+        "originalSha256": "9c7babd3ec8d543c9721bcaf2361937b974f0a9bc1e6cb3841401436e5b9e257",
+        "canonicalSha256": "b0f6b33ef5f293fdab54361860e223620c42bb8707bb4edbe0c2c02b081a5bdb"
+      },
+      {
+        "path": ".harness-integrations-python-deps/markdownify-1.2.3.dist-info/RECORD",
+        "originalBytes": 1004,
+        "canonicalBytes": 919,
+        "originalSha256": "265523d00c0bf0a5ad62c61d72350e56685bee61d786391013c7233273966ab1",
+        "canonicalSha256": "e9cdb3ac95709b36b18a94fb410c4afc4c134f574ee48c4a86ea1557bc56e60e"
+      },
+      {
+        "path": ".harness-integrations-python-deps/mcp-2.3.0.dist-info/RECORD",
+        "originalBytes": 11296,
+        "canonicalBytes": 11219,
+        "originalSha256": "4c2467f235e0d472466bf10ab1490e28f1802c732b2c60223f22bfab6cf13d9f",
+        "canonicalSha256": "d5755ff1962c0e584457d2e9f087b3f6b313b9895f8c44d38b764ff9d881c9b2"
+      },
+      {
+        "path": ".harness-integrations-python-deps/numpy-2.5.4.dist-info/RECORD",
+        "originalBytes": 88649,
+        "canonicalBytes": 88485,
+        "originalSha256": "a2174adafef93df3791c0de7e4f004832cca946bafbae9abcd7bcb04aa325e53",
+        "canonicalSha256": "9649a3aa6bf6248bdcb50e287dc869cfa7cae880316a55e0f943e0b65af46667"
+      },
+      {
+        "path": ".harness-integrations-python-deps/pygments-2.21.0.dist-info/RECORD",
+        "originalBytes": 29434,
+        "canonicalBytes": 29350,
+        "originalSha256": "d2c16ea713de177352746e1f9ce06bfc036a8eb80f06b6baa084b3327b23bc96",
+        "canonicalSha256": "e06f62793bcc1f812bf806ba5c2d9e77df8a2c0deaae93610545f907a42cb95a"
+      },
+      {
+        "path": ".harness-integrations-python-deps/pywin32-312.dist-info/RECORD",
+        "originalBytes": 55228,
+        "canonicalBytes": 54869,
+        "originalSha256": "b2fcc6f6de90c25a5441366ee4aa64a545f38dd47404b37851a1072f21e3f54f",
+        "canonicalSha256": "cd5cc6ba413d30674fa2b7442ebfb765f98cd9bd5f891a878baaad7acc84a8ab"
+      },
+      {
+        "path": ".harness-integrations-python-deps/specify_cli-1.2.5.dist-info/RECORD",
+        "originalBytes": 40338,
+        "canonicalBytes": 40257,
+        "originalSha256": "87b3dd66c3a9db3265d04875e7b4b072675ec6f41b87b3193f3c5899b69c3c8b",
+        "canonicalSha256": "dce8d74372ff3cdf4f638bddc70a0427fcca11f0f28b622abe9529ba04474235"
+      },
+      {
+        "path": ".harness-integrations-python-deps/typer-0.27.3.dist-info/RECORD",
+        "originalBytes": 3407,
+        "canonicalBytes": 3328,
+        "originalSha256": "47a342e003c546b56df45bcf9c613b14397d45194f0c5f8629726f43f4be9c1d",
+        "canonicalSha256": "0bdc25d94b52c9662371890276d5f135e3f248ecfffbe224869f1a15e20534cb"
+      },
+      {
+        "path": ".harness-integrations-python-deps/uvicorn-0.54.0.dist-info/RECORD",
+        "originalBytes": 4537,
+        "canonicalBytes": 4456,
+        "originalSha256": "a5e22a7ddd83e6c762462597f6ff63b6dbe92e69ffbf75e390818554489b26f8",
+        "canonicalSha256": "4299e2a0324dd918cff74f7dfe9345b5b032b0e54ad9c5d948a433433fc5193b"
+      }
+    ]
+  },
+  "inputDiagnosis": {
+    "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43736761161/job-132880966492.log",
+    "line": 578,
+    "expectedFiles": 7415,
+    "actualFiles": 7595,
+    "addedCount": 180,
+    "missingCount": 0,
+    "changedCount": 91,
+    "addedDetailsReturned": 100,
+    "changedDetailsReturned": 91,
+    "truncated": true,
+    "all91ChangedDetailsAreRecordPaths": true,
+    "all100ShownAddedDetailsAreKnownBookkeepingNames": true,
+    "limit": "The log bounds the added-file detail list at100 of180. It does not independently enumerate the remaining80 additions. The successful reviewed collector enforces known-dist-info bookkeeping-only admission over the complete input scan. Cache RECORD differences are distinct from canonical-versus-v1 RECORD differences."
+  },
+  "buildManifest": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306/.harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+    "bytes": 15611,
+    "sha256": "a2fb7b54fcdd1adede5b46a1dfe84e20a41e6178b5faa267d19f6e5204e757c3",
+    "createdAt": "2026-11-15T16:50:25.438Z",
+    "exactProjectionHashBinding": true,
+    "sourceLockAndWheelPinsMatch": true,
+    "artifacts": [
+      {
+        "file": ".harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+        "bytes": 828427579,
+        "sha256": "473ae36cbbd79c020f191e6f25e5fc37150dcbaabded106eb9d6424ee8c5c81d"
+      }
+    ],
+    "nodeVersion": "24.22.2",
+    "electronVersion": "45.2.0",
+    "hermes": {
+      "pythonVersion": [
+        3,
+        14,
+        10
+      ],
+      "files": 4162,
+      "bytes": 82184361,
+      "sourceCommit": "c627ec84664d43e0b18b95d9d86d8963747d56c7"
+    }
+  },
+  "execution": {
+    "jobConclusion": "failure",
+    "steps": [
+      {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T16:41:18Z",
+        "completed_at": "2026-11-15T16:41:27Z"
+      },
+      {
+        "name": "Stage declared Git and GitHub CLI packaging inputs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-11-15T16:41:27Z",
+        "completed_at": "2026-11-15T16:41:31Z"
+      },
+      {
+        "name": "Package the production Windows installer",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-11-15T16:41:31Z",
+        "completed_at": "2026-11-15T16:50:26Z"
+      },
+      {
+        "name": "Verify installed default-off memory retention and restart",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-11-15T16:50:26Z",
+        "completed_at": "2026-11-15T16:50:44Z"
+      },
+      {
+        "name": "Preserve installed verification receipts and screenshots",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-11-15T16:50:44Z",
+        "completed_at": "2026-11-15T16:50:45Z"
+      }
+    ],
+    "rawLog": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/job-132880966492.log",
+      "bytes": 124917,
+      "sha256": "d01dda66e6751ebb87b15ba228814e6ee18cdd6a263b90b97f24f3e5197b3234"
+    },
+    "wheelMarker": {
+      "line": 402,
+      "value": {
+        "count": 91,
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+      }
+    },
+    "windowsFocusedSuite": {
+      "jobId": 132880966773,
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/job-132880966773.log",
+      "bytes": 112776,
+      "sha256": "52392f989ce8fc9e72fe3366ea93efdafd2b62ab1c18716fb653be7bb621d6ed",
+      "line": 663,
+      "casesPassed": 28,
+      "casesSkipped": 0
+    },
+    "custodyPath": "The successful package step invokes strict stageIntegrationPayload verification, afterPack verification of the actual packaged Python file set, and relocated integration CLI checks before build-manifest creation. No model invocation is asserted by those checks."
+  },
+  "proofLimits": [
+    "The uploaded artifact contains the projection inventory, build manifest and failed verifier receipt, not the7415 payload files, individual canonical RECORD bytes, wheels or828427579-byte installer. Their inventories and digest bindings were independently compared; every payload byte was not downloaded and independently rehashed here.",
+    "Deterministic RECORD generation and unique ownership/self-row invariants are supported by the reviewed tree and Windows28-case fixture suite. This actual build produced one projection; a second complete91-wheel projection was not independently regenerated.",
+    "Strict staged and packaged file custody is evidenced through successful execution of the reviewed enforcement path, plus the emitted digest-bound receipt. No independent scan of the remote runner filesystem was performed.",
+    "Installed verifier failed after packaging and before installation/retained-memory observations. There are no screenshots in this artifact and no installed-retention success claim.",
+    "No paid-provider/live memory quality, spend, model call, flag activation, or new visual inspection is proved by this review."
+  ],
+  "repositoryOrLedgerWritesByThisReview": false
+}

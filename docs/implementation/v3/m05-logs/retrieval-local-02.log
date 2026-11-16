@@ -1,0 +1,37 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-retrieval-v3.test.ts (21 tests | 1 failed | 11 skipped) 61ms
+     × ranks exact project overlap and exact symbols ahead of recency with stable ID ties 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > ranks exact project overlap and exact symbols ahead of recency with stable ID ties
+AssertionError: expected [ 'a-tie', 'b-tie', …(2) ] to deeply equal [ 'project-first', 'a-tie', …(2) ]
+
+- Expected
++ Received
+
+  [
+-   "project-first",
+    "a-tie",
+    "b-tie",
+    "newer-one-symbol",
++   "project-first",
+  ]
+
+ ❯ tests/memory-retrieval-v3.test.ts:71:47
+     69|       memory('substring', 'Parser.parser Store.commander.'),
+     70|     ], { query: 'Parser.parse Store.command', projectTerms: ['Gen-V1']…
+     71|     expect(result.items.map(item => item.id)).toEqual(['project-first'…
+       |                                               ^
+     72|     expect(result.recall.scores.find(score => score.itemId === 'projec…
+     73|     expect(result.recall.exclusions).toContainEqual({ itemId: 'substri…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed | 11 skipped (21)
+   Start at  18:30:24
+   Duration  309ms (transform 93ms, setup 0ms, import 125ms, tests 61ms, environment 0ms)

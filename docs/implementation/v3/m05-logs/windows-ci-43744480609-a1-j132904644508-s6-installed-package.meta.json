@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "desktop:package",
+      "--output-root",
+      ".harness-installed-package"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T18:04:19Z",
+    "endedAt": "2026-11-15T18:20:50Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s6-installed-package.log",
+    "logDigest": "7618770f0ab5b99a5e7ed0d8c70d8bfa3b76c438ae97213179ad3bb340fa136f"
+  },
+  "runId": 43744480609,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+  "testedCheckout": {
+    "commitSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+    "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "60f030a2a6a764b858da110586c666353705a5fd"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/checkout-commit.json",
+    "rawResponseSha256": "30c2383d04254b1614bcbb119f5fac4af8fa46fccba68c7562d712a40aaf85ed"
+  },
+  "job": {
+    "id": 132904644508,
+    "name": "Installed desktop memory retention",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43744480609/job/132904644508",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001299,
+      "name": "GitHub Actions 1000001299",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Package the production Windows installer",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 6,
+    "started_at": "2026-11-15T18:04:19Z",
+    "completed_at": "2026-11-15T18:20:50Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43744480609.json",
+  "receiptSha256": "06207654d12c3c5d1587e0aa39e594908eef528c3c701241ddc59ad0737c2ce6",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/job-132904644508.log",
+  "rawJobLogDigest": "40dd0d32afb8319222190334e90c894c575f09f3babcb8888cebf118c0d87992",
+  "rawJobLogBytes": 126900,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      479,
+      658
+    ]
+  ],
+  "excerptInputSha256": "86ada6f6bb8a1fad5a6e51317048437ae00f063f51bdd20cd7b1dc5e5ead24b1",
+  "excerptInputBytes": 72787,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Single-command step completed successfully in the jobs API.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "pnpm desktop:package --output-root .harness-installed-package",
+  "observedInputStaging": [
+    {
+      "kind": "REVIEWED_POWERSHELL_STEP_OBSERVATION",
+      "commandRecordCreated": false,
+      "step": {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T18:04:04Z",
+        "completed_at": "2026-11-15T18:04:14Z"
+      },
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "stagingCompleted": true,
+      "pinnedWheels": {
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+        "count": 91
+      },
+      "runnerStepExitCode": 0,
+      "exitBasis": "The jobs API reports the reviewed PowerShell step succeeded; no individual command exit is claimed.",
+      "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+      "observedScript": "$ErrorActionPreference = 'Stop'\n$lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n$wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $wheels | Out-Null\n$names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\nforeach ($distribution in $lock.distributions) {\n  if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n  $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n  if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n  $archive = Join-Path $wheels $name\n  Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n}\n\"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\nWrite-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))",
+      "scriptSha256": "fc099bc06d01c5836285f649d5d9cc2b4db3fdd36176b5fcf2c8f4137f21eda5",
+      "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/job-132904644508.log",
+      "rawJobLogDigest": "40dd0d32afb8319222190334e90c894c575f09f3babcb8888cebf118c0d87992",
+      "rawJobLogBytes": 126900,
+      "excerptLineRanges1BasedInclusive": [
+        [
+          403,
+          429
+        ]
+      ],
+      "excerptInputSha256": "6682d8840264e0c2388193668e4540a59d1ae116b5da9e5ccce3f2d6cb53a69c",
+      "excerptInputBytes": 3174,
+      "boundedExcerpt": "2026-11-15T18:04:04.3078671Z ##[group]Run $ErrorActionPreference = 'Stop'\n2026-11-15T18:04:04.3079143Z $ErrorActionPreference = 'Stop'\n2026-11-15T18:04:04.3079700Z $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n2026-11-15T18:04:04.3080474Z $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\n2026-11-15T18:04:04.3081046Z New-Item -ItemType Directory -Path $wheels | Out-Null\n2026-11-15T18:04:04.3081644Z $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\n2026-11-15T18:04:04.3082253Z foreach ($distribution in $lock.distributions) {\n2026-11-15T18:04:04.3083186Z   if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n2026-11-15T18:04:04.3084267Z   $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n2026-11-15T18:04:04.3085022Z   if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n2026-11-15T18:04:04.3085627Z   $archive = Join-Path $wheels $name\n2026-11-15T18:04:04.3086361Z   Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n2026-11-15T18:04:04.3087672Z   if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n2026-11-15T18:04:04.3088493Z }\n2026-11-15T18:04:04.3088760Z \"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\n2026-11-15T18:04:04.3089881Z Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))\n2026-11-15T18:04:04.3164498Z shell: C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"\n2026-11-15T18:04:04.3164879Z env:\n2026-11-15T18:04:04.3165280Z   PNPM_HOME: C:\\Users\\runneradmin\\setup-pnpm\\node_modules\\.bin\n2026-11-15T18:04:04.3165900Z   pythonLocation: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T18:04:04.3166385Z   PKG_CONFIG_PATH: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64/lib/pkgconfig\n2026-11-15T18:04:04.3166861Z   Python_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T18:04:04.3167300Z   Python2_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T18:04:04.3167721Z   Python3_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T18:04:04.3168226Z   HARNESS_HERMES_PYTHON: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\\python.exe\n2026-11-15T18:04:04.3168630Z ##[endgroup]\n2026-11-15T18:04:14.3582405Z HARNESS_PINNED_INTEGRATION_WHEELS={\"sourceLockSha256\":\"264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700\",\"count\":91}\n",
+      "boundedExcerptSha256": "7422aa8101fda9336579ec8d8238ee0db4156c95c11f9a2488246ae3daff4303",
+      "boundedExcerptBytes": 2982,
+      "transformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Only actual jobs-API step timestamps are preserved. No separate download, command process or archive-verification duration is inferred.",
+      "executionLimit": "The script uses PowerShell built-ins. An external executable argv is not fabricated, and this observation creates no CommandEvidence ledger row.",
+      "runId": 43744480609,
+      "runAttempt": 1,
+      "jobId": 132904644508,
+      "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+      "testedCheckout": {
+        "commitSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+        "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+        "parents": [
+          "399cde39ff4ee82272c7a7700944325c44b36070",
+          "60f030a2a6a764b858da110586c666353705a5fd"
+        ],
+        "matchesPublishedTree": true,
+        "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/checkout-commit.json",
+        "rawResponseSha256": "30c2383d04254b1614bcbb119f5fac4af8fa46fccba68c7562d712a40aaf85ed"
+      },
+      "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43744480609.json",
+      "receiptSha256": "06207654d12c3c5d1587e0aa39e594908eef528c3c701241ddc59ad0737c2ce6"
+    }
+  ]
+}

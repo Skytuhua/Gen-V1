@@ -1,0 +1,38 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-consolidation-v3.test.ts (52 tests | 1 failed) 608ms
+     × records late provider spend after timeout without losing pending accounting or memory privacy 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > records late provider spend after timeout without losing pending accounting or memory privacy
+AssertionError: expected [] to match object [ { …(5) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "accountId": "account-one",
+-     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+-     "settled": false,
+-     "status": "TIMEOUT",
+-     "usage": {
+-       "cost": null,
+-       "modelCalls": 1,
+-     },
+-   },
+- ]
++ []
+
+ ❯ tests/memory-consolidation-v3.test.ts:162:58
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 51 passed (52)
+   Start at  18:34:06
+   Duration  956ms (transform 95ms, setup 0ms, import 198ms, tests 608ms, environment 0ms)

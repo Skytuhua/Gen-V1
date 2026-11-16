@@ -20,14 +20,15 @@ import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
-import {registerResearchRoutes} from './research-routes.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
 import {registerAgentInputRoutes} from './agent-input-routes.ts';
+import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -142,6 +143,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
       resources: service.store.all('resource', id),
       memory: service.store.all('taskMemory', id),
       usage: usage === undefined ? {} : { [id]: usage },
+      modelRequests: { [id]: service.store.all<{ value: unknown }>('modelRequest', id).map(item => item.value) },
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
@@ -187,10 +189,12 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
+  registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
   registerAttentionRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
+  registerAgentWorkRoutes(app,service);
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);
@@ -199,7 +203,6 @@ export async function buildServer(service: Service, options: ServerOptions) {
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
-  registerResearchRoutes(app,{research:service.research,command:command=>service.command(command)});
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
   app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});

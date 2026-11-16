@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "kind": "independent-successful-browser-operation-stage-review",
+  "reviewedAt": "2026-11-15T17:23:00.089111+00:00",
+  "identity": {
+    "runId": 43739565577,
+    "head": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+    "tree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "actualCheckout": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "jobId": 132889515502,
+    "artifactId": 14171219295
+  },
+  "conclusion": "PASS for this exact scripted operation/approval/effect/restart case, with zero retries and recorded successful stages. The previous failed run remains causally unresolved.",
+  "evidence": {
+    "archive": {
+      "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43739565577/browser-43739565577-1.zip",
+      "bytes": 2488308,
+      "sha256": "39a167d17c90a54eee3e0f4f9505f43f757a06b663b8b28181d285ede601f30a",
+      "retrievalCount": 1
+    },
+    "rawLog": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515502.log",
+      "bytes": 110836,
+      "sha256": "e6922202eb3015716c201b2d1f2a1f4ffec8aacb7ff7321d070dbb8e3733dc68"
+    },
+    "rootResults": {
+      "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43739565577/artifact/run-1794762939012-42f2ee16-b82f-4823-a636-cd4d1b6a419c/root/results.json",
+      "bytes": 340382,
+      "sha256": "3fc111354ecae22dedbe05ce18c05f01434b473d27d37c63a12541fef852c122",
+      "stats": {
+        "startTime": "2026-11-15T17:15:39.847Z",
+        "duration": 228902.87699999998,
+        "expected": 112,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "hostObservations": {
+      "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43739565577/artifact/run-1794762939012-42f2ee16-b82f-4823-a636-cd4d1b6a419c/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/host-observations.json",
+      "bytes": 19530,
+      "sha256": "6ac1e06912a75ca74a6f4c20fc85d220364ce2c36d39f8f146fffc42f3b15118"
+    },
+    "images": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43739565577/artifact/run-1794762939012-42f2ee16-b82f-4823-a636-cd4d1b6a419c/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/native-operation-approval.png",
+        "bytes": 86560,
+        "sha256": "2a028639284e836072ca5d6d045fc7bdc70e76465289ac43e68bd4c284b388a4",
+        "visuallyInspected": true,
+        "observation": "Visible native operation approval with Approval needed, recorded-SHA precondition, Decline and Approve controls."
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43739565577/artifact/run-1794762939012-42f2ee16-b82f-4823-a636-cd4d1b6a419c/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/restart-restored-receipt.png",
+        "bytes": 82078,
+        "sha256": "be2e444db4025c55b40b39c7ffae4d91309f4ecaf81ceab6831e8e7b4700d7e8",
+        "visuallyInspected": true,
+        "observation": "Restored Evidence document and Succeeded operation outcome, with Interrupted session after the host restart."
+      }
+    ]
+  },
+  "case": {
+    "title": "generated operation button requires native approval; restart restores without repeating effects",
+    "reportedFile": "host-loop.spec.ts",
+    "reportedLine": 252,
+    "status": "passed",
+    "wholeTestDurationMs": 7919,
+    "outerTimeoutMs": 60000,
+    "retry": 0,
+    "errors": [],
+    "assertionSourceSha256": "8cc1ae1912e15e9647869eeeb6641596876eafc40a8b3730963e00c4b606019d"
+  },
+  "actualStages": [
+    [
+      {
+        "kind": "runtime",
+        "name": "start",
+        "status": "succeeded",
+        "startedAt": "2026-11-15T17:16:45.529Z",
+        "startedMs": 60114.4268,
+        "finishedAt": "2026-11-15T17:16:49.476Z",
+        "elapsedMs": 3946.753199999999
+      },
+      {
+        "kind": "tool",
+        "name": "file_replace_prepare",
+        "status": "succeeded",
+        "startedAt": "2026-11-15T17:16:45.535Z",
+        "startedMs": 60120.4111,
+        "finishedAt": "2026-11-15T17:16:49.101Z",
+        "elapsedMs": 3565.453300000001
+      },
+      {
+        "kind": "tool",
+        "name": "text_import",
+        "status": "succeeded",
+        "startedAt": "2026-11-15T17:16:49.101Z",
+        "startedMs": 63685.8837,
+        "finishedAt": "2026-11-15T17:16:49.474Z",
+        "elapsedMs": 373.5861999999979
+      },
+      {
+        "kind": "tool",
+        "name": "ui_present",
+        "status": "succeeded",
+        "startedAt": "2026-11-15T17:16:49.474Z",
+        "startedMs": 64059.5688,
+        "finishedAt": "2026-11-15T17:16:49.476Z",
+        "elapsedMs": 1.5795999999972992
+      },
+      {
+        "kind": "runtime",
+        "name": "followUp",
+        "status": "succeeded",
+        "startedAt": "2026-11-15T17:16:50.714Z",
+        "startedMs": 65298.7361,
+        "finishedAt": "2026-11-15T17:16:50.716Z",
+        "elapsedMs": 2.121399999996356
+      }
+    ],
+    []
+  ],
+  "stageScope": "Elapsed values measure complete scripted runtime or Service.tool callback stages, including their awaited work. They do not isolate PowerShell startup, individual native RPC time, model latency or a benchmark.",
+  "observedState": {
+    "deliveryCountsByHostGeneration": [
+      2,
+      0
+    ],
+    "stageCountsByHostGeneration": [
+      5,
+      0
+    ],
+    "failedStages": 0,
+    "pendingStages": 0,
+    "commands": [
+      "thread.create",
+      "resource.grant",
+      "message.send",
+      "artifact.expand",
+      "action.submit",
+      "artifact.expand",
+      "operation.approve",
+      "operation.approve"
+    ],
+    "approvalRevisions": [
+      2,
+      1
+    ],
+    "finalOperation": {
+      "id": "7ced3dec-2209-41bf-9f63-0bc77aee756b",
+      "kind": "file.replace",
+      "revision": 1,
+      "status": "succeeded",
+      "approved": true,
+      "result": {
+        "resourceId": "e96b44e1-fe31-4f97-9d5c-95556a92401f",
+        "path": null,
+        "sha256": "caf1467d730a76d271363537af17f521fe0e0fc590ef2fdbad7274b7b50a70d1",
+        "bytes": 52
+      }
+    },
+    "finalThreadStatus": "interrupted",
+    "finalThreadError": null,
+    "finalArtifactTitles": [
+      "Evidence document"
+    ]
+  },
+  "assertionsVerifiedByExactSourceAndPassingCase": [
+    "Native approval shown before mutation, with focused approval control.",
+    "Prepared operation initially unapproved; original source bytes unchanged.",
+    "Stale approval revision rejected with HTTP400 and STALE_REVISION.",
+    "Explicit valid approval required before exact replacement bytes appear.",
+    "Succeeded operation outcome visible.",
+    "Restart restores operation/artifact/user-state records and interrupted thread.",
+    "Restarted runtime has no deliveries.",
+    "Source modification time remains unchanged across restart.",
+    "Exactly one operation.started event, so restart does not repeat the effect."
+  ],
+  "sourceFiles": [
+    {
+      "path": "tests/host-fixture.ts",
+      "bytes": 17463,
+      "sha256": "7e0127235204ff69d585af1ea6cf83d8ed18f348f79538095b87824ea862eb3c",
+      "readFromTree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 27651,
+      "sha256": "f86c816974f1ceae293ada90afddeafc804101af8116dc45bd8cff04ce796503",
+      "readFromTree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 12542,
+      "sha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f",
+      "readFromTree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc"
+    }
+  ],
+  "proofLimits": [
+    "These timings describe run43739565577 only and cannot retrospectively explain the unobserved pending stage in failed run43736761161.",
+    "No native guard limit or production authority check changed.",
+    "This is a scripted real-host/browser/native-file integration case, not paid-provider or model-generation proof.",
+    "The two inspected PNGs are operation-fixture evidence, not a new visual review of all M05 product screens.",
+    "The successful case and host receipt prove the tested assertions; this reviewer did not download or inspect the runner source file or SQLite database directly.",
+    "This browser result does not establish installed-desktop retention; that separate artifact is reviewed separately."
+  ],
+  "repositoryOrLedgerWritesByReviewer": false
+}

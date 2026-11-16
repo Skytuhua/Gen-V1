@@ -1,0 +1,221 @@
+{
+  "createdAt": "2026-11-15T18:20:53.443Z",
+  "setup": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+  "setupSha256": "e5ef67ec621974fbda248b42a157ccefe35753a1ca0a4dee2295a2c73cb622be",
+  "expectedUnpacked": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+  "installDirectory": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f1c1d80d336c",
+  "nsisGuid": "f973205b-ac9b-56c0-baad-730abd2ca4b3",
+  "version": "0.6.5",
+  "scope": "Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.",
+  "inference": false,
+  "auth": false,
+  "memoryRetentionRequested": true,
+  "launches": [],
+  "passed": false,
+  "preflightObservations": [
+    {
+      "stage": "before-install",
+      "startedAt": "2026-11-15T18:20:53.445Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 29997,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 6,
+          "observedElapsedMs": 239
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 28,
+          "observedElapsedMs": 256
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 119,
+          "observedElapsedMs": 347
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 124,
+          "observedElapsedMs": 353
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 131,
+          "observedElapsedMs": 359
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 29724,
+          "observedElapsedMs": 29952
+        }
+      ]
+    },
+    {
+      "stage": "pre-install-recheck",
+      "startedAt": "2026-11-15T18:22:22.261Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 22749,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 5,
+          "observedElapsedMs": 216
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 25,
+          "observedElapsedMs": 231
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 48,
+          "observedElapsedMs": 254
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 53,
+          "observedElapsedMs": 259
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 59,
+          "observedElapsedMs": 265
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 22503,
+          "observedElapsedMs": 22710
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "entries": [],
+    "shortcuts": [
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\Desktop\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\Desktop\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\Public\\Desktop\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\Public\\Desktop\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+      }
+    ],
+    "updaterCache": {
+      "present": false,
+      "path": "C:\\Users\\runneradmin\\AppData\\Local\\generative-harness-desktop-updater"
+    },
+    "runningAppPids": []
+  },
+  "expectedPayload": {
+    "files": 92880,
+    "bytes": 2567765358,
+    "sha256": "4e10d6a58d410ffbaab748b459bc44298a924d8cfc883ee8865632f2d18191ce",
+    "maxInstalledPathLength": 240
+  },
+  "installerProgressSetup": "ready",
+  "installerObservation": {
+    "phase": "installer",
+    "startedAt": "2026-11-15T18:22:46.286Z",
+    "timeoutMs": 600000,
+    "elapsedMs": 600211,
+    "status": "failed",
+    "pid": 5628,
+    "spawnElapsedMs": 18,
+    "exit": {
+      "elapsedMs": 600211,
+      "code": 1,
+      "signal": null
+    },
+    "close": {
+      "elapsedMs": 600211,
+      "code": 1,
+      "signal": null
+    },
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "failure": "deadline",
+    "terminationRequested": true,
+    "pathProgress": [
+      {
+        "elapsedMs": 30024,
+        "durationMs": 4,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 120021,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 300033,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 540022,
+        "durationMs": 13,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 4,
+        "sizeMatched": 12,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      }
+    ]
+  },
+  "error": "Owned installer process exceeded its 600000 ms deadline.",
+  "cleanup": {
+    "status": "preserved-unconfirmed-installation"
+  }
+}

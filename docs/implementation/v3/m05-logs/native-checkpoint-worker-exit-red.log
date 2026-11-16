@@ -1,0 +1,32 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-checkpoint-worker-ownership-v3.test.ts (6 tests | 1 failed) 294ms
+   × retains checkpoint cleanup through unexpected worker exit and rejects a late persistence receipt 74ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-checkpoint-worker-ownership-v3.test.ts > retains checkpoint cleanup through unexpected worker exit and rejects a late persistence receipt
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-checkpoint-worker-ownership-v3.test.ts:37:63
+     35|   f.child.emit('message',{type:'memory.checkpoint',request:f.request})…
+     36|   f.child.connected=false;f.child.exitCode=1;f.child.emit('exit',1,nul…
+     37|   await new Promise(done=>setTimeout(done,10));expect(closed).toBe(fal…
+       |                                                               ^
+     38|   expect(f.sent.some(value=>value.type==='memory.checkpoint.result'&&v…
+     39|  }finally{release(ack(f.request));await f.runtime.dispose();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  19:33:18
+   Duration  1.16s (transform 341ms, setup 0ms, import 582ms, tests 294ms, environment 0ms)

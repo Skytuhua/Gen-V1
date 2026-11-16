@@ -1,0 +1,106 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-ui.test.ts (14 tests | 1 failed) 636ms
+   × rejects a view that republishes text for an existing deletion tombstone 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-ui.test.ts > rejects a view that republishes text for an existing deletion tombstone
+AssertionError: promise resolved "{ scope: { …(5) }, …(9) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "available": true,
++   "configRevision": 1,
++   "disabledReason": null,
++   "eligibleThreads": [
++     {
++       "id": "thread-a",
++       "title": "Source conversation",
++     },
++   ],
++   "enabled": true,
++   "items": [
++     {
++       "conflictRevisions": [],
++       "item": {
++         "assertedBy": {
++           "id": "local-user",
++           "kind": "USER",
++         },
++         "expiresAt": null,
++         "id": "memory-a",
++         "kind": "CONSTRAINT",
++         "observedAt": "2026-11-15T00:00:00Z",
++         "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++         "reviewDecision": null,
++         "revision": 2,
++         "scope": "PROJECT",
++         "sensitivity": "NORMAL",
++         "sourceRefs": [
++           {
++             "capturedSeq": 4,
++             "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
++             "observedStatus": "REPORTED",
++             "ownerThreadId": "thread-a",
++             "sourceId": "message-a",
++             "sourceKind": "MESSAGE",
++             "sourceRevision": "1",
++           },
++         ],
++         "state": "ACCEPTED",
++         "supersedes": [],
++         "text": "Use UTC for exported dates.",
++       },
++       "lastUsedAt": null,
++     },
++   ],
++   "projectName": "Project A",
++   "scope": {
++     "accountId": "account-a",
++     "bindingDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
++     "projectId": "project-a",
++     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "threadId": "thread-a",
++   },
++   "sourceThreadIds": [
++     "thread-a",
++   ],
++   "tombstones": [
++     {
++       "affectedDerivedArtifacts": [],
++       "deletedAt": "2026-11-15T00:00:00Z",
++       "deletionRevision": 3,
++       "itemId": "memory-a",
++       "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++       "purgeStatus": "PENDING",
++       "sourceExclusions": [
++         {
++           "capturedSeq": 4,
++           "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
++           "observedStatus": "REPORTED",
++           "ownerThreadId": "thread-a",
++           "sourceId": "message-a",
++           "sourceKind": "MESSAGE",
++           "sourceRevision": "1",
++         },
++       ],
++     },
++   ],
+  }
+
+ ❯ tests/project-memory-ui.test.ts:48:53
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  18:32:26
+   Duration  880ms (transform 371ms, setup 0ms, import 74ms, tests 636ms, environment 0ms)

@@ -1,0 +1,105 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-study-v3.test.ts (9 tests | 7 failed) 120ms
+   × uses actual thread-bound model discovery and identical pinned reasoning for every submission 25ms
+   × rejects a different selected account before any provider submission 6ms
+   × rejects missing or changed comparison authority {"missingWarmup":true} 19ms
+   × rejects missing or changed comparison authority {"foreignPrepared":true} 16ms
+   × rejects missing or changed comparison authority {"extraTreatment":true} 11ms
+   × does not subtract unqualified runtime snapshots or report missing auxiliary charges as zero 18ms
+   × waits for registered auxiliary work and includes setup spend in the total 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-study-v3.test.ts > uses actual thread-bound model discovery and identical pinned reasoning for every submission
+AssertionError: expected [ '/api/bootstrap', …(59) ] to include '/api/models?threadId=source'
+ ❯ tests/memory-study-v3.test.ts:81:26
+     79| it('uses actual thread-bound model discovery and identical pinned reas…
+     80|   const protocol = liveProtocol(); const report = await protocol.run();
+     81|   expect(protocol.paths).toContain('/api/models?threadId=source');
+       |                          ^
+     82|   expect(protocol.commands.filter(value => value.type === 'message.sen…
+     83|   expect(report.runs).toHaveLength(6); expect(report.status).toBe('EXE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/memory-study-v3.test.ts > rejects a different selected account before any provider submission
+AssertionError: expected [ { …(4) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "id": "3b8064e0-ee88-4401-98e3-3eceafca202f",
++     "payload": {
++       "content": "READY",
++       "modelId": "openai/fixture-model",
++     },
++     "threadId": "task-1",
++     "type": "message.send",
++   },
++ ]
+
+ ❯ tests/memory-study-v3.test.ts:87:76
+     85| it('rejects a different selected account before any provider submissio…
+     86|   const protocol = liveProtocol({selectedAccount: 'other'}); const rep…
+     87|   expect(protocol.commands.filter(value => value.type === 'message.sen…
+       |                                                                            ^
+     88| });
+     89| it.each([{missingWarmup: true}, {foreignPrepared: true}, {extraTreatme…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/memory-study-v3.test.ts > rejects missing or changed comparison authority {"missingWarmup":true}
+ FAIL  tests/memory-study-v3.test.ts > rejects missing or changed comparison authority {"foreignPrepared":true}
+ FAIL  tests/memory-study-v3.test.ts > rejects missing or changed comparison authority {"extraTreatment":true}
+AssertionError: expected 'EXECUTED' not to be 'EXECUTED' // Object.is equality
+ ❯ tests/memory-study-v3.test.ts:90:79
+     88| });
+     89| it.each([{missingWarmup: true}, {foreignPrepared: true}, {extraTreatme…
+     90|   const report = await liveProtocol(options).run(); expect(report.stat…
+       |                                                                               ^
+     91| });
+     92| it('does not subtract unqualified runtime snapshots or report missing …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/memory-study-v3.test.ts > does not subtract unqualified runtime snapshots or report missing auxiliary charges as zero
+AssertionError: expected 2 to be null
+
+- Expected:
+null
+
++ Received:
+2
+
+ ❯ tests/memory-study-v3.test.ts:94:41
+     92| it('does not subtract unqualified runtime snapshots or report missing …
+     93|   const report = await liveProtocol({unknownCost: true}).run();
+     94|   expect(report.runs[0].foregroundCost).toBeNull(); expect(report.summ…
+       |                                         ^
+     95| });
+     96| it('waits for registered auxiliary work and includes setup spend in th…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/memory-study-v3.test.ts > waits for registered auxiliary work and includes setup spend in the total
+AssertionError: expected 2 to be greater than 2
+ ❯ tests/memory-study-v3.test.ts:98:33
+     96| it('waits for registered auxiliary work and includes setup spend in th…
+     97|   const protocol = liveProtocol({pendingOnce: true}); const report = a…
+     98|   expect(protocol.usageReads()).toBeGreaterThan(2); expect(report.summ…
+       |                                 ^
+     99| });
+    100|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 2 passed (9)
+   Start at  19:47:18
+   Duration  424ms (transform 99ms, setup 0ms, import 150ms, tests 120ms, environment 0ms)

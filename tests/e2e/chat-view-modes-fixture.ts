@@ -1,5 +1,7 @@
 import type {Page} from '@playwright/test';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
+import type {HostCommand} from '../../packages/contracts';
+import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 
 export async function serveChatFixture(page:Page,long=false){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic local conversation.'}}}});
@@ -13,5 +15,18 @@ export async function serveChatFixture(page:Page,long=false){
   {...snapshot.messages[0],id:'follow-up-answer',content:'Use the layout menu in the header. Resize a panel from any edge or corner, or move it by its header. You can dock it on the right again whenever you need.'},
  ];
  if(long)for(let index=0;index<24;index++)snapshot.messages.push({...snapshot.messages[1],id:'history-'+index,content:`Message ${index+1}. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.\n\nThe composer and attachments belong to the same conversation.`});
- return serveTaskFixture(page,snapshot);
+ const host=await serveTaskFixture(page,snapshot);
+ // The conversation now lives in the canonical split plane; the retired pop-up/drawer
+ // geometry is replaced by real pane placement, so the fixture serves a durable layout.
+ let layout=createSplitWorkspaceLayout();
+ layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:task-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'}}});
+ await page.route('**/api/split-workspace?*',route=>route.fulfill({json:layout}));
+ await page.route('**/api/split-workspace/profiles?*',route=>route.fulfill({json:[]}));
+ await page.route('**/api/split-workspace/commands',route=>{
+  const command=route.request().postDataJSON() as HostCommand;
+  const type=command.type.replace(/^split-workspace\./,'');
+  layout=applySplitWorkspaceCommand(layout,type,command.payload);
+  return route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:layout}});
+ });
+ return host;
 }

@@ -1,0 +1,34 @@
+2026-11-15T17:22:55.7055694Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T17:22:55.7056341Z $ErrorActionPreference = 'Stop'
+2026-11-15T17:22:55.7056893Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T17:22:55.7057591Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T17:22:55.7058395Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T17:22:55.7059130Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T17:22:55.7060197Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T17:22:55.7061617Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T17:22:55.7062344Z & pnpm @verifyArgs
+2026-11-15T17:22:55.7062699Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T17:22:55.7191237Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T17:22:55.7191681Z env:
+2026-11-15T17:22:55.7192006Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T17:22:55.7192441Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:22:55.7192943Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T17:22:55.7193471Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:22:55.7193983Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:22:55.7194449Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:22:55.7195031Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T17:22:55.7195683Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-18039e241a7241e698d117acf968f22b
+2026-11-15T17:22:55.7196216Z ##[endgroup]
+2026-11-15T17:22:56.2408696Z HARNESS_INSTALLED_VERIFY_ARGV={"args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"],"executable":"pnpm"}
+2026-11-15T17:34:51.5451426Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794763379114-eac9fe38-4aaf-4246-b500-f55696071fbe","passed":false}
+2026-11-15T17:34:51.5633521Z D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:128
+2026-11-15T17:34:51.5635252Z   const timer=setTimeout(()=>fail(Error('Owned '+phase+' process exceeded its '+options.timeoutMs+' ms deadline.')),options.timeoutMs);
+2026-11-15T17:34:51.5649126Z                                   ^
+2026-11-15T17:34:51.5650030Z 
+2026-11-15T17:34:51.5654244Z Error: Owned installer process exceeded its 600000 ms deadline.
+2026-11-15T17:34:51.5656707Z     at Timeout.<anonymous> (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:128:35)
+2026-11-15T17:34:51.5657866Z     at listOnTimeout (node:internal/timers:685:17)
+2026-11-15T17:34:51.5658745Z     at process.processTimers (node:internal/timers:618:7)
+2026-11-15T17:34:51.5659405Z 
+2026-11-15T17:34:51.5659708Z Node.js v24.22.2
+2026-11-15T17:34:51.6703001Z ##[error]Process completed with exit code 1.

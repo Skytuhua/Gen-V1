@@ -1,0 +1,8 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  19:41:08
+   Duration  782ms (transform 403ms, setup 0ms, import 527ms, tests 74ms, environment 0ms)

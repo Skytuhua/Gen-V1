@@ -1,0 +1,32 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-forget-v3.test.ts (17 tests | 1 failed) 212ms
+   × does not complete the legacy storage migration while an old reader pins pre-scrub pages 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > does not complete the legacy storage migration while an old reader pins pre-scrub pages
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/memory-forget-v3.test.ts:174:69
+    172|   reader.exec('BEGIN'); reader.prepare('SELECT COUNT(*) FROM entities'…
+    173|   try {
+    174|     expect(() => new ProjectMemory(f.store, {enabled: () => true})).to…
+       |                                                                     ^
+    175|     expect(f.store.get('projectMemoryStorageFormat', 'secure-delete-v1…
+    176|   } finally {reader.exec('ROLLBACK'); reader.close();}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  19:26:43
+   Duration  941ms (transform 408ms, setup 0ms, import 551ms, tests 212ms, environment 0ms)

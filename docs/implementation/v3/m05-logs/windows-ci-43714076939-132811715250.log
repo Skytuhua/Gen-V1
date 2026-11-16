@@ -1,0 +1,631 @@
+GitHub Actions job 132811715250: Browser tests
+Run: 43714076939
+Head: 88cc734111b6c4b683f7c1469723d5c7ee7b4ea4
+Conclusion: failure
+Raw decoded UTF-8 SHA256: 8075753933aed79eedff705e5d6343cd04718c7e870e39a7679ac07dc49ab123
+
+2026-11-15T12:29:13.8572223Z Current runner version: '2.338.2'
+2026-11-15T12:29:13.8593670Z ##[group]Runner Image Provisioner
+2026-11-15T12:29:13.8594317Z Hosted Compute Agent
+2026-11-15T12:29:13.8594782Z Version: 20261103.629
+2026-11-15T12:29:13.8595258Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T12:29:13.8595798Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T12:29:13.8596313Z Worker ID: {11b3bf22-1885-4544-9f70-7c075622eb46}
+2026-11-15T12:29:13.8596840Z Region: westus2
+2026-11-15T12:29:13.8597311Z Cloud: Azure
+2026-11-15T12:29:13.8597700Z ##[endgroup]
+2026-11-15T12:29:13.8598695Z ##[group]Operating System
+2026-11-15T12:29:13.8599436Z Microsoft Windows Server 2025
+2026-11-15T12:29:13.8599989Z 10.0.26100
+2026-11-15T12:29:13.8600379Z Datacenter
+2026-11-15T12:29:13.8600755Z ##[endgroup]
+2026-11-15T12:29:13.8601487Z ##[group]Runner Image
+2026-11-15T12:29:13.8601948Z Image: windows-2025-vs2026
+2026-11-15T12:29:13.8602395Z Version: 20261103.298.1
+2026-11-15T12:29:13.8603606Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T12:29:13.8604837Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T12:29:13.8605589Z ##[endgroup]
+2026-11-15T12:29:13.8606417Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T12:29:13.8607905Z Contents: read
+2026-11-15T12:29:13.8608348Z Metadata: read
+2026-11-15T12:29:13.8608760Z ##[endgroup]
+2026-11-15T12:29:13.8610422Z Secret source: Actions
+2026-11-15T12:29:13.8611064Z Cache mode: write
+2026-11-15T12:29:13.8611643Z Prepare workflow directory
+2026-11-15T12:29:13.8922380Z Prepare all required actions
+2026-11-15T12:29:13.8962510Z Getting action download info
+2026-11-15T12:29:14.2192560Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T12:29:14.3319573Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-15T12:29:14.6053883Z Complete job name: Browser tests
+2026-11-15T12:29:14.8248546Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T12:29:14.8249523Z with:
+2026-11-15T12:29:14.8249841Z   persist-credentials: false
+2026-11-15T12:29:14.8250217Z   repository: skytuhua-org/Gen-V1
+2026-11-15T12:29:14.8253471Z   token: ***
+2026-11-15T12:29:14.8253775Z   ssh-strict: true
+2026-11-15T12:29:14.8254082Z   ssh-user: git
+2026-11-15T12:29:14.8254372Z   clean: true
+2026-11-15T12:29:14.8254685Z   sparse-checkout-cone-mode: true
+2026-11-15T12:29:14.8255051Z   fetch-depth: 1
+2026-11-15T12:29:14.8255345Z   fetch-tags: false
+2026-11-15T12:29:14.8255653Z   show-progress: true
+2026-11-15T12:29:14.8255961Z   lfs: false
+2026-11-15T12:29:14.8256246Z   submodules: false
+2026-11-15T12:29:14.8256556Z   set-safe-directory: true
+2026-11-15T12:29:14.8256922Z   allow-unsafe-pr-checkout: false
+2026-11-15T12:29:14.8257486Z ##[endgroup]
+2026-11-15T12:29:14.9435334Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T12:29:14.9437894Z ##[group]Getting Git version info
+2026-11-15T12:29:14.9438626Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T12:29:15.0078866Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T12:29:15.3944123Z git version 2.56.0.windows.4
+2026-11-15T12:29:15.3984838Z ##[endgroup]
+2026-11-15T12:29:15.4001170Z Temporarily overriding HOME='D:\a\_temp\bbb4cb0f-1b3b-4f64-bbc3-63ff41b330d5' before making global git config changes
+2026-11-15T12:29:15.4002312Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T12:29:15.4009666Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T12:29:15.4578595Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T12:29:15.4583316Z ##[group]Determining repository object format
+2026-11-15T12:29:15.4585233Z ##[endgroup]
+2026-11-15T12:29:15.4585896Z ##[group]Initializing the repository
+2026-11-15T12:29:15.4593146Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T12:29:15.5327734Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T12:29:15.5363880Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T12:29:15.5998292Z ##[endgroup]
+2026-11-15T12:29:15.5998991Z ##[group]Disabling automatic garbage collection
+2026-11-15T12:29:15.6008990Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T12:29:15.6301294Z ##[endgroup]
+2026-11-15T12:29:15.6301870Z ##[group]Setting up auth
+2026-11-15T12:29:15.6303023Z Removing SSH command configuration
+2026-11-15T12:29:15.6311347Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T12:29:15.6600242Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T12:29:17.4833875Z Removing HTTP extra header
+2026-11-15T12:29:17.4842908Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T12:29:17.5162448Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T12:29:17.9521078Z Removing includeIf entries pointing to credentials config files
+2026-11-15T12:29:17.9531081Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T12:29:17.9837532Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T12:29:18.4394218Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T12:29:18.4709526Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:18.5014019Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:18.5361368Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:18.5653196Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:18.5935091Z ##[endgroup]
+2026-11-15T12:29:18.5935566Z ##[group]Fetching the repository
+2026-11-15T12:29:18.5945993Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b93da5f5d615d65edad16f1b4f78a4a9f78904ea:refs/remotes/pull/347/merge
+2026-11-15T12:29:21.7252661Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T12:29:21.7253414Z  * [new ref]         b93da5f5d615d65edad16f1b4f78a4a9f78904ea -> pull/347/merge
+2026-11-15T12:29:21.7285190Z ##[endgroup]
+2026-11-15T12:29:21.7286135Z ##[group]Determining the checkout info
+2026-11-15T12:29:21.7286505Z ##[endgroup]
+2026-11-15T12:29:21.7294172Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T12:29:21.7785889Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T12:29:21.8078787Z ##[group]Checking out the ref
+2026-11-15T12:29:21.8085853Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/347/merge
+2026-11-15T12:29:22.9269714Z Updating files:  94% (2794/2969)
+2026-11-15T12:29:22.9381889Z Updating files:  95% (2821/2969)
+2026-11-15T12:29:22.9490680Z Updating files:  96% (2851/2969)
+2026-11-15T12:29:22.9556385Z Updating files:  97% (2880/2969)
+2026-11-15T12:29:22.9622761Z Updating files:  98% (2910/2969)
+2026-11-15T12:29:22.9688220Z Updating files:  99% (2940/2969)
+2026-11-15T12:29:22.9688641Z Updating files: 100% (2969/2969)
+2026-11-15T12:29:22.9688949Z Updating files: 100% (2969/2969), done.
+2026-11-15T12:29:22.9787383Z Note: switching to 'refs/remotes/pull/347/merge'.
+2026-11-15T12:29:22.9787689Z 
+2026-11-15T12:29:22.9788214Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-15T12:29:22.9788796Z changes and commit them, and you can discard any commits you make in this
+2026-11-15T12:29:22.9789902Z state without impacting any branches by switching back to a branch.
+2026-11-15T12:29:22.9790219Z 
+2026-11-15T12:29:22.9790378Z If you want to create a new branch to retain commits you create, you may
+2026-11-15T12:29:22.9790938Z do so (now or later) by using -c with the switch command. Example:
+2026-11-15T12:29:22.9791142Z 
+2026-11-15T12:29:22.9791296Z   git switch -c <new-branch-name>
+2026-11-15T12:29:22.9791573Z 
+2026-11-15T12:29:22.9791645Z Or undo this operation with:
+2026-11-15T12:29:22.9791778Z 
+2026-11-15T12:29:22.9791841Z   git switch -
+2026-11-15T12:29:22.9791928Z 
+2026-11-15T12:29:22.9792087Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-15T12:29:22.9792311Z 
+2026-11-15T12:29:22.9792602Z HEAD is now at b93da5f Merge 88cc734111b6c4b683f7c1469723d5c7ee7b4ea4 into 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42
+2026-11-15T12:29:22.9979433Z ##[endgroup]
+2026-11-15T12:29:23.0428950Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T12:29:23.0702893Z b93da5f5d615d65edad16f1b4f78a4a9f78904ea
+2026-11-15T12:29:23.0736529Z ##[group]Removing auth
+2026-11-15T12:29:23.0736829Z Removing SSH command configuration
+2026-11-15T12:29:23.0744294Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T12:29:23.1038037Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T12:29:23.5468569Z Removing HTTP extra header
+2026-11-15T12:29:23.5475976Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T12:29:23.5774844Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T12:29:24.1807088Z Removing includeIf entries pointing to credentials config files
+2026-11-15T12:29:24.1817326Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T12:29:24.2086927Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T12:29:24.2087407Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T12:29:24.2088323Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T12:29:24.2089045Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T12:29:24.2121046Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T12:29:24.2378348Z D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.2414477Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.2719760Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T12:29:24.2999091Z D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.3038668Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.3331507Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T12:29:24.3587491Z /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.3619516Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.3908284Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T12:29:24.4168142Z /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.4200757Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:29:24.4491426Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T12:29:24.8935072Z Removing credentials config 'D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config'
+2026-11-15T12:29:24.8945215Z ##[endgroup]
+2026-11-15T12:29:24.9411722Z Prepare all required actions
+2026-11-15T12:29:24.9412270Z Getting action download info
+2026-11-15T12:29:25.0980944Z Download action repository 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-15T12:29:25.3028592Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-15T12:29:25.4705313Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-11-15T12:29:25.5780448Z Download action repository 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-15T12:29:25.7243362Z ##[group]Run ./.github/actions/setup
+2026-11-15T12:29:25.7243568Z with:
+2026-11-15T12:29:25.7243710Z   python: true
+2026-11-15T12:29:25.7243854Z   playwright: true
+2026-11-15T12:29:25.7244008Z ##[endgroup]
+2026-11-15T12:29:25.7293286Z ##[start-action display=Install pnpm;id=__self.__pnpm_action-setup]
+2026-11-15T12:29:25.7434865Z ##[group]Run pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+2026-11-15T12:29:25.7435157Z with:
+2026-11-15T12:29:25.7435301Z   version: 10.30.3
+2026-11-15T12:29:25.7435465Z   dest: ~/setup-pnpm
+2026-11-15T12:29:25.7435621Z   run_install: null
+2026-11-15T12:29:25.7435762Z   cache: false
+2026-11-15T12:29:25.7435920Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-15T12:29:25.7453849Z   package_json_file: package.json
+2026-11-15T12:29:25.7454327Z   standalone: false
+2026-11-15T12:29:25.7454573Z ##[endgroup]
+2026-11-15T12:29:25.8852600Z ##[group]Running self-installer...
+2026-11-15T12:29:26.2608904Z (node:7584) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T12:29:26.2610257Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T12:29:26.3894768Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T12:29:26.3967068Z Packages: +1
+2026-11-15T12:29:26.3967525Z +
+2026-11-15T12:29:28.2014375Z Progress: resolved 1, reused 0, downloaded 1, added 0
+2026-11-15T12:29:28.6742539Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-11-15T12:29:28.7319002Z 
+2026-11-15T12:29:28.7319322Z dependencies:
+
+[Middle omitted from bounded public extract; full decoded log retained in scratch. Original decoded UTF-8 bytes: 212563.]
+
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-11-15T12:42:36.3447986Z         at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)
+2026-11-15T12:42:36.3448672Z         at predicate (eval at evaluate (:290:30), <anonymous>:7:23)
+2026-11-15T12:42:36.3449251Z         at next (eval at evaluate (:290:30), <anonymous>:29:29)
+2026-11-15T12:42:36.3449779Z         at eval (eval at evaluate (:290:30), <anonymous>:42:9)
+2026-11-15T12:42:36.3450310Z         at UtilityScript.evaluate (<anonymous>:292:16)
+2026-11-15T12:42:36.3450850Z         at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-11-15T12:42:36.3451420Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:14
+2026-11-15T12:42:36.3451756Z 
+2026-11-15T12:42:36.3452273Z     attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3453559Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\plan-timeline-dark-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T12:42:36.3454518Z     Usage:
+2026-11-15T12:42:36.3454692Z 
+2026-11-15T12:42:36.3455628Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\plan-timeline-dark-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T12:42:36.3456563Z 
+2026-11-15T12:42:36.3457020Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3457390Z 
+2026-11-15T12:42:36.3458244Z   22) tests\e2e\plan-timeline.spec.ts:233:40 › light desktop parallel branches and join ────────────
+2026-11-15T12:42:36.3458764Z 
+2026-11-15T12:42:36.3459569Z     Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.
+2026-11-15T12:42:36.3460775Z         at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)
+2026-11-15T12:42:36.3461456Z         at predicate (eval at evaluate (:290:30), <anonymous>:7:23)
+2026-11-15T12:42:36.3462047Z         at next (eval at evaluate (:290:30), <anonymous>:29:29)
+2026-11-15T12:42:36.3462633Z         at eval (eval at evaluate (:290:30), <anonymous>:42:9)
+2026-11-15T12:42:36.3463220Z         at UtilityScript.evaluate (<anonymous>:292:16)
+2026-11-15T12:42:36.3478855Z         at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-11-15T12:42:36.3479704Z         at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)
+2026-11-15T12:42:36.3480340Z         at predicate (eval at evaluate (:290:30), <anonymous>:7:23)
+2026-11-15T12:42:36.3480946Z         at next (eval at evaluate (:290:30), <anonymous>:29:29)
+2026-11-15T12:42:36.3481524Z         at eval (eval at evaluate (:290:30), <anonymous>:42:9)
+2026-11-15T12:42:36.3482086Z         at UtilityScript.evaluate (<anonymous>:292:16)
+2026-11-15T12:42:36.3482597Z         at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-11-15T12:42:36.3483139Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:14
+2026-11-15T12:42:36.3483481Z 
+2026-11-15T12:42:36.3484072Z     attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3485476Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\plan-timeline-light-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T12:42:36.3486766Z     Usage:
+2026-11-15T12:42:36.3486958Z 
+2026-11-15T12:42:36.3487929Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\plan-timeline-light-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T12:42:36.3488564Z 
+2026-11-15T12:42:36.3488893Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3489160Z 
+2026-11-15T12:42:36.3489501Z   23) tests\e2e\signing-motion.spec.ts:184:1 › ordinary draft edits do not restart field navigation 
+2026-11-15T12:42:36.3489790Z 
+2026-11-15T12:42:36.3490143Z     Error: expect(received).toBe(expected) // Object.is equality
+2026-11-15T12:42:36.3490458Z 
+2026-11-15T12:42:36.3490569Z     Expected: 0
+2026-11-15T12:42:36.3490805Z     Received: 8
+2026-11-15T12:42:36.3490932Z 
+2026-11-15T12:42:36.3491175Z       49 |   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('A changed name');
+2026-11-15T12:42:36.3491767Z       50 |   await expect.poll(() => host.snapshot.userStates[0].values.name).toBe('A changed name'); await flushFrames(page);
+2026-11-15T12:42:36.3492443Z     > 51 |   expect(await page.evaluate(() => (window as unknown as { pdfPanCalls: number }).pdfPanCalls)).toBe(0);
+2026-11-15T12:42:36.3492935Z          |                                                                                                 ^
+2026-11-15T12:42:36.3493212Z       52 | });
+2026-11-15T12:42:36.3493785Z       53 | for (const reduce of [false, true]) test(`generated signature reveal respects ${reduce ? 'reduced' : 'normal'} motion and never animates direct drawing`, async ({ page }) => {
+2026-11-15T12:42:36.3494440Z       54 |   if (reduce) await page.emulateMedia({ reducedMotion: 'reduce' });
+2026-11-15T12:42:36.3494831Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\signing-motion.spec.ts:51:97
+2026-11-15T12:42:36.3495041Z 
+2026-11-15T12:42:36.3495601Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\signing-motion-ordinary-dr-cad72-ot-restart-field-navigation\error-context.md
+2026-11-15T12:42:36.3496178Z 
+2026-11-15T12:42:36.3496492Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3497515Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\signing-motion-ordinary-dr-cad72-ot-restart-field-navigation\trace.zip
+2026-11-15T12:42:36.3498093Z     Usage:
+2026-11-15T12:42:36.3498187Z 
+2026-11-15T12:42:36.3498759Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\signing-motion-ordinary-dr-cad72-ot-restart-field-navigation\trace.zip
+2026-11-15T12:42:36.3499521Z 
+2026-11-15T12:42:36.3499794Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3500022Z 
+2026-11-15T12:42:36.3500820Z   24) tests\e2e\skills.spec.ts:377:1 › retirement during a history read marks only that row and preserves a newer draft generation 
+2026-11-15T12:42:36.3501387Z 
+2026-11-15T12:42:36.3501893Z     Error: expect(locator).toHaveText(expected) failed
+2026-11-15T12:42:36.3502193Z 
+2026-11-15T12:42:36.3502337Z     Locator: getByRole('alert')
+2026-11-15T12:42:36.3503267Z     Expected: "The original source for this revision is no longer available."
+2026-11-15T12:42:36.3503625Z     Timeout: 5000ms
+2026-11-15T12:42:36.3503830Z     Error: element(s) not found
+2026-11-15T12:42:36.3503968Z 
+2026-11-15T12:42:36.3504199Z     Call log:
+2026-11-15T12:42:36.3504499Z       - Expect "toHaveText" with timeout 5000ms
+2026-11-15T12:42:36.3504833Z       - waiting for getByRole('alert')
+2026-11-15T12:42:36.3504999Z 
+2026-11-15T12:42:36.3505004Z 
+2026-11-15T12:42:36.3505654Z       57 |  const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep the open editor draft.');await page.getByRole('button',{name:'View revision 1',exact:true}).click();await held.started;
+2026-11-15T12:42:36.3506819Z       58 |  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
+2026-11-15T12:42:36.3508906Z     > 59 |  await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();
+2026-11-15T12:42:36.3509742Z          |                                        ^
+2026-11-15T12:42:36.3510401Z       60 |  await expect(input).toHaveValue('Keep the open editor draft.');expect(await readSkillDraft(page)).toEqual(newer);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(2);
+2026-11-15T12:42:36.3511331Z       61 |  await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Newer recovered instructions.');
+2026-11-15T12:42:36.3511842Z       62 | });
+2026-11-15T12:42:36.3512081Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:59:40
+2026-11-15T12:42:36.3512268Z 
+2026-11-15T12:42:36.3512834Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-during-a-25ddd-es-a-newer-draft-generation\error-context.md
+2026-11-15T12:42:36.3513557Z 
+2026-11-15T12:42:36.3513905Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3514643Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-during-a-25ddd-es-a-newer-draft-generation\trace.zip
+2026-11-15T12:42:36.3515189Z     Usage:
+2026-11-15T12:42:36.3515282Z 
+2026-11-15T12:42:36.3515849Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-during-a-25ddd-es-a-newer-draft-generation\trace.zip
+2026-11-15T12:42:36.3516419Z 
+2026-11-15T12:42:36.3516679Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3516910Z 
+2026-11-15T12:42:36.3517420Z   25) tests\e2e\skills.spec.ts:420:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft 
+2026-11-15T12:42:36.3517798Z 
+2026-11-15T12:42:36.3518123Z     Error: expect(locator).toHaveText(expected) failed
+2026-11-15T12:42:36.3518413Z 
+2026-11-15T12:42:36.3518504Z     Locator: getByRole('alert')
+2026-11-15T12:42:36.3518910Z     Expected: "The original source for this revision is no longer available."
+2026-11-15T12:42:36.3519426Z     Timeout: 5000ms
+2026-11-15T12:42:36.3519630Z     Error: element(s) not found
+2026-11-15T12:42:36.3519765Z 
+2026-11-15T12:42:36.3519840Z     Call log:
+2026-11-15T12:42:36.3520107Z       - Expect "toHaveText" with timeout 5000ms
+2026-11-15T12:42:36.3520439Z       - waiting for getByRole('alert')
+2026-11-15T12:42:36.3520605Z 
+2026-11-15T12:42:36.3520609Z 
+2026-11-15T12:42:36.3521025Z       65 |  x.historyControl.beforeRestore=held.wait;await page.getByRole('button',{name:'Restore this revision',exact:true}).click();await held.started;
+2026-11-15T12:42:36.3521741Z       66 |  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
+2026-11-15T12:42:36.3522749Z     > 67 |  await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'Restore this revision',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();
+2026-11-15T12:42:36.3523532Z          |                                        ^
+2026-11-15T12:42:36.3524460Z       68 |  await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail(2).content);
+2026-11-15T12:42:36.3525770Z       69 |  expect(await readSkillDraft(page)).toEqual(newer);expect(x.snapshot.skills[0].revision).toBe(2);expect(x.saved.content).toBe(detail(2).content);expect(x.host.commands.filter(row=>row.type==='skill.manage')).toHaveLength(1);expect(x.reads).toBe(2);
+2026-11-15T12:42:36.3526506Z       70 | });
+2026-11-15T12:42:36.3526749Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:67:40
+2026-11-15T12:42:36.3526940Z 
+2026-11-15T12:42:36.3527496Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-after-hi-534eb-es-the-newer-recovery-draft\error-context.md
+2026-11-15T12:42:36.3528046Z 
+2026-11-15T12:42:36.3528357Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3529090Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-after-hi-534eb-es-the-newer-recovery-draft\trace.zip
+2026-11-15T12:42:36.3529645Z     Usage:
+2026-11-15T12:42:36.3529741Z 
+2026-11-15T12:42:36.3530511Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-retirement-after-hi-534eb-es-the-newer-recovery-draft\trace.zip
+2026-11-15T12:42:36.3531091Z 
+2026-11-15T12:42:36.3531351Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3531573Z 
+2026-11-15T12:42:36.3531950Z   26) tests\e2e\skills.spec.ts:467:1 › ordinary history transport failures stay retryable and do not retire source rows 
+2026-11-15T12:42:36.3532286Z 
+2026-11-15T12:42:36.3532608Z     Error: expect(locator).toHaveText(expected) failed
+2026-11-15T12:42:36.3532891Z 
+2026-11-15T12:42:36.3532990Z     Locator: getByRole('alert')
+2026-11-15T12:42:36.3533286Z     Expected: "The canonical source is busy."
+2026-11-15T12:42:36.3533537Z     Timeout: 5000ms
+2026-11-15T12:42:36.3533725Z     Error: element(s) not found
+2026-11-15T12:42:36.3533859Z 
+2026-11-15T12:42:36.3533923Z     Call log:
+2026-11-15T12:42:36.3534174Z       - Expect "toHaveText" with timeout 5000ms
+2026-11-15T12:42:36.3534487Z       - waiting for getByRole('alert')
+2026-11-15T12:42:36.3534646Z 
+2026-11-15T12:42:36.3534650Z 
+2026-11-15T12:42:36.3534974Z       71 | test('ordinary history transport failures stay retryable and do not retire source rows',async({page})=>{
+2026-11-15T12:42:36.3536249Z       72 |  const x=await fixture(page,{sourceHistory:true});x.historyControl.error={code:'HERMES_SOURCE_BUSY',message:'The canonical source is busy.'};await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();
+2026-11-15T12:42:36.3538763Z     > 73 |  await expect(page.getByRole('alert')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
+2026-11-15T12:42:36.3540032Z          |                                        ^
+2026-11-15T12:42:36.3540957Z       74 |  x.historyControl.error=undefined;await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(3);
+2026-11-15T12:42:36.3541779Z       75 | });
+2026-11-15T12:42:36.3541936Z       76 |
+2026-11-15T12:42:36.3542160Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:73:40
+2026-11-15T12:42:36.3542359Z 
+2026-11-15T12:42:36.3542924Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-ordinary-history-tr-b8848-d-do-not-retire-source-rows\error-context.md
+2026-11-15T12:42:36.3543472Z 
+2026-11-15T12:42:36.3543818Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3544719Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-ordinary-history-tr-b8848-d-do-not-retire-source-rows\trace.zip
+2026-11-15T12:42:36.3545272Z     Usage:
+2026-11-15T12:42:36.3545355Z 
+2026-11-15T12:42:36.3545920Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-ordinary-history-tr-b8848-d-do-not-retire-source-rows\trace.zip
+2026-11-15T12:42:36.3546478Z 
+2026-11-15T12:42:36.3546742Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3546955Z 
+2026-11-15T12:42:36.3547298Z   27) tests\e2e\skills.spec.ts:502:1 › empty libraries and automatic review controls work with old snapshots 
+2026-11-15T12:42:36.3547592Z 
+2026-11-15T12:42:36.3547859Z     Error: expect(locator).toBeVisible() failed
+2026-11-15T12:42:36.3548103Z 
+2026-11-15T12:42:36.3548284Z     Locator: getByRole('heading', { name: 'Skills & learning', exact: true })
+2026-11-15T12:42:36.3548746Z     Expected: visible
+2026-11-15T12:42:36.3549009Z     Timeout: 5000ms
+2026-11-15T12:42:36.3549203Z     Error: element(s) not found
+2026-11-15T12:42:36.3549336Z 
+2026-11-15T12:42:36.3549396Z     Call log:
+2026-11-15T12:42:36.3549667Z       - Expect "toBeVisible" with timeout 5000ms
+2026-11-15T12:42:36.3550116Z       - waiting for getByRole('heading', { name: 'Skills & learning', exact: true })
+2026-11-15T12:42:36.3550374Z 
+2026-11-15T12:42:36.3550378Z 
+2026-11-15T12:42:36.3550446Z       76 |
+2026-11-15T12:42:36.3550776Z       77 | test('empty libraries and automatic review controls work with old snapshots',async({page})=>{
+2026-11-15T12:42:36.3552106Z     > 78 |  const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & learning',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);
+2026-11-15T12:42:36.3553476Z          |                                                                                                                                                                                                                                                                       ^
+2026-11-15T12:42:36.3554338Z       79 |  await page.getByRole('switch',{name:'Automatic learning reviews',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningEnabled:false});
+2026-11-15T12:42:36.3555336Z       80 |  await page.getByRole('switch',{name:'Require approval for agent writes',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningApproval:true});
+2026-11-15T12:42:36.3556330Z       81 |  await page.getByRole('spinbutton',{name:'Review after model iterations',exact:true}).fill('20');await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningInterval:20});
+2026-11-15T12:42:36.3556980Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:78:263
+2026-11-15T12:42:36.3557165Z 
+2026-11-15T12:42:36.3557715Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-empty-libraries-and-5e005-ols-work-with-old-snapshots\error-context.md
+2026-11-15T12:42:36.3558259Z 
+2026-11-15T12:42:36.3558567Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3559300Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-empty-libraries-and-5e005-ols-work-with-old-snapshots\trace.zip
+2026-11-15T12:42:36.3560032Z     Usage:
+2026-11-15T12:42:36.3560119Z 
+2026-11-15T12:42:36.3560676Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-empty-libraries-and-5e005-ols-work-with-old-snapshots\trace.zip
+2026-11-15T12:42:36.3561341Z 
+2026-11-15T12:42:36.3561608Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3561828Z 
+2026-11-15T12:42:36.3562229Z   28) tests\e2e\skills.spec.ts:631:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version 
+2026-11-15T12:42:36.3562585Z 
+2026-11-15T12:42:36.3562914Z     Error: expect(locator).toContainText(expected) failed
+2026-11-15T12:42:36.3563208Z 
+2026-11-15T12:42:36.3563301Z     Locator: getByRole('alert')
+2026-11-15T12:42:36.3563602Z     Expected substring: "Your draft is retained"
+2026-11-15T12:42:36.3563856Z     Timeout: 5000ms
+2026-11-15T12:42:36.3564046Z     Error: element(s) not found
+2026-11-15T12:42:36.3564180Z 
+2026-11-15T12:42:36.3564245Z     Call log:
+2026-11-15T12:42:36.3564658Z       - Expect "toContainText" with timeout 5000ms
+2026-11-15T12:42:36.3564984Z       - waiting for getByRole('alert')
+2026-11-15T12:42:36.3565224Z 
+2026-11-15T12:42:36.3565238Z 
+2026-11-15T12:42:36.3565301Z       101 | });
+2026-11-15T12:42:36.3565709Z       102 | test('a conflicting skill edit survives refresh and reload until the user chooses a saved version',async({page})=>{
+2026-11-15T12:42:36.3567450Z     > 103 |  const x=await fixture(page,{stale:true});await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep my local review of the procedure.');await page.getByRole('button',{name:'Save skill',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Your draft is retained');await expect(input).toHaveValue('Keep my local review of the procedure.');
+2026-11-15T12:42:36.3570910Z           |                                                                                                                                                                                                                                                                                                                                                                                                             ^
+2026-11-15T12:42:36.3573486Z       104 |  await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Keep my local review of the procedure.');
+2026-11-15T12:42:36.3576382Z       105 |  await page.getByRole('button',{name:'Review saved version',exact:true}).click();await expect(page.getByText(detail(2).content,{exact:true})).toBeVisible();await expect(input).toHaveValue('Keep my local review of the procedure.');await page.getByRole('button',{name:'Use saved version',exact:true}).click();await expect(input).toHaveValue(detail(2).content);
+2026-11-15T12:42:36.3578317Z       106 | });
+2026-11-15T12:42:36.3578689Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:103:397
+2026-11-15T12:42:36.3578991Z 
+2026-11-15T12:42:36.3579910Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-a-conflicting-skill-12319-ser-chooses-a-saved-version\error-context.md
+2026-11-15T12:42:36.3580825Z 
+2026-11-15T12:42:36.3581400Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3582668Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-a-conflicting-skill-12319-ser-chooses-a-saved-version\trace.zip
+2026-11-15T12:42:36.3583578Z     Usage:
+2026-11-15T12:42:36.3583707Z 
+2026-11-15T12:42:36.3584850Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-a-conflicting-skill-12319-ser-chooses-a-saved-version\trace.zip
+2026-11-15T12:42:36.3585905Z 
+2026-11-15T12:42:36.3586333Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3586685Z 
+2026-11-15T12:42:36.3587320Z   29) tests\e2e\skills.spec.ts:811:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry 
+2026-11-15T12:42:36.3587891Z 
+2026-11-15T12:42:36.3588347Z     Error: expect(locator).toContainText(expected) failed
+2026-11-15T12:42:36.3588737Z 
+2026-11-15T12:42:36.3588868Z     Locator: getByRole('alert')
+2026-11-15T12:42:36.3589421Z     Expected substring: "Runtime cleanup is unconfirmed."
+2026-11-15T12:42:36.3589857Z     Timeout: 5000ms
+2026-11-15T12:42:36.3590117Z     Error: element(s) not found
+2026-11-15T12:42:36.3590316Z 
+2026-11-15T12:42:36.3590446Z     Call log:
+2026-11-15T12:42:36.3591440Z       - Expect "toContainText" with timeout 5000ms
+2026-11-15T12:42:36.3592248Z       - waiting for getByRole('alert')
+2026-11-15T12:42:36.3592434Z 
+2026-11-15T12:42:36.3592439Z 
+2026-11-15T12:42:36.3592758Z       120 | test('unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry',async({page})=>{
+2026-11-15T12:42:36.3594330Z       121 |  const x=await fixture(page,{empty:true});x.snapshot.learning={supported:true,status:'blocked',lastReview:{sourceThreadId:'task-thread',sourceRunId:'review-1',modelId:'fixture-model',accountId:null,status:'failed',startedAt:now,toolCalls:0,inputBytes:0,appliedChanges:0,cleanupConfirmed:false,error:'Learning review could not stop. Runtime cleanup is unconfirmed.'}};
+2026-11-15T12:42:36.3596337Z     > 122 |  await x.open();await expect(page.getByRole('alert')).toContainText('Runtime cleanup is unconfirmed.');await expect(page.getByText('Learning review is blocked.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Stop learning review',exact:true}).click();await expect.poll(()=>x.host.commands.some(command=>command.type==='learning.cancel')).toBe(true);
+2026-11-15T12:42:36.3597553Z           |                                                       ^
+2026-11-15T12:42:36.3597777Z       123 | });
+2026-11-15T12:42:36.3598142Z       124 | test('skill controls and editors fit desktop and narrow light and dark views',async({page},info)=>{
+2026-11-15T12:42:36.3598728Z       125 |  const x=await fixture(page);for(const width of [1440,390])for(const theme of ['dark','light'] as const){
+2026-11-15T12:42:36.3599171Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:122:55
+2026-11-15T12:42:36.3599470Z 
+2026-11-15T12:42:36.3600160Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-unconfirmed-learnin-44852-lows-an-explicit-stop-retry\error-context.md
+2026-11-15T12:42:36.3600714Z 
+2026-11-15T12:42:36.3601045Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3601898Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-unconfirmed-learnin-44852-lows-an-explicit-stop-retry\trace.zip
+2026-11-15T12:42:36.3602546Z     Usage:
+2026-11-15T12:42:36.3602823Z 
+2026-11-15T12:42:36.3603478Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-unconfirmed-learnin-44852-lows-an-explicit-stop-retry\trace.zip
+2026-11-15T12:42:36.3604282Z 
+2026-11-15T12:42:36.3604602Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3604828Z 
+2026-11-15T12:42:36.3605169Z   30) tests\e2e\skills.spec.ts:845:1 › skill controls and editors fit desktop and narrow light and dark views 
+2026-11-15T12:42:36.3605476Z 
+2026-11-15T12:42:36.3605632Z     Test timeout of 30000ms exceeded.
+2026-11-15T12:42:36.3605962Z 
+2026-11-15T12:42:36.3606970Z     Error: locator.click: Test timeout of 30000ms exceeded.
+2026-11-15T12:42:36.3607244Z     Call log:
+2026-11-15T12:42:36.3607596Z       - waiting for getByRole('button', { name: 'Settings', exact: true })
+2026-11-15T12:42:36.3608216Z         - locator resolved to <button type="button" title="Settings" aria-label="Settings">…</button>
+2026-11-15T12:42:36.3608661Z       - attempting click action
+2026-11-15T12:42:36.3609037Z         2 × waiting for element to be visible, enabled and stable
+2026-11-15T12:42:36.3609426Z           - element is visible, enabled and stable
+2026-11-15T12:42:36.3609750Z           - scrolling into view if needed
+2026-11-15T12:42:36.3610034Z           - done scrolling
+2026-11-15T12:42:36.3610323Z           - element is outside of the viewport
+2026-11-15T12:42:36.3610621Z         - retrying click action
+2026-11-15T12:42:36.3610882Z         - waiting 20ms
+2026-11-15T12:42:36.3611218Z         2 × waiting for element to be visible, enabled and stable
+2026-11-15T12:42:36.3611584Z           - element is visible, enabled and stable
+2026-11-15T12:42:36.3611900Z           - scrolling into view if needed
+2026-11-15T12:42:36.3612176Z           - done scrolling
+2026-11-15T12:42:36.3612458Z           - element is outside of the viewport
+2026-11-15T12:42:36.3612739Z         - retrying click action
+2026-11-15T12:42:36.3612990Z           - waiting 100ms
+2026-11-15T12:42:36.3613327Z         49 × waiting for element to be visible, enabled and stable
+2026-11-15T12:42:36.3613698Z            - element is visible, enabled and stable
+2026-11-15T12:42:36.3614008Z            - scrolling into view if needed
+2026-11-15T12:42:36.3614279Z            - done scrolling
+2026-11-15T12:42:36.3614568Z            - element is outside of the viewport
+2026-11-15T12:42:36.3614858Z          - retrying click action
+2026-11-15T12:42:36.3615112Z            - waiting 500ms
+2026-11-15T12:42:36.3615244Z 
+2026-11-15T12:42:36.3615249Z 
+2026-11-15T12:42:36.3615657Z       31 |   snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{status:'applied',changes:[saved.skill]}}});
+2026-11-15T12:42:36.3616130Z       32 |  });
+2026-11-15T12:42:36.3617126Z     > 33 |  const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();};
+2026-11-15T12:42:36.3618507Z          |                                                                                                                                                                                                                                               ^
+2026-11-15T12:42:36.3619114Z       34 |  return{snapshot,host,open,historyControl,get saved(){return saved;},get reads(){return reads;}};
+2026-11-15T12:42:36.3619486Z       35 | }
+2026-11-15T12:42:36.3619638Z       36 |
+2026-11-15T12:42:36.3620043Z         at Object.open (D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:33:239)
+2026-11-15T12:42:36.3620398Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\skills.spec.ts:126:133
+2026-11-15T12:42:36.3620580Z 
+2026-11-15T12:42:36.3621132Z     Error Context: test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-skill-controls-and--23490-narrow-light-and-dark-views\error-context.md
+2026-11-15T12:42:36.3621704Z 
+2026-11-15T12:42:36.3622029Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3622766Z     test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-skill-controls-and--23490-narrow-light-and-dark-views\trace.zip
+2026-11-15T12:42:36.3623437Z     Usage:
+2026-11-15T12:42:36.3623603Z 
+2026-11-15T12:42:36.3624167Z         pnpm exec playwright show-trace test-results\browser\run-1794746146588-667236d1-4f65-4a58-b331-e5c80cdfaff4\root\artifacts\skills-skill-controls-and--23490-narrow-light-and-dark-views\trace.zip
+2026-11-15T12:42:36.3624735Z 
+2026-11-15T12:42:36.3625141Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T12:42:36.3625360Z 
+2026-11-15T12:42:36.3625432Z   30 failed
+2026-11-15T12:42:36.3625880Z     tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px 
+2026-11-15T12:42:36.3626565Z     tests\e2e\host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once 
+2026-11-15T12:42:36.3627307Z     tests\e2e\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects 
+2026-11-15T12:42:36.3628063Z     tests\e2e\host-loop.spec.ts:612:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive 
+2026-11-15T12:42:36.3628764Z     tests\e2e\host-loop.spec.ts:708:1 › generated program startup failure preserves host controls and durable artifact state 
+2026-11-15T12:42:36.3631663Z     tests\e2e\plan-timeline.spec.ts:10:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread 
+2026-11-15T12:42:36.3634259Z     tests\e2e\plan-timeline.spec.ts:24:1 › all details are expanded and assigned branches nest and rejoin before the dependent step 
+2026-11-15T12:42:36.3635336Z     tests\e2e\plan-timeline.spec.ts:44:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions 
+2026-11-15T12:42:36.3636195Z     tests\e2e\plan-timeline.spec.ts:64:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication 
+2026-11-15T12:42:36.3636920Z     tests\e2e\plan-timeline.spec.ts:92:1 › retains a valid plan when the latest canonical graph is malformed 
+2026-11-15T12:42:36.3637745Z     tests\e2e\plan-timeline.spec.ts:105:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+2026-11-15T12:42:36.3638543Z     tests\e2e\plan-timeline.spec.ts:138:1 › collapsed step identity survives returning from another thread and stale epochs never regress it 
+2026-11-15T12:42:36.3639301Z     tests\e2e\plan-timeline.spec.ts:162:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+2026-11-15T12:42:36.3640186Z     tests\e2e\plan-timeline.spec.ts:185:1 › manual collapse survives reopening the plan with the same exact thread and step identity 
+2026-11-15T12:42:36.3640845Z     tests\e2e\plan-timeline.spec.ts:194:3 › dark narrow/short 100% geometry and reduced motion ─────
+2026-11-15T12:42:36.3641398Z     tests\e2e\plan-timeline.spec.ts:194:3 › dark narrow/short 125% geometry and reduced motion ─────
+2026-11-15T12:42:36.3642763Z     tests\e2e\plan-timeline.spec.ts:194:3 › dark narrow/short 150% geometry and reduced motion ─────
+2026-11-15T12:42:36.3643330Z     tests\e2e\plan-timeline.spec.ts:194:3 › light narrow/short 100% geometry and reduced motion ────
+2026-11-15T12:42:36.3643883Z     tests\e2e\plan-timeline.spec.ts:194:3 › light narrow/short 125% geometry and reduced motion ────
+2026-11-15T12:42:36.3644432Z     tests\e2e\plan-timeline.spec.ts:194:3 › light narrow/short 150% geometry and reduced motion ────
+2026-11-15T12:42:36.3645001Z     tests\e2e\plan-timeline.spec.ts:233:40 › dark desktop parallel branches and join ───────────────
+2026-11-15T12:42:36.3645550Z     tests\e2e\plan-timeline.spec.ts:233:40 › light desktop parallel branches and join ──────────────
+2026-11-15T12:42:36.3646104Z     tests\e2e\signing-motion.spec.ts:184:1 › ordinary draft edits do not restart field navigation ──
+2026-11-15T12:42:36.3646763Z     tests\e2e\skills.spec.ts:377:1 › retirement during a history read marks only that row and preserves a newer draft generation 
+2026-11-15T12:42:36.3647672Z     tests\e2e\skills.spec.ts:420:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft 
+2026-11-15T12:42:36.3648870Z     tests\e2e\skills.spec.ts:467:1 › ordinary history transport failures stay retryable and do not retire source rows 
+2026-11-15T12:42:36.3649537Z     tests\e2e\skills.spec.ts:502:1 › empty libraries and automatic review controls work with old snapshots 
+2026-11-15T12:42:36.3650203Z     tests\e2e\skills.spec.ts:631:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version 
+2026-11-15T12:42:36.3650905Z     tests\e2e\skills.spec.ts:811:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry 
+2026-11-15T12:42:36.3651538Z     tests\e2e\skills.spec.ts:845:1 › skill controls and editors fit desktop and narrow light and dark views 
+2026-11-15T12:42:36.3651907Z   1 skipped
+2026-11-15T12:42:36.3652066Z   82 passed (6.8m)
+2026-11-15T12:42:36.3652271Z 
+2026-11-15T12:42:36.3652408Z Failed browser suites: root (exit 1)
+2026-11-15T12:42:36.3875180Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-15T12:42:36.5804001Z Exception: D:\a\_temp\3f617d75-ef59-44b5-bd8a-9ce696b656c2.ps1:8
+2026-11-15T12:42:36.5804622Z Line |
+2026-11-15T12:42:36.5805119Z    8 |    throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T12:42:36.5805733Z      |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-11-15T12:42:36.5806291Z      | Failed browser suites: root
+2026-11-15T12:42:36.6015291Z ##[error]Process completed with exit code 1.
+2026-11-15T12:42:36.6190322Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-15T12:42:36.6190708Z with:
+2026-11-15T12:42:36.6190882Z   name: browser-43714076939-1
+2026-11-15T12:42:36.6191085Z   retention-days: 7
+2026-11-15T12:42:36.6191261Z   if-no-files-found: ignore
+2026-11-15T12:42:36.6191719Z   path: test-results/browser/**/results.json
+test-results/browser/**/artifacts/**/*.png
+test-results/browser/**/artifacts/**/trace.zip
+
+2026-11-15T12:42:36.6192178Z   compression-level: 6
+2026-11-15T12:42:36.6192352Z   overwrite: false
+2026-11-15T12:42:36.6192532Z   include-hidden-files: false
+2026-11-15T12:42:36.6192722Z env:
+2026-11-15T12:42:36.6192929Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T12:42:36.6193264Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:42:36.6193629Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T12:42:36.6194009Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:42:36.6194740Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:42:36.6195063Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:42:36.6195422Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T12:42:36.6195725Z ##[endgroup]
+2026-11-15T12:42:36.7770446Z (node:7148) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T12:42:36.7771087Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T12:42:36.8301045Z With the provided path, there will be 52 files uploaded
+2026-11-15T12:42:36.8306204Z Artifact name is valid!
+2026-11-15T12:42:36.8307158Z Root directory input is valid!
+2026-11-15T12:42:37.1979737Z Beginning upload of artifact content to blob storage
+2026-11-15T12:42:37.4678064Z (node:7148) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T12:42:38.6045221Z Uploaded bytes 8388608
+2026-11-15T12:42:38.8630824Z Uploaded bytes 16777216
+2026-11-15T12:42:39.0524544Z Uploaded bytes 18889698
+2026-11-15T12:42:39.1285690Z Finished uploading artifact content to blob storage!
+2026-11-15T12:42:39.1287169Z SHA256 digest of uploaded artifact zip is efe208355fb65a1a8948024a817ce4c8f677488923e246c09836b201699020da
+2026-11-15T12:42:39.1289067Z Finalizing artifact upload
+2026-11-15T12:42:39.4935730Z Artifact browser-43714076939-1.zip successfully finalized. Artifact ID 14162625925
+2026-11-15T12:42:39.4936863Z Artifact browser-43714076939-1 has been successfully uploaded! Final size is 18889698 bytes. Artifact ID is 14162625925
+2026-11-15T12:42:39.4946117Z Artifact download URL: https://github.com/skytuhua-org/Gen-V1/actions/runs/43714076939/artifacts/14162625925
+2026-11-15T12:42:39.5314583Z Post job cleanup.
+2026-11-15T12:42:39.5319744Z ##[start-action display=Cache the test browser;id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.playwright-cache]
+2026-11-15T12:42:39.5321837Z ##[end-action id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.playwright-cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T12:42:39.5323505Z ##[start-action display=Cache pinned Python test dependencies;id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.python-deps]
+2026-11-15T12:42:39.5325091Z ##[end-action id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.python-deps;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T12:42:39.5326580Z ##[start-action display=Install Python;id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__actions_setup-python]
+2026-11-15T12:42:39.5328590Z ##[end-action id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__actions_setup-python;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T12:42:39.5330120Z ##[start-action display=Install Node.js;id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__actions_setup-node]
+2026-11-15T12:42:39.5331603Z ##[end-action id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__actions_setup-node;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T12:42:39.5333031Z ##[start-action display=Install pnpm;id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__pnpm_action-setup]
+2026-11-15T12:42:39.5441090Z Post job cleanup.
+2026-11-15T12:42:39.6879886Z Pruning is unnecessary.
+2026-11-15T12:42:39.6990107Z ##[end-action id=__2ede33da-a52e-484d-bb3a-7cbf7a495ab9.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=165]
+2026-11-15T12:42:39.7143253Z Post job cleanup.
+2026-11-15T12:42:39.8701009Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T12:42:39.8979964Z git version 2.56.0.windows.4
+2026-11-15T12:42:39.9034789Z Temporarily overriding HOME='D:\a\_temp\5a7e2c4f-c556-47f6-a133-96014798ab2e' before making global git config changes
+2026-11-15T12:42:39.9035835Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T12:42:39.9043406Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T12:42:39.9333937Z Removing SSH command configuration
+2026-11-15T12:42:39.9343205Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T12:42:39.9639981Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T12:42:40.4350575Z Removing HTTP extra header
+2026-11-15T12:42:40.4359449Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T12:42:40.4656100Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T12:42:40.9406826Z Removing includeIf entries pointing to credentials config files
+2026-11-15T12:42:40.9417327Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T12:42:40.9679107Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T12:42:40.9679762Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T12:42:40.9712713Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T12:42:40.9979311Z D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:42:41.0019303Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:42:41.0325356Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T12:42:41.0598121Z D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:42:41.0638859Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config
+2026-11-15T12:42:41.0940090Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T12:42:41.5726506Z Removing credentials config 'D:\a\_temp\git-credentials-ef9d32b5-cb2e-4dda-b9ce-e137663fffbf.config'
+2026-11-15T12:42:41.5897371Z Cleaning up orphan processes
+2026-11-15T12:42:41.6160115Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02, pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

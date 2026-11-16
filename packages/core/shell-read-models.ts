@@ -96,9 +96,14 @@ export class ShellReadModels {
   private visibleIds() {const {all, archived} = this.owners(); return all.filter(thread => !archived.has(thread.id)).map(thread => thread.id);}
   private visibleWhere() {return "AND (thread_id IS NULL OR thread_id IN (SELECT value FROM json_each(?)))";}
   resources(input: unknown = {}): ShellPage<ShellResourceRow> {
-    const query = resourceInput.parse(input), ids = this.visibleIds();
-    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], this.visibleWhere() + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [JSON.stringify(ids)]).map(row => ({...row, writable: Boolean(row.writable)})).filter(row => !query.threadId || row.threadId === query.threadId).sort((a, b) => a.id.localeCompare(b.id));
-    return this.page(rows, query, {kind: 'resources', threadId: query.threadId ?? null});
+    return this.resourcePage(resourceInput.parse(input), this.visibleIds());
+  }
+  private resourcePage(query: z.infer<typeof resourceInput>, visibleIds: string[]): ShellPage<ShellResourceRow> {
+    const id = query.threadId, scope = {kind: 'resources', threadId: id ?? null};
+    if (id !== undefined && !visibleIds.includes(id)) return this.page([], query, scope);
+    const where = id === undefined ? this.visibleWhere() : 'AND thread_id=?';
+    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], where + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [id ?? JSON.stringify(visibleIds)]).map(row => ({...row, writable: Boolean(row.writable)})).sort((a, b) => a.id.localeCompare(b.id));
+    return this.page(rows, query, scope);
   }
   settings(): ShellSettingsReadModel {
     const {all, archived} = this.owners(), visible = all.filter(thread => !archived.has(thread.id)), ids = visible.map(thread => thread.id), where = this.visibleWhere();
@@ -118,7 +123,7 @@ export class ShellReadModels {
       }
     }
     const projectMap = new Map(visible.filter(thread => thread.projectId).map(thread => [thread.projectId!, {id: thread.projectId!, name: thread.projectName ?? 'Project'}]));
-    const resourcePage = this.resources({limit: 100});
+    const resourcePage = this.resourcePage({limit: 100}, ids);
     return {sequence: this.store.sequence, settings, accounts, skills, skillProposals, learning: learning ? {...learning, supported: Boolean(learning.supported)} : {supported: false, status: 'idle', lastReview: null}, projects: [...projectMap.values()], resources: resourcePage.items, resourcePage: {total: resourcePage.total, nextCursor: resourcePage.nextCursor}, counts: {threads: visible.length, archivedThreads: all.filter(thread => archived.has(thread.id)).length, artifacts: count('artifact'), resources: resourcePage.total, uncertainOperations: count('operation', " AND json_extract(body,'$.status')='unknown'")}};
   }
   draftReferences(keys: string[]): DraftTransferReferences {

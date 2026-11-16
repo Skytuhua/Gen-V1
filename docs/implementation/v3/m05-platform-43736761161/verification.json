@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-11-15T16:50:29.048Z",
+  "setup": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+  "setupSha256": "473ae36cbbd79c020f191e6f25e5fc37150dcbaabded106eb9d6424ee8c5c81d",
+  "expectedUnpacked": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+  "installDirectory": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-3159dce1e0c2",
+  "nsisGuid": "f973205b-ac9b-56c0-baad-730abd2ca4b3",
+  "version": "0.6.5",
+  "scope": "Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.",
+  "inference": false,
+  "auth": false,
+  "memoryRetentionRequested": true,
+  "launches": [],
+  "passed": false,
+  "error": "Owned installer verification process exceeded its deadline.",
+  "cleanup": {
+    "status": "not-installed"
+  }
+}

@@ -55,7 +55,11 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
       if (event.key === 'Escape' && isComposing(event)) event.preventDefault();
       if (event.key === 'Tab' && dialog.current) {
         const scope = dialog.current;
-        const focusable = Array.from(scope.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, summary, [contenteditable="true"], [tabindex]')).filter(element => element.tabIndex >= 0 && !element.hasAttribute('disabled') && element.getClientRects().length > 0);
+        const focusable = Array.from(scope.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, summary, [contenteditable="true"], [tabindex]')).filter(element => {
+          if (element.tabIndex < 0 || element.matches(':disabled') || element.closest('[inert], [hidden], [aria-hidden="true"]') || !element.getClientRects().length) return false;
+          const visibility = element.ownerDocument.defaultView?.getComputedStyle(element).visibility;
+          return visibility !== 'hidden' && visibility !== 'collapse';
+        });
         if (!focusable.length) return;
         const first = focusable[0]!, last = focusable[focusable.length - 1]!, active = scope.ownerDocument.activeElement as HTMLElement | null;
         if (event.shiftKey ? (active === first || !scope.contains(active)) : (active === last || !scope.contains(active))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }

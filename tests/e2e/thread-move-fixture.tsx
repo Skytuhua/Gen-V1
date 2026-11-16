@@ -25,7 +25,7 @@ function Fixture() {
   const [rows, setRows] = useState(threads), [generation, setGeneration] = useState(0);
   const [search, setSearch] = useState(''), [request, setRequest] = useState<(() => void) | null>(null);
   const [layout, setLayout] = useState<ShellLayout>({ sidebarCollapsed: false, sidebarWidth: 248, rightPanelOpen: false,
-    rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', activeArtifactId: null, folded: { settled: true } });
+    rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', openTabs: ['artifact'], activeArtifactId: null, folded: { settled: true } });
   const preferences = { ...DEFAULT_PREFERENCES, projectGrouping: false, showWorkingSection: false,
     projectOrder: query.has('recent') ? 'recent' as const : 'manual' as const };
   const matching = useMemo(() => matchingThreads(rows, [], search, preferences.projectOrder), [rows, search, preferences.projectOrder]);

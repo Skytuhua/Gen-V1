@@ -1,0 +1,42 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/installed-desktop-verification.test.ts (19 tests | 1 failed | 18 skipped) 10ms
+     × preserves the first installer failure through later termination error, exit and close events 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events
+AssertionError: expected { phase: 'installer', …(13) } to match object { status: 'failed', …(4) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -7,9 +7,9 @@
+    "exit": {
+      "code": null,
+      "elapsedMs": 20,
+      "signal": "SIGTERM",
+    },
+-   "failure": "deadline",
++   "failure": "spawn-error",
+    "status": "failed",
+    "terminationRequested": true,
+  }
+
+ ❯ tests/installed-desktop-verification.test.ts:43:18
+     41|    now=110;child.emit('error',Error('PRIVATE_TERMINATION_ERROR'));
+     42|    now=120;child.emit('exit',null,'SIGTERM');now=130;child.emit('close…
+     43|    expect(value).toMatchObject({status:'failed',failure:reason,termina…
+       |                  ^
+     44|    expect(JSON.stringify(value)).not.toContain('PRIVATE_TERMINATION_ER…
+     45|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 18 skipped (19)
+   Start at  01:54:59
+   Duration  897ms (transform 350ms, setup 0ms, import 707ms, tests 10ms, environment 0ms)

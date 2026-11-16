@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-11-15T17:50:44.496148+00:00",
+  "scope": "Read-only exact pinned NSIS unzip compatibility investigation, with a bounded offline source-parser boundary probe. No installation retry, Windows DLL execution, source/config mutation or ledger write.",
+  "execution": {
+    "runId": 43739565577,
+    "jobId": 132889515576,
+    "head": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+    "tree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "actualCheckout": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4"
+    ]
+  },
+  "rawJobLog": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515576.log",
+    "bytes": 126569,
+    "sha256": "c15eb4ce2c7b18ae351432b2b9fdb0c257d88f9d022bb7f1246b6ad2a67bd16b"
+  },
+  "actualOutcome": {
+    "package": "PASS",
+    "installedVerifier": "FAIL",
+    "error": "Owned installer process exceeded its 600000 ms deadline.",
+    "expectedPayload": {
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "0d2fd55f5424b9c0057306b849d6f4276f7526b1fb81765d4154ec8d764ae604",
+      "maxInstalledPathLength": 240
+    },
+    "oldTimeoutCause": "Not established by this review."
+  },
+  "pinnedResources": {
+    "url": "https://github.com/electron-userland/electron-builder-binaries/releases/download/nsis-resources-3.4.1/nsis-resources-3.4.1.7z",
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resources-3.4.1.7z",
+    "bytes": 730800,
+    "sha256": "593a9a92ef958321293ac6a2ee61e64bf1bd543142a5bd6b3d310709cc924103",
+    "sha256EqualsPinnedBuilderChecksum": true,
+    "releaseId": 18665411,
+    "releaseAssetId": 13752602,
+    "releaseTagTree": "6fac0e5d0ad9f6c66741b40e5fb160540e167415",
+    "rawJobDownloadedLine": 649
+  },
+  "unicodePlugin": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsisunz-x86-unicode.dll",
+    "bytes": 90112,
+    "sha256": "c31b590cba443de87f0f4a81712f0883ac3b506f3868759d918d9a81f84ea922",
+    "archiveMember": "plugins/x86-unicode/nsisunz.dll",
+    "gitBlob": "2fcb5ec9ddbe1aa8635c1ce3c5483c08c195e7e9",
+    "lastChangeBeforeRelease": {
+      "commit": "1bfff1af787beb4313fc03f807fa06056971258c",
+      "date": "2017-02-15T07:43:41Z"
+    },
+    "byteIdenticalToOfficialSourceArchiveDll": true
+  },
+  "matchingSourceArchive": {
+    "url": "https://nsis.sourceforge.io/mediawiki/images/5/5a/NSISunzU.zip",
+    "sourceLandingPage": "https://nsis.sourceforge.io/Nsisunz_plug-in",
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/NSISunzU-source.zip",
+    "bytes": 125153,
+    "sha256": "8c2b7ad6984e3137e4c51c763ec64cbd36364e72838b85e14fa287dac976c46b",
+    "includedDll": "NSISunzU/Plugin unicode/nsisunz.dll",
+    "sourceVersion": "unzip0.15 beta, March19,1998; original Unicode wrapper distribution",
+    "sourceFiles": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsisunz.cpp",
+        "bytes": 14324,
+        "sha256": "702c3348e3b4cc3c3efa42003de3281bc7058148d7e752753ee0675bb8c220be"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/Unzip.c",
+        "bytes": 35879,
+        "sha256": "37f166e8058325e9b62276dc84eb8e1d1ad70163b292d47c5697f7a79fd057bf"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/UNZIP.H",
+        "bytes": 10205,
+        "sha256": "f9198923085c0526838faf48905a052510798f93eaf0295069db7ea4ba95d7cf"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsisunz_readme.html",
+        "bytes": 13033,
+        "sha256": "a686796954ee4315f2ec6c37d023ce3664b5ffdf4ba10fb0d7de44c8d03cdcfb"
+      }
+    ]
+  },
+  "sourceFindings": [
+    {
+      "path": "Unzip.c",
+      "lines": [
+        278,
+        332
+      ],
+      "fact": "SearchCentralDir recognizes only classic PK0506 end record, without ZIP64 end or locator parsing."
+    },
+    {
+      "path": "Unzip.c",
+      "lines": [
+        343,
+        433
+      ],
+      "fact": "Entry counts are read with getShort at388/392;32-bit central-directory values at401/406; byte prefix is calculated from classic end position at424/425."
+    },
+    {
+      "path": "Unzip.c",
+      "lines": [
+        720,
+        741
+      ],
+      "fact": "Traversal stops at the count read from classic16-bit field."
+    },
+    {
+      "path": "nsisunz.cpp",
+      "lines": [
+        354,
+        360
+      ],
+      "fact": "Failed first central entry returns Error opening ZIP file."
+    },
+    {
+      "path": "templates/nsis/include/extractAppPackage.nsh",
+      "lines": [
+        80,
+        89
+      ],
+      "fact": "Pinned ZIP branch displays plugin error with MessageBox lacking /SD, then quits; possible unattended block if this error path occurs, not an observed dialog in the failed run."
+    }
+  ],
+  "parserProbe": {
+    "record": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-boundary-probe.json",
+      "bytes": 3172,
+      "sha256": "176bbe9ceef6687d18a0b140bc0daf0f1e76b81ef06b68b2d777b6cf158f24b7"
+    },
+    "scope": "Offline Linux execution of the byte-unmodified matched upstream Unzip.c with system zlib and an allocation-only windows.h compatibility header. No Windows DLL or actual installer execution. Original source archive contains a DLL byte-identical to the pinned Unicode plugin.",
+    "firstCompileAttempt": {
+      "exitCode": 1,
+      "observedError": "Unzip.c:6:10: fatal error: windows.h: No such file or directory",
+      "resolution": "Added allocation-only compatibility header; original parser and original unzip.h bytes unchanged."
+    },
+    "compileCommand": [
+      "/usr/bin/cc",
+      "-std=gnu89",
+      "-I",
+      "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe",
+      "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/Unzip.c",
+      "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/probe.c",
+      "-lz",
+      "-o",
+      "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/probe"
+    ],
+    "compileExitCode": 0,
+    "allocationCompatibilityHeader": "#include <stdlib.h>\n#define GMEM_FIXED 0\n#define GlobalAlloc(flags,size) malloc(size)\n#define GlobalFree(pointer) free(pointer)\n",
+    "results": [
+      {
+        "requestedEntries": 65535,
+        "pythonZipfileEntries": 65535,
+        "archiveBytes": 6946732,
+        "archiveSha256": "1ff3944e8fe49576f95e862af3a52c7a6fd6da372a0b3298317326eab84b289c",
+        "hasZip64EndRecordSignature": false,
+        "hasZip64LocatorSignature": false,
+        "command": [
+          "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/probe",
+          "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/entries-65535.zip"
+        ],
+        "exitCode": 0,
+        "stdout": "declaredEntries=65535 firstStatus=0 traversed=65535 endStatus=-100\n",
+        "stderr": "",
+        "elapsedMs": 34
+      },
+      {
+        "requestedEntries": 65536,
+        "pythonZipfileEntries": 65536,
+        "archiveBytes": 6946914,
+        "archiveSha256": "9b014fac070df4dd45a2d7ca430172aaced8eebe77be8f2afdd9a7c6a391a820",
+        "hasZip64EndRecordSignature": true,
+        "hasZip64LocatorSignature": true,
+        "command": [
+          "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/probe",
+          "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/parser-probe/entries-65536.zip"
+        ],
+        "exitCode": 3,
+        "stdout": "declaredEntries=65535 firstStatus=-103 traversed=0 endStatus=0\n",
+        "stderr": "",
+        "elapsedMs": 5
+      }
+    ],
+    "interpretation": "The same unchanged parser source accepts65,535 classic entries and rejects the first central record in65,536-entry ZIP64 with UNZ_BADZIPFILE(-103). This is Linux source-parser execution, not the Windows DLL or actual failed installer archive."
+  },
+  "archiveFormatInference": {
+    "publishedConfig": {
+      "path": "scripts/desktop-assets.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 7628,
+      "sha256": "1cdf863ee743ef3d0f8f08a9a9081529f82bb28a67036e4085e48bf94043620b"
+    },
+    "target": "nsis/x64",
+    "useZip": true,
+    "differentialPackage": false,
+    "builderSelection": "NsisTarget.isZipPayload selects ZIP under these exact options; archive writes .nsis.zip and template sets ZIP_COMPRESSION.",
+    "expectedPayloadFiles": 92880,
+    "exactActualZipMemberCount": null,
+    "actualEmbeddedZipHeadersObserved": false,
+    "defaultExcludedSuffixes": [
+      ".avi",
+      ".mov",
+      ".m4v",
+      ".mp4",
+      ".m4p",
+      ".qt",
+      ".mkv",
+      ".webm",
+      ".vmdk"
+    ],
+    "qualification": "Expected unpacked file count exceeds65,535, but archive excludes these media suffixes. The emitted ZIP member count and central-directory header were not retained, so do not claim92880 is the exact archive member count. Any payload whose archived entries exceed65,535 is unsupported by the proved pinned reader."
+  },
+  "invocationReview": {
+    "args": [
+      "/S",
+      "/D=D:\\a\\Gen-V1\\Gen-V1\\.harness-app-ef96f52b654f"
+    ],
+    "rawTail": true,
+    "perUser": true,
+    "elevation": false,
+    "runAfterFinish": false,
+    "finding": "No command-line mismatch found against pinned GetDParameter and oneClick per-user templates.",
+    "processLifetimeLimit": "runOwned waits on close only and current receipt lacks exit/PID state, so timeout does not distinguish running parent from retained pipes."
+  },
+  "pinnedBuilderSources": [
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/out/toolsets/windows.js",
+      "bytes": 13694,
+      "sha256": "a6e3009ca9680aec48646793289224a8df26cfb9c8dafba1e3b08323f09a331b"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/out/targets/nsis/NsisTarget.js",
+      "bytes": 46886,
+      "sha256": "f91b31d96cae53852f263ed89d2bc406ae2be7ff40ce3539b46e1cafe34a41b9"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/out/targets/archive.js",
+      "bytes": 12527,
+      "sha256": "fd12aa870efeef54da1e5eaafb52ab9974ff1c3bb0b62eb796c3b6705fa36c12"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/include/extractAppPackage.nsh",
+      "bytes": 3189,
+      "sha256": "e4174388a0f7a1df0b85a0742aa1ea7a4b2b18f9f29dccd6ef10a66212f68148"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/multiUser.nsh",
+      "bytes": 3928,
+      "sha256": "9aca256695c289ec8a875143101fae8c6236bc8c6a7cf369bbe8b4986e09c9cb"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/oneClick.nsh",
+      "bytes": 399,
+      "sha256": "87d6c095f37716759c8d9373dcab906394546007abb626c04e1c784158f6de5b"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/installSection.nsh",
+      "bytes": 2705,
+      "sha256": "74c4dbb4163cdd90ca4850b75d304e916235c882d6af7b5cdad63bffbc977072"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/include/allowOnlyOneInstallerInstance.nsh",
+      "bytes": 5463,
+      "sha256": "23af250b7a6d29890b1b51432f8c718d5c2e1bdfce412cfaf97f5c1a72f7f74b"
+    }
+  ],
+  "primaryReferences": [
+    "https://nsis.sourceforge.io/Docs/Chapter4.html#4.9.4.21",
+    "https://api.github.com/repos/electron-userland/electron-builder-binaries/releases/tags/nsis-resources-3.4.1",
+    "https://api.github.com/repos/electron-userland/electron-builder-binaries/git/trees/nsis-resources-3.4.1?recursive=1",
+    "https://api.github.com/repos/electron-userland/electron-builder-binaries/commits?path=nsis-resources/plugins/x86-unicode/nsisunz.dll&sha=nsis-resources-3.4.1&per_page=10"
+  ],
+  "conclusion": "Concrete pinned ZIP64 compatibility defect proven. Existing supported7z path is a bounded repair candidate subject to actual exact-payload Windows install verification. Actual prior600000ms timeout cause, disk state, native dialog and entry count remain unmeasured."
+}

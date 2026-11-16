@@ -1,0 +1,950 @@
+{
+  "schemaVersion": 1,
+  "reviewScope": "Independent original-prompt review of all twelve M05 steps and four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, canonical Python packaging, native FILE execution and Windows verification. Run43748168614 establishes installation/full payload/provider checks/owned uninstall but fails two application cleanup hooks and collapsed-panel memory navigation. Subsequent review found that the ordinary desktop download guard blocked redacted export while CDP could bypass that policy. The reviewed native export bridge now validates and owns the exact one-shot bytes and waits for native completion; installed proof restores default CDP behavior and uses the real owned Windows Save dialog. Both flags remain off and fresh Windows verification is pending.",
+  "reviewer": "dependency_audit",
+  "reviewedFiles": [
+    {
+      "path": "packages/core/service.ts",
+      "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "sha256": "8a522f1ca2b33d1968f921e19b6d972cbaf5bf52ed781efc0e0ccc27f7ab5809"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee"
+    },
+    {
+      "path": "tests/project-memory-service-v3.test.ts",
+      "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0"
+    },
+    {
+      "path": "packages/core/memory-consolidation.ts",
+      "sha256": "c27c22384b3739e3499922416c5d41818ea708c8fccae94228b591f9b14cb073"
+    },
+    {
+      "path": "tests/memory-consolidation-v3.test.ts",
+      "sha256": "fa54168474c033567b3ac65ca490bdc4c8abfbfc975b0d15406d2fc1d5f00b14"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "sha256": "0d30825a2ec4983951e332a59e13131130364823179e12d0d4bc4fac1f9b675b"
+    },
+    {
+      "path": "tests/memory-native-checkpoint-v3.test.ts",
+      "sha256": "f014d42f752a480fea6f103f17f41c697bdccacf0658ed1dd84c3f18f1d37b70"
+    },
+    {
+      "path": "tests/memory_native_checkpoint_worker_v3.py",
+      "sha256": "9aa2e5cda9e6db8215d9fc13340bf425e59d562a11dc645de66aff4d29a04730"
+    },
+    {
+      "path": "apps/web/src/Settings.tsx",
+      "sha256": "4062f8d4e1e5b94b1de21b1d80a590830e8b64677a10f7e92bb5791f02822327"
+    },
+    {
+      "path": "apps/web/src/skill-library.css",
+      "sha256": "6bd179eb186a895c8a933b9ccb8f0f14104f6eb761dfc5e5a46d75f73eec24b7"
+    },
+    {
+      "path": "tests/e2e/vite.config.ts",
+      "sha256": "4322b33fd96a4b976a085dca613ef0f60ebae3c861937a68dcc699b0da86f73a"
+    },
+    {
+      "path": "tests/e2e/document-window.spec.ts",
+      "sha256": "7eba0062a278971bc4763e67526791623dafd29f0e937a625bc80426200a9d09"
+    },
+    {
+      "path": "packages/core/memory-extraction.ts",
+      "sha256": "93cd4a69b00dedcc26a2afbe2a2025878256c5a24997885b964884ea74cef9ee"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "sha256": "59ca3d23177e8f1f9015d7c28d2159aed813cff19525675d12439635aef98d07"
+    },
+    {
+      "path": "packages/runtime-hermes/broker.ts",
+      "sha256": "815ae92e597d28328bc89a2cf527ea6dc423c342a86682255e5099e685e6c59c"
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381"
+    },
+    {
+      "path": "tests/memory-extraction-scheduler-v3.test.ts",
+      "sha256": "0ee0b1ba7685212252f89a17b9d87f0d8affd2c09b9c73109fd86d4212dc2e32"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "sha256": "d5394c5bad01c55c6beef9f1d5c2140292abf00a2d4a9f15165ad4a50c1b6f10"
+    },
+    {
+      "path": "tests/model-transport-v3.test.ts",
+      "sha256": "adaafdf0def7b32a352aed66bbe7ab24406fee616504bf35650e5db9dccadcac"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "sha256": "6e8a3d5d77449b7d4048738c200cdf1755cf002258ae46d2000168cb852f74ab"
+    },
+    {
+      "path": "tests/split-app-browser.test.ts",
+      "sha256": "af26e2b18b9787fa15e6aa2b50c10072d76f15a4b00a0e01edcacaf3e1d07d09"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "sha256": "5a55da8033e1092070c47eb4bf6b8fe8054d20185854159cbe62df5276c96dda"
+    },
+    {
+      "path": "tests/host-fixture.ts",
+      "sha256": "7e0127235204ff69d585af1ea6cf83d8ed18f348f79538095b87824ea862eb3c"
+    },
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5"
+    },
+    {
+      "path": "tests/e2e/artifact-acknowledgment.spec.ts",
+      "sha256": "659883ac6d3083454c29b441f1b7892c2b18a4e184d078a78959ed3c566ee1fe"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "sha256": "3bd899aa1196d484a76f420a354ead6398270d9005b2b0ab7e4a8af43d39e8bf"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+    },
+    {
+      "path": "scripts/integration_python_projection.py",
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b"
+    },
+    {
+      "path": "tests/integration-packaging-canonical-negative.test.ts",
+      "sha256": "f273e8246bb1be2fe32804af44bc93e6580e86cce57e6d1bd058265881265cad"
+    },
+    {
+      "path": "docs/getting-started.md",
+      "sha256": "807fa686ad92eb2f567adc11dabc9f2cd74dde18f8ad06a558b5b540db21f6f3"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "sha256": "f86c816974f1ceae293ada90afddeafc804101af8116dc45bd8cff04ce796503"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022"
+    },
+    {
+      "path": "tests/desktop-packaging.test.ts",
+      "sha256": "118804b89b0b99947b268cbcfa825f3e75032950e54f1b2b0fff4d2b9a622935"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0"
+    },
+    {
+      "path": "apps/desktop/window-policy.ts",
+      "sha256": "fe3614c9240458235cc73f5405466f9f3b552e2251419659c6acd66fbc555b63"
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d"
+    },
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0"
+    },
+    {
+      "path": "packages/desktop-contract/index.ts",
+      "sha256": "d9bf1bd40368aa1802c65f6d6c98b5fab4c7623614ee037572a302bd10d41188"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "sha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d"
+    },
+    {
+      "path": "tests/desktop-memory-export.test.ts",
+      "sha256": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f"
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "sha256": "15595ad8d186b3c0b2c00f8620981c15e117d4edb85c236a350a63bb8aaeaa7e"
+    },
+    {
+      "path": "tests/desktop-preload-accounts.test.ts",
+      "sha256": "4e91d70bd57bb73eba9fd87e5382207ecfac02fa5145ab3788de422da9e83fef"
+    },
+    {
+      "path": "tests/installed-native-save.test.ts",
+      "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c"
+    },
+    {
+      "path": "tests/memory-export-client-v3.test.ts",
+      "sha256": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8"
+    },
+    {
+      "path": "tests/startup-feedback.test.ts",
+      "sha256": "a24f850c70c57c0fe9c2e81f502d50853ff0c17a25c9361131d51d9d1c9d4252"
+    },
+    {
+      "path": "tests/table-overflow.test.ts",
+      "sha256": "bd5a8b311d94413e3659ad9f7d6cd3d1e23bb2ef90006bed6f9840779f927512"
+    }
+  ],
+  "findingsResolved": [
+    "Pending extraction count duplication",
+    "Checkpoint owner/session drift after await",
+    "Interrupted auxiliary accounting recovery",
+    "Executor-generated input cancellation",
+    "Running scheduled source cleanup drain",
+    "Admitted M09 child startup precedence",
+    "Legacy native compaction argument compatibility without a checkpoint",
+    "Optional consolidation stale source dispatch before provider entry",
+    "Optional consolidation attempted usage durability before provider entry",
+    "Disconnected narrow Skills responsive layout",
+    "Root plan fixture URL served the application fallback instead of its renderer",
+    "Desktop document fixture incorrectly expected automatic overview expansion",
+    "Shared M11 provider/account admission for production memory extraction",
+    "Original native cancellation promise and cancellation arriving during successful cleanup",
+    "M11 maintenance observations bound to the newly admitted run and epoch",
+    "Arbitrary adapter error text retained outside memory deletion custody",
+    "Pinned native worker observation-call expectation after accepted M11 integration",
+    "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained",
+    "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions",
+    "The first artifact-bearing snapshot arrived near the end of the host-operation fixture's combined five-second wait. An explicit bounded fifteen-second attachment assertion now precedes the retained five-second visibility assertion. Individual native-operation durations are unmeasured. The complete operation, approval, replacement and restart case passes in run 43729864202.",
+    "The initial acknowledgment-fixture checked assertion included asynchronous shell bootstrap after document load. A bounded visibility assertion now precedes every unchanged selection, save, revision and quiescence assertion. The complete case passes in Windows run 43733008039.",
+    "The installed verifier used obsolete Providers and Close settings selectors. It now observes the accepted Models & Accounts section and the Settings dialog close control while retaining every connection-button assertion. Actual installed execution remains pending.",
+    "Wheel data spreading could claim another distribution metadata directory. A reproduced failing case now passes with ownership checked after installation-path spreading.",
+    "A spread alias for its own RECORD could generate duplicate self rows. The reproduced failing case now passes with aliases rejected before installed ownership insertion.",
+    "The Windows verifier initial read-only probe could exhaust its 15-second budget before installation. The probe now has a bounded 60-second budget with fixed metadata-only phase and observed/script timing diagnostics; every installation and cleanup custody check remains. The local parser/custody suite passes 15 cases. Both actual read-only preflights pass in run 43739565577 at 29,665 ms and 22,682 ms; registry, shortcut, cache and process state are clear. The later installer timeout is a separate unresolved phase.",
+    "The operation fixture used one 15-second artifact wait across two sequential guarded file tools. It now has an operation-only 40-second publication budget within a 60-second outer test bound, immediate propagation of recorded runtime/tool errors, bounded pending-stage diagnostics and exact host-observations upload. All five-second rendering/approval assertions and production guard limits remain. The complete operation case passes in run 43739565577 in 7,919 ms with all five runtime stages successful and every original approval, replacement and restart assertion retained. This does not identify the previous failed run's pending stage.",
+    "The unchanged checksum-pinned NSIS ZIP reader cannot parse ZIP64. The supported pinned7z configuration replaces ZIP without changing installation policy or payload acceptance. Existing packaging contract11cases pass; actual production7z packaging, natural installation, full payload/provider custody and owned uninstall subsequently pass in run43748168614; retained-memory navigation fails separately.",
+    "Owned-installer failure evidence previously omitted parent exit versus pipe closure and extraction progress. Bounded metadata-only lifecycle and path samples now retain those observations without changing custody or deadlines. Independent review reproduced and fixed first-failure reason overwrite after a later termination error;19focused custody cases and final full typecheck pass.",
+    "Two unchanged browser fixtures had a10000ms Vitest afterAll bound that could preempt pinned Playwright1.56.1 closeOrKill30-second cleanup. Only those afterAll bounds now allow45000ms; awaited browser.close and all case assertions remain. The actual delayed internal shutdown stage is unmeasured.",
+    "The installed memory verifier attempted a control inside the default-collapsed Project overview. It now checks the real owning region, expands through its actual button only when collapsed, requires data-collapsed=false, awaits the scoped enabled Project memory button and clicks normally. No product, flag, ownership or memory-action assertion changes.",
+    "The ordinary desktop session guard cancelled all downloads, including explicit redacted memory export. The new strict main-process export bridge preserves deny-by-default downloads, exact current main-frame/surface ownership and server-authenticated scope; it permits one main-created validated export and reports saved only after native completion and exact byte count. Invalid JSON/schema content receives a fixed bounded error.",
+    "The installed verifier previously relied on CDP allowAndName and saveAs, which cannot establish normal native Save. It now restores default behavior, verifies the exact live owned process/dialog, fills only a fixed absent evidence path through native Value/Invoke patterns, retains physical directory identity through completed-file readback, and compares the actual saved bytes/hash with the admitted native receipt.",
+    "Independent review repaired synchronous dispatch cleanup, current Electron navigation details, exceptional native byte-count lookup, validation error privacy, callback shadowing and the Windows encoded-command length bound. Actual native execution remains pending."
+  ],
+  "remainingActionableFindings": [
+    "Fresh Windows execution must verify the scoped browser cleanup hooks, normal Project overview expansion and actual native Save completion before the retained-memory sequence can pass. The concrete export and verifier defects found in source review have been repaired; actual Windows execution remains required."
+  ],
+  "evidenceRefs": [
+    "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-build.log",
+    "docs/implementation/v3/M05-windows-ci-repair.md",
+    "docs/implementation/v3/M05-windows-ci-43714076939.json",
+    "docs/implementation/v3/m05-logs/continuation-consolidation-independent-review.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-ui-policy.log",
+    "docs/implementation/v3/M05-windows-ci-43716553796.json",
+    "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-lifecycle-verification.log",
+    "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy-node.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-disposal-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-promise-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43721299625.json",
+    "docs/implementation/v3/M05-browser-review-43721299625.json",
+    "docs/implementation/v3/M05-windows-ci-43723377122.json",
+    "docs/implementation/v3/M05-browser-startup-review-43723377122.json",
+    "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43724428807.json",
+    "docs/implementation/v3/M05-faq-readiness-review-43724428807.json",
+    "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43726164418.json",
+    "docs/implementation/v3/M05-windows-ci-43727736261.json",
+    "docs/implementation/v3/M05-host-publication-review-43727736261.json",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log",
+    "docs/implementation/v3/M05-windows-ci-43729864202.json",
+    "docs/implementation/v3/M05-acknowledgment-readiness-review-43729864202.json",
+    "docs/implementation/v3/m05-logs/continuation-native-file-proof-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-custody-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+    "docs/implementation/v3/M05-installed-ci-input-review.json",
+    "docs/implementation/v3/M05-windows-ci-43733008039.json",
+    "docs/implementation/v3/M05-native-file-review-43733008039.json",
+    "docs/implementation/v3/M05-browser-cases-43733008039.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421472-s5-installed-package.log",
+    "docs/implementation/v3/M05-canonical-packaging-input-review-20261115.json",
+    "docs/implementation/v3/M05-canonical-projection-review.json",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-own-alias-red.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-packaging-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-1.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-3.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-red.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-spread-owner-red.log",
+    "docs/implementation/v3/M05-windows-ci-43736761161.json",
+    "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+    "docs/implementation/v3/m05-platform-43736761161/PYTHON_INSTALLATION_V2.json",
+    "docs/implementation/v3/m05-platform-43736761161/build-manifest.json",
+    "docs/implementation/v3/m05-platform-43736761161/verification.json",
+    "docs/implementation/v3/M05-installed-preflight-review-43736761161.json",
+    "docs/implementation/v3/M05-host-publication-review-43736761161.json",
+    "docs/implementation/v3/m05-logs/continuation-installed-preflight-diagnostics-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-preflight-diagnostics-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-preflight-browser-final-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43739565577.json",
+    "docs/implementation/v3/M05-operation-stage-review-43739565577.json",
+    "docs/implementation/v3/M05-installed-phase-review-43739565577.json",
+    "docs/implementation/v3/m05-platform-43739565577/host-observations.json",
+    "docs/implementation/v3/m05-platform-43739565577/build-manifest.json",
+    "docs/implementation/v3/m05-platform-43739565577/verification.json",
+    "docs/implementation/v3/m05-platform-43739565577/owner.json",
+    "docs/implementation/v3/M05-browser-cases-43739565577.json",
+    "docs/implementation/v3/M05-canonical-package-review-43739565577.json",
+    "docs/implementation/v3/M05-nsis-zip64-review-43739565577.json",
+    "docs/implementation/v3/M05-nsis-7z-repair-review-20261115.json",
+    "docs/implementation/v3/M05-installer-repair-review-20261115.json",
+    "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-red.log",
+    "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-process-progress-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-process-progress-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-first-failure-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-first-failure-green.log",
+    "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43744480609.json",
+    "docs/implementation/v3/M05-installed-phase-review-43744480609.json",
+    "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+    "docs/implementation/v3/M05-installer-budget-repair-review-20261115.json",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-red.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-capacity-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-native-save-red.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-1.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-sync-dispatch-red.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-native-events-red.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-3.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-validation-red.log",
+    "docs/implementation/v3/m05-logs/continuation-native-memory-export-final-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-native-save-green-1.log",
+    "docs/implementation/v3/m05-logs/continuation-native-save-combined-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-native-save-combined-web-build.log",
+    "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build.log",
+    "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build-import.log",
+    "docs/implementation/v3/m05-logs/continuation-native-save-public-source-closure.log",
+    "docs/implementation/v3/M05-windows-ci-43748168614.json",
+    "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+    "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
+    "docs/implementation/v3/M05-browser-close-review-43748168614.json",
+    "docs/implementation/v3/M05-browser-close-repair-review-20261115.json",
+    "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
+    "docs/implementation/v3/M05-native-memory-save-review-20261115.json",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-typecheck.log"
+  ],
+  "activationApproval": false,
+  "limitations": [
+    "Latest run43748168614 fails three jobs despite3788 passing application bodies/39skips and267 passing browser cases/2skips. Two afterAll cleanup hooks and installed memory navigation failed; the frozen receipt preserves these outcomes. Installation, full payload/provider checks and owned uninstall pass only for that exact cut.",
+    "The actual canonical run input diagnosis reports7,415expected/7,595actual files,180added,0missing and91changed. Every reported changed row is RECORD. The added detail list is capped at100, so80paths are not enumerated in that log; the successful collector checks the complete input against known bookkeeping rules.",
+    "Independent artifact review verifies the actual v2 receipt retains all7,324 non-RECORD sizes/hashes and all91 original wheel pins. Strict staged/afterPack verification and relocated integration checks executed successfully. The uploaded artifact contains inventories and manifest hashes, not the full payload or installer bytes.",
+    "Run 43739565577 emits the same canonical Python v2 receipt SHA256 0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc as run 43736761161. Its distinct build manifest binds the actual new installer; no full installer or payload bytes are present in the downloaded report artifact.",
+    "Both M05 host flags remain false. The installed fixture uses constructor-local enablement only while seeding and disables the project before actual launch. Full enabled installed recall, extraction and checkpoint flows remain unverified.",
+    "Live repeated-task quality and cost remain unmeasured. All prior failed workflows retain their actual outcomes; provider network counts in the installed verifier remain null.",
+    "Installed failure screenshots show the seeded task and collapsed panel, not successful retained-memory actions. The Reconnecting indicator has no captured bridge diagnostic and is not treated as an established second cause. Instrumented Cursor bootstrap network0 does not establish a total provider-network measurement."
+  ],
+  "additionalReviewers": [
+    "ui_audit",
+    "memory_integration_audit",
+    "root"
+  ],
+  "originalPromptReview": {
+    "reviewer": "memory_integration_audit",
+    "implementationStepsReviewed": 12,
+    "userFacingRequirementsReviewed": 4,
+    "additionalConcreteCorrectnessBlockers": [],
+    "remainingProofGates": [
+      "Installed default-off retained-memory review and restart after real packaging",
+      "Full enabled installed memory lifecycle",
+      "Authorized live repeated-task quality and total auxiliary cost"
+    ],
+    "nativeFileExecutionRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+  },
+  "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "integratedWindowsCI": {
+    "runId": 43726164418,
+    "headSha": "d081973eedf23c684986076424cbbec9db7af951",
+    "checkoutSha": "9caea6e081805c19a961030fe61fa9fa856153e1",
+    "treeSha": "ffac9062087884b98f2ba73eb1c03e5219b43edb",
+    "jobsPassed": 8,
+    "jobsFailed": 0,
+    "application": {
+      "passed": 3746,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 24,
+    "startupBaseline": "All 29 cases pass; first case whole-test duration 6,836 ms, not navigation duration.",
+    "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
+  },
+  "latestWindowsAttempt": {
+    "runId": 43748168614,
+    "headSha": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+    "checkoutSha": "2428711e2f135d869605c52b53e48c9f3350be63",
+    "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+    "jobsPassed": 6,
+    "jobsFailed": 3,
+    "application": {
+      "status": "FAIL_TWO_CLEANUP_HOOKS",
+      "testBodiesPassed": 3788,
+      "testBodiesSkipped": 39,
+      "testBodiesFailed": 0,
+      "cleanupHooksFailed": 2
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 27,
+    "observedCommandOutcomes": {
+      "PASS": 24,
+      "FAIL": 3
+    },
+    "canonicalPackaging": {
+      "status": "PASS_PACKAGE_CUSTODY_ONLY",
+      "jobId": 132915985168,
+      "currentManifestRef": "docs/implementation/v3/m05-platform-43748168614/build-manifest.json",
+      "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "identicalToPriorRun": true
+    },
+    "installedPreflight": {
+      "status": "PASS",
+      "elapsedMs": [
+        19061,
+        11619
+      ],
+      "registryShortcutsCacheProcesses": "clear"
+    },
+    "installer": {
+      "status": "COMPLETED_NATURALLY",
+      "timeoutMs": 1200000,
+      "elapsedMs": 404900,
+      "exitCode": 0,
+      "closeCode": 0,
+      "terminationRequested": false,
+      "causalLimit": "Completion was below the former600000ms deadline; this run does not establish that the allowance increase caused completion."
+    },
+    "installedPayload": {
+      "matches": true,
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "1d8215b597f794421d35f76fe725ece36adefe64fba9a87bab74aea4f37d8a08"
+    },
+    "packagedProviders": {
+      "status": "PASS_INSTALLED_STARTUP_AND_DISTRIBUTION_CUSTODY_ONLY",
+      "auth": false,
+      "inference": false,
+      "providerNetworkCalls": null
+    },
+    "installedRetention": {
+      "status": "FAILED_NAVIGATION_BEFORE_MEMORY_ACTIONS",
+      "completedLaunches": 0,
+      "memoryReviewCommands": 0,
+      "restart": "NOT_RUN",
+      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43748168614.json"
+    },
+    "ownedCleanup": {
+      "status": "uninstalled-owned-installation",
+      "command": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "elapsedMs": 9898
+      },
+      "cache": {
+        "status": "removed-owned-exact-file",
+        "sha256": "f41cc743d289fa4d5214896599199fc54635bbd7944a1669fe89e2b135f0e4ce"
+      },
+      "shortcuts": "absent",
+      "installationKeys": "absent",
+      "nativeProcesses": "absent"
+    },
+    "browserOperation": {
+      "status": "PASS",
+      "reportedWholeCaseSeconds": 9.2,
+      "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
+    },
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132915985313,
+      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    },
+    "failures": [
+      "startup-feedback.test.ts afterAll browser.close exceeded10000ms after all eight case bodies passed.",
+      "table-overflow.test.ts afterAll browser.close exceeded10000ms after its case body passed.",
+      "Installed Project memory click exceeded30000ms while the owning Project overview body was collapsed, hidden and inert; retained-memory actions and completed launch receipts were not reached."
+    ]
+  },
+  "priorFailedWindowsAttemptRefs": [
+    "docs/implementation/v3/M05-windows-ci-43723377122.json",
+    "docs/implementation/v3/M05-windows-ci-43724428807.json",
+    "docs/implementation/v3/M05-windows-ci-43727736261.json",
+    "docs/implementation/v3/M05-windows-ci-43729864202.json",
+    "docs/implementation/v3/M05-windows-ci-43733008039.json",
+    "docs/implementation/v3/M05-windows-ci-43736761161.json",
+    "docs/implementation/v3/M05-windows-ci-43739565577.json",
+    "docs/implementation/v3/M05-windows-ci-43744480609.json"
+  ],
+  "pendingValidation": [
+    "Complete all nine Windows jobs on the exact new source/test/workflow cut. Historical test-body passes do not erase failed cleanup hooks.",
+    "Complete actual default-off retained-source detail, correction, accept/reject, normal native Save of the exact redacted export, Forget and same-profile restart. Installation/full payload/provider startup/owned cleanup are evidenced only at run43748168614; CDP download overrides cannot establish normal native Save."
+  ],
+  "platformProofPreparation": {
+    "nativeFile": {
+      "file": "tests/memory-native-file-capture-v3.test.ts",
+      "cases": 3,
+      "execution": "Three named cases actually passed with zero skips on Windows Server 2025 in run 43733008039, shard 4.",
+      "mocks": false,
+      "reviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json",
+      "runId": 43733008039,
+      "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    "installedRetention": {
+      "helper": "scripts/installed-memory-retention.ts",
+      "verifier": "scripts/verify-installed-desktop.ts",
+      "job": "Installed desktop memory retention",
+      "localCustodyCasesPassed": 19,
+      "localTypecheck": "PASS",
+      "execution": "Run43748168614 completes natural installation, full installed inventory/provider custody and owned uninstall. The first native window reaches the seeded task but fails the Project memory locator while Project overview is collapsed. No completed launch, memory action or restart pass. The explicit normal panel-navigation repair is locally checked and awaits Windows. A newly found production export defect now has a scoped native completion bridge. The installed verifier resets the CDP override and requires the actual owned native Save chooser, identity-bound destination and completed byte/hash receipt; these new assertions have not yet executed on Windows.",
+      "scope": "Retained MESSAGE records with production memory flags off. No model or account is selected.",
+      "providerNetworkCalls": null,
+      "windowsCustodyCasesPassed": 19,
+      "currentReviewRefs": [
+        "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+        "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
+        "docs/implementation/v3/M05-browser-close-review-43748168614.json",
+        "docs/implementation/v3/M05-browser-close-repair-review-20261115.json",
+        "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
+        "docs/implementation/v3/M05-native-memory-save-review-20261115.json"
+      ],
+      "nativeSaveHelper": "scripts/installed-native-save.ts",
+      "nativeSaveStatus": "LOCAL_CHECKS_PASS_WINDOWS_PENDING"
+    },
+    "publicSourceInventory": "Sorted source inventory includes the scoped native export policy, installed native Save helper and all three new export/Save tests. Source entries2353; runtime entries226 are unchanged.",
+    "independentReview": {
+      "reviewer": "memory_integration_audit",
+      "mode": "Read-only source review; no tests or installed launch performed by this reviewer.",
+      "result": "No concrete defect found.",
+      "files": [
+        {
+          "path": "scripts/installed-memory-retention.ts",
+          "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+        },
+        {
+          "path": "scripts/verify-installed-desktop.ts",
+          "sha256": "6a5f85e1b399472068d7c1915241227225ba22754957eab8dd04289d670ff3b1"
+        },
+        {
+          "path": "tests/installed-desktop-verification.test.ts",
+          "sha256": "6ddfbc5398100548f1f64cefb9ce45dc8d817e232e2b1dacd6804535395251cf"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462"
+        }
+      ],
+      "boundaries": [
+        "Disposable existing/redirected/replaced profile refusal and physical identity checks",
+        "Default-off installed policy with constructor-local enablement only for fixture creation",
+        "Exact captured source after message mutation, inert rendering and correct UI labels",
+        "Edit, accept, reject, redacted export, Forget and persistent tombstone assertions",
+        "Exact installed executable, nonce, CDP and identity-bound cleanup custody",
+        "Post-exit storage inspection only after owned native process and backend stop"
+      ],
+      "limitation": "Supports publication for Windows execution, not a native FILE or installed-runtime PASS. Live provider metrics remain unmeasured.",
+      "historicalSourceCut": true
+    },
+    "ciInputReview": {
+      "ref": "docs/implementation/v3/M05-installed-ci-input-review.json",
+      "sha256": "d5cf81a5934a11e79b6f1f1f31adb65cf625613defb28c1492e4b4276b8924e2",
+      "reviewer": "dependency_audit",
+      "findings": [],
+      "expandedWorkflowJobCount": 9,
+      "scope": "Read-only pinned input, packaging, exact argv and artifact review. No Windows execution is claimed."
+    },
+    "canonicalPackaging": {
+      "status": "ACTUAL_WINDOWS_PACKAGE_CUSTODY_VERIFIED",
+      "sourceLock": "third-party/integrations/PYTHON_LOCK.json",
+      "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "protectedNonRecordFiles": 7324,
+      "scope": "Explicit canonical per-distribution RECORD projection derived from authenticated pinned wheels, preserving the original lock and every protected non-RECORD hash. Exact legacy mode remains.",
+      "windowsExecution": "PASS_PACKAGE_CUSTODY_ONLY",
+      "focusedCasesPassed": 28,
+      "focusedCasesFailed": 0,
+      "finalFullTypecheck": "PASS",
+      "independentReviewRefs": [
+        "docs/implementation/v3/M05-canonical-packaging-input-review-20261115.json",
+        "docs/implementation/v3/M05-canonical-projection-review.json"
+      ],
+      "unresolvedConcreteSourceFindings": [],
+      "generatedReceipt": "third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "actualReviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+      "actualReceiptRefs": [
+        "docs/implementation/v3/m05-platform-43736761161/PYTHON_INSTALLATION_V2.json",
+        "docs/implementation/v3/m05-platform-43736761161/build-manifest.json",
+        "docs/implementation/v3/m05-platform-43736761161/verification.json"
+      ],
+      "sourceCut": {
+        "headSha": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
+        "treeSha": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
+      }
+    }
+  },
+  "verificationRepairs": {
+    "status": "PREFLIGHT_AND_BROWSER_WINDOWS_PASS_INSTALLER_TIMEOUT",
+    "installedPreflight": {
+      "readonlyProbeTimeoutMs": 60000,
+      "installerTimeoutMs": 600000,
+      "uninstallerTimeoutMs": 180000,
+      "focusedCasesPassed": 15,
+      "phaseDiagnostics": "Six fixed names and bounded monotonic script/observation elapsed times; no command text or child output retained as diagnostic fields.",
+      "actualWindowsExecution": "PASS_BOTH_READONLY_PROBES",
+      "actualElapsedMs": [
+        29665,
+        22682
+      ]
+    },
+    "browserOperation": {
+      "publicationTimeoutMs": 40000,
+      "outerTestTimeoutMs": 60000,
+      "otherFixturePublicationTimeoutMs": 15000,
+      "renderingAndApprovalAssertionTimeoutMs": 5000,
+      "productionGuardChanged": false,
+      "originalOperationAssertionsPreserved": true,
+      "actualWindowsExecution": "PASS_ALL_RETAINED_ASSERTIONS",
+      "actualWholeCaseMs": 7919
+    },
+    "reviewRefs": [
+      "docs/implementation/v3/M05-installed-preflight-review-43736761161.json",
+      "docs/implementation/v3/M05-host-publication-review-43736761161.json",
+      "docs/implementation/v3/M05-installed-phase-review-43739565577.json",
+      "docs/implementation/v3/M05-operation-stage-review-43739565577.json"
+    ],
+    "finalCombinedTypecheck": {
+      "status": "PASS",
+      "ref": "docs/implementation/v3/m05-logs/continuation-installed-preflight-browser-final-typecheck.log"
+    }
+  },
+  "previousWindowsAttempt": {
+    "runId": 43736761161,
+    "headSha": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
+    "checkoutSha": "ce93c20a3394157af18f585f794c97dd067f37a5",
+    "treeSha": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b",
+    "jobsPassed": 7,
+    "jobsFailed": 2,
+    "application": {
+      "passed": 3782,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 266,
+      "skipped": 2,
+      "failed": 1,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 27,
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132880966977,
+      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    },
+    "canonicalPackaging": {
+      "status": "PASS_PACKAGE_CUSTODY_ONLY",
+      "jobId": 132880966492,
+      "reviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+      "wheelPinsVerified": 91,
+      "protectedNonRecordFilesVerified": 7324,
+      "canonicalRecordFiles": 91,
+      "canonicalRecordFilesChangedAgainstOriginalV1": 16
+    },
+    "failures": [
+      "Installed verifier failed its initial read-only Windows preflight process deadline at 15 seconds before installation. Actual receipt has no preflight/install/memory observations, zero launches and cleanup not-installed. Internal subphase duration was not instrumented.",
+      "Browser host-operation fixture failed its 15-second initial artifact-attachment wait before approval/effect/restart assertions. Trace diagnosis and a bounded fixture repair are in progress."
+    ]
+  },
+  "installerFormatAndDiagnosticRepair": {
+    "status": "ACTUAL_WINDOWS_PACKAGE_PASS_INSTALLER_PROGRESS_DEADLINE",
+    "reviewRef": "docs/implementation/v3/M05-installer-repair-review-20261115.json",
+    "archiveFormat": "7z",
+    "focusedPackagingCasesPassed": 11,
+    "focusedCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "unresolvedConcreteSourceFindings": [],
+    "windowsExecutionRef": "docs/implementation/v3/M05-installer-progress-review-43744480609.json"
+  },
+  "priorInstallerWindowsAttempt": {
+    "runId": 43739565577,
+    "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+    "checkoutSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3784,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 27,
+    "canonicalPackaging": {
+      "status": "PASS_PACKAGE_CUSTODY_ONLY",
+      "jobId": 132889515576,
+      "priorIndependentReviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+      "currentManifestRef": "docs/implementation/v3/m05-platform-43739565577/build-manifest.json",
+      "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "identicalToPriorRun": true,
+      "reviewRef": "docs/implementation/v3/M05-canonical-package-review-43739565577.json"
+    },
+    "installedPreflight": {
+      "status": "PASS",
+      "elapsedMs": [
+        29665,
+        22682
+      ],
+      "registryShortcutsCacheProcesses": "clear"
+    },
+    "browserOperation": {
+      "status": "PASS",
+      "wholeCaseMs": 7919,
+      "runtimeStagesSucceeded": 5,
+      "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
+    },
+    "failures": [
+      "The owned installer was invoked after both clear preflights and exceeded its 600,000 ms deadline. Installation is unconfirmed; no payload-custody/provider/memory observations or launches exist; cleanup is preserved-unconfirmed-installation. Underlying cause remains unconfirmed."
+    ],
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132889515583,
+      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    }
+  },
+  "installerBudgetRepair": {
+    "status": "EXECUTED_WINDOWS_INSTALLATION_COMPLETED_SEPARATE_NAVIGATION_FAILED",
+    "reviewRef": "docs/implementation/v3/M05-installer-budget-repair-review-20261115.json",
+    "installerTimeoutMs": 1200000,
+    "uninstallerTimeoutMs": 180000,
+    "preflightTimeoutMs": 60000,
+    "focusedCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "unresolvedConcreteSourceFindings": [],
+    "actualWindowsRunId": 43748168614,
+    "actualInstallerElapsedMs": 404900,
+    "causalLimit": "The successful duration is below the prior600000ms limit. No causal claim is made for increasing the bound."
+  },
+  "priorInstallerBudgetWindowsAttempt": {
+    "runId": 43744480609,
+    "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+    "checkoutSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+    "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3788,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 27,
+    "canonicalPackaging": {
+      "status": "PASS_PACKAGE_CUSTODY_ONLY",
+      "jobId": 132904644508,
+      "reviewRef": "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+      "currentManifestRef": "docs/implementation/v3/m05-platform-43744480609/build-manifest.json",
+      "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "identicalToPriorRun": true
+    },
+    "installedPreflight": {
+      "status": "PASS",
+      "elapsedMs": [
+        29997,
+        22749
+      ],
+      "registryShortcutsCacheProcesses": "clear"
+    },
+    "browserOperation": {
+      "status": "PASS",
+      "reportedWholeCaseSeconds": 19.2,
+      "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
+    },
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132904644794,
+      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    },
+    "installerProgress": {
+      "status": "FAILED_DEADLINE_WITH_OBSERVED_PROGRESS",
+      "observationStartedAt": "2026-11-15T18:22:46.286Z",
+      "spawnElapsedMs": 18,
+      "timeoutMs": 600000,
+      "exitAndCloseElapsedMs": 600211,
+      "sampledFiles": 16,
+      "sizeMatchedAt300033Ms": 0,
+      "sizeMatchedAt540022Ms": 12,
+      "absentAt540022Ms": 4,
+      "uninstallerPresent": false,
+      "completionPercentage": null
+    },
+    "failures": [
+      "Owned installer reached600000ms after observed destination-file progress. No earlier natural exit was recorded. No installed payload custody, providers, memory or launches executed; cleanup preserves unconfirmed installation."
+    ]
+  },
+  "navigationAndBrowserCleanupRepair": {
+    "status": "LOCAL_CHECKS_PASS_WINDOWS_PENDING",
+    "reviewRefs": [
+      "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+      "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
+      "docs/implementation/v3/M05-browser-close-review-43748168614.json",
+      "docs/implementation/v3/M05-browser-close-repair-review-20261115.json"
+    ],
+    "sourceScope": [
+      "scripts/installed-memory-retention.ts",
+      "tests/startup-feedback.test.ts",
+      "tests/table-overflow.test.ts"
+    ],
+    "localCommandRefs": [
+      "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-regression.log",
+      "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-typecheck.log"
+    ],
+    "productionAppChanged": false,
+    "existingAssertionsPreserved": true,
+    "unresolvedConcreteSourceFindings": []
+  },
+  "nativeMemoryExportRepair": {
+    "status": "LOCAL_CHECKS_PASS_WINDOWS_PENDING",
+    "reviewRefs": [
+      "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
+      "docs/implementation/v3/M05-native-memory-save-review-20261115.json"
+    ],
+    "productionAppChanged": true,
+    "nativeSaveHelper": "scripts/installed-native-save.ts",
+    "localCommandRefs": [
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-red.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-capacity-red.log",
+      "docs/implementation/v3/m05-logs/continuation-installed-native-save-red.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-1.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-sync-dispatch-red.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-2.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-native-events-red.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-3.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-validation-red.log",
+      "docs/implementation/v3/m05-logs/continuation-native-memory-export-final-green.log",
+      "docs/implementation/v3/m05-logs/continuation-installed-native-save-green-1.log",
+      "docs/implementation/v3/m05-logs/continuation-native-save-combined-typecheck.log",
+      "docs/implementation/v3/m05-logs/continuation-native-save-combined-web-build.log",
+      "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build.log",
+      "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build-import.log",
+      "docs/implementation/v3/m05-logs/continuation-native-save-public-source-closure.log"
+    ],
+    "defaultDenyDownloadsPreserved": true,
+    "authCsrfAndScopeValidationPreserved": true,
+    "nativeSavedRequiresAdmittedTerminalCompletion": true,
+    "nativeAutomationUsesDefaultDownloadBehaviorAndOwnedSaveDialog": true,
+    "actualWindowsExecution": "NOT_RUN",
+    "enabledInstalledMemory": "NOT_RUN",
+    "liveStudy": "NOT_RUN",
+    "unresolvedConcreteSourceFindings": []
+  }
+}

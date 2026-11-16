@@ -19,3 +19,9 @@ it.each(['', null])('does not silently reinterpret invalid account %j as legacy 
   const target = ipc.invoke.mock.calls.at(-1)![1];
   expect(() => parseDesktopSignInTarget(target)).toThrow();
 });
+it('forwards only serialized project memory through the explicit export channel', async () => {
+  expect(bridge.exportProjectMemory).toBeTypeOf('function');
+  const serialized = JSON.stringify({redacted: true, scope: {projectId: 'project-a'}});
+  await bridge.exportProjectMemory!(serialized);
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.memoryExport, serialized);
+});

@@ -1,5 +1,6 @@
-import {test,expect,type Page,type Route} from '@playwright/test';
+import {test,expect,type Page,type Route,type Locator} from '@playwright/test';
 const fixtureRoot=encodeURI('/@fs/'+process.cwd().replaceAll('\\','/'));
+async function openSurface(page:Page,panel:Locator,label:string){await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();}
 
 test.beforeEach(async({page})=>{
  await page.route('**/api/**',route=>route.fulfill({status:404,json:{error:{message:'Unconfigured fixture request'}}}));
@@ -13,7 +14,7 @@ test('default launcher opens the real tool tabs and keeps browser and device bou
   await panel.getByRole('tab',{name:'Artifact',exact:true}).click();await launcher.getByRole('button',{name:label,exact:true}).click();
   await expect(panel.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');await expect(panel.getByRole('tabpanel')).toContainText('Connect and select a project to use '+kind);
  }
- await panel.getByRole('tab',{name:'Output',exact:true}).click();await expect(panel.getByRole('tabpanel')).toContainText('Recorded executor receipts and output.');await expect(panel.getByRole('tabpanel')).not.toContainText('PTY input are unavailable');
+ await openSurface(page,panel,'Output');await expect(panel.getByRole('tabpanel')).toContainText('Recorded executor receipts and output.');await expect(panel.getByRole('tabpanel')).not.toContainText('PTY input are unavailable');
 });
 test('canvas launch requests go to the owning canvas callback',async({page})=>{
  const canvas=page.getByRole('region',{name:'Canvas launcher'});
@@ -36,7 +37,7 @@ test('directory navigation rejects a file response from the previous selection',
  await page.route('**/api/bootstrap',route=>route.fulfill({json:{csrfToken:'fixture'}}));
  await page.route('**/api/projects/project-one/files?*',route=>route.fulfill({json:{entries:new URL(route.request().url()).searchParams.has('path')?[]:[{name:'late.txt',path:'late.txt',kind:'file'},{name:'next',path:'next',kind:'directory'}]}}));
  let pending:import('@playwright/test').Route|undefined;await page.route('**/api/projects/project-one/file?*',route=>{pending=route;});
- await page.goto('/shared-panels-check?project=1');const panel=page.getByRole('complementary',{name:'Workspace panel'});await panel.getByRole('tab',{name:'Files',exact:true}).click();
+ await page.goto('/shared-panels-check?project=1');const panel=page.getByRole('complementary',{name:'Workspace panel'});await openSurface(page,panel,'Files');
  const files=page.getByRole('navigation',{name:'Project files'});await files.getByRole('button',{name:'late.txt',exact:true}).click();await expect.poll(()=>Boolean(pending)).toBe(true);await files.getByRole('button',{name:'next',exact:true}).click();
  await pending!.fulfill({json:{text:'Content from the previous directory',binary:false,sha256:'a'.repeat(64)}});
  await expect(panel.locator('.live-files .panel-toolbar')).toContainText('next');await expect(panel.getByRole('region',{name:'File content'})).not.toContainText('Content from the previous directory');
@@ -143,7 +144,7 @@ test('profile sign-in works without a project and leaves the Terminal project ga
  await context.grantPermissions(['clipboard-read','clipboard-write']);const{panel,actions}=await profileAuthFixture(page);await expect(panel.getByRole('button',{name:'Sign in to GitHub',exact:true})).toBeEnabled();await panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();
  await expect(panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();await expect(panel.getByRole('link',{name:'https://github.com/login/device',exact:true})).toHaveAttribute('href','https://github.com/login/device');await expect(panel).toContainText('Waiting for GitHub');await expect(panel).toContainText('Expires');
  await panel.getByRole('button',{name:'Copy code',exact:true}).click();expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe('ABCD-EFGH');await expect(panel.getByRole('status')).toContainText('Copied');await panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect.poll(()=>actions.some(item=>item.action==='cancel')).toBe(true);await expect(panel).toContainText('Sign-in cancelled');
- await panel.getByRole('tab',{name:'Terminal',exact:true}).click();await expect(panel).toContainText('Connect and select a project to use terminal');
+ await openSurface(page,panel,'Terminal');await expect(panel).toContainText('Connect and select a project to use terminal');
 });
 test('cancelled profile sign-in ignores an authenticated stale poll response',async({page})=>{
  const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await host.releasePoll();await expect(host.panel).toContainText('Sign-in cancelled');await expect(host.panel).not.toContainText('stale-user');
@@ -171,7 +172,7 @@ test('a stale cancelled start response cannot replace or clear a newer sign-in',
  await page.route('**/api/github/auth/start',route=>route.fulfill({json:host.flow(2)}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await host.releaseStart();await expect.poll(()=>host.actions.some(item=>item.action==='cancel'&&item.payload.flowId===host.flow(1).id)).toBe(true);await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await expect(host.panel).toContainText('Waiting for GitHub');
 });
 test('a disconnected project can still sign in through the profile route',async({page})=>{
- const host=await profileAuthFixture(page);await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}}}));await page.goto('/shared-panels-check?project=1');await host.panel.getByRole('tab',{name:'Pull request',exact:true}).click();await expect(host.panel.getByRole('alert').first()).toContainText('Project folder unavailable');await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();expect(host.actions.find(item=>item.action==='start')?.payload).toEqual({});
+ const host=await profileAuthFixture(page);await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}}}));await page.goto('/shared-panels-check?project=1');await openSurface(page,host.panel,'Pull request');await expect(host.panel.getByRole('alert').first()).toContainText('Project folder unavailable');await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();expect(host.actions.find(item=>item.action==='start')?.payload).toEqual({});
 });
 test('invalid profile sign-in responses show one actionable error and never expose an arbitrary opener',async({page})=>{
  const host=await profileAuthFixture(page);await page.route('**/api/github/auth/start',route=>route.fulfill({json:{...host.flow(1),url:'https://evil.example/device'}}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByRole('alert')).toHaveText('GitHub returned an invalid sign-in response. Start a new sign-in.');await expect(host.panel.locator('a[href="https://evil.example/device"]')).toHaveCount(0);

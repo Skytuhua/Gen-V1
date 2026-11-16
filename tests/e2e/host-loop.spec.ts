@@ -80,10 +80,13 @@ test('durable decision validation and acceptance continue the same owning runtim
   expect(host.runtime.deliveries).toHaveLength(1);
   await decision.getByRole('combobox', { name: 'choice', exact: true }).click();
   await page.getByRole('option', { name: 'Keep', exact: true }).click();
-  await decision.getByRole('textbox', { name: 'Decision rationale' }).fill('short');
+  const rationale = decision.getByRole('textbox', { name: 'Decision rationale', exact: true });
+  await expect(decision.getByText('Enter at least 10 characters.', { exact: true })).toBeVisible();
+  await expect(rationale).toHaveAccessibleDescription('Enter at least 10 characters.');
+  await rationale.fill('short');
   await decision.getByRole('button', { name: 'Continue', exact: true }).click();
-  await expect(decision.getByRole('alert')).toContainText('The response does not match the requested schema. Check the required fields and values.');
-  await expect(decision.getByRole('textbox', { name: 'Decision rationale' })).toHaveValue('short');
+  await expect(decision.getByRole('status')).toContainText('The response does not match the requested schema. Check the required fields and values.');
+  await expect(rationale).toHaveValue('short');
   expect(host.snapshot().requests[0]?.status).toBe('pending');
   expect(host.runtime.deliveries).toHaveLength(1);
   await decision.getByRole('textbox', { name: 'Decision rationale' }).fill('Verified source evidence.');
@@ -109,7 +112,11 @@ test('durable decision validation and acceptance continue the same owning runtim
 });
 
 test('generated operation button requires native approval; restart restores without repeating effects', async ({ page, host }, info) => {
-  await openHost(page); await grantFixtureFile(page, host); await sendFixture(page, 'operation');
+  test.setTimeout(60_000);
+  await openHost(page);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Projects & Working Copies', exact: true }).click();
+  await grantFixtureFile(page, host); await sendFixture(page, 'operation', host);
   const artifact = region(page, 'Evidence document');
   await expect(artifact.getByRole('button', { name: 'Apply document replacement' })).toBeVisible();
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();
@@ -263,7 +270,7 @@ test('cross-site infinite-loop widget leaves Settings, Stop and host navigation 
     await bounded(page.getByRole('button', { name: 'Settings', exact: true }).click({ timeout: 3000 }), 'Host Settings click');
     await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toBeVisible({ timeout: 3000 });
     observations.settingsOpenMs = performance.now() - start;
-    await page.getByRole('button', { name: 'Close settings', exact: true }).click({ timeout: 3000 });
+    await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Close dialog', exact: true }).click({ timeout: 3000 });
     start = performance.now();
     await page.getByRole('button', { name: 'Stop agent', exact: true }).click({ timeout: 3000 });
     await expect.poll(() => host.snapshot().threads[0]?.status, { timeout: 3000 }).toBe('stopped');
@@ -271,9 +278,12 @@ test('cross-site infinite-loop widget leaves Settings, Stop and host navigation 
     expect(host.runtime.cancellations).toHaveLength(1);
     await expect(region(page, 'Untrusted loop fixture').getByRole('alert')).toContainText('worker was terminated');
     start = performance.now();
+    const previousThreadIds = new Set(host.snapshot().threads.map(thread => thread.id));
     await page.getByRole('button', { name: 'New thread', exact: false }).click({ timeout: 3000 });
+    await page.getByRole('dialog', { name: 'Select project', exact: true }).getByRole('option', { name: 'No project', exact: true }).click({ timeout: 3000 });
     await expect.poll(() => host.snapshot().threads.length, { timeout: 3000 }).toBe(2);
-    await expect(page.locator('.breadcrumb')).toContainText('New thread', { timeout: 3000 });
+    const createdThread = host.snapshot().threads.find(thread => !previousThreadIds.has(thread.id))!;
+    await expect(page.locator(`[data-split-view="thread:${createdThread.id}"]:visible .breadcrumb`)).toContainText('New thread', { timeout: 3000 });
     observations.navigationMs = performance.now() - start;
     observations.outcome = 'Host Settings, Stop and new-thread navigation responded after child loop entry.';
     await evidence(page, info, 'host-responsive-after-infinite-loop');
@@ -293,9 +303,9 @@ test('generated program startup failure preserves host controls and durable arti
   await openHost(page);await sendFixture(page,'startup');
   await expect(region(page,'Startup failure fixture').getByRole('alert')).toContainText('runtime limit');
   const artifact=host.artifact('widget');expect(host.snapshot().userStates.find(state=>state.id===artifact.stateId)?.values.note).toBe('A small, source-linked notebook.');
-  await page.getByRole('button',{name:'Settings',exact:true}).click({timeout:3000});await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();await page.getByRole('button',{name:'Close settings',exact:true}).click();
+  await page.getByRole('button',{name:'Settings',exact:true}).click({timeout:3000});await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();
   await page.getByRole('button',{name:'Stop agent',exact:true}).click({timeout:3000});await expect.poll(()=>host.snapshot().threads[0]?.status).toBe('stopped');
-  await page.getByRole('button',{name:'New thread',exact:false}).click({timeout:3000});await expect.poll(()=>host.snapshot().threads.length).toBe(2);
+  await page.getByRole('button',{name:'New thread',exact:false}).click({timeout:3000});await page.getByRole('dialog',{name:'Select project',exact:true}).getByRole('option',{name:'No project',exact:true}).click({timeout:3000});await expect.poll(()=>host.snapshot().threads.length).toBe(2);
 });
 
 test('the real host rejects generated apps while preserving its trusted interface', async ({ page, host }) => {

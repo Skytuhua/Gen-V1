@@ -1,3 +1,4 @@
+import {requiresMemoryCheckpoint,routeMemoryCheckpoint,sameMemoryCheckpointRequirement} from './memory-checkpoint.ts';
 import {isAbsolute,relative,resolve,sep} from 'node:path';
 import {HarnessError,type RuntimeAdapter,type RuntimeCallbacks,type RunContext,type StartRun} from '../contracts/index.ts';
 import {createPiRuntime} from '../runtime-pi/index.ts';
@@ -11,13 +12,13 @@ type Provider='pi'|OfficialRuntimeProviderId;
 type Factories={pi:(options:{dataDir:string;modelOnly?:boolean;purpose?:ModelPurpose})=>RuntimeAdapter;official:(options:{dataDir:string;modelOnly?:boolean;purpose?:ModelPurpose})=>RuntimeAdapter};
 type Pair={root:string;pi:RuntimeAdapter;official:RuntimeAdapter};
 type Selection={provider:Provider;adapter:RuntimeAdapter;modelId:string;accountId:string|null};
-type Owner=Selection&{ctx:RunContext;closed:boolean;closing?:Promise<void>;lease?:AccountUseLease;outputBytes?:number};
+type Owner=Selection&{ctx:RunContext;closed:boolean;closing?:Promise<void>;lease?:AccountUseLease;outputBytes?:number;memoryCheckpoint?:StartRun['memoryCheckpoint']};
 const key=(ctx:RunContext)=>JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]);
 const providerForModel=(modelId:string):Provider=>{const provider=modelId.split('/')[0];return isOfficialRuntimeProviderId(provider)?provider:'pi';};
 
 /** Routes execution; each adapter retains its own protocol, auth and session validation. */
 export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver;modelOnly?:boolean;purpose?:ModelPurpose},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
- const modelOnly=options.modelOnly||options.purpose==='prediction';
+ const modelOnly=options.modelOnly||options.purpose==='prediction'||options.purpose==='memory-extraction';
  const root=resolve(options.dataDir),pairs=new Map<string|null,Pair>(),owners=new Map<string,Owner>(),adapters=new Set<RuntimeAdapter>(),probes=new Map<string,{adapter:RuntimeAdapter;lease:AccountUseLease}>();
  let callbacks:RuntimeCallbacks|undefined,disposed=false,disposing:Promise<void>|undefined;
  const active=()=>{if(disposed)throw new HarnessError('RUNTIME_DISPOSED','The runtime has closed.');};
@@ -49,6 +50,11 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
     callbacks?.onEvent(event);
    },
    async onTool(call,ctx){owner(ctx,adapter);if(modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the model transport.');if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const result=await callbacks.onTool(call,ctx);owner(ctx,adapter);return result;},
+   async onMemoryCheckpoint(request){
+    const current=owner(request.ctx,adapter);
+    const check=()=>{const actual=owner(request.ctx,adapter);if(actual!==current||modelOnly||current.provider!=='pi'||!requiresMemoryCheckpoint(current.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_OWNER','The native checkpoint has no current conversation owner.');choose(current.modelId,request.sessionPath,current.accountId);};
+    return routeMemoryCheckpoint(request,{adapterId:'pi',ctx:current.ctx,sessionPath:request.sessionPath,modelId:current.modelId,accountId:current.accountId},callbacks?.onMemoryCheckpoint,check);
+   },
   });adapters.add(pi);adapters.add(official);pairs.set(id,created);return created;
  }
  pair(null);
@@ -71,10 +77,11 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
   if(sessionPath&&providerForSession(sessionPath,selected)!==provider)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another runtime. Start a new thread to change runtimes.');
   return {provider,adapter:provider==='pi'?selected.pi:selected.official,modelId,accountId:account?.id??null};
  }
- function reserve(ctx:RunContext,selected:Selection):Owner {
+ function reserve(ctx:RunContext,selected:Selection,memoryCheckpoint?:StartRun['memoryCheckpoint']):Owner {
+  if(requiresMemoryCheckpoint(memoryCheckpoint)&&(selected.provider!=='pi'||modelOnly||!callbacks?.onMemoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_UNSUPPORTED','This native adapter cannot enforce required memory checkpoints.');
   active();if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const providerId=selected.modelId.split('/')[0];available(providerId,selected.accountId);if(owners.size)throw new HarnessError('RUNTIME_BUSY','Another run still owns the runtime.');
   const lease=isConnectionProviderId(providerId)?options.accounts?.claimUse?.(providerId,selected.accountId):undefined;
-  const current:Owner={...selected,ctx:{...ctx},closed:false,lease};owners.set(key(ctx),current);return current;
+  const current:Owner={...selected,ctx:{...ctx},closed:false,lease,memoryCheckpoint};owners.set(key(ctx),current);return current;
  }
  async function retire(adapter:RuntimeAdapter):Promise<void> {
   const affected=[...owners.values()].filter(current=>current.adapter===adapter);for(const current of affected)current.closed=true;
@@ -105,11 +112,16 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
    });
    if(!models.length&&results.some(result=>result.status==='rejected'))throw new HarnessError('AI_AUTH_REQUIRED','No signed-in subscription runtime is available. Connect a provider in Settings and refresh models.');return models;
   },
-  async start(input:StartRun){if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
-  async followUp(input){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.');if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
+  async invalidateModels(query){
+   active();
+   const targets=query?.accountId===undefined?[...pairs.values()]:[pairs.get(query.accountId)].filter((value):value is Pair=>Boolean(value));
+   await Promise.all(targets.flatMap(value=>[value.pi,value.official]).map(adapter=>adapter.invalidateModels?.()));
+  },
+  async start(input:StartRun){if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured=structuredClone(input),selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId),captured.memoryCheckpoint),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
+  async followUp(input){active();if(options.purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.');if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.');if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(!sameMemoryCheckpointRequirement(captured.memoryCheckpoint,current.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_OWNER','Follow-up changed the captured checkpoint requirement.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
   async cancel(ctx){const current=owners.get(key(ctx));if(current)await close(current);},
-  async compact(ctx,sessionPath,modelId,accountId){if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.');const selected=reserve(ctx,choose(modelId,sessionPath,accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
-  async history(sessionPath,accountId){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},
+  async compact(ctx,sessionPath,modelId,accountId,memoryCheckpoint){if(options.purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot compact conversations.');if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.');const selected=reserve(ctx,choose(modelId,sessionPath,accountId),memoryCheckpoint),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);if(memoryCheckpoint!==undefined)await selected.adapter.compact(ctx,sessionPath,modelId,selected.accountId,memoryCheckpoint);else await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
+  async history(sessionPath,accountId){active();if(options.purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot read conversations.');if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},
   dispose(){
    if(disposing)return disposing;disposed=true;for(const current of owners.values())current.closed=true;
    return disposing=Promise.resolve().then(async()=>{

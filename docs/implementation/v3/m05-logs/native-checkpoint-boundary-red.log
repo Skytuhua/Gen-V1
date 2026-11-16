@@ -1,0 +1,344 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+stderr | tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > revalidates local authority after an awaited receipt and never supplies native replacement history
+Promise returned by `expect(actual).rejects.toThrow(expected)` was not awaited. Vitest currently auto-awaits hanging assertions at the end of the test, but this will cause the test to fail in the next Vitest major. Please remember to await the assertion.
+    at /workspace/scratch/36f66011d961/m05-continuation/tests/memory-native-checkpoint-v3.test.ts:52:91
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts (20 tests | 19 failed) 4137ms
+     × waits for a persistence receipt before the actual manual summary entrypoint 1016ms
+     × waits for a persistence receipt before the actual threshold summary entrypoint 1003ms
+     × waits for a persistence receipt before the actual overflow summary entrypoint 1037ms
+     × cancels manual compaction through the actual SDK runner when persistence rejects 26ms
+     × cancels threshold compaction through the actual SDK runner when persistence rejects 3ms
+     × cancels overflow compaction through the actual SDK runner when persistence rejects 1ms
+     × does not let an invalid host receipt reach native compaction: {} 2ms
+     × does not let an invalid host receipt reach native compaction: {"persisted":false} 1ms
+     × does not let an invalid host receipt reach native compaction: {"apiVersion":1} 2ms
+     × does not let an invalid host receipt reach native compaction: {"requestId":"foreign"} 1ms
+     × does not let an invalid host receipt reach native compaction: {"digest":"invalid"} 2ms
+     × revalidates local authority after an awaited receipt and never supplies native replacement history 1004ms
+     × rejects required unsupported SDK versions and keeps unopted resources unchanged 2ms
+     × rechecks the captured owner after persistence and rejects receipts arriving after cancellation 3ms
+     × forwards manual account and requirement but blocks a required unsupported external adapter 3ms
+     × fails closed for required unsupported source capability undefined 14ms
+     × fails closed for required unsupported source capability {"apiVersion":1,"hostOwned":true} 6ms
+     × fails closed for required unsupported source capability {"apiVersion":2,"hostOwned":false} 5ms
+     × passes the requirement through the private channel and binds the checkpoint to the captured source 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > waits for a persistence receipt before the actual manual summary entrypoint
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > waits for a persistence receipt before the actual threshold summary entrypoint
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > waits for a persistence receipt before the actual overflow summary entrypoint
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/memory-native-checkpoint-v3.test.ts:37:40
+     35|   const hold=barrier(),request=vi.fn(()=>hold.promise),f=piFixture(req…
+     36|   const work=reason==='manual'?sdk.AgentSession.prototype.compact.call…
+     37|   await vi.waitFor(()=>expect(request).toHaveBeenCalledOnce());expect(…
+       |                                        ^
+     38|   expect(request.mock.calls[0][0]).toMatchObject({...binding,adapterId…
+     39|   hold.resolve(ack(request.mock.calls[0][0]));await work;expect(f.summ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > cancels manual compaction through the actual SDK runner when persistence rejects
+AssertionError: expected [Function] to throw error including 'Compaction cancelled' but got 'summary-boundary'
+
+Expected: "Compaction cancelled"
+Received: "summary-boundary"
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:43:86
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > cancels threshold compaction through the actual SDK runner when persistence rejects
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "fileOps": Object {
+          "edited": Set {},
+          "read": Set {},
+          "written": Set {},
+        },
+        "firstKeptEntryId": "bfbcf515",
+        "isSplitTurn": false,
+        "messagesToSummarize": Array [
+          Object {
+            "content": "Native transcript 0 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 1,
+          },
+          Object {
+            "content": "Native transcript 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 2,
+          },
+          Object {
+            "content": "Native transcript 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 3,
+          },
+        ],
+        "previousSummary": undefined,
+        "settings": Object {
+          "enabled": true,
+          "keepRecentTokens": 1,
+          "reserveTokens": 1,
+        },
+        "tokensBefore": 320,
+        "turnPrefixMessages": Array [],
+      },
+      Object {
+        "id": "model",
+        "provider": "openai",
+      },
+      undefined,
+      AbortSignal {
+        Symbol(kEvents): undefined,
+        Symbol(events.maxEventTargetListeners): 0,
+        Symbol(events.maxEventTargetListenersWarned): false,
+        Symbol(kHandlers): undefined,
+        Symbol(kAborted): false,
+        Symbol(kReason): undefined,
+        Symbol(kComposite): false,
+      },
+      "threshold",
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:44:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > cancels overflow compaction through the actual SDK runner when persistence rejects
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "fileOps": Object {
+          "edited": Set {},
+          "read": Set {},
+          "written": Set {},
+        },
+        "firstKeptEntryId": "8d593b0d",
+        "isSplitTurn": false,
+        "messagesToSummarize": Array [
+          Object {
+            "content": "Native transcript 0 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 1,
+          },
+          Object {
+            "content": "Native transcript 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 2,
+          },
+          Object {
+            "content": "Native transcript 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "role": "user",
+            "timestamp": 3,
+          },
+        ],
+        "previousSummary": undefined,
+        "settings": Object {
+          "enabled": true,
+          "keepRecentTokens": 1,
+          "reserveTokens": 1,
+        },
+        "tokensBefore": 320,
+        "turnPrefixMessages": Array [],
+      },
+      Object {
+        "id": "model",
+        "provider": "openai",
+      },
+      undefined,
+      AbortSignal {
+        Symbol(kEvents): undefined,
+        Symbol(events.maxEventTargetListeners): 0,
+        Symbol(events.maxEventTargetListenersWarned): false,
+        Symbol(kHandlers): undefined,
+        Symbol(kAborted): false,
+        Symbol(kReason): undefined,
+        Symbol(kComposite): false,
+      },
+      "overflow",
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:44:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > does not let an invalid host receipt reach native compaction: {}
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > does not let an invalid host receipt reach native compaction: {"persisted":false}
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > does not let an invalid host receipt reach native compaction: {"apiVersion":1}
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > does not let an invalid host receipt reach native compaction: {"requestId":"foreign"}
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > does not let an invalid host receipt reach native compaction: {"digest":"invalid"}
+AssertionError: expected [Function] to throw error including 'Compaction cancelled' but got 'summary-boundary'
+
+Expected: "Compaction cancelled"
+Received: "summary-boundary"
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:48:65
+     46|  it.each([{}, {persisted:false}, {apiVersion:1}, {requestId:'foreign'}…
+     47|   const f=piFixture(async request=>Object.keys(patch).length?{...ack(r…
+     48|   await expect(sdk.AgentSession.prototype.compact.call(f.native)).reje…
+       |                                                                 ^
+     49|  });
+     50|  it('revalidates local authority after an awaited receipt and never su…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > revalidates local authority after an awaited receipt and never supplies native replacement history
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/memory-native-checkpoint-v3.test.ts:53:40
+     51|   const hold=barrier();let current=true;const request=vi.fn(()=>hold.p…
+     52|   const work=sdk.AgentSession.prototype.compact.call(f.native);const r…
+     53|   await vi.waitFor(()=>expect(request).toHaveBeenCalledOnce());current…
+       |                                        ^
+     54|   expect(JSON.stringify(request.mock.calls[0][0])).not.toContain('Nati…
+     55|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned native Pi checkpoint boundary > rejects required unsupported SDK versions and keeps unopted resources unchanged
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:57:163
+     55|  });
+     56|  it('rejects required unsupported SDK versions and keeps unopted resou…
+     57|   expect(()=>createHostResourceLoader({...sdk,VERSION:'unverified'},un…
+       |                                                                                                                                                                   ^
+     58|   expect(createHostResourceLoader(sdk).getExtensions().extensions).toE…
+     59|   expect(()=>createHostResourceLoader(sdk,undefined,true,undefined,{re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > native checkpoint owner routing > rechecks the captured owner after persistence and rejects receipts arriving after cancellation
+TypeError: pi.callbacks.onMemoryCheckpoint is not a function
+ ❯ tests/memory-native-checkpoint-v3.test.ts:72:223
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > native checkpoint owner routing > forwards manual account and requirement but blocks a required unsupported external adapter
+AssertionError: expected "vi.fn()" to be called with arguments: [ { …(3) }, …(4) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -4,11 +4,6 @@
+      "runId": "checkpoint-run",
+      "threadId": "checkpoint-thread",
+    },
+    "/tmp/memory-checkpoint-router-viKXFV/task/session.jsonl",
+    "openai/model",
+-   null,
+-   {
+-     "apiVersion": 2,
+-     "required": true,
+-   },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:76:143
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned Hermes checkpoint capability and authority > fails closed for required unsupported source capability undefined
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned Hermes checkpoint capability and authority > fails closed for required unsupported source capability {"apiVersion":1,"hostOwned":true}
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned Hermes checkpoint capability and authority > fails closed for required unsupported source capability {"apiVersion":2,"hostOwned":false}
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:94:90
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/19]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > pinned Hermes checkpoint capability and authority > passes the requirement through the private channel and binds the checkpoint to the captured source
+AssertionError: expected undefined to deeply equal { apiVersion: 2, required: true }
+
+- Expected:
+{
+  "apiVersion": 2,
+  "required": true,
+}
+
++ Received:
+undefined
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:97:165
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/19]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected [Function] to throw error including 'Compaction cancelled' but got 'summary-boundary'
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/memory-native-checkpoint-v3.test.ts:52:91
+     50|  it('revalidates local authority after an awaited receipt and never su…
+     51|   const hold=barrier();let current=true;const request=vi.fn(()=>hold.p…
+     52|   const work=sdk.AgentSession.prototype.compact.call(f.native);const r…
+       |                                                                                           ^
+     53|   await vi.waitFor(()=>expect(request).toHaveBeenCalledOnce());current…
+     54|   expect(JSON.stringify(request.mock.calls[0][0])).not.toContain('Nati…
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+ ❯ runWithCancel node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10
+
+This error originated in "tests/memory-native-checkpoint-v3.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "revalidates local authority after an awaited receipt and never supplies native replacement history". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  19 failed | 1 passed (20)
+     Errors  1 error
+   Start at  19:21:30
+   Duration  6.04s (transform 585ms, setup 0ms, import 1.72s, tests 4.14s, environment 0ms)

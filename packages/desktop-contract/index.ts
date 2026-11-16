@@ -21,7 +21,9 @@ export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrows
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}
 export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
+export interface DesktopMemoryExportResult {status:'saved'|'cancelled';admitted:true;filename:string;bytes:number;sha256:string}
 export interface DesktopBridge {
+  exportProjectMemory?(serializedExport:string):Promise<DesktopMemoryExportResult>;
   onAttentionOpen?(listener:(threadId:string)=>void):()=>void;
   openAttention?(eventId:string):Promise<void>;
   setTheme?(theme:'light'|'dark'):Promise<void>;
@@ -45,7 +47,7 @@ export interface DesktopBridge {
   onCloseRequested(handler:()=>Promise<boolean>):()=>void;
   onWorkspaceChanged?(listener:(change:DesktopWorkspaceChange)=>void):()=>void;
 }
-export const DESKTOP_CHANNELS={attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
+export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
 const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin']);
 const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests']);
 export function desktopId(value:unknown):value is string{return typeof value==='string'&&value.length<=200&&/^[a-zA-Z0-9_.:-]+$/.test(value)&&!['__proto__','prototype','constructor'].includes(value);}

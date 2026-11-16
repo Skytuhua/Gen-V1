@@ -1,0 +1,22 @@
+2026-11-15T18:42:47.7257379Z ##[group]Run pnpm test:ui-guard
+2026-11-15T18:42:47.7257592Z pnpm test:ui-guard
+2026-11-15T18:42:47.7304012Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T18:42:47.7304212Z env:
+2026-11-15T18:42:47.7304375Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T18:42:47.7304569Z ##[endgroup]
+2026-11-15T18:42:48.1122880Z 
+2026-11-15T18:42:48.1123307Z > gen-v1@0.6.5 test:ui-guard D:\a\Gen-V1\Gen-V1
+2026-11-15T18:42:48.1123783Z > vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1
+2026-11-15T18:42:48.1123983Z 
+2026-11-15T18:42:48.4899083Z 
+2026-11-15T18:42:48.4900875Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T18:42:48.4901163Z 
+2026-11-15T18:42:54.0029780Z  ✓ tests/ui-guard.test.ts (29 tests) 5085ms
+2026-11-15T18:42:54.0030894Z    ✓ the CLI exits nonzero for seeded numeric and overlay violations in an existing legacy file  1544ms
+2026-11-15T18:42:54.6216031Z  ✓ tests/ui-numeric-children.test.ts (2 tests) 8ms
+2026-11-15T18:42:54.6239055Z 
+2026-11-15T18:42:54.6241634Z  Test Files  2 passed (2)
+2026-11-15T18:42:54.6242417Z       Tests  31 passed (31)
+2026-11-15T18:42:54.6242820Z    Start at  18:42:48
+2026-11-15T18:42:54.6243639Z    Duration  6.12s (transform 441ms, setup 0ms, import 798ms, tests 5.09s, environment 0ms)
+2026-11-15T18:42:54.6245134Z 

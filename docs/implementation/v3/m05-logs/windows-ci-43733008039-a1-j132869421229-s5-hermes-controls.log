@@ -1,0 +1,21 @@
+2026-11-15T16:01:30.3506188Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T16:01:30.3506495Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T16:01:30.3553778Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T16:01:30.3553988Z env:
+2026-11-15T16:01:30.3554151Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T16:01:30.3554391Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:01:30.3554648Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T16:01:30.3554904Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:01:30.3555136Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:01:30.3555368Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:01:30.3555621Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T16:01:30.3555872Z ##[endgroup]
+2026-11-15T16:01:33.1952705Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T16:01:33.2438047Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T16:01:33.3190876Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T16:01:33.3852201Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T16:01:33.3923779Z 
+2026-11-15T16:01:33.3924131Z ----------------------------------------------------------------------
+2026-11-15T16:01:33.3924965Z Ran 4 tests in 2.588s
+2026-11-15T16:01:33.3925164Z 
+2026-11-15T16:01:33.3925288Z OK

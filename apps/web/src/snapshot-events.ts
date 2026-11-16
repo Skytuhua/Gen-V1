@@ -1,4 +1,5 @@
 import type { Message, RuntimeUsage, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
+import { MODEL_REQUEST_OBSERVATION_LIMIT, type ModelRequestObservationV1 } from '../../../packages/contracts/model-request';
 
 // Patch the cached snapshot for the streaming-runtime event kinds whose
 // payloads carry the upserted entity. Anything structural (thread status,
@@ -21,6 +22,19 @@ export function applyRuntimeEvent(snapshot: Snapshot, event: WorkspaceEvent): Sn
     const usage = (result as { usage?: RuntimeUsage }).usage;
     if (!usage || typeof usage !== 'object') return null;
     return { ...snapshot, seq: event.seq, usage: { ...snapshot.usage, [event.threadId]: usage } };
+  }
+  if (event.type === 'runtime.model.observation') {
+    const observation = (result as { modelRequest?: ModelRequestObservationV1 }).modelRequest;
+    if (!observation || observation.owner?.threadId !== event.threadId || typeof observation.requestId !== 'string') return null;
+    const requests = { ...(snapshot.modelRequests ?? {}) };
+    const list = requests[event.threadId] ?? [];
+    const exists = list.some(item => item.requestId === observation.requestId);
+    // SQLite updates the existing row in place. The event projection must
+    // retain that order so the same request ages out on update and reload.
+    requests[event.threadId] = exists
+      ? list.map(item => item.requestId === observation.requestId ? observation : item)
+      : [...list, observation].slice(-MODEL_REQUEST_OBSERVATION_LIMIT);
+    return { ...snapshot, seq: event.seq, modelRequests: requests };
   }
   return null;
 }
