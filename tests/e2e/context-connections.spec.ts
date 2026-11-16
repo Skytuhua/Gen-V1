@@ -68,3 +68,31 @@ test('a saved note named new never shares a journal or mount identity with a fre
   await page.getByRole('button', { name: 'Add memory note' }).click(); await page.getByRole('textbox', { name: 'Note key', exact: true }).fill('followup'); await page.getByRole('textbox', { name: 'New thread note', exact: true }).fill('A separate draft');
   await page.reload(); await expect(page.getByRole('textbox', { name: 'Note new', exact: true })).toHaveValue('Existing saved note'); await expect(page.getByRole('textbox', { name: 'New thread note', exact: true })).toHaveValue('A separate draft'); await expect(page.getByRole('textbox', { name: 'Note new', exact: true })).toHaveValue('Existing saved note');
 });
+
+test.describe('absolute local clock format (T07/R10)', () => {
+  test.use({ locale: 'en-US', timezoneId: 'UTC' });
+  test('connection check time follows the system/24h/12h preference at the 13:05 fixture', async ({ page }) => {
+    await serveTaskFixture(page, taskFixture(simple));
+    await page.route('**/api/account-auth*', route => {
+      const url = new URL(route.request().url());
+      return route.fulfill({ json: { providerId: url.searchParams.get('providerId'), accountId: url.searchParams.get('accountId') || null, state: 'configured', identity: { availability: 'unavailable', subject: null, email: null, organization: null, subscription: null }, lastCheckedAt: '2026-11-16T13:05:00.000Z', localSignout: false, message: '' } });
+    });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
+    const checked = page.locator('[data-provider="openai"]').getByText(/Last checked/);
+    await expect(checked).toContainText('1:05 PM');
+    const setFormat = async (label: string) => {
+      await page.getByRole('button', { name: 'General', exact: true }).click();
+      await page.getByRole('combobox', { name: 'Time format', exact: true }).click();
+      await page.getByRole('option', { name: label, exact: true }).click();
+      await page.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
+    };
+    await setFormat('24 hour');
+    await expect(checked).toContainText('13:05');
+    await setFormat('12 hour');
+    await expect(checked).toContainText('1:05 PM');
+    await setFormat('System');
+    await expect(checked).toContainText('1:05 PM');
+  });
+});

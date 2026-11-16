@@ -54,14 +54,14 @@ test('private credential entry clears its field and never sends a secret through
 });
 test('ambiguous credential writes are not replayed and metadata distinguishes saved state from an uncertain acknowledgment',async({page})=>{
  const {writes}=await credentials(page,{ambiguous:true});await page.getByLabel('Project API token',{exact:true}).fill('SYNTHETIC-ONLY-ambiguous');await page.getByRole('button',{name:'Save token',exact:true}).click();
- await expect(page.getByRole('alert')).toContainText(/confirm|interrupted|saved/i);await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();expect(writes.filter(write=>write.method==='PUT')).toHaveLength(1);await expect(page.getByLabel('Project API token',{exact:true})).toHaveValue('');
+ await expect(page.locator('.credential-entry .credential-error[role="status"]')).toContainText(/confirm|interrupted|saved/i);await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();expect(writes.filter(write=>write.method==='PUT')).toHaveLength(1);await expect(page.getByLabel('Project API token',{exact:true})).toHaveValue('');
 });
 
 test('credential status refresh recovers from an unavailable request without retaining its old error',async({page})=>{
  const {snapshot}=await credentials(page);let fail=true;
  await page.route('**/api/artifacts/task-surface/credentials/apiToken*',route=>fail?route.fulfill({status:503,json:{error:{code:'UNAVAILABLE',message:'Synthetic outage'}}}):route.fulfill({json:{present:false,version:0,expiresAt:null}}));
- await page.reload();await expect(page.getByRole('alert')).toContainText('unavailable');await expect(page.locator('.credential-status')).toContainText('Status unavailable');fail=false;
- await page.getByRole('button',{name:'Refresh status',exact:true}).click();await expect(page.getByLabel('Project API token',{exact:true})).toBeEnabled();await expect(page.getByRole('alert')).toHaveCount(0);expect(snapshot.artifacts[0].revision).toBe(1);
+ await page.reload();await expect(page.locator('.credential-entry .credential-error[role="status"]')).toContainText('unavailable');await expect(page.locator('.credential-status')).toContainText('Status unavailable');fail=false;
+ await page.getByRole('button',{name:'Refresh status',exact:true}).click();await expect(page.getByLabel('Project API token',{exact:true})).toBeEnabled();await expect(page.locator('.credential-entry .credential-error[role="status"]')).toHaveCount(0);expect(snapshot.artifacts[0].revision).toBe(1);
 });
 test('inactive retained artifact clears private input without unmounting it',async({page})=>{
  await credentials(page);

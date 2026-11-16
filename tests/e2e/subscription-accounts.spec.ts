@@ -239,6 +239,8 @@ test('account labels fit the existing settings layout across dark, light, and na
   await provider.getByRole('textbox', { name: 'Account label', exact: true }).fill('An account label with a long project and workspace name');
   await provider.getByRole('button', { name: 'Save account', exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search all settings', exact: true }).fill('ChatGPT');
+  await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:/^ChatGPT \/ Codex Models & accounts/}).click();
+  await expect(provider).toBeVisible();
   for (const theme of ['dark', 'light'] as const) { snapshot.settings.theme = theme; await h.publish(); await expect(page.locator('html')).toHaveAttribute('data-theme', theme); await page.getByRole('dialog', { name: 'Settings', exact: true }).screenshot({ path: testInfo.outputPath(`accounts-${theme}.png`) }); }
   await page.setViewportSize({ width: 390, height: 844 });
   const dialog = page.getByRole('dialog', { name: 'Settings', exact: true });

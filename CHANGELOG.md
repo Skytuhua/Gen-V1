@@ -11,7 +11,11 @@ Changes are grouped by release. Verification scopes are recorded separately from
 - Add meaningful project colors, reversible appearance controls, organized
   settings, protected environment values, and durable Inbox/custom attention.
 - Add generic optional plug-in workspaces and the independent Personal Visuals
-  plug-in. New desktop detachment remains deferred.
+  plug-in.
+- Restore desktop conversation detachment and return to the original thread on
+  docking. New canvas-panel detachment remains unavailable.
+- Retire the built-in Code Review, Research and Custom presets without
+  discarding saved canvas records.
 
 See [usage](docs/visual-workspace.md) and [verification boundaries](docs/visual-workspace-verification.md).
 

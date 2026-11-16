@@ -6,7 +6,6 @@ import { lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
-import type {VerifiedBrowserCaptureProvider} from '../research/capture.ts';
 import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
@@ -67,7 +66,6 @@ const object = (value: unknown): Record<string, unknown> => {
 const now = () => new Date().toISOString();
 interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
 export interface ServiceOptions {
-  researchBrowserCapture?:VerifiedBrowserCaptureProvider;
   canonicalPlanJobs?:CanonicalPlanJobProvider;
   approvedWriteHooks?:boolean;
   /** Host constructor only; absent in user preferences. */
@@ -92,7 +90,6 @@ export class Service {
   private aborts = new Map<string, AbortController>();
   private controllerWork = new WeakMap<AbortController, number>();
   private pending = new Set<Promise<unknown>>();
-  private researchAborts = new Set<AbortController>();
   // Grants may overlap or alias the same file. Serialize effects service-wide
   // rather than assuming distinct resource IDs imply independent resources.
   private operationQueue: Promise<void> = Promise.resolve();
@@ -131,7 +128,7 @@ export class Service {
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;
-    this.research=new PersonalResearchRepository(store,{browser:options.researchBrowserCapture,assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
+    this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
     this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
@@ -596,13 +593,8 @@ export class Service {
   async command(command: HostCommand) {
     if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
     if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
-    if(command.type.startsWith('research.')){
-      if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');
-      this.lastActivity=Date.now();
-      const controller=new AbortController();this.researchAborts.add(controller);
-      const pending=this.research.command(command,controller.signal);this.pending.add(pending);
-      try{return await pending;}finally{this.pending.delete(pending);this.researchAborts.delete(controller);}
-    }
+    // Retired commands must not replay old write receipts.
+    if(command.type.startsWith('research.'))throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: '+command.type);
     const duplicate = this.store.receipt(command); if (duplicate) {
       if(command.type==='run.stop'){
         const owner=(duplicate.result as {nativeOwner?:RunContext})?.nativeOwner;
@@ -1518,7 +1510,6 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    for(const controller of this.researchAborts)controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');

@@ -53,12 +53,13 @@ async function draftReferences() {
   return snapshotDraftReferences(snapshot);
 }
 function Content() {
+  const [connectionProvider,setConnectionProvider]=useState('openai');
   switch (surface) {
     case 'side-chat': localStorage.setItem('harness:side-selected:one', 'side-one'); return <SideChat parent={snapshot.threads[0]} snapshot={snapshot} modelId="synthetic/model" open onClose={()=>{}} refresh={noop}/>;
     case 'scoped': return <Scoped/>;
     case 'memory': return <TaskMemory snapshot={snapshot} threadId="one"/>;
     case 'skills': return <SkillLibrary snapshot={snapshot} preferences={DEFAULT_PREFERENCES} update={noop} refresh={noop} busy={false}/>;
-    case 'connections': return <><Connections snapshot={snapshot} refresh={noop} loadModels={noop} onAuthChanged={notifyAccountAuthChanged} query="ChatGPT"/><GitHubSignIn/><UpdateControl/><SecureArtifactProvider value={{artifactId:'capture-credential',threadId:'one',revision:1}}><CredentialEntry slotKey="audit-token" service="Audit service" label="Private token" purpose="Synthetic empty credential request"/></SecureArtifactProvider></>;
+    case 'connections': return <><Connections snapshot={snapshot} refresh={noop} loadModels={noop} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/><GitHubSignIn/><UpdateControl/><SecureArtifactProvider value={{artifactId:'capture-credential',threadId:'one',revision:1}}><CredentialEntry slotKey="audit-token" service="Audit service" label="Private token" purpose="Synthetic empty credential request"/></SecureArtifactProvider></>;
     case 'drafts': return query.has('variant') ? <DraftTransfer references={draftReferences}/> : <DraftTransfer snapshot={snapshot}/>;
     case 'terminal': return <TerminalCapture/>;
     case 'project': return <ProjectContextSurface thread={query.get('variant') === 'empty' ? undefined : snapshot.threads[0]} snapshot={snapshot}/>;
