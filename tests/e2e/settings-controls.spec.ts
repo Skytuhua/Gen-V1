@@ -127,6 +127,22 @@ test('search filters the appearance panel to matching rows and syncs the nav hig
   await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
 });
 
+test('browser task-notification preference saves without permission requests and labels platform delivery (T07)', async ({ page }) => {
+  const { dialog, nav, commands } = await openSettings(page);
+  await page.evaluate(() => {
+    (window as unknown as { __notifRequests: number }).__notifRequests = 0;
+    Object.defineProperty(window, 'Notification', { configurable: true, value: { requestPermission: async () => { (window as unknown as { __notifRequests: number }).__notifRequests++; return 'denied'; } } });
+  });
+  await nav.getByRole('button', { name: 'Notifications & Usage', exact: true }).click();
+  await expect(dialog.getByText(/System popups and sound are unavailable in this browser build/)).toBeVisible();
+  await dialog.getByRole('combobox', { name: 'Task notifications', exact: true }).click();
+  await dialog.getByRole('option', { name: 'Popups and sound', exact: true }).click();
+  await expect.poll(() => commands.filter(command => command.type === 'settings.update').length).toBeGreaterThan(0);
+  expect(await page.evaluate(() => (window as unknown as { __notifRequests: number }).__notifRequests)).toBe(0);
+  await expect(dialog.getByRole('combobox', { name: 'Task notifications', exact: true })).toContainText('Popups and sound');
+  await expect(dialog.getByRole('switch', { name: 'In-app notifications', exact: true })).toBeEnabled();
+});
+
 test('dropdown popovers anchor to their trigger inside the settings dialog with default motion', async ({ page }) => {
   const { dialog, commands } = await openSettings(page);
   // Let the entrance animation finish; a forwards-filled transform used to keep the dialog

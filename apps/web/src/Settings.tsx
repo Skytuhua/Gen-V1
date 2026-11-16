@@ -41,7 +41,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'project-grouping': { key: 'projectGrouping', description: 'Group sidebar threads by project.' },
   'project-order': { key: 'projectOrder', options: ['recent', 'created', 'manual'], labels: ['Recent activity', 'Creation time', 'Manual'], description: 'Order project groups in the sidebar.' },
   'working-shelf': { key: 'showWorkingSection', description: 'Group active tasks in the Working section.' },
-  'thread-notifications': { key: 'threadNotifications', options: ['off', 'notifications', 'sound', 'both'], labels: ['Off', 'Popups', 'Sound', 'Popups and sound'], description: 'Task completion, failure, and input requests. Browser delivery requires permission.' },
+  'thread-notifications': { key: 'threadNotifications', options: ['off', 'notifications', 'sound', 'both'], labels: ['Off', 'Popups', 'Sound', 'Popups and sound'], description: 'Task completion, failure, and input requests.' },
   'in-app-notifications': { key: 'inAppNotifications', description: 'Show notices for other tasks in the app.' },
   'live-usage': { key: 'showUsageFooter', description: 'Show the compact Live usage summary.' },
   'send-shortcut': { key: 'sendShortcut', options: ['enter', 'mod-enter-multiline', 'mod-enter'], labels: ['Enter to send', 'Ctrl / ⌘ Enter; expandable input', 'Ctrl / ⌘ Enter to send'], description: 'Shift Enter inserts a new line.' },
@@ -116,10 +116,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     finally { setBusy(false); }
   };
   const update = async (value: Partial<UiPreferences>) => {
-    if (!desktop && (value.threadNotifications === 'notifications' || value.threadNotifications === 'both')) {
-      if (!('Notification' in window)) { setError('Notifications are unavailable in this browser.'); return; }
-      if (await Notification.requestPermission() !== 'granted') { setError('Notification permission was not granted. Your saved preference has not changed.'); return; }
-    }
+    // System popup/sound delivery exists only in the Windows app (host attentionRead);
+    // the browser keeps in-app notices, so no browser permission is requested (T07).
     await persist({ preferences: value });
   };
   const searching = query.trim().length > 0;
@@ -134,6 +132,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'browser-start-page', 'app-version']);
   const chooseSection = (id: string) => { setQuery(''); setSection(id); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
+    if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }
