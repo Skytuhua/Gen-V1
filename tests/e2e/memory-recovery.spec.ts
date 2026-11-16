@@ -115,7 +115,7 @@ test('an acknowledged Save does not authorize overwriting a later external revis
   saved = { ...saved, content: 'Later external edit.', revision: 5 }; await page.evaluate(saved => window.memoryFixture.publish([saved]), saved);
   await page.getByRole('button', { name: 'Save note', exact: true }).click(); await expect.poll(() => commands.length).toBe(2);
   expect(commands[1]).toMatchObject({ type: 'memory.save', payload: { content: 'Retained local edit.', baseRevision: 4 } });
-  await expect(page.getByRole('alert')).toHaveText('This note changed. Inspect it before saving again.');
+  await expect(page.getByRole('status').filter({ hasText: 'This note changed. Inspect it before saving again.' })).toBeVisible();
   await expect(editor(page)).toHaveValue('Retained local edit.'); expect(saved.content).toBe('Later external edit.');
   expect(await page.evaluate(key => window.memoryFixture.read(key), savedKey)).toEqual({ key: 'decision', content: 'Retained local edit.', baseRevision: 4 });
 });
@@ -150,7 +150,7 @@ test('failed recovery stays blocked and keyboard Retry restores the exact key, c
   const commands = await mount(page, { notes: [], drafts: { [createKey]: recovered }, reads: { [createKey]: 'fail' } });
   // Opening the empty editor must also be safe while recovery has failed.
   await page.getByRole('button', { name: 'Add memory note' }).click();
-  await expect(page.getByRole('alert')).toContainText('recovery');
+  await expect(page.getByRole('status').filter({ hasText: 'Note recovery is unavailable.' })).toBeVisible();
   await page.screenshot({ path: info.outputPath('02-failed-recovery.png') });
   await expect(page.getByRole('textbox', { name: 'Note key', exact: true })).toBeDisabled();
   await expect(page.getByRole('textbox', { name: 'New thread note', exact: true })).toBeDisabled();
@@ -176,7 +176,7 @@ for (const fail of [false, true]) test(`obsolete read ${fail ? 'error' : 'succes
   await mount(page, { drafts: { [savedKey]: draft }, reads: { [savedKey]: 'hold' }, notes: [note(), note('other', 1, 'thread-b')] }); await held(page);
   await page.getByRole('button', { name: 'Switch synthetic thread' }).click();
   const other = page.getByRole('textbox', { name: 'Note other', exact: true }); await expect(other).toBeEnabled(); await other.fill('Current thread edit.');
-  await release(page, savedKey, fail); await expect(other).toHaveValue('Current thread edit.'); await expect(page.getByRole('alert')).toHaveCount(0);
+  await release(page, savedKey, fail); await expect(other).toHaveValue('Current thread edit.'); await expect(page.locator('.task-memory [role=status].error-text')).toHaveCount(0);
   await page.getByRole('button', { name: 'Switch synthetic thread' }).click(); await expect(editor(page)).toHaveValue(draft.content);
   await editor(page).fill('Current note edit.'); await page.evaluate(note => window.memoryFixture.publish([note]), note('replacement'));
   await expect(page.getByRole('textbox', { name: 'Note replacement', exact: true })).toBeEnabled();
@@ -193,7 +193,7 @@ test('capacity is quiet below ten notes and visible near the twelve-note limit',
 
 test('saved-note recovery failure blocks Delete until Retry and keeps stale revision disclosure', async ({ page }) => {
   const commands = await mount(page, { drafts: { [savedKey]: draft }, reads: { [savedKey]: 'fail' } });
-  await expect(page.getByRole('alert')).toContainText('recovery'); await expect(editor(page)).toBeDisabled();
+  await expect(page.getByRole('status').filter({ hasText: 'Note recovery is unavailable.' })).toBeVisible(); await expect(editor(page)).toBeDisabled();
   const forget = page.getByRole('button', { name: 'Forget decision' }); await expect(forget).toBeDisabled();
   await forget.dispatchEvent('click'); await page.locator('form').dispatchEvent('submit'); expect(commands).toEqual([]);
   await page.getByRole('button', { name: 'Retry', exact: true }).click(); await expect(editor(page)).toHaveValue(draft.content);
@@ -232,7 +232,7 @@ for (const fail of [false, true]) test(`obsolete ${fail ? 'failed' : 'successful
   await mount(page, { drafts: { [savedKey]: draft }, reads: { [savedKey]: 'hold' } }); await held(page);
   await page.evaluate(note => window.memoryFixture.publish([note]), note('replacement'));
   const replacement = page.getByRole('textbox', { name: 'Note replacement', exact: true }); await expect(replacement).toBeEnabled(); await replacement.fill('Replacement edit.');
-  await release(page, savedKey, fail); await expect(replacement).toHaveValue('Replacement edit.'); await expect(page.getByRole('alert')).toHaveCount(0);
+  await release(page, savedKey, fail); await expect(replacement).toHaveValue('Replacement edit.'); await expect(page.locator('.task-memory [role=status].error-text')).toHaveCount(0);
 });
 
 test('unhandled API requests are actually blocked by the synthetic host', async ({ page }) => {
@@ -253,7 +253,7 @@ for (const view of [
   await mount(page, { drafts: { [savedKey]: draft }, reads: view.failed ? { [savedKey]: 'fail' } : {} });
   await page.evaluate(theme => { document.documentElement.dataset.theme = theme; }, view.theme);
   await page.evaluate(() => document.fonts.ready);
-  if (view.failed) { await expect(page.getByRole('alert')).toBeVisible(); await expect(page.getByRole('button', { name: 'Retry', exact: true })).toBeVisible(); }
+  if (view.failed) { await expect(page.getByRole('status').filter({ hasText: 'Note recovery is unavailable.' })).toBeVisible(); await expect(page.getByRole('button', { name: 'Retry', exact: true })).toBeVisible(); }
   else { await expect(editor(page)).toHaveValue(draft.content); await expect(editor(page)).toBeEnabled(); }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath(`${view.number}-${view.name}.png`), fullPage: true });

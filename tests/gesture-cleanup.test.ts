@@ -103,6 +103,19 @@ describe('gesture cleanup', () => {
     await page.close();
   });
 
+  it('a foreign pointer cannot end or replace an active resize', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page), handle = page.getByRole('separator', { name: 'Resize test panel' });
+    await page.mouse.move(center.x, center.y); await page.mouse.down();
+    await handle.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await handle.dispatchEvent('lostpointercapture', { pointerId: 77, bubbles: true });
+    await page.evaluate(() => { window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 77 })); window.dispatchEvent(new PointerEvent('pointercancel', { pointerId: 77 })); });
+    expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(true);
+    await page.mouse.move(center.x + 40, center.y); expect(await width(page)).toBe(340);
+    await page.mouse.up(); expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(false);
+    await page.close();
+  });
+
   it('AUD-01: window blur ends the resize and clears the root class', async () => {
     const page = await openPage();
     const center = await handleCenter(page);
@@ -152,6 +165,19 @@ describe('gesture cleanup', () => {
     expect(Math.abs(after.x - before.x), 'no movement after capture loss').toBeLessThanOrEqual(1);
     await page.mouse.up();
     await page.close();
+  });
+
+  it('a second pointer cannot replace an active floating move', async () => {
+    const page = await openPage(), move = page.getByRole('button', { name: 'Move Gesture' }), shell = page.locator('[data-floating-id="gesture-window"]');
+    await expect.poll(() => shell.evaluate(node => node.getAnimations().filter(animation => animation.playState === 'running').length)).toBe(0);
+    const box = (await move.boundingBox())!, start = (await shell.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 30, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 10);
+    await move.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await page.mouse.move(box.x + box.width / 2 - 80, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 60);
+    await page.mouse.up(); await pw(shell).toHaveAttribute('data-interacting', 'false'); await page.close();
   });
 
   it('AUD-02: window blur cancels a split resize, clears the preview and releases capture', async () => {

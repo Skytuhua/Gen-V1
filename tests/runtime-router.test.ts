@@ -30,6 +30,25 @@ it('merges available runtime models without hiding a signed-in provider behind a
  expect(await f.runtime.models()).toEqual([{id:'gemini-cli/pro',provider:'gemini-cli',name:'Gemini Pro'}]);
  vi.mocked(f.official.runtime.models).mockRejectedValue(Error('No official subscription'));await expect(f.runtime.models()).rejects.toMatchObject({code:'AI_AUTH_REQUIRED'});
 });
+it('routes a targeted legacy catalog to only its provider and claims no unrelated account use',async()=>{
+ const uses:string[]=[],f=fixture({get:()=>undefined,isSigningIn:()=>false,claimUse:(providerId:string)=>{uses.push(providerId);return {id:providerId};},releaseUse:()=>{}} as unknown as RuntimeAccountResolver);
+ vi.mocked(f.pi.runtime.models).mockResolvedValue([{id:'openai/model',provider:'openai',name:'Personal'}]);
+ expect(await f.runtime.models({refresh:true,accountId:null,providerId:'openai'})).toHaveLength(1);
+ expect(f.pi.runtime.models).toHaveBeenCalledExactlyOnceWith({refresh:true,providerId:'openai'});
+ expect(f.official.runtime.models).not.toHaveBeenCalled();expect(uses).toEqual(['openai']);
+});
+it('invalidates only the affected provider adapter without discarding another native catalog',async()=>{
+ const f=fixture();f.pi.runtime.invalidateModels=vi.fn(async()=>{});f.official.runtime.invalidateModels=vi.fn(async()=>{});
+ await f.runtime.models();await f.runtime.invalidateModels!({accountId:null,providerId:'openai'});
+ expect(f.pi.runtime.invalidateModels).toHaveBeenCalledExactlyOnceWith({providerId:'openai'});
+ expect(f.official.runtime.invalidateModels).not.toHaveBeenCalled();
+});
+it('keeps an unrelated active legacy run when a targeted signed-out provider has no catalog',async()=>{
+ const f=fixture(),run=input('xai/model');await f.runtime.start(run);
+ vi.mocked(f.pi.runtime.models).mockRejectedValue(Object.assign(Error('No local OpenAI credential'),{code:'PI_AUTH_REQUIRED'}));
+ await expect(f.runtime.models({refresh:true,accountId:null,providerId:'openai'})).resolves.toEqual([]);
+ expect(f.pi.runtime.dispose).not.toHaveBeenCalled();await f.runtime.followUp(run);expect(f.pi.runtime.followUp).toHaveBeenCalledOnce();await f.runtime.cancel(run);
+});
 
 it('routes the requested model and rejects a session belonging to a different runtime before startup',async()=>{
  const f=fixture();await f.runtime.start(input('claude-code/sonnet'));expect(f.official.runtime.start).toHaveBeenCalledOnce();expect(f.pi.runtime.start).not.toHaveBeenCalled();await f.runtime.cancel(input());

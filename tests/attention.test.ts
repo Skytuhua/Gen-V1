@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -37,4 +37,24 @@ it('retains established completion identities across a large inbox refresh', () 
       store.put('thread', id, id, { ...thread, id, epoch: 2, status: 'working' });
   });
   expect(attention.read().items.map(item => item.id).sort()).toEqual(before);
+});
+
+it('reads Inbox and notification preferences without building full conversation snapshots', () => {
+  const {store, attention, thread} = setup();
+  const archived = {...thread, id: 'archived-thread'};
+  store.internal('fixture.inbox', null, () => {
+    store.put('settings', 'global', null, {theme: 'dark', modelId: null, preferences: {notificationVolume: 0.17}});
+    store.put('thread', archived.id, archived.id, archived);
+    store.put('archivedThread', archived.id, null, true);
+    for (const [index, owner] of [thread, archived].entries()) {
+      const request = {...question(owner.id), id: 'inbox-' + index};
+      store.put('request', request.id, owner.id, request);
+    }
+  });
+  const snapshot = vi.spyOn(store, 'snapshot');
+  try {
+    expect(attention.read().items.map(item => item.threadId)).toEqual([thread.id]);
+    expect(attention.claimDelivery()).toMatchObject({items: [], preferences: {volume: 0.17}});
+    expect(snapshot).not.toHaveBeenCalled();
+  } finally {snapshot.mockRestore();}
 });
