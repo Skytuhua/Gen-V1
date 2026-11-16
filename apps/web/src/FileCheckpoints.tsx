@@ -112,6 +112,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
   if(done)return <section aria-label="Checkpoint restore result">
     <button type="button" onClick={onBack}>Back to History</button><h3>Restore {done.state==='APPLIED'?'complete':'result'}</h3>
     <p className="file-checkpoints-note">{done.state}</p>
+    {done.state==='PARTIAL_RECOVERY_REQUIRED'&&<p role="status">Check the files and recovery checkpoint before retrying.</p>}
     {done.restored.length>0&&<ul className="file-checkpoints-list">{done.restored.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Restored.</p></li>)}</ul>}
     {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Not restored: the file changed since the plan was reviewed.</p></li>)}</ul>}
   </section>;

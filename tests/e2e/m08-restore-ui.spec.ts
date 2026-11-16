@@ -51,8 +51,19 @@ test('conflict apply result names the skipped files',async({page})=>{
  await expect(page.getByRole('heading',{name:'Restore result',exact:true})).toBeVisible();
  const result=page.getByRole('region',{name:'Checkpoint restore result'});
  await expect(result).toContainText('CONFLICT');
- await expect(result.locator('li',{hasText:'docs/info.md'})).toContainText('Restored.');
+ await expect(result).not.toContainText('Restored.');
  await expect(result.locator('li',{hasText:'notes.txt'})).toContainText('Not restored: the file changed since the plan was reviewed.');
+});
+
+test('uncertain partial recovery never claims files were restored',async({page})=>{
+ await review(page,'partial');
+ await page.getByRole('checkbox',{name:'notes.txt',exact:true}).check();
+ await page.getByRole('button',{name:'Restore selected files',exact:true}).click();
+ await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
+ const result=page.getByRole('region',{name:'Checkpoint restore result'});
+ await expect(result).toContainText('PARTIAL_RECOVERY_REQUIRED');
+ await expect(result).toContainText('Check the files and recovery checkpoint');
+ await expect(result).not.toContainText('Restored.');
 });
 
 test('disabled restore adapter shows its reason and no file checkboxes',async({page})=>{
