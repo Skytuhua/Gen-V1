@@ -2,7 +2,7 @@ import {afterAll,beforeAll,describe,expect,it} from 'vitest';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {isDeepStrictEqual} from 'node:util';
-import {chromium,type Browser} from '@playwright/test';
+import {chromium,expect as pw,type Browser} from '@playwright/test';
 import type {HostCommand} from '../packages/contracts/index.ts';
 import type {PluginManifest} from '../packages/plugins/contracts.ts';
 import {panelBindingSchema,type SurfaceRef,type WorkspaceEnvelope} from '../packages/contracts/workspace.ts';
@@ -231,6 +231,38 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.keyboard.press('Escape');
    await expect.poll(()=>host.commands.filter(command=>command.type==='run.stop').length).toBe(1);
    expect(host.commands.filter(command=>command.type==='run.stop').map(command=>command.threadId)).toEqual(['thread-a']);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('Thread details preference controls a compact conversation metadata line in main and float (T07/R10)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   const metadata=page.locator('[data-split-view="thread:thread-a"] .conversation-metadata');
+   await metadata.waitFor({state:'visible'});
+   await pw(metadata).toContainText('Model A');
+   await pw(metadata).toContainText('First project');
+   await pw(metadata).toContainText('Ready');
+   const toggle=async()=>{
+    await page.getByRole('button',{name:'Settings',exact:true}).click();
+    const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
+    await dialog.getByRole('button',{name:'Chat & Composer',exact:true}).click();
+    await dialog.getByRole('switch',{name:'Thread details',exact:true}).click();
+    await page.keyboard.press('Escape');
+    await pw(dialog).toHaveCount(0);
+   };
+   await toggle();
+   await pw(metadata).toHaveCount(0);
+   await page.reload();
+   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"]').waitFor({state:'visible'});
+   await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
+   await toggle();
+   const floatMetadata=page.locator('[data-split-view="thread:thread-a"] .conversation-metadata');
+   await floatMetadata.waitFor({state:'visible'});
+   await pw(floatMetadata).toContainText('Model A');
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);

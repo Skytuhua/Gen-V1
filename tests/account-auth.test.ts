@@ -23,6 +23,29 @@ it('reports only local credential readiness for Pi and never infers authenticate
 it('exposes Gemini status as unknown without claiming native identity', async () => {
   const {store} = await fixture(); expect(await readAccountAuth(store,{providerId:'gemini-cli',accountId:null})).toMatchObject({state:'unknown',identity:unavailableIdentity(),localSignout:false});
 });
+it('does not claim or probe an already-aborted readiness request', async () => {
+  const {store}=await fixture(), control=new AbortController(), inspect=vi.fn(); control.abort();
+  await expect(readAccountAuth(store,{providerId:'openai',accountId:null},inspect,control.signal)).rejects.toMatchObject({name:'AbortError'});
+  expect(inspect).not.toHaveBeenCalled();expect(store.all('accountUse')).toEqual([]);
+});
+it.each([false,true])('awaits cancelled readiness teardown before releasing custody (unconfirmed=%s)', async unconfirmed => {
+  const {store}=await fixture(), control=new AbortController(), target={providerId:'openai' as const,accountId:null};
+  let finish!:()=>void;
+  const inspect=vi.fn(async (_root:string,_target:unknown,signal?:AbortSignal) => {
+    await new Promise<void>(resolve=>{finish=resolve;});
+    if(unconfirmed)throw new HarnessError('RUNTIME_TEARDOWN_FAILED','private teardown detail');
+    signal!.throwIfAborted();
+    return {state:'configured' as const,identity:unavailableIdentity(),message:'configured'};
+  });
+  const reading=readAccountAuth(store,target,inspect,control.signal);
+  const settled=reading.then(value=>value,error=>error);
+  await vi.waitFor(()=>expect(inspect).toHaveBeenCalledOnce()); control.abort();
+  await expect(signOutAccount(store,target,vi.fn())).rejects.toMatchObject({code:'ACCOUNT_BUSY'});
+  finish(); const result=await settled;
+  expect(inspect.mock.calls[0][2]).toBe(control.signal);
+  if(unconfirmed){expect(result).toMatchObject({state:'blocked'});await expect(signOutAccount(store,target,vi.fn())).rejects.toMatchObject({code:'ACCOUNT_BUSY'});}
+  else {expect(result).toMatchObject({name:'AbortError'});expect(store.all('accountUse')).toEqual([]);}
+});
 it('retains durable unconfirmed ownership and never probes a signing-in account', async () => {
   const {store}=await fixture(), target={providerId:'openai' as const,accountId:null}, lease=beginAccountLogin(store,'openai'), probe=vi.fn();
   expect(await readAccountAuth(store,target,probe)).toMatchObject({state:'signing-in'}); holdAccountLogin(store,lease);endAccountLogin(store,lease);

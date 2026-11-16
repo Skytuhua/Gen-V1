@@ -10,18 +10,20 @@ import { assertClaudeSubscription, type ClaudeSdk } from './claude.ts';
 import { bindOfficialIdentity, claudeIdentity } from './account-identity.ts';
 
 /** Query initialization only: the prompt stream remains empty and no tools exist. */
-export async function claudeAccountStatus(dataDir: string, sdk?: ClaudeSdk): Promise<AccountIdentity> {
+export async function claudeAccountStatus(dataDir: string, sdk?: ClaudeSdk, signal?: AbortSignal): Promise<AccountIdentity> {
+  signal?.throwIfAborted();
   sdk ??= await import('@anthropic-ai/claude-agent-sdk');
   const home = await secureDirectory(dataDir, officialRuntimeHome(dataDir, 'claude-code'));
   const children: ChildProcess[] = [], input = asyncQueue<SDKUserMessage>();
   let query: ReturnType<ClaudeSdk['query']> | undefined;
   try {
+  signal?.throwIfAborted();
   query = sdk.query({ prompt: input, options: {
     cwd: home, env: officialRuntimeEnvironment(dataDir, 'claude-code'), pathToClaudeCodeExecutable: officialRuntimeCommand('claude-code').file,
     tools: [], mcpServers: {}, settingSources: [], strictMcpConfig: true, skills: [], plugins: [], agents: {}, persistSession: false,
     spawnClaudeCodeProcess(options) { const child = spawn(options.command, options.args, { cwd: options.cwd, env: options.env, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, detached: process.platform !== 'win32' }); children.push(child); child.on('error', () => {}); child.stdin?.on('error', () => {}); child.stdout?.on('error', () => {}); child.stderr?.on('error', () => {}); child.stderr?.resume(); return child as ReturnType<NonNullable<import('@anthropic-ai/claude-agent-sdk').Options['spawnClaudeCodeProcess']>>; },
   } });
-    const account = await bounded(query.accountInfo(), 15_000, 'Claude account check timed out.'); assertClaudeSubscription(account);
+    const account = await bounded(query.accountInfo(), 15_000, 'Claude account check timed out.', signal); signal?.throwIfAborted(); assertClaudeSubscription(account);
     const identity = claudeIdentity(account); await bindOfficialIdentity(dataDir, 'claude-code', identity); return identity;
   } finally {
     input.close();

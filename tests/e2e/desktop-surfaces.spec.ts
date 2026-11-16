@@ -144,3 +144,16 @@ test('review: detached browser follows saved theme and subsequent system changes
  await page.emulateMedia({colorScheme:'light'});await bridge(page,{kind:'browser',browserId:'theme-review'});const snapshot=fixture();snapshot.settings.theme='dark';const host=await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.locator('.desktop-browser-toolbar')).toBeVisible();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
  snapshot.settings.theme='light';await host.publish();await expect(page.locator('html')).toHaveAttribute('data-theme','light');snapshot.settings.theme='system';await page.emulateMedia({colorScheme:'dark'});await host.publish();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');await page.emulateMedia({colorScheme:'light'});await expect(page.locator('html')).toHaveAttribute('data-theme','light');
 });
+
+test('retained native thread header cancels a move on blur',async({page})=>{
+ await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Detach chat',exact:true}).click();const handle=page.getByRole('button',{name:'Move chat panel',exact:true});await handle.hover();await page.mouse.down();
+ try{const chat=page.getByRole('main',{name:'Chat',exact:true});await expect(chat).toHaveAttribute('data-tracking','true');await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await expect(chat).toHaveAttribute('data-tracking','false');}finally{await page.mouse.up();}
+});
+test('retained native thread has no retired switch-layout control',async({page})=>{
+ await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Switch layout',exact:true})).toHaveCount(0);
+});
+test('retained native thread ignores the retired layout-cycle shortcut',async({page})=>{
+ await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');
+ const input=page.getByRole('textbox',{name:'Message',exact:true}),chat=page.getByRole('main',{name:'Chat',exact:true});await expect(input).toBeEnabled();await input.focus();await expect(chat).toHaveAttribute('data-chat-mode','full');await page.keyboard.press('Control+Shift+L');await expect(chat).toHaveAttribute('data-chat-mode','full');
+});

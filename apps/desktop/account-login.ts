@@ -6,7 +6,7 @@ import type { DesktopSignInHandle } from './auth-launcher.ts';
 /** Main-process ownership survives renderer navigation. Only an owning flow can cancel. */
 export function createAccountLoginFlows(launch: (provider: ConnectionProviderId, accountId: string | null, signal: AbortSignal) => Promise<DesktopSignInHandle>) {
   const history = new Map<string, AccountLoginFlow>();
-  type Owner = { flow: AccountLoginFlow; control: AbortController; handle?: DesktopSignInHandle; starting?: Promise<void> };
+  type Owner = { flow: AccountLoginFlow; control: AbortController; handle?: DesktopSignInHandle; starting?: Promise<void>;cancelling?:Promise<AccountLoginFlow> };
   let active: Owner | undefined;
   const update = (owner: Owner, state: AccountLoginFlow['state'], message: string) => {
     owner.flow = { ...owner.flow, state, message, updatedAt: new Date().toISOString() }; history.set(owner.flow.id, owner.flow);
@@ -14,6 +14,7 @@ export function createAccountLoginFlows(launch: (provider: ConnectionProviderId,
   const status = (id: string) => { const flow = history.get(id); return flow ? { ...flow } : null; };
   return {
     isBusy:()=>active!==undefined,
+    current:():AccountLoginFlow|null=>active?{...active.flow}:null,
     status,
     async start(providerId: ConnectionProviderId, accountId: string | null): Promise<AccountLoginFlow> {
       if (active) {
@@ -50,6 +51,7 @@ export function createAccountLoginFlows(launch: (provider: ConnectionProviderId,
       const owner = active;
       if (!owner || owner.flow.id !== id) throw Error('This sign-in flow is no longer active.');
       if(owner.flow.state==='blocked')throw Error('Native shutdown could not be confirmed.');
+      if(!owner.cancelling)owner.cancelling=(async()=>{
       update(owner, 'cancelling', 'Closing the owned sign-in console.'); owner.control.abort();
       try {
         await owner.starting;
@@ -58,6 +60,8 @@ export function createAccountLoginFlows(launch: (provider: ConnectionProviderId,
         if (active === owner) { update(owner, 'cancelled', 'Console closed. Check connection status; native cleanup may still require recovery.'); active = undefined; }
       } catch { if (active === owner) update(owner, 'blocked', 'Native shutdown could not be confirmed. This account remains blocked.'); throw Error('Native shutdown could not be confirmed.'); }
       return { ...owner.flow };
+      })();
+      return {...await owner.cancelling};
     },
     async close() { if (active) await this.cancel(active.flow.id); },
   };

@@ -143,10 +143,23 @@ test('search results navigate to the real target with reveal and focus; Escape c
   await expect(dialog).toHaveCount(0);
 });
 
+test('provider search selects its detail and repeats without probing unrelated providers',async({page})=>{
+  const {dialog,search}=await openSettings(page),reads:string[]=[];
+  await page.route('**/api/account-auth?*',route=>{const providerId=new URL(route.request().url()).searchParams.get('providerId')!;reads.push(providerId);return route.fulfill({json:{providerId,accountId:null,state:'unknown',identity:{availability:'unavailable'},lastCheckedAt:null,localSignout:false,message:'Synthetic selected-provider status.'}});});
+  for(const provider of [{id:'gemini-cli',query:'Gemini'},{id:'cursor-sdk',query:'Cursor'},{id:'gemini-cli',query:'Gemini'}]){
+    await search.fill(provider.query);await dialog.getByRole('button',{name:new RegExp('^'+provider.query)}).click();
+    const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
+    await expect(target).toContainText('Synthetic selected-provider status.');await expect(dialog.locator('.connection-row')).toHaveCount(1);
+    await expect(dialog.getByRole('navigation',{name:'Subscription providers'}).getByRole('button',{name:provider.query,exact:true})).toHaveAttribute('aria-pressed','true');
+    await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
+  }
+  expect(reads).toEqual(['gemini-cli','cursor-sdk','gemini-cli']);
+});
+
 for(const provider of [{query:'OpenCode runtime',id:'opencode',name:/^OpenCode runtime/},{query:'Meta / Muse',id:'meta',name:/^Meta \/ Muse/}])test(`unavailable-provider search keeps keyboard focus on an enabled target (${provider.id})`,async({page})=>{
   const {dialog,search}=await openSettings(page);await search.fill(provider.query);await dialog.getByRole('button',{name:provider.name}).click();
   const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
-  await expect(target.getByRole('link',{name:'Connection details',exact:true})).toBeFocused();
+  await expect(target.locator('summary')).toBeFocused();
 });
 
 test('runtime search reveals one environment controls target and keeps focus in its section',async({page})=>{
@@ -154,6 +167,23 @@ test('runtime search reveals one environment controls target and keeps focus in 
   await expect(dialog.locator('[data-setting-id="harness-runtime"]')).toHaveCount(1);
   const target=dialog.locator('[data-setting-id="harness-runtime"]');await expect(target.locator('.environment-settings')).toBeVisible();
   await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
+});
+
+test('browser task-notification preference saves without permission requests and labels platform delivery (T07)', async ({ page }) => {
+  const { dialog, nav, commands } = await openSettings(page);
+  await page.evaluate(() => {
+    (window as unknown as { __notifRequests: number }).__notifRequests = 0;
+    Object.defineProperty(window, 'Notification', { configurable: true, value: { requestPermission: async () => { (window as unknown as { __notifRequests: number }).__notifRequests++; return 'denied'; } } });
+  });
+  await nav.getByRole('button', { name: 'Notifications & Usage', exact: true }).click();
+  await expect(dialog.getByText(/System popups and sound are unavailable in this browser build/)).toBeVisible();
+  await expect(dialog.getByText('System popups and sound deliver in the Windows app. These options apply there; in-app notices stay active in this browser.')).toBeVisible();
+  await dialog.getByRole('combobox', { name: 'Task notifications', exact: true }).click();
+  await dialog.getByRole('option', { name: 'Popups and sound', exact: true }).click();
+  await expect.poll(() => commands.filter(command => command.type === 'settings.update').length).toBeGreaterThan(0);
+  expect(await page.evaluate(() => (window as unknown as { __notifRequests: number }).__notifRequests)).toBe(0);
+  await expect(dialog.getByRole('combobox', { name: 'Task notifications', exact: true })).toContainText('Popups and sound');
+  await expect(dialog.getByRole('switch', { name: 'In-app notifications', exact: true })).toBeEnabled();
 });
 
 test('dropdown popovers anchor to their trigger inside the settings dialog with default motion', async ({ page }) => {

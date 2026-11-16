@@ -1,6 +1,8 @@
 import {settingsOperation, settleSettingsOperations} from './settings-operations';
 import {registerEditorHandoff} from './editor-handoff';
-import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import {notifyAccountAuthChanged,onAccountCatalogChanged,mergeAccountModels} from './account-api';
+import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
 import { Check, ExternalLink, Search } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
@@ -42,14 +44,14 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'project-grouping': { key: 'projectGrouping', description: 'Group sidebar threads by project.' },
   'project-order': { key: 'projectOrder', options: ['recent', 'created', 'manual'], labels: ['Recent activity', 'Creation time', 'Manual'], description: 'Order project groups in the sidebar.' },
   'working-shelf': { key: 'showWorkingSection', description: 'Group active tasks in the Working section.' },
-  'thread-notifications': { key: 'threadNotifications', options: ['off', 'notifications', 'sound', 'both'], labels: ['Off', 'Popups', 'Sound', 'Popups and sound'], description: 'Task completion, failure, and input requests. Browser delivery requires permission.' },
+  'thread-notifications': { key: 'threadNotifications', options: ['off', 'notifications', 'sound', 'both'], labels: ['Off', 'Popups', 'Sound', 'Popups and sound'], description: 'Task completion, failure, and input requests.' },
   'in-app-notifications': { key: 'inAppNotifications', description: 'Show notices for other tasks in the app.' },
   'live-usage': { key: 'showUsageFooter', description: 'Show the compact Live usage summary.' },
   'send-shortcut': { key: 'sendShortcut', options: ['enter', 'mod-enter-multiline', 'mod-enter'], labels: ['Enter to send', 'Ctrl / ⌘ Enter; expandable input', 'Ctrl / ⌘ Enter to send'], description: 'Shift Enter inserts a new line.' },
-  'diff-layout': { key: 'diffLayout', options: ['stacked', 'split'], labels: ['Stacked', 'Side by side'], description: 'Layout for executor before and after content.' },
-  'hide-whitespace-changes': { key: 'hideWhitespace', description: 'Hide changes that consist only of whitespace.' },
+  'diff-layout': { key: 'diffLayout', options: ['stacked', 'split'], labels: ['Stacked', 'Side by side'], description: 'Layout for recorded before/after comparisons. Unified source patches stay verbatim.' },
+  'hide-whitespace-changes': { key: 'hideWhitespace', description: 'Hide whitespace-only differences and unchanged lines in recorded before/after comparisons.' },
   'default-diff-file-state': { key: 'diffDefaultExpanded', description: 'Expand executor diff records when opening review.' },
-  'diff-color-scheme': { key: 'diffColors', options: ['red-green', 'blue-orange'], labels: ['Red and green', 'Blue and orange'], description: 'Colors for additions and deletions.' },
+  'diff-color-scheme': { key: 'diffColors', options: ['red-green', 'blue-orange'], labels: ['Red and green', 'Blue and orange'], description: 'Before/after tint for recorded comparisons.' },
 };
 const row = (id: string, title: string, section: string, terms = ''): SettingsInventoryRow => ({ id, title, section, terms });
 export const SETTINGS_ROWS: SettingsInventoryRow[] = [
@@ -97,19 +99,23 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const [section, setSection] = useState(SETTINGS_SECTIONS.some(([id]) => id === target) ? target : 'general');
   const [query, setQuery] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
   const [pendingTarget, setPendingTarget] = useState<string | null>(null);
+  const [connectionProvider,setConnectionProvider]=useState('openai');
+  const [connectionsOpened,setConnectionsOpened]=useState(target==='providers');
   const [revealedTarget,setRevealedTarget]=useState<HTMLElement|null>(null);
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]), [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
   const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
   const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
-  const loadNewTaskModels = useCallback(async (force = false) => {
+  const selectedAccounts=useRef(data.settings.selectedAccounts);selectedAccounts.current=data.settings.selectedAccounts;
+  const loadNewTaskModels = useCallback(async (force = false,target?:AccountAuthTarget) => {
     const request = ++catalogRequest.current, selection = catalogSelection.current;
     catalogRead.current?.abort(); const controller = new AbortController(); catalogRead.current = controller;
-    try { const result = await getModels(force, undefined, controller.signal); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(result.models); setNewTaskModelError(result.error ?? ''); } }
-    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+    try { const result = await getModels(force, undefined, controller.signal,target); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,result.models,target)); setNewTaskModelError(result.error ?? ''); } }
+    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,[],target)); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
     finally { if (catalogRead.current === controller) catalogRead.current = null; }
   }, []);
-  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(true); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  useEffect(()=>onAccountCatalogChanged(async (target,reason)=>{if(reason!=='reconciled'&&(selectedAccounts.current?.[target.providerId]??null)===target.accountId)await loadNewTaskModels(true,target);}),[loadNewTaskModels]);
   const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
   const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
@@ -139,10 +145,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     finally { setBusy(false); }
   };
   const update = async (value: Partial<UiPreferences>) => {
-    if (!desktop && (value.threadNotifications === 'notifications' || value.threadNotifications === 'both')) {
-      if (!('Notification' in window)) { setError('Notifications are unavailable in this browser.'); return; }
-      if (await Notification.requestPermission() !== 'granted') { setError('Notification permission was not granted. Your saved preference has not changed.'); return; }
-    }
+    // System popup/sound delivery exists only in the Windows app (host attentionRead);
+    // the browser keeps in-app notices, so no browser permission is requested (T07).
     await persist({ preferences: value });
   };
   const searching = query.trim().length > 0;
@@ -151,9 +155,10 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const showAppearance = !searching && section === 'appearance';
   const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
-  const chooseSection = (id: string) => { setQuery(''); setSection(id); };
-  const revealTarget = (item: SupportedSettingRow) => { setQuery(''); setSection(item.section); setPendingTarget(item.targetId); };
+  const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
+  const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
+    if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }
@@ -187,17 +192,17 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
       {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2><p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
-      {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update}/></div>}
+      {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/></div>}
       {matches('harness-runtime') && <div data-setting-id="harness-runtime">{environmentSettings}</div>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
       {matches('harness-integrations') && <div data-setting-id="harness-integrations"><IntegrationSettings/></div>}
-      {matches('harness-accounts') && <div data-setting-id="harness-accounts"><Connections models={newTaskModels} snapshot={data} refresh={refresh} loadModels={refreshModels}/></div>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
       {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
       {matches('app-version') && <div data-setting-id="app-version"><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></div>}
       {matches('browser-start-page') && <section className="settings-card" data-setting-id="browser-start-page"><h2>Manual browser</h2>{openBrowser ? <form onSubmit={event => { event.preventDefault(); void persist({ preferences: { browserStartUrl: browserUrl } }); }}><label className="field">Start page<input aria-label="Browser start page" type="url" placeholder="Blank page" maxLength={2048} value={browserUrl} disabled={busy} onChange={event => setBrowserUrl(event.target.value)}/></label><div className="settings-inline-controls"><button className="secondary" disabled={busy || browserUrl === preferences.browserStartUrl}>Save start page</button><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void openBrowser(preferences.browserStartUrl).then(close).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Open browser</button></div></form> : <p className="settings-card-intro">Open the manual browser from the Windows desktop workspace. Navigation, reload and stop stay in its toolbar.</p>}</section>}
       </>}
+      {connectionsOpened && <div data-setting-id="harness-accounts" hidden={searching||section!=='providers'}><Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/></div>}
     </main>
   </div>;
 }

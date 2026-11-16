@@ -34,9 +34,9 @@ export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTo
 export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1 }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
-  models(options?: { refresh?: boolean; accountId?: string | null }): Promise<ModelInfo[]>;
+  models(options?: { refresh?: boolean; accountId?: string | null; providerId?: import('./connections.ts').ConnectionProviderId }): Promise<ModelInfo[]>;
   /** Drop cached model catalogs for an account (or all) after sign-out so a stale catalog is never served. */
-  invalidateModels?(options?: { accountId?: string | null }): Promise<void>;
+  invalidateModels?(options?: { accountId?: string | null; providerId?: import('./connections.ts').ConnectionProviderId }): Promise<void>;
   start(input: StartRun): Promise<void>;
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;
