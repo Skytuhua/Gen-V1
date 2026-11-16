@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/hermes-runtime.test.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:23:07.574296+00:00",
+    "endedAt": "2026-11-15T22:23:08.200742+00:00",
+    "exitCode": 254,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-green.log",
+    "logDigest": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+  "workingDiffSha256": "d8ad92da9de38d67f3c28e737a0bbfa18fcac8fc54cda1e1173c88960bc1efa4",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 609,
+  "rawOutputBytes": 78,
+  "rawOutputSha256": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724",
+  "excerptInputBytes": 78,
+  "excerptInputSha256": "98bb9c43567b6fc10e95ef62af360f83a4a555098e4d5c4f79f95e728e1a8724",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "originalCaptureMetadata": {
+    "path": "docs/implementation/v3/m05-review-inputs/continuation-hermes-pool-checkpoint-green.meta.json",
+    "bytes": 1378,
+    "sha256": "b1d6e12f6ffb41a98cf3430be6a4b91ca92938e731faceb1f515d24a76e7f4c6",
+    "blobSha": "c680a53f689958c3801df2f0952f14617c54fff1"
+  },
+  "phaseClassificationReview": {
+    "originalPhaseIds": [
+      "REGRESSION_REQUIRED"
+    ],
+    "reviewedPhaseIds": [
+      "BUILD_AND_SETUP"
+    ],
+    "changed": true,
+    "reason": "The pinned wrapper could not locate the temporarily missing Vitest binary; no test was collected.",
+    "commandFieldsUnchanged": true,
+    "logBytesUnchanged": true
+  }
+}

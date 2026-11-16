@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent original-prompt review of all twelve M05 steps and four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, canonical Python packaging, native FILE execution and Windows verification. Run43748168614 establishes installation/full payload/provider checks/owned uninstall but fails two application cleanup hooks and collapsed-panel memory navigation. Subsequent review found that the ordinary desktop download guard blocked redacted export while CDP could bypass that policy. The reviewed native export bridge now validates and owns the exact one-shot bytes and waits for native completion; installed proof restores default CDP behavior and uses the real owned Windows Save dialog. Both flags remain off and fresh Windows verification is pending.",
+  "reviewScope": "Independent original-prompt review of all twelve M05 steps and four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, canonical Python packaging, native FILE execution and Windows verification. Historical failed attempts retain their exact evidence. The scoped native export bridge validates and owns one-shot redacted bytes and waits for actual native completion. The verifier uses the ordinary owned Windows Save chooser and an identity-bound destination. The main-page readiness helper preserves the existing production startup budgets and revalidates ownership. Current execution is summarized in latestWindowsAttempt; both production flags remain false.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
@@ -33,7 +33,7 @@
     },
     {
       "path": "packages/runtime/index.ts",
-      "sha256": "0d30825a2ec4983951e332a59e13131130364823179e12d0d4bc4fac1f9b675b"
+      "sha256": "eff0a53e24bbd0400310020696621289660daf289c882a9816e0d0943ea42ea4"
     },
     {
       "path": "tests/memory-native-checkpoint-v3.test.ts",
@@ -45,7 +45,7 @@
     },
     {
       "path": "apps/web/src/Settings.tsx",
-      "sha256": "4062f8d4e1e5b94b1de21b1d80a590830e8b64677a10f7e92bb5791f02822327"
+      "sha256": "b32602ec603827a1666b7c51aa16cbc0e5d7517151c904e1cd9efe0196cce672"
     },
     {
       "path": "apps/web/src/skill-library.css",
@@ -65,11 +65,11 @@
     },
     {
       "path": "packages/runtime-hermes/index.ts",
-      "sha256": "59ca3d23177e8f1f9015d7c28d2159aed813cff19525675d12439635aef98d07"
+      "sha256": "2204c8e4659ca79c30e6f5f09327f0d2327897120eb3005e10cf0038c7abc00d"
     },
     {
       "path": "packages/runtime-hermes/broker.ts",
-      "sha256": "815ae92e597d28328bc89a2cf527ea6dc423c342a86682255e5099e685e6c59c"
+      "sha256": "1233d18dbb3505edd76bc30916d8c984121785642fb8d06e503ffc5b0134e668"
     },
     {
       "path": "apps/server/hermes-service.ts",
@@ -81,11 +81,11 @@
     },
     {
       "path": "tests/hermes-runtime.test.ts",
-      "sha256": "d5394c5bad01c55c6beef9f1d5c2140292abf00a2d4a9f15165ad4a50c1b6f10"
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8"
     },
     {
       "path": "tests/model-transport-v3.test.ts",
-      "sha256": "adaafdf0def7b32a352aed66bbe7ab24406fee616504bf35650e5db9dccadcac"
+      "sha256": "6f336e9416d06aa9966e195c099c75019bad533486d9c0b8c695e2414a5ca478"
     },
     {
       "path": "packages/core/capability-flags.ts",
@@ -93,15 +93,15 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "sha256": "6e8a3d5d77449b7d4048738c200cdf1755cf002258ae46d2000168cb852f74ab"
+      "sha256": "d79a2a2d34917a9298ac5c89b6308596087f1f87c08ebd27a4eb75cac5607f2f"
     },
     {
       "path": "tests/split-app-browser.test.ts",
-      "sha256": "af26e2b18b9787fa15e6aa2b50c10072d76f15a4b00a0e01edcacaf3e1d07d09"
+      "sha256": "045ac30eefb6797293d6f6b7f10381613695f7db1809e02c93d429f3739a8afd"
     },
     {
       "path": "tests/e2e/artifact-style.spec.ts",
-      "sha256": "5a55da8033e1092070c47eb4bf6b8fe8054d20185854159cbe62df5276c96dda"
+      "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0"
     },
     {
       "path": "tests/host-fixture.ts",
@@ -121,15 +121,15 @@
     },
     {
       "path": "scripts/verify-installed-desktop.ts",
-      "sha256": "3bd899aa1196d484a76f420a354ead6398270d9005b2b0ab7e4a8af43d39e8bf"
+      "sha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc"
     },
     {
       "path": "tests/installed-desktop-verification.test.ts",
-      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+      "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9"
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f"
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804"
     },
     {
       "path": "scripts/integration-assets.ts",
@@ -153,7 +153,7 @@
     },
     {
       "path": "tests/e2e/host-loop.spec.ts",
-      "sha256": "f86c816974f1ceae293ada90afddeafc804101af8116dc45bd8cff04ce796503"
+      "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b"
     },
     {
       "path": "scripts/desktop-assets.ts",
@@ -165,7 +165,7 @@
     },
     {
       "path": "apps/desktop/main.ts",
-      "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f"
+      "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c"
     },
     {
       "path": "apps/desktop/memory-export.ts",
@@ -197,7 +197,7 @@
     },
     {
       "path": "scripts/installed-native-save.ts",
-      "sha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d"
+      "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6"
     },
     {
       "path": "tests/desktop-memory-export.test.ts",
@@ -205,7 +205,7 @@
     },
     {
       "path": "tests/desktop-native.test.ts",
-      "sha256": "15595ad8d186b3c0b2c00f8620981c15e117d4edb85c236a350a63bb8aaeaa7e"
+      "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a"
     },
     {
       "path": "tests/desktop-preload-accounts.test.ts",
@@ -213,7 +213,7 @@
     },
     {
       "path": "tests/installed-native-save.test.ts",
-      "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c"
+      "sha256": "416bcfb37dc1827a3d18ce8b0be408f3f0cf00a305df189d61d6eab7d128d080"
     },
     {
       "path": "tests/memory-export-client-v3.test.ts",
@@ -263,9 +263,7 @@
     "The installed verifier previously relied on CDP allowAndName and saveAs, which cannot establish normal native Save. It now restores default behavior, verifies the exact live owned process/dialog, fills only a fixed absent evidence path through native Value/Invoke patterns, retains physical directory identity through completed-file readback, and compares the actual saved bytes/hash with the admitted native receipt.",
     "Independent review repaired synchronous dispatch cleanup, current Electron navigation details, exceptional native byte-count lookup, validation error privacy, callback shadowing and the Windows encoded-command length bound. Actual native execution remains pending."
   ],
-  "remainingActionableFindings": [
-    "Fresh Windows execution must verify the scoped browser cleanup hooks, normal Project overview expansion and actual native Save completion before the retained-memory sequence can pass. The concrete export and verifier defects found in source review have been repaired; actual Windows execution remains required."
-  ],
+  "remainingActionableFindings": [],
   "evidenceRefs": [
     "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
@@ -397,17 +395,50 @@
     "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
     "docs/implementation/v3/M05-native-memory-save-review-20261115.json",
     "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-regression.log",
-    "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43789647166.json",
+    "docs/implementation/v3/M05-installed-independent-phase-review-43755565107.json",
+    "docs/implementation/v3/M05-installed-artifact-recovery-43755565107.json",
+    "docs/implementation/v3/M05-installed-source-bindings-43755565107.json",
+    "docs/implementation/v3/M05-installed-startup-repair-review-20261115.json",
+    "docs/implementation/v3/M05-installed-startup-boundary-43760214518.json",
+    "docs/implementation/v3/M05-installed-startup-boundary-43760489286.json",
+    "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
+    "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+    "docs/implementation/v3/M05-installed-independent-phase-review-43760736519.json",
+    "docs/implementation/v3/M05-installed-ui-review-43760736519.json",
+    "docs/implementation/v3/M05-installed-artifact-recovery-43760736519.json",
+    "docs/implementation/v3/M05-installed-source-bindings-43760736519.json",
+    "docs/implementation/v3/M05-final-requirements-review-299aa79f.json",
+    "docs/implementation/v3/M05-guard-startup-repair-review-299aa79f.json",
+    "docs/implementation/v3/M05-guard-startup-probe-review-43788430810.json",
+    "docs/implementation/v3/M05-guard-startup-repair-probe-review-43789812079.json",
+    "docs/implementation/v3/M05-guard-startup-local-validation-20261116.json",
+    "docs/implementation/v3/M05-final-evidence-assembly-review-20261116.json",
+    "docs/implementation/v3/M05-native-file-observation-43789647166.json",
+    "docs/implementation/v3/M05-windows-custody-counts-43789647166.json",
+    "docs/implementation/v3/M05-scrollbar-readiness-review-43783430726.json",
+    "docs/implementation/v3/M05-installed-phase-review-43783430726.json",
+    "docs/implementation/v3/M05-native-save-final-source-proof-0aacdacd.json",
+    "docs/implementation/v3/M05-installed-startup-diagnostics-review-20261116.json",
+    "docs/implementation/v3/M05-shared-fixture-browser-repair-review-20261116.json",
+    "docs/implementation/v3/M05-hermes-pool-repair-review-20261115.json",
+    "docs/implementation/v3/M05-pr347-final-merge-gate-snapshot-20261116.json",
+    "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+    "docs/implementation/v3/M05-implementation-merge-observation-20261116.json",
+    "docs/implementation/v3/m05-platform-43789647166/admission-report.json",
+    "docs/implementation/v3/m05-platform-43789647166/admission-execution.json",
+    "docs/implementation/v3/M05-final-evidence-verifier-launcher-review-20261116.json"
   ],
   "activationApproval": false,
   "limitations": [
-    "Latest run43748168614 fails three jobs despite3788 passing application bodies/39skips and267 passing browser cases/2skips. Two afterAll cleanup hooks and installed memory navigation failed; the frozen receipt preserves these outcomes. Installation, full payload/provider checks and owned uninstall pass only for that exact cut.",
+    "Current exact-source Windows execution is bound by docs/implementation/v3/M05-windows-ci-43789647166.json. All nine jobs passed. Actual retained-memory admission is limited to default-off records, ordinary native Save and the same-profile restart.",
     "The actual canonical run input diagnosis reports7,415expected/7,595actual files,180added,0missing and91changed. Every reported changed row is RECORD. The added detail list is capped at100, so80paths are not enumerated in that log; the successful collector checks the complete input against known bookkeeping rules.",
     "Independent artifact review verifies the actual v2 receipt retains all7,324 non-RECORD sizes/hashes and all91 original wheel pins. Strict staged/afterPack verification and relocated integration checks executed successfully. The uploaded artifact contains inventories and manifest hashes, not the full payload or installer bytes.",
     "Run 43739565577 emits the same canonical Python v2 receipt SHA256 0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc as run 43736761161. Its distinct build manifest binds the actual new installer; no full installer or payload bytes are present in the downloaded report artifact.",
     "Both M05 host flags remain false. The installed fixture uses constructor-local enablement only while seeding and disables the project before actual launch. Full enabled installed recall, extraction and checkpoint flows remain unverified.",
     "Live repeated-task quality and cost remain unmeasured. All prior failed workflows retain their actual outcomes; provider network counts in the installed verifier remain null.",
-    "Installed failure screenshots show the seeded task and collapsed panel, not successful retained-memory actions. The Reconnecting indicator has no captured bridge diagnostic and is not treated as an established second cause. Instrumented Cursor bootstrap network0 does not establish a total provider-network measurement."
+    "Historical run43748168614 failure screenshots show the seeded task and collapsed panel. Run43755565107 contains no PNG members and fails before a completed launch or memory action. Neither record is converted to success by a later repair. Instrumented Cursor bootstrap network0 is not a global provider-network measurement."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -420,13 +451,12 @@
     "userFacingRequirementsReviewed": 4,
     "additionalConcreteCorrectnessBlockers": [],
     "remainingProofGates": [
-      "Installed default-off retained-memory review and restart after real packaging",
       "Full enabled installed memory lifecycle",
       "Authorized live repeated-task quality and total auxiliary cost"
     ],
     "nativeFileExecutionRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
   },
-  "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "acceptedMainSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "integratedWindowsCI": {
     "runId": 43726164418,
     "headSha": "d081973eedf23c684986076424cbbec9db7af951",
@@ -452,108 +482,30 @@
     "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43748168614,
-    "headSha": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
-    "checkoutSha": "2428711e2f135d869605c52b53e48c9f3350be63",
-    "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
-    "jobsPassed": 6,
-    "jobsFailed": 3,
+    "runId": 43789647166,
+    "headSha": "299aa79fce281bacc370bd76373f760082046941",
+    "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "jobsPassed": 9,
+    "jobsFailed": 0,
     "application": {
-      "status": "FAIL_TWO_CLEANUP_HOOKS",
-      "testBodiesPassed": 3788,
-      "testBodiesSkipped": 39,
-      "testBodiesFailed": 0,
-      "cleanupHooksFailed": 2
-    },
-    "browser": {
-      "passed": 267,
-      "skipped": 2,
+      "passed": 3968,
       "failed": 0,
+      "skipped": 47,
+      "todo": 0,
       "flaky": 0
     },
-    "hermesContractsPassed": 33,
-    "policyPluginTestsPassed": 37,
-    "observedCommandsImported": 27,
-    "observedCommandOutcomes": {
-      "PASS": 24,
-      "FAIL": 3
-    },
-    "canonicalPackaging": {
-      "status": "PASS_PACKAGE_CUSTODY_ONLY",
-      "jobId": 132915985168,
-      "currentManifestRef": "docs/implementation/v3/m05-platform-43748168614/build-manifest.json",
-      "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
-      "identicalToPriorRun": true
-    },
-    "installedPreflight": {
-      "status": "PASS",
-      "elapsedMs": [
-        19061,
-        11619
-      ],
-      "registryShortcutsCacheProcesses": "clear"
-    },
-    "installer": {
-      "status": "COMPLETED_NATURALLY",
-      "timeoutMs": 1200000,
-      "elapsedMs": 404900,
-      "exitCode": 0,
-      "closeCode": 0,
-      "terminationRequested": false,
-      "causalLimit": "Completion was below the former600000ms deadline; this run does not establish that the allowance increase caused completion."
-    },
-    "installedPayload": {
-      "matches": true,
-      "files": 92880,
-      "bytes": 2567765358,
-      "sha256": "1d8215b597f794421d35f76fe725ece36adefe64fba9a87bab74aea4f37d8a08"
-    },
-    "packagedProviders": {
-      "status": "PASS_INSTALLED_STARTUP_AND_DISTRIBUTION_CUSTODY_ONLY",
-      "auth": false,
-      "inference": false,
-      "providerNetworkCalls": null
+    "browser": {
+      "passed": 278,
+      "failed": 0,
+      "skipped": 2,
+      "todo": 0,
+      "flaky": 0
     },
     "installedRetention": {
-      "status": "FAILED_NAVIGATION_BEFORE_MEMORY_ACTIONS",
-      "completedLaunches": 0,
-      "memoryReviewCommands": 0,
-      "restart": "NOT_RUN",
-      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43748168614.json"
-    },
-    "ownedCleanup": {
-      "status": "uninstalled-owned-installation",
-      "command": {
-        "exitCode": 0,
-        "stdout": "",
-        "stderr": "",
-        "elapsedMs": 9898
-      },
-      "cache": {
-        "status": "removed-owned-exact-file",
-        "sha256": "f41cc743d289fa4d5214896599199fc54635bbd7944a1669fe89e2b135f0e4ce"
-      },
-      "shortcuts": "absent",
-      "installationKeys": "absent",
-      "nativeProcesses": "absent"
-    },
-    "browserOperation": {
-      "status": "PASS",
-      "reportedWholeCaseSeconds": 9.2,
-      "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
-    },
-    "nativeFile": {
-      "passed": 3,
-      "skipped": 0,
-      "failed": 0,
-      "jobId": 132915985313,
-      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
-    },
-    "failures": [
-      "startup-feedback.test.ts afterAll browser.close exceeded10000ms after all eight case bodies passed.",
-      "table-overflow.test.ts afterAll browser.close exceeded10000ms after its case body passed.",
-      "Installed Project memory click exceeded30000ms while the owning Project overview body was collapsed, hidden and inert; retained-memory actions and completed launch receipts were not reached."
-    ]
+      "status": "PASS_INSTALLED_DEFAULT_OFF_RETAINED_MEMORY_ONLY",
+      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43789647166.json"
+    }
   },
   "priorFailedWindowsAttemptRefs": [
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
@@ -563,12 +515,15 @@
     "docs/implementation/v3/M05-windows-ci-43733008039.json",
     "docs/implementation/v3/M05-windows-ci-43736761161.json",
     "docs/implementation/v3/M05-windows-ci-43739565577.json",
-    "docs/implementation/v3/M05-windows-ci-43744480609.json"
+    "docs/implementation/v3/M05-windows-ci-43744480609.json",
+    "docs/implementation/v3/M05-windows-ci-43755565107.json",
+    "docs/implementation/v3/M05-windows-ci-43760736519.json",
+    "docs/implementation/v3/M05-windows-ci-43771171183.json",
+    "docs/implementation/v3/M05-windows-ci-43777513127.json",
+    "docs/implementation/v3/M05-windows-ci-43783430726.json",
+    "docs/implementation/v3/M05-windows-ci-43788747998.json"
   ],
-  "pendingValidation": [
-    "Complete all nine Windows jobs on the exact new source/test/workflow cut. Historical test-body passes do not erase failed cleanup hooks.",
-    "Complete actual default-off retained-source detail, correction, accept/reject, normal native Save of the exact redacted export, Forget and same-profile restart. Installation/full payload/provider startup/owned cleanup are evidenced only at run43748168614; CDP download overrides cannot establish normal native Save."
-  ],
+  "pendingValidation": [],
   "platformProofPreparation": {
     "nativeFile": {
       "file": "tests/memory-native-file-capture-v3.test.ts",
@@ -585,22 +540,27 @@
       "job": "Installed desktop memory retention",
       "localCustodyCasesPassed": 19,
       "localTypecheck": "PASS",
-      "execution": "Run43748168614 completes natural installation, full installed inventory/provider custody and owned uninstall. The first native window reaches the seeded task but fails the Project memory locator while Project overview is collapsed. No completed launch, memory action or restart pass. The explicit normal panel-navigation repair is locally checked and awaits Windows. A newly found production export defect now has a scoped native completion bridge. The installed verifier resets the CDP override and requires the actual owned native Save chooser, identity-bound destination and completed byte/hash receipt; these new assertions have not yet executed on Windows.",
+      "execution": "The current exact source cut passes the independent default-off retained-memory admission, including actual normal native Save and same-profile restart.",
       "scope": "Retained MESSAGE records with production memory flags off. No model or account is selected.",
       "providerNetworkCalls": null,
-      "windowsCustodyCasesPassed": 19,
       "currentReviewRefs": [
         "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
         "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
         "docs/implementation/v3/M05-browser-close-review-43748168614.json",
         "docs/implementation/v3/M05-browser-close-repair-review-20261115.json",
         "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
-        "docs/implementation/v3/M05-native-memory-save-review-20261115.json"
+        "docs/implementation/v3/M05-native-memory-save-review-20261115.json",
+        "docs/implementation/v3/M05-installed-independent-phase-review-43755565107.json",
+        "docs/implementation/v3/M05-installed-startup-repair-review-20261115.json",
+        "docs/implementation/v3/M05-installed-phase-review-43789647166.json"
       ],
       "nativeSaveHelper": "scripts/installed-native-save.ts",
-      "nativeSaveStatus": "LOCAL_CHECKS_PASS_WINDOWS_PENDING"
+      "nativeSaveStatus": "ACTUAL_OWNED_NATIVE_SAVE_VERIFIED",
+      "windowsCustodyCaseCountScope": "Observed exact-source automated unit suite only; no installed-retention claim.",
+      "windowsCustodyCasesPassed": 33,
+      "windowsCustodyCaseCountRef": "docs/implementation/v3/M05-windows-custody-counts-43789647166.json"
     },
-    "publicSourceInventory": "Sorted source inventory includes the scoped native export policy, installed native Save helper and all three new export/Save tests. Source entries2353; runtime entries226 are unchanged.",
+    "publicSourceInventory": "Exact current manifest contains 2334 source entries and 225 runtime entries; both lists are unique and sorted, with runtime a source subset.",
     "independentReview": {
       "reviewer": "memory_integration_audit",
       "mode": "Read-only source review; no tests or installed launch performed by this reviewer.",
@@ -668,6 +628,13 @@
         "headSha": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
         "treeSha": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b"
       }
+    },
+    "publicSourceInventoryBinding": {
+      "path": "scripts/public-source-files.json",
+      "sourceHead": "299aa79fce281bacc370bd76373f760082046941",
+      "sourceTree": "a30449bbf40d121b9545bca225c1adb95d6851af",
+      "bytes": 136421,
+      "sha256": "d79a2a2d34917a9298ac5c89b6308596087f1f87c08ebd27a4eb75cac5607f2f"
     }
   },
   "verificationRepairs": {
@@ -892,7 +859,7 @@
     ]
   },
   "navigationAndBrowserCleanupRepair": {
-    "status": "LOCAL_CHECKS_PASS_WINDOWS_PENDING",
+    "status": "ACTUAL_WINDOWS_NAVIGATION_AND_CLEANUP_VERIFIED",
     "reviewRefs": [
       "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
       "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
@@ -910,10 +877,11 @@
     ],
     "productionAppChanged": false,
     "existingAssertionsPreserved": true,
-    "unresolvedConcreteSourceFindings": []
+    "unresolvedConcreteSourceFindings": [],
+    "currentApplicationReceipt": "docs/implementation/v3/M05-windows-ci-43789647166.json"
   },
   "nativeMemoryExportRepair": {
-    "status": "LOCAL_CHECKS_PASS_WINDOWS_PENDING",
+    "status": "ACTUAL_INSTALLED_DEFAULT_OFF_NATIVE_SAVE_VERIFIED",
     "reviewRefs": [
       "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
       "docs/implementation/v3/M05-native-memory-save-review-20261115.json"
@@ -942,9 +910,665 @@
     "authCsrfAndScopeValidationPreserved": true,
     "nativeSavedRequiresAdmittedTerminalCompletion": true,
     "nativeAutomationUsesDefaultDownloadBehaviorAndOwnedSaveDialog": true,
-    "actualWindowsExecution": "NOT_RUN",
+    "actualWindowsExecution": "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
     "enabledInstalledMemory": "NOT_RUN",
     "liveStudy": "NOT_RUN",
     "unresolvedConcreteSourceFindings": []
+  },
+  "previousReviewedWindowsAttempt": {
+    "receiptRef": "docs/implementation/v3/M05-windows-ci-43788747998.json",
+    "runId": 43788747998,
+    "headSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+    "treeSha": "e1043f88dd78f72a2dd529a6583f2536fc9008c9",
+    "checkoutSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+    "checkoutTreeSha": "e1043f88dd78f72a2dd529a6583f2536fc9008c9",
+    "matchesPublishedTree": true,
+    "conclusion": "cancelled",
+    "jobs": [
+      {
+        "name": "Hermes contracts",
+        "conclusion": "success"
+      },
+      {
+        "name": "Tests (shard 3/4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Installed desktop memory retention",
+        "conclusion": "cancelled"
+      },
+      {
+        "name": "Tests (shard 2/4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Browser tests",
+        "conclusion": "cancelled"
+      },
+      {
+        "name": "Windows checks",
+        "conclusion": "success"
+      },
+      {
+        "name": "Tests (shard 4/4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Tests (shard 1/4)",
+        "conclusion": "success"
+      }
+    ],
+    "application": {
+      "passed": 3982,
+      "failed": 0,
+      "skipped": 46,
+      "todo": 0,
+      "flaky": 0
+    },
+    "browser": {
+      "passed": 165,
+      "failed": 0,
+      "skipped": 1,
+      "todo": 0,
+      "flaky": 0
+    }
+  },
+  "previousInstalledStartupWindowsAttempt": {
+    "runId": 43755565107,
+    "headSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+    "treeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3858,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "installedRetention": {
+      "status": "FAILED_BEFORE_MAIN_PAGE_READINESS",
+      "completedLaunches": 0,
+      "memoryObservations": 0,
+      "nativeSave": "NOT_RUN",
+      "reviewRef": "docs/implementation/v3/M05-installed-independent-phase-review-43755565107.json"
+    },
+    "receiptRef": "docs/implementation/v3/M05-windows-ci-43755565107.json"
+  },
+  "installedStartupRepair": {
+    "status": "HISTORICAL_WINDOWS_RED_GREEN_READINESS_REPAIR",
+    "reviewRef": "docs/implementation/v3/M05-installed-startup-repair-review-20261115.json",
+    "sourceHead": "013c044d66f40136752df4f1903132d601d57851",
+    "sourceTree": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "redRun": 43760214518,
+    "greenRun": 43760489286,
+    "redTests": {
+      "failed": 1,
+      "skipped": 25,
+      "passed": 0
+    },
+    "greenTests": {
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0
+    },
+    "fullTypecheck": "PASS",
+    "productionAppChanged": false,
+    "timeoutMs": 80000,
+    "productionBackendBudgetMs": 60000,
+    "productionSurfaceBudgetMs": 20000,
+    "originalAbsentPageCause": "UNMEASURED"
+  },
+  "installedStartupCurrentApplicability": {
+    "sourceHead": "299aa79fce281bacc370bd76373f760082046941",
+    "sourceTree": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "sourceComparisons": [
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "historicalSha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+        "currentSha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+        "byteIdentical": false
+      },
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "historicalSha256": "f82de49b1c9dba1e195df4e6fcf755ea33fec6955f84b5c295a1e90496b971a2",
+        "currentSha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+        "byteIdentical": false
+      }
+    ],
+    "actualInstalledAdmission": {
+      "status": "PASS_INSTALLED_DEFAULT_OFF_RETAINED_MEMORY_ONLY",
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+      "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+      "runId": 43789647166,
+      "jobId": 133044988913,
+      "artifactId": 14193350904,
+      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
+      "admissionReportRef": "docs/implementation/v3/m05-platform-43789647166/admission-report.json",
+      "admissionReportSha256": "7d7f55d123f28813408465f346fb11c5e221162acaa135958909601270586d10",
+      "visualReviewRef": "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+      "scope": "Only actual default-off retained memory review, ordinary native Save, Forget and same-profile restart. No release approval or feature activation."
+    },
+    "scope": "Historical readiness-only repair and its original source identities are preserved above. Current diagnostics, guard changes and installed execution have separate receipts; no blanket source equivalence is inferred."
+  },
+  "historicalFieldScope": {
+    "integratedWindowsCI": "Earlier accepted integrated baseline, preserved as historical evidence.",
+    "verificationRepairs": "Historical fixed-source preflight and browser execution. Installer budget and latest execution are described by their later dedicated records.",
+    "previousWindowsAttempt": "Preserved earlier attempt.",
+    "previousReviewedWindowsAttempt": "The latest attempt in the previously published review.",
+    "previousInstalledStartupWindowsAttempt": "The separately preserved0e source attempt before the readiness repair.",
+    "previousInstalledNativeSaveWindowsAttempt": "Earlier preserved Save-timeout attempt. Later immutable full-run outcomes are listed in priorWindowsAttempts; none is relabeled by subsequent repairs.",
+    "installedStartupRepair": "Earlier page-discovery budget repair, preserved with its original source and test claims. The later metadata-only startup diagnostics are documented in currentStartupDiagnostics.",
+    "currentStartupDiagnostics": "Metadata-only startup diagnostics, preserved with their original source and test claims. The later measured Hermes guard startup allowance and nested-session bound are documented in currentGuardStartupRepair."
+  },
+  "historicalNativeFileCapture": {
+    "reviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json",
+    "selectedForCurrentSource": false,
+    "scope": "Preserved earlier native FILE proof. The current guard implementation changed, so that historical byte-equivalence claim is not used for this source."
+  },
+  "acceptedBaseRefresh": {
+    "recordedAt": "2026-11-16T03:00:04.968Z",
+    "priorAcceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "sourceLockDigest": "6838e314f2062d545992ee2dda05afbf26caf01810ff1ac7c9f992a2a9d5bdbe",
+    "historicalLockRef": "docs/implementation/v3/M05-source-lock-399cde39.json",
+    "reviewRef": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+    "contractRowsBefore": 51,
+    "contractRowsAfter": 16,
+    "purpose": "Accept already merged main fixes and deduplicate identical contract references. Prior execution remains bound to its actual historical source; no result is promoted."
+  },
+  "previousInstalledNativeSaveWindowsAttempt": {
+    "runId": 43760736519,
+    "headSha": "013c044d66f40136752df4f1903132d601d57851",
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3865,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "installedRetention": {
+      "status": "FAIL_NATIVE_SAVE_DIALOG_TIMEOUT",
+      "completedLaunches": 0,
+      "successfulSemanticSteps": [
+        "installed-default-off-read",
+        "exact-pinned-source",
+        "review-edit-accept-reject",
+        "rejected-record-retained"
+      ],
+      "nativeSave": "FAIL",
+      "forget": "NOT_RUN",
+      "restart": "NOT_RUN",
+      "reviewRef": "docs/implementation/v3/M05-installed-independent-phase-review-43760736519.json"
+    }
+  },
+  "priorWindowsAttempts": [
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43755565107.json",
+      "runId": 43755565107,
+      "headSha": "0e072230965d15e0bcad8bb7579653a1332085e4",
+      "treeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+      "checkoutSha": "4ba53a2f5ec6af5d3b20f2f4e36e9a11490b7b60",
+      "checkoutTreeSha": "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9",
+      "matchesPublishedTree": true,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Browser tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        }
+      ],
+      "application": {
+        "passed": 3858,
+        "failed": 0,
+        "skipped": 39,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 267,
+        "failed": 0,
+        "skipped": 2,
+        "todo": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43760736519.json",
+      "runId": 43760736519,
+      "headSha": "013c044d66f40136752df4f1903132d601d57851",
+      "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+      "checkoutSha": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+      "checkoutTreeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+      "matchesPublishedTree": true,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Browser tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "success"
+        }
+      ],
+      "application": {
+        "passed": 3865,
+        "failed": 0,
+        "skipped": 39,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 267,
+        "failed": 0,
+        "skipped": 2,
+        "todo": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43771171183.json",
+      "runId": 43771171183,
+      "headSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+      "treeSha": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+      "checkoutSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "checkoutTreeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "matchesPublishedTree": false,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser tests",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "success"
+        }
+      ],
+      "application": {
+        "passed": 3943,
+        "failed": 0,
+        "skipped": 46,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 248,
+        "failed": 29,
+        "skipped": 2,
+        "todo": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43777513127.json",
+      "runId": 43777513127,
+      "headSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+      "treeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "checkoutSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+      "checkoutTreeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+      "matchesPublishedTree": true,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "failure"
+        }
+      ],
+      "application": {
+        "passed": 3932,
+        "failed": 0,
+        "skipped": 57,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 277,
+        "failed": 0,
+        "skipped": 2,
+        "todo": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43783430726.json",
+      "runId": 43783430726,
+      "headSha": "de8700651e6eb97c5a60bf849802b51086244857",
+      "treeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+      "checkoutSha": "de8700651e6eb97c5a60bf849802b51086244857",
+      "checkoutTreeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+      "matchesPublishedTree": true,
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser tests",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        }
+      ],
+      "application": {
+        "passed": 3981,
+        "failed": 0,
+        "skipped": 46,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 276,
+        "failed": 1,
+        "skipped": 2,
+        "todo": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "receiptRef": "docs/implementation/v3/M05-windows-ci-43788747998.json",
+      "runId": 43788747998,
+      "headSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "treeSha": "e1043f88dd78f72a2dd529a6583f2536fc9008c9",
+      "checkoutSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "checkoutTreeSha": "e1043f88dd78f72a2dd529a6583f2536fc9008c9",
+      "matchesPublishedTree": true,
+      "conclusion": "cancelled",
+      "jobs": [
+        {
+          "name": "Hermes contracts",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 3/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Installed desktop memory retention",
+          "conclusion": "cancelled"
+        },
+        {
+          "name": "Tests (shard 2/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Desktop build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Browser tests",
+          "conclusion": "cancelled"
+        },
+        {
+          "name": "Windows checks",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 4/4)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tests (shard 1/4)",
+          "conclusion": "success"
+        }
+      ],
+      "application": {
+        "passed": 3982,
+        "failed": 0,
+        "skipped": 46,
+        "todo": 0,
+        "flaky": 0
+      },
+      "browser": {
+        "passed": 165,
+        "failed": 0,
+        "skipped": 1,
+        "todo": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "currentNativeSaveRepair": {
+    "reviewRef": "docs/implementation/v3/M05-native-save-final-source-proof-0aacdacd.json",
+    "currentSource": {
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af"
+    },
+    "scope": "The preserved native helper and production export policy have separately recorded actual isolated native-dialog proof. Current installed retained-memory admission is recorded separately; no full enabled or live-provider result is inferred.",
+    "currentInstalledAdmission": {
+      "status": "PASS_INSTALLED_DEFAULT_OFF_RETAINED_MEMORY_ONLY",
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+      "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+      "runId": 43789647166,
+      "jobId": 133044988913,
+      "artifactId": 14193350904,
+      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
+      "admissionReportRef": "docs/implementation/v3/m05-platform-43789647166/admission-report.json",
+      "admissionReportSha256": "7d7f55d123f28813408465f346fb11c5e221162acaa135958909601270586d10",
+      "visualReviewRef": "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+      "scope": "Only actual default-off retained memory review, ordinary native Save, Forget and same-profile restart. No release approval or feature activation."
+    }
+  },
+  "acceptedMainFixtureRepair": {
+    "reviewRef": "docs/implementation/v3/M05-shared-fixture-browser-repair-review-20261116.json",
+    "acceptedBaseReviewRef": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+    "currentSource": {
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af"
+    },
+    "scope": "Browser-safe fixture ownership, accepted main changes and scrollbar metric synchronization retain their original failures and exact-source subsequent verification."
+  },
+  "runtimeTaskPoolRepair": {
+    "reviewRef": "docs/implementation/v3/M05-hermes-pool-repair-review-20261115.json",
+    "currentSource": {
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af"
+    },
+    "scope": "Required checkpoint and account invalidation use the public task pool. Scripted/native contract results remain distinct from live provider evaluation."
+  },
+  "currentStartupDiagnostics": {
+    "reviewRef": "docs/implementation/v3/M05-installed-startup-diagnostics-review-20261116.json",
+    "currentSource": {
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af"
+    },
+    "scope": "Bounded metadata-only desktop/backend observations preserve authentication, startup decisions, native ownership and cleanup. Historical diagnostic failures remain unchanged."
+  },
+  "currentGuardStartupRepair": {
+    "reviewRef": "docs/implementation/v3/M05-guard-startup-repair-review-299aa79f.json",
+    "repairedWindowsProbeRef": "docs/implementation/v3/M05-guard-startup-repair-probe-review-43789812079.json",
+    "localValidationRef": "docs/implementation/v3/M05-guard-startup-local-validation-20261116.json",
+    "currentSource": {
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af"
+    },
+    "behavior": [
+      "A new Windows guard process may use45000ms only for its explicitly opted-in first acquire. Production withHermesHome is the opted-in caller.",
+      "An existing AsyncLocalStorage guard session ignores nested startup options. Later ordinary acquire/release requests and unrelated first acquisitions retain15000ms.",
+      "Metadata-import requests retain120000ms, including their existing larger bounded manifest limits.",
+      "The PowerShell script, path identity/grant predicates, response schema/ID validation, onLoss behavior, namespace pins and release/owned process cleanup are unchanged. Linux behavior is unchanged.",
+      "Cancellation during initial acquisition still waits for the reply or bounded failure, then active(signal) rejects before invoking the action. The dedicated allowance can lengthen this wait; immediate cancellation is not claimed.",
+      "The existing desktop backend startup deadline remains60000ms. The change does not guarantee every future cold start fits; failure remains closed and requires actual Windows validation."
+    ],
+    "scope": "Only a newly spawned opted-in Hermes guard receives 45 seconds for its initial acquisition. Existing-session/nested ordinary requests and release remain at 15 seconds; metadata imports remain at 120 seconds. Existing startup and verifier budgets, native predicates and cancellation before action are preserved. The isolated helper proof and current installed admission have separate receipts.",
+    "currentInstalledAdmission": {
+      "status": "PASS_INSTALLED_DEFAULT_OFF_RETAINED_MEMORY_ONLY",
+      "headSha": "299aa79fce281bacc370bd76373f760082046941",
+      "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+      "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+      "runId": 43789647166,
+      "jobId": 133044988913,
+      "artifactId": 14193350904,
+      "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
+      "admissionReportRef": "docs/implementation/v3/m05-platform-43789647166/admission-report.json",
+      "admissionReportSha256": "7d7f55d123f28813408465f346fb11c5e221162acaa135958909601270586d10",
+      "visualReviewRef": "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+      "scope": "Only actual default-off retained memory review, ordinary native Save, Forget and same-profile restart. No release approval or feature activation."
+    }
   }
 }

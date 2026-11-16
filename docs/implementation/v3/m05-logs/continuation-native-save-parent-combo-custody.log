@@ -1,0 +1,16 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-native-save-combo-repair
+
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > keeps the complete fixed PowerShell command below the real Windows argv limit without a policy override 5ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > uses one absent fixed file in the verified evidence directory and reads only that completed regular file 14ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a redirected evidence directory and preserves an existing redirected output 6ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a replaced evidence directory and empty or oversized saved files 13ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > admits only the ordered native dialog lifecycle for the same process and dialog 7ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > rejects another process, process reuse, replacement dialogs, missing stages and forged fields 2ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > preserves bounded fixed failure metadata without accepting completion or unrelated control text 3ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  07:00:04
+   Duration  839ms (transform 255ms, setup 0ms, import 403ms, tests 53ms, environment 0ms)
+

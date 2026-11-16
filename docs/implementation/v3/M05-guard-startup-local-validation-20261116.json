@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "status": "ACTUAL_LOCAL_COMMANDS_PRESERVED",
+  "sourceHead": "299aa79fce281bacc370bd76373f760082046941",
+  "sourceTree": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "commands": [
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-startup-red-20261116.log",
+      "status": "FAIL",
+      "exitCode": 1,
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-940e7c54cacb3248.diff",
+        "bytes": 528,
+        "sha256": "940e7c54cacb3248473e9fc082be0d40468ee0279bd73b24bbd633ec5595a767",
+        "blobSha": "fb54df68afbff505536e432fac94234557a32b6e"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-initial.ts.txt",
+        "bytes": 6702,
+        "sha256": "c1d1188165582b89b07542d44f7cbe495b6c671d05d873fe4737b2b3306c9e67",
+        "blobSha": "a6ac4be2c14849535e4a8d73ebc7baf6242a7984"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-startup-green-20261116.log",
+      "status": "PASS",
+      "exitCode": 0,
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-a13ecbfe9f6fd744.diff",
+        "bytes": 9277,
+        "sha256": "a13ecbfe9f6fd744e25ed5f8cb666ef2906fa82814296ee6a419a99b250d683e",
+        "blobSha": "4c9f39122c59697d14f4d8e1269db8df85a17745"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-initial.ts.txt",
+        "bytes": 6702,
+        "sha256": "c1d1188165582b89b07542d44f7cbe495b6c671d05d873fe4737b2b3306c9e67",
+        "blobSha": "a6ac4be2c14849535e4a8d73ebc7baf6242a7984"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-startup-typecheck-20261116.log",
+      "status": "PASS",
+      "exitCode": 0,
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-a13ecbfe9f6fd744.diff",
+        "bytes": 9277,
+        "sha256": "a13ecbfe9f6fd744e25ed5f8cb666ef2906fa82814296ee6a419a99b250d683e",
+        "blobSha": "4c9f39122c59697d14f4d8e1269db8df85a17745"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-initial.ts.txt",
+        "bytes": 6702,
+        "sha256": "c1d1188165582b89b07542d44f7cbe495b6c671d05d873fe4737b2b3306c9e67",
+        "blobSha": "a6ac4be2c14849535e4a8d73ebc7baf6242a7984"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.log",
+      "status": "FAIL",
+      "exitCode": 1,
+      "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-67ffcd7548d6410a.diff",
+        "bytes": 14480,
+        "sha256": "67ffcd7548d6410a1413661ff084f2fa30e8b7c4e0d40097456a39faaa6af0c7",
+        "blobSha": "ab829083fc7ee32e04c92ef3488a6ea2a03425e0"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-nested-wait.ts.txt",
+        "bytes": 7448,
+        "sha256": "4b0892daebd14111800f3f0c2b99d6191a14f73df09059216cd75cb52e164155",
+        "blobSha": "32d250cc7d0b22de06628581f3799e59049d284c"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.log",
+      "status": "FAIL",
+      "exitCode": 1,
+      "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-5ce5df7bd4af83b7.diff",
+        "bytes": 14931,
+        "sha256": "5ce5df7bd4af83b77104891f82987025363b0c7be026579a9475c6cabcb21f8e",
+        "blobSha": "2f4ce7eab8d54201f7f9fcccc22eacf99041c491"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-final.ts.txt",
+        "bytes": 7489,
+        "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+        "blobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+      "status": "PASS",
+      "exitCode": 0,
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-0216454e2a574a1f.diff",
+        "bytes": 491301,
+        "sha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+        "blobSha": "e572d7ff7c11189076e1ab1a0dcc5df6325028da"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-final.ts.txt",
+        "bytes": 7489,
+        "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+        "blobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+      }
+    },
+    {
+      "commandRef": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.log",
+      "status": "PASS",
+      "exitCode": 0,
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiff": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/working-diff-0216454e2a574a1f.diff",
+        "bytes": 491301,
+        "sha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+        "blobSha": "e572d7ff7c11189076e1ab1a0dcc5df6325028da"
+      },
+      "sourceTest": {
+        "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-final.ts.txt",
+        "bytes": 7489,
+        "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+        "blobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+      }
+    }
+  ],
+  "sources": {
+    "test-initial.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-initial.ts.txt",
+      "bytes": 6702,
+      "sha256": "c1d1188165582b89b07542d44f7cbe495b6c671d05d873fe4737b2b3306c9e67",
+      "blobSha": "a6ac4be2c14849535e4a8d73ebc7baf6242a7984"
+    },
+    "test-nested-wait.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-nested-wait.ts.txt",
+      "bytes": 7448,
+      "sha256": "4b0892daebd14111800f3f0c2b99d6191a14f73df09059216cd75cb52e164155",
+      "blobSha": "32d250cc7d0b22de06628581f3799e59049d284c"
+    },
+    "test-final.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/test-final.ts.txt",
+      "bytes": 7489,
+      "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+      "blobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+    },
+    "file-access-original.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/file-access-original.ts.txt",
+      "bytes": 11810,
+      "sha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "blobSha": "39c23109859e283e07628034a5a352a32958470e"
+    },
+    "file-access-concurrent.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/file-access-concurrent.ts.txt",
+      "bytes": 12401,
+      "sha256": "2a659bccd3d4ef1ba52ebd4a1b85433a0f0bdf008d9149d4103f15447567172c",
+      "blobSha": "32cdaaf784a4074944139b5af3c8ec5aab534a9d"
+    },
+    "file-access-final.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/file-access-final.ts.txt",
+      "bytes": 12366,
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "blobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    "hermes-home-final.ts.txt": {
+      "path": "docs/implementation/v3/m05-review-inputs/guard-startup-20261116/hermes-home-final.ts.txt",
+      "bytes": 2032,
+      "sha256": "9366285b50f98bde66076d3496aedcf74037672b4a8a7b6823c331cf9f09453a",
+      "blobSha": "7179d1d8fd7151413e367c0acc772bf1a508a73b"
+    }
+  },
+  "actualOutcomes": {
+    "initialRegression": {
+      "passed": 4,
+      "failed": 4
+    },
+    "supersededBroadRepair": {
+      "passed": 19,
+      "failed": 0,
+      "typecheckExit": 0
+    },
+    "concurrentNestedRegression": {
+      "passed": 8,
+      "failed": 1,
+      "firstFailure": "test timeout at 60000 ms",
+      "clarifiedFailure": "not settled at ordinary 15000 ms deadline"
+    },
+    "finalCombinedSource": {
+      "passed": 45,
+      "failed": 0,
+      "testFiles": 6,
+      "typecheckExit": 0
+    }
+  },
+  "custody": [
+    "All log/metadata bytes are the original actual subprocess captures.",
+    "Initial red capture tracked only the manifest diff because the new test was untracked. Its exact unchanged test bytes are separately preserved and bound here.",
+    "The intermediate source diffs are derived from retained immutable local commits and known edited source bytes; each derived diff exactly matches the SHA256 recorded by its actual command capture.",
+    "The broader initial repair was superseded without publication. The final source preserves the concurrent Hermes-only opt-in and removes its forwarding into an already-running guard.",
+    "The first nested regression reached the existing real 60-second test timeout. Adding an explicit settled assertion produced the subsequent fast negative boundary result; neither failure is hidden.",
+    "Fake-time process/stream cases verify boundary behavior. They do not constitute a Windows native or installed result.",
+    "A cancellation during initial acquisition is rejected before the action after a reply or deadline; immediate cancellation latency is not claimed."
+  ]
+}

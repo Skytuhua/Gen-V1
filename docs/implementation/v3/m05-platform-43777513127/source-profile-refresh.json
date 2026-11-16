@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_PREPARATION_COMPLETE_ADMISSION_NOT_RUN",
+  "recordedAt": "2026-11-16T00:11:18.198945+00:00",
+  "sourceHeadSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+  "sourceTreeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+  "acceptedBaseSha": "673ca733d306ade463635def2d09299bc37043ec",
+  "review": {
+    "bytes": 19592,
+    "sha256": "897f63c0cf38bfda28d9f4f42acf2d0f5f4b854f77cfd8a61d19958e9207533f",
+    "gitBlobSha": "3a18b4f14991916640458b657de5a9dc1196b0e9"
+  },
+  "originalProfile": {
+    "bytes": 10417,
+    "sha256": "4dcf281e4f9f46d9936999c7ece802d3d518f7da2700e25320505235111e6472",
+    "gitBlobSha": "dbe0903b39a1d0140e581c9444059a4af4a924a6"
+  },
+  "profile": {
+    "bytes": 10418,
+    "sha256": "6b775d20019a096ffe81267e355f20382978f1844c4c09d131bf95ce822d00f3",
+    "gitBlobSha": "1beaeda59d18dc90ce74068e4f2f24a1186d3b94"
+  },
+  "sourceBindings": {
+    "bytes": 8326,
+    "sha256": "291b174f073c4257549f356d9cee30b1767490f5e03d91337f87426d9aca0872",
+    "gitBlobSha": "48954efa6c8ca3a66a7d606c1a616e99e79e79b9"
+  },
+  "supplementalSourceBindings": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 2691,
+      "sha256": "82226ee3e504311ee37a08f4889f6dcbedfc2c9ad9c1509d4d34b4df659c5fba",
+      "gitBlobSha": "d88b09c322157836dd17a1b17e32c0e3f80f786b"
+    },
+    {
+      "path": "apps/desktop/layout-transaction.ts",
+      "bytes": 3068,
+      "sha256": "191fdbf3334d68608a42a6acd75710bd31dc1ff0578c95590575081c6a4b2ec1",
+      "gitBlobSha": "de539faa0cfb6ac4fa71fd9a5c5749736f47c921"
+    },
+    {
+      "path": "apps/desktop/workspace-events.ts",
+      "bytes": 3811,
+      "sha256": "cae5bcaf672501df0045d0b3c74d404b602f741904efd872ff3baf052dc30355",
+      "gitBlobSha": "90bdf3b684ecd0f52c7b9d7acd06faa7ed9b63ba"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 155708,
+      "sha256": "3009dba92c0b8d0465bfd9fb2b3f2206129855d2af554a4e3beedecf4cec8f2c",
+      "gitBlobSha": "da7bf376245efa5b976f255c673413f16e669fef"
+    },
+    {
+      "path": "apps/web/src/PlanStatus.tsx",
+      "bytes": 13250,
+      "sha256": "5211e534df836bfc275564c49023054d5ecdfbe42154534554bb091b48c3078e",
+      "gitBlobSha": "60711be8c08ba6956a92e060eb6beaf5959ee034"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/TimelineRows.tsx",
+      "bytes": 11469,
+      "sha256": "80626739d7ed09d1aa12964b5da3156230aadc9261d51642c15ad8fc8c8815de",
+      "gitBlobSha": "641388024d27155516be430d18a0077d29beb54a"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/timeline.css",
+      "bytes": 8020,
+      "sha256": "ad49552ae8c726505a079d46969cd6bb5ef9221a842b4fe475fd4cfd6bab32bf",
+      "gitBlobSha": "a64b5d9caedd0cf5e406957a84a500a24d1ef16c"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "bytes": 5085,
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805",
+      "gitBlobSha": "90544731c91845bd2e6b2c3c5b89a84134e4d7fe"
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "bytes": 2443,
+      "sha256": "ae4ca268d220afd0c84331ceb84a9a357952cea72089fad2c65fdba1dedbb83a",
+      "gitBlobSha": "9b6fbb49cb97e29250a5cee1576ba942be055da1"
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "bytes": 24417,
+      "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0",
+      "gitBlobSha": "e1464d64b3f802166bc495fe52fb4bf9a373da3b"
+    },
+    {
+      "path": "tests/e2e/composer-app-refinement.spec.ts",
+      "bytes": 16268,
+      "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+      "gitBlobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 28082,
+      "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b",
+      "gitBlobSha": "733db88e031cd8c3b148842c21c4f7d46adf7389"
+    },
+    {
+      "path": "tests/e2e/plan-timeline.spec.ts",
+      "bytes": 12270,
+      "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+      "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+    },
+    {
+      "path": "tests/e2e/reserved-rail.spec.ts",
+      "bytes": 11360,
+      "sha256": "ef7588f9e28933acec25e231bb87a23b779ba31528085770a05006b2af348e9e",
+      "gitBlobSha": "18d6a326ef5d207d50f81592f4fb108a11439900"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13070,
+      "sha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+      "gitBlobSha": "67a7609a54f37fdb5fed4ec2fb050b0c46f86f8a"
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "bytes": 78469,
+      "sha256": "ad541decfda409bfea5d82dc6224b1e21c8f2a168ef01b8eac454276168b321b",
+      "gitBlobSha": "1662067edf010f187c248c1a076538f377d050b2"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    }
+  ],
+  "supplementalScope": "Supplemental runtime and UI bindings do not claim that default-off installed retention exercises enabled memory extraction, consolidation or checkpoints.",
+  "validatorExecuted": false,
+  "installedArtifactAdmitted": false,
+  "remainingGates": {
+    "actualFullWindowsCI": "REQUIRED",
+    "actualInstalledArtifact": "REQUIRED",
+    "independentVisualReview": "REQUIRED",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN"
+  }
+}

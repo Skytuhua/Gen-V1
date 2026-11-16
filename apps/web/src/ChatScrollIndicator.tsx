@@ -13,6 +13,7 @@ export function ChatScrollIndicator({scrollRef,controllerRef,contentKey}:ChatScr
  const id=useId(),track=useRef<HTMLDivElement>(null),drag=useRef<{pointerId:number;offset:number}|null>(null);
  const [metrics,setMetrics]=useState({top:0,maximum:0,ratio:1,height:0});
  const finish=()=>{if(!drag.current)return;drag.current=null;controllerRef.current?.endManualScroll();};
+ const finishPointer=(event:PointerEvent<HTMLDivElement>)=>{if(drag.current?.pointerId===event.pointerId)finish();};
  useEffect(()=>{
   const element=scrollRef.current;if(!element)return;
   if(!element.id)element.id=`chat-scroll-${id}`;
@@ -28,7 +29,7 @@ export function ChatScrollIndicator({scrollRef,controllerRef,contentKey}:ChatScr
  const scroll=(value:number)=>{const element=scrollRef.current;if(!element)return;const controller=controllerRef.current;if(controller)controller.scrollTo(value);else element.scrollTop=Math.max(0,Math.min(metrics.maximum,value));};
  const move=(event:PointerEvent<HTMLDivElement>)=>{const current=drag.current,rect=track.current?.getBoundingClientRect();if(!current||current.pointerId!==event.pointerId||!rect)return;scroll(travel?Math.max(0,Math.min(travel,event.clientY-rect.top-current.offset))/travel*metrics.maximum:0);};
  const begin=(event:PointerEvent<HTMLDivElement>)=>{
-  if(event.button!==0||!metrics.maximum)return;event.preventDefault();event.currentTarget.focus({preventScroll:true});finish();
+  if(event.button!==0||!metrics.maximum||drag.current)return;event.preventDefault();event.currentTarget.focus({preventScroll:true});
   const rect=event.currentTarget.getBoundingClientRect(),onThumb=(event.target as HTMLElement).closest('.chat-scroll-thumb');
   drag.current={pointerId:event.pointerId,offset:onThumb?event.clientY-rect.top-top:height/2};controllerRef.current?.beginManualScroll();event.currentTarget.setPointerCapture(event.pointerId);move(event);
  };
@@ -37,5 +38,5 @@ export function ChatScrollIndicator({scrollRef,controllerRef,contentKey}:ChatScr
   const page=element.clientHeight*.85,delta=event.key==='ArrowUp'?-40:event.key==='ArrowDown'?40:event.key==='PageUp'?-page:event.key==='PageDown'?page:event.key===' '?(event.shiftKey?-page:page):undefined;
   if(delta===undefined&&event.key!=='Home'&&event.key!=='End')return;event.preventDefault();event.stopPropagation();finish();scroll(event.key==='Home'?0:event.key==='End'?metrics.maximum:element.scrollTop+delta!);
  };
- return <div ref={track} className="chat-scroll-indicator" role="scrollbar" aria-label="Scroll conversation" aria-controls={scrollRef.current?.id} aria-orientation="vertical" aria-valuemin={0} aria-valuemax={Math.round(metrics.maximum)} aria-valuenow={Math.round(Math.min(metrics.maximum,metrics.top))} tabIndex={metrics.maximum>1?0:-1} data-scrollable={metrics.maximum>1} onPointerDown={begin} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish} onKeyDown={key}><span className="chat-scroll-track" aria-hidden="true"/><span className="chat-scroll-thumb" aria-hidden="true" style={{height,transform:`translateY(${top}px)`}}/></div>;
+ return <div ref={track} className="chat-scroll-indicator" role="scrollbar" aria-label="Scroll conversation" aria-controls={scrollRef.current?.id} aria-orientation="vertical" aria-valuemin={0} aria-valuemax={Math.round(metrics.maximum)} aria-valuenow={Math.round(Math.min(metrics.maximum,metrics.top))} tabIndex={metrics.maximum>1?0:-1} data-scrollable={metrics.maximum>1} onPointerDown={begin} onPointerMove={move} onPointerUp={finishPointer} onPointerCancel={finishPointer} onLostPointerCapture={finishPointer} onKeyDown={key}><span className="chat-scroll-track" aria-hidden="true"/><span className="chat-scroll-thumb" aria-hidden="true" style={{height,transform:`translateY(${top}px)`}}/></div>;
 }

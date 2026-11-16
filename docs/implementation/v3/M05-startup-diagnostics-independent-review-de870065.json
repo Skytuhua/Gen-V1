@@ -1,0 +1,485 @@
+{
+  "schemaVersion": 1,
+  "kind": "INDEPENDENT_M05_INSTALLED_STARTUP_DIAGNOSTICS_REVIEW",
+  "status": "SOURCE_REVIEW_COMPLETE_NO_REMAINING_CONCRETE_FINDING_WINDOWS_EXECUTION_REQUIRED",
+  "recordedAt": "2026-11-16T01:01:24.448299+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "source": {
+    "commitSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "treeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+    "parentShas": [
+      "c12965df7e90550dac0606752cb9f980387c2d3b",
+      "bfd4247994674c5a60ed14b12ff2dda223b07879"
+    ],
+    "acceptedBaseSha": "bfd4247994674c5a60ed14b12ff2dda223b07879",
+    "localEquivalentCommitSha": "0033451dfd9bb559454527a95f050a350c2fd24f",
+    "method": "Read the immutable published GitHub commit through the Git API; its tree equals the clean local immutable tree. Every listed source binding was freshly read from that local Git tree and rehashed. No source, ref or ledger mutation by this review."
+  },
+  "diagnosticPatch": {
+    "baseCommitSha": "c12965df7e90550dac0606752cb9f980387c2d3b",
+    "baseTreeSha": "64504a5a4007461210c99d21f57fb438fdcf2116",
+    "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+    "paths": [
+      {
+        "path": "apps/desktop/backend-policy.ts",
+        "bytes": 11523,
+        "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+        "gitBlobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+      },
+      {
+        "path": "apps/desktop/main.ts",
+        "bytes": 57407,
+        "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+        "gitBlobSha": "f33ec5d099b6345dc9c38d72cf94dd54e1d2a513"
+      },
+      {
+        "path": "apps/server/main.ts",
+        "bytes": 4041,
+        "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+        "gitBlobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+      },
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "bytes": 46360,
+        "sha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+        "gitBlobSha": "b87c4271a4f5a1fde468e18e5667aeecd85eb377"
+      },
+      {
+        "path": "tests/desktop-backend-handoff.test.ts",
+        "bytes": 2441,
+        "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+        "gitBlobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+      },
+      {
+        "path": "tests/desktop-native.test.ts",
+        "bytes": 24494,
+        "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+        "gitBlobSha": "672db4b716bdcfd4f088324b49592dd843106436"
+      },
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "bytes": 31253,
+        "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+        "gitBlobSha": "b4b847a5503ef4c6d3768d8f0656339e99905b6d"
+      }
+    ],
+    "scope": "Seven existing files only: fixed optional startup observations, their bounded capture, and meaningful regression fixtures. The three additional CSS paths in the published tree are the separately reviewed exact bfd base delta."
+  },
+  "reviewedBoundaries": [
+    {
+      "boundary": "Private normalization and strict schema",
+      "finding": "Only six fixed error categories and a finite code allowlist are admitted. The normalizer does not read message, stack, arbitrary name or path and does not invoke code getters. Strict plain-record parsing rejects extra own keys at every nested marker/output level; throwing proxies, parse errors and observer/sink exceptions are contained."
+    },
+    {
+      "boundary": "Bounded stream processing",
+      "finding": "The parser accepts only HARNESS_STARTUP_V1 markers, at most2048 bytes per line and32 retained events. Each stream hashes/parses only its first262144 bytes, then continues draining/counting. Receipts explicitly state prefix hash scope, limit, hashed bytes and truncation. Overlong/malformed/private lines are discarded. No arbitrary stdout/stderr contents are retained."
+    },
+    {
+      "boundary": "First failure and process lifecycle",
+      "finding": "The first fixed failure is retained independently of the event cap, including renderer-gone with error:null. Later process error/exit/close observations remain separate and cannot replace that first failure. A failed optional clock yields null elapsedMs rather than throwing from a process lifecycle listener."
+    },
+    {
+      "boundary": "Backend authentication and runtime closure",
+      "finding": "Existing token validation precedes backend error observation. Exact ready token/origin/PID admission,60-second deadline and original rejection survive throwing observers. The server uses a minimal local finite classifier rather than importing desktop code outside its packaged source closure. Its test-data-only fallback is owned stdout, preserving the original stderr tail and error/exit behavior."
+    },
+    {
+      "boundary": "Desktop startup path",
+      "finding": "Markers are test-data-only and fixed; marker wrapper/sink failures are swallowed. Existing app/backend/window readiness flow,20-second surface deadline, renderer recovery, sender/grant logic and cleanup remain. The startupSettled latch is set after screen registration so a later startup exception still emits a failure marker."
+    },
+    {
+      "boundary": "Installed verifier custody",
+      "finding": "Output changes from ignored to piped and bounded metadata capture. Capture setup occurs inside the existing launch cleanup try. Constructor failure attaches drain handlers/resumes both pipes and reports capture-unavailable; it does not alter startup success or bypass cleanup. Existing45-second CDP readiness,80-second main-page discovery, nonce/executable/current-page checks, exact install/payload/native Save/readback and cleanup predicates are unchanged."
+    },
+    {
+      "boundary": "Evidence and activation scope",
+      "finding": "launchDiagnostics is additive metadata. The strict six-phase native Save event schema and exact helper463d remain unchanged. No flag, provider/account action, dependency, egress permission, timeout relaxation or installed-success substitute is introduced."
+    }
+  ],
+  "resolvedConcreteFindings": [
+    {
+      "finding": "Desktop helper import in packaged server escaped existing runtime source closure.",
+      "resolution": "Removed cross-runtime import; server-local finite classifier; staged-host public source closure now passes."
+    },
+    {
+      "finding": "Fallback diagnostic on stderr changed the existing backend stderr error tail.",
+      "resolution": "Moved fixed marker to owned stdout and retained exact original stderr in an actual sidecar regression."
+    },
+    {
+      "finding": "Renderer loss with error:null was omitted from first-failure classification.",
+      "resolution": "Included fixed renderer-gone suffix and reproduced the case before the passing regression."
+    },
+    {
+      "finding": "Optional capture construction/late-clock failure could escape the launch cleanup boundary or lifecycle callback.",
+      "resolution": "Moved setup inside cleanup try, made clock observation nonthrowing, and added drain-preserving unavailable fallback. The first fallback drain failure is retained as an actual failed attempt."
+    },
+    {
+      "finding": "startupSettled placement could suppress errors from screen registration.",
+      "resolution": "Moved only the latch assignment after those registrations; exact final full typecheck passed."
+    }
+  ],
+  "actualEvidence": {
+    "method": "Read existing actual Linux process metadata and raw/bounded logs, verified their byte/digest bindings; no test was re-executed by this review. All11 attempts, including misleading green-labelled failures and the first failed typecheck, remain explicit.",
+    "attempts": [
+      {
+        "label": "continuation-startup-diagnostics-red",
+        "startedAt": "2026-11-16T00:46:12.786577+00:00",
+        "endedAt": "2026-11-16T00:46:16.109726+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 56,
+          "failed": 13,
+          "skipped": 0
+        },
+        "reviewedOutcome": "Intentional fail-first diagnostic cases. Existing startup/custody behavior passes; new observer and collector contracts are absent.",
+        "workingDiffSha256": "2ba23e303f4f11aba8b24c6ad1e7b9eda1f2794ad1f6edf5038fb254e10d8f25",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-red.raw.log",
+          "bytes": 21123,
+          "sha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+          "gitBlobSha": "57786cfc4eb26d1273dae001d1b8696e63ebcfe6"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.log",
+          "bytes": 21123,
+          "sha256": "3cf304d85a138281a3a32e7f21cfa18cde8aaceaed030b1c5b007d8193a0a584",
+          "gitBlobSha": "57786cfc4eb26d1273dae001d1b8696e63ebcfe6"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.meta.json",
+          "bytes": 3617,
+          "sha256": "ba5417fbc0e9e90fdbc8ec1d2f974a2ce351bf4e39db0cbe650ea941f9f249a5",
+          "gitBlobSha": "8aae83a412dc7554829b06725633da2da5f58b6c"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-green-1",
+        "startedAt": "2026-11-16T00:48:27.136493+00:00",
+        "endedAt": "2026-11-16T00:48:30.374407+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 56,
+          "failed": 13,
+          "skipped": 0
+        },
+        "reviewedOutcome": "Actual failed rerun of the unchanged baseline after the edit script stopped at an unmatched existing comment before writing production source. The green label is not a PASS claim.",
+        "workingDiffSha256": "2ba23e303f4f11aba8b24c6ad1e7b9eda1f2794ad1f6edf5038fb254e10d8f25",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-1.raw.log",
+          "bytes": 21120,
+          "sha256": "19cfb5b8a4433ecd64f4bdea842fb7be9c72a990b51ab956f30180ed3a1b58ba",
+          "gitBlobSha": "19029d61c23eb7086100d41e8ef56eda3d98eebe"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.log",
+          "bytes": 21120,
+          "sha256": "19cfb5b8a4433ecd64f4bdea842fb7be9c72a990b51ab956f30180ed3a1b58ba",
+          "gitBlobSha": "19029d61c23eb7086100d41e8ef56eda3d98eebe"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.meta.json",
+          "bytes": 3677,
+          "sha256": "13c7d082593d3b8c88e5bfb55f4da77d077615447ff048f1b9c25af8d14afaee",
+          "gitBlobSha": "3fd0094a41ed62ed063f4a95eeebacd109338f79"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-green-2",
+        "startedAt": "2026-11-16T00:48:47.081930+00:00",
+        "endedAt": "2026-11-16T00:48:50.207893+00:00",
+        "exitCode": 0,
+        "status": "PASS",
+        "testSummary": {
+          "passed": 69,
+          "failed": 0,
+          "skipped": 0
+        },
+        "reviewedOutcome": "First implementation passes the existing and new focused suites. Later reviewed producer and setup-boundary issues are preserved separately.",
+        "workingDiffSha256": "b8965db6c5a1528f5c4f436b8806e7b6c2cf2cbf9e25de96db54f1cc809296b8",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-green-2.raw.log",
+          "bytes": 11243,
+          "sha256": "137866616c4412394467976a87196d96dad10ffdefffbc9c6ac25b5570931777",
+          "gitBlobSha": "30ed361924743b5f06ee2d435219aa38a8a8993b"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-2.log",
+          "bytes": 11243,
+          "sha256": "137866616c4412394467976a87196d96dad10ffdefffbc9c6ac25b5570931777",
+          "gitBlobSha": "30ed361924743b5f06ee2d435219aa38a8a8993b"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-2.meta.json",
+          "bytes": 3637,
+          "sha256": "25dce4f82944cd66b90716f1b64b72f35c9c94c0574de7f87ba987aab80ff418",
+          "gitBlobSha": "6380b7698e7e93cf02c52f6d0eb51aacb62fb440"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-producer-red",
+        "startedAt": "2026-11-16T00:50:01.584989+00:00",
+        "endedAt": "2026-11-16T00:50:09.458736+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 0,
+          "failed": 2,
+          "skipped": 64
+        },
+        "reviewedOutcome": "Actual sidecar proves the initial fallback contaminated original stderr; the renderer-gone sequence proves its first-failure omission.",
+        "workingDiffSha256": "d74d0a916afa8cf919c314920cd9fc95675cf6d221eb5503231a1021b29f48ca",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-producer-red.raw.log",
+          "bytes": 12538,
+          "sha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+          "gitBlobSha": "116be7d315eef359c8374277c12b7b1deb960b33"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.log",
+          "bytes": 12538,
+          "sha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+          "gitBlobSha": "116be7d315eef359c8374277c12b7b1deb960b33"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.meta.json",
+          "bytes": 3667,
+          "sha256": "a13dd46482267e5e849a5afd63ecc164ecad2b4422d60558dfe9eafde9d7274e",
+          "gitBlobSha": "36af894050849d5d1433deebb22a8d591e4bd86a"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-runtime-closure-red",
+        "startedAt": "2026-11-16T00:50:22.650837+00:00",
+        "endedAt": "2026-11-16T00:50:25.209133+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 0,
+          "failed": 1,
+          "skipped": 10
+        },
+        "reviewedOutcome": "Existing staged-host resolution fails because the initial server import referenced an unstaged desktop source. No runtime roots or public allowlist were broadened to fix this.",
+        "workingDiffSha256": "d74d0a916afa8cf919c314920cd9fc95675cf6d221eb5503231a1021b29f48ca",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-runtime-closure-red.raw.log",
+          "bytes": 3622,
+          "sha256": "1480ca3a085e1d2f2b46e0fd9a3a0a6c54ea053ac73a1eb8b810599eccd1dea1",
+          "gitBlobSha": "12ac30e665e0b7d9ded47239473d49c0f0ba2ed7"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.log",
+          "bytes": 3622,
+          "sha256": "1480ca3a085e1d2f2b46e0fd9a3a0a6c54ea053ac73a1eb8b810599eccd1dea1",
+          "gitBlobSha": "12ac30e665e0b7d9ded47239473d49c0f0ba2ed7"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.meta.json",
+          "bytes": 3668,
+          "sha256": "9f9cf5e38db5dc24e8fdf4ffdddbb793113cc6ba93807dff08d89708726ea451",
+          "gitBlobSha": "4858312c558e93b07378140f5b6e7ae246b8ae75"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-green",
+        "startedAt": "2026-11-16T00:50:49.520915+00:00",
+        "endedAt": "2026-11-16T00:50:54.317308+00:00",
+        "exitCode": 0,
+        "status": "PASS",
+        "testSummary": {
+          "passed": 82,
+          "failed": 0,
+          "skipped": 0
+        },
+        "reviewedOutcome": "Corrected server-local metadata writer, unchanged original stderr/IPC, renderer-loss retention and complete existing public source closure pass.",
+        "workingDiffSha256": "3b77dc017ff745384d66b8054a1d39c69b9dae8326ca17bca07954ef6336b627",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-green.raw.log",
+          "bytes": 13221,
+          "sha256": "bffb913f93da783479ddf806634725dc8d70ca4e521f82af043be92196bb1d9f",
+          "gitBlobSha": "ff335c397bc12f25a1fa9d965d82719756e5358f"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-green.log",
+          "bytes": 13221,
+          "sha256": "bffb913f93da783479ddf806634725dc8d70ca4e521f82af043be92196bb1d9f",
+          "gitBlobSha": "ff335c397bc12f25a1fa9d965d82719756e5358f"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-green.meta.json",
+          "bytes": 3690,
+          "sha256": "8a357fefebfee3874830fd214ff939744ccfde3d4e5f25282cfe10e3f52cb636",
+          "gitBlobSha": "efa98c94f0e9529c5425b09d6def85fe44d47d67"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-observer-red",
+        "startedAt": "2026-11-16T00:51:49.675927+00:00",
+        "endedAt": "2026-11-16T00:51:52.288079+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 0,
+          "failed": 2,
+          "skipped": 31
+        },
+        "reviewedOutcome": "Fault injection reproduces optional observer construction and later clock exceptions escaping into launch/process callbacks.",
+        "workingDiffSha256": "e0377d23ae9e88158eb569d5662f57ea8d4306565424291dc6f09d207a4a862e",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-red.raw.log",
+          "bytes": 7532,
+          "sha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+          "gitBlobSha": "81da5ecbd8e6f55df7c8eb364f08b2b41d636d3c"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.log",
+          "bytes": 7532,
+          "sha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+          "gitBlobSha": "81da5ecbd8e6f55df7c8eb364f08b2b41d636d3c"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.meta.json",
+          "bytes": 3623,
+          "sha256": "d4cade0f053ec126dbba9a5f209a1dbff2aa02a1dc66108995c967a6cb48f6de",
+          "gitBlobSha": "81701e900436c88b33c6e948c4412801a6f4ada5"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-observer-green",
+        "startedAt": "2026-11-16T00:52:40.853447+00:00",
+        "endedAt": "2026-11-16T00:52:45.891214+00:00",
+        "exitCode": 1,
+        "status": "FAIL",
+        "testSummary": {
+          "passed": 83,
+          "failed": 1,
+          "skipped": 0
+        },
+        "reviewedOutcome": "Initial observer repair preserves exceptions but resume alone had not drained the fixture synchronously. Fixed by adding an explicit noop data drain; the failure remains preserved.",
+        "workingDiffSha256": "cb7c30d01cfa1639e2f6d4c1914bd42f1136c92bf07e9b493e7320140efb9fdd",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-observer-green.raw.log",
+          "bytes": 14086,
+          "sha256": "4a9fee7589fb18b3f76e3c7e1c8c313c4ee938d4914f9a05d7ee9ec8488d261a",
+          "gitBlobSha": "ede599ed9ee560ae969ed9c3258d54333a40dab9"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.log",
+          "bytes": 14086,
+          "sha256": "4a9fee7589fb18b3f76e3c7e1c8c313c4ee938d4914f9a05d7ee9ec8488d261a",
+          "gitBlobSha": "ede599ed9ee560ae969ed9c3258d54333a40dab9"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.meta.json",
+          "bytes": 3735,
+          "sha256": "76d60337108266f4af0c7de99ee31aaf026d1d06c0e2eafe4616dd848c40c038",
+          "gitBlobSha": "2b5a4836e517571b179de9226d3f0cb8f9b7d025"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-typecheck",
+        "startedAt": "2026-11-16T00:53:29.433941+00:00",
+        "endedAt": "2026-11-16T00:54:18.780495+00:00",
+        "exitCode": 2,
+        "status": "FAIL",
+        "testSummary": null,
+        "reviewedOutcome": "Actual full typecheck fails on nullable lifecycle type inference and strict test environment/stdout typings. These are corrected without changing assertions.",
+        "workingDiffSha256": "cb7c30d01cfa1639e2f6d4c1914bd42f1136c92bf07e9b493e7320140efb9fdd",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-typecheck.raw.log",
+          "bytes": 1069,
+          "sha256": "9c72a907f8de5973e8b0c07a2d849bbe95cb969125496bb36d6ef43de987f675",
+          "gitBlobSha": "30e9accb02400944c922b36ad9f97f08375c00b7"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.log",
+          "bytes": 1069,
+          "sha256": "9c72a907f8de5973e8b0c07a2d849bbe95cb969125496bb36d6ef43de987f675",
+          "gitBlobSha": "30e9accb02400944c922b36ad9f97f08375c00b7"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.meta.json",
+          "bytes": 3410,
+          "sha256": "b9c0ab295a99b4ecf47c712d7318402a4fd799c9a4a7fa849b2326ca51bd68c4",
+          "gitBlobSha": "b480245385390f72bf0b93c6bb92182b5ccdb3b5"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-custody-green",
+        "startedAt": "2026-11-16T00:54:34.480452+00:00",
+        "endedAt": "2026-11-16T00:54:40.932068+00:00",
+        "exitCode": 0,
+        "status": "PASS",
+        "testSummary": {
+          "passed": 84,
+          "failed": 0,
+          "skipped": 0
+        },
+        "reviewedOutcome": "Final four-file regression passes all84 cases, including the actual sidecar and staged host/browser/desktop source resolution.",
+        "workingDiffSha256": "4d6f59e66efb27f6d4079330ca29c22f42efc6611d7b93517a3c30e395dc5faf",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-custody-green.raw.log",
+          "bytes": 13566,
+          "sha256": "351985a977a22b8b9e4819190b58c76c92445b7dc91387e838d3401d00b50aa1",
+          "gitBlobSha": "e6f6dbe0efce37328113b8461aea265a82af3809"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-custody-green.log",
+          "bytes": 13566,
+          "sha256": "351985a977a22b8b9e4819190b58c76c92445b7dc91387e838d3401d00b50aa1",
+          "gitBlobSha": "e6f6dbe0efce37328113b8461aea265a82af3809"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-custody-green.meta.json",
+          "bytes": 3696,
+          "sha256": "1b16692fbf3030072b03aaa97dfc28f2b059d212398d5e251902cf59788db3d2",
+          "gitBlobSha": "6215ed25db40976282fd24ae8d25332dba00646a"
+        }
+      },
+      {
+        "label": "continuation-startup-diagnostics-final-typecheck",
+        "startedAt": "2026-11-16T00:54:48.427521+00:00",
+        "endedAt": "2026-11-16T00:55:47.330073+00:00",
+        "exitCode": 0,
+        "status": "PASS",
+        "testSummary": null,
+        "reviewedOutcome": "Actual complete pnpm typecheck passes after the final placement-only startupSettled correction. No installed native result is inferred.",
+        "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+        "rawLog": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-startup-diagnostics-final-typecheck.raw.log",
+          "bytes": 87,
+          "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+          "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+        },
+        "boundedLog": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.log",
+          "bytes": 87,
+          "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+          "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+        },
+        "metadata": {
+          "ref": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-final-typecheck.meta.json",
+          "bytes": 3400,
+          "sha256": "b316caabef007c3bd3add98b2bd81e411c87306d8f5c06455fe07e5eaa9232e5",
+          "gitBlobSha": "7e40f8f19eb53cf2a17b831986fd7ee6906c36e9"
+        }
+      }
+    ],
+    "finalRegressionScope": "84/84 across installed desktop custody, desktop native/backend handoff and public-source closure. This run predates only the subsequent reviewed startupSettled placement move after screen registrations.",
+    "finalTypecheckScope": "Full typecheck exit0 binds the exact final seven-file diff SHA4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28. Neither result is actual Windows startup or installed retention proof."
+  },
+  "priorFailureBoundary": {
+    "runId": 43777513127,
+    "sourceHeadSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+    "finding": "Actual installed launch exited1 before a main-page candidate and before any memory action; installer, exact full payload and provider checks had passed. The19488ms readiness observation starts after CDP/owner verification, not at process creation. Existing output was ignored, so a source/environment cause was not established. This patch collects bounded observations; it does not claim to fix or explain that prior exit.",
+    "comparisonReview": {
+      "ref": "/workspace/scratch/36f66011d961/M05-installed-startup-comparison-43777513127.json",
+      "bytes": 17726,
+      "sha256": "2f743c5556acb35de6ec8a1fddbd0d1fbf1554f10ac67d831a40a396aa1f4f1e",
+      "gitBlobSha": "4eb63b0250259c28408a11be585de4afda31a7ac"
+    }
+  },
+  "newTestsRunByThisReview": [],
+  "concreteRemainingFindings": [],
+  "verdict": "No remaining concrete correctness, privacy, ownership, bounded-work or packaging-closure defect found in the exact published diagnostics cut. Preserve the actual failure history and require new exact-source Windows execution; default-off retention, enabled installed memory and live quality/cost remain separate gates."
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-desktop-verification.test.ts",
+      "tests/desktop-native.test.ts",
+      "-t",
+      "preserves real sidecar|retains a renderer loss",
+      "--reporter=verbose"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:50:01.584989+00:00",
+    "endedAt": "2026-11-16T00:50:09.458736+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.log",
+    "logDigest": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "workingDiffSha256": "d74d0a916afa8cf919c314920cd9fc95675cf6d221eb5503231a1021b29f48ca",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 7861,
+  "rawOutputBytes": 12538,
+  "rawOutputSha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+  "excerptInputBytes": 12538,
+  "excerptInputSha256": "14093086a7f01b945ce3161ad867da85e8a9252c0ac0b665d4f36e80118e69df",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

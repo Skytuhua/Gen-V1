@@ -1,0 +1,126 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference (11.8s)
+(node:178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (8.3s)
+(node:267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over (3.6s)
+
+
+  1) tests/e2e/composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.resource-chip').filter({ hasText: 'notes.txt' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.resource-chip').filter({ hasText: 'notes.txt' })[22m
+
+
+      60 |  await expect(page.locator('.composer-attachment-band')).toHaveCount(0);
+      61 |  host.snapshot.resources.push({id:'attached-notes',threadId:'task-thread',kind:'attachment',path:'C:/fixture/notes.txt',label:'notes.txt',writable:false,createdAt:'2026-11-05T00:00:00Z'});await host.publish();
+    > 62 |  await expect(page.locator('.resource-chip',{hasText:'notes.txt'})).toBeVisible();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeVisible();await expect.poll(async()=>(await page.locator('.composer').boundingBox())!.height-before).toBeGreaterThanOrEqual(24);
+         |                                                                     ^
+      63 |  expect(await draft.evaluate((node,old)=>node===old,original)).toBe(true);await expect(draft).toHaveValue('Preserve my draft');
+      64 |  await draft.focus();await draft.dispatchEvent('keydown',{key:'Enter',code:'Enter',isComposing:true,keyCode:229});expect(host.commands.some(value=>value.type==='message.send')).toBe(false);
+      65 |  host.snapshot.resources=host.snapshot.resources.filter(resource=>resource.id!=='attached-notes');await host.publish();await expect(page.locator('.composer-attachment-band')).toHaveCount(0);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/composer-app-refinement.spec.ts:62:69
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/composer-app-refinement-at-036ba-s-input-under-no-preference/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/composer-app-refinement-at-036ba-s-input-under-no-preference/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/composer-app-refinement-at-036ba-s-input-under-no-preference/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m([22m[2m)[22m failed
+
+    Locator:  getByRole('region', { name: 'Live usage', exact: true })
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeHidden" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Live usage', exact: true })[22m
+    [2m    9 × locator resolved to <section data-collapsed="true" aria-label="Live usage" data-summary-id="usage" class="docked-summary summary-usage">…</section>[22m
+    [2m      - unexpected value "visible"[22m
+
+
+      23 |  const text=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
+      24 |  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true}),artifact=page.locator('.artifact-in-workspace');await expect(panel).toBeVisible();await expect(artifact).toBeVisible();
+    > 25 |  await expect(page.getByRole('region',{name:'Project overview window',exact:true})).toBeHidden();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
+         |                                                                                                                                                                        ^
+      26 |  await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1920)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
+      27 |  expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,text)).toBe(true);
+      28 | });
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/reserved-rail.spec.ts:25:168
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeCloseTo[2m([22m[32mexpected[39m[2m, [22mprecision[2m)[22m
+
+    Expected: [32m1216[39m
+    Received: [31m1600[39m
+
+    Expected precision:    0
+    Expected difference: < [32m0.5[39m
+    Received difference:   [31m384[39m
+
+      37 | });
+      38 | test('minimized summaries retain their rail until an explicit artifact panel takes over',async({page})=>{
+    > 39 |  await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();const main=(await page.locator('main.workspace').boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      40 |  await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(plan).toBeHidden();await expect.poll(async()=>{const main=await page.locator('main.workspace').boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
+      41 | });
+      42 | test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/reserved-rail.spec.ts:39:455
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/e2e/composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference 
+    tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+    tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over 

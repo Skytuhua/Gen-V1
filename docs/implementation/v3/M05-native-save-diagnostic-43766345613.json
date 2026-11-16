@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43766345613,
+  "runAttempt": 1,
+  "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43766345613",
+  "workflow": {
+    "id": 419511027,
+    "name": "M05 native Save diagnostic",
+    "path": ".github/workflows/m05-native-save-diagnostic.yml",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-11-15T21:55:20Z",
+    "updatedAt": "2026-11-15T21:58:20Z",
+    "runStartedAt": "2026-11-15T21:55:20Z"
+  },
+  "headSha": "105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+  "headBranch": "agent/m05-native-save-diagnostic-43760736519",
+  "treeSha": "e6239f0a8c033ea31069a48c2ce66a5fa3dd8c92",
+  "testedCheckout": {
+    "commitSha": "105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+    "treeSha": "e6239f0a8c033ea31069a48c2ce66a5fa3dd8c92",
+    "parents": [
+      "f924bd3e7e16893101255b066ba7a713b9a795e4"
+    ]
+  },
+  "scope": "NATIVE_DISCOVERY_REPRODUCTION",
+  "result": {
+    "jobSuccesses": 0,
+    "jobFailures": 2,
+    "commands": 2,
+    "commandPasses": 0,
+    "commandFailures": 2,
+    "fullInstalledAcceptance": false,
+    "productionPolicyChanged": false,
+    "nativeHelperChanged": false
+  },
+  "jobs": [
+    {
+      "id": 132972184359,
+      "name": "Native Save diagnostic (direct)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T21:55:53Z",
+      "completedAt": "2026-11-15T21:57:57Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132972184359/logs",
+      "rawLogBytes": 190672,
+      "rawLogDigest": "814a21a65e442b7adc260181169fdc39fdabe53fe8fafafa52dfbb308a6bfd50",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-132972184359.log",
+      "logDigest": "e621a380d718ec779ba1f88e7957d9e7a0f28a958cc9f716e71f7be3facc7b24",
+      "logBytes": 65536,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF",
+        "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/direct-receipt.json",
+        "bytes": 114983,
+        "sha256": "b8aefcbfef1b594c46d800f2fde52e232402fb6dd898d777c60be522647a1ec6",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": true,
+      "nativeStatus": "failed",
+      "failure": {
+        "stage": "native-save-through-unchanged-helper",
+        "error": "Native Save refused: dialog-timeout."
+      }
+    },
+    {
+      "id": 132972184623,
+      "name": "Native Save diagnostic (policy)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T21:56:18Z",
+      "completedAt": "2026-11-15T21:58:19Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132972184623/logs",
+      "rawLogBytes": 190941,
+      "rawLogDigest": "87b262a958ead972548c33107b755d9b564bec3b8cbe1ca28f13f743b4504665",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-132972184623.log",
+      "logDigest": "d712a56fd8831c2d76c8e0b1a5da8d737ee9ad4ca243e968c3d01a1569133152",
+      "logBytes": 65536,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF",
+        "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/policy-receipt.json",
+        "bytes": 115416,
+        "sha256": "cb0dd026e9df986fca0ab0d03148bfef5108f7e5582ed4d41c588f29da4e60d9",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": true,
+      "nativeStatus": "failed",
+      "failure": {
+        "stage": "native-save-through-unchanged-helper",
+        "error": "Native Save refused: dialog-timeout."
+      }
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "direct"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T21:57:02Z",
+      "endedAt": "2026-11-15T21:57:53Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-a1-j132972184359-s4-direct.log",
+      "logDigest": "3077021f125f53bcff766688655a0d0ad5d27e26578df739fafacefcd6443ea5"
+    },
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "policy"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T21:57:25Z",
+      "endedAt": "2026-11-15T21:58:15Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-a1-j132972184623-s4-policy.log",
+      "logDigest": "a6802ffdb28f2a542d07f0d17af7518c302e235a53068c11d878d688283db1f9"
+    }
+  ],
+  "metadata": {
+    "run": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/run-api.json",
+      "bytes": 12446,
+      "sha256": "daa26dd0e1a985bac9fbaccff74887de8620cf356cc2180d0f759603949d5776"
+    },
+    "jobs": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/jobs-api.json",
+      "bytes": 4698,
+      "sha256": "f8f552e5a5a447da516d7224966e2b8245bd198b843c0fc9237da9618d03be7d"
+    },
+    "checkout": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/checkout-api.json",
+      "bytes": 1184,
+      "sha256": "3e7bb21503f7eb38200625930a7cdef9657c37f55f6dc640365cba1312ea0861"
+    },
+    "artifacts": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43766345613/artifacts-api.json",
+      "bytes": 1505,
+      "sha256": "393e4be36f099186a27720f35b69f3175d01329014c42016088de99e2b3b26d4"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14182586660,
+      "name": "native-save-direct-43766345613-1",
+      "bytes": 4172,
+      "digest": "sha256:e78779b0b0d9f30e0698e31361812c0cf709c42b0f54e8094f30d8105295b1a8",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    },
+    {
+      "id": 14182486846,
+      "name": "native-save-policy-43766345613-1",
+      "bytes": 4432,
+      "digest": "sha256:edcd50fb47b8c05dac91b42c8382f2409d88148aec9c33029a606496a6298c19",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    }
+  ],
+  "limitations": [
+    "An actual failure remains FAIL, including intentional reproductions.",
+    "The first run did not reach the native helper. The later native reproduction does not prove Save control invocation or completed file readback.",
+    "This isolated fixture does not establish installed retention, restart, enabled memory operation or live-provider quality."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config=tests/e2e/frontend-refinement.playwright.config.ts",
+      "tests/e2e/frontend-refinement.spec.ts",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T01:11:44.062478+00:00",
+    "endedAt": "2026-11-16T01:11:52.463462+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-scrollbar-thumb-readiness-green.log",
+    "logDigest": "c0e8f8d02de7bdad18b0417a702f953ce991e9c96a29e849f51b2b69c26bbbc2"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+  "workingDiffSha256": "acbc345d2382116f1a337d9e879c4c5ce3792591621531e0d69a783fd5a4267b",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 8388,
+  "rawOutputBytes": 1121,
+  "rawOutputSha256": "c0e8f8d02de7bdad18b0417a702f953ce991e9c96a29e849f51b2b69c26bbbc2",
+  "excerptInputBytes": 1121,
+  "excerptInputSha256": "c0e8f8d02de7bdad18b0417a702f953ce991e9c96a29e849f51b2b69c26bbbc2",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

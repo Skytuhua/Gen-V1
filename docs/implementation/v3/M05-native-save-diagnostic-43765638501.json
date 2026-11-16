@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43765638501,
+  "runAttempt": 1,
+  "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43765638501",
+  "workflow": {
+    "id": 419511027,
+    "name": "M05 native Save diagnostic",
+    "path": ".github/workflows/m05-native-save-diagnostic.yml",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-11-15T21:47:38Z",
+    "updatedAt": "2026-11-15T21:50:17Z",
+    "runStartedAt": "2026-11-15T21:47:38Z"
+  },
+  "headSha": "f924bd3e7e16893101255b066ba7a713b9a795e4",
+  "headBranch": "agent/m05-native-save-diagnostic-43760736519",
+  "treeSha": "ce9b6c026a58306a3be2fb83e7094f65dd9c739c",
+  "testedCheckout": {
+    "commitSha": "f924bd3e7e16893101255b066ba7a713b9a795e4",
+    "treeSha": "ce9b6c026a58306a3be2fb83e7094f65dd9c739c",
+    "parents": [
+      "013c044d66f40136752df4f1903132d601d57851"
+    ]
+  },
+  "scope": "DIAGNOSTIC_STARTUP_FAILURE",
+  "result": {
+    "jobSuccesses": 0,
+    "jobFailures": 2,
+    "commands": 2,
+    "commandPasses": 0,
+    "commandFailures": 2,
+    "fullInstalledAcceptance": false,
+    "productionPolicyChanged": false,
+    "nativeHelperChanged": false
+  },
+  "jobs": [
+    {
+      "id": 132969982562,
+      "name": "Native Save diagnostic (direct)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T21:47:42Z",
+      "completedAt": "2026-11-15T21:49:44Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132969982562/logs",
+      "rawLogBytes": 38942,
+      "rawLogDigest": "43a9b174fedcda6fab259275f2c733d8be46e40d0ee67940a1ef83f2ce36c756",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-132969982562.log",
+      "logDigest": "1d41ae9cfd767e3f46e4cc30b0f3370a514fc3083cb6857042c99a2f0c3992c1",
+      "logBytes": 38520,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/direct-receipt.json",
+        "bytes": 2381,
+        "sha256": "cca78e030c1add02c815a1260324383d4edc8368454ea18b77a42c17ced1153d",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": false,
+      "nativeStatus": "NOT_RUN",
+      "failure": {
+        "stage": "owned-electron-start",
+        "error": "Diagnostic boundary failed; inspect the bounded stage metadata."
+      }
+    },
+    {
+      "id": 132969982881,
+      "name": "Native Save diagnostic (policy)",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T21:48:28Z",
+      "completedAt": "2026-11-15T21:50:16Z",
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132969982881/logs",
+      "rawLogBytes": 38072,
+      "rawLogDigest": "2327b2033d990b274aba7d7b623753ba31c89b029ca02b1ecb9dc4552048d623",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-132969982881.log",
+      "logDigest": "0fc6049aa9af7442dee86236549ab7ba76a2051d8b2acec16e39dd19490c92a0",
+      "logBytes": 37663,
+      "logTransformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/policy-receipt.json",
+        "bytes": 2444,
+        "sha256": "f8c6565d59a99fb97d67e5916e9d495194beb965400529950dcc96bc33adaf2b",
+        "transport": "HASH_VERIFIED_INDEXED_BASE64_FRAMES_IN_ORIGINAL_JOB_LOG"
+      },
+      "nativeHelperDispatched": false,
+      "nativeStatus": "NOT_RUN",
+      "failure": {
+        "stage": "owned-electron-start",
+        "error": "Diagnostic boundary failed; inspect the bounded stage metadata."
+      }
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "direct"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T21:48:49Z",
+      "endedAt": "2026-11-15T21:49:39Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-a1-j132969982562-s4-direct.log",
+      "logDigest": "c0a2c2a674d9d52875ac4459333a69d6848b0d860cb53bf5325931eb8ae2fc24"
+    },
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "tsx",
+        "diagnostics/native-save/run.ts",
+        "policy"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T21:49:25Z",
+      "endedAt": "2026-11-15T21:50:12Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-a1-j132969982881-s4-policy.log",
+      "logDigest": "20e888ddb7730994c5384ea9684778cd1c366ea5b15fbf98837bf2424f5a4f66"
+    }
+  ],
+  "metadata": {
+    "run": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/run-api.json",
+      "bytes": 12456,
+      "sha256": "96229618fe21d9850b6ddd3e5807ce9db4ad735ea21aa11ea8f4e9da95686acd"
+    },
+    "jobs": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/jobs-api.json",
+      "bytes": 4698,
+      "sha256": "a10375d91bf93b3bc9fba84adf2973abf73d3c30afc9d7f9070e967151bbdcc9"
+    },
+    "checkout": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/checkout-api.json",
+      "bytes": 1189,
+      "sha256": "1d1dbaa8e311f72ba47ad748583de5a15bfe514b92fdc06dfb78ee5f5c9fb090"
+    },
+    "artifacts": {
+      "path": "docs/implementation/v3/m05-native-save-diagnostic-43765638501/artifacts-api.json",
+      "bytes": 1505,
+      "sha256": "5966213656e57eacae00bf137ec0b4185651b9ea70eb79ab1a5e0222d4fd16dd"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14181749151,
+      "name": "native-save-policy-43765638501-1",
+      "bytes": 1307,
+      "digest": "sha256:492f544fe612add1cdb992b4ac03e153306db79a3f0fd8bd2537d993797f1b35",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    },
+    {
+      "id": 14181644498,
+      "name": "native-save-direct-43765638501-1",
+      "bytes": 1274,
+      "digest": "sha256:27dd66271b56e081a1fcb6fd926cc9ccbd235ca6aa4a4cb0932e4ec9f1d49c70",
+      "expired": false,
+      "downloaded": false,
+      "receiptRecovery": "Original log frames, verified by bytes and SHA-256."
+    }
+  ],
+  "limitations": [
+    "An actual failure remains FAIL, including intentional reproductions.",
+    "The first run did not reach the native helper. The later native reproduction does not prove Save control invocation or completed file readback.",
+    "This isolated fixture does not establish installed retention, restart, enabled memory operation or live-provider quality."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/workspace.playwright.config.ts",
+      "--reporter=line",
+      "--trace",
+      "retain-on-failure",
+      "--output",
+      "/workspace/scratch/36f66011d961/m05-local-checks/continuation-f5e-workspace-configured-check-artifacts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:31:35.221252+00:00",
+    "endedAt": "2026-11-15T22:34:10.112662+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-f5e-workspace-configured-check.log",
+    "logDigest": "d3dfbd91fb62de8cb4dc6617ab23b05457f82d30a4a4e90c5dbc39d43758f85b"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "c1055beb3527a567ab3fc2c6b9539680f62b5139",
+  "workingDiffSha256": "2aae6f392d134d580f2ddb51eba9c476fc8e795776ae4cc8515493d6ffa87764",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 154868,
+  "rawOutputBytes": 5627,
+  "rawOutputSha256": "d3dfbd91fb62de8cb4dc6617ab23b05457f82d30a4a4e90c5dbc39d43758f85b",
+  "excerptInputBytes": 5627,
+  "excerptInputSha256": "d3dfbd91fb62de8cb4dc6617ab23b05457f82d30a4a4e90c5dbc39d43758f85b",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

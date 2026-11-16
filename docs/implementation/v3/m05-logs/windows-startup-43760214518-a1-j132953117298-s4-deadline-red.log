@@ -1,0 +1,68 @@
+2026-11-15T20:50:49.4323735Z ##[group]Run pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
+2026-11-15T20:50:49.4325083Z pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
+2026-11-15T20:50:49.4396256Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:50:49.4396893Z env:
+2026-11-15T20:50:49.4397326Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:50:49.4397847Z ##[endgroup]
+2026-11-15T20:50:50.7624573Z 
+2026-11-15T20:50:50.7627185Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T20:50:50.7628298Z 
+2026-11-15T20:50:52.1087899Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence
+2026-11-15T20:50:52.1091376Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events
+2026-11-15T20:50:52.1094263Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination
+2026-11-15T20:50:52.1096037Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them
+2026-11-15T20:50:52.1098118Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands
+2026-11-15T20:50:52.1099792Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output
+2026-11-15T20:50:52.1101355Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget
+2026-11-15T20:50:52.1103986Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch
+2026-11-15T20:50:52.1105715Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder
+2026-11-15T20:50:52.1107250Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches
+2026-11-15T20:50:52.1109429Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths
+2026-11-15T20:50:52.1111359Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag
+2026-11-15T20:50:52.1113171Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup
+2026-11-15T20:50:52.1117809Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller
+2026-11-15T20:50:52.1119970Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options
+2026-11-15T20:50:52.1123054Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner
+2026-11-15T20:50:52.1127084Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents
+2026-11-15T20:50:52.1129963Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile
+2026-11-15T20:50:52.1134700Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it
+2026-11-15T20:50:52.1137522Z  × tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff 15ms
+2026-11-15T20:50:52.1140271Z    → expected Error: The installed main page exceeded i… to be undefined
+2026-11-15T20:50:52.1142157Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page
+2026-11-15T20:50:52.1144874Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata
+2026-11-15T20:50:52.1147379Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck
+2026-11-15T20:50:52.1149918Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated
+2026-11-15T20:50:52.1152428Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck
+2026-11-15T20:50:52.1154974Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion
+2026-11-15T20:50:52.1156385Z 
+2026-11-15T20:50:52.1156977Z ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+2026-11-15T20:50:52.1157426Z 
+2026-11-15T20:50:52.1159930Z  FAIL  tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff
+2026-11-15T20:50:52.1167990Z AssertionError: expected Error: The installed main page exceeded i… to be undefined
+2026-11-15T20:50:52.1168682Z 
+2026-11-15T20:50:52.1169251Z - Expected:
+2026-11-15T20:50:52.1169497Z undefined
+2026-11-15T20:50:52.1169609Z 
+2026-11-15T20:50:52.1169758Z + Received:
+2026-11-15T20:50:52.1169964Z Error {
+2026-11-15T20:50:52.1170568Z   "message": "The installed main page exceeded its readiness deadline.",
+2026-11-15T20:50:52.1171244Z }
+2026-11-15T20:50:52.1171419Z 
+2026-11-15T20:50:52.1172000Z  ❯ tests/installed-desktop-verification.test.ts:248:44
+2026-11-15T20:50:52.1287498Z     246|   await vi.advanceTimersByTimeAsync(35000);
+2026-11-15T20:50:52.1290280Z     247|   const actual=await pending.settled;
+2026-11-15T20:50:52.1291692Z     248|   expect(actual.ok?undefined:actual.error).toBeUndefined();if(actual.o…
+2026-11-15T20:50:52.1293925Z        |                                            ^
+2026-11-15T20:50:52.1294375Z 
+2026-11-15T20:50:52.1295182Z     249|   expect(state.events.at(-1)).toMatchObject({phase:'ready',elapsedMs:3…
+2026-11-15T20:50:52.1296529Z     250|   expect(JSON.stringify(state.events)).not.toContain('PRIVATE_FRAGMENT…
+2026-11-15T20:50:52.1298088Z  ❯ withClock tests/installed-desktop-verification.test.ts:232:93
+2026-11-15T20:50:52.1299065Z 
+2026-11-15T20:50:52.1299879Z ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+2026-11-15T20:50:52.1300254Z 
+2026-11-15T20:50:52.1302475Z  Test Files  1 failed (1)
+2026-11-15T20:50:52.1305190Z       Tests  1 failed | 25 skipped (26)
+2026-11-15T20:50:52.1306089Z    Start at  20:50:50
+2026-11-15T20:50:52.1307157Z    Duration  1.33s (transform 446ms, setup 0ms, import 1.12s, tests 17ms, environment 0ms)
+2026-11-15T20:50:52.1309416Z 
+2026-11-15T20:50:52.3126962Z ##[error]Process completed with exit code 1.

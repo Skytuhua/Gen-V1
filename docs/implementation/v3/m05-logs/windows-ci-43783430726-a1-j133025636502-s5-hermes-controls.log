@@ -1,0 +1,21 @@
+2026-11-16T00:59:08.2491355Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-16T00:59:08.2491907Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-16T00:59:08.2565405Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T00:59:08.2565759Z env:
+2026-11-16T00:59:08.2566037Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T00:59:08.2566458Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:08.2566934Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T00:59:08.2567421Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:08.2567851Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:08.2568294Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:08.2568754Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T00:59:08.2569191Z ##[endgroup]
+2026-11-16T00:59:12.2248725Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-16T00:59:12.2894252Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-16T00:59:12.3793134Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-16T00:59:12.4594344Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-16T00:59:12.4648856Z 
+2026-11-16T00:59:12.4649735Z ----------------------------------------------------------------------
+2026-11-16T00:59:12.4650326Z Ran 4 tests in 3.668s
+2026-11-16T00:59:12.4650551Z 
+2026-11-16T00:59:12.4650710Z OK

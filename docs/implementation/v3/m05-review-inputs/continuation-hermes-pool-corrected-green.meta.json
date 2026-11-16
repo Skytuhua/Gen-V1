@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/hermes-runtime.test.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:25:00.510841+00:00",
+    "endedAt": "2026-11-15T22:25:06.351539+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-corrected-green.log",
+    "logDigest": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+  "workingDiffSha256": "662e31546aecd7e7dd86b6c354a69046e5233bde504455be5660d2ecedf32737",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 5823,
+  "rawOutputBytes": 231,
+  "rawOutputSha256": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6",
+  "excerptInputBytes": 231,
+  "excerptInputSha256": "cb5598995e7032fee51d0d4370dcdbf726f55893c34958b0183f2be6287262f6",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

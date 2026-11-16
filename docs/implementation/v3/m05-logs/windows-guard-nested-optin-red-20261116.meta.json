@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/file-access-startup.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T01:56:40.232434+00:00",
+    "endedAt": "2026-11-16T01:57:42.977419+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.log",
+    "logDigest": "1e5b21cd33a7b9cbb0d2cea86f8a6481985a250150d1cb755452787a14ce18d6"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+  "workingDiffSha256": "67ffcd7548d6410a1413661ff084f2fa30e8b7c4e0d40097456a39faaa6af0c7",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 62726,
+  "rawOutputBytes": 1148,
+  "rawOutputSha256": "1e5b21cd33a7b9cbb0d2cea86f8a6481985a250150d1cb755452787a14ce18d6",
+  "excerptInputBytes": 1148,
+  "excerptInputSha256": "1e5b21cd33a7b9cbb0d2cea86f8a6481985a250150d1cb755452787a14ce18d6",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

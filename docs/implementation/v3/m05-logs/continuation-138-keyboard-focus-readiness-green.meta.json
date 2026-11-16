@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "AGENTSUI_APP_CANDIDATE=1",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "/workspace/scratch/36f66011d961/m05-138-agents-workspace.playwright.config.mts",
+      "tests/e2e/agents-workspace.spec.ts",
+      "--grep",
+      "keyboard entry into a virtual agent",
+      "--workers=1",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:21:29.863526+00:00",
+    "endedAt": "2026-11-16T00:21:40.403473+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-readiness-green.log",
+    "logDigest": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+  "workingDiffSha256": "c8c8d3040035e0dc2a3e828be6d48b81ae1402dedaf6d7d44357443f9a31c271",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 10525,
+  "rawOutputBytes": 945,
+  "rawOutputSha256": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0",
+  "excerptInputBytes": 945,
+  "excerptInputSha256": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

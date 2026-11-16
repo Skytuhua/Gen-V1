@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-desktop-verification.test.ts",
+      "-t",
+      "optional diagnostic construction|optional clock later",
+      "--reporter=verbose"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-16T00:51:49.675927+00:00",
+    "endedAt": "2026-11-16T00:51:52.288079+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.log",
+    "logDigest": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "workingDiffSha256": "e0377d23ae9e88158eb569d5662f57ea8d4306565424291dc6f09d207a4a862e",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 2599,
+  "rawOutputBytes": 7532,
+  "rawOutputSha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+  "excerptInputBytes": 7532,
+  "excerptInputSha256": "4121c2140f503368f8a1d44b58afadc5e9e0d3f7dfec96d93e9ce32654d6ef84",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

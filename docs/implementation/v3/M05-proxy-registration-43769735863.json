@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43769735863,
+  "runAttempt": 1,
+  "workflow": {
+    "name": "M05 native Save proxy registration",
+    "path": ".github/workflows/m05-native-save-proxy-registration.yml",
+    "id": 419535964,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-11-15T22:31:13Z",
+    "runStartedAt": "2026-11-15T22:31:13Z",
+    "updatedAt": "2026-11-15T22:31:41Z"
+  },
+  "headSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+  "headBranch": "agent/m05-native-save-proxy-registration-43769197860",
+  "testedCheckout": {
+    "commitSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+    "treeSha": "a122b7ca215c9deb52004d2d01640fefb2443a4b",
+    "parents": [
+      "10343f068aae88544a1a3d3c2d1d2ceda55767fe"
+    ]
+  },
+  "jobs": [
+    {
+      "id": 132982741312,
+      "name": "UI Automation registration (fresh)",
+      "status": "completed",
+      "conclusion": "failure",
+      "mode": "fresh",
+      "step": {
+        "name": "Measure actual Windows PowerShell provider registration",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 3,
+        "started_at": "2026-11-15T22:31:28Z",
+        "completed_at": "2026-11-15T22:31:33Z"
+      },
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132982741312/logs",
+      "bytes": 23264,
+      "sha256": "07701180932d379aca169e44f9d7210269ef32f79534a328187085b585b6fc79",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43769735863-132982741312.log",
+      "boundedLogDigest": "5cbee1fa5b40dd77f1f814a3f8d7605705330266ac91c4fbd71f2c8ae19ffe38",
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-proxy-registration-43769735863/fresh-receipt.json",
+        "bytes": 909,
+        "sha256": "89f2a065fb3a818d49b6a2d66bda3db9d49638211d16a845744d7b9e213665e0"
+      },
+      "argvBasis": "OBSERVED_SHELL_ARGUMENT_EXPRESSIONS",
+      "registered": null,
+      "providerTableCount": null,
+      "stage": "register-provider",
+      "exceptions": [
+        {
+          "type": "System.Management.Automation.MethodInvocationException",
+          "hresult": -2146233087
+        },
+        {
+          "type": "System.NullReferenceException",
+          "hresult": -2147467261
+        }
+      ],
+      "actualCommandStatus": "FAIL"
+    },
+    {
+      "id": 132982741634,
+      "name": "UI Automation registration (copied)",
+      "status": "completed",
+      "conclusion": "failure",
+      "mode": "copied",
+      "step": {
+        "name": "Measure actual Windows PowerShell provider registration",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 3,
+        "started_at": "2026-11-15T22:31:31Z",
+        "completed_at": "2026-11-15T22:31:36Z"
+      },
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132982741634/logs",
+      "bytes": 23519,
+      "sha256": "c278a9c489a2ca609d698cb24eeb8bbe3d546e65b27f493b5197d52705654a3d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43769735863-132982741634.log",
+      "boundedLogDigest": "e101fcd6ba59d1dae9ffd7b547f818789318f1378eb20356ea4deaf568e85073",
+      "laneReceipt": {
+        "path": "docs/implementation/v3/m05-proxy-registration-43769735863/copied-receipt.json",
+        "bytes": 909,
+        "sha256": "2afc063e8e3af81231cfe98c06c8654d0bc01fdfbf34a4b696eef0a69182106b"
+      },
+      "argvBasis": "OBSERVED_SHELL_ARGUMENT_EXPRESSIONS",
+      "registered": null,
+      "providerTableCount": null,
+      "stage": "register-provider",
+      "exceptions": [
+        {
+          "type": "System.Management.Automation.MethodInvocationException",
+          "hresult": -2146233087
+        },
+        {
+          "type": "System.NullReferenceException",
+          "hresult": -2147467261
+        }
+      ],
+      "actualCommandStatus": "FAIL"
+    }
+  ],
+  "commands": [],
+  "unresolvedCommandObservations": [
+    {
+      "argv": [
+        "$worker",
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-MTA",
+        "-File",
+        "$script",
+        "-Mode",
+        "fresh"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "$worker",
+      "startedAt": "2026-11-15T22:31:28Z",
+      "endedAt": "2026-11-15T22:31:33Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43769735863-a1-j132982741312-s3-fresh.log",
+      "logDigest": "bba30096585a1ced29f91a1406b4b08df672b800080e9306837d4d20439e73e9",
+      "argvBasis": "OBSERVED_SHELL_ARGUMENT_EXPRESSIONS",
+      "ledgerEligible": false,
+      "unresolvedFields": [
+        "argv[0]",
+        "argv[6]"
+      ],
+      "limitation": "The actual emitted shell invocation and its outcome are preserved. These two argument expressions are not substituted or represented as resolved child argv."
+    },
+    {
+      "argv": [
+        "$worker",
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-MTA",
+        "-File",
+        "$script",
+        "-Mode",
+        "copied"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "$worker",
+      "startedAt": "2026-11-15T22:31:31Z",
+      "endedAt": "2026-11-15T22:31:36Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43769735863-a1-j132982741634-s3-copied.log",
+      "logDigest": "185ab6c700af7e2f6196f25449bb918a3c871a987ddbf71c5b794d3e724da844",
+      "argvBasis": "OBSERVED_SHELL_ARGUMENT_EXPRESSIONS",
+      "ledgerEligible": false,
+      "unresolvedFields": [
+        "argv[0]",
+        "argv[6]"
+      ],
+      "limitation": "The actual emitted shell invocation and its outcome are preserved. These two argument expressions are not substituted or represented as resolved child argv."
+    }
+  ],
+  "result": {
+    "actualPasses": 0,
+    "actualFailures": 2,
+    "ledgerEligibleCommands": 0,
+    "unresolvedArgvCommands": 2,
+    "nativeDialogOrSaveProof": false
+  },
+  "metadata": {
+    "run": {
+      "path": "docs/implementation/v3/m05-proxy-registration-43769735863/run-api.json",
+      "bytes": 12494,
+      "sha256": "5f445a586410da7feefbc2c8b270f18984b065941dc917009d7e78f6fdd7181a"
+    },
+    "jobs": {
+      "path": "docs/implementation/v3/m05-proxy-registration-43769735863/jobs-api.json",
+      "bytes": 4093,
+      "sha256": "895be5b71ea4faa4a921a6862e04153d5bac0e18262e625e97fc806a12779775"
+    },
+    "checkout": {
+      "path": "docs/implementation/v3/m05-proxy-registration-43769735863/checkout-api.json",
+      "bytes": 1196,
+      "sha256": "ed4924924ca8659f5189e041abd7bcc69b904f86bf17471d79b016ce55443fc6"
+    },
+    "artifacts": {
+      "path": "docs/implementation/v3/m05-proxy-registration-43769735863/artifacts-api.json",
+      "bytes": 1530,
+      "sha256": "6b19883f11faed8fbf8a5d558177f78d9e4f5aee0919104dfd2c2f10f9cd8b6e"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14184240743,
+      "name": "native-save-proxy-copied-43769735863-1",
+      "bytes": 634,
+      "digest": "sha256:9f417c9fb5749f4201c1b426948c79e47b1c8134dd4df465c156a2381fbc9aa8",
+      "downloaded": false
+    },
+    {
+      "id": 14184001423,
+      "name": "native-save-proxy-fresh-43769735863-1",
+      "bytes": 635,
+      "digest": "sha256:787b9c9999e1b6660971e012825b073548266bec9e7ec69e8d7db7903ed93355",
+      "downloaded": false
+    }
+  ],
+  "scope": "Actual isolated UI Automation provider registration. No native dialog, account, provider request or control action.",
+  "limitations": [
+    "Every failed probe remains FAIL.",
+    "Successful registration alone does not establish native Save controls, destination, installed retention or application acceptance."
+  ]
+}

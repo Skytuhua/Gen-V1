@@ -2114,6 +2114,646 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fe45c5ce6fe1ee5ad346d64448587d50eb554a80b7134cd050a535856ec76d69",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43755565107-a1-j132938786198-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4d569f8396aaf387812475d389b869af112c7f1048a1198d27a3acfb7793593d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "be01676a8d0ec6587cabdb160bb43425d1bfde83fd74a4cfccd22d404b001a2e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43760736519-a1-j132954742228-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f728f0377bf98deab6188adb0a3a686a02630dd79e5f73f23f3528fa5dd508a9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-a1-j132969982562-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6c38dfaf8a67afeeb030618fdc2a8f5f0504db8cf8cb304c4998fb34538d891e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43765638501-a1-j132969982881-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "7452b5cd00aadc81e9fb067f79f49ed46814e5cca73922a04c6083cf3140d926",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-a1-j132972184359-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "8a4e4b18c55e081ce284af3a8aee23ba1c521f39ee8ac7586f5856b74a4cf106",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-a1-j132972184623-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ba7a71c68f794a51a7c5a4e8f7230a0f4bb95bf9ada64139841582e7aef4541e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-workspace-toggle-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6466ae86af90d97e6bdc1ab2a9a23b274a2ad3c560c507dc5398467a02bb7623",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-task-fixture-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a634685ecf97c5d8dbfd4ae5c46c351c99c6a75746d27d9d0c4dbadff0854943",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-workspace-toggle-browser-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "45d5fc804a7859aa77dc3fbe8fd398fd6bd5ddf58812136d51814c5168a1d5da",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-task-fixture-browser-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a64c0217cd85301658114ef29c534dc64f6e02a311868a0ecb87b7fca75c8777",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-workspace-browser-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1a84f36ac725d6a79ab4ba09c37197dac371d73bb95287fba23b154eabc44e11",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-workspace-fixture-repair-check-1.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2ab91f3858ccc2e4b2029125f4bb91fb879a648ee811715d8eb3d81c9e795bad",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43767457634-a1-j132975662299-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "676459fe2d20e33776ef71e7d63bbb45dd09f3e13e0b1d41f067ca15080396ae",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43767457634-a1-j132975662638-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "99caa74398c227b562fe9ff62a1e1667d15cfdcbbe10d600bd9f35cd11f83fb3",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43768148129-a1-j132977793695-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "940b217ca6950806040f2270451141a4c7e40556dc358ac79df617881a689b04",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43768148129-a1-j132977793918-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e71b32ff99c81cdc8eb797b8e335a845460ce0d19ab72bfc8a6fd207b46c1cd8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-latest-main-memory-runtime-check.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "23225cde633bb8356a7ed15173551b370e28e836f58423a5820bc95ff4dcea83",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "29d2eb73476da97d2a3dd3c8580294ca95f1a96fe4e129c1507d5eeee8ca147e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-fixture-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "636499e8e5e220031595691bac55822e630340e4b2f4f523ac5a6768b2cd70f4",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-green.log",
+      "exitCode": 254,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a944d18d341fbbe034bef370b299e0b0e76fd174acce141859b8fcecba891dcb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-green-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "03f522a8fc613848e199d7d81808ba0e4594b0e6923f9082dad773e27754891a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-corrected-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "eac2e941a2a918bb6ba8827298397ca19c56dc56334eccdfda17908ef63e6eb0",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-f5e-main-workspace-check.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a680dd510c277c5c7ff73924923a146faf8c2a4bf8eed34b47e96038f4fd05cc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43769197860-a1-j132981058389-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b4d7826381fc65377054a2cfd65212c382c1a125d248323c3ea8ec1b9ff636a5",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43769197860-a1-j132981058535-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4a0532d6c91ed4ee26d75ab688d8d2d91036f533b94effef8bff4e048a840bcb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43771029999-a1-j132986750219-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6ccabe49e1ef834afdc68784fc35062500f544c439aa531fc0827d3876b2547f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43771029999-a1-j132986750346-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "31e987c9ec1fd2fb0641259053f47da62c0e8c3feab5ec51f20bdd465365e38d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-proxy-registration-custody.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ae80639041ebf1d7a374f4a21a53107de457c31300969af5781b58997e6200bf",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43771745051-a1-j132988950063-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "89363bd47b9675f1d1dcfeb4df65510ddb7e8946bbcae0f2eb4715f86fbf4c56",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43771745051-a1-j132988950286-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f1f545a353f2ce3424bbe33577e8862bef033e5cc5c0a83da97b129a7a7ce30e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985242844-s3-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b7b497642b1eb3fd19a1304e3b013a9b64c7728198e3369e3418876cd138f158",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43772551991-a1-j132991473292-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b7f9edcadbf0bf21e4254e9a83996edc57a7e4992dc9e7dfbb3f0b117df4ee4c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43772551991-a1-j132991473508-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f3d88b479d52f0fc7135931eff750fd2291e6d3b0e5e114ec11a5d466afafcaa",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773159224-a1-j132993358800-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "df4a78199441ff477148828089bad019d407ce6e640fc7f0d2f00b7d7e18d7ff",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773159224-a1-j132993358993-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f9913519cf44e13721d89886a65a4e1c1e0e4f1bc09dc2723eb9449b5b984543",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43771171183-a1-j132987185885-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "65c95bae65ad14bdf3ae1ccd974a93b3d2547d9f29f1444544384d64e25374a3",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43771171183-a1-j132987186065-s6-browser-frontend-refinement.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "694e9794daaf3f3acc86fac8cec0f5085c347e54b59118f526995d3a8c014a03",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43771171183-a1-j132987186065-s6-browser-root.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "86bb61c6d4d460855e5ebe263ca34461470162b4a966b40f1e847df042682e57",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773472499-a1-j132994342761-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fa6c67eca14c230df3ecf97d1ef0091d0dec74007dd94b0e14682e57bca0b126",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773472499-a1-j132994342982-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4f08b4139252d297bc15635b1767c8252eb6955f5daebff2178a3f3d4eccef23",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773970252-a1-j132995881391-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e48a85cc9d0ca99c077e2aa7369a0c122f3deefffda032ea6a935b8bfc107572",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773970252-a1-j132995881504-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1427371f0eb855c2287c005274fb496d91990235933127f79ce864a587f8e892",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-plan-timeline-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "bd1c3cae5bf99584b51f0ace411c7c317b3ef95f441219d4cc95e4a49cdbca39",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b8b50c88d62badd8fd03ee2ac4e787df704b77cd6c5d0564d8d175c58c4c65f4",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d-document-geometry-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b7002166cbfed9a4e192f52fedad734bf86d5deca8e439e0ef4ca44840716876",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "40f004779f57048b1fc6ed97823de57d4c8fc0a834d7927c4d95189eed3312de",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43775229884-a1-j132999911798-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a3f2c5c4761fefe4788260a7effcad0c13d37f005bfa4f233aaff8fd7acca2bc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43775229884-a1-j132999912088-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "494f2bb0b9b0eccb7713025da9e585d0e0927205877beb3ea4770e4cab6a8593",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "3389de7c6638fe6015b6ad54185a8ade70fd7aa41b2e3a1b818f7982396b95f3",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6db1dbd502dca3ebc59c73890d8c4915ef87044bd2977b19722db5e9a3231f15",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-1.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "24ce70a71020bb6f178e780261cf7ec88bff452d0df2c6dc4259dec1ee42b4ff",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "df24b5503c6d951b53ab9285f1f3aa0b22f8581369f784c61e31398619290374",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-2.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "24d2d912e6de12d28853591309498fa65073a54686fbc143eee0611081772dfd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-2.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "8b075f519329b314a052f70b89455c3504607469aa7382151785dd2f497b87b9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-3.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "415dfd970be288a4dacb1cb87d1f05deb9721f508af6a80c6d6f8df87f977a11",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-4.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "907bdc3f08a67fe9acb3943fbf70383717fc1c309ec55a67c398f017b1f9646f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-5.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ea7550bf664ae0141019aec59547b01119f99670e84bf9e5f5efa964b626de57",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-673-merged-layout-retry.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "778eb0c5ced58522cd2d432e6406788889389f44dc275867d41c0d64ed76a28c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776384386-a1-j133003512474-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fba21b29e070e94be82f3509b933e69d86e00c1714dd3404bdfe9b05d26f1e43",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776384386-a1-j133003512601-s4-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a7101e285fa2e20a22ea274c295b6cd4aebb3b352addef73942e9c39c5b388d8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-a1-j133005417877-s4-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "08aea9afdce366496ff03e5cddc3c035f6f4c5c464353bc0c36cd836ec43e554",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-shared-fixture-browser-bundle-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b4b3abde55c6f63abefdccccd8db387b02a0f721aee4b16668abd364efb000fd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0a6f0d11c020504eee6e02dfa87ec52db5b3115576ee218167b9630d0af52eda",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "15e30f5eccd1c1ee3d41ac938f4d8599a72d928595506f4b9adb9a11d0d7da1a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43777513127-a1-j133007063329-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f522e48ff1889b5e666df104edf999ed4adda007b01618e1f86391f4067f47ad",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43777513127-a1-j133007063380-s5-application-regression.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "533141e65ac5123d7ab44e6b1d40d5f457fd0b34f13052b28adc0efe1c7784d8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2c67e3058eb48025485c2765a0cd70d52368d28f14d51dce601c3762428d9607",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-green-1.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c0f527a7533eda31f653a76db32cfcec727aead456f38dfd80300143f604df4b",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-producer-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fcd92972d78e89a8bd31433dac0298875343f232c560bc398a3ebdf7d185aa46",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-runtime-closure-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e2a79a6b16c87a50056f8eb83bc19d28ea4310717c8ba1f266a53b5b9bb6ea67",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1eb0049f826260daaa89174c6a4ada7f3f5e0f2d1c58a1bce4dd0e7d798c7e32",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-observer-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "76544e0b7e6a9ba221eade447237761bb93ae99db19aaf5514511e79e99a40dd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-startup-diagnostics-typecheck.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a74c618abd53535da1ef1e6f9ee35287340691654db6642c9f57e95d9a102619",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43783430726-a1-j133025636881-s6-browser-frontend-refinement.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5943a5436bee1ba065d79888e67168efda9a5db69ff1134a850f29092f4203be",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43783430726-a1-j133025636909-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "bb53e57c341f844c8a276333b6f4b6d63e33107470f140d2dd2216ad5220ab00",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185760-s5-production.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "21611d919db16eda92c411b5dfd7728ab41a5c9cf42c0baf0efbcd2272c9cf51",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-red-20261116.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b8479af46bb9fe8a419395d265b10451873d8656478d8e455b9e44fe5d028b8f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "3c14743b614e59345f7365b06da76f7901a4853c3b8056daef5224dd018e240c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -2502,6 +3142,71 @@
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43748168614.json",
       "windowsCiCurrentCodeCut": false,
       "installedRetentionAdmission": null
+    },
+    {
+      "recordedAt": "2026-11-16T03:00:04.968Z",
+      "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+      "sourceParentHeadSha": "299aa79fce281bacc370bd76373f760082046941",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988754-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988754-s5-build-desktop.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988834-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988834-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s5-browser-split.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s6-browser-frontend-refinement.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s6-browser-project-memory.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s6-browser-root.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s6-browser-usage-context.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988874-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988874-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988899-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988899-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988903-s6-ui-guard.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988903-s7-lint.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988903-s9-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988913-s5-installed-git-custody.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988913-s6-installed-package.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988913-s7-installed-retention.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988939-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988939-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s4-hermes-source.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s5-hermes-controls.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s6-hermes-worker.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988947-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "3dca9cddae81fed761909d77bc8d35c7d44fe0f686274aa07756b2d0db719889",
+      "ledgerAfterDigest": "c64773e469bfbed3a28b0cbfc70733db498bb79cc46cd0db3dbc07db13fae8c3",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43789647166.json",
+      "windowsCiCurrentCodeCut": true,
+      "installedRetentionAdmission": {
+        "status": "PASS_INSTALLED_DEFAULT_OFF_RETAINED_MEMORY_ONLY",
+        "headSha": "299aa79fce281bacc370bd76373f760082046941",
+        "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+        "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+        "runId": 43789647166,
+        "jobId": 133044988913,
+        "artifactId": 14193350904,
+        "reviewRef": "docs/implementation/v3/M05-installed-phase-review-43789647166.json",
+        "admissionReportRef": "docs/implementation/v3/m05-platform-43789647166/admission-report.json",
+        "admissionReportSha256": "7d7f55d123f28813408465f346fb11c5e221162acaa135958909601270586d10",
+        "visualReviewRef": "docs/implementation/v3/M05-installed-visual-review-43789647166.json",
+        "scope": "Only actual default-off retained memory review, ordinary native Save, Forget and same-profile restart. No release approval or feature activation."
+      },
+      "assembly": "Immutable GitHub responses and exact reviewed blobs; original631 rows unchanged.",
+      "acceptedBaseReviewRef": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json"
     }
-  ]
+  ],
+  "acceptedBaseRefresh": {
+    "recordedAt": "2026-11-16T03:00:04.968Z",
+    "priorAcceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "sourceLockDigest": "6838e314f2062d545992ee2dda05afbf26caf01810ff1ac7c9f992a2a9d5bdbe",
+    "historicalLockRef": "docs/implementation/v3/M05-source-lock-399cde39.json",
+    "reviewRef": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+    "contractRowsBefore": 51,
+    "contractRowsAfter": 16,
+    "purpose": "Accept already merged main fixes and deduplicate identical contract references. Prior execution remains bound to its actual historical source; no result is promoted."
+  }
 }

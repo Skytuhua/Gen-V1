@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "diagnostics/native-save/run.ts",
+      "direct"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T23:51:38Z",
+    "endedAt": "2026-11-15T23:51:54Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43776992693-a1-j133005417877-s4-direct.log",
+    "logDigest": "47249af8b73b32db763aa0f228e17d25e0496ac58380bdf46a67ecd3b1325f3f"
+  },
+  "runId": 43776992693,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "d29cbd5014863b709cd85c5e29f59740fbfc7b3e",
+  "testedCheckout": {
+    "commitSha": "d29cbd5014863b709cd85c5e29f59740fbfc7b3e",
+    "treeSha": "badf6ae95cc38c263431be95f0cb6b0e729a386f",
+    "parents": [
+      "968df4dd910a2296ad2899dfa040db1244c3159e"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/d29cbd5014863b709cd85c5e29f59740fbfc7b3e",
+    "rawResponseSha256": "f08b95ba41c339c3504d319bec4bc941e20adaf2d8c40bd74e129ddfd25393de"
+  },
+  "job": {
+    "id": 133005417877,
+    "name": "Native Save diagnostic (direct)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43776992693/job/133005417877",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001776,
+      "name": "GitHub Actions 1000001776",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run the actual native Save lane",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 4,
+    "started_at": "2026-11-15T23:51:38Z",
+    "completed_at": "2026-11-15T23:51:54Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-native-save-diagnostic-43776992693.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133005417877/logs",
+  "rawJobLogDigest": "6fab0a4f094c2251a29a19021bb08cb483c04cb21caf2a8c8e3d1b7e222ae74d",
+  "rawJobLogBytes": 58710,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained in scratch and agent memory. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      295,
+      307
+    ]
+  ],
+  "excerptInputSha256": "0297903be8c9aeb80bf67f243a3dbf85dfe7f6f6e72132eb5cd52bca20e04b7f",
+  "excerptInputBytes": 26459,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 26435,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Timestamps are jobs-API execution-step bounds. A separate native process or dialog duration is not inferred from them.",
+  "exitBasis": "The exact selected command group reports Process completed with exit code 1 and the corresponding jobs-API step concludes failure.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked pnpm command name; no resolved launcher executable path is claimed.",
+  "cwdBasis": "Observed checkout working directory; the selected script contains no directory change.",
+  "observedScript": "pnpm exec tsx diagnostics/native-save/run.ts direct",
+  "interpretation": {
+    "kind": "Policy command PASS with exact production export admission, all six native phases and fixed 634-byte file/hash. Direct command remains FAIL at the independent read-only observer after its own successful exact six-phase fixed-byte Save. No installed-retention proof is claimed.",
+    "expectedNegativeRelabelledAsPass": false,
+    "nativeSaveDispatched": true,
+    "nativeResult": "completed",
+    "scope": "Direct native Save and reviewed helper; not production export admission."
+  },
+  "receiptSha256": "06acd0a4caaa9f837fa888990a253ce43d3400a8e120cc0359569aed2f78115d"
+}

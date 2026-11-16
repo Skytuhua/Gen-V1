@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "root"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-16T02:05:14Z",
+    "endedAt": "2026-11-16T02:16:21Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43789647166-a1-j133044988873-s6-browser-root.log",
+    "logDigest": "6efe5dbb2c731f6f54286703a99a32a99ed1684181c7f30a551369137dbecf73"
+  },
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ],
+  "runId": 43789647166,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "testedCheckout": {
+    "commitSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "parents": [
+      "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+    ],
+    "matchesPublishedTree": true,
+    "matchesPublishedCommit": true,
+    "event": "push",
+    "expectedBranch": "agent/m05-v3",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/299aa79fce281bacc370bd76373f760082046941",
+    "rawResponseSha256": "8c954e27bf7ed5f38a65db700112e0124262c8ff0e939f28ed2899b23388c0d4"
+  },
+  "job": {
+    "id": 133044988873,
+    "name": "Browser tests",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789647166/job/133044988873",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001993,
+      "name": "GitHub Actions 1000001993",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Exercise project memory and affected context browser flows",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 6,
+    "started_at": "2026-11-16T02:05:14Z",
+    "completed_at": "2026-11-16T02:16:21Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43789647166.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133044988873/logs",
+  "rawJobLogDigest": "b06ab383d6364bcbe3b5292fcd9a84f5768c94bc863a64bbc489919c7638475a",
+  "rawJobLogBytes": 115193,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      612,
+      630
+    ],
+    [
+      799,
+      923
+    ]
+  ],
+  "excerptInputSha256": "dad3be9ba84e54b4e9bd3305afb238b3df31ddfae1b1afabe3b79c3f71e7a354",
+  "excerptInputBytes": 20772,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 20540,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "All four actual suite invocations reached the successful wrapper; its immediate LASTEXITCODE collection establishes each exit0.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "$failedSuites = @()\nforeach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {\n  pnpm test:browser --suite $suite\n  if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }\n}\nif ($failedSuites.Count -gt 0) {\n  throw \"Failed browser suites: $($failedSuites -join ', ')\"\n}",
+  "receiptSha256": "a5be303f63e53d901d42101ac9b5d08fb9ffc75f0a00986f8e0a076dabd29555"
+}

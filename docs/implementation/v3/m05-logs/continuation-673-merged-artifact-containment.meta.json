@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/frontend-refinement.playwright.config.ts",
+      "tests/e2e/reserved-rail.spec.ts",
+      "--grep",
+      "workspace artifact stays inside its panel",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:38:49.141959+00:00",
+    "endedAt": "2026-11-15T23:39:20.500500+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-673-merged-artifact-containment.log",
+    "logDigest": "701943c29942d989cbdad762f03f06319599dbf2a5fd93d46331136b8f5a5d4a"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "c6f9c397e25019ba7f83dc2e5eb080a672dea229",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 31341,
+  "rawOutputBytes": 979,
+  "rawOutputSha256": "701943c29942d989cbdad762f03f06319599dbf2a5fd93d46331136b8f5a5d4a",
+  "excerptInputBytes": 979,
+  "excerptInputSha256": "701943c29942d989cbdad762f03f06319599dbf2a5fd93d46331136b8f5a5d4a",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

@@ -1,0 +1,48 @@
+2026-11-15T20:53:37.5306311Z ##[group]Run pnpm exec vitest run tests/installed-desktop-verification.test.ts tests/installed-native-save.test.ts --reporter=verbose --maxWorkers=1
+2026-11-15T20:53:37.5307284Z pnpm exec vitest run tests/installed-desktop-verification.test.ts tests/installed-native-save.test.ts --reporter=verbose --maxWorkers=1
+2026-11-15T20:53:37.5365664Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:53:37.5365956Z env:
+2026-11-15T20:53:37.5366178Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:53:37.5366447Z ##[endgroup]
+2026-11-15T20:53:39.5136769Z 
+2026-11-15T20:53:39.5138519Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T20:53:39.5138973Z 
+2026-11-15T20:53:40.6771779Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence 4ms
+2026-11-15T20:53:40.6774706Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events 1ms
+2026-11-15T20:53:40.6777385Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination 12ms
+2026-11-15T20:53:40.6779850Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them 5ms
+2026-11-15T20:53:40.6782259Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands 1ms
+2026-11-15T20:53:40.6784917Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output 0ms
+2026-11-15T20:53:40.6787149Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget 0ms
+2026-11-15T20:53:40.6789482Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch 0ms
+2026-11-15T20:53:40.6792145Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder 1ms
+2026-11-15T20:53:40.6793880Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches 1ms
+2026-11-15T20:53:40.6795192Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths 0ms
+2026-11-15T20:53:40.6796421Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag 1ms
+2026-11-15T20:53:40.6797974Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup 1ms
+2026-11-15T20:53:40.6800931Z  ✓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller 30ms
+2026-11-15T20:53:40.6802398Z  ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options 0ms
+2026-11-15T20:53:40.7815441Z  ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner 217ms
+2026-11-15T20:53:40.9593306Z  ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents 4ms
+2026-11-15T20:53:40.9595230Z  ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile 2ms
+2026-11-15T20:53:40.9857562Z  ✓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it 175ms
+2026-11-15T20:53:40.9859925Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff 6ms
+2026-11-15T20:53:40.9862148Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page 1ms
+2026-11-15T20:53:40.9864168Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata 10ms
+2026-11-15T20:53:40.9866330Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck 2ms
+2026-11-15T20:53:40.9868494Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated 1ms
+2026-11-15T20:53:40.9870597Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck 1ms
+2026-11-15T20:53:40.9873050Z  ✓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion 2ms
+2026-11-15T20:53:41.2652518Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > keeps the complete fixed PowerShell command below the real Windows argv limit without a policy override 3ms
+2026-11-15T20:53:41.2655320Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > uses one absent fixed file in the verified evidence directory and reads only that completed regular file 9ms
+2026-11-15T20:53:41.2657226Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a redirected evidence directory and preserves an existing redirected output 6ms
+2026-11-15T20:53:41.2659904Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a replaced evidence directory and empty or oversized saved files 7ms
+2026-11-15T20:53:41.2663126Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > admits only the ordered native dialog lifecycle for the same process and dialog 3ms
+2026-11-15T20:53:41.2668570Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > rejects another process, process reuse, replacement dialogs, missing stages and forged fields 2ms
+2026-11-15T20:53:41.2671076Z  ✓ tests/installed-native-save.test.ts > installed native Save proof custody > preserves bounded fixed failure metadata without accepting completion or unrelated control text 2ms
+2026-11-15T20:53:41.2688783Z 
+2026-11-15T20:53:41.2690022Z  Test Files  2 passed (2)
+2026-11-15T20:53:41.2690963Z       Tests  33 passed (33)
+2026-11-15T20:53:41.2691624Z    Start at  20:53:39
+2026-11-15T20:53:41.2692555Z    Duration  1.74s (transform 375ms, setup 0ms, import 907ms, tests 515ms, environment 0ms)
+2026-11-15T20:53:41.2693205Z 

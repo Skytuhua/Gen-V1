@@ -18,7 +18,7 @@ beforeAll(async()=>{
   const api=window;api.regionCloses=0;api.documentClosed=0;api.popupClosed=0;api.updates=0;
   const store=createStateStore({values:{}});api.store=store;store.subscribe(()=>api.updates++);
   const query=new URLSearchParams(location.search),kind=query.get('kind'),mode=query.get('mode');
-  function Document(){const [documentWindow,setDocumentWindow]=useState(null);return <StateProvider store={store}><SecureArtifactProvider value={{artifactId:'ime',threadId:'thread',revision:1,active:true,editable:true}}><WorkspaceProvider value={{activeArtifactId:'ime',requestOpenArtifact:()=>{},closeArtifact:()=>{},rightPanelOpen:true,activeTab:'artifact',setActiveTab:()=>{},documentWindow,requestOpenDocument:id=>setDocumentWindow({id,placement:'floating'}),closeDocument:()=>{api.documentClosed++;setDocumentWindow(null)},placeDocument:(id,placement)=>setDocumentWindow({id,placement})}}><WindowDocument text="Original" props={{title:'IME notes',editableStateKey:'draft'}}/></WorkspaceProvider></SecureArtifactProvider></StateProvider>}
+  function Document(){const [documentWindow,setDocumentWindow]=useState(null);api.hideDocument=()=>setDocumentWindow(null);return <StateProvider store={store}><SecureArtifactProvider value={{artifactId:'ime',threadId:'thread',revision:1,active:true,editable:true}}><WorkspaceProvider value={{activeArtifactId:'ime',requestOpenArtifact:()=>{},closeArtifact:()=>{},rightPanelOpen:true,activeTab:'artifact',setActiveTab:()=>{},documentWindow,requestOpenDocument:id=>setDocumentWindow({id,placement:'floating'}),closeDocument:()=>{api.documentClosed++;setDocumentWindow(null)},placeDocument:(id,placement)=>{api.placeCalls=(api.placeCalls??0)+1;setDocumentWindow(value=>value?.id===id?{id,placement}:value)}}}><WindowDocument text="Original" props={{title:'IME notes',editableStateKey:'draft'}}/></WorkspaceProvider></SecureArtifactProvider></StateProvider>}
   function Region(){const ref=useRef(null),[open,setOpen]=useState(true),[popup,setPopup]=useState(true);useModalRegion(ref,open,()=>{api.regionCloses++;setOpen(false)},'#outer-editor');return open?<section ref={ref} className="artifact" id="region"><textarea id="outer-editor" aria-label="Outer editor" defaultValue="Retained draft"/>{kind==='nested'?<Document/>:null}{kind==='hierarchy'&&popup?<section data-escape-scope id="popup" onKeyDown={event=>{if(event.key==='Escape'){event.stopPropagation();api.popupClosed++;setPopup(false)}}}><textarea aria-label="Popup editor" defaultValue="Retained draft"/></section>:null}</section>:null}
   function Floating(){const [open,setOpen]=useState(true);return <FloatingWindow id="ime-floating" title="IME floating" open={open} escapeBehavior={mode==='collapse'?'collapse':'close'} minimizeOnly={mode==='minimize'} onClose={()=>{api.regionCloses++;setOpen(false)}}><textarea aria-label="Floating editor" defaultValue="Retained draft"/></FloatingWindow>}
   const root=createRoot(document.getElementById('root'));api.dispose=()=>root.unmount();
@@ -47,6 +47,30 @@ async function retain(page:Page,editor:Locator,event:typeof composing[number]){
  expect(await editor.evaluate(element=>element===(window as any).retainedEditor&&element===document.activeElement)).toBe(true);
  expect(await page.evaluate(()=>({values:(window as any).store.getSnapshot(),updates:(window as any).updates}))).toEqual(before);
 }
+it('a foreign pointer cannot end a document window move',async()=>{
+ const page=await browser.newPage();try{
+  await mount(page,'document');await documentEditor(page);
+  const handle=page.getByRole('button',{name:'Move IME notes'}),window=page.getByRole('region',{name:'IME notes document window'}),box=(await handle.boundingBox())!;
+  await page.mouse.move(box.x+5,box.y+5);await page.mouse.down();
+  await handle.dispatchEvent('pointerdown',{pointerId:77,button:0,bubbles:true});
+  await page.evaluate(()=>globalThis.window.dispatchEvent(new PointerEvent('pointerup',{pointerId:77})));
+  await page.evaluate(()=>globalThis.window.dispatchEvent(new PointerEvent('pointercancel',{pointerId:77})));
+  await page.mouse.move(box.x+65,box.y+25);await page.mouse.up();
+  expect(await window.evaluate(element=>(element as HTMLElement).style.left)).not.toBe('');
+ }finally{await page.close();}
+});
+it('external dismissal cancels a pending document move',async()=>{
+ const page=await browser.newPage();try{
+  await mount(page,'document');await documentEditor(page);
+  const handle=page.getByRole('button',{name:'Move IME notes'}),box=(await handle.boundingBox())!;
+  await page.mouse.move(box.x+5,box.y+5);await page.mouse.down();
+  await page.evaluate(()=>(window as any).hideDocument());
+  await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toHaveCount(0);
+  await page.mouse.move(box.x+65,box.y+25);await page.mouse.up();
+  await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as any).placeCalls??0)).toBe(0);
+ }finally{await page.close();}
+});
 for(const event of composing){
  it(`modal capture preserves composing Escape (${event.name})`,async()=>{
   const page=await browser.newPage();try{await mount(page,'modal');const editor=page.getByRole('textbox',{name:'Outer editor'});await retain(page,editor,event);await browserExpect(page.locator('#region')).toBeVisible();await editor.press('Escape');expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(1);}finally{await page.close();}

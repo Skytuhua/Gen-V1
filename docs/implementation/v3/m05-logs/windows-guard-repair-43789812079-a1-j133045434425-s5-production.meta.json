@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+      "--import",
+      "file:///D:/a/Gen-V1/Gen-V1/node_modules/tsx/dist/loader.mjs",
+      "diagnostics/guard-startup/run.ts",
+      "production"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+    "startedAt": "2026-11-16T02:04:35Z",
+    "endedAt": "2026-11-16T02:05:12Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-repair-43789812079-a1-j133045434425-s5-production.log",
+    "logDigest": "967bfa340a71b0909eba85aba6b116f7e40f686614ee829cec70c7168f807d51"
+  },
+  "capture": "Actual GitHub Actions command with observed exact argv marker; timestamps are the API step envelope, not individual RPC timings. The complete decoded job log is below 65536 bytes and retained unchanged.",
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "scope": "Isolated repaired Windows guard startup; no installed application or memory UI proof.",
+  "workflowRunId": 43789812079,
+  "workflowRunAttempt": 1,
+  "workflowJobId": 133045434425,
+  "workflowStepNumber": 5,
+  "headSha": "1604e464658f1641e5a803b28fff367e4dce9abd",
+  "treeSha": "0ee55ae865f82baec347b7d017b87bb3790c9469",
+  "actualCheckoutSha": "1604e464658f1641e5a803b28fff367e4dce9abd",
+  "basisSourceSha": "299aa79fce281bacc370bd76373f760082046941",
+  "rawOutputBytes": 40945,
+  "rawOutputSha256": "967bfa340a71b0909eba85aba6b116f7e40f686614ee829cec70c7168f807d51",
+  "excerptInputBytes": 40945,
+  "excerptInputSha256": "967bfa340a71b0909eba85aba6b116f7e40f686614ee829cec70c7168f807d51",
+  "transformations": [],
+  "receiptRef": "docs/implementation/v3/m05-review-inputs/guard-startup-repair-43789812079/receipt-production.json",
+  "receiptBytes": 1911,
+  "receiptSha256": "ec846fffd74d64783fc7be210e880c9b71246114c1d5e545eed87e97a4dfda19",
+  "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789812079",
+  "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789812079/job/133045434425",
+  "operationOutcome": "passed",
+  "captureCompleted": true
+}

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "--input-type=module",
+      "-e",
+      "import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T22:47:52Z",
+    "endedAt": "2026-11-15T22:47:55Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43771171183-a1-j132987185885-s5-installed-git-custody.log",
+    "logDigest": "bd4246244f9861c4cd9b2b5a38bdcad8fb2f04715450182e28caaf2a57cca419"
+  },
+  "phaseIds": [
+    "CORE"
+  ],
+  "runId": 43771171183,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+  "testedCheckout": {
+    "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "treeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "parents": [
+      "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "94b99a8132ed3703b5c253376af9be5b45039815"
+    ],
+    "matchesPublishedTree": false,
+    "matchesPublishedCommit": false,
+    "event": "pull_request",
+    "admissionStatus": "NOT_ADMITTED_FOR_94b",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "rawResponseSha256": "897bcc161a6f82e97c7f2df599000dcb52448751e8450cbeaab20e128fb09810"
+  },
+  "job": {
+    "id": 132987185885,
+    "name": "Installed desktop memory retention",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43771171183/job/132987185885",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001721,
+      "name": "GitHub Actions 1000001721",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Stage declared Git and GitHub CLI packaging inputs",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-11-15T22:47:52Z",
+    "completed_at": "2026-11-15T22:47:55Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43771171183.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132987185885/logs",
+  "rawJobLogDigest": "9cc49a49d61f628886b0bb55e4a2c7463f644c0346c87d8b0623da410eb39a7e",
+  "rawJobLogBytes": 124496,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      395,
+      443
+    ]
+  ],
+  "excerptInputSha256": "74b47ae549463487c96aac1efa97ca165659dc67b4fb6d4ecf80c604735fbe1e",
+  "excerptInputBytes": 5226,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 4781,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "The literal final node invocation, actual files/bytes output and immediate LASTEXITCODE guard establish this outcome. Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "$ErrorActionPreference = 'Stop'\n$manifest = Get-Content -Raw -LiteralPath third-party/git-tools/manifest.json | ConvertFrom-Json\n$scratch = Join-Path $env:RUNNER_TEMP ('gen-installed-inputs-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $scratch | Out-Null\nforeach ($tool in @(@{name='git'; pin=$manifest.git}, @{name='gh'; pin=$manifest.github})) {\n  $pin = $tool.pin\n  if ($pin.url -notmatch '^https://github\\.com/(git-for-windows/git|cli/cli)/releases/download/[^?#\\s]+\\.zip$' -or $pin.archiveSha256 -notmatch '^[0-9a-f]{64}$') {\n    throw 'Invalid declared Git packaging archive identity'\n  }\n  $archive = Join-Path $scratch ($tool.name + '.zip')\n  Invoke-WebRequest -Uri $pin.url -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.archiveSha256) {\n    throw 'Declared Git packaging archive checksum mismatch'\n  }\n  $expanded = Join-Path $scratch $tool.name\n  Expand-Archive -LiteralPath $archive -DestinationPath $expanded\n  $source = $expanded\n  if ($tool.name -eq 'gh' -and -not (Test-Path -LiteralPath (Join-Path $source 'bin/gh.exe'))) {\n    $source = Join-Path $expanded ('gh_' + $pin.version + '_windows_amd64')\n  }\n  $prefix = '.harness-tool-bundles/' + $tool.name + '/'\n  $destination = Join-Path $PWD ('.harness-tool-bundles/' + $tool.name)\n  if (Test-Path -LiteralPath $destination) { throw 'Packaging input destination already exists' }\n  New-Item -ItemType Directory -Path $destination | Out-Null\n  foreach ($file in @($manifest.files | Where-Object { $_.path.StartsWith($prefix) })) {\n    $relative = $file.path.Substring($prefix.Length)\n    if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '(^|/)\\.\\.?(/|$)|[\\\\:]|^/|//|/$' -or $file.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid declared Git payload path' }\n    $payloadInput = Join-Path $source $relative\n    $payloadOutput = Join-Path $destination $relative\n    if ((Get-Item -LiteralPath $payloadInput).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $payloadInput -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw 'Declared Git payload checksum mismatch' }\n    New-Item -ItemType Directory -Path (Split-Path -Parent $payloadOutput) -Force | Out-Null\n    Copy-Item -LiteralPath $payloadInput -Destination $payloadOutput\n  }\n}\nnode --import tsx --input-type=module -e \"import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+  "receiptSha256": "8f556bb7964f46aa66982cefad102092d69711751d6b1a0443e9dd8bbcdd891d",
+  "observedInputStaging": [
+    {
+      "kind": "REVIEWED_POWERSHELL_STEP_OBSERVATION",
+      "commandRecordCreated": false,
+      "step": {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T22:47:44Z",
+        "completed_at": "2026-11-15T22:47:52Z"
+      },
+      "observedScript": "$ErrorActionPreference = 'Stop'\n$lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n$wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $wheels | Out-Null\n$names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\nforeach ($distribution in $lock.distributions) {\n  if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n  $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n  if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n  $archive = Join-Path $wheels $name\n  Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n}\n\"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\nWrite-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))",
+      "scriptSha256": "fc099bc06d01c5836285f649d5d9cc2b4db3fdd36176b5fcf2c8f4137f21eda5",
+      "pinnedWheels": {
+        "count": 91,
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+      },
+      "runnerStepExitCode": 0,
+      "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "excerptLineRanges1BasedInclusive": [
+        [
+          368,
+          394
+        ]
+      ],
+      "rawJobLogDigest": "9cc49a49d61f628886b0bb55e4a2c7463f644c0346c87d8b0623da410eb39a7e"
+    }
+  ],
+  "admission": {
+    "status": "NOT_ADMITTED_FOR_94b",
+    "publishedHeadSha": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "publishedTreeSha": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "testedCheckoutSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "testedTreeSha": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "reason": "The actual PR merge checkout includes reviewed accepted-main changes absent from the published source head.",
+    "reviewRef": "docs/implementation/v3/M05-ci-tree-drift-review-43771171183.json",
+    "reviewSha256": "3aa0ab296774c0d15611aae3983fec52360a40c206af771b9b2a02027b9fe3a2"
+  }
+}

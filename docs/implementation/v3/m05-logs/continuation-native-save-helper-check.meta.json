@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-native-save.test.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:07:31.440524+00:00",
+    "endedAt": "2026-11-15T22:07:33.508689+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-helper-check.log",
+    "logDigest": "231302961f8200013ef7f8b511ff2f11899742fc5f3087aefed8c3d0f200da37"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+  "workingDiffSha256": "5964709df85b4a4c30de1c31df73a5a59a8f50d8bd85b494a0c37edb912f0f36",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 2046,
+  "rawOutputBytes": 228,
+  "rawOutputSha256": "231302961f8200013ef7f8b511ff2f11899742fc5f3087aefed8c3d0f200da37",
+  "excerptInputBytes": 228,
+  "excerptInputSha256": "231302961f8200013ef7f8b511ff2f11899742fc5f3087aefed8c3d0f200da37",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+  ]
+}

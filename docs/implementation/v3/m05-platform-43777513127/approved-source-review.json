@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "status": "APPROVED_IMMUTABLE_SOURCE_REVIEW_ONLY",
+  "recordedAt": "2026-11-16T00:11:17.874188+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "sourceHeadSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+  "sourceTreeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+  "acceptedBaseSha": "673ca733d306ade463635def2d09299bc37043ec",
+  "priorProfile": {
+    "bytes": 10417,
+    "sha256": "4dcf281e4f9f46d9936999c7ece802d3d518f7da2700e25320505235111e6472",
+    "gitBlobSha": "dbe0903b39a1d0140e581c9444059a4af4a924a6"
+  },
+  "approvedSourceBindings": [
+    {
+      "path": ".github/actions/setup/action.yml",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "gitBlobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 12556,
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "gitBlobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "bytes": 55667,
+      "sha256": "0b8806045dfda8d1467a4d7864041c3d4ff19a2b9eb1e015471e8f02e2f12d97",
+      "gitBlobSha": "5726cc646eb84618c2c47ac00d6217fae02072d8"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+      "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "bytes": 3936,
+      "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0",
+      "gitBlobSha": "18c6d593e07c5f1d6703436b3b4d19619a9e6b24"
+    },
+    {
+      "path": "apps/desktop/window-policy.ts",
+      "bytes": 9868,
+      "sha256": "fe3614c9240458235cc73f5405466f9f3b552e2251419659c6acd66fbc555b63",
+      "gitBlobSha": "c75a4658539a572fb31fe8fcd30b42ddd4b5a15e"
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "bytes": 10077,
+      "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+      "gitBlobSha": "420f0beea5169dd46f259b6f554940ad22cb17cf"
+    },
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "bytes": 21955,
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+      "gitBlobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+      "gitBlobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+    },
+    {
+      "path": "package.json",
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+      "gitBlobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9",
+      "gitBlobSha": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+      "gitBlobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "bytes": 63143,
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+      "gitBlobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "bytes": 5344,
+      "sha256": "286df9991313997e0edc13fb1478ad095339ff93f8efe5448a28f71a500d7946",
+      "gitBlobSha": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+    },
+    {
+      "path": "packages/desktop-contract/index.ts",
+      "bytes": 11529,
+      "sha256": "d9bf1bd40368aa1802c65f6d6c98b5fab4c7623614ee037572a302bd10d41188",
+      "gitBlobSha": "b3f90f92af5e72adae91c882a4f3bbf35c5ab5f1"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "bytes": 15079,
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "gitBlobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "gitBlobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "bytes": 7629,
+      "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+      "gitBlobSha": "dd51d62314c63657be29a098861293ad8051f339"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+      "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25381,
+      "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+      "gitBlobSha": "a709a77a4fb926e21402d790ec516ddcf572fe75"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "bytes": 14137,
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f",
+      "gitBlobSha": "c3c939bf12f9e41d82793351d5495355ebe70c98"
+    },
+    {
+      "path": "scripts/integration_python_projection.py",
+      "bytes": 17295,
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f",
+      "gitBlobSha": "9af564d744f4b9a8d83d549115a13afc0e7c2edf"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+      "gitBlobSha": "f9e5fc3d90e8637c884faad02dd993812a858633"
+    },
+    {
+      "path": "scripts/portable-verification.ts",
+      "bytes": 811,
+      "sha256": "f1f99d50757724ed0e2f7d9e5ab362dc017fa315337fa5e648dd1cde7126a953",
+      "gitBlobSha": "b1da8183d7b363abef3fa21cfec53efa6c6868a7"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 137817,
+      "sha256": "89003159c08d3d719d64b674393653916fdc5a07f7967fac8d7644f8754f3fb0",
+      "gitBlobSha": "b4a2b034399e2106d5a2b17243c164cc85350080"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 44330,
+      "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+      "gitBlobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7"
+    },
+    {
+      "path": "scripts/verify-packaged-providers.ts",
+      "bytes": 21905,
+      "sha256": "5b0ec074f333c9e6dfec8c075f150ce38966cc0bea518c3432022690c929ccee",
+      "gitBlobSha": "45a4aced2626c39b2acfe24130c39e6b3b2c1782"
+    },
+    {
+      "path": "tests/desktop-memory-export.test.ts",
+      "bytes": 17324,
+      "sha256": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f",
+      "gitBlobSha": "327a3c4e8a07411f0f5b5866597120b1078a4c24"
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "bytes": 17652,
+      "sha256": "33d87e8beb15ca39a9cc5437d8d8f79de343da587a50706e79aa24ed9c5a63ac",
+      "gitBlobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00"
+    },
+    {
+      "path": "tests/desktop-preload-accounts.test.ts",
+      "bytes": 1816,
+      "sha256": "4e91d70bd57bb73eba9fd87e5382207ecfac02fa5145ab3788de422da9e83fef",
+      "gitBlobSha": "7988d08db637eb3830583031dc326c00e996266b"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "bytes": 25212,
+      "sha256": "f82de49b1c9dba1e195df4e6fcf755ea33fec6955f84b5c295a1e90496b971a2",
+      "gitBlobSha": "c0795d20ec91e7b37780a7a56f0c7dca0329be74"
+    },
+    {
+      "path": "tests/installed-native-save.test.ts",
+      "bytes": 6982,
+      "sha256": "416bcfb37dc1827a3d18ce8b0be408f3f0cf00a305df189d61d6eab7d128d080",
+      "gitBlobSha": "449ca6a83588c0aaba9575aeca49fbd7fc893b1e"
+    },
+    {
+      "path": "tests/memory-export-client-v3.test.ts",
+      "bytes": 5349,
+      "sha256": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8",
+      "gitBlobSha": "a3a2104b6f02594dc5686805e6e3c9839ee02550"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "gitBlobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66"
+    }
+  ],
+  "supplementalSourceBindings": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 2691,
+      "sha256": "82226ee3e504311ee37a08f4889f6dcbedfc2c9ad9c1509d4d34b4df659c5fba",
+      "gitBlobSha": "d88b09c322157836dd17a1b17e32c0e3f80f786b"
+    },
+    {
+      "path": "apps/desktop/layout-transaction.ts",
+      "bytes": 3068,
+      "sha256": "191fdbf3334d68608a42a6acd75710bd31dc1ff0578c95590575081c6a4b2ec1",
+      "gitBlobSha": "de539faa0cfb6ac4fa71fd9a5c5749736f47c921"
+    },
+    {
+      "path": "apps/desktop/workspace-events.ts",
+      "bytes": 3811,
+      "sha256": "cae5bcaf672501df0045d0b3c74d404b602f741904efd872ff3baf052dc30355",
+      "gitBlobSha": "90bdf3b684ecd0f52c7b9d7acd06faa7ed9b63ba"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 155708,
+      "sha256": "3009dba92c0b8d0465bfd9fb2b3f2206129855d2af554a4e3beedecf4cec8f2c",
+      "gitBlobSha": "da7bf376245efa5b976f255c673413f16e669fef"
+    },
+    {
+      "path": "apps/web/src/PlanStatus.tsx",
+      "bytes": 13250,
+      "sha256": "5211e534df836bfc275564c49023054d5ecdfbe42154534554bb091b48c3078e",
+      "gitBlobSha": "60711be8c08ba6956a92e060eb6beaf5959ee034"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/TimelineRows.tsx",
+      "bytes": 11469,
+      "sha256": "80626739d7ed09d1aa12964b5da3156230aadc9261d51642c15ad8fc8c8815de",
+      "gitBlobSha": "641388024d27155516be430d18a0077d29beb54a"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/timeline.css",
+      "bytes": 8020,
+      "sha256": "ad49552ae8c726505a079d46969cd6bb5ef9221a842b4fe475fd4cfd6bab32bf",
+      "gitBlobSha": "a64b5d9caedd0cf5e406957a84a500a24d1ef16c"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "bytes": 5085,
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805",
+      "gitBlobSha": "90544731c91845bd2e6b2c3c5b89a84134e4d7fe"
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "bytes": 2443,
+      "sha256": "ae4ca268d220afd0c84331ceb84a9a357952cea72089fad2c65fdba1dedbb83a",
+      "gitBlobSha": "9b6fbb49cb97e29250a5cee1576ba942be055da1"
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "bytes": 24417,
+      "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0",
+      "gitBlobSha": "e1464d64b3f802166bc495fe52fb4bf9a373da3b"
+    },
+    {
+      "path": "tests/e2e/composer-app-refinement.spec.ts",
+      "bytes": 16268,
+      "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+      "gitBlobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "bytes": 28082,
+      "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b",
+      "gitBlobSha": "733db88e031cd8c3b148842c21c4f7d46adf7389"
+    },
+    {
+      "path": "tests/e2e/plan-timeline.spec.ts",
+      "bytes": 12270,
+      "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+      "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+    },
+    {
+      "path": "tests/e2e/reserved-rail.spec.ts",
+      "bytes": 11360,
+      "sha256": "ef7588f9e28933acec25e231bb87a23b779ba31528085770a05006b2af348e9e",
+      "gitBlobSha": "18d6a326ef5d207d50f81592f4fb108a11439900"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13070,
+      "sha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+      "gitBlobSha": "67a7609a54f37fdb5fed4ec2fb050b0c46f86f8a"
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "bytes": 78469,
+      "sha256": "ad541decfda409bfea5d82dc6224b1e21c8f2a168ef01b8eac454276168b321b",
+      "gitBlobSha": "1662067edf010f187c248c1a076538f377d050b2"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    }
+  ],
+  "receiptSemanticsUnchanged": true,
+  "expectedObservationOrder": [
+    [
+      1,
+      "installed-default-off-read"
+    ],
+    [
+      1,
+      "exact-pinned-source"
+    ],
+    [
+      1,
+      "review-edit-accept-reject"
+    ],
+    [
+      1,
+      "rejected-record-retained"
+    ],
+    [
+      1,
+      "explicit-redacted-export"
+    ],
+    [
+      1,
+      "forget-tombstone"
+    ],
+    [
+      1,
+      "review-command-observation"
+    ],
+    [
+      1,
+      "post-exit-storage"
+    ],
+    [
+      2,
+      "installed-default-off-read"
+    ],
+    [
+      2,
+      "restart-retained-review"
+    ],
+    [
+      2,
+      "restart-tombstone"
+    ],
+    [
+      2,
+      "review-command-observation"
+    ],
+    [
+      2,
+      "post-exit-storage"
+    ]
+  ],
+  "nativeSavePhases": [
+    "ready",
+    "dialog-found",
+    "file-name-set",
+    "save-invoked",
+    "dialog-closed",
+    "target-released"
+  ],
+  "fixture": {
+    "projectId": "installed-memory-project",
+    "threadId": "installed-memory-thread",
+    "initialText": "Use UTC for installed retention reports.",
+    "editedText": "Use ISO 8601 UTC dates for installed retention reports.",
+    "sourceText": "Pinned source: use UTC for installed retention reports.\n<script>window.installedMemorySourceExecuted=true</script>",
+    "acceptText": "Keep the installed retention checklist with the project.",
+    "rejectText": "Proposed: publish the disposable retention checklist globally.",
+    "sensitiveText": "Private disposable retention note: keep the amber launch schedule local."
+  },
+  "changedSourceBindings": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "priorSha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f",
+      "currentSha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "priorSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+      "currentSha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "priorSha256": "dd3b82c989c3389962d3806b00f0b486383492d50ffa415c64aa6ddbedaef944",
+      "currentSha256": "89003159c08d3d719d64b674393653916fdc5a07f7967fac8d7644f8754f3fb0"
+    },
+    {
+      "path": "tests/installed-native-save.test.ts",
+      "priorSha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+      "currentSha256": "416bcfb37dc1827a3d18ce8b0be408f3f0cf00a305df189d61d6eab7d128d080"
+    }
+  ],
+  "sourceReviewConclusions": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "finding": "Only agent/m05-v3 is added to the existing push branch list. Main push, pull_request, workflow_dispatch and all nine jobs remain. The reviewed v3 event extension requires actual push/ref and checkout commit equal the published head/tree; it does not relax any installed receipt predicates."
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "finding": "Complete typed input delta and the sole subsequent removal of experimental Save.SetFocus were independently reviewed. Before each bounded EM_SETSEL/WM_CHAR delivery the fixed owner, dialog, evidence root, absent target and exact enabled focused Unicode Edit HWND are rechecked. The second exact value readback and original Save Invoke gates remain. Successful transcript keys are unchanged and exactly match v3 admission."
+    },
+    {
+      "path": "tests/installed-native-save.test.ts",
+      "finding": "Only an additional existing-command bound assertion for the maximum admitted SystemRoot is added. This portable assertion is not a native Save or installed retention proof."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "finding": "The exact accepted-source union adds three existing accepted agents-workspace fixture/evidence paths; runtime custody remains separate. No broad exclusion or source activation is introduced."
+    },
+    {
+      "paths": [
+        "apps/desktop/backend-policy.ts",
+        "apps/desktop/layout-transaction.ts",
+        "apps/desktop/workspace-events.ts",
+        "apps/web/src/App.tsx",
+        "apps/web/src/PlanStatus.tsx",
+        "apps/web/src/plan-timeline/TimelineRows.tsx",
+        "apps/web/src/plan-timeline/timeline.css",
+        "apps/web/src/split-workspace-api.ts",
+        "apps/web/src/workspace-integration.css",
+        "packages/runtime-hermes/task-pool.ts",
+        "tests/e2e/artifact-style.spec.ts",
+        "tests/e2e/composer-app-refinement.spec.ts",
+        "tests/e2e/host-loop.spec.ts",
+        "tests/e2e/plan-timeline.spec.ts",
+        "tests/e2e/reserved-rail.spec.ts",
+        "tests/e2e/task-interface-fixture.ts",
+        "tests/e2e/workspace-host.spec.ts",
+        "tests/hermes-runtime.test.ts"
+      ],
+      "finding": "Supplemental immutable identities include current App/CSS/Plan/retry and owned fixture repairs together with already reviewed desktop/runtime composition. They do not expand the fixed34 semantic source set or claim that default-off retention exercises enabled memory extraction/checkpoints."
+    }
+  ],
+  "currentExecution": {
+    "fullCiRunId": 43777513127,
+    "event": "push",
+    "branch": "agent/m05-v3",
+    "status": "IN_PROGRESS_WITH_OBSERVED_APPLICATION_SUITE_FAILURE",
+    "observationTime": "2026-11-16T00:10:00.338Z",
+    "failure": "Shard2 artifact-settle.test.ts beforeAll browser bundle cannot resolve node:util;11cases skipped. This failure cannot be admitted as a full exact-source pass.",
+    "installedArtifactStatus": "NOT_YET_AVAILABLE",
+    "isolatedNativeMechanism": {
+      "runId": 43776992693,
+      "policyReceipt": {
+        "ref": "/workspace/scratch/36f66011d961/m05-native-save-diag-43776992693/attempt-1/policy-receipt.json",
+        "bytes": 79689,
+        "sha256": "60272d77449289b15c1b1123a6e14e2ad887c6ddee97979015726646dbdb58ac",
+        "gitBlobSha": "96a40d40467647d58f54879173c6a4284793975d"
+      },
+      "policyStatus": "PASS_CONTROLLED_NATIVE_SAVE_MECHANISM_ONLY",
+      "scope": "Pinned Electron45 policy with exact helper463d, native dialog six phases, fixed634-byte file and owned cleanup. No installed product/retention proof.",
+      "directStatus": "COMMAND_FAIL_OBSERVER_RACE_PRESERVED",
+      "directScope": "The separate direct lane reached all six phases and matching file according to its retained receipt; its observer command failure is not converted into PASS."
+    }
+  },
+  "historicalFailurePolicy": "Prior source profile and all failed full/isolated attempts remain immutable. A current or future success cannot erase them. No source profile alone admits installed execution.",
+  "scope": "Source compatibility preparation only. Full installed native Save/Forget/two-launch/default-off persistence and all-nine-job success require independent current artifact admission. Full enabled memory and live quality remain NOT_RUN."
+}
