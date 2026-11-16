@@ -2,6 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
 import {EMPTY_USAGE} from '../../packages/contracts';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
+import {CHAT_LAYOUT_KEY} from '../../packages/ui-shell/chat-layout';
 const fixture=()=>{const s=taskFixture({root:'field',elements:{field:{type:'Input',props:{stateKey:'name',label:'Review name'}}}});s.usage['task-thread']={...EMPTY_USAGE,inputTokens:1234};s.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-10-30T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'inspect',title:'Inspect the task boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});return s;};
 async function bridge(page:Page,surface:Record<string,unknown>={kind:'main'}){
  await page.addInitScript(value=>{
@@ -149,6 +150,32 @@ test('retained native thread header cancels a move on blur',async({page})=>{
  await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  await page.getByRole('button',{name:'Detach chat',exact:true}).click();const handle=page.getByRole('button',{name:'Move chat panel',exact:true});await handle.hover();await page.mouse.down();
  try{const chat=page.getByRole('main',{name:'Chat',exact:true});await expect(chat).toHaveAttribute('data-tracking','true');await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await expect(chat).toHaveAttribute('data-tracking','false');}finally{await page.mouse.up();}
+});
+for(const resize of [{edge:'left',dx:-80,dy:0,cancel:false},{edge:'top',dx:0,dy:-80,cancel:true}])test(`retained native thread reflows during ${resize.edge} resize and ${resize.cancel?'rolls back':'persists'} the result`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');
+ const input=page.getByRole('textbox',{name:'Message',exact:true}),chat=page.getByRole('main',{name:'Chat',exact:true});await expect(input).toBeEnabled();await input.fill('Keep this draft and selection');await input.evaluate(element=>(element as HTMLTextAreaElement).setSelectionRange(5,9));
+ await page.getByRole('button',{name:'Detach chat',exact:true}).click();const node=await input.elementHandle();
+ const measure=()=>chat.evaluate(element=>{const matrix=new DOMMatrixReadOnly(getComputedStyle(element).transform),text=element.querySelector('.message .markdown')!,walker=document.createTreeWalker(text,NodeFilter.SHOW_TEXT),range=document.createRange();const first=walker.nextNode()!;range.setStart(first,0);range.setEnd(first,Math.min(5,first.textContent!.length));const glyph=range.getBoundingClientRect();return {width:element.clientWidth,height:element.clientHeight,x:matrix.a,y:matrix.d,glyphWidth:glyph.width,glyphHeight:glyph.height};});
+ const before=await measure(),saved=await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY),handle=page.getByRole('button',{name:`Resize chat ${resize.edge}`,exact:true}),box=(await handle.boundingBox())!;
+ await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+ try{
+  await page.mouse.move(box.x+box.width/2+resize.dx,box.y+box.height/2+resize.dy,{steps:6});await expect(chat).toHaveAttribute('data-tracking','true');
+  await expect.poll(async()=>{const current=await measure();return resize.dx?current.width-before.width:current.height-before.height;}).toBeGreaterThan(40);
+  const during=await measure();expect(during.x).toBeCloseTo(1,5);expect(during.y).toBeCloseTo(1,5);expect(during.glyphWidth).toBeCloseTo(before.glyphWidth,1);expect(during.glyphHeight).toBeCloseTo(before.glyphHeight,1);
+  expect(await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY)).toBe(saved);
+  if(resize.cancel)await page.keyboard.press('Escape');
+ }finally{await page.mouse.up();}
+ await expect(chat).toHaveAttribute('data-tracking','false');const after=await measure();
+ if(resize.cancel){expect(after.width).toBe(before.width);expect(after.height).toBe(before.height);expect(await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY)).toBe(saved);}
+ else{expect(after.width).toBeGreaterThan(before.width+40);expect(JSON.parse((await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY))!).popup.width).toBeGreaterThan(before.width+40);}
+ expect(await node!.evaluate(element=>element===document.querySelector('textarea[aria-label="Message"]'))).toBe(true);await expect(input).toHaveCount(1);await expect(input).toHaveValue('Keep this draft and selection');expect(await input.evaluate(element=>[(element as HTMLTextAreaElement).selectionStart,(element as HTMLTextAreaElement).selectionEnd])).toEqual([5,9]);
+});
+test('retained native thread placement animation never scales readable content',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.evaluate(()=>{document.documentElement.dataset.motion='full';const animate=Element.prototype.animate;Element.prototype.animate=function(frames,options){const animation=animate.call(this,frames,options);if(this.matches('.chat-view-surface'))animation.pause();return animation;};});
+ await page.getByRole('button',{name:'Detach chat',exact:true}).click();const chat=page.getByRole('main',{name:'Chat',exact:true});
+ const scales=await chat.evaluate(element=>{const animations=element.getAnimations();return animations.flatMap(animation=>{const duration=Number(animation.effect!.getTiming().duration),scales=[0,.5].map(progress=>{animation.currentTime=duration*progress;const matrix=new DOMMatrixReadOnly(getComputedStyle(element).transform);return [matrix.a,matrix.d];});animation.finish();return scales;});});
+ expect(scales).toHaveLength(2);for(const [x,y]of scales){expect(x).toBeCloseTo(1,5);expect(y).toBeCloseTo(1,5);}
 });
 test('retained native thread has no retired switch-layout control',async({page})=>{
  await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Switch layout',exact:true})).toHaveCount(0);
