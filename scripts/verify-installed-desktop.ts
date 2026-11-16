@@ -366,6 +366,11 @@ export function observeInstalledStartup(child:ChildProcess,iteration:number,cloc
   return {read:()=>unavailable};
  }
 }
+export async function assertInstalledConnectionReady(providerId:string,read:()=>Promise<string>,timeout=60000){
+ try{await expect.poll(read,{timeout}).toBe('enabled');}
+ catch(cause){const detail=cause instanceof Error?cause.message:'Readiness check failed.';throw Error(`Installed subscription ${providerId}: ${detail}`,{cause});}
+}
+
 async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
@@ -392,7 +397,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
    }
    await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Models & Accounts',exact:true}).click();
    const providers=page.getByRole('navigation',{name:'Subscription providers',exact:true});
-   for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available')){await providers.getByRole('button',{name:connection.label,exact:true}).click();await expect(page.locator(`.connection-row[data-provider="${connection.id}"]`).getByRole('button',{name:`Connect ${connection.label}`,exact:true})).toBeEnabled();}
+   for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available')){await providers.getByRole('button',{name:connection.label,exact:true}).click();const row=page.locator(`.connection-row[data-provider="${connection.id}"]`),button=row.getByRole('button',{name:`Connect ${connection.label}`,exact:true});await assertInstalledConnectionReady(connection.id,async()=>(await button.isEnabled())?'enabled':`disabled:${await row.locator('.connection-account-auth').getAttribute('data-state')??'missing'}`);}
    await page.screenshot({path:join(directory,'installed-settings.png')});await providers.getByRole('button',{name:'Gemini',exact:true}).click();await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
    await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
   }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');

@@ -19,6 +19,7 @@ for (const width of [1024, 1440]) test(`sidebar focus and hover cards stay opaqu
 });
 test.beforeEach(async ({page}) => {
   await page.route('**/api/**', route => route.fulfill({json: {}}));
+  await page.route('**/api/bootstrap', route => route.fulfill({json: {csrfToken: 'synthetic'}}));
   await page.route('**/sidebar-shared-menu-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="${new URL(route.request().url()).searchParams.get('theme') === 'light' ? 'light' : 'dark'}"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixture}');</script></body></html>`}));
   await page.goto('/sidebar-shared-menu-check');
 });

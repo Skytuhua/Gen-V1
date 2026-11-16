@@ -49,10 +49,9 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   apply(rect,layout.mode!=='full');
   if(!before||instant.current||!motionAllowed()){instant.current=false;return;}
   const after=rectOf(element),base=layout.mode==='full'?'':`translate3d(${rect.x}px,${rect.y}px,0) `;
-  // FLIP commits layout once. Retarget from the current visible rect even when
-  // another transition is running; only transform is interpolated by the compositor.
+  // Commit target dimensions once; animate position without stretching readable content.
   const effect=element.animate([
-   {transform:`${base}translate(${before.x-after.x}px,${before.y-after.y}px) scale(${before.width/after.width},${before.height/after.height})`},
+   {transform:`${base}translate(${before.x-after.x}px,${before.y-after.y}px)`},
    {transform:element.style.transform},
   ],{duration:CHAT_TRANSITION_MS,easing:getComputedStyle(element).getPropertyValue('--ui-ease-enter').trim()||'cubic-bezier(.16,1,.3,1)'});
   animation.current=effect;effect.onfinish=()=>{effect.cancel();if(animation.current===effect)animation.current=null;};
@@ -84,7 +83,7 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   target.setPointerCapture(pointerId);setTracking(true);if(!edge)setDockTarget(true);
   target.focus({preventScroll:true});
   const draw=()=>{
-   frame=0;element.style.transform=`translate3d(${latest.x}px,${latest.y}px,0) scale(${latest.width/start.width},${latest.height/start.height})`;
+   frame=0;apply(latest,true);
    if(snap.current)snap.current.dataset.active=String(atDock);
   };
   const move=(e:globalThis.PointerEvent)=>{

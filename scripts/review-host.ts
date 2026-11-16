@@ -215,20 +215,37 @@ export async function openReviewHost(folder: string, port = 4347) {
   await writeFile(image, reviewColorStudyPng(), { flag: 'wx' });
   const db = new DatabaseSync(database); db.exec('PRAGMA journal_mode=DELETE');
   for (const table of ['users', 'projects', 'messages']) { db.exec(`CREATE TABLE ${table}(id INTEGER PRIMARY KEY,name TEXT,workspace_id INTEGER)`); for (let n = 1; n <= 12; n++) db.prepare(`INSERT INTO ${table}(id,name) VALUES(?,?)`).run(n, table === 'messages' ? `Design note ${n}` : ['Alex', 'Morgan', 'Lena', 'Sam'][n % 4] + (table === 'projects' ? ' project' : '')); } db.close();
-  const store = new Store(join(folder, 'state')), runtime = new ReviewRuntime(store, folder), service = new Service(store, runtime); runtime.service = service; await service.recover();
-  const app = await buildServer(service, { port, dev: false }); await app.listen({ port, host: '127.0.0.1' });
-  const threads = new Map<Scenario, Thread>();
-  for (const scenario of ['signing', 'pr-dark', 'pr-light', 'migration', 'context', 'faq', 'map', 'catalog', 'shell'] as Scenario[]) {
-    const thread = (await service.command({ id: randomUUID(), type: 'thread.create', payload: { title: ({ signing: 'Sign the service agreement', 'pr-dark': 'Review session refresh', 'pr-light': 'Resolve branch overlap', migration: 'Add workspaces', context: 'Inspect context', faq: 'Account questions', map: 'Find a quiet café', catalog: 'Explore the component catalog', shell: 'Workspace & settings' })[scenario], projectName: 'UI review recordings' } })).result as Thread;
-    threads.set(scenario, thread); runtime.scenarios.set(thread.id, scenario);
-    const grant = async (path: string, kind: ResourceGrant['kind'], writable = false) => (await service.command({ id: randomUUID(), type: 'resource.grant', threadId: thread.id, payload: { path, kind, writable } })).result as ResourceGrant;
-    const grants = { pdf: '', output: '', image: '', database: '', annotation:'' };
-    if (['signing', 'catalog', 'shell'].includes(scenario)) grants.pdf = (await grant(source, 'file')).id;
-    if (scenario === 'signing') grants.output = (await grant(join(folder, 'resources', 'exports'), 'export', true)).id;
-    if (['catalog', 'shell'].includes(scenario)) grants.image = (await grant(image, 'file')).id;
-    if (scenario === 'migration') grants.database = (await grant(database, 'database', true)).id;
-    if(scenario==='catalog'){const annotation=join(folder,'resources','export-panel.svg');await writeFile(annotation,ANNOTATION_REVIEW_IMAGE);grants.annotation=(await grant(annotation,'file')).id;}
-    runtime.grants.set(thread.id, grants);
+  const store = new Store(join(folder, 'state')), runtime = new ReviewRuntime(store, folder), service = new Service(store, runtime); runtime.service = service;
+  let app: Awaited<ReturnType<typeof buildServer>> | undefined;
+  async function close() {
+    const failures: unknown[] = [];
+    for (const cleanup of [() => app?.close(), () => service.dispose(), () => store.close()]) {
+      try { await cleanup(); }
+      catch (error) { failures.push(error); }
+    }
+    if (failures.length) throw new AggregateError(failures, 'Could not close the review host.');
   }
-  return { app, service, store, runtime, threads, async close() { await app.close(); await service.dispose(); store.close(); } };
+  try {
+    await service.recover();
+    const threads = new Map<Scenario, Thread>();
+    for (const scenario of ['signing', 'pr-dark', 'pr-light', 'migration', 'context', 'faq', 'map', 'catalog', 'shell'] as Scenario[]) {
+      const thread = (await service.command({ id: randomUUID(), type: 'thread.create', payload: { title: ({ signing: 'Sign the service agreement', 'pr-dark': 'Review session refresh', 'pr-light': 'Resolve branch overlap', migration: 'Add workspaces', context: 'Inspect context', faq: 'Account questions', map: 'Find a quiet café', catalog: 'Explore the component catalog', shell: 'Workspace & settings' })[scenario], projectName: 'UI review recordings' } })).result as Thread;
+      threads.set(scenario, thread); runtime.scenarios.set(thread.id, scenario);
+      const grant = async (path: string, kind: ResourceGrant['kind'], writable = false) => (await service.command({ id: randomUUID(), type: 'resource.grant', threadId: thread.id, payload: { path, kind, writable } })).result as ResourceGrant;
+      const grants = { pdf: '', output: '', image: '', database: '', annotation:'' };
+      if (['signing', 'catalog', 'shell'].includes(scenario)) grants.pdf = (await grant(source, 'file')).id;
+      if (scenario === 'signing') grants.output = (await grant(join(folder, 'resources', 'exports'), 'export', true)).id;
+      if (['catalog', 'shell'].includes(scenario)) grants.image = (await grant(image, 'file')).id;
+      if (scenario === 'migration') grants.database = (await grant(database, 'database', true)).id;
+      if(scenario==='catalog'){const annotation=join(folder,'resources','export-panel.svg');await writeFile(annotation,ANNOTATION_REVIEW_IMAGE);grants.annotation=(await grant(annotation,'file')).id;}
+      runtime.grants.set(thread.id, grants);
+    }
+    app = await buildServer(service, { port, dev: false });
+    await app.listen({ port, host: '127.0.0.1' });
+    return { app, service, store, runtime, threads, close };
+  } catch (error) {
+    try { await close(); }
+    catch (cleanupError) { throw new AggregateError([error, cleanupError], 'Could not start or clean up the review host.'); }
+    throw error;
+  }
 }
