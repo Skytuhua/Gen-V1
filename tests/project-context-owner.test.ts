@@ -13,6 +13,7 @@ vi.mock('react', () => ({
   },
   useRef(initial: unknown) { const slot = fixture.cursor++; return fixture.slots[slot] ??= { current: initial }; },
   useCallback(fn: unknown) { return fn; },
+  useLayoutEffect(effect: () => void) { effect(); },
   useEffect(effect: () => void) { fixture.effect = effect; },
 }));
 vi.mock('../apps/web/src/api.ts', () => ({

@@ -37,7 +37,7 @@ for (const width of [768, 1024, 1440]) for (const overflowing of [false, true]) 
     const bounds = dialog.getBoundingClientRect();
     const text = document.createRange(); text.selectNodeContents(dialog.querySelector('.task-graph-summary > span')!);
     const summaryText = text.getBoundingClientRect();
-    samples.push({reserved:footer.bottom-Math.max(summary.bottom, action.bottom, checks.bottom, summaryText.bottom), summaryGap:summary.top-checks.bottom, sourceGap:source.top-footer.bottom, actionGap:action.left-Math.max(summary.right, summaryText.right), visibleTop:Math.min(footer.top, checks.top, summary.top, action.top)-bounds.top, visibleBottom:bounds.bottom-Math.max(footer.bottom, source.bottom), bodyGap:footer.top-body.bottom, footerTop:footer.top});
+    samples.push({reserved:footer.bottom-Math.max(summary.bottom, action.bottom, checks.bottom, summaryText.bottom), summaryGap:summary.top-checks.bottom, sourceGap:source.top-footer.bottom, actionGap:action.left-Math.max(summary.right, summaryText.right), visibleTop:Math.min(footer.top, checks.top, summary.top, action.top)-bounds.top, visibleBottom:bounds.bottom-Math.max(footer.bottom, source.bottom), bodyGap:footer.top-body.bottom, footerTop:(footer.top-bounds.top)/(bounds.height/dialog.offsetHeight)});
    };
    const observer = new MutationObserver(() => {
     const dialog = document.querySelector<HTMLDialogElement>('dialog[open]');

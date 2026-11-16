@@ -16,11 +16,6 @@ import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
 import { useDesktop } from './desktop-context';
 import './connections.css';
-export function matchingSubscriptionConnections(query: string) {
-  const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  return SUBSCRIPTION_CONNECTIONS.filter(item => tokens.every(token => `${item.label} ${item.description}`.toLowerCase().includes(token)));
-}
-
 const targetKey = (providerId: string, accountId?: string | null) => JSON.stringify([providerId, accountId ?? null]);
 function AccountReadiness({ target, flow, bridge, onFlow, login }: { target: AccountAuthTarget; flow?: AccountLoginFlow; bridge?: DesktopBridge; onFlow: (flow: AccountLoginFlow) => void; login: () => void }) {
   const [auth, setAuth] = useState<AccountAuthStatus | null>(null), [checking, setChecking] = useState(false), [error, setError] = useState('');
@@ -101,7 +96,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, busy, run, log
   </div>;
 }
 
-export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
+export function Connections({ snapshot, refresh, loadModels }: { models: ModelInfo[]; snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void> }) {
   const desktop = useDesktop();
   const [busy, setBusy] = useState(''), [notice, setNotice] = useState(''), [error, setError] = useState('');
   const pending = useRef(false);
@@ -115,7 +110,7 @@ export function Connections({ snapshot, refresh, loadModels, query = '' }: { mod
     const timer = setInterval(() => { for (const flow of active) void desktop.bridge.signInStatus!(flow.id).then(next => { if (!disposed && next?.id === flow.id) onFlow(next); }).catch(() => {}); }, 750);
     return () => { disposed = true; clearInterval(timer); };
   }, [desktop, flows]);
-  const rows = matchingSubscriptionConnections(query);
+  const rows = SUBSCRIPTION_CONNECTIONS;
   const run: AccountAction = async (type, payload) => {
     if (pending.current) return false;
     pending.current = true; setBusy(type); setError(''); setNotice('');
@@ -133,7 +128,7 @@ export function Connections({ snapshot, refresh, loadModels, query = '' }: { mod
   const readiness = (providerId: string, accountId: string | null) => isConnectionProviderId(providerId) ? <AccountReadiness target={{ providerId, accountId }} flow={flows[targetKey(providerId, accountId)]} bridge={desktop?.bridge} onFlow={onFlow} login={() => void login(providerId, accountId ?? undefined)} /> : null;
   return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, connect it, then refresh models. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>{notice && <p role="status">{notice}</p>}{error && <p role="status" className="error-text">{error}</p>}{rows.map(connection => {
     const ready = connection.status === 'available';
-    return <article key={connection.id} className="connection-row" data-provider={connection.id}><header><strong>{connection.label}</strong><span className={ready ? 'connection-ready' : 'connection-pending'}>{ready ? 'Ready to connect' : 'Integration pending'}</span></header><p>{connection.description}</p>
+    return <article key={connection.id} className="connection-row" data-provider={connection.id} data-setting-id={`provider-${connection.id}`}><header><strong>{connection.label}</strong><span className={ready ? 'connection-ready' : 'connection-pending'}>{ready ? 'Ready to connect' : 'Integration pending'}</span></header><p>{connection.description}</p>
       {ready && <AccountPicker connection={connection} accounts={snapshot.accounts ?? []} selectedAccountId={isConnectionProviderId(connection.id) ? snapshot.settings.selectedAccounts?.[connection.id] : null} busy={busy} run={run} login={login} desktop={!!desktop} readiness={accountId => readiness(connection.id, accountId)} />}
       {ready && readiness(connection.id, null)}<footer>{ready ? desktop ? <button className="secondary" disabled={!!busy} onClick={() => void login(connection.id)}><LogIn size={14} />{busy === `login:${connection.id}` ? 'Opening…' : `Connect ${connection.label}`}</button> : <code>pnpm agent:login --provider {connection.id}</code> : <button className="secondary" disabled>Unavailable</button>}<a href={connection.sources[0]} target="_blank" rel="noreferrer">Connection details<ExternalLink size={12} /></a></footer></article>;
   })}</section>;
