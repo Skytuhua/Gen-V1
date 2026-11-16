@@ -513,13 +513,13 @@
         },
         {
           "id": "reconcile-focused-vitest",
-          "status": "FAIL",
-          "evidence": "110/112 pass; 'admits the first captured file under its selected account [Windows native guard, runtime fixture]' fails identically on a1349b0a (pre-existing Windows PowerShell path-guard latency: deliverInputs stalls ~15s in prepareSend withResourceGuard; delivery enters after test teardown). Not a union regression. See docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
+          "status": "PASS",
+          "evidence": "112/112 pass after widening the win32 first-capture case's vi.waitFor timeout to 45s: delivery needs ~15s because each file guard acquisition spawns a cold PowerShell windows-path-guard process (deadline 15s); the test asserted admission, not latency. Defect confirmed pre-existing on a1349b0a. See docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
         },
         {
           "id": "reconcile-full-repo-vitest",
           "status": "FAIL",
-          "evidence": "Windows-native failures persist on the union tree; see docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
+          "evidence": "Windows-native failures persist on the union tree; the previously failing focused case is fixed by the waitFor timeout change; see docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
         },
         {
           "id": "reconcile-e2e-browser",

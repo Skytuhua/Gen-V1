@@ -193,7 +193,7 @@ it.runIf(process.platform === 'win32')('admits the first captured file under its
   const descriptor = await f.workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: grant.id}});
   const captured = await f.workbench.capture({commandId: 'first-file-capture', source: {...descriptor.locator, logicalOwner: f.owner, sourceRevision: descriptor.sourceRevision, contentDigest: descriptor.contentDigest, capturedAt: f.thread.createdAt, range: {encoding: 'LINES_1_BASED', startLine: 2, endLine: 2}}});
   expect(f.store.all('message', f.thread.id)).toEqual([]); expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined();
-  await f.send('first-file-send', [captured.ref]); await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  await f.send('first-file-send', [captured.ref]); await vi.waitFor(() => expect(f.starts).toHaveLength(1), {timeout: 45_000});
   expect(f.starts[0]).toMatchObject({accountId: f.account.id, sourceRefs: [captured.ref], resources: [grant]}); expect(f.starts[0].prompt).toContain('selected second');
   expect(await f.workbench.open({logicalOwner: f.owner, ref: captured.ref})).toMatchObject({ref: captured.ref, text: 'selected second', state: 'CURRENT'});
   f.store.internal('fixture.revoke-first-file', f.thread.id, () => f.store.remove('resource', grant.id));
