@@ -54,7 +54,8 @@ test('M15 full copy and search use the declared reader fixture beyond mounted DO
   await page.locator('[data-output-row-id="line:0"]').evaluate(element => {element.textContent = 'FORGED MOUNTED DOM';});
   await page.getByRole('button', {name: 'Copy full result', exact: true}).click();
   await expect(page.getByText('Copied full result.', {exact: true})).toBeVisible();
-  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  // The OS clipboard normalizes line endings (CRLF on Windows); compare logical lines.
+  const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n');
   expect(copied.startsWith('Output line 0\nOutput line 1\n')).toBe(true);
   expect(copied.endsWith('Output line 99999\n')).toBe(true);
   expect(copied).not.toContain('FORGED MOUNTED DOM');

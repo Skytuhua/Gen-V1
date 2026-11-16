@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {test,expect,type Page} from '@playwright/test';
-import {taskFixture,serveTaskFixture} from './task-interface-fixture';
+import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
 import type {CapturedSourceV1,LogicalOwnerV1,SelectedSourceV1,SourceRefV1,WorkbenchInputV1} from '../../packages/contracts/source-selection';
 const digest=(text:string)=>createHash('sha256').update(text).digest('hex');
 /** Production App, API client, journal and composer. Only host HTTP is a labeled
@@ -34,6 +34,10 @@ async function fixture(page:Page,enabled=true){
   if(path.endsWith('/refresh')){const old=captures.get(body.ref.captureId)!;state.captureCount++;const text=snapshot.messages[0].content;const ref={...old.ref,captureId:`capture-${state.captureCount}`,source:{...old.ref.source,sourceRevision:digest(text),contentDigest:digest(text)},keepCaptured:false};const next={...old,ref};captures.set(ref.captureId,next);return reply(next);}
   return route.fulfill({status:404});
  });
+ // The canonical conversation surface is the split workspace; stub its layout and
+ // seed the selection so the fixture thread is placed on first load.
+ await serveTaskSplitLayout(page);
+ await page.addInitScript(()=>{try{localStorage.setItem('harness:selected-thread','task-thread');}catch{/* Selection falls back to the sidebar. */}});
  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
  return {...host,state,captures,owner,recoveries};
 }
