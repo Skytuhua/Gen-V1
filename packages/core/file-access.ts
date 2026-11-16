@@ -13,10 +13,9 @@ interface GuardSession { rpc(request: Record<string, unknown>, startupAcquisitio
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
 // A cold, app-owned Hermes guard may need PowerShell startup and C# initialization.
-// Acquisitions on a cold process get a wider bound than unrelated reads, writes,
-// or lease releases; only the flagged startup acquisition gets the widest one.
-export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean, cold = true): number {
-  return metadataImport ? 120_000 : command === 'acquire' ? (startupAcquisition ? 45_000 : cold ? 30_000 : 15_000) : 15_000;
+// Extend only its first acquire, not unrelated reads, writes, or lease releases.
+export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean): number {
+  return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
 }
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
@@ -50,16 +49,12 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
   const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
   let queue = Promise.resolve();
-  let warmed = false;
   current.rpc = (request,startupAcquisition=false) => {
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
       if (current.exited) return reject(denied());
       let output = "";
       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
-      // A respawned guard is just as cold as the first one, so the first RPC on a
-      // fresh process gets the wider acquisition deadline even when the caller
-      // did not flag it as the startup acquisition. Warm RPCs keep the 15s bound.
-      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition,!warmed));
+      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition));
       const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
@@ -76,7 +71,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
           finish(undefined, Object.freeze(response.entries));
         } catch { finish(denied()); }
       };
-      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : (warmed = true, accept(manifest)); };
+      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
       child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
       child.stdin.write(JSON.stringify(request) + "\n");
     }));

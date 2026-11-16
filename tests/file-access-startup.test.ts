@@ -137,13 +137,27 @@ it('does not enter the action if cancelled while waiting for a valid startup rep
   expect(g.child.stdin.writableEnded).toBe(true);
 });
 
-it('keeps unrelated first acquisitions at thirty seconds', async () => {
+it('keeps unrelated first acquisitions at fifteen seconds', async () => {
   const g = guard(), action = vi.fn(async () => undefined);
   const observed = observe(withPathGuard([path], signal(), action));
-  await vi.advanceTimersByTimeAsync(29_999);
+  await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
   await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(action).not.toHaveBeenCalled();
   expect(g.child.stdin.writableEnded).toBe(true);
+});
+
+
+it('rejects late sixteen-second replies on each fresh ordinary guard', async () => {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const g = guard(), action = vi.fn(async () => 'guarded');
+    const observed = observe(withPathGuard([path], signal(), action));
+    await vi.advanceTimersByTimeAsync(14_999);
+    expect(observed.settled()).toBe(false); expect(action).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1_001); g.reply(0);
+    expect((await observed.result).error).toMatchObject({code: 'CAPABILITY_DENIED'});
+    expect(action).not.toHaveBeenCalled(); expect(g.child.stdin.writableEnded).toBe(true);
+  }
+  expect(spawn).toHaveBeenCalledTimes(2);
 });
