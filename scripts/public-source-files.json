@@ -812,6 +812,7 @@
     "tests/browser-runner.test.ts",
     "tests/browser-verification-v3.test.ts",
     "tests/capabilities.test.ts",
+    "tests/chat-gesture-audit.test.ts",
     "tests/chat-layout.test.ts",
     "tests/checkpoint-restore-v3.test.ts",
     "tests/composer-evidence.test.ts",
