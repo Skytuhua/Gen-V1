@@ -5,6 +5,7 @@ import {Select} from '../../../packages/ui-shell/Select';
 import {shownColumns,oneColumn} from '../../../third-party/vespin/inbox-columns.ts';
 import {InboxList,InboxItemRow,InboxPane} from '../../../third-party/vespin/inbox-presentation.tsx';
 import {projectColor} from './project-colors';
+import {formatLocalDateTime,type TimeFormat} from './time-format';
 import './agent-inbox.css';
 
 type Filter='all'|'needs-you'|'unread'|'completed';
@@ -14,8 +15,8 @@ const labels:Record<AttentionItem['state'],string>={'needs-input':'Needs your in
 const age=(value:string)=>{const minutes=Math.max(0,Math.floor((Date.now()-Date.parse(value))/60_000));return minutes<1?'now':minutes<60?minutes+'m':minutes<1440?Math.floor(minutes/60)+'h':Math.floor(minutes/1440)+'d';};
 
 /** Scoped adaptation of Vespin's list/reader composition; canonical Gen actions stay in their thread. */
-export interface InboxViewProps {attention:{items:AttentionItem[];unread:number;error:string;refresh():Promise<void>;markRead(id:string):Promise<void>;markUnread(id:string):Promise<void>};onOpenThread:(threadId:string)=>void|Promise<void>;emptyTitle?:string;emptyMessage?:string;projectColorFor?:(projectId?:string)=>string|undefined}
-export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projectColorFor}:InboxViewProps){
+export interface InboxViewProps {attention:{items:AttentionItem[];unread:number;error:string;refresh():Promise<void>;markRead(id:string):Promise<void>;markUnread(id:string):Promise<void>};onOpenThread:(threadId:string)=>void|Promise<void>;emptyTitle?:string;emptyMessage?:string;projectColorFor?:(projectId?:string)=>string|undefined;timeFormat?:TimeFormat}
+export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projectColorFor,timeFormat='system'}:InboxViewProps){
  const [filter,setFilter]=useState<Filter>('all'),[query,setQuery]=useState(''),[chosen,setChosen]=useState<string>(),[single,setSingle]=useState(false),[actionError,setActionError]=useState(''),root=useRef<HTMLElement>(null),reader=useRef<HTMLElement>(null),rows=useRef(new Map<string,HTMLButtonElement>()),heading=useId(),markTimer=useRef<ReturnType<typeof setTimeout>>(undefined);
  useEffect(()=>()=>clearTimeout(markTimer.current),[]);
  const visible=attention.items.filter(item=>(filter==='all'||filter==='needs-you'&&needsYou(item)||filter==='unread'&&!item.read||filter==='completed'&&(item.state==='completed'||item.state==='resolved'))&&`${item.title} ${item.summary} ${labels[item.state]}`.toLowerCase().includes(query.toLowerCase().trim()));
@@ -37,7 +38,7 @@ export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projec
    {visible.map(item=><InboxItemRow key={item.id} pressRef={node=>{if(node)rows.current.set(item.id,node);else rows.current.delete(item.id);}} title={item.title} description={<>{item.actionable&&<Bell size={11}/>}<span>{item.summary}</span></>} lead={{icon:<span className="inbox-holder-mark" style={{'--inbox-project':projectColorFor?projectColorFor(item.projectId):projectColor({kind:'local'},item.projectId)} as CSSProperties}>{item.state==='failed'?<TriangleAlert size={13}/>:item.state==='completed'||item.state==='resolved'?<Check size={13}/>:<Bot size={13}/>}</span>,label:sourceLabels[item.kind]}} meta={<time dateTime={item.updatedAt}>{age(item.updatedAt)}</time>} unread={!item.read} current={chosen===item.id} muted={item.state==='completed'||item.state==='resolved'} label={`${item.title}, ${labels[item.state]}${!item.read?', unread':''}`} onPress={()=>choose(item,true)}/>)}
   </InboxList>
   <InboxPane title={selected?.title} hidden={columns==='list'} toolbar={toolbar} paneRef={reader} footer={footer} empty={<div className="agent-inbox-empty"><Inbox size={29}/><h3>Select an item</h3><p>Read it here, then open its conversation when needed.</p></div>}>
-   {selected&&<div className="inbox-canonical-message"><div className="inbox-message-meta"><span data-state={selected.state}>{labels[selected.state]}</span><time dateTime={selected.updatedAt}>{new Date(selected.updatedAt).toLocaleString()}</time></div><p>{selected.summary}</p></div>}
+   {selected&&<div className="inbox-canonical-message"><div className="inbox-message-meta"><span data-state={selected.state}>{labels[selected.state]}</span><time dateTime={selected.updatedAt}>{formatLocalDateTime(selected.updatedAt,timeFormat,undefined,{dateStyle:'medium',timeStyle:'short'})}</time></div><p>{selected.summary}</p></div>}
   </InboxPane>
   {(attention.error||actionError)&&<p className="agent-inbox-error" role="status">{actionError||attention.error}</p>}
  </section>;

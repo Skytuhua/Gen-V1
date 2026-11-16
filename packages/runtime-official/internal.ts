@@ -26,10 +26,13 @@ export function textContent(value: unknown): string {
   return typeof value === 'string' ? value : Array.isArray(value) ? value.filter(block => block?.type === 'text' && typeof block.text === 'string').map(block => block.text).join('') : '';
 }
 export const finite = (value: unknown): number | null => typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
-export async function bounded<T>(promise: Promise<T>, milliseconds: number, message: string): Promise<T> {
+export async function bounded<T>(promise: Promise<T>, milliseconds: number, message: string, signal?: AbortSignal): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
-  try { return await Promise.race([promise, new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error(message)), milliseconds); })]); }
-  finally { clearTimeout(timer); }
+  let abort: (() => void) | undefined;
+  try {
+    return await Promise.race([promise, new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error(message)), milliseconds); }), new Promise<never>((_, reject) => {abort=()=>reject(signal!.reason);if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});})]);
+  }
+  finally { clearTimeout(timer); if(abort)signal?.removeEventListener('abort',abort); }
 }
 export function asyncQueue<T>() {
   const values: T[] = []; let wake: (() => void) | undefined; let closed = false;

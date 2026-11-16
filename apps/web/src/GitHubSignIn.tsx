@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {z} from 'zod';
 import {authenticated,csrfToken,read} from './api.ts';
+import {formatLocalClock,type TimeFormat} from './time-format';
 import './github-sign-in.css';
 
 const deviceUrl='https://github.com/login/device';
@@ -11,7 +12,7 @@ const errorMessage=(error:unknown)=>error instanceof z.ZodError?'GitHub returned
 const auth=<T,>(action:string,payload:unknown={})=>authenticated(()=>fetch('/api/github/auth/'+action,{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:action==='cancel',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(payload)})).then(read<T>);
 
 /** Device codes are transient. Profile credentials stay exclusively on the host. */
-export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAuthenticated?:()=>void|Promise<void>}){
+export function GitHubSignIn({active=true,onAuthenticated,timeFormat='system'}:{active?:boolean;onAuthenticated?:()=>void|Promise<void>;timeFormat?:TimeFormat}){
  const[flow,setFlow]=useState<Flow|null>(null),[starting,setStarting]=useState(false),[cancelling,setCancelling]=useState(false),[cancelId,setCancelId]=useState<string|null>(null),[status,setStatus]=useState(''),[error,setError]=useState(''),[copied,setCopied]=useState(false);
  const epoch=useRef(0),owned=useRef<string|null>(null),mounted=useRef(false),pendingStart=useRef<number|null>(null),onSuccess=useRef(onAuthenticated);onSuccess.current=onAuthenticated;
  const current=(generation:number)=>mounted.current&&epoch.current===generation;
@@ -82,6 +83,6 @@ export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAu
   {error&&<p className="error-text" role="status">{error}</p>}
   {flow&&<><p>Enter this code on GitHub to sign in to this Gen V1 profile.</p><div className="github-device-code"><code>{flow.userCode}</code><button onClick={()=>void copy()}>Copy code</button></div>
    {/* The native policy requires this exact initiating app URL; the opener must not leak our URL back to github.com. */}
-   <a href={deviceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{deviceUrl}</a><p className="github-sign-in-expiry">Expires at {new Date(flow.expiresAt).toLocaleTimeString()}.</p></>}
+   <a href={deviceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{deviceUrl}</a><p className="github-sign-in-expiry">Expires at {formatLocalClock(flow.expiresAt,timeFormat)}.</p></>}
  </section>;
 }

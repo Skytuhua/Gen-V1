@@ -40,8 +40,8 @@ export async function createSubscriptionRuntime(authPath: string, options: { pro
   return { sdk, runtime, eligible };
 }
 
-export async function subscriptionModels(authPath: string): Promise<ModelInfo[]> {
-  const { runtime, eligible } = await createSubscriptionRuntime(authPath, { tolerateUnavailable: true });
+export async function subscriptionModels(authPath: string,provider?:SubscriptionProviderId): Promise<ModelInfo[]> {
+  const { runtime, eligible } = await createSubscriptionRuntime(authPath, { tolerateUnavailable: true,provider });
   const result: ModelInfo[] = [];
   let unavailable: unknown;
   for (const provider of eligible) {
