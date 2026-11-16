@@ -3,10 +3,13 @@ import {ExternalLink} from 'lucide-react';
 import type {DesktopBridge,DesktopContext,DesktopState,DesktopSurface,DesktopWindowInfo} from '../../../packages/desktop-contract/index';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract/index';
 import {prepareEditorHandoff,registerEditorHandoff} from './editor-handoff';
+import {createAccountLoginMonitor} from './account-login-monitor';
+import {notifyAccountAuthChanged} from './account-api';
+import type {AccountLoginFlow} from '../../../packages/contracts/authentication';
 import './native-chrome.css';
 
 declare global {interface Window {harnessDesktop?:DesktopBridge}}
-type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];ownership:(surface:DesktopSurface|null)=>number|undefined;detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>};
+type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];ownership:(surface:DesktopSurface|null)=>number|undefined;detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>;flows:Record<string,AccountLoginFlow>;signIn:ReturnType<typeof createAccountLoginMonitor>['start'];cancelSignIn:ReturnType<typeof createAccountLoginMonitor>['cancel'];recoverSignIn:ReturnType<typeof createAccountLoginMonitor>['recover']};
 const Context=createContext<DesktopValue|null>(null);
 export const useDesktop=()=>useContext(Context);
 export const surfaceKey=desktopSurfaceKey;
@@ -23,6 +26,11 @@ function surfaceOwners(windows:DesktopWindowInfo[],windowId:string){
  return new Map([...owners].map(([key,ids])=>[key,JSON.stringify(ids.sort())]));
 }
 export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;context:DesktopContext;children:ReactNode}){
+ const [flows,setFlows]=useState<Record<string,AccountLoginFlow>>({}),loginMonitor=useRef<ReturnType<typeof createAccountLoginMonitor>|null>(null);
+ useEffect(()=>{setFlows({});if(context.surface.kind==='plugin')return;const monitor=createAccountLoginMonitor(bridge,setFlows,notifyAccountAuthChanged);loginMonitor.current=monitor;void monitor.recover().catch(()=>{});return()=>{monitor.close();if(loginMonitor.current===monitor)loginMonitor.current=null;};},[bridge,context.windowId,context.surface.kind]);
+ const signIn=useCallback((...args:Parameters<ReturnType<typeof createAccountLoginMonitor>['start']>)=>{if(!loginMonitor.current)return Promise.reject(Error('Sign-in is unavailable in this window.'));return loginMonitor.current.start(...args);},[]);
+ const cancelSignIn=useCallback((id:string)=>{if(!loginMonitor.current)return Promise.reject(Error('Sign-in is unavailable in this window.'));return loginMonitor.current.cancel(id);},[]);
+ const recoverSignIn=useCallback(()=>loginMonitor.current?.recover()??Promise.resolve(null),[]);
  useLayoutEffect(()=>{if(!context.nativeTitleBar)return;document.documentElement.dataset.nativeTitlebar='true';const sync=()=>{const theme=document.documentElement.dataset.theme;if(theme==='light'||theme==='dark')void bridge.setTheme?.(theme).catch(()=>{});};const observer=new MutationObserver(sync);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});sync();return()=>{observer.disconnect();delete document.documentElement.dataset.nativeTitlebar;};},[bridge,context.nativeTitleBar]);
  const [state,setState]=useState<DesktopState>(context),[pending,setPending]=useState<DesktopSurface[]>([]),[closing,setClosing]=useState(false);
  const pendingKeys=useRef(new Set<string>());
@@ -45,7 +53,7 @@ export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;
  const prepareHandoff=prepareEditorHandoff;
  useEffect(()=>bridge.onCloseRequested(async()=>{updateClosing(true);try{await prepareHandoff();return true;}catch{updateClosing(false);return false;}}),[bridge,prepareHandoff,updateClosing]);
  const detachSurface=useCallback(async(surface:DesktopSurface,before?:()=>Promise<void>)=>{const key=surfaceKey(surface);if(pendingKeys.current.has(key))throw Error('This view is already moving to another window.');pendingKeys.current.add(key);setPending(value=>[...value,surface]);try{await prepareEditorHandoff();await before?.();return await bridge.detach(surface);}finally{pendingKeys.current.delete(key);setPending(value=>value.filter(item=>surfaceKey(item)!==key));}},[bridge]);
- const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,resumeEditing:()=>updateClosing(false)}),[bridge,context,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,updateClosing]);
+ const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,resumeEditing:()=>updateClosing(false),flows,signIn,cancelSignIn,recoverSignIn}),[bridge,context,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,updateClosing,flows,signIn,cancelSignIn,recoverSignIn]);
  return <Context value={value}>{children}</Context>;
 }
 /** Moves a view into its own native window, or focuses the window that owns it. */

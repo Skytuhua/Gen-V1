@@ -2,6 +2,24 @@ import { expect, it, vi } from 'vitest';
 import { createAccountLoginFlows } from '../apps/desktop/account-login.ts';
 
 function deferred() { let resolve!: () => void, reject!: (e: Error) => void; const promise = new Promise<void>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
+it('recovers only the active owner as defensive metadata, including blocked cleanup', async () => {
+  const completion = deferred(), flows = createAccountLoginFlows(async () => ({ completion: completion.promise, cancel: async () => {} }));
+  expect(flows.current()).toBeNull();
+  const flow = await flows.start('openai', '8933cc31-976d-4f76-a183-035c4b3263e8');
+  await vi.waitFor(() => expect(flows.current()).toMatchObject({id:flow.id,providerId:'openai',accountId:flow.accountId,state:'waiting'}));
+  flows.current()!.message = 'changed by renderer';
+  expect(flows.current()!.message).not.toBe('changed by renderer');
+  await flows.cancel(flow.id); expect(flows.current()).toBeNull();
+  const retry = await flows.start('openai', null); completion.resolve();
+  await vi.waitFor(() => expect(flows.status(retry.id)?.state).toBe('completed'));
+  expect(flows.current()).toBeNull();
+  const blocked = createAccountLoginFlows(async () => {throw Object.assign(Error('unconfirmed'),{code:'RUNTIME_TEARDOWN_FAILED'});});
+  const held = await blocked.start('openai', null);
+  await vi.waitFor(() => expect(blocked.current()).toMatchObject({id:held.id,state:'blocked'}));
+  await expect(blocked.cancel(held.id)).rejects.toThrow();
+  await expect(blocked.start('openai', null)).rejects.toThrow();
+  expect(blocked.current()?.id).toBe(held.id);
+});
 it('owns completion and cancellation by flow id and permits retry only after cleanup', async () => {
   const first = deferred(), second = deferred(); let count = 0;
   const cancel = vi.fn(async () => { first.reject(Error('cancelled')); });

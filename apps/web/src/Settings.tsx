@@ -1,6 +1,7 @@
 import {settingsOperation, settleSettingsOperations} from './settings-operations';
 import {registerEditorHandoff} from './editor-handoff';
-import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import {notifyAccountAuthChanged,onAccountCatalogChanged} from './account-api';
 import { Check, ExternalLink, Search } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
@@ -96,6 +97,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
   const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
   const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
+  const selectedAccounts=useRef(data.settings.selectedAccounts);selectedAccounts.current=data.settings.selectedAccounts;
   const loadNewTaskModels = useCallback(async (force = false) => {
     const request = ++catalogRequest.current, selection = catalogSelection.current;
     catalogRead.current?.abort(); const controller = new AbortController(); catalogRead.current = controller;
@@ -103,7 +105,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
     finally { if (catalogRead.current === controller) catalogRead.current = null; }
   }, []);
-  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(true); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  useEffect(()=>onAccountCatalogChanged(async (target,reason)=>{if(reason!=='reconciled'&&(selectedAccounts.current?.[target.providerId]??null)===target.accountId)await loadNewTaskModels(true);}),[loadNewTaskModels]);
   const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
   const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
@@ -165,7 +168,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {matches('harness-runtime') && environmentSettings}
       {matches('harness-skills') && <SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
       {matches('harness-integrations') && <IntegrationSettings/>}
-      {(matches('harness-accounts') || subscriptions > 0) && <Connections models={newTaskModels} snapshot={data} refresh={refresh} loadModels={refreshModels} query={searching ? query : ''}/>}
+      {(matches('harness-accounts') || subscriptions > 0) && <Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} query={searching ? query : ''}/>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
       {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}

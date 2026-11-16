@@ -2,6 +2,8 @@ import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMem
 import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, getToolEffectObservation, searchThreadMessages, subscribe, type ToolEffectObservation } from './api';
+import {onAccountCatalogChanged,notifyAccountCatalogChanged} from './account-api';
+import {isConnectionProviderId} from '../../../packages/contracts/connections';
 import { applyRuntimeEvent } from './snapshot-events';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
 import {SavedDrafts} from './SavedDrafts';
@@ -430,7 +432,15 @@ function CanvasThread({sharedComposers,thread,snapshot,visible,blocked,refresh,s
  const findScope=useRef<HTMLDivElement>(null),findTranscript=useRef<HTMLDivElement>(null);
  const [models,setModels]=useState<ModelInfo[]>([]),[modelId,setModelId]=useState(thread.modelId??''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[history,setHistory]=useState(60),detached=useDetachedSurface({kind:'thread',threadId:thread.id}),pending=usePendingSurface({kind:'thread',threadId:thread.id});const readOnly=delegatedThread(thread),held=Boolean(detached||pending||blocked),request=useRef(0);
  const owner=`${thread.id}:${thread.accountId??'legacy'}:${thread.modelId??''}`;
- useEffect(()=>{if(readOnly||!visible)return;const generation=++request.current,controller=new AbortController();setModels([]);void getModels(false,thread.id,controller.signal).then(value=>{if(generation!==request.current)return;setModels(value.models);setModelId(current=>value.models.some(model=>model.id===current)?current:thread.modelId??value.models[0]?.id??'');setError(value.error??'');}).catch(cause=>{if(generation===request.current&&!controller.signal.aborted)setError(messageOf(cause));});return()=>{request.current++;controller.abort();};},[owner,readOnly,visible]);
+ useEffect(()=>{
+  if(readOnly||!visible)return;let controller:AbortController|undefined;
+  const load=async(force=false)=>{const generation=++request.current;controller?.abort();const control=new AbortController();controller=control;if(!force)setModels([]);
+   try{const value=await getModels(force,thread.id,control.signal);if(generation!==request.current||control.signal.aborted)return;setModels(value.models);setModelId(current=>value.models.some(model=>model.id===current)?current:thread.modelId??value.models[0]?.id??'');setError(value.error??'');}
+   catch(cause){if(generation===request.current&&!control.signal.aborted)setError(messageOf(cause));}
+  };
+  void load();const unsubscribe=onAccountCatalogChanged(async target=>{if((thread.accountId??null)===target.accountId&&thread.modelId?.split('/')[0]===target.providerId)await load(true);});
+  return()=>{unsubscribe();request.current++;controller?.abort();};
+ },[owner,readOnly,visible]);
  const messages=snapshot.messages.filter(message=>message.threadId===thread.id),working=Boolean(thread.runId)||thread.status==='working';
  const run=async(action:()=>Promise<void>)=>{setBusy(true);try{await action();}finally{setBusy(false);}};
  return <div ref={findScope} className={`canvas-thread${readOnly?' canvas-thread-delegate':''}`}><div className="canvas-thread-status">{readOnly?'Delegated agent':threadParent(thread)?'Side conversation':'Main conversation'} · {threadStatus(thread)}{detached&&<button className="quiet" onClick={()=>void window.harnessDesktop?.focus(detached.id)}>Focus native window</button>}</div><ConversationFind ownerKey={thread.id} transcript={findTranscript} scope={findScope} active={visible} onLoadEarlier={messages.length>history?()=>setHistory(value=>value+60):undefined}/>{visible&&<div ref={findTranscript} className="canvas-thread-transcript" role="log" aria-label={`${thread.title} messages`}>{messages.length>history&&<button className="quiet" onClick={()=>setHistory(value=>value+60)}>Load earlier messages</button>}{messages.slice(-history).map(message=><div key={message.id} data-message-id={message.id} data-arrival={liveMessages.has(message.id)?'true':undefined} data-conversation-text className={`message message-${message.role}`}><span className="sr-only">{message.role}</span><CopyButton text={message.content} label="Copy message"/><Markdown text={message.content}/></div>)}{!messages.length&&<p className="muted">No messages yet.</p>}{error&&<p role="alert" className="error-text">{error}</p>}{thread.error&&<p role="alert" className="error-text">{thread.error}</p>}{!readOnly&&working&&<button className="quiet" disabled={busy} onClick={()=>void run(async()=>{await stopConversation(thread, sharedComposers);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Stop</button>}{!readOnly&&['stopped','interrupted','failed'].includes(thread.status)&&<button className="secondary" disabled={busy||!modelId} onClick={()=>void run(async()=>{await command('run.resume',{modelId},thread.id);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Resume</button>}</div>}{visible&&<VerificationPanel threadId={thread.id}/>}{readOnly?<div className="canvas-thread-readonly">Read-only delegated transcript · assignment and progress remain with the parent.</div>:<div inert={held} style={{display:'contents'}}>{threadParent(thread)?<SideThreadComposer thread={thread} modelId={modelId} refresh={refresh}/>:<Composer sharedComposers={sharedComposers} selectProject={selectProject} key={thread.id} thread={thread} snapshot={snapshot} models={models} modelId={modelId} setModelId={setModelId} ensureThread={async prepare=>{await prepare(thread.id);return thread.id;}} busy={busy} runAction={run} refresh={refresh} setup={setup} openResource={openResource} browseProject={browseProject} inspectChanges={inspectChanges} reportError={reportError} predictionBlocked={held||!visible} onSide={async content=>{if(!content.trim())return;const receipt=await command('thread.create',{sideParentId:thread.id,title:content.slice(0,65)}),side=receipt.result as Thread,key=`side-draft:${thread.id}:${side.id}`,generation=await journalWrite(key,content);await refresh();await command('message.send',{content,modelId},side.id);await journalCompareAndSwap(key,generation,'');await refresh();}}/>}</div>}</div>;
@@ -630,6 +640,21 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     finally { if(modelRead.current===controller)modelRead.current=null; }
   }, []);
   const acceptedModel = useRef<string | null | undefined>(undefined);
+  useEffect(()=>onAccountCatalogChanged(async target=>{
+    const current=modelThreadRef.current,state=snapshotRef.current;
+    // The mounted plane conversation owns this catalog; the outer shell has no composer here.
+    if(navigationOnly||!pinnedThreadId&&(canvasActive||splitEnabled&&current))return;
+    if(hasPinnedAccount(current,state)){
+      const provider=current?.modelId?.split('/')[0]??state.accounts?.find(account=>account.id===current?.accountId)?.providerId;
+      if((current?.accountId??null)!==target.accountId||provider!==target.providerId)return;
+    }else if((state.settings.selectedAccounts?.[target.providerId]??null)!==target.accountId)return;
+    await loadModels(true);
+  }),[loadModels,navigationOnly,pinnedThreadId,splitEnabled,canvasActive]);
+  useEffect(()=>{if(!settingsOpen||!desktop)return;let active=true;void desktop.recoverSignIn().then(flow=>{
+    if(!active||flow)return;
+    const current=modelThreadRef.current,provider=current?.modelId?.split('/')[0];
+    return isConnectionProviderId(provider)?notifyAccountCatalogChanged({providerId:provider,accountId:current?.accountId??null},'reconciled'):loadModels(true);
+  }).catch(()=>{});return()=>{active=false;};},[settingsOpen,desktop?.recoverSignIn,loadModels]);
   useEffect(() => {
     const saved = snapshot.settings.modelId;
     if (!loaded || hasPinnedAccount(modelThreadRef.current, snapshotRef.current) || acceptedModel.current === saved || saved && !models.some(model => model.id === saved)) return;
