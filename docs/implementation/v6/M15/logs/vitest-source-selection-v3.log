@@ -1,9 +1,14 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-selection-v3.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
 
  RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
 
 
  Test Files  1 passed (1)
       Tests  8 passed (8)
-   Start at  12:58:08
-   Duration  3.65s (transform 3.13s, setup 0ms, import 1.22s, tests 2.19s, environment 0ms)
+   Start at  19:16:52
+   Duration  934ms (transform 364ms, setup 0ms, import 113ms, tests 611ms, environment 0ms)
 

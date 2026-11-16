@@ -3,8 +3,8 @@
   "bundleId": "M15-source-aware-workbench",
   "baseSha": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
   "sourceLockDigest": "4399bf1c6b9a92c49d86eaef618877ea1c067ca6c83448e6daaf6e30596c6622",
-  "platform": "linux-x64",
-  "nodeVersion": "v24.22.1",
+  "platform": "win32-x64",
+  "nodeVersion": "v24.22.2",
   "packageManagerVersion": "10.30.3",
   "phases": [
     {
@@ -812,6 +812,117 @@
       ],
       "commands": [],
       "artifactRefs": []
+    },
+    {
+      "id": "V6_CONTINUATION_LOCAL",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M15-D01",
+          "status": "PASS",
+          "evidence": "Retired code-review/research/custom presets reject PRESET_RETIRED through the real WorkspaceRepository; no retired host identifiers in shared surfaces. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D02",
+          "status": "PASS",
+          "evidence": "Capture plus draft write produce zero submits until explicit message.send; Ask draft CAS never reaches the send path. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D03",
+          "status": "PASS",
+          "evidence": "Delayed old-owner completion fenced; foreign draft intact; stale-generation clear mutates nothing. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D04",
+          "status": "PASS",
+          "evidence": "DIFF_HUNK stays UNSUPPORTED with reason; capture refuses pre-chip; unmapped Markdown selections return no reference. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D05",
+          "status": "PASS",
+          "evidence": "Cross-owner send denied CAPABILITY_DENIED; AFTER_CURRENT queues then dispatches epoch+1 after settle; retained capture survives Store/Service restart; owner handoff resolves. 2/2 cases pass."
+        },
+        {
+          "id": "M15-D06",
+          "status": "PASS",
+          "evidence": "Mounted rows <=300 on the 100,000-row fixture; authorized full read/copy/search complete; drafts survive module reload. 2/2 cases pass."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/source-selection-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:16:50.734Z",
+          "endedAt": "2026-11-16T19:16:53.086Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-source-selection-v3.log",
+          "logDigest": "5eb1897f7f562b5753113472caa7a9160110e89e2ca286ff24dcd1d8f1b0d969"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-performance-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:16:53.147Z",
+          "endedAt": "2026-11-16T19:16:54.397Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-performance-v3.log",
+          "logDigest": "acc82620496c85dd760a1aef766b3a70f67a807f939e42f0b12693ef86c79b65"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-recovery-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:16:54.460Z",
+          "endedAt": "2026-11-16T19:16:55.763Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-recovery-v3.log",
+          "logDigest": "cc39a4db070b8c8d65ad1f23c43cb29d2c99f16b309f6a09088dbf3030876fb4"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/workbench-continuation-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:16:55.841Z",
+          "endedAt": "2026-11-16T19:16:59.500Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-continuation-v6.log",
+          "logDigest": "c75676a05be85dc31d7f1460f53fa424ec5b1ae602a2477872f9090f90498c7f"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M15/requirements.json",
+        "docs/implementation/v6/M15/handoff.md",
+        "docs/implementation/v6/M15/feature-comparison.md"
+      ]
     },
     {
       "id": "ATTEMPT_HISTORY",
@@ -7456,121 +7567,90 @@
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m15-logs/usage-context-declared-01.log",
           "logDigest": "9b61742966201144aeba91663992e6175352975378202dda3c87d8335cf6e87e"
+        },
+        {
+          "argv": [
+            "node",
+            "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+            "build"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:18:29.058Z",
+          "endedAt": "2026-11-16T19:18:40.188Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/gate-build.log",
+          "logDigest": "542bc9084e08131d47c29d74d70c97c453da899f9c111c6bb562b8d96e83efef"
+        },
+        {
+          "argv": [
+            "node",
+            "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+            "lint"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:17:54.023Z",
+          "endedAt": "2026-11-16T19:18:19.889Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/gate-lint.log",
+          "logDigest": "008637815fe19528981d28ba32628738feb3944de2a63cc4f9299506d1d4a08d"
+        },
+        {
+          "argv": [
+            "node",
+            "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+            "test:browser"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:35:44.419Z",
+          "endedAt": "2026-11-16T21:20:31.794Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/gate-test-browser.log",
+          "logDigest": "925d3d1702ccfa9056956f0496bfea6a9d015cef91667ebae242317339c7169a"
+        },
+        {
+          "argv": [
+            "node",
+            "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+            "test"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:18:43.391Z",
+          "endedAt": "2026-11-16T19:35:38.673Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/gate-test.log",
+          "logDigest": "8e8d0dd104ccb6acfe04dd4ec18ab63e31d05548ad057d382057e937ec30990e"
+        },
+        {
+          "argv": [
+            "node",
+            "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+            "typecheck"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+          "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+          "startedAt": "2026-11-16T19:17:14.237Z",
+          "endedAt": "2026-11-16T19:17:51.034Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/gate-typecheck.log",
+          "logDigest": "78d98a60bfabd13511a79e1ead3e57648b17fd5d63a722526475443c1aa7b8bb"
         }
       ],
       "artifactRefs": [
         "docs/implementation/v3/M15-command-index.json"
-      ]
-    },
-    {
-      "id": "V6_CONTINUATION_LOCAL",
-      "status": "PASS",
-      "requiredCases": [
-        {
-          "id": "M15-D01",
-          "status": "PASS",
-          "evidence": "Retired code-review/research/custom presets reject PRESET_RETIRED through the real WorkspaceRepository; no retired host identifiers in shared surfaces. 2/2 cases pass."
-        },
-        {
-          "id": "M15-D02",
-          "status": "PASS",
-          "evidence": "Capture plus draft write produce zero submits until explicit message.send; Ask draft CAS never reaches the send path. 2/2 cases pass."
-        },
-        {
-          "id": "M15-D03",
-          "status": "PASS",
-          "evidence": "Delayed old-owner completion fenced; foreign draft intact; stale-generation clear mutates nothing. 2/2 cases pass."
-        },
-        {
-          "id": "M15-D04",
-          "status": "PASS",
-          "evidence": "DIFF_HUNK stays UNSUPPORTED with reason; capture refuses pre-chip; unmapped Markdown selections return no reference. 2/2 cases pass."
-        },
-        {
-          "id": "M15-D05",
-          "status": "PASS",
-          "evidence": "Cross-owner send denied CAPABILITY_DENIED; AFTER_CURRENT queues then dispatches epoch+1 after settle; retained capture survives Store/Service restart; owner handoff resolves. 2/2 cases pass."
-        },
-        {
-          "id": "M15-D06",
-          "status": "PASS",
-          "evidence": "Mounted rows <=300 on the 100,000-row fixture; authorized full read/copy/search complete; drafts survive module reload. 2/2 cases pass."
-        }
-      ],
-      "commands": [
-        {
-          "argv": [
-            "node",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/source-selection-v3.test.ts"
-          ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-16T13:00:32.131Z",
-          "endedAt": "2026-11-16T13:00:33.131Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-source-selection-v3.log",
-          "logDigest": "cf0ef75d30e1021dadd79eb8ec5b7ab98ec28ea02edcc9fc6f255ecb1145d95e"
-        },
-        {
-          "argv": [
-            "node",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/workbench-performance-v3.test.ts"
-          ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-16T13:02:32.131Z",
-          "endedAt": "2026-11-16T13:02:33.131Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-performance-v3.log",
-          "logDigest": "5222528dbe61b5d85ad50d43622c1f9e3ca5ab0542a01b4e4f4fb7c3d6a8d02c"
-        },
-        {
-          "argv": [
-            "node",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/workbench-recovery-v3.test.ts"
-          ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-16T13:04:32.131Z",
-          "endedAt": "2026-11-16T13:04:33.131Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-recovery-v3.log",
-          "logDigest": "c75cf392791594bb9cbb8228dcf65b7d97b091e2490745a5205bf4dbcda385a5"
-        },
-        {
-          "argv": [
-            "node",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/workbench-continuation-v6.test.ts"
-          ],
-          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-16T13:06:32.131Z",
-          "endedAt": "2026-11-16T13:06:35.131Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-continuation-v6.log",
-          "logDigest": "570449a4e8ccbe63e621027a4d86c1390eab7a77c12666d20a66e6c8a5c71f22"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v6/M15/requirements.json",
-        "docs/implementation/v6/M15/handoff.md",
-        "docs/implementation/v6/M15/feature-comparison.md"
       ]
     }
   ],
@@ -7966,7 +8046,6 @@
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/results.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/test-results/browser/run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991/workbench-app/results.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/browser/extracted/test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/results.json",
@@ -8036,50 +8115,8 @@
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/retention-supplement.md",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser-comparison-01.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/docs/implementation/v3/m15-logs/c3-windows-root-baseline-43797606300-1.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/isolated-host-MO0sXu/fixture-session-d5cb2c7b-0924-4287-b356-71eb31edc523.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/isolated-host-h4D2yO/fixture-session-cfed0847-c018-44a4-b98f-54d38553c23d.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/isolated-host-mcn1Ek/fixture-session-8af25c5f-1c93-4935-a365-f87ad24632c9.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/isolated-host-1PWuqL/fixture-session-e88fbe67-afc5-4ffc-be43-9fb6db7d9c4e.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-progra-94327--and-durable-artifact-state/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-generated-progra-94327--and-durable-artifact-state/isolated-host-fsats5/fixture-session-3566b67f-364f-4e04-b6b8-35737ec43eb1.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-stale-structured-98b59-retains-its-local-review-UI/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-stale-structured-98b59-retains-its-local-review-UI/isolated-host-XKwh7Y/fixture-session-3bf37049-d317-4cb8-9921-da6cdf0cc6b5.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/host-loop-the-real-host-re-03d67-rving-its-trusted-interface/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/isolated-host-AoqOMH/fixture-session-29ea75bd-f0ed-4d66-8e5a-1525ce8b6883.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/latency.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/baseline/test-results/browser/run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b/root/results.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/docs/implementation/v3/m15-logs/c3-windows-root-candidate-43797606300-1.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/isolated-host-XI5lbG/fixture-session-bf12d9f4-52e3-4fcc-87c4-232daf4a6956.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-actual-create-se-41b58-ost-autosave-survive-reload/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/isolated-host-lHSulb/fixture-session-65542aaf-a15d-4568-a0b6-1beca1629207.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-cross-site-infin-5a091--host-navigation-responsive/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/isolated-host-ff2AZL/fixture-session-81e57f40-cbdd-41d6-9df5-71ebbdc04ba3.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-durable-decision-ac3f4-he-same-owning-runtime-once/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/isolated-host-1BK4QU/fixture-session-103dca29-92df-4375-bc5c-321d40ff2ac9.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-app-va-de827-t-and-preserves-same-iframe/performance-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-progra-94327--and-durable-artifact-state/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-generated-progra-94327--and-durable-artifact-state/isolated-host-ine5fE/fixture-session-915c8091-9e8d-42b2-91da-0cfa670ae14a.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-stale-structured-98b59-retains-its-local-review-UI/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-stale-structured-98b59-retains-its-local-review-UI/isolated-host-BvvBIl/fixture-session-a3fb0089-8b02-4ef7-bd9e-c45f76d8d25d.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/host-loop-the-real-host-re-03d67-rving-its-trusted-interface/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/host-observations.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/isolated-host-GsdGul/fixture-session-819b06b5-193d-4e7e-a252-1a4b2515c0b9.json",
-    "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/artifacts/latency-records-local-comm-0054b--independently-of-inference/latency.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/browser/run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58/root/results.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/m15/checkout-source.json",
     "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser/extracted/test-results/m15/root-baseline-source.json",
@@ -9400,6 +9437,27 @@
     "docs/implementation/v3/m15-logs/usage-context-chromium-01.log",
     "docs/implementation/v3/m15-logs/usage-context-declared-01.json",
     "docs/implementation/v3/m15-logs/usage-context-declared-01.log",
+    "docs/implementation/v3/m15-logs/v6-gate-build.json",
+    "docs/implementation/v3/m15-logs/v6-gate-lint.json",
+    "docs/implementation/v3/m15-logs/v6-gate-test-browser.json",
+    "docs/implementation/v3/m15-logs/v6-gate-test.json",
+    "docs/implementation/v3/m15-logs/v6-gate-typecheck.json",
+    "docs/implementation/v3/m15-logs/v6-vitest-source-selection-v3.json",
+    "docs/implementation/v3/m15-logs/v6-vitest-workbench-continuation-v6.json",
+    "docs/implementation/v3/m15-logs/v6-vitest-workbench-performance-v3.json",
+    "docs/implementation/v3/m15-logs/v6-vitest-workbench-recovery-v3.json",
+    "docs/implementation/v6/M15/feature-comparison.md",
+    "docs/implementation/v6/M15/handoff.md",
+    "docs/implementation/v6/M15/logs/gate-build.log",
+    "docs/implementation/v6/M15/logs/gate-lint.log",
+    "docs/implementation/v6/M15/logs/gate-test-browser.log",
+    "docs/implementation/v6/M15/logs/gate-test.log",
+    "docs/implementation/v6/M15/logs/gate-typecheck.log",
+    "docs/implementation/v6/M15/logs/vitest-source-selection-v3.log",
+    "docs/implementation/v6/M15/logs/vitest-workbench-continuation-v6.log",
+    "docs/implementation/v6/M15/logs/vitest-workbench-performance-v3.log",
+    "docs/implementation/v6/M15/logs/vitest-workbench-recovery-v3.log",
+    "docs/implementation/v6/M15/requirements.json",
     "package.json",
     "packages/contracts/index.ts",
     "packages/contracts/source-selection.ts",
@@ -9453,6 +9511,7 @@
     "tests/source-workbench-hermes-v3.test.ts",
     "tests/source-workbench-host-v3.test.ts",
     "tests/source-workbench-memory-v3.test.ts",
+    "tests/workbench-continuation-v6.test.ts",
     "tests/workbench-input-recovery-v3.test.ts",
     "tests/workbench-performance-v3.test.ts",
     "tests/workbench-recovery-v3.test.ts"

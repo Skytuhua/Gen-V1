@@ -1,9 +1,14 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/workbench-continuation-v6.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
 
  RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
 
 
  Test Files  1 passed (1)
       Tests  12 passed (12)
-   Start at  12:58:20
-   Duration  27.02s (transform 16.47s, setup 0ms, import 16.99s, tests 9.76s, environment 0ms)
+   Start at  19:16:56
+   Duration  3.05s (transform 1.58s, setup 0ms, import 2.30s, tests 542ms, environment 0ms)
 

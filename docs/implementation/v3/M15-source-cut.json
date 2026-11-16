@@ -500,6 +500,12 @@
       "gitBlob": "c99c521d3d6da13f56589b7d849bae9f2ac4d7e6"
     },
     {
+      "path": "tests/workbench-continuation-v6.test.ts",
+      "bytes": 19698,
+      "sha256": "75c46082bc553925f7b3434891249e82e5499ae233f5fa9fbfaef360f6cac5ab",
+      "gitBlob": "c4eb5b2ac4a8af33b1a1445ea82735a1ef285254"
+    },
+    {
       "path": "tests/workbench-input-recovery-v3.test.ts",
       "bytes": 4050,
       "sha256": "adb1dc04c0d033f5f7c9117244d62c654477a8889ef207c95028eb3995965a07",

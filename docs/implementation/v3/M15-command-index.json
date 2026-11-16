@@ -3067,5 +3067,86 @@
     "exitCode": 1,
     "startedAt": "2026-11-15T22:23:26.750Z",
     "endedAt": "2026-11-15T22:24:03.742Z"
+  },
+  {
+    "id": "v6-gate-build",
+    "receipt": "docs/implementation/v3/m15-logs/v6-gate-build.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:18:29.058Z",
+    "endedAt": "2026-11-16T19:18:40.188Z"
+  },
+  {
+    "id": "v6-gate-lint",
+    "receipt": "docs/implementation/v3/m15-logs/v6-gate-lint.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:17:54.023Z",
+    "endedAt": "2026-11-16T19:18:19.889Z"
+  },
+  {
+    "id": "v6-gate-test-browser",
+    "receipt": "docs/implementation/v3/m15-logs/v6-gate-test-browser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T19:35:44.419Z",
+    "endedAt": "2026-11-16T21:20:31.794Z"
+  },
+  {
+    "id": "v6-gate-test",
+    "receipt": "docs/implementation/v3/m15-logs/v6-gate-test.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T19:18:43.391Z",
+    "endedAt": "2026-11-16T19:35:38.673Z"
+  },
+  {
+    "id": "v6-gate-typecheck",
+    "receipt": "docs/implementation/v3/m15-logs/v6-gate-typecheck.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:17:14.237Z",
+    "endedAt": "2026-11-16T19:17:51.034Z"
+  },
+  {
+    "id": "v6-vitest-source-selection-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6-vitest-source-selection-v3.json",
+    "phase": "V6_CONTINUATION_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:16:50.734Z",
+    "endedAt": "2026-11-16T19:16:53.086Z"
+  },
+  {
+    "id": "v6-vitest-workbench-continuation-v6",
+    "receipt": "docs/implementation/v3/m15-logs/v6-vitest-workbench-continuation-v6.json",
+    "phase": "V6_CONTINUATION_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:16:55.841Z",
+    "endedAt": "2026-11-16T19:16:59.500Z"
+  },
+  {
+    "id": "v6-vitest-workbench-performance-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6-vitest-workbench-performance-v3.json",
+    "phase": "V6_CONTINUATION_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:16:53.147Z",
+    "endedAt": "2026-11-16T19:16:54.397Z"
+  },
+  {
+    "id": "v6-vitest-workbench-recovery-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6-vitest-workbench-recovery-v3.json",
+    "phase": "V6_CONTINUATION_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T19:16:54.460Z",
+    "endedAt": "2026-11-16T19:16:55.763Z"
   }
 ]

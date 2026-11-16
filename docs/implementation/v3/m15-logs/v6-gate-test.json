@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "node",
+    "C:/hostedtoolcache/node/24.22.2/x64/node_modules/corepack/dist/pnpm.js",
+    "test"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+  "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+  "startedAt": "2026-11-16T19:18:43.391Z",
+  "endedAt": "2026-11-16T19:35:38.673Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/gate-test.log",
+  "logDigest": "8e8d0dd104ccb6acfe04dd4ec18ab63e31d05548ad057d382057e937ec30990e"
+}
