@@ -6,7 +6,7 @@ import '../../../apps/web/src/styles.css';
 
 type Mode = 'success' | 'reject' | 'throw' | 'source-error';
 type Call = {type: 'refresh' | 'read' | 'unread' | 'open'; id?: string};
-declare global {interface Window {inboxControls: {calls: Call[]; items: AttentionItem[]; refreshMode: Mode; readMode: Mode; openMode: Mode; holdRead?: Promise<void>}}}
+declare global {interface Window {inboxControls: {calls: Call[]; items: AttentionItem[]; refreshMode: Mode; readMode: Mode; openMode: Mode; unreadMode?: Mode; holdRead?: Promise<void>; holdUnread?: Promise<void>; holdRefresh?: Promise<void>; holdOpen?: Promise<void>}}}
 window.inboxControls = {calls: [], items: [], refreshMode: 'success', readMode: 'success', openMode: 'success'};
 const initial: AttentionItem[] = [
   {id: 'question', threadId: 'thread-question', kind: 'request', title: 'Question', summary: 'Choose the destination in the canonical conversation.', state: 'needs-input', read: false, actionable: true},
@@ -26,19 +26,21 @@ function Fixture() {
   };
   const change = (id: string, read: boolean) => {
     window.inboxControls.calls.push({type: read ? 'read' : 'unread', id});
-    const apply = () => result(read ? window.inboxControls.readMode : 'success', 'Read state could not save.', () => setItems(current => current.map(item => item.id === id ? {...item, read} : item)));
-    return read && window.inboxControls.holdRead ? window.inboxControls.holdRead.then(apply) : apply();
+    const mode=read?window.inboxControls.readMode:window.inboxControls.unreadMode??'success';
+    const apply = () => result(mode, read?'Read state could not save.':'Unread state could not save.', () => setItems(current => current.map(item => item.id === id ? {...item, read} : item)));
+    const hold=read?window.inboxControls.holdRead:window.inboxControls.holdUnread;return hold?hold.then(apply):apply();
   };
   return <main><p>Synthetic source fixture · no live host or approval authority</p><div className="fixture-inbox"><InboxView projectColorFor={() => undefined}
     attention={{items, unread: items.filter(item => !item.read).length, error,
       refresh: () => {
         window.inboxControls.calls.push({type: 'refresh'});
-        return result(window.inboxControls.refreshMode, 'Refresh failed.', () => {
-          if (window.inboxControls.refreshMode === 'source-error') {setError('Inbox could not load.'); return;}
+        const mode=window.inboxControls.refreshMode;const apply=()=>result(mode, 'Refresh failed.', () => {
+          if (mode === 'source-error') {setError('Inbox could not load.'); return;}
           setError(''); setItems(current => current.map(item => ({...item, summary: item.summary + ' Refreshed.'})));
         });
+        return window.inboxControls.holdRefresh?window.inboxControls.holdRefresh.then(apply):apply();
       }, markRead: id => change(id, true), markUnread: id => change(id, false)}}
-    onOpenThread={id => {window.inboxControls.calls.push({type: 'open', id}); return result(window.inboxControls.openMode, 'Navigation failed.', () => {});}}/>
+    onOpenThread={id => {window.inboxControls.calls.push({type: 'open', id}); const mode=window.inboxControls.openMode,apply=()=>result(mode, 'Navigation failed.', () => {});return window.inboxControls.holdOpen?window.inboxControls.holdOpen.then(apply):apply();}}/>
   </div></main>;
 }
 createRoot(document.getElementById('root')!).render(<Fixture/>);
