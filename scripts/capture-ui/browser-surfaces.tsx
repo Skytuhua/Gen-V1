@@ -57,7 +57,7 @@ function Content() {
     case 'scoped': return <Scoped/>;
     case 'memory': return <TaskMemory snapshot={snapshot} threadId="one"/>;
     case 'skills': return <SkillLibrary snapshot={snapshot} preferences={DEFAULT_PREFERENCES} update={noop} refresh={noop} busy={false}/>;
-    case 'connections': return <><Connections models={[]} snapshot={snapshot} refresh={noop} loadModels={noop} query="ChatGPT"/><GitHubSignIn/><UpdateControl/><SecureArtifactProvider value={{artifactId:'capture-credential',threadId:'one',revision:1}}><CredentialEntry slotKey="audit-token" service="Audit service" label="Private token" purpose="Synthetic empty credential request"/></SecureArtifactProvider></>;
+    case 'connections': return <><Connections models={[]} snapshot={snapshot} refresh={noop} loadModels={noop}/><GitHubSignIn/><UpdateControl/><SecureArtifactProvider value={{artifactId:'capture-credential',threadId:'one',revision:1}}><CredentialEntry slotKey="audit-token" service="Audit service" label="Private token" purpose="Synthetic empty credential request"/></SecureArtifactProvider></>;
     case 'drafts': return query.has('variant') ? <DraftTransfer references={draftReferences}/> : <DraftTransfer snapshot={snapshot}/>;
     case 'terminal': return <TerminalCapture/>;
     case 'project': return <ProjectContextSurface thread={query.get('variant') === 'empty' ? undefined : snapshot.threads[0]} snapshot={snapshot}/>;

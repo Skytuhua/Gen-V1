@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
 import { approvalSchema, type ApprovalV1, type ToolOwner } from '../contracts/tool-effects.ts';
 import {
-  verificationRecipeV1Schema, type CheckObservationV1, type RecipePhase,
+  checkObservationV1Schema, verificationRecipeV1Schema, type CheckObservationV1, type RecipePhase,
   type VerificationRecipeV1,
 } from '../contracts/verification.ts';
 import { canonical, inside } from './security.ts';
@@ -178,6 +178,17 @@ export class ProjectVerificationService {
 
   observations(threadId?: string): CheckObservationV1[] {
     return this.store.all<CheckObservationV1>('checkObservation', threadId);
+  }
+
+  /** External advisory evidence (M07 diagnostics and debug observations):
+   * written through the same append-only path as executed checks so
+   * task_finish evidence and the verification panel read them with identical
+   * freshness semantics. The kind is pinned to 'review-advisory' — advisory
+   * records inform review but never satisfy a declared requirement. */
+  recordAdvisory(owner: ToolOwner, advisory: Omit<CheckObservationV1, 'checkId' | 'observationKind' | 'owner'>): CheckObservationV1 {
+    this.assertEnabled();
+    const parsed = checkObservationV1Schema.omit({ checkId: true, observationKind: true, owner: true }).parse(advisory);
+    return this.record(owner, { ...parsed, owner, checkId: '', observationKind: 'review-advisory' });
   }
 
   /** Append-only: an observation is written once and never updated. Freshness

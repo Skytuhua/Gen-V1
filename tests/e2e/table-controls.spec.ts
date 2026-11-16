@@ -172,7 +172,11 @@ test('custom rowKey preserves selected rows and valid scroll offsets across loca
   await page.getByRole('button', { name: 'Sort Task', exact: true }).evaluate(node => (node as HTMLButtonElement).click()); expect(await offsets()).toEqual([120, 200]);
   const filter = page.getByRole('textbox', { name: 'Filter rows' }); await filter.fill('Ready'); expect(await offsets()).toEqual([120, 200]);
   await page.getByRole('button', { name: 'Move Owner column' }).evaluate(node => node.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true })));
-  expect(await offsets()).toEqual([120, 200]); await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
+  expect((await offsets())[1]).toBe(200);
+  const moved = page.getByRole('button', { name: 'Move Owner column' }); await expect(moved).toBeFocused();
+  const header = await moved.locator('xpath=ancestor::th').boundingBox(), bounds = await region.boundingBox();
+  expect(header!.x).toBeGreaterThanOrEqual(bounds!.x - 1); expect(header!.x + header!.width).toBeLessThanOrEqual(bounds!.x + bounds!.width + 1);
+  await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
   host.setInput('rows', [...data].reverse()); await host.publish(); await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
   await expect(region).toHaveAttribute('data-following', 'false');
 });

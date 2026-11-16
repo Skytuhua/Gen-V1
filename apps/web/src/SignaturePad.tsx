@@ -97,7 +97,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   }, [mode, serialized]);
   const pointAt = (event: PointerEvent<HTMLCanvasElement>) => { const bounds = event.currentTarget.getBoundingClientRect(); return { x: clamp((event.clientX - bounds.left) / Math.max(1, bounds.width)), y: clamp((event.clientY - bounds.top) / Math.max(1, bounds.height)) }; };
   const start = (event: PointerEvent<HTMLCanvasElement>) => {
-    if (!event.isPrimary || event.button !== 0) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
+    if (!event.isPrimary || event.button !== 0 || drawing.current?.pointerId != null) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
     const strokes = markStrokes().map(stroke => [...stroke]); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { setError('The signature reached 2000 points. Undo a stroke or clear it.'); return; }
     const point = pointAt(event); drawing.current = { pointerId: event.pointerId, strokes: [...strokes, [point, point]] }; saveStrokes();
   };
