@@ -131,6 +131,7 @@ test('compact rows and actions remain reachable in a 320 by 280 window', async (
   const search = page.getByRole('combobox', { name: 'Search projects' });
   await search.fill('No project');
   const row = page.getByRole('option', { name: 'No project', exact: true });
+  await page.getByRole('dialog', { name: 'Select project' }).evaluate(dialog => Promise.all(dialog.getAnimations().map(animation => animation.finished)));
   expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(32);
   await expect(page.getByRole('button', { name: 'Add project', exact: true })).toBeInViewport();
   await search.fill('Alpha');
@@ -157,6 +158,7 @@ test('supplied recent order is independent of committed selection and four-pixel
   await expect(rows.nth(1)).toHaveAccessibleName('Beta');
   await expect(rows.nth(2)).toHaveAccessibleName('Alpha');
   await expect(rows.nth(2)).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('dialog', { name: 'Select project' }).evaluate(dialog => Promise.all(dialog.getAnimations().map(animation => animation.finished)));
   const first = await rows.nth(1).boundingBox(), second = await rows.nth(2).boundingBox();
   expect(second!.y - first!.y - first!.height).toBe(4);
 });

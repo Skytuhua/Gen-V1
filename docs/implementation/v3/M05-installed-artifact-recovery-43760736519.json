@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 1,
+  "scope": "Read-only recovery of the original failed Windows installed artifact. This validates transport and retained bytes; it does not turn the failed application run into success.",
+  "reviewedAt": "2026-11-15 21:41:00 UTC",
+  "source": {
+    "attempt": 1,
+    "conclusion": "failure",
+    "headSha": "013c044d66f40136752df4f1903132d601d57851",
+    "id": 43760736519,
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be"
+  },
+  "sourceJob": {
+    "conclusion": "failure",
+    "id": 132954742228,
+    "name": "Installed desktop memory retention"
+  },
+  "artifact": {
+    "bytes": 915052,
+    "createdAt": "2026-11-15T21:18:54Z",
+    "id": 14181271741,
+    "name": "installed-memory-43760736519-1",
+    "sha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34"
+  },
+  "recovery": {
+    "branch": "agent/m05-evidence-recovery-43760736519",
+    "headSha": "1f14bb3380643d804c9fa852127bbb9b35b3b172",
+    "treeSha": "c2961363e7e4df1739f79850067b44639b066206",
+    "sourceHead": "013c044d66f40136752df4f1903132d601d57851",
+    "shards": 16,
+    "artifactId": 14181271741,
+    "artifactBytes": 915052,
+    "artifactSha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34",
+    "runId": 43763315513,
+    "status": "completed",
+    "conclusion": "success",
+    "workflowPath": ".github/workflows/m05-evidence-recovery-43760736519.yml",
+    "workflowGitBlobSha": "87220b56593caf1ce90307b6f17c8c977c2fa827",
+    "workflowBytes": 17409,
+    "workflowSha256": "36069ffb7fe222c62d685a9c4924a82401a15898d4e0f35db301944fe25b31d9",
+    "parentSha": "013c044d66f40136752df4f1903132d601d57851",
+    "sourceChanges": false,
+    "permissions": {
+      "contents": "read",
+      "actions": "read"
+    },
+    "jobs": [
+      {
+        "shard": 0,
+        "jobId": 132962726874,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726874"
+      },
+      {
+        "shard": 1,
+        "jobId": 132962726832,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726832"
+      },
+      {
+        "shard": 2,
+        "jobId": 132962726753,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726753"
+      },
+      {
+        "shard": 3,
+        "jobId": 132962726815,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726815"
+      },
+      {
+        "shard": 4,
+        "jobId": 132962726805,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726805"
+      },
+      {
+        "shard": 5,
+        "jobId": 132962726518,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726518"
+      },
+      {
+        "shard": 6,
+        "jobId": 132962726931,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726931"
+      },
+      {
+        "shard": 7,
+        "jobId": 132962726751,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726751"
+      },
+      {
+        "shard": 8,
+        "jobId": 132962726681,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726681"
+      },
+      {
+        "shard": 9,
+        "jobId": 132962726781,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726781"
+      },
+      {
+        "shard": 10,
+        "jobId": 132962726893,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726893"
+      },
+      {
+        "shard": 11,
+        "jobId": 132962726826,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726826"
+      },
+      {
+        "shard": 12,
+        "jobId": 132962726895,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726895"
+      },
+      {
+        "shard": 13,
+        "jobId": 132962726903,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962726903"
+      },
+      {
+        "shard": 14,
+        "jobId": 132962727956,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962727956"
+      },
+      {
+        "shard": 15,
+        "jobId": 132962728051,
+        "conclusion": "success",
+        "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43763315513/job/132962728051"
+      }
+    ],
+    "logs": [
+      {
+        "shard": 0,
+        "bytes": 184151,
+        "sha256": "c508eb632619b64fcd79422b424b1841ee723da7c7c53ab753b1276c0b1b4675",
+        "bodyBytes": 157500,
+        "bodySha256": "a520733a795df33da2fd978bdcdb9cff171ce13158eb839076d154b411ed7ba9",
+        "chunks": 9
+      },
+      {
+        "shard": 1,
+        "bytes": 184161,
+        "sha256": "815cc043c5ea04607948d6ecfd8b0616d681571f3fb3a094627a58382f1ab728",
+        "bodyBytes": 157512,
+        "bodySha256": "1202703868ef1a96c0c35bb38040b2506ecfd4347c987394ca955548ab8bec4d",
+        "chunks": 9
+      },
+      {
+        "shard": 2,
+        "bytes": 184166,
+        "sha256": "2155d1138bb0a719ed9b2cc8eea1bbec57e46423d9e0280ab90a3b40a2c98dff",
+        "bodyBytes": 157512,
+        "bodySha256": "f28f29cb5e285c1e773f1569a11609b99d15ac49219eb029737ae159b9c78c41",
+        "chunks": 9
+      },
+      {
+        "shard": 3,
+        "bytes": 171876,
+        "sha256": "5451860a9f1f474b773197ea2d4b80d4d136005c1f08d71e4ef5419bd4753c77",
+        "bodyBytes": 145227,
+        "bodySha256": "160760605843e10afe8fcd7d3d90b9ca3dc3965c7ddab260b60ad423d69448b5",
+        "chunks": 9
+      },
+      {
+        "shard": 4,
+        "bytes": 170632,
+        "sha256": "6704cc98d9af9212d861c5b30bb277f4a513a7128bab0a84a145bda4b5ce485a",
+        "bodyBytes": 143980,
+        "bodySha256": "4440977d8801a4303e73d1f04506d8f4ea93f045670f6fa53bc8d3afa674192f",
+        "chunks": 9
+      },
+      {
+        "shard": 5,
+        "bytes": 184161,
+        "sha256": "9d2dea5d51f66078006f0f66d3df786f45c60602c54f10abd884735500a85290",
+        "bodyBytes": 157509,
+        "bodySha256": "92dc11310c24b3b5fb61b9d7aab0fad212da85979837beb78d4a2fd8709d540d",
+        "chunks": 9
+      },
+      {
+        "shard": 6,
+        "bytes": 173098,
+        "sha256": "65ff1db7d76eeb36f4697341e54936d203e266e534886b9661c592a0619e24c7",
+        "bodyBytes": 146440,
+        "bodySha256": "bec18d9a641d27bbf327ea9903de34d188f99764a610d5a5adbed2bbd1c886c4",
+        "chunks": 9
+      },
+      {
+        "shard": 7,
+        "bytes": 184161,
+        "sha256": "cdf805eb43e63f4af72fa622d02517ca603166d0496ffafcf97b0a5eac38ed50",
+        "bodyBytes": 157509,
+        "bodySha256": "38f820d257da7cdf98b096b5cb25c5323d1025cf2f3d49627e2ceeab3c1139c3",
+        "chunks": 9
+      },
+      {
+        "shard": 8,
+        "bytes": 184171,
+        "sha256": "cf1795daefeaae7f5c80e9c225d2ce4357c88dcd0c5f43bb56531fe4c3a45696",
+        "bodyBytes": 157513,
+        "bodySha256": "40788cd0aa5b6cd33d4d9013883ccab36a26d633f1f6cf130c7b3a971d56859a",
+        "chunks": 9
+      },
+      {
+        "shard": 9,
+        "bytes": 184166,
+        "sha256": "011aab57f1e494f923ab384c50aa674dcf482b11e118e932fe82fd4419a1c4ec",
+        "bodyBytes": 157515,
+        "bodySha256": "c25b52a37e186c6d845f779d10a65bf67f924a7ac61a92b947b0b048374f0e12",
+        "chunks": 9
+      },
+      {
+        "shard": 10,
+        "bytes": 173219,
+        "sha256": "c40cf7a0e8722f490bc94e548c2633300a62420a9570a2bcbc20b8f66d8f25d0",
+        "bodyBytes": 146562,
+        "bodySha256": "6d1789d13215a5dad45228577630408bd49649459bb29c845f95a274c2d3b072",
+        "chunks": 9
+      },
+      {
+        "shard": 11,
+        "bytes": 163489,
+        "sha256": "63baef6cd006423d78a83387cd3b7d2e1ebb80ca31b68abbfecb81f4639e419f",
+        "bodyBytes": 136834,
+        "bodySha256": "eb0248dd8d63c14dfcef52bd600da49605ae69144aa68a954ca1b7c40d8b50f9",
+        "chunks": 9
+      },
+      {
+        "shard": 12,
+        "bytes": 184164,
+        "sha256": "2dd003d3a2cc5b3c8e819d78be6c9514a6a9f2ea504e838462d6a310a7055205",
+        "bodyBytes": 157509,
+        "bodySha256": "810ec5de246be96c81255bc1c384ace04da963dc8a35dd216ff8d827696ec468",
+        "chunks": 9
+      },
+      {
+        "shard": 13,
+        "bytes": 162296,
+        "sha256": "c025fa20febccd3d69e88a9d10db2af33887b213e00f00eb8d6ea15af6f85599",
+        "bodyBytes": 135642,
+        "bodySha256": "ef44dd19441055dbe84e94e70e57d14a7d9e3b7d6fece6fb70b295c5965ad9a1",
+        "chunks": 9
+      },
+      {
+        "shard": 14,
+        "bytes": 167582,
+        "sha256": "3b74ee9cce263ba41e3e5fb633e99b20136b7d26566667d95b2dfc98453c19f0",
+        "bodyBytes": 140954,
+        "bodySha256": "f52b26ca3c8771d0e9a12e54a911e52cf8e9ebb1287d99b33cbba749441005d7",
+        "chunks": 8
+      },
+      {
+        "shard": 15,
+        "bytes": 145200,
+        "sha256": "1af5bce0e2a79177f0a17ff12ad17bfa158cfc09f86e157d1f4bc8a8427af794",
+        "bodyBytes": 118572,
+        "bodySha256": "3ed8e8353287e182727c08b0e26c164e4c49bd25475237003db6dd4a3bb04650",
+        "chunks": 8
+      }
+    ]
+  },
+  "manifestSha256": "62eb3b46be3cfc83fa867e27fbd367b798762016e885eb009e6481cda5ee7b3f",
+  "files": [
+    {
+      "bytes": 53613,
+      "gitBlobSha": "3d9311ec4e3d0dea9984c7993cec14ea5a271f1e",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-main.png",
+      "role": "image",
+      "sha256": "06d05f1374a9327dd73a5a3e4c86311ebe0d8fc7a3498278092cc2af4bd93490",
+      "transport": "base64"
+    },
+    {
+      "bytes": 77712,
+      "gitBlobSha": "e69edeab2e40410fa75578153154cdeab03022fa",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-launch-1-failure.png",
+      "role": "image",
+      "sha256": "db9cf87e1ddaaa1d26ad49c8875b631d252c68faf7c79609a3595438e98d0331",
+      "transport": "base64"
+    },
+    {
+      "bytes": 77436,
+      "gitBlobSha": "fea488f1be4b38f38ed219a87ce5e01c072f2875",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-rejected.png",
+      "role": "image",
+      "sha256": "c15cf8495a4c0a5f4487c803af6fda11ba4b52bff07d382ec672449ca358045e",
+      "transport": "base64"
+    },
+    {
+      "bytes": 75870,
+      "gitBlobSha": "06eee6b03b9aadd7aaf1f9cda2ed02496a54ddbe",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-reviewed.png",
+      "role": "image",
+      "sha256": "7290b2b21b1c023140898f5cd2d8df41285160d31045d8fa323227343bbade38",
+      "transport": "base64"
+    },
+    {
+      "bytes": 82469,
+      "gitBlobSha": "d4308339e0fc154388862c429f52211cee56a103",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-source.png",
+      "role": "image",
+      "sha256": "47511ead91e55ccd664066af12bd4c86e41d8894ea511ff46c44ceb1ee1794a5",
+      "transport": "base64"
+    },
+    {
+      "bytes": 89089,
+      "gitBlobSha": "9a852926e6014abb76e8178922d66607a5645ec6",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-official-connections.png",
+      "role": "image",
+      "sha256": "40582a8d2c44e669a2e9de947735d892ef33f45d0cb576757bfa9710823e2057",
+      "transport": "base64"
+    },
+    {
+      "bytes": 84343,
+      "gitBlobSha": "567c969a57e9051797db598c9fbadb7e37fdcb48",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-settings.png",
+      "role": "image",
+      "sha256": "79d6ee39a1120daa13d34932f6305bd54b13f7ffa6c88cd36d6c62dc864799cb",
+      "transport": "base64"
+    },
+    {
+      "bytes": 330,
+      "gitBlobSha": "e982cf0efe715d45c35fca344f9431ea0951ed90",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/owner.json",
+      "role": "owner",
+      "sha256": "e40a56faf1e81e0ad8b0220d3d493db61afdef4751f3675385d0450fd74c2b47",
+      "transport": "base64"
+    },
+    {
+      "bytes": 20694,
+      "gitBlobSha": "ecd8925ff44de3f0d6424df7284ccd5c8a9d4f6d",
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/verification.json",
+      "role": "main",
+      "sha256": "9ed308553d5f4fdeeaa3f964b22c1224c7cc02ed3def485452b242b16906505b",
+      "transport": "base64"
+    },
+    {
+      "bytes": 15611,
+      "gitBlobSha": "0a14385abb6e136fbc31784499cab99296cd9c84",
+      "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "role": "build",
+      "sha256": "2709e3c087328ecf0490db6b2ad86e5e1de4fa4d9747e13e68aab0b1d4cda6c9",
+      "transport": "base64"
+    },
+    {
+      "bytes": 1511066,
+      "gitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "path": ".harness-installed-package/desktop-stage-1794776187679/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "publishedGitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "role": "canonical",
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "transport": "already-published-exact-bytes"
+    },
+    {
+      "bytes": 168090,
+      "gitBlobSha": "33ae055d1d066156a264daec321c1b5ae2db50de",
+      "path": ".harness-packaged-providers/run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8/verification.json",
+      "role": "providers",
+      "sha256": "608d1e789a08a45a901d7bd7f28bd523d123c8b2ef5fe221217e1b400beaffef",
+      "transport": "base64"
+    }
+  ],
+  "canonicalOmission": {
+    "bytes": 1511066,
+    "fullPublishedBytesCompared": true,
+    "gitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+    "memberRole": "canonical",
+    "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+  },
+  "zipDirectory": [
+    {
+      "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "compressedBytes": 5051,
+      "crc32": "2f0a400c",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 0,
+      "dataOffset": 98
+    },
+    {
+      "path": ".harness-installed-package/desktop-stage-1794776187679/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "compressedBytes": 348792,
+      "crc32": "3dc6a1af",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 5165,
+      "dataOffset": 5315
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-main.png",
+      "bytes": 53613,
+      "compressedBytes": 49932,
+      "crc32": "5d6091cc",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 354123,
+      "dataOffset": 354253
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-launch-1-failure.png",
+      "bytes": 77712,
+      "compressedBytes": 74807,
+      "crc32": "be450487",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 404201,
+      "dataOffset": 404350
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-rejected.png",
+      "bytes": 77436,
+      "compressedBytes": 72860,
+      "crc32": "e02993f1",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 479173,
+      "dataOffset": 479314
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-reviewed.png",
+      "bytes": 75870,
+      "compressedBytes": 72419,
+      "crc32": "ec8a9123",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 552190,
+      "dataOffset": 552331
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-source.png",
+      "bytes": 82469,
+      "compressedBytes": 78815,
+      "crc32": "e885f228",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 624766,
+      "dataOffset": 624905
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-official-connections.png",
+      "bytes": 89089,
+      "compressedBytes": 85109,
+      "crc32": "b52efb86",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 703736,
+      "dataOffset": 703882
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-settings.png",
+      "bytes": 84343,
+      "compressedBytes": 80620,
+      "crc32": "d2118987",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 789007,
+      "dataOffset": 789141
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/owner.json",
+      "bytes": 330,
+      "compressedBytes": 217,
+      "crc32": "28a2ebad",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 869777,
+      "dataOffset": 869899
+    },
+    {
+      "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/verification.json",
+      "bytes": 20694,
+      "compressedBytes": 4086,
+      "crc32": "cbdb2883",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 870132,
+      "dataOffset": 870261
+    },
+    {
+      "path": ".harness-packaged-providers/run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8/verification.json",
+      "bytes": 168090,
+      "compressedBytes": 38720,
+      "crc32": "65e17f7e",
+      "compressionMethod": 8,
+      "flags": 8,
+      "localHeaderOffset": 874363,
+      "dataOffset": 874493
+    }
+  ],
+  "verification": {
+    "status": "PASS_TRANSPORT_ONLY",
+    "all16OriginalJobLogsRead": true,
+    "manifestIdentityAndPartitionAgreed": true,
+    "perChunkAndStreamChecksums": true,
+    "archiveBytes": 915052,
+    "archiveSha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34",
+    "archiveGitBlobSha": "725c63c21c3a2de40d9e08898b9d4406c8accbd6",
+    "originalArtifactSha256Matched": true,
+    "zipLocalAndCentralHeadersMatched": true,
+    "zipMemberAllowlistMatched": true,
+    "originalZipDecompressedLocally": true,
+    "all12MemberCrcChecksPassed": true,
+    "all12DecompressedMembersRehashedAndCompared": true,
+    "canonicalExactPublishedBytesReused": true,
+    "rawDecodedLogDigestsSeparateFromBoundedRepresentation": true,
+    "independentPhaseReview": "docs/implementation/v3/M05-installed-independent-phase-review-43760736519.json",
+    "independentUiReview": "docs/implementation/v3/M05-installed-ui-review-43760736519.json"
+  },
+  "limitations": [
+    "The original installed verification has passed:false and exited1 with Native Save refused: dialog-timeout.",
+    "Transport jobs do not build, package, install or exercise the application.",
+    "The twelve original members are five JSON receipts and seven renderer PNGs. There is no exported-memory member.",
+    "The canonical JSON transport is omitted only after matching its full bytes/SHA256/Git identity to the already retained file. It is still present in the original ZIP and was locally decompressed and rehashed.",
+    "The restored Linux workspace was used to decompress and independently compare the original archive; that is not new Windows application execution.",
+    "Native Save, Forget and same-profile restart remain unadmitted for the original failed run."
+  ]
+}

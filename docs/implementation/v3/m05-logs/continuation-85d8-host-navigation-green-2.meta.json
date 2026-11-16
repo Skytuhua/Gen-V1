@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.config.ts",
+      "tests/e2e/host-loop.spec.ts",
+      "--grep",
+      "cross-site infinite-loop widget",
+      "--reporter=list"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:14:59.904911+00:00",
+    "endedAt": "2026-11-15T23:15:14.776040+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green-2.log",
+    "logDigest": "14cd7c9db23dd409a415f359468b1dae65c488a488a85fb3b6c5acf5e048c617"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 14847,
+  "rawOutputBytes": 919,
+  "rawOutputSha256": "14cd7c9db23dd409a415f359468b1dae65c488a488a85fb3b6c5acf5e048c617",
+  "excerptInputBytes": 919,
+  "excerptInputSha256": "14cd7c9db23dd409a415f359468b1dae65c488a488a85fb3b6c5acf5e048c617",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

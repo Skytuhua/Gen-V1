@@ -1,0 +1,28 @@
+ROOT=/c/Users/Administrator/repos/Gen-V1-m09
+ORIGIN=https://git-manager.devin.ai/proxy/github.com/Skytuhua/Gen-V1
+HEAD=fcaa52f7fcdc9f39420118a79f9a8250ba83c563
+BASE=fcaa52f7fcdc9f39420118a79f9a8250ba83c563
+AUDIT=a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+AUDIT_IS_ANCESTOR_OF_BASE=yes
+BASE_NOT_ANCESTOR_OF_AUDIT=yes
+--- status
+ M packages/core/capability-flags.ts
+ M scripts/public-source-files.json
+?? docs/implementation/v3/logs/m09-baseline-repro.log
+?? docs/implementation/v3/logs/m09-build.log
+?? docs/implementation/v3/logs/m09-src-provenance.log
+?? docs/implementation/v3/logs/m09-test-no-lease.log
+?? docs/implementation/v3/logs/m09-typecheck.log
+?? docs/implementation/v3/logs/m09-vitest-agent-input-v3.log
+?? docs/implementation/v3/logs/m09-vitest-agent-work-v3.log
+?? docs/implementation/v3/logs/m09-vitest-fixture-fail.log
+?? docs/implementation/v3/logs/m09-vitest-m09.log
+?? docs/implementation/v3/logs/m09-vitest-plan-extension-v3.log
+?? packages/contracts/agent-work.ts
+?? packages/core/agent-inbox.ts
+?? packages/core/agent-work.ts
+?? packages/core/plan-extension.ts
+?? tests/agent-input-v3.test.ts
+?? tests/agent-work-v3.test.ts
+?? tests/plan-extension-v3.test.ts
+--- node=v24.22.2 pnpm=10.30.3

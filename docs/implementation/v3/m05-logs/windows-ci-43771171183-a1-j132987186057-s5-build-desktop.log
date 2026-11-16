@@ -1,0 +1,11 @@
+2026-11-15T22:47:44.5743820Z ##[group]Run pnpm desktop:build
+2026-11-15T22:47:44.5744070Z pnpm desktop:build
+2026-11-15T22:47:44.5794677Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T22:47:44.5794881Z env:
+2026-11-15T22:47:44.5795043Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T22:47:44.5795224Z ##[endgroup]
+2026-11-15T22:47:44.9920563Z 
+2026-11-15T22:47:44.9921164Z > gen-v1@0.6.5 desktop:build D:\a\Gen-V1\Gen-V1
+2026-11-15T22:47:44.9921446Z > tsx scripts/build-desktop.ts
+2026-11-15T22:47:44.9921554Z 
+2026-11-15T22:47:45.4020279Z Desktop shell built: D:\a\Gen-V1\Gen-V1\dist\desktop-app

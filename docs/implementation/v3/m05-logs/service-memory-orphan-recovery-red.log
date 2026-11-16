@@ -1,0 +1,38 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (24 tests | 1 failed | 23 skipped) 42ms
+   × recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend 39ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend
+AssertionError: expected { modelCalls: 1, …(4) } to match object { modelCalls: 1, …(4) }
+
+- Expected
++ Received
+
+  {
+    "cost": null,
+    "inputTokens": null,
+    "modelCalls": 1,
+    "outputTokens": null,
+-   "pending": 0,
++   "pending": 2,
+  }
+
+ ❯ tests/project-memory-service-v3.test.ts:241:77
+    239|   await f.service.recover();
+    240|   expect(factory).not.toHaveBeenCalled();
+    241|   expect(f.service.projectMemory.usage(await f.currentAccess()).extrac…
+       |                                                                             ^
+    242|   expect(f.store.all<{ settled: boolean }>('projectMemoryAuxiliaryUsag…
+    243| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 23 skipped (24)
+   Start at  20:09:21
+   Duration  2.19s (transform 1.58s, setup 0ms, import 2.01s, tests 42ms, environment 0ms)

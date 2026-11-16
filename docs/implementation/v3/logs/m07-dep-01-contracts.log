@@ -1,0 +1,5 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+M01: VERIFIED — packages/storage/store.ts, packages/core/file-access.ts, packages/core/security.ts on approved base; M01-verification.json present in docs/implementation/v3.
+M02: VERIFIED — packages/core/tool-authority.ts, capability-flags.ts, tool-effects.ts, contracts/tool-effects.ts on approved base; M02-verification.json + M02-source-lock.json present.
+M03: VERIFIED — packages/core/execution-policy.ts, project-trust.ts, host-flags.ts, contracts/execution-profile.ts on approved base; M03-verification.json present.
+M06: MISSING — no commits, remote branch, PR or verification artifact for M06 exists on origin/main or origin/* (git ls-remote checked). The sibling session that implemented M06 (359b5fee27da48ec9af3d4411f44bab3, branch agent/m06-v3) was suspended before pushing. Spec item 11 (feed diagnostics/debug observations into M06 evidence) recorded as BLOCKED_SOURCE_DRIFT rather than guessing the integration API.

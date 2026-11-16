@@ -42,7 +42,7 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
   await serveTaskFixture(page,snapshot);await page.goto('/');
   await expect(page.locator('.artifact')).toHaveCount(3);await matchesComposer(page);
   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await matchesComposer(page);
-  await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
+  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();
   await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();await matchesComposer(page);
   await page.setViewportSize({width:900,height:1000});await matchesComposer(page);
   await page.setViewportSize({width:390,height:844});await matchesComposer(page);
@@ -93,7 +93,7 @@ test('explicit workspace panels claim only their own width and closing restores 
   await expect.poll(()=>page.getByRole('complementary',{name:'Workspace panel',exact:true}).evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);
   const main=await page.locator('main.workspace').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
   expect(panel!.x-(main!.x+main!.width)).toBeCloseTo(6,0);expect(panel!.x+panel!.width).toBeCloseTo(1920,0);
-  await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
+  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
   expect(await page.getByRole('textbox',{name:'Review name',exact:true}).evaluate((node,old)=>node===old,input)).toBe(true);
 });
 

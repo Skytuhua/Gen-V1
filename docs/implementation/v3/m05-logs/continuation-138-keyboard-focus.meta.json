@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/agents-workspace.spec.ts",
+      "--grep",
+      "keyboard entry into a virtual agent",
+      "--workers=1",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T00:17:09.436680+00:00",
+    "endedAt": "2026-11-16T00:17:13.734279+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus.log",
+    "logDigest": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 4289,
+  "rawOutputBytes": 598,
+  "rawOutputSha256": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d",
+  "excerptInputBytes": 598,
+  "excerptInputSha256": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

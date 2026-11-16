@@ -1,0 +1,59 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts (10 tests | 2 failed) 118ms
+   × commits metadata-only pending usage before native dispatch and retains unknown cost when teardown fails 28ms
+   × rechecks authority after pending usage observers opt out and records zero dispatches 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > commits metadata-only pending usage before native dispatch and retains unknown cost when teardown fails
+AssertionError: expected undefined to match object { phase: 'EXTRACTION', …(4) }
+
+- Expected:
+{
+  "finishedAt": null,
+  "phase": "EXTRACTION",
+  "settled": false,
+  "status": "PENDING",
+  "usage": {
+    "cost": null,
+    "inputBytes": Any<Number>,
+    "inputTokens": null,
+    "modelCalls": 1,
+    "outputTokens": null,
+  },
+}
+
++ Received:
+undefined
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:34:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > rechecks authority after pending usage observers opt out and records zero dispatches
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:55:21
+     53|   try {
+     54|     const result = await coordinator.extract({access: f.access, source…
+     55|     expect(revoked).toBe(true); expect(start).not.toHaveBeenCalled(); …
+       |                     ^
+     56|     expect(result.usage).toMatchObject({modelCalls: 0, inputBytes: 0, …
+     57|     expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatch…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 8 passed (10)
+   Start at  19:59:55
+   Duration  727ms (transform 352ms, setup 0ms, import 471ms, tests 118ms, environment 0ms)

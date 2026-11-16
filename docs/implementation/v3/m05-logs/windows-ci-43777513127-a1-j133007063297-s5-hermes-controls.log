@@ -1,0 +1,21 @@
+2026-11-15T23:58:08.6427162Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T23:58:08.6427621Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T23:58:08.6562269Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T23:58:08.6562578Z env:
+2026-11-15T23:58:08.6562806Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T23:58:08.6563145Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:58:08.6563527Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T23:58:08.6563917Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:58:08.6564587Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:58:08.6564901Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:58:08.6565249Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T23:58:08.6565618Z ##[endgroup]
+2026-11-15T23:58:12.0537046Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T23:58:12.1021794Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T23:58:12.1660312Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T23:58:12.2235603Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T23:58:12.2274787Z 
+2026-11-15T23:58:12.2275575Z ----------------------------------------------------------------------
+2026-11-15T23:58:12.2276017Z Ran 4 tests in 3.115s
+2026-11-15T23:58:12.2276185Z 
+2026-11-15T23:58:12.2276338Z OK

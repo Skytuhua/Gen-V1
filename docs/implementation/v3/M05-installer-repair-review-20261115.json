@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T17:57:41.199528+00:00",
+  "scope": "Final reviewed NSIS archive-format repair and bounded owned-installer diagnostics after actual run43739565577. No actual Windows execution of this new source cut is claimed.",
+  "reviewers": [
+    "root",
+    "dependency_audit",
+    "ui_audit",
+    "memory_integration_audit"
+  ],
+  "previousPublishedHead": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+  "reviewedFiles": [
+    {
+      "path": "scripts/desktop-assets.ts",
+      "bytes": 7629,
+      "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022"
+    },
+    {
+      "path": "tests/desktop-packaging.test.ts",
+      "bytes": 7814,
+      "sha256": "118804b89b0b99947b268cbcfa825f3e75032950e54f1b2b0fff4d2b9a622935"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 38801,
+      "sha256": "1ee1f139802ecba042a2a8e5d317e43245504b3077d498748d935f1c7aa0e8b1"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "bytes": 18347,
+      "sha256": "b0346fca20ea6603deff30a0f3ab2e356264022a2c95747372505d3dc7bbe13d"
+    }
+  ],
+  "finding": "Exact checksum-pinned nsisunz binary matches original classic-ZIP-only parser source. The unchanged parser accepts65,535 classic entries and fails at65,536 ZIP64 entries in the recorded Linux source probe. Actual old installer ZIP headers/member count, dialog and timeout cause remain unobserved.",
+  "archiveRepair": {
+    "useZip": false,
+    "format": "7z",
+    "target": "nsis/x64",
+    "pinnedBuilder": "26.18.0",
+    "supportedExtractor": "Nsis7z19.00 from the unchanged pinned resources bundle",
+    "unchangedPolicies": [
+      "per-user",
+      "one-click",
+      "no elevation",
+      "no helper elevation",
+      "no automatic app launch",
+      "non-differential package",
+      "data-preserving uninstall",
+      "full source/resource/payload verification"
+    ],
+    "tradeoffs": "The pinned template extracts a temporary tree then copies once during installation/update. Peak disk use and installation I/O increase by about one unpacked tree; actual build/decode durations and size remain unmeasured for this cut. Copy fallback can omit files, so the complete post-install path/size/hash inventory remains mandatory."
+  },
+  "installerDiagnostics": {
+    "requiredCleanCompletion": [
+      "exit code0",
+      "exit signal null",
+      "close code0",
+      "close signal null"
+    ],
+    "firstTerminalFailurePreserved": true,
+    "retainedFields": [
+      "fixed phase",
+      "started time and configured deadline",
+      "spawn PID and elapsed time",
+      "exit and close elapsed/code/signal",
+      "stdout/stderr byte counts",
+      "fixed failure enum",
+      "termination requested",
+      "aggregate sampled-file status counts"
+    ],
+    "childTextAndSamplePathsRetained": false,
+    "checkpointsMs": [
+      30000,
+      120000,
+      300000,
+      540000
+    ],
+    "sampledManifestFiles": 16,
+    "additionalFixedUninstaller": true,
+    "sampleTimeoutMs": 5000,
+    "sampleMetadataCheckBound": 1200,
+    "concurrentSamples": 1,
+    "readOnly": true,
+    "ordinaryParentAndRootIdentityRequired": true,
+    "redirectedOrReplacedParentsRefused": true,
+    "measurementCannotAuthorizeCleanup": true
+  },
+  "unchangedDeadlinesMs": {
+    "readOnlyPreflight": 60000,
+    "installer": 600000,
+    "uninstaller": 180000
+  },
+  "validation": {
+    "packagingCasesPassed": 11,
+    "installedCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "commands": [
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-packaging.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T17:51:45.420123+00:00",
+        "endedAt": "2026-11-15T17:51:46.123605+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-red.log",
+        "logDigest": "25e3159e602f86d9ec7ec078c70f7dbba92a94d7e8732160cfe571199689e9ef"
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-packaging.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T17:52:06.928000+00:00",
+        "endedAt": "2026-11-15T17:52:07.446566+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-green.log",
+        "logDigest": "44da84720a9718a22436e23e1155588180ce91b5a4fdae7ecac428589f9b5e07"
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T17:49:26.019979+00:00",
+        "endedAt": "2026-11-15T17:49:27.540297+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-red.log",
+        "logDigest": "f221606a9bbd7760f3c0f4a202dc3a553bb3ba9ecb654e412ff527194c201e09"
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T17:52:52.874813+00:00",
+        "endedAt": "2026-11-15T17:52:54.259625+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-green.log",
+        "logDigest": "c8a6afb2e50496463588b730a969aa9efb8c329f644204113d43facf823682cb"
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts",
+          "-t",
+          "preserves the first installer failure"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T17:54:58.555560+00:00",
+        "endedAt": "2026-11-15T17:55:00.181036+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-red.log",
+        "logDigest": "8aa0fa9335e8359a38d288d4b2ccd77d925e81b8165c1086506989bc1d41e4c4"
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T17:55:14.499261+00:00",
+        "endedAt": "2026-11-15T17:55:16.122319+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-green.log",
+        "logDigest": "5efb2c194a08c86d2ba65b389d09ad0b7057bd588e1a64736386b222946d5498"
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T17:56:05.925620+00:00",
+        "endedAt": "2026-11-15T17:56:27.977957+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
+        "logDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      }
+    ]
+  },
+  "reviewRefs": [
+    "docs/implementation/v3/M05-installed-phase-review-43739565577.json",
+    "docs/implementation/v3/M05-canonical-package-review-43739565577.json",
+    "docs/implementation/v3/M05-nsis-zip64-review-43739565577.json",
+    "docs/implementation/v3/M05-nsis-7z-repair-review-20261115.json"
+  ],
+  "unresolvedConcreteSourceFindings": [],
+  "actualNewWindowsExecution": "PENDING",
+  "limits": [
+    "No success inferred from installer parent exit alone or diagnostic sample size matches.",
+    "Exact Windows installed payload, retained-record UI, two launches and owned uninstall remain unverified until a new actual receipt.",
+    "Temporary-path numeric limits and native fallback behavior are not substituted for the final full payload comparison.",
+    "Production memory flags remain false; full enabled installed flow and authorized live repeated-task quality/cost remain separate unproven gates."
+  ],
+  "reviewInputLogCustody": {
+    "policyRef": "docs/implementation/v3/M05-log-policy.json",
+    "note": "Independent source reviews observed recorder input bytes before display-whitespace normalization. These exact input bytes are archived and hash-bound here; command records name the final published logs. No timestamps, outcomes or text content were changed.",
+    "bindings": [
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-red.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-contract-red.log",
+        "reviewedRecorderInputSha256": "0d260a7316beca95647b7ede648dcc16d03f9c119c94a4c7964dc46ae86a512d",
+        "publishedLogSha256": "25e3159e602f86d9ec7ec078c70f7dbba92a94d7e8732160cfe571199689e9ef",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-green.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-contract-green.log",
+        "reviewedRecorderInputSha256": "682150b380c13433a5318111415609999ede3857a2e8358e071ecb75d8677315",
+        "publishedLogSha256": "44da84720a9718a22436e23e1155588180ce91b5a4fdae7ecac428589f9b5e07",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-red.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-process-progress-red.log",
+        "reviewedRecorderInputSha256": "99f71dd7d659b60167e673643aa481532a4320cb604057801353c8d0c7c08d87",
+        "publishedLogSha256": "f221606a9bbd7760f3c0f4a202dc3a553bb3ba9ecb654e412ff527194c201e09",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-green.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-process-progress-green.log",
+        "reviewedRecorderInputSha256": "837bf44b5ab49dbbd092cd0f0b820205ef57ab188f7a4ae5f4110efd949caa65",
+        "publishedLogSha256": "c8a6afb2e50496463588b730a969aa9efb8c329f644204113d43facf823682cb",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-red.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-first-failure-red.log",
+        "reviewedRecorderInputSha256": "08035efcf9160243fc97b06531d916e0f4b8dc219cd47a9ed5046e93c749f268",
+        "publishedLogSha256": "8aa0fa9335e8359a38d288d4b2ccd77d925e81b8165c1086506989bc1d41e4c4",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-green.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-first-failure-green.log",
+        "reviewedRecorderInputSha256": "7c9625e40b87d8bb0118737865740417999ca5ff7dd46f742afbb4e8437582ed",
+        "publishedLogSha256": "5efb2c194a08c86d2ba65b389d09ad0b7057bd588e1a64736386b222946d5498",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "commandLogRef": "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
+        "reviewedRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-installer-final-typecheck.log",
+        "reviewedRecorderInputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "publishedLogSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      }
+    ]
+  }
+}

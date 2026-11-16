@@ -1,0 +1,15 @@
+{
+  "capture": "continuation-85d8-rail-containment-diagnostic-5",
+  "files": [
+    {
+      "path": "trace.zip",
+      "bytes": 1382492,
+      "sha256": "38f27e6017217e2385936156c28309fdf475d821e3ce283f7b2eadfdf4ca3f14"
+    },
+    {
+      "path": "error-context.md",
+      "bytes": 11480,
+      "sha256": "52e02ac5e8704fea4b85050b44beb1666f7b87797b872cf2628957816453efdf"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-15T15:58:07.949794+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "reviewScope": "READ_ONLY_SOURCE_REVIEW",
+  "workflowPath": ".github/workflows/ci.yml",
+  "workflowSha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462",
+  "jobId": "installed-memory",
+  "jobName": "Installed desktop memory retention",
+  "expandedWorkflowJobCount": 9,
+  "reviewedFiles": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462"
+    },
+    {
+      "path": ".github/actions/setup/action.yml",
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    },
+    {
+      "path": "package.json",
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "11a9772a342e9c307a928a9a9d68e43a5bfef19059ed08b5f284764aba91e749"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "sha256": "f138034b2cd5f1ead9f2459c770453b6ca3157b5a27de0b3a1aeee2e0021f6ef"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "sha256": "1cdf863ee743ef3d0f8f08a9a9081529f82bb28a67036e4085e48bf94043620b"
+    },
+    {
+      "path": "scripts/git-assets.ts",
+      "sha256": "33d7033f2d80a875c431696f73b31b951d951cc750b1b1f2ede5483b0524d3f5"
+    },
+    {
+      "path": "scripts/hermes-assets.ts",
+      "sha256": "4462f9bd83930956fa94ba32a75ee572c180a35a7d7b17f560ac8ac13802b77e"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "sha256": "24e5c8ac61fa8711b7663e0b8e44231cce87de4e97d8a7d870d9ce9c4fe24118"
+    },
+    {
+      "path": "scripts/build-windows-credential-lease.ts",
+      "sha256": "4fed050d02a3d7e9c849300a515ba3a121ae33cc7fb77af0c1b057487a74b76b"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "sha256": "6a5f85e1b399472068d7c1915241227225ba22754957eab8dd04289d670ff3b1"
+    },
+    {
+      "path": "third-party/git-tools/manifest.json",
+      "sha256": "4654f167960c6a8ac56b4bacdd94e1eb643464b6fe690aa8facda289b41e3369"
+    },
+    {
+      "path": "third-party/hermes-agent/runtime-requirements.txt",
+      "sha256": "432520b342377ed3d395c493e40f901fe74b5e3870f07781305b6d92593924be"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+    }
+  ],
+  "findings": [],
+  "conclusion": "No concrete source-level CI/input blocker found in the reviewed bytes. Actual Windows installer execution and report acceptance remain pending.",
+  "checks": [
+    {
+      "area": "Toolchain and dependency inputs",
+      "observed": "Existing setup pins pnpm10.30.3, Node24.22.2 and action commit SHAs, installs the frozen pnpm lock, and selects CPython3.14 x64. Python patch version is selected by setup-python, not fixed by this workflow. Integration wheel URLs/hashes target cp314-win_amd64, compatible abi3-win_amd64, or platform-independent wheels."
+    },
+    {
+      "area": "Git/GitHub CLI payload",
+      "observed": "Manifest pins MinGit2.53.0.windows.1 and GitHub CLI2.87.3 archive SHA256 values. New staging verifies archive and every copied file byte count/hash, handles the declared GH archive root, and runs existing collectGitTools before packaging."
+    },
+    {
+      "area": "Hermes and native packaging",
+      "observed": "python:true provides both isolated dependency roots and HARNESS_HERMES_PYTHON. Existing packaging requires CPython3.14 Windows x64, verifies source/dependency custody, relocates Python, compiles the credential lease using pinned Node headers/library and Visual Studio C++ tools, and verifies relocated payloads."
+    },
+    {
+      "area": "NSIS prerequisites",
+      "observed": "Locked electron-builder26.18.0/app-builder-lib26.18.0 resolves its NSIS compiler/resources through declared hashed toolsets. Existing config targets x64 per-user NSIS, useZip:true, no elevation, no code-signing requirement, no automatic launch after install."
+    },
+    {
+      "area": "Output and invocation",
+      "observed": "Packaging output-root matches verifier resolution of desktop-release-${version}, Gen-V1-Setup-${version}-win-x64.exe and win-unpacked. Resolve-Path provides absolute paths; the HARNESS_INSTALLED_VERIFY_ARGV JSON marker records the same array passed to pnpm, followed by explicit LASTEXITCODE propagation."
+    },
+    {
+      "area": "Browser prerequisite",
+      "observed": "Verifier connects Playwright Chromium client to the owned installed Electron debug endpoint with connectOverCDP; it does not launch a downloaded Playwright Chromium binary."
+    },
+    {
+      "area": "Artifacts",
+      "observed": "Pinned upload-artifact action runs always with include-hidden-files:true. Explicit globs retain build manifest, owned-install metadata, verification reports, PNGs, redacted memory export and packaged-provider report. Profile/source DB trees are not selected."
+    }
+  ],
+  "limitations": [
+    "No Windows installer execution is claimed by this review.",
+    "No live account, provider inference, enabled memory rollout, or installed default-on acceptance is claimed.",
+    "Future CI receipt must bind all nine jobs to its actual published head and merge checkout; earlier eight-job runs do not cover this job."
+  ]
+}

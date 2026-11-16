@@ -1,0 +1,25 @@
+test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt) ... FAIL
+test_cancellation_while_persistence_is_pending_blocks_native_compaction (__main__.NativeCheckpointWorker.test_cancellation_while_persistence_is_pending_blocks_native_compaction) ... ok
+test_persistence_failure_prevents_native_inference_and_preserves_exact_history (__main__.NativeCheckpointWorker.test_persistence_failure_prevents_native_inference_and_preserves_exact_history) ... ok
+
+======================================================================
+FAIL: test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/36f66011d961/m05-continuation/tests/memory_native_checkpoint_worker_v3.py", line 92, in test_actual_native_summary_runs_after_the_matching_host_receipt
+    self.assertEqual(self.host_calls, ['$memory.checkpoint', '$transport.usage'])
+AssertionError: Lists differ: ['$memory.checkpoint', '$transport.usage', '$transport.observation'] != ['$memory.checkpoint', '$transport.usage']
+
+First list contains 1 additional elements.
+First extra element 2:
+'$transport.observation'
+
+- ['$memory.checkpoint', '$transport.usage', '$transport.observation']
+?                                          --------------------------
+
++ ['$memory.checkpoint', '$transport.usage']
+
+----------------------------------------------------------------------
+Ran 3 tests in 7.680s
+
+FAILED (failures=1)

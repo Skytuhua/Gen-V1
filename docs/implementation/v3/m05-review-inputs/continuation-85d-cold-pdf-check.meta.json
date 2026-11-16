@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "/workspace/scratch/36f66011d961/m05-cold-pdf.playwright.config.ts",
+      "tests/e2e/document-smoothness.spec.ts",
+      "--grep",
+      "PDF and direct signature controls in Stack pair by available artifact width at 768px",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:20:15.402223+00:00",
+    "endedAt": "2026-11-15T23:20:17.650884+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check.log",
+    "logDigest": "42eba569ae86d0d6a92111387055756fd7cc306431d3a8880e16aa64acc0cfd8"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "09247b6a801ea7e8e1889ed6abdf5d65e195fbcebbbb084d1f2d3bfbb90fbd6c",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 2233,
+  "rawOutputBytes": 3015,
+  "rawOutputSha256": "42eba569ae86d0d6a92111387055756fd7cc306431d3a8880e16aa64acc0cfd8",
+  "excerptInputBytes": 3015,
+  "excerptInputSha256": "42eba569ae86d0d6a92111387055756fd7cc306431d3a8880e16aa64acc0cfd8",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

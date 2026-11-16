@@ -1,0 +1,10 @@
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/36f66011d961/m05-restored
+> tsc --noEmit
+
+scripts/verify-installed-desktop.ts(361,114): error TS2322: Type '{ elapsedMs: number | null; code: number | null; signal: NodeJS.Signals | null; }' is not assignable to type 'null'.
+tests/desktop-native.test.ts(227,200): error TS2339: Property 'ELECTRON_RUN_AS_NODE' does not exist on type '{ HARNESS_DATA_DIR: string; HARNESS_DESKTOP_TEST_DATA_DIR: string; HARNESS_DESKTOP_LAUNCH_TOKEN: string; HARNESS_PORT: string; NODE_NO_WARNINGS: string; TZ?: string | undefined; }'.
+tests/desktop-native.test.ts(227,232): error TS2339: Property 'NODE_OPTIONS' does not exist on type '{ HARNESS_DATA_DIR: string; HARNESS_DESKTOP_TEST_DATA_DIR: string; HARNESS_DESKTOP_LAUNCH_TOKEN: string; HARNESS_PORT: string; NODE_NO_WARNINGS: string; TZ?: string | undefined; }'.
+tests/desktop-native.test.ts(229,2): error TS18047: 'child.stdout' is possibly 'null'.
+tests/desktop-native.test.ts(229,61): error TS18047: 'child.stderr' is possibly 'null'.
+ ELIFECYCLE  Command failed with exit code 2.

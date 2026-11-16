@@ -61,14 +61,17 @@ it('skips an admitted but absent private Cursor login without spawning a discove
 it('coalesces and caches isolated discovery with at most two native probes and no Cursor task or MCP context',async()=>{
  row().status='available';const dataDir=await data();await marker(dataDir);const runtime=createOfficialRuntime({dataDir});runtime.configure(callbacks);
  let release!:()=>void;fake.nativeHold=new Promise<void>(done=>{release=done;});
+ const discovery=Promise.allSettled([runtime.models(),runtime.models()]);
  try{
-  const first=runtime.models(),second=runtime.models();await vi.waitFor(()=>expect(fake.active).toBe(2));expect(fake.discoverCursor).not.toHaveBeenCalled();release();
-  const [a,b]=await Promise.all([first,second]);expect(a).toEqual(b);expect(a.map(model=>model.provider)).toEqual(['claude-code','gemini-cli','cursor-sdk']);expect(fake.peak).toBeLessThanOrEqual(2);
+  // Real profile I/O precedes entry into the mock drivers and can take over a second on Windows CI.
+  await vi.waitFor(()=>expect(fake.active).toBe(2),{timeout:10_000});
+  expect(fake.discoverCursor).not.toHaveBeenCalled();release();
+  const [a,b]=(await discovery).map(result=>{if(result.status==='rejected')throw result.reason;return result.value;});expect(a).toEqual(b);expect(a.map(model=>model.provider)).toEqual(['claude-code','gemini-cli','cursor-sdk']);expect(fake.peak).toBeLessThanOrEqual(2);
   expect(fake.discoverCursor).toHaveBeenCalledOnce();expect(fake.mcp).toHaveBeenCalledTimes(2);expect(await readdir(join(dataDir,'official','cursor-sdk'))).toEqual(['home']);
   a[2].name='modified';expect((await runtime.models())[2].name).toBe('Cursor model');expect(fake.discoverCursor).toHaveBeenCalledOnce();
   await runtime.models({refresh:true});expect(fake.discoverCursor).toHaveBeenCalledTimes(2);expect(fake.peak).toBeLessThanOrEqual(2);
- }finally{release();await runtime.dispose();}
-});
+ }finally{release();try{await runtime.dispose();}finally{await discovery;}}
+},20_000);
 
 it('owns discovery children before awaiting SDK results and waits for their cancellation on dispose',async()=>{
  row().status='available';const dataDir=await data();await marker(dataDir);fake.spawnCursor=true;

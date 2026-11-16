@@ -1,0 +1,76 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-native-v3.test.ts (4 tests | 4 failed) 635ms
+   × keeps the actual native extraction transcript in memory with no session artifact 626ms
+   × adopts only the explicit ephemeral Pi purpose and rejects external source dispatch 4ms
+   × offers admission before the auxiliary factory can claim a model call 1ms
+   × bounds the fresh extraction input and uses extraction instructions without native tool delegation 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-native-v3.test.ts > keeps the actual native extraction transcript in memory with no session artifact
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-native-v3.test.ts:20:32
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/memory-extraction-native-v3.test.ts > adopts only the explicit ephemeral Pi purpose and rejects external source dispatch
+AssertionError: expected "vi.fn()" to be called with arguments: [ { …(3) } ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+    {
+      "dataDir": "/tmp/memory-ephemeral-0ap3wd",
+-     "modelOnly": true,
+-     "purpose": "memory-extraction",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-extraction-native-v3.test.ts:29:65
+     27|  const runtime=createRuntime({dataDir:root,purpose:'memory-extraction'…
+     28|  try{
+     29|   for(const factory of Object.values(factories))expect(factory).toHave…
+       |                                                                 ^
+     30|   await expect(runtime.start({...input,modelId:'claude-code/model'})).…
+     31|   await runtime.start(input);expect(pi.start).toHaveBeenCalledOnce();a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/memory-extraction-native-v3.test.ts > offers admission before the auxiliary factory can claim a model call
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/memory-extraction-native-v3.test.ts:40:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/memory-extraction-native-v3.test.ts > bounds the fresh extraction input and uses extraction instructions without native tool delegation
+AssertionError: expected [Function] to throw an error
+ ❯ tests/memory-extraction-native-v3.test.ts:46:227
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  19:53:35
+   Duration  1.41s (transform 333ms, setup 0ms, import 577ms, tests 635ms, environment 0ms)

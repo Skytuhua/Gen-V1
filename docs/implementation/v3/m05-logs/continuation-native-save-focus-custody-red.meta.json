@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-focus-repair",
+  "startedAt": "2026-11-15T23:26:11.557793+00:00",
+  "endedAt": "2026-11-15T23:26:12.774538+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "logPath": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-red.log",
+  "logBytes": 2669,
+  "logDigest": "4bd4edf3e4afa12d6f0fd5bd222b2023e0cd530b5726931e4497253db4795ed1",
+  "sourceSha256": "b29a7f3215f8e4506b8f377f9810f9925a3379a147671418c87ff4cb12bf205f",
+  "testSha256": "ba74972faaeeb0f5c29ed4ceccbbc365e4d109b8faf1ba2ffe860b762e296e4c",
+  "scope": "Portable focus transcript custody fixture before adding focus metadata/operations. Actual native destination remains subject to two Windows lanes.",
+  "rawLogBytes": 2669,
+  "rawLogDigest": "4bd4edf3e4afa12d6f0fd5bd222b2023e0cd530b5726931e4497253db4795ed1",
+  "transformations": [
+    "LOCAL_STDOUT_STDERR_CAPTURE",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "command": {
+    "argv": [
+      "node",
+      "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--reporter=verbose",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-focus-repair",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T23:26:11.557793+00:00",
+    "endedAt": "2026-11-15T23:26:12.774538+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-red.log",
+    "logDigest": "4bd4edf3e4afa12d6f0fd5bd222b2023e0cd530b5726931e4497253db4795ed1"
+  }
+}

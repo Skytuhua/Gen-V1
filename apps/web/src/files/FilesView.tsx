@@ -94,6 +94,7 @@ export function FilesView({
 		);
 	const directory = (next: string) => {
 		setFilter("");
+		setTreeOpen(true);
 		onDirectory(next);
 	};
 	const openPreview = () => {

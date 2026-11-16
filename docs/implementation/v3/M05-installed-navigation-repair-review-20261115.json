@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-installed-navigation-repair-review-20261115",
+  "reviewedAt": "2026-11-15T19:17:00.757277+00:00",
+  "status": "LOCAL_VERIFIED_WINDOWS_EXECUTION_PENDING",
+  "sourceParentPublishedHead": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+  "sourceParentTree": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+  "observedFailure": {
+    "ref": "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+    "bytes": 20015,
+    "sha256": "1d66e95edeae50ec0a456513bc8a56bdb565ce13345bb80c0ed0adc3a2892363"
+  },
+  "failedWindowsCommandRef": "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985168-s7-installed-retention.log",
+  "sourceFiles": [
+    {
+      "ref": "scripts/installed-memory-retention.ts",
+      "bytes": 20093,
+      "sha256": "168ce31e8448e98cc56ddc6040afc4cc78d3be68e8e99410fb794f468a502f89"
+    }
+  ],
+  "changedFiles": [
+    "scripts/installed-memory-retention.ts"
+  ],
+  "productionSourceChanged": false,
+  "testSourceChanged": false,
+  "change": {
+    "description": "After selecting the seeded completed task, require the visible Project overview region. If it is collapsed, activate its own Expand Project overview control. Require the expanded state, then wait for the scoped Project memory button to be enabled and click normally.",
+    "region": "Project overview window",
+    "disclosure": "Expand Project overview",
+    "stateAttribute": "data-collapsed",
+    "enabledControl": "Project memory",
+    "persistedExpandedStateSupported": true,
+    "forcedClick": false,
+    "javascriptClick": false,
+    "viewportChange": false,
+    "timeoutIncrease": false
+  },
+  "retainedGates": [
+    "Exact installed executable, nonce and owned CDP checks precede this helper.",
+    "Disposable profile and project physical identity assertions are unchanged.",
+    "Production memory flags stay off; the panel must reject fresh enablement and show retained-record review availability.",
+    "Exact captured source bytes, source digest/revision, inert rendering and no substituted current message remain required.",
+    "Edit, accept, reject, explicit redacted export, Forget, tombstone and both-launch persistence assertions are byte-identical after the navigation block.",
+    "Full installed payload, provider custody, process exit, post-exit storage and identity-bound uninstall acceptance are unchanged.",
+    "No sign-in, account activation, model generation, provider credential use, runtime replacement, source mutation or test assertion removal was added."
+  ],
+  "localVerification": {
+    "existingCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "commands": [
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T19:13:40.580362+00:00",
+        "endedAt": "2026-11-15T19:13:42.150414+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-regression.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-installed-memory-navigation-regression.log",
+          "bytes": 235,
+          "sha256": "08aa10ba65e71d7bb181299156ba37efd703882348e722b63c4e03ff9b2093e7"
+        }
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T19:13:55.231979+00:00",
+        "endedAt": "2026-11-15T19:14:20.350378+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-navigation-typecheck.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-installed-memory-navigation-typecheck.log",
+          "bytes": 91,
+          "sha256": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6"
+        }
+      }
+    ],
+    "combinedTypecheckIncludes": [
+      {
+        "ref": "tests/table-overflow.test.ts",
+        "bytes": 2385,
+        "sha256": "bd5a8b311d94413e3659ad9f7d6cd3d1e23bb2ef90006bed6f9840779f927512"
+      },
+      {
+        "ref": "tests/startup-feedback.test.ts",
+        "bytes": 5190,
+        "sha256": "a24f850c70c57c0fe9c2e81f502d50853ff0c17a25c9361131d51d9d1c9d4252"
+      }
+    ],
+    "scope": "These local checks verify source typing and existing seed/ownership/custody contracts. They do not execute the installed UI navigation or replace the required Windows rerun."
+  },
+  "reviewInputLogCustody": {
+    "policy": "Exact recorder inputs were copied before any generated display normalization. The originalRecorderInput identities above bind immutable bytes; generatedLedgerLogRef is a link only, not a claim that later normalized output has the original input hash."
+  },
+  "independentReview": {
+    "reviewers": [
+      "root",
+      "memory_integration_audit",
+      "dependency_audit"
+    ],
+    "findings": [],
+    "frozenHelperSha256": "168ce31e8448e98cc56ddc6040afc4cc78d3be68e8e99410fb794f468a502f89",
+    "reviewScope": "Exact navigation diff against the tested helper and actual SummaryDock/ProjectContextSurface source, with all later assertions unchanged."
+  },
+  "limits": [
+    "Fresh Windows execution must still demonstrate the enabled local-context control, memory modal and every retained-record action.",
+    "The Reconnecting badge remains unexplained; no network-health or provider-call measurement is inferred.",
+    "Full enabled installed M05 lifecycle and live repeated-task provider evaluation remain unproven."
+  ]
+}

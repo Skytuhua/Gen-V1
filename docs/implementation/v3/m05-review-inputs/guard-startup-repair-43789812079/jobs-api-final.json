@@ -1,0 +1,105 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 133045434425,
+      "run_id": 43789812079,
+      "workflow_name": "M05 repaired Windows guard startup",
+      "head_branch": "diagnostic/m05-guard-initial-budget-20261116",
+      "run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43789812079",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVfvPQM8AAAAe-iA4OQ",
+      "head_sha": "1604e464658f1641e5a803b28fff367e4dce9abd",
+      "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133045434425",
+      "html_url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43789812079/job/133045434425",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T02:03:15Z",
+      "started_at": "2026-11-16T02:03:17Z",
+      "completed_at": "2026-11-16T02:05:18Z",
+      "name": "Guard startup production",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T02:03:18Z",
+          "completed_at": "2026-11-16T02:03:19Z"
+        },
+        {
+          "name": "Check out isolated diagnostic source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T02:03:19Z",
+          "completed_at": "2026-11-16T02:03:30Z"
+        },
+        {
+          "name": "Install pinned declared toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T02:03:30Z",
+          "completed_at": "2026-11-16T02:04:27Z"
+        },
+        {
+          "name": "Verify production source and pinned Node archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T02:04:27Z",
+          "completed_at": "2026-11-16T02:04:35Z"
+        },
+        {
+          "name": "Observe unchanged guard startup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T02:04:35Z",
+          "completed_at": "2026-11-16T02:05:12Z"
+        },
+        {
+          "name": "Preserve bounded diagnostic receipt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T02:05:12Z",
+          "completed_at": "2026-11-16T02:05:13Z"
+        },
+        {
+          "name": "Post Install pinned declared toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T02:05:13Z",
+          "completed_at": "2026-11-16T02:05:13Z"
+        },
+        {
+          "name": "Post Check out isolated diagnostic source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-16T02:05:13Z",
+          "completed_at": "2026-11-16T02:05:16Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-16T02:05:16Z",
+          "completed_at": "2026-11-16T02:05:16Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/check-runs/133045434425",
+      "labels": [
+        "windows-latest"
+      ],
+      "runner_id": 1000001998,
+      "runner_name": "GitHub Actions 1000001998",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

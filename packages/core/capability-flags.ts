@@ -66,9 +66,36 @@ export const M12_FLAG_DEFINITIONS = M12_FLAG_KEYS.map(key => ({ key, owner: 'm12
 export function createToolProgramFlags(overrides?: Partial<Record<M12FlagKey, boolean>>): CapabilityFlags<M12FlagKey> {
   return createCapabilityFlags<M12FlagKey>(M12_FLAG_DEFINITIONS, overrides);
 }
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M12FlagKey;
+
+export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
+export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
+
+export const M05_FLAG_KEYS = ["memory.projectV1", "memory.externalRecallExperimentV1"] as const;
+export type M05FlagKey = (typeof M05_FLAG_KEYS)[number];
+
+// M09 flag set: typed multi-agent work. The single key admits the
+// AgentWorkV1 coordinator surface; role availability stays separately gated
+// by each role's own registered host capability proof.
+export const M09_FLAG_KEYS = ["agents.workV1"] as const;
+export type M09FlagKey = (typeof M09_FLAG_KEYS)[number];
+
+// M11 flag set: model transport. Instrumentation ships on; the optimizer
+// surfaces each stay behind its own key until paired cold/repeated evidence,
+// account isolation and cancellation tests pass.
+export const M11_FLAG_KEYS = [
+  "models.requestMetricsV1",
+  "models.publicStreamingV1",
+  "models.statelessPoolExperimentV1",
+  "models.newTaskProfilesV1",
+] as const;
+export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M12FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
+  { key: "memory.projectV1", owner: "m05", description: "Opt-in source-linked project memory; reviewed request integration required." },
+  { key: "memory.externalRecallExperimentV1", owner: "m05", description: "Separate bounded external recall experiment; provider and egress consent required." },
   ...M12_FLAG_DEFINITIONS,
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
@@ -76,6 +103,11 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "workspace.checkpointsV1", owner: "m08", description: "File checkpoint capture and the host checkpoint provider behind the read adapter." },
   { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
   { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
+  { key: "agents.workV1", owner: "m09", description: "Typed multi-agent work admission: role-gated child dispatch, ordered inputs, budget reservation and verified outputs." },
+  { key: "models.requestMetricsV1", owner: "m11", description: "Publish measured per-request observations into the thread Usage dialog." },
+  { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
+  { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
+  { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {

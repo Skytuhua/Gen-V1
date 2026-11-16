@@ -1,0 +1,29 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-request-http-v3.test.ts (12 tests | 1 failed) 974ms
+   × purges plaintext matched terms from captured memory receipts before reporting forgotten memory complete 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > purges plaintext matched terms from captured memory receipts before reporting forgotten memory complete
+AssertionError: expected '[{"profileId":"64b5b10f97ef5b460dd13f…' not to contain 'forgottencobaltmarker61'
+
+Expected: "forgottencobaltmarker61"
+Received: "[{"profileId":"64b5b10f97ef5b460dd13ff6faec97587720afbb5b8725c3624e765bf29a9e25","projectId":"project","projectIdentity":"2175288fcf28f3743de1611b13e1fc0f46e3917390d3feda730ad2980acf5fe0","threadId":"thread","accountId":null,"bindingDigest":"aae057988a9f64ec560ec81a9521739805951c5bef974cc652e52317939e136d","runId":"7154817d-315b-4035-95d0-d2020c76d7d6","epoch":2,"inputId":"20d5409b-3080-4757-9b27-cc8c112749c2","requestId":"request:9d5ade00-8aaa-41c4-91de-0cc4cfc33d35","contextGeneration":1,"recall":{"requestId":"request:9d5ade00-8aaa-41c4-91de-0cc4cfc33d35","projectIdentity":"2175288fcf28f3743de1611b13e1fc0f46e3917390d3feda730ad2980acf5fe0","contextGeneration":1,"queryDigest":"49c29d76c5eaa90742fa774f32e7f188f987851c6aad810da096e33e4b3896aa","candidateIds":["f9ed3dc3-5f56-4f35-95a8-71d2a1759ad1","e72d9caf-a2d0-4fa6-98f2-de3d8ecfcf19"],"selectedRevisions":[{"itemId":"f9ed3dc3-5f56-4f35-95a8-71d2a1759ad1","revision":2}],"scores":[{"itemId":"f9ed3dc3-5f56-4f35-95a8-71d2a1759ad1","revision":2,"projectOverlap":0,"symbolOverlap":1,"matchedTerms":["forgottencobaltmarker61"]}],"exclusions":[{"itemId":"e72d9caf-a2d0-4fa6-98f2-de3d8ecfcf19","reason":"NO_MATCH"}],"budgetBytes":4096,"producedAt":"2026-11-15T12:05:22.151Z","status":"COMPLETE"},"injectedBytes":593,"latencyMs":1.3533339999999043,"expiresAt":"2026-11-15T12:10:22.150Z","accepted":true}]"
+
+ ❯ tests/project-memory-request-http-v3.test.ts:217:40
+    215|   expect(f.service.projectMemory.tombstones(access).find(row => row.it…
+    216|   const receipts = f.store.all('projectMemoryPreparedReceipt');
+    217|   expect(JSON.stringify(receipts)).not.toContain(marker);
+       |                                        ^
+    218|   // Original foreground task history remains outside local memory del…
+    219|   expect(f.store.all<{content: string}>('message', 'thread').some(mess…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  20:05:18
+   Duration  3.73s (transform 1.88s, setup 0ms, import 2.60s, tests 974ms, environment 0ms)

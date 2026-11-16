@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "scope": "Read-only review of the final documentation-head browser failure and the parent-owned narrow harness repair. This note is scratch evidence, not a new browser pass.",
+  "failedRun": {
+    "runId": 43723377122,
+    "browserJobId": 132839958308,
+    "headSha": "c0399961dee169d9bcdb443e3807436bd4d3aa28",
+    "treeSha": "f4f987bb80b0cbb4abbd5f59e92b4dde18371cc3",
+    "failedStep": "Exercise split workspace in the browser",
+    "testFile": "tests/split-app-browser.test.ts",
+    "testTitle": "keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload",
+    "failure": "page.goto: Timeout 7000ms exceeded; navigating to http://127.0.0.1:5598/split-app-check, waiting until load",
+    "failureSite": "fixture initial navigation, original line 93, before any case behavior assertion",
+    "baselineResults": {
+      "passed": 28,
+      "failed": 1,
+      "splitAppPassed": 18,
+      "splitAppFailed": 1,
+      "rendererPassed": 10
+    },
+    "affectedFourSuites": "Skipped after the baseline step failed.",
+    "artifact": "Upload step found no files; no artifact was produced or downloaded.",
+    "rawLogBytes": 67096,
+    "rawLogSha256": "8873a2b53ddaa240795308f27046fb6607d8ad5be1797b3185605ac16c5d05a1"
+  },
+  "sourceComparison": {
+    "greenHead": "a0755d344513feced0f79717cf90d39f64cfe619",
+    "failedHead": "c0399961dee169d9bcdb443e3807436bd4d3aa28",
+    "nonDocumentRootEntriesEqual": true,
+    "workflowBytesEqual": true,
+    "originalTestGitBlob": "c1b13c2bb6c1d7d658fc306414f44bfdb3e10dda",
+    "receipt": "/workspace/scratch/36f66011d961/m05-ci-43723377122/source-equality.json"
+  },
+  "priorTimings": [
+    {
+      "runId": 43714076939,
+      "browserJobId": 132811715250,
+      "firstCase": "passed",
+      "firstCaseWholeTestMs": 7346,
+      "lastReportedViteBuildSeconds": 9.06,
+      "rawLog": "/workspace/scratch/36f66011d961/m05-ci-43714076939/job-132811715250.log",
+      "rawLogSha256": "8075753933aed79eedff705e5d6343cd04718c7e870e39a7679ac07dc49ab123"
+    },
+    {
+      "runId": 43716553796,
+      "browserJobId": 132819252727,
+      "firstCase": "passed",
+      "firstCaseWholeTestMs": 9901,
+      "lastReportedViteBuildSeconds": 11.32,
+      "rawLog": "/workspace/scratch/36f66011d961/m05-ci-43716553796/job-132819252727.log",
+      "rawLogSha256": "8cc41883a2ea021d9d112476a50ba8f6de457c2227255586d2094305346ce87e"
+    },
+    {
+      "runId": 43721299625,
+      "browserJobId": 132833661108,
+      "firstCase": "passed",
+      "firstCaseWholeTestMs": 6414,
+      "lastReportedViteBuildSeconds": 7.4,
+      "rawLog": "/workspace/scratch/36f66011d961/m05-ci-43721299625/job-132833661108.log",
+      "rawLogSha256": "cb63fd852f6ccbc12849bd28365141f008c19f084d4a2eebc35579c1095d3295"
+    },
+    {
+      "runId": 43723377122,
+      "browserJobId": 132839958308,
+      "firstCase": "failed",
+      "firstCaseWholeTestMs": 13793,
+      "lastReportedViteBuildSeconds": 12.86,
+      "rawLog": "/workspace/scratch/36f66011d961/m05-ci-43723377122/job-132839958308.log",
+      "rawLogSha256": "8873a2b53ddaa240795308f27046fb6607d8ad5be1797b3185605ac16c5d05a1"
+    }
+  ],
+  "timingInterpretation": "First-case timings measure the entire test, including fixture setup and behavior. They do not measure page navigation or a particular module transform. The final exception alone establishes that the initial load exceeded its inherited 7000 ms budget.",
+  "matchingEnvironment": {
+    "githubRunner": "2.338.2",
+    "runnerImage": "windows-2025-vs2026",
+    "imageVersion": "20261103.298.1",
+    "operatingSystem": "Windows Server 2025, 10.0.26100 Datacenter",
+    "node": "24.22.2",
+    "pnpm": "10.30.3",
+    "fixtureBrowserConfiguration": "Unchanged chromium.launch with channel GEN_TEST_BROWSER_CHANNEL or chrome; no channel override appears in these CI step environments."
+  },
+  "causalAssessment": {
+    "observed": [
+      "The fixture sets page.setDefaultTimeout(7000) before calling page.goto with no navigation override.",
+      "BeforeAll accepts an HTTP 200 from the origin root. It does not navigate the routed /split-app-check fixture or wait for that fixture App module graph.",
+      "The routed fixture imports split-app-fixture.tsx, which imports the full App and its styles.",
+      "Only the first fixture navigation timed out. The remaining 18 App cases and 10 renderer cases passed.",
+      "The immediately prior all-green run used identical application, test and workflow source."
+    ],
+    "inference": "Cold fixture module loading and CI scheduling variation are consistent with the first-navigation-only failure and slower overall work on this runner. The harness incorrectly uses its short interaction budget for initial application loading.",
+    "limits": [
+      "The failing Vitest harness saved no request trace, screenshot or server-log dump for this fixture startup error.",
+      "No individual stalled module, network request, browser event or machine resource bottleneck was measured.",
+      "An identical-code rerun might pass but would not remove the demonstrated coupling of initial navigation to the seven-second action budget."
+    ]
+  },
+  "patchReview": {
+    "owner": "root",
+    "file": "tests/split-app-browser.test.ts",
+    "reviewedWorkingFileSha256": "af26e2b18b9787fa15e6aa2b50c10072d76f15a4b00a0e01edcacaf3e1d07d09",
+    "change": "Initial page.goto(origin+'/split-app-check') now has {timeout:20000}.",
+    "preserved": [
+      "Default action and locator timeout remains 7000 ms.",
+      "Default page.goto load condition remains unchanged.",
+      "Exact owning composer visibility is still awaited after navigation.",
+      "The failing first test retains its 30000 ms outer bound; every other case retains its existing outer bound.",
+      "Reload timing, all owner/draft/renderer assertions and every test body remain unchanged."
+    ],
+    "reviewOutcome": "Accepted as a narrow fixture startup budget repair. No production behavior changes or assertion weakening.",
+    "comment": "Cold Vite module loading has its own startup budget; interactions retain the seven-second timeout and each test\u2019s existing overall bound.",
+    "productionBehaviorChanges": false,
+    "nativeSourceChanges": false,
+    "localValidation": {
+      "command": "Full typecheck",
+      "result": "PASS",
+      "log": "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log",
+      "browserExecution": false
+    }
+  },
+  "validationNeeded": [
+    "Publish the reviewed repair and run Windows CI on that exact head.",
+    "Require all 29 split baseline cases, then project-memory, usage-context, frontend-refinement and root browser suites to execute and pass; preserve the failed run independently.",
+    "Do not count static review, local discovery or the prior green head as a passing execution of this repair."
+  ]
+}

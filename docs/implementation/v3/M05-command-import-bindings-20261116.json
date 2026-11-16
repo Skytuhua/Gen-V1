@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "status": "VERIFIED_EXISTING_COMMAND_IMPORT_BINDINGS",
+  "scope": "Classify13 previously preserved actual command records and bind10 local captures whose original metadata used logDigest/logBytes instead of excerpt field names. No command execution, status change, ledger rewrite or original metadata rewrite. All historical failures remain failures.",
+  "records": [
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-proxy-registration-custody.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-proxy-registration-custody.meta.json",
+      "metadataSha256": "e87007ca35b60cf16edebe431b4a18f2a94aee31e993d3e6382fd5ff65cf9540",
+      "commandSha256": "959652ded49d5565721e763293ff4c6c93de9a961c6a2764580970b7338ad70a",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "0eda4c748d52aef896d3228082313ba2992c83bff223cc5931676b8812d2b8ed",
+      "captureInputBytes": 260,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-proxy-registration-custody.meta.json",
+        "sha256": "9e9224d0708b5ec07f8b95656f3da0873b983ae30e8661ee74514c8918105710"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-toolchain-restore.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-toolchain-restore.meta.json",
+      "metadataSha256": "777fa7397288c53cb622f4002fa60315668c7a6df3a72497863c5e5865ed5c61",
+      "commandSha256": "803ddabcbfc8299bb17e4b588eedecbdf2311e45218fcf2b82d5e5e38373d256",
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "captureInputSha256": "7e82d99e6027ff4b9fbd83dd7ce4185a972a206e5b4eed229b684696d5853e04",
+      "captureInputBytes": 1697,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-toolchain-restore.meta.json",
+        "sha256": "afa7c146c51053745d25ffc5fe6e5d0a1727d0250e7119cd6b02c296af514ffc"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-proxy-registration-custody-direct.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-proxy-registration-custody-direct.meta.json",
+      "metadataSha256": "f74d9c0fb1df7669cd509cafb521d3fa0686f3a0ddb8cffd50703b285e18d8bf",
+      "commandSha256": "766063d7fe3433b2f24244ca1580ea02c733cd04d1ca868932e86d0f10c0d658",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "5b3c54ea7757531bbe80c89693c4e025a345b852515795568926233a92f2d055",
+      "captureInputBytes": 1476,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-proxy-registration-custody-direct.meta.json",
+        "sha256": "7bf14c099602272ad04ec3f5b3470fbee7c62db60e88d01162ea3c8f6989c04e"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-retained-boundary-custody.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-retained-boundary-custody.meta.json",
+      "metadataSha256": "9cdceefcdbfd434079cf9d33847be51b28308171099a0ee6066d0a99539aa13c",
+      "commandSha256": "5ef1d6801661cae842d384a81e78207f016d6e3e60c3712e3e558965824ecc38",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "56c6a1b4f3b336c4f8b59d215377947ed70c8e811789098cb6440abb12ca654d",
+      "captureInputBytes": 1483,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-retained-boundary-custody.meta.json",
+        "sha256": "7a2ef79559aae3c12ecef04efb94eaf2f12bf373f7f47fdbddc1de60e81814fc"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243040-s3-compiled.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243040-s3-compiled.meta.json",
+      "metadataSha256": "50a46a1d6523d60dd509d6d3d2c376a09444aa60658e944244022d02f26877b7",
+      "commandSha256": "4b678074727bbe27118d01b18988b338f39cd4cd77e8eab74d11172cbde03c5f",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "f6fbe9ac226b81bb4935b61226e70c9790e066f487571f8c542d17d6821a1112",
+      "captureInputBytes": 3280,
+      "captureBasis": "Existing exact CI excerpt fields retained unchanged",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243094-s3-thread.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243094-s3-thread.meta.json",
+      "metadataSha256": "91da4089d1689fa91e74e41e89f72fb13e22345fb8122a667d64584e742c2603",
+      "commandSha256": "4727fc5ee1ac2231bac6c23463e65b81b61af0a77706cb4acabe122e999f0740",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "4ab4facbf584bbcac5686d13fd59a66f96d463710a221f8754b3d775d47ab10e",
+      "captureInputBytes": 3270,
+      "captureBasis": "Existing exact CI excerpt fields retained unchanged",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243144-s3-static.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243144-s3-static.meta.json",
+      "metadataSha256": "1adb83898dac8886d242f916cc10c309461b1a3303c0b4fde1e2eacc9e71d262",
+      "commandSha256": "35db1e91d69a5d850fd9092a9d9bde8db6f212b628179a8390c876aaa0e2e67f",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "d0c1f477e6b4d7c2bd7b47f067c7e39f0989dfd7bdc70e61d07d907db25ddc70",
+      "captureInputBytes": 3270,
+      "captureBasis": "Existing exact CI excerpt fields retained unchanged",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-combo-custody.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-combo-custody.meta.json",
+      "metadataSha256": "3677f6a7dc90798eb8b19aaadda77eabbc448fd8fbe7c9e011cbd4b103698d6b",
+      "commandSha256": "3d4e2287b13c5ec70f1ceaf69f577fe30a1784469c2d7780c2368d82262e6622",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "33e782ad20707c41b1402c5c489bdeaaa27070a133c3ab27bec1266ab2080aac",
+      "captureInputBytes": 1477,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-parent-combo-custody.meta.json",
+        "sha256": "17ce21a1f3ade97bf9f66806742af9927c53bc85386a0987a3d58fa32e0a4fb2"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-identity-custody.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-identity-custody.meta.json",
+      "metadataSha256": "50b9388276f4ebab35ae729cededed725921ab29f0bff47ec43d5649897e8b48",
+      "commandSha256": "744a4169cc5aebac2258baa45dec515cadebf2e0663e46b600e40ab03fd35e45",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "0eb236752218fa5a646e5b68cbf3f8d754f3be9ac1519ba600b1643c10d115e8",
+      "captureInputBytes": 1485,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": {
+        "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-parent-identity-custody.meta.json",
+        "sha256": "f12b7735d4c712adf09d0841f96ceced560cec40f9bffdf4f0cb484cd88101a4"
+      }
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-red.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-red.meta.json",
+      "metadataSha256": "d186b7ad0e53747fb3dceedf8b74bcec7d26dbd27e62dd65d2118d63114f8aa3",
+      "commandSha256": "ed709ab9202865856ef42747fed3360427c856df8ec56761e09b790024953b70",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "4bd4edf3e4afa12d6f0fd5bd222b2023e0cd530b5726931e4497253db4795ed1",
+      "captureInputBytes": 2669,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-green.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-focus-custody-green.meta.json",
+      "metadataSha256": "304da4c33728d4b47220ff7824cd217fdda3ca93b75e6879213eb302fab4a429",
+      "commandSha256": "c8fedfb39fe093e1df7636589ec379a8e7e734682e05effd01928546c86d95a7",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "51717f4e806aab719e16800a21cbe76277a4d8e2213ddec175fdd6fc66d6518a",
+      "captureInputBytes": 1641,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-typed-custody-green.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-typed-custody-green.meta.json",
+      "metadataSha256": "799b2d0fa6daffed10c01fa2b3665542f9b1a01b311b5b12a4292dd5e183c286",
+      "commandSha256": "b36285e18b9860f75c64027eb7eda6b6d017515f96a7242d0b789184fa423063",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "cdeb5ed319be60bc8746bec400d6be6d78eb8c51028e550034148f5a5a58b7ce",
+      "captureInputBytes": 1475,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": null
+    },
+    {
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-typed-no-save-focus-custody.log",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-native-save-typed-no-save-focus-custody.meta.json",
+      "metadataSha256": "913624688325fb3e8d7c5c424e11a9d7423060f556c94d5b5fee13480d3e188c",
+      "commandSha256": "593192ebfb23db99dc658a3990e4dfa107e653f87de8033959a8c7501aba8d1f",
+      "phaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ],
+      "captureInputSha256": "ee066ad48968908c4463de7f9d591271b9d9a984dd7203277d9581498eed3eff",
+      "captureInputBytes": 1484,
+      "captureBasis": "Existing actual local captured output bytes match preserved bounded log exactly",
+      "originalCaptureMetadata": null
+    }
+  ]
+}

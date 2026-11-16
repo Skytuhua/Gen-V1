@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/project-memory-v3.test.ts",
+      "tests/memory-forget-v3.test.ts",
+      "tests/memory-native-checkpoint-v3.test.ts",
+      "tests/memory-extraction-native-v3.test.ts",
+      "tests/runtime-router.test.ts",
+      "tests/runtime-model-only.test.ts",
+      "tests/model-transport-v3.test.ts",
+      "tests/account-auth-http.test.ts",
+      "--maxWorkers=2"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:17:35.049328+00:00",
+    "endedAt": "2026-11-15T22:17:45.905863+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-latest-main-memory-runtime-check.log",
+    "logDigest": "7ebb03a16db60b89de74248a6d4dbf9c27d3d660edc8ed07364dfb8fbbcb8147"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+  "workingDiffSha256": "acd454b501efe87e7fd60ce5222742c51a1c4bce7b35d88ae07574c21a3b7b29",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 10844,
+  "rawOutputBytes": 2704,
+  "rawOutputSha256": "7ebb03a16db60b89de74248a6d4dbf9c27d3d660edc8ed07364dfb8fbbcb8147",
+  "excerptInputBytes": 2704,
+  "excerptInputSha256": "7ebb03a16db60b89de74248a6d4dbf9c27d3d660edc8ed07364dfb8fbbcb8147",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

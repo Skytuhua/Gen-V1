@@ -1,0 +1,376 @@
+{
+  "createdAt": "2026-11-15T10:35:50.199Z",
+  "host": null,
+  "modelId": null,
+  "results": [],
+  "score": {
+    "version": "heldout-v1",
+    "policy": {
+      "version": "replacement-plan-v1",
+      "repetitions": 3,
+      "successfulRuns": 30,
+      "successfulScenarios": 10,
+      "scenarioSuccesses": 2,
+      "designatedNovel": "novel-custody"
+    },
+    "pilotEligible": true,
+    "casesetSha256": "b44f476e974f0e0f3a44da6b62ed13ce5c4036f9d8bd58aa0ff38025d0a04275",
+    "status": "pending",
+    "aggregate": null,
+    "aggregateGate": "pending",
+    "successfulRuns": 0,
+    "successfulScenarios": 0,
+    "scenarioSuccesses": {
+      "coding-quantity": 0,
+      "coding-conflict": 0,
+      "coding-failed-test": 0,
+      "research-reconcile": 0,
+      "data-sqlite": 0,
+      "data-cross-category": 0,
+      "document-form": 0,
+      "document-signature": 0,
+      "planning-budget": 0,
+      "planning-whatif": 0,
+      "novel-custody": 0,
+      "novel-evidence-map": 0
+    },
+    "scenarioGate": "pending",
+    "categoryScores": {
+      "coding": null,
+      "research-data": null,
+      "documents": null,
+      "planning": null,
+      "novel-apps": null
+    },
+    "categoryGate": "pending",
+    "mandatoryNovelGate": "pending",
+    "completed": 0,
+    "expected": 36,
+    "cases": [
+      {
+        "caseId": "coding-quantity",
+        "category": "coding",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-quantity",
+        "category": "coding",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-quantity",
+        "category": "coding",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-conflict",
+        "category": "coding",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-conflict",
+        "category": "coding",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-conflict",
+        "category": "coding",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-failed-test",
+        "category": "coding",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-failed-test",
+        "category": "coding",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "coding-failed-test",
+        "category": "coding",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "research-reconcile",
+        "category": "research-data",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "research-reconcile",
+        "category": "research-data",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "research-reconcile",
+        "category": "research-data",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-sqlite",
+        "category": "research-data",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-sqlite",
+        "category": "research-data",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-sqlite",
+        "category": "research-data",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-cross-category",
+        "category": "research-data",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-cross-category",
+        "category": "research-data",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "data-cross-category",
+        "category": "research-data",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-form",
+        "category": "documents",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-form",
+        "category": "documents",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-form",
+        "category": "documents",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-signature",
+        "category": "documents",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-signature",
+        "category": "documents",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "document-signature",
+        "category": "documents",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-budget",
+        "category": "planning",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-budget",
+        "category": "planning",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-budget",
+        "category": "planning",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-whatif",
+        "category": "planning",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-whatif",
+        "category": "planning",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "planning-whatif",
+        "category": "planning",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "novel-custody",
+        "category": "novel-apps",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": true
+      },
+      {
+        "caseId": "novel-custody",
+        "category": "novel-apps",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": true
+      },
+      {
+        "caseId": "novel-custody",
+        "category": "novel-apps",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": true
+      },
+      {
+        "caseId": "novel-evidence-map",
+        "category": "novel-apps",
+        "repetition": 1,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "novel-evidence-map",
+        "category": "novel-apps",
+        "repetition": 2,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      },
+      {
+        "caseId": "novel-evidence-map",
+        "category": "novel-apps",
+        "repetition": 3,
+        "complete": false,
+        "score": null,
+        "successful": false,
+        "mandatoryNovel": false
+      }
+    ]
+  }
+}

@@ -45,9 +45,10 @@ export const shellInit = `
 `;
 
 import {scopedContext,scopedEnvelope,scopedMessage} from '../scoped-conversation-fixture';
+import {serveTaskSplitLayout} from './task-interface-fixture';
 async function setup(page:Page,count=3){
  const snapshot=shellSnapshot();snapshot.messages=Array.from({length:count},(_,i)=>({...snapshot.messages[0],id:'m'+i,content:i===0?'Review the **work**space, sidebar and composer.':i===1?'I reviewed the workspace and found two areas to check.':'The workspace panel starts closed.',role:i===0?'user':'assistant'}));
- await page.addInitScript(shellInit);await page.route('**/api/**',r=>shellRoute(r,snapshot,false));await page.goto('/fixture');await page.locator('.composer textarea').waitFor();return snapshot;
+ await page.addInitScript(shellInit);await page.route('**/api/**',r=>shellRoute(r,snapshot,false));await serveTaskSplitLayout(page,snapshot);await page.goto('/fixture');await page.locator('.composer textarea').waitFor();return snapshot;
 }
 const phrase=(p:Page)=>p.getByRole('textbox',{name:'Find phrase'});
 async function open(p:Page){await p.locator('.composer textarea').focus();await p.keyboard.press('Control+f');await expect(phrase(p)).toBeFocused();}
@@ -55,6 +56,18 @@ test('literal ranges cross formatting without modifying markup or copied code',a
  await setup(page);const before=await page.locator('.message-content').first().innerHTML();await open(page);await phrase(page).fill('workspace');await expect(page.getByRole('status').filter({hasText:'1 of 3'})).toBeVisible();
  expect(await page.locator('.message-content').first().innerHTML()).toBe(before);expect(await page.evaluate(()=>CSS.highlights.get('conversation-find-all')?.size)).toBe(3);
  await phrase(page).fill('[a].');await expect(page.getByRole('status').filter({hasText:'0 results'})).toBeVisible();await expect(page.getByLabel('Next match')).toBeDisabled();
+});
+test('find skips screen-reader-only labels without removing them from the transcript',async({page})=>{
+ await setup(page);
+ await page.locator('.message-content').first().evaluate(el=>{
+  const role=document.createElement('span');role.className='sr-only';role.textContent='Assistant role label';el.prepend(role);
+ });
+ await open(page);
+ await phrase(page).fill('Assistant role label');
+ await expect(page.getByRole('status').filter({hasText:'0 results'})).toBeVisible();
+ await expect(page.locator('.message-content .sr-only').first()).toHaveText('Assistant role label');
+ await phrase(page).fill('workspace');
+ await expect(page.getByRole('status').filter({hasText:'1 of 3'})).toBeVisible();
 });
 test('wraps both directions; Escape restores opener and draft caret',async({page})=>{
  await setup(page);const draft=page.locator('.composer textarea');await draft.fill('Retained draft workspace');await draft.evaluate((el:HTMLTextAreaElement)=>el.setSelectionRange(3,3));await open(page);await phrase(page).fill('workspace');await page.keyboard.press('Enter');await expect(page.getByRole('status').filter({hasText:'2 of 3'})).toBeVisible();await page.keyboard.press('Shift+Enter');await page.keyboard.press('Shift+Enter');await expect(page.getByRole('status').filter({hasText:'3 of 3'})).toBeVisible();await page.keyboard.press('Escape');await expect(draft).toBeFocused();await expect(draft).toHaveValue('Retained draft workspace');expect(await draft.evaluate((el:HTMLTextAreaElement)=>el.selectionStart)).toBe(3);

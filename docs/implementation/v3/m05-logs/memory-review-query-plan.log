@@ -1,0 +1,3 @@
+{"name":"revisions","plan":["SEARCH entities USING INDEX sqlite_autoindex_entities_1 (kind=?)"]}
+{"name":"items","plan":["SEARCH entities USING INDEX entities_thread (kind=?)"]}
+{"name":"tombstones","plan":["SEARCH entities USING INDEX entities_thread (kind=?)"]}

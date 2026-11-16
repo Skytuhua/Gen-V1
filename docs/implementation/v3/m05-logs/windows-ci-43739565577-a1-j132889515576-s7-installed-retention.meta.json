@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "scripts/verify-installed-desktop.ts",
+      "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+      "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+      "--project-memory-retention"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T17:22:55Z",
+    "endedAt": "2026-11-15T17:34:51Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s7-installed-retention.log",
+    "logDigest": "b8837b8b632e61eb10f342683541f70344b2b4b83679a9bb477b677388163ab3"
+  },
+  "runId": 43739565577,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+  "testedCheckout": {
+    "commitSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/checkout-commit.json",
+    "rawResponseSha256": "04672cb2fb001ddd96014168ee36c5bedd31e819d56d015b5d1ab82f8dab8d00"
+  },
+  "job": {
+    "id": 132889515576,
+    "name": "Installed desktop memory retention",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43739565577/job/132889515576",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001246,
+      "name": "GitHub Actions 1000001246",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Verify installed default-off memory retention and restart",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 7,
+    "started_at": "2026-11-15T17:22:55Z",
+    "completed_at": "2026-11-15T17:34:51Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43739565577.json",
+  "receiptSha256": "b649808b547f9e8f468044e10de57059c21caca6d8d473b1763c5a611482370e",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515576.log",
+  "rawJobLogDigest": "c15eb4ce2c7b18ae351432b2b9fdb0c257d88f9d022bb7f1246b6ad2a67bd16b",
+  "rawJobLogBytes": 126569,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      654,
+      687
+    ]
+  ],
+  "excerptInputSha256": "68860672a377233bcc16ca855b71b445244ce9a8a2b77fe67ebfd0dab17c6547",
+  "excerptInputBytes": 3554,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 3421,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Exact emitted argv array precedes the reviewed pnpm array invocation; its immediately following LASTEXITCODE guard propagates failure. Runner explicitly logged the failing process exit code.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "$ErrorActionPreference = 'Stop'\n$version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version\n$release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)\n$setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path\n$unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path\n$verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')\nWrite-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))\n& pnpm @verifyArgs\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+  "observedInputStaging": [
+    {
+      "kind": "REVIEWED_POWERSHELL_STEP_OBSERVATION",
+      "commandRecordCreated": false,
+      "step": {
+        "name": "Stage pinned integration wheels for canonical packaging",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T17:11:28Z",
+        "completed_at": "2026-11-15T17:11:34Z"
+      },
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "stagingCompleted": true,
+      "pinnedWheels": {
+        "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+        "count": 91
+      },
+      "runnerStepExitCode": 0,
+      "exitBasis": "The jobs API reports the reviewed PowerShell step succeeded; no individual command exit is claimed.",
+      "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+      "observedScript": "$ErrorActionPreference = 'Stop'\n$lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n$wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\nNew-Item -ItemType Directory -Path $wheels | Out-Null\n$names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\nforeach ($distribution in $lock.distributions) {\n  if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n  $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n  if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n  $archive = Join-Path $wheels $name\n  Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n  if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n}\n\"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\nWrite-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))",
+      "scriptSha256": "fc099bc06d01c5836285f649d5d9cc2b4db3fdd36176b5fcf2c8f4137f21eda5",
+      "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515576.log",
+      "rawJobLogDigest": "c15eb4ce2c7b18ae351432b2b9fdb0c257d88f9d022bb7f1246b6ad2a67bd16b",
+      "rawJobLogBytes": 126569,
+      "excerptLineRanges1BasedInclusive": [
+        [
+          399,
+          425
+        ]
+      ],
+      "excerptInputSha256": "3bd899f410da3b9de458ffc049ff083726ddbbe201e0eec1526d5b1645472284",
+      "excerptInputBytes": 3174,
+      "boundedExcerpt": "2026-11-15T17:11:28.4467462Z ##[group]Run $ErrorActionPreference = 'Stop'\n2026-11-15T17:11:28.4467939Z $ErrorActionPreference = 'Stop'\n2026-11-15T17:11:28.4468488Z $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json\n2026-11-15T17:11:28.4469226Z $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))\n2026-11-15T17:11:28.4469800Z New-Item -ItemType Directory -Path $wheels | Out-Null\n2026-11-15T17:11:28.4470387Z $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)\n2026-11-15T17:11:28.4470984Z foreach ($distribution in $lock.distributions) {\n2026-11-15T17:11:28.4471872Z   if ($distribution.sourceUrl -notmatch '^https://files\\.pythonhosted\\.org/[^?#\\s]+\\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }\n2026-11-15T17:11:28.4472913Z   $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)\n2026-11-15T17:11:28.4473643Z   if ($name -notmatch '^[A-Za-z0-9_.+-]+\\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }\n2026-11-15T17:11:28.4474211Z   $archive = Join-Path $wheels $name\n2026-11-15T17:11:28.4474661Z   Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180\n2026-11-15T17:11:28.4475599Z   if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }\n2026-11-15T17:11:28.4476349Z }\n2026-11-15T17:11:28.4476608Z \"HARNESS_INTEGRATION_WHEELS=$wheels\" >> $env:GITHUB_ENV\n2026-11-15T17:11:28.4477652Z Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))\n2026-11-15T17:11:28.4554456Z shell: C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"\n2026-11-15T17:11:28.4554817Z env:\n2026-11-15T17:11:28.4555084Z   PNPM_HOME: C:\\Users\\runneradmin\\setup-pnpm\\node_modules\\.bin\n2026-11-15T17:11:28.4555504Z   pythonLocation: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T17:11:28.4555961Z   PKG_CONFIG_PATH: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64/lib/pkgconfig\n2026-11-15T17:11:28.4556432Z   Python_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T17:11:28.4556859Z   Python2_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T17:11:28.4557269Z   Python3_ROOT_DIR: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\n2026-11-15T17:11:28.4557732Z   HARNESS_HERMES_PYTHON: C:\\hostedtoolcache\\windows\\Python\\3.14.10\\x64\\python.exe\n2026-11-15T17:11:28.4558134Z ##[endgroup]\n2026-11-15T17:11:34.2637891Z HARNESS_PINNED_INTEGRATION_WHEELS={\"sourceLockSha256\":\"264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700\",\"count\":91}\n",
+      "boundedExcerptSha256": "f2c3789851d5d2b04c8522b3215413f64c643a39ec2889d356f12417d5b73485",
+      "boundedExcerptBytes": 2982,
+      "transformations": [
+        "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+        "UTF8_BOM_REMOVED_IF_PRESENT",
+        "ANSI_REMOVED_IF_PRESENT",
+        "LINE_ENDINGS_NORMALIZED_TO_LF"
+      ],
+      "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+      "timingLimit": "Only actual jobs-API step timestamps are preserved. No separate download, command process or archive-verification duration is inferred.",
+      "executionLimit": "The script uses PowerShell built-ins. An external executable argv is not fabricated, and this observation creates no CommandEvidence ledger row.",
+      "runId": 43739565577,
+      "runAttempt": 1,
+      "jobId": 132889515576,
+      "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "testedCheckout": {
+        "commitSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+        "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+        "parents": [
+          "399cde39ff4ee82272c7a7700944325c44b36070",
+          "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4"
+        ],
+        "matchesPublishedTree": true,
+        "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/checkout-commit.json",
+        "rawResponseSha256": "04672cb2fb001ddd96014168ee36c5bedd31e819d56d015b5d1ab82f8dab8d00"
+      },
+      "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43739565577.json",
+      "receiptSha256": "b649808b547f9e8f468044e10de57059c21caca6d8d473b1763c5a611482370e"
+    }
+  ]
+}

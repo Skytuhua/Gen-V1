@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "mode": "direct",
+  "createdAt": "2026-11-15T23:09:30.530Z",
+  "sourceBaseSha": "013c044d66f40136752df4f1903132d601d57851",
+  "scope": "Direct native Save and reviewed helper; not production export admission.",
+  "nativeHelperChanged": true,
+  "nativeHelperBaselineSha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d",
+  "savePathBypass": false,
+  "providerOrAccountCodeLoaded": false,
+  "fixture": true,
+  "passed": false,
+  "sourceHashes": {
+    "scripts/installed-native-save.ts": {
+      "bytes": 25411,
+      "sha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2"
+    },
+    "apps/desktop/memory-export.ts": {
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    "packages/contracts/project-memory.ts": {
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9"
+    },
+    "packages/core/memory-publication.ts": {
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711"
+    },
+    "package.json": {
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+    },
+    "pnpm-lock.yaml": {
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+    },
+    ".github/actions/setup/action.yml": {
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    }
+  },
+  "cleanup": {
+    "observerOwned": true,
+    "fixtureOwned": true,
+    "observerTerminated": true,
+    "fixtureExitCode": 0,
+    "fixtureSignal": null,
+    "fixtureStderrBytes": 100,
+    "ownedProcessesExited": true
+  },
+  "checkout": {
+    "sha": "b07a8609334ba067944034e335471fc9c6e8400b",
+    "tree": "f49b28797d9a382c032330a56866f9556970f2dd"
+  },
+  "electronExecutable": {
+    "sha256": "010ea51bfb528c8143513439aa93fb40754403daa2023f9decd4517da71706ab",
+    "expectedVersion": "45.2.0"
+  },
+  "fixtureReady": {
+    "pid": 6480,
+    "electron": "45.2.0",
+    "elapsedMs": 1236
+  },
+  "downloadBehavior": {
+    "mode": "default",
+    "resetAcknowledged": true
+  },
+  "failure": {
+    "stage": "owned-read-only-window-observer",
+    "error": "Diagnostic boundary failed; inspect the bounded stage metadata."
+  },
+  "nativeSave": null,
+  "fixtureAfterFailure": {
+    "version": 1,
+    "mode": "direct",
+    "pid": 6480,
+    "electron": "45.2.0",
+    "status": "waiting",
+    "outcome": null,
+    "events": [
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 1097
+      }
+    ]
+  },
+  "windowObserver": {
+    "exitCode": null,
+    "error": null,
+    "stderrBytes": 0,
+    "bytes": 201,
+    "sha256": "71a87bb41a46801c1df14b1d989fcc2c104eb75860b18ecff95f56fe7819a8b2"
+  },
+  "windowObservations": [
+    {
+      "pid": 6480,
+      "reason": "owned-window-observation-failed",
+      "elapsedMs": 3787,
+      "proxyDescriptorCount": null,
+      "stage": "register-matching-client-providers",
+      "processStartTicks": null,
+      "version": 1,
+      "phase": "failed"
+    }
+  ],
+  "fixtureStartup": {
+    "phases": [
+      {
+        "phase": "module-entered",
+        "elapsedMs": 0
+      },
+      {
+        "phase": "config-read",
+        "elapsedMs": 2
+      },
+      {
+        "phase": "server-listening",
+        "elapsedMs": 9
+      },
+      {
+        "phase": "ready-scheduled",
+        "elapsedMs": 9
+      },
+      {
+        "phase": "app-ready",
+        "elapsedMs": 32
+      },
+      {
+        "phase": "renderer-ready",
+        "elapsedMs": 1099
+      }
+    ],
+    "stderr": {
+      "observedBytes": 100,
+      "observedSha256": "faafc98918143bed34c91905a87efcce04a78597ba66ef55fa09d5745286c3e4",
+      "capturedBytes": 100,
+      "normalized": true,
+      "truncated": false,
+      "head": "\r\nDevTools listening on <owned-devtools-endpoint>\r\n",
+      "tail": ""
+    }
+  },
+  "completedAt": "2026-11-15T23:09:39.525Z"
+}

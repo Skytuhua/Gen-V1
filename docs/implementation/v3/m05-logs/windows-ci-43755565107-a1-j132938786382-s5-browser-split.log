@@ -1,0 +1,54 @@
+2026-11-15T20:02:02.7470020Z ##[group]Run pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-15T20:02:02.7470784Z pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-15T20:02:02.7527282Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:02:02.7527798Z env:
+2026-11-15T20:02:02.7528019Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:02:02.7528354Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:02.7528726Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:02:02.7529078Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:02.7529397Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:02.7529709Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:02:02.7530089Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:02:02.7530411Z   GEN_SPLIT_RENDERER_BROWSER: 1
+2026-11-15T20:02:02.7530605Z   GEN_SPLIT_APP_BROWSER: 1
+2026-11-15T20:02:02.7530789Z ##[endgroup]
+2026-11-15T20:02:03.9122084Z 
+2026-11-15T20:02:03.9123998Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T20:02:03.9124419Z 
+2026-11-15T20:02:56.3030802Z  ✓ tests/split-app-browser.test.ts (19 tests) 51601ms
+2026-11-15T20:02:56.3033706Z      ✓ keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload  6662ms
+2026-11-15T20:02:56.3035387Z      ✓ embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)  1437ms
+2026-11-15T20:02:56.3037058Z      ✓ places a sidebar thread into a spatial edge target without duplicating its composer  1522ms
+2026-11-15T20:02:56.3039115Z      ✓ uses one canonical plan in the overview and detailed pane with actual companion sections  2731ms
+2026-11-15T20:02:56.3040300Z      ✓ starts a new chat in the chosen project while preserving a started pane and its pinned account  1945ms
+2026-11-15T20:02:56.3041684Z      ✓ reconciles an explicitly connected unstarted chat without remounting its composer or changing other saved view owners  3603ms
+2026-11-15T20:02:56.3043164Z      ✓ renders the canonical detailed plan requirements in an explicitly recovered canvas panel  1691ms
+2026-11-15T20:02:56.3044479Z      ✓ keeps a narrow focused composer visible on plan publication until the user opens the full plan  1909ms
+2026-11-15T20:02:56.3045911Z      ✓ reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus  1808ms
+2026-11-15T20:02:56.3047425Z      ✓ saves and applies split layouts while preserving drafts and the retained v1 canvas through explicit recovery  4400ms
+2026-11-15T20:02:56.3048794Z      ✓ uses the exact host save receipt and preserves geometry during name-only Rename  3124ms
+2026-11-15T20:02:56.3050014Z      ✓ shows installed generic workspaces without replacing the personal workspace bar  3014ms
+2026-11-15T20:02:56.3051444Z      ✓ defaults to single-chat view with a top-right workspace panel toggle, hides right popups while open, and removes the split history bar  3603ms
+2026-11-15T20:02:56.3055563Z      ✓ a browser dock shares the tool width budget and preserves chat space  1131ms
+2026-11-15T20:02:56.3056992Z      ✓ selected artifacts stay inside the stacked tool content without replacing their renderer  1136ms
+2026-11-15T20:02:56.3058199Z      ✓ panel bounds retain chat and title bar at drag extremes 1920x1080  1694ms
+2026-11-15T20:02:56.3059251Z      ✓ panel bounds retain chat and title bar at drag extremes 1440x900  1549ms
+2026-11-15T20:02:56.3059870Z      ✓ panel bounds retain chat and title bar at drag extremes 1024x768  1534ms
+2026-11-15T20:02:56.3060467Z      ✓ panel bounds stack tools below chat in a narrow workarea  1117ms
+2026-11-15T20:03:01.9971780Z  ✓ tests/split-workspace-renderer.test.ts (10 tests) 5167ms
+2026-11-15T20:03:01.9972678Z      ✓ uses the shared area menu for keyboard editor selection, Escape and outside dismissal  621ms
+2026-11-15T20:03:01.9973364Z      ✓ keeps editor focus when a pending area action completes  585ms
+2026-11-15T20:03:01.9974006Z      ✓ uses a shared narrow-area chooser without remounting either editor  599ms
+2026-11-15T20:03:01.9974936Z      ✓ does not reopen a menu after responsive layout removes its owning pane  383ms
+2026-11-15T20:03:01.9975618Z      ✓ keeps editor DOM, values and iframe instance when moving and parking views  302ms
+2026-11-15T20:03:01.9976337Z      ✓ supports keyboard divider movement and cancels pointer previews without a command  347ms
+2026-11-15T20:03:01.9977067Z      ✓ retains layout when draft flush fails and restores desktop geometry after narrow mode  599ms
+2026-11-15T20:03:01.9978075Z      ✓ moves a dragged tab to the center target and minimizes to a reachable strip  399ms
+2026-11-15T20:03:01.9979364Z      ✓ rejects an incoming conversation that cannot fit its actual minimum  361ms
+2026-11-15T20:03:01.9981447Z      ✓ keeps editor and recovery controls reachable inside a short pane  606ms
+2026-11-15T20:03:02.0003975Z 
+2026-11-15T20:03:02.0008397Z  Test Files  2 passed (2)
+2026-11-15T20:03:02.0009232Z       Tests  29 passed (29)
+2026-11-15T20:03:02.0010064Z    Start at  20:02:03
+2026-11-15T20:03:02.0010962Z    Duration  58.07s (transform 204ms, setup 0ms, import 998ms, tests 56.77s, environment 0ms)
+2026-11-15T20:03:02.0011555Z 

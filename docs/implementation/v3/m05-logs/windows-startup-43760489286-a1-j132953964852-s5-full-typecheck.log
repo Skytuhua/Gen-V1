@@ -1,0 +1,10 @@
+2026-11-15T20:53:41.4333400Z ##[group]Run pnpm typecheck
+2026-11-15T20:53:41.4333720Z pnpm typecheck
+2026-11-15T20:53:41.4389739Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:53:41.4390035Z env:
+2026-11-15T20:53:41.4390264Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:53:41.4390532Z ##[endgroup]
+2026-11-15T20:53:41.9772322Z 
+2026-11-15T20:53:41.9773229Z > gen-v1@0.6.5 typecheck D:\a\Gen-V1\Gen-V1
+2026-11-15T20:53:41.9773705Z > tsc --noEmit
+2026-11-15T20:53:41.9773868Z 

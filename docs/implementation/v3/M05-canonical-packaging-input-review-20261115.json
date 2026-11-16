@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T16:34:05.246397+00:00",
+  "status": "PASS_CI_AND_PACKAGE_INPUT_SOURCE_REVIEW_ONLY",
+  "scope": "Read-only review of canonical wheel staging, explicit package opt-in, selected Python, generated installation receipt custody/upload and unchanged v1 input pins. The only repository edit by this reviewer in this task is docs/getting-started.md.",
+  "repository": "skytuhua-org/Gen-V1",
+  "publishedBaseline": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+  "publishedBaselineTree": "2f8043bbb9dcd95c068eb91380ca5c897f0c754f",
+  "reviewedWorkingTreeCommit": "41028750e48d4e456f7636c1a2fb43d9adc541a2",
+  "reviewedBytesAreUncommittedChanges": true,
+  "sources": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 12470,
+      "sha256": "6728cdd5e9eb90e27e7c2f4791ff280ca2622bae70dcb98b70741348fbac53c2"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "bytes": 14137,
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+    },
+    {
+      "path": "scripts/integration_python_projection.py",
+      "bytes": 17295,
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+    },
+    {
+      "path": "tests/integration-packaging-canonical-negative.test.ts",
+      "bytes": 16843,
+      "sha256": "f273e8246bb1be2fe32804af44bc93e6580e86cce57e6d1bd058265881265cad"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/integrations/NODE_LOCK.json",
+      "bytes": 1488,
+      "sha256": "45429cc3f9c1538f03dd2b8f2b517cce2e175cadc46e3340ae6821ca55371333",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/integrations/manifest.json",
+      "bytes": 121833,
+      "sha256": "6b0a4d8f7a48df764d3b3c577876f2cac1ab2b459d3a9b24829d25d51c4233cd",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/hermes-agent/runtime-requirements.txt",
+      "bytes": 720,
+      "sha256": "432520b342377ed3d395c493e40f901fe74b5e3870f07781305b6d92593924be",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/hermes-agent/RUNTIME_DEPENDENCIES.json",
+      "bytes": 2732,
+      "sha256": "6ad18547704ce385755aa124aefa4f0936e6f77d65baf86917f0c1201704d223",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/hermes-agent/UPSTREAM_MANIFEST.json",
+      "bytes": 166578,
+      "sha256": "16fdcce39062426f82f5d906599a077d7259a7e2a0231a524a9f6f172f86a5a8",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "third-party/git-tools/manifest.json",
+      "bytes": 74847,
+      "sha256": "4654f167960c6a8ac56b4bacdd94e1eb643464b6fe690aa8facda289b41e3369",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "package.json",
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": ".github/actions/setup/action.yml",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "unchangedFromPublishedHead": "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    },
+    {
+      "path": "scripts/hermes-assets.ts",
+      "bytes": 10439,
+      "sha256": "4462f9bd83930956fa94ba32a75ee572c180a35a7d7b17f560ac8ac13802b77e"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "bytes": 7628,
+      "sha256": "1cdf863ee743ef3d0f8f08a9a9081529f82bb28a67036e4085e48bf94043620b"
+    },
+    {
+      "path": "packages/integrations/manifest.ts",
+      "bytes": 3295,
+      "sha256": "3f93e7f773850b45e22eb7a4263158e85f3312e6adcd6a777b5458e4ea88d0b5"
+    },
+    {
+      "path": "docs/getting-started.md",
+      "bytes": 12625,
+      "sha256": "807fa686ad92eb2f567adc11dabc9f2cd74dde18f8ad06a558b5b540db21f6f3"
+    }
+  ],
+  "checks": [
+    {
+      "id": "CI_WHEEL_ARCHIVES",
+      "result": "PASS_SOURCE_REVIEW",
+      "evidence": [
+        ".github/workflows/ci.yml",
+        "third-party/integrations/PYTHON_LOCK.json"
+      ],
+      "observed": "The installed-memory job creates a unique RUNNER_TEMP directory, accepts only the existing HTTPS files.pythonhosted.org wheel URLs and SHA256 pins, rejects unsafe or case-insensitively duplicate archive filenames, downloads all 91 declared archives and verifies each hash before exporting HARNESS_INTEGRATION_WHEELS. The diagnostic marker records count and original lock digest. This is a separate build-input directory; it does not repin or reinstall the regression cache."
+    },
+    {
+      "id": "PACKAGE_OPT_IN_AND_PYTHON",
+      "result": "PASS_SOURCE_REVIEW",
+      "evidence": [
+        "scripts/package-desktop.ts",
+        "scripts/hermes-assets.ts",
+        "scripts/integration-assets.ts",
+        ".github/actions/setup/action.yml"
+      ],
+      "observed": "An absent HARNESS_INTEGRATION_WHEELS selects the original exact-v1 branch. A supplied value must be a nonempty absolute archive-directory path. Canonical projection uses python.exe from the same already-probed CPython 3.14 Windows x64 base installation admitted by discoverHermesPython and collected for Hermes. The composite action explicitly selects HARNESS_HERMES_PYTHON. The helper runs with -I -S -B, a 120-second bound and a bounded output buffer, without executing wheel code."
+    },
+    {
+      "id": "ORIGINAL_INPUT_AUTHORITY",
+      "result": "PASS_SOURCE_REVIEW",
+      "evidence": [
+        "third-party/integrations/PYTHON_LOCK.json",
+        "third-party/integrations/NODE_LOCK.json",
+        "third-party/integrations/manifest.json",
+        "third-party/hermes-agent/runtime-requirements.txt",
+        "third-party/hermes-agent/RUNTIME_DEPENDENCIES.json",
+        "third-party/hermes-agent/UPSTREAM_MANIFEST.json",
+        "third-party/git-tools/manifest.json",
+        "pnpm-lock.yaml",
+        "package.json",
+        ".github/actions/setup/action.yml"
+      ],
+      "observed": "All ten checked input, toolchain and manifest files are byte-identical to the published baseline. The original v1 lock retains 91 distributions, 7,415 files, two REQUESTED files, zero direct_url.json files, 91 RECORD files and all 7,324 non-RECORD hashes. The canonical collector rejects changes to any locked non-RECORD file. No new package version or altered lock is admitted by this option."
+    },
+    {
+      "id": "PROJECTED_RECEIPT_AND_STAGE",
+      "result": "PASS_SOURCE_REVIEW",
+      "evidence": [
+        "scripts/integration-assets.ts",
+        "scripts/integration_python_projection.py",
+        "scripts/package-desktop.ts"
+      ],
+      "observed": "The original PYTHON_LOCK.json is retained alongside generated third-party/integrations/PYTHON_INSTALLATION_V2.json. The v2 receipt binds its mode, original lock digest, authenticated wheel identities and exact relative file sizes/hashes without timestamps or absolute build paths. Staging rehashes sources; the packaged verifier checks every admitted file and the exact Python output set. The release build manifest records selected mode and projection digest."
+    },
+    {
+      "id": "OWNERSHIP_GUARDS",
+      "result": "PASS_SOURCE_REVIEW_WITH_RECORDED_TEST_EVIDENCE",
+      "evidence": [
+        "scripts/integration_python_projection.py",
+        "tests/integration-packaging-canonical-negative.test.ts",
+        "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-3.log"
+      ],
+      "observed": "The final helper rejects foreign dist-info ownership both before and after wheel data spreading, and rejects a spread member that aliases an installed RECORD authority. Independent fail-first review led to both guards. The final 28-case focused log passes. This is synthetic projection evidence, not execution of all 91 real archives or a Windows package."
+    },
+    {
+      "id": "CI_UPLOAD_AND_JOB_SCOPE",
+      "result": "PASS_SOURCE_REVIEW",
+      "evidence": [
+        ".github/workflows/ci.yml"
+      ],
+      "observed": "Six YAML job definitions expand to nine jobs through the four application shards. The installed job uses the existing pinned toolchain, runs the unchanged production package command, and emits the exact resolved verifier argv immediately before invocation. Its always-upload step admits the generated staged v2 receipt with hidden-file upload enabled, along with the bounded existing build/installed reports and screenshots. It does not upload the dependency cache, full profile or source database."
+    },
+    {
+      "id": "DOCUMENTATION",
+      "result": "PASS",
+      "evidence": [
+        "docs/getting-started.md"
+      ],
+      "observed": "The guide documents exact-v1 and explicit canonical mode, archive staging, selected Python, all non-RECORD pins, generated receipt, unchanged legacy mode and separate execution evidence. Relative links resolve and scoped git diff --check passes. No successful real package or installed-memory observation is claimed."
+    }
+  ],
+  "focusedEvidence": {
+    "ref": "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-3.log",
+    "sha256": "42d69ab74b0e22e1c116b9272597f28a412aa4d9b20705e2140209b541f8afd9",
+    "passed": 28,
+    "failed": 0,
+    "executionByThisReviewer": false,
+    "basis": "Read the final recorded test log and received independent reviewer freeze confirmation."
+  },
+  "lastActualWindowsResult": {
+    "runId": 43733008039,
+    "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+    "status": "FAIL",
+    "eightOtherJobs": "SUCCESS",
+    "installedJob": "FAIL_PACKAGING_PREFLIGHT",
+    "actualInstallation": "NOT_RUN",
+    "retentionVerification": "NOT_RUN",
+    "repairContainedInThatRun": false
+  },
+  "limitations": [
+    "No PowerShell, wheel download, package, installer, installed UI or live-provider execution was performed in this review.",
+    "The final source hashes identify the reviewed uncommitted cut; no later publication or CI result is inferred.",
+    "The old failed cache did not log actual differing paths. Static recipe/lock metadata differences do not substitute for a measured per-file diagnosis.",
+    "Full enabled installed lifecycle and authorized live study remain open; both memory activation flags remain false.",
+    "The final post-repair typecheck and real Windows packaging/installed results are owned by other recorded commands and are not asserted here."
+  ],
+  "findings": []
+}

@@ -1,0 +1,102 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/model-transport-v3.test.ts (8 tests | 3 failed) 392ms
+   × thrown failures record a failed outcome and failed disposal never confirms teardown 15ms
+   × start failure never copies source prose or credential text into broker observations 14ms
+   × dispose failure never copies source prose or credential text into broker observations 59ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/model-transport-v3.test.ts > thrown failures record a failed outcome and failed disposal never confirms teardown
+AssertionError: expected 'engine refused' to be 'The owned model request failed.' // Object.is equality
+
+Expected: "The owned model request failed."
+Received: "engine refused"
+
+ ❯ tests/model-transport-v3.test.ts:71:72
+     69|   expect(response.status).toBe(400);
+     70|   const observation=b.observation(1)!;
+     71|   expect(observation.outcome).toBe('failed');expect(observation.error)…
+       |                                                                        ^
+     72|   // The runtime was created so teardown still ran and was confirmed.
+     73|   expect(observation.timings.teardownConfirmed).not.toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/model-transport-v3.test.ts > start failure never copies source prose or credential text into broker observations
+AssertionError: stored source custody: expected '{"version":1,"requestId":"33e1a60c-2b…' not to contain 'Private source prose: the release han…'
+
+Expected: "Private source prose: the release handoff codeword is scarlet ibis."
+Received: "{"version":1,"requestId":"33e1a60c-2bf4-4597-aaa2-1569573724db","owner":{"threadId":"outer","runId":"run","epoch":3,"sequence":1,"inputIds":["input"],"phase":"foreground"},"binding":{"providerId":"openai","modelId":"openai/model","accountId":"selected-account"},"measurementSource":"hermes-broker","timings":{"queued":1794750020027,"acquired":0.057146000000102504,"runtimeReady":0.08085100000005241,"requestSent":null,"firstProviderDelta":null,"firstPublicDelta":null,"settled":null,"teardownConfirmed":0.13533300000005966},"usage":{"inputTokens":null,"outputTokens":null,"cacheReadTokens":null,"cacheWriteTokens":null,"cost":null},"usageConvention":"unreported","outcome":"failed","error":"Private source prose: the release handoff codeword is scarlet ibis. Credential: [redacted-token]"}"
+
+ ❯ tests/model-transport-v3.test.ts:102:60
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/model-transport-v3.test.ts > start failure never copies source prose or credential text into broker observations
+AssertionError: stored credential custody: expected '{"version":1,"requestId":"33e1a60c-2b…' not to contain '[redacted-token]…'
+
+Expected: "[redacted-token]"
+Received: "{"version":1,"requestId":"33e1a60c-2bf4-4597-aaa2-1569573724db","owner":{"threadId":"outer","runId":"run","epoch":3,"sequence":1,"inputIds":["input"],"phase":"foreground"},"binding":{"providerId":"openai","modelId":"openai/model","accountId":"selected-account"},"measurementSource":"hermes-broker","timings":{"queued":1794750020027,"acquired":0.057146000000102504,"runtimeReady":0.08085100000005241,"requestSent":null,"firstProviderDelta":null,"firstPublicDelta":null,"settled":null,"teardownConfirmed":0.13533300000005966},"usage":{"inputTokens":null,"outputTokens":null,"cacheReadTokens":null,"cacheWriteTokens":null,"cost":null},"usageConvention":"unreported","outcome":"failed","error":"Private source prose: the release handoff codeword is scarlet ibis. Credential: [redacted-token]"}"
+
+ ❯ tests/model-transport-v3.test.ts:103:64
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/model-transport-v3.test.ts > start failure never copies source prose or credential text into broker observations
+ FAIL  tests/model-transport-v3.test.ts > dispose failure never copies source prose or credential text into broker observations
+AssertionError: expected { version: 1, …(9) } to match object { outcome: 'failed', …(4) }
+(18 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -2,11 +2,11 @@
+    "binding": {
+      "accountId": "selected-account",
+      "modelId": "openai/model",
+      "providerId": "openai",
+    },
+-   "error": "The owned model request failed.",
++   "error": "Private source prose: the release handoff codeword is scarlet ibis. Credential: [redacted-token]",
+    "measurementSource": "hermes-broker",
+    "outcome": "failed",
+    "owner": {
+      "epoch": 3,
+      "inputIds": [
+
+ ❯ tests/model-transport-v3.test.ts:104:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/model-transport-v3.test.ts > dispose failure never copies source prose or credential text into broker observations
+AssertionError: stored source custody: expected '{"version":1,"requestId":"b1bc5669-7d…' not to contain 'Private source prose: the release han…'
+
+Expected: "Private source prose: the release handoff codeword is scarlet ibis."
+Received: "{"version":1,"requestId":"b1bc5669-7df7-43be-af92-0b41a800f75c","owner":{"threadId":"outer","runId":"run","epoch":3,"sequence":1,"inputIds":["input"],"phase":"foreground"},"binding":{"providerId":"openai","modelId":"openai/model","accountId":"selected-account"},"measurementSource":"hermes-broker","timings":{"queued":1794750020040,"acquired":0.060209999999983665,"runtimeReady":0.06498799999997118,"requestSent":0.1418830000000071,"firstProviderDelta":48.59297600000002,"firstPublicDelta":null,"settled":48.67658199999994,"teardownConfirmed":null},"usage":{"inputTokens":7,"outputTokens":3,"cacheReadTokens":null,"cacheWriteTokens":null,"cost":null},"usageConvention":"provider-reported","outcome":"failed","error":"Private source prose: the release handoff codeword is scarlet ibis. Credential: [redacted-token]"}"
+
+ ❯ tests/model-transport-v3.test.ts:102:60
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/model-transport-v3.test.ts > dispose failure never copies source prose or credential text into broker observations
+AssertionError: stored credential custody: expected '{"version":1,"requestId":"b1bc5669-7d…' not to contain '[redacted-token]…'
+
+Expected: "[redacted-token]"
+Received: "{"version":1,"requestId":"b1bc5669-7df7-43be-af92-0b41a800f75c","owner":{"threadId":"outer","runId":"run","epoch":3,"sequence":1,"inputIds":["input"],"phase":"foreground"},"binding":{"providerId":"openai","modelId":"openai/model","accountId":"selected-account"},"measurementSource":"hermes-broker","timings":{"queued":1794750020040,"acquired":0.060209999999983665,"runtimeReady":0.06498799999997118,"requestSent":0.1418830000000071,"firstProviderDelta":48.59297600000002,"firstPublicDelta":null,"settled":48.67658199999994,"teardownConfirmed":null},"usage":{"inputTokens":7,"outputTokens":3,"cacheReadTokens":null,"cacheWriteTokens":null,"cost":null},"usageConvention":"provider-reported","outcome":"failed","error":"Private source prose: the release handoff codeword is scarlet ibis. Credential: [redacted-token]"}"
+
+ ❯ tests/model-transport-v3.test.ts:103:64
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  21:40:19
+   Duration  765ms (transform 119ms, setup 0ms, import 207ms, tests 392ms, environment 0ms)

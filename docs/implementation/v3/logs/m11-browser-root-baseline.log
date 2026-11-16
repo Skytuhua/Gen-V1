@@ -1,0 +1,21 @@
+M11 root browser suite — worktree (agent/m11-v3) vs pristine base fcaa52f
+command: pnpm test:browser (root suite, all suites) | cwd: <isolated M11 worktree> / <pristine base checkout>
+worktree run: test-results/browser/run-1794738921109-0bbb7610-0b1f-472a-b297-c6eafc59a6b5 (79 suites) — failed suites: 57, exit 1
+base    run: test-results/browser/run-1794743732453-a79d5932-bd4b-48c4-8e84-d1d2afff381a (79 suites) — failed suites: 56, exit 1
+failed-suite set diff (worktree minus base): code-review-workspace only
+code-review-workspace isolated re-run on worktree: 57/57 PASS (flake, timing race — 'Submit review' wait exceeded 5s)
+
+shared failed suites (56, identical on base):
+ agents-workspace artifact-settle browser-action chat-view-modes clarity-review-parameters clarity-
+ schedule-logs code-review-host compact-model-picker compact-settings compact-tools-cleanup composer-
+ prediction composer-press context-connections conversation-find desktop-surfaces everyday file-
+ checkpoints files-reading floating generated-selects graph-popovers inbox-controls inline-surfaces
+ m08-restore memory-recovery memory-recovery-app memory-recovery-journal micro-motion model-picker
+ project-app-integration project-picker project-search redundant-ui research-host research-workspace
+ root runtime-presentation saved-drafts saved-layout-chooser settings-leaf-selects shared-panels
+ shell side-chat sidebar-shared-menu snapshot-performance table-controls tabs-identity task-design
+ task-interface terminal-excerpts terminal-read usage-app-integration wo5-app-integration wo8
+ workspace workspace-host
+
+classification: every failed suite fails identically on the pristine base checkout (environmental/baseline: missing real host, capture/geometry harness limits); the single extra failure is a verified flake.
+no browser regression attributable to M11.

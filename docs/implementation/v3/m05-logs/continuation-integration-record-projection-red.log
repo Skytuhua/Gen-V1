@@ -1,0 +1,224 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+xxxxxxxxxxxxxxxxxxxxx
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > derives deterministic per-distribution RECORDs while preserving every original non-RECORD byte
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ collect tests/integration-packaging-canonical-negative.test.ts:110:28
+    108| async function collect(value: Fixture) {
+    109|   const collector = (packaging as unknown as {collectCanonicalPythonPa…
+    110|   expect(typeof collector).toBe('function');
+       |                            ^
+    111|   return collector(value.root, {wheelDirectory: value.wheelDirectory, …
+    112| }
+ ❯ tests/integration-packaging-canonical-negative.test.ts:129:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects an archive whose complete bytes do not match its pinned wheel hash
+AssertionError: expected [Function] to throw error matching /wheel|archive|checksum|hash/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/wheel|archive|checksum|hash/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:161:32
+    159|     const value = await fixture();
+    160|     await appendFile(join(value.wheelDirectory, basename(new URL(value…
+    161|     await expect(collect(value)).rejects.toThrow(/wheel|archive|checks…
+       |                                ^
+    162|   });
+    163|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects unsafe authenticated ZIP member ../escape.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects unsafe authenticated ZIP member /absolute.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects unsafe authenticated ZIP member C:/drive.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects unsafe authenticated ZIP member ..\escape.py
+AssertionError: expected [Function] to throw error matching /path|travers|absolute|unsafe|member|…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/path|travers|absolute|unsafe|member|archive|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:166:32
+    164|   it.each(['../escape.py', '/absolute.py', 'C:/drive.py', '..\\escape.…
+    165|     const value = await fixture(); await rewriteWheel(value, 0, [...va…
+    166|     await expect(collect(value)).rejects.toThrow(/path|travers|absolut…
+       |                                ^
+    167|   });
+    168|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects duplicate ZIP names even when their bytes match
+AssertionError: expected [Function] to throw error matching /duplicate|collision|member|archive|w…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/duplicate|collision|member|archive|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:171:32
+    169|   it('rejects duplicate ZIP names even when their bytes match', async …
+    170|     const value = await fixture(); await rewriteWheel(value, 0, [...va…
+    171|     await expect(collect(value)).rejects.toThrow(/duplicate|collision|…
+       |                                ^
+    172|   });
+    173|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects a wheel that claims another distribution metadata directory
+AssertionError: expected [Function] to throw error matching /foreign|owner|distribution|dist-info…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/foreign|owner|distribution|dist-info|duplicate|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:176:32
+    174|   it('rejects a wheel that claims another distribution metadata direct…
+    175|     const value = await fixture(); await rewriteWheel(value, 0, [...va…
+    176|     await expect(collect(value)).rejects.toThrow(/foreign|owner|distri…
+       |                                ^
+    177|   });
+    178|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects two authenticated wheels claiming the same runtime file
+AssertionError: expected [Function] to throw error matching /owner|duplicate|collision|covered|wh…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/owner|duplicate|collision|covered|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:181:32
+    179|   it('rejects two authenticated wheels claiming the same runtime file'…
+    180|     const value = await fixture(); await rewriteWheel(value, 1, [...va…
+    181|     await expect(collect(value)).rejects.toThrow(/owner|duplicate|coll…
+       |                                ^
+    182|   });
+    183|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > requires authenticated wheel membership for every locked runtime file
+AssertionError: expected [Function] to throw error matching /cover|owner|missing|member|unclaimed…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/cover|owner|missing|member|unclaimed|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:186:32
+    184|   it('requires authenticated wheel membership for every locked runtime…
+    185|     const value = await fixture(); await rewriteWheel(value, 0, value.…
+    186|     await expect(collect(value)).rejects.toThrow(/cover|owner|missing|…
+       |                                ^
+    187|   });
+    188|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects a wheel member whose bytes conflict with the original runtime lock
+AssertionError: expected [Function] to throw error matching /checksum|hash|content|lock|wheel/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/checksum|hash|content|lock|wheel/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:191:32
+    189|   it('rejects a wheel member whose bytes conflict with the original ru…
+    190|     const value = await fixture(); await rewriteWheel(value, 0, value.…
+    191|     await expect(collect(value)).rejects.toThrow(/checksum|hash|conten…
+       |                                ^
+    192|   });
+    193|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file shared/alpha.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/METADATA
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/INSTALLER
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/entry_points.txt
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/licenses/LICENSE
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/REQUESTED
+AssertionError: expected [Function] to throw error matching /checksum|hash|content|lock|payload|r…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/checksum|hash|content|lock|payload|requested|installer/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:196:32
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects a missing locked runtime file
+AssertionError: expected [Function] to throw error matching /missing|lock|file|payload|ENOENT/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/missing|lock|file|payload|ENOENT/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:201:32
+    199|   it('rejects a missing locked runtime file', async () => {
+    200|     const value = await fixture(); await rm(join(value.root, prefix, '…
+    201|     await expect(collect(value)).rejects.toThrow(/missing|lock|file|pa…
+       |                                ^
+    202|   });
+    203|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects undeclared cache runtime file rogue.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects undeclared cache runtime file fixture_alpha-1.0.0.dist-info/rogue.py
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects undeclared cache runtime file unknown-1.0.0.dist-info/direct_url.json
+AssertionError: expected [Function] to throw error matching /unexpected|unknown|undeclared|extra|…/i but got 'expected \'undefined\' to be \'functi…'
+
+- Expected:
+/unexpected|unknown|undeclared|extra|payload|lock|file/i
+
++ Received:
+"expected 'undefined' to be 'function' // Object.is equality"
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:206:32
+    204|   it.each(['rogue.py', alpha + '/rogue.py', 'unknown-1.0.0.dist-info/d…
+    205|     const value = await fixture(), target = join(value.root, prefix, p…
+    206|     await expect(collect(value)).rejects.toThrow(/unexpected|unknown|u…
+       |                                ^
+    207|   });
+    208| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  21 failed (21)
+   Start at  00:20:22
+   Duration  1.96s (transform 88ms, setup 0ms, import 115ms, tests 1.65s, environment 0ms)

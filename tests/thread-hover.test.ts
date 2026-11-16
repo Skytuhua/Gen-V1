@@ -69,6 +69,35 @@ describe('exact thread hover ownership', () => {
     controller.activate(scope({revision: 'rev-2'})); await flush(); expect(controller.getState().status).toBe('error');
   });
 
+  it('does not redisplay branch or PR facts after a current refresh failed', async () => {
+    const cache = createThreadHoverCache();
+    const owner = scope();
+    const cached = {...facts(owner, 'old-branch'), pullRequests: [{id: 'pr', label: '#5', target: 'old-target'}]};
+    cache.set(cached);
+    const failure = deferred<ThreadHoverFacts>(), retry = deferred<ThreadHoverFacts>();
+    const load = vi.fn().mockReturnValueOnce(failure.promise).mockReturnValueOnce(retry.promise);
+    const controller = createThreadHoverDataController({cache, load, onChange: () => {}});
+    controller.activate(owner);
+    expect(controller.getState()).toMatchObject({status: 'ready', facts: cached});
+    failure.reject(new Error('Refresh failed')); await flush();
+    expect(controller.getState()).toEqual({status: 'error', scope: owner});
+    controller.deactivate();
+    controller.activate(owner);
+    expect(controller.getState()).toEqual({status: 'loading', scope: owner});
+    retry.resolve(facts(owner, 'current-branch')); await flush();
+    expect(controller.getState()).toMatchObject({status: 'ready', facts: {branch: 'current-branch'}});
+  });
+
+  it('keeps a newer successful cache entry when a concurrent refresh fails', async () => {
+    const cache = createThreadHoverCache(), owner = scope(), pending = deferred<ThreadHoverFacts>();
+    cache.set(facts(owner, 'old'));
+    const failing = createThreadHoverDataController({cache, load: () => pending.promise, onChange: () => {}});
+    const successful = createThreadHoverDataController({cache, load: async () => facts(owner, 'new'), onChange: () => {}});
+    failing.activate(owner); successful.activate(owner); await flush();
+    pending.reject(new Error('Refresh failed')); await flush();
+    expect(cache.get(owner)?.branch).toBe('new');
+  });
+
   it('fences a revision change and late rejection without replacing the new branch', async () => {
     const a = deferred<ThreadHoverFacts>(), b = deferred<ThreadHoverFacts>();
     const controller = createThreadHoverDataController({load: owner => owner.revision === 'rev-1' ? a.promise : b.promise, onChange: () => {}});

@@ -1,0 +1,31 @@
+[1A[2K[2m[WebServer] [22m(node:42) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:59) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 13 tests using 1 worker
+
+[1A[2K(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/13] tests/e2e/document-window.spec.ts:5:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately
+[1A[2K[2/13] tests/e2e/document-window.spec.ts:64:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload
+[1A[2K[3/13] tests/e2e/document-window.spec.ts:117:1 › new source never overwrites edited text and the document can explicitly adopt the update
+[1A[2K[4/13] tests/e2e/document-window.spec.ts:145:1 › granted text clears immediately on revocation and retry rereads the authorized source
+[1A[2K[5/13] tests/e2e/document-window.spec.ts:213:1 › narrow document window has no page overflow and keyboard undocking retains its editor
+[1A[2K[6/13] tests/e2e/document-window.spec.ts:251:1 › large edited source fits the real host state limit without duplicating the source text
+[1A[2K[7/13] tests/e2e/document-window.spec.ts:271:1 › closing and reloading the handoff preserves its reading position
+[1A[2K[8/13] tests/e2e/document-window.spec.ts:309:1 › oversized UTF-8 edits are rejected without replacing the last durable draft
+[1A[2K[9/13] tests/e2e/document-window.spec.ts:333:1 › retargeting a document cannot overwrite a draft belonging to its previous source
+[1A[2K[10/13] tests/e2e/document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px
+[1A[2K[11/13] tests/e2e/document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px
+[1A[2K[12/13] tests/e2e/document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px
+[1A[2K[13/13] tests/e2e/document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px
+[1A[2K  13 passed (2.0m)

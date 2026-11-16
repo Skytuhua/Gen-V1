@@ -1,0 +1,39 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts (5 tests | 1 failed) 52ms
+   × refuses a provider/model replacement before creating the extraction transport 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > refuses a provider/model replacement before creating the extraction transport
+AssertionError: promise resolved "{ status: 'EMPTY', itemIds: [], …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "itemIds": [],
++   "status": "EMPTY",
++   "usage": {
++     "cost": null,
++     "inputBytes": 1670,
++     "inputTokens": null,
++     "modelCalls": 1,
++     "outputBytes": 2,
++     "outputTokens": null,
++   },
+  }
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:92:90
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  19:28:49
+   Duration  456ms (transform 221ms, setup 0ms, import 294ms, tests 52ms, environment 0ms)

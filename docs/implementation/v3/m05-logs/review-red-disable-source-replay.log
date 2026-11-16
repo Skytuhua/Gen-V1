@@ -1,0 +1,49 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-v3.test.ts (10 tests | 1 failed) 120ms
+   × allows disabling project memory after a selected source conversation becomes ineligible 7ms
+ ❯ tests/memory-forget-v3.test.ts (6 tests | 1 failed) 50ms
+   × reopens physical purge when a replay restores only an excluded source snapshot 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > reopens physical purge when a replay restores only an excluded source snapshot
+AssertionError: expected 'COMPLETE' to be 'PENDING' // Object.is equality
+
+Expected: "PENDING"
+Received: "COMPLETE"
+
+ ❯ tests/memory-forget-v3.test.ts:90:61
+     88|   expect(f.memory.sourceAvailable(f.access, f.ref)).toBe(false);
+     89|   expect(f.memory.accepted(f.access)).toEqual([]);
+     90|   expect(f.memory.read(f.access).tombstones[0].purgeStatus).toBe('PEND…
+       |                                                             ^
+     91|   expect(f.memory.purge(afterRetention)).toBe(1);
+     92|   expect(f.store.get('projectMemorySource', sourceKey)).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/project-memory-v3.test.ts > allows disabling project memory after a selected source conversation becomes ineligible
+HarnessError: Choose explicit source conversations in this project and account.
+ ❯ fail packages/core/project-memory.ts:19:72
+     17| const stamp = () => new Date().toISOString();
+     18| const sha256 = (text: string) => createHash('sha256').update(text, 'ut…
+     19| function fail(message: string, code = 'INVALID_MEMORY'): never { throw…
+       |                                                                        ^
+     20|
+     21| /** This detector is a publication guard, never a claim that arbitrary…
+ ❯ packages/core/project-memory.ts:198:210
+ ❯ Store.commit packages/storage/store.ts:128:16
+ ❯ Store.command packages/storage/store.ts:119:31
+ ❯ ProjectMemory.review packages/core/project-memory.ts:192:23
+ ❯ Object.act tests/project-memory-fixture.ts:21:81
+ ❯ tests/project-memory-v3.test.ts:115:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 14 passed (16)
+   Start at  18:41:28
+   Duration  924ms (transform 269ms, setup 0ms, import 446ms, tests 170ms, environment 0ms)

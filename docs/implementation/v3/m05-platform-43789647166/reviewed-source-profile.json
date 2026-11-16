@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_REVIEW_ONLY_NO_EXECUTION_ADMISSION",
+  "createdAt": "2026-11-16T02:05:44.879855+00:00",
+  "method": "New source-only profile from an explicitly approved immutable-cut review. Every fixed source was read from the exact Git commit. No installed execution or admission is asserted.",
+  "reviewedSourceHeadSha": "299aa79fce281bacc370bd76373f760082046941",
+  "requiredPaths": [
+    ".github/actions/setup/action.yml",
+    ".github/workflows/ci.yml",
+    "apps/desktop/main.ts",
+    "apps/desktop/memory-export.ts",
+    "apps/desktop/preload.ts",
+    "apps/desktop/window-policy.ts",
+    "apps/web/src/DesktopEntry.tsx",
+    "apps/web/src/ProjectMemoryReview.tsx",
+    "apps/web/src/project-memory-api.ts",
+    "package.json",
+    "packages/contracts/project-memory.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/project-memory.ts",
+    "packages/core/security.ts",
+    "packages/desktop-contract/index.ts",
+    "packages/storage/store.ts",
+    "pnpm-lock.yaml",
+    "scripts/desktop-assets.ts",
+    "scripts/installed-memory-retention.ts",
+    "scripts/installed-native-save.ts",
+    "scripts/integration-assets.ts",
+    "scripts/integration_python_projection.py",
+    "scripts/package-desktop.ts",
+    "scripts/portable-verification.ts",
+    "scripts/public-source-files.json",
+    "scripts/verify-installed-desktop.ts",
+    "scripts/verify-packaged-providers.ts",
+    "tests/desktop-memory-export.test.ts",
+    "tests/desktop-native.test.ts",
+    "tests/desktop-preload-accounts.test.ts",
+    "tests/installed-desktop-verification.test.ts",
+    "tests/installed-native-save.test.ts",
+    "tests/memory-export-client-v3.test.ts",
+    "third-party/integrations/PYTHON_LOCK.json"
+  ],
+  "reviewedSemanticSources": {
+    ".github/actions/setup/action.yml": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+    ".github/workflows/ci.yml": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+    "apps/desktop/main.ts": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+    "apps/desktop/memory-export.ts": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+    "apps/desktop/preload.ts": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0",
+    "apps/desktop/window-policy.ts": "fe3614c9240458235cc73f5405466f9f3b552e2251419659c6acd66fbc555b63",
+    "apps/web/src/DesktopEntry.tsx": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+    "apps/web/src/ProjectMemoryReview.tsx": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+    "apps/web/src/project-memory-api.ts": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+    "package.json": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+    "packages/contracts/project-memory.ts": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9",
+    "packages/core/capability-flags.ts": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+    "packages/core/project-memory.ts": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+    "packages/core/security.ts": "286df9991313997e0edc13fb1478ad095339ff93f8efe5448a28f71a500d7946",
+    "packages/desktop-contract/index.ts": "d9bf1bd40368aa1802c65f6d6c98b5fab4c7623614ee037572a302bd10d41188",
+    "packages/storage/store.ts": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+    "pnpm-lock.yaml": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+    "scripts/desktop-assets.ts": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+    "scripts/installed-memory-retention.ts": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+    "scripts/installed-native-save.ts": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+    "scripts/integration-assets.ts": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f",
+    "scripts/integration_python_projection.py": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f",
+    "scripts/package-desktop.ts": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+    "scripts/portable-verification.ts": "f1f99d50757724ed0e2f7d9e5ab362dc017fa315337fa5e648dd1cde7126a953",
+    "scripts/public-source-files.json": "d79a2a2d34917a9298ac5c89b6308596087f1f87c08ebd27a4eb75cac5607f2f",
+    "scripts/verify-installed-desktop.ts": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+    "scripts/verify-packaged-providers.ts": "5b0ec074f333c9e6dfec8c075f150ce38966cc0bea518c3432022690c929ccee",
+    "tests/desktop-memory-export.test.ts": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f",
+    "tests/desktop-native.test.ts": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+    "tests/desktop-preload-accounts.test.ts": "4e91d70bd57bb73eba9fd87e5382207ecfac02fa5145ab3788de422da9e83fef",
+    "tests/installed-desktop-verification.test.ts": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+    "tests/installed-native-save.test.ts": "416bcfb37dc1827a3d18ce8b0be408f3f0cf00a305df189d61d6eab7d128d080",
+    "tests/memory-export-client-v3.test.ts": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8",
+    "third-party/integrations/PYTHON_LOCK.json": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+  },
+  "expectedObservationOrder": [
+    [
+      1,
+      "installed-default-off-read"
+    ],
+    [
+      1,
+      "exact-pinned-source"
+    ],
+    [
+      1,
+      "review-edit-accept-reject"
+    ],
+    [
+      1,
+      "rejected-record-retained"
+    ],
+    [
+      1,
+      "explicit-redacted-export"
+    ],
+    [
+      1,
+      "forget-tombstone"
+    ],
+    [
+      1,
+      "review-command-observation"
+    ],
+    [
+      1,
+      "post-exit-storage"
+    ],
+    [
+      2,
+      "installed-default-off-read"
+    ],
+    [
+      2,
+      "restart-retained-review"
+    ],
+    [
+      2,
+      "restart-tombstone"
+    ],
+    [
+      2,
+      "review-command-observation"
+    ],
+    [
+      2,
+      "post-exit-storage"
+    ]
+  ],
+  "nativeSavePhases": [
+    "ready",
+    "dialog-found",
+    "file-name-set",
+    "save-invoked",
+    "dialog-closed",
+    "target-released"
+  ],
+  "fixture": {
+    "projectId": "installed-memory-project",
+    "threadId": "installed-memory-thread",
+    "initialText": "Use UTC for installed retention reports.",
+    "editedText": "Use ISO 8601 UTC dates for installed retention reports.",
+    "sourceText": "Pinned source: use UTC for installed retention reports.\n<script>window.installedMemorySourceExecuted=true</script>",
+    "acceptText": "Keep the installed retention checklist with the project.",
+    "rejectText": "Proposed: publish the disposable retention checklist globally.",
+    "sensitiveText": "Private disposable retention note: keep the amber launch schedule local."
+  },
+  "sourceAssertedNotSerialized": [
+    {
+      "claim": "Each launch uses a fresh random nonce and checks it with Browser.getBrowserCommandLine; exact executable and main surface are checked after connection and again for page custody.",
+      "retained": "verifiedOwner, pid, executable, ports and main-page observations",
+      "notRetained": "Full nonce and browser argv are not serialized.",
+      "source": "scripts/verify-installed-desktop.ts; scripts/portable-verification.ts"
+    },
+    {
+      "claim": "Clean exit signal is null and the owned backend health endpoint has stopped before post-exit Store reads and the completed launch row.",
+      "retained": "exitCode, passed and ordered post-exit-storage row",
+      "notRetained": "Launch signalCode and individual health responses are not serialized.",
+      "source": "scripts/verify-installed-desktop.ts"
+    },
+    {
+      "claim": "The same evidence directory/profile is physically revalidated before each launch/action/readback and after exit.",
+      "retained": "Seed dev/ino/path identities; native destination identity; samePhysicalProfile",
+      "notRetained": "A second independent filesystem snapshot is not part of the artifact.",
+      "source": "scripts/installed-memory-retention.ts; scripts/installed-native-save.ts"
+    },
+    {
+      "claim": "Native Save worker closes with code zero and no signal only after six ordered stages and the release handshake following production saved acknowledgement/readback.",
+      "retained": "Six native Save phases, process ticks, HWND, PID, saved bytes/digest and lease-held boolean",
+      "notRetained": "Worker exit/signal and exact UIA control success objects are source-asserted, not separately serialized.",
+      "source": "scripts/installed-native-save.ts; scripts/installed-memory-retention.ts"
+    },
+    {
+      "claim": "Main-owned export admission requires exact live main frame, trusted origin, contents, data URL, filename, one-use grant and terminal native completion byte count.",
+      "retained": "admitted=true and saved completion filename/bytes/digest",
+      "notRetained": "Full frame/origin/URL grant is intentionally not serialized.",
+      "source": "apps/desktop/memory-export.ts; apps/desktop/main.ts"
+    },
+    {
+      "claim": "Full installed file manifest equals the expected unpacked payload, with only the two documented installer-owned extras excluded.",
+      "retained": "Matching complete inventory counts, aggregate bytes and SHA256",
+      "notRetained": "The full installed file list and installed payload bytes are not uploaded.",
+      "source": "scripts/verify-installed-desktop.ts"
+    },
+    {
+      "claim": "Post-exit storage asserts the edited text, rejected review decision, tombstone and null model/account/active run; usage/modelRequests are empty.",
+      "retained": "Post-exit zero counts, flags and samePhysicalProfile",
+      "notRetained": "A raw profile database is not uploaded.",
+      "source": "scripts/installed-memory-retention.ts"
+    }
+  ],
+  "sourceReview": {
+    "path": "/workspace/scratch/36f66011d961/M05-installed-source-review-299aa79f.json",
+    "bytes": 32978,
+    "sha256": "4db778c7466a3e70daf71dc219255d280eccc53d8f0afc6ccc676864c634ac14",
+    "gitBlobSha": "14a91594a23470d1c58e042ac3c266a60af723a0"
+  },
+  "priorProfile": {
+    "bytes": 10418,
+    "sha256": "9ba194493ec490ddce5d475df4de2daa9f35020260d60c9aafcbe7e6ffcfea1b",
+    "gitBlobSha": "e7a619894c4fb591193535256a7d5ff5a0bbe872"
+  }
+}

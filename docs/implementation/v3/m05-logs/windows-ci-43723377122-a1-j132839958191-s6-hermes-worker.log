@@ -1,0 +1,33 @@
+2026-11-15T14:17:15.3248650Z ##[group]Run python -I -S -B tests/hermes_source_worker.py -v
+2026-11-15T14:17:15.3249134Z python -I -S -B tests/hermes_source_worker.py -v
+2026-11-15T14:17:15.3308964Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T14:17:15.3309257Z env:
+2026-11-15T14:17:15.3309490Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:17:15.3309821Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:15.3310220Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:17:15.3310576Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:15.3310900Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:15.3311205Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:15.3311565Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:17:15.3311904Z ##[endgroup]
+2026-11-15T14:17:20.1946606Z test_actual_source_steering_ticket_reaches_a_model_request (__main__.WorkerFixture.test_actual_source_steering_ticket_reaches_a_model_request) ... ok
+2026-11-15T14:17:22.8776328Z test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies (__main__.WorkerFixture.test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies) ... ok
+2026-11-15T14:17:27.7337034Z test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate (__main__.WorkerFixture.test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate) ... ok
+2026-11-15T14:17:32.5426473Z test_current_host_protection_applies_to_an_ordinary_declared_name_alias (__main__.WorkerFixture.test_current_host_protection_applies_to_an_ordinary_declared_name_alias) ... ok
+2026-11-15T14:17:35.2447342Z test_expected_source_state_refuses_stale_user_write (__main__.WorkerFixture.test_expected_source_state_refuses_stale_user_write) ... ok
+2026-11-15T14:17:37.9144518Z test_explicit_user_save_applies_when_model_write_approval_is_enabled (__main__.WorkerFixture.test_explicit_user_save_applies_when_model_write_approval_is_enabled) ... ok
+2026-11-15T14:17:40.8746213Z test_host_controls_pin_original_curator_and_preserve_existing_pin (__main__.WorkerFixture.test_host_controls_pin_original_curator_and_preserve_existing_pin) ... ok
+2026-11-15T14:17:43.4093047Z test_linked_skill_node_is_rejected_before_source_writes (__main__.WorkerFixture.test_linked_skill_node_is_rejected_before_source_writes) ... ok
+2026-11-15T14:17:47.9071370Z test_original_approval_store_replays_only_after_user_decides (__main__.WorkerFixture.test_original_approval_store_replays_only_after_user_decides) ... ok
+2026-11-15T14:17:51.5397019Z test_original_atomic_batch_fuzzy_patch_and_ledger_rollback (__main__.WorkerFixture.test_original_atomic_batch_fuzzy_patch_and_ledger_rollback) ... ok
+2026-11-15T14:17:56.9152462Z test_original_curator_consolidation_reads_then_patches_an_eligible_skill (__main__.WorkerFixture.test_original_curator_consolidation_reads_then_patches_an_eligible_skill) ... ok
+2026-11-15T14:18:01.4468089Z test_original_summary_compaction_executes_with_the_retained_dependency_subset (__main__.WorkerFixture.test_original_summary_compaction_executes_with_the_retained_dependency_subset) ... ok
+2026-11-15T14:18:06.0410693Z test_parent_instance_and_source_iteration_counter_survive_turns (__main__.WorkerFixture.test_parent_instance_and_source_iteration_counter_survive_turns) ... ok
+2026-11-15T14:18:10.5023063Z test_real_engine_creates_skill_with_full_frontmatter (__main__.WorkerFixture.test_real_engine_creates_skill_with_full_frontmatter) ... ok
+2026-11-15T14:18:14.9274056Z test_source_cancel_waits_for_actual_turn_settlement (__main__.WorkerFixture.test_source_cancel_waits_for_actual_turn_settlement) ... ok
+2026-11-15T14:18:23.2182657Z test_ten_plain_iterations_launch_the_original_review_fork (__main__.WorkerFixture.test_ten_plain_iterations_launch_the_original_review_fork) ... ok
+2026-11-15T14:18:23.2184993Z 
+2026-11-15T14:18:23.2185249Z ----------------------------------------------------------------------
+2026-11-15T14:18:23.2185572Z Ran 16 tests in 67.559s
+2026-11-15T14:18:23.2185700Z 
+2026-11-15T14:18:23.2185779Z OK

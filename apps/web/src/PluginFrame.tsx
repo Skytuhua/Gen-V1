@@ -14,8 +14,9 @@ function readPluginPresentation(pluginId:string):{introDismissed:boolean} {
 export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${props.workspace?.id??'conversation'}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
 function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColors={},onReady,reload}:PluginFrameProps&{reload:()=>void}) {
   const desktop=useDesktop();
-  const desktopCurrent=useRef(desktop),readyCurrent=useRef(onReady);desktopCurrent.current=desktop;readyCurrent.current=onReady;
-  const presentationCurrent=useRef({active,projectColors});presentationCurrent.current={active,projectColors};
+  const desktopCurrent=useRef(desktop),readyCurrent=useRef(onReady);
+  const presentationCurrent=useRef({active,projectColors});
+  useLayoutEffect(()=>{desktopCurrent.current=desktop;readyCurrent.current=onReady;presentationCurrent.current={active,projectColors};});
   const uiPresentation=useRef(readPluginPresentation(plugin.id));
   const frame=useRef<HTMLIFrameElement>(null),[session]=useState(()=>crypto.randomUUID()),[initialTheme]=useState(theme),[error,setError]=useState('');
   const pending=useRef(new Map<string,AbortController>()),flushes=useRef(new Map<string,{resolve:()=>void;reject:()=>void;timer:ReturnType<typeof setTimeout>}>());
@@ -28,7 +29,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
   const revoke=()=>{revoked.current=true;bridge.current?.close();bridge.current=null;for(const controller of pending.current.values())controller.abort();pending.current.clear();pendingData.current.clear();for(const item of flushes.current.values()){clearTimeout(item.timer);item.reject();}flushes.current.clear();};
   const unavailable=()=>{revoke();setError('This plug-in view changed unexpectedly. Reload the plug-in to reconnect. Saved work is retained.');};
   const focused=useRef<{target:PluginSurface;id:string}|null>(null),focusSurface=desktop?.state.focusSurface;
-  if(!surface&&focusSurface?.kind==='plugin'&&focusSurface.pluginId===plugin.id){if(focused.current?.target!==focusSurface)focused.current={target:focusSurface,id:crypto.randomUUID()};}else focused.current=null;
+  useLayoutEffect(()=>{if(!surface&&focusSurface?.kind==='plugin'&&focusSurface.pluginId===plugin.id){if(focused.current?.target!==focusSurface)focused.current={target:focusSurface,id:crypto.randomUUID()};}else focused.current=null;},[surface,focusSurface,plugin.id]);
   const sendFocusedSurface=()=>{const focus=focused.current;if(focus)bridge.current?.postMessage({type:'gen.plugin.focus-surface',session,id:focus.id,surface:focus.target});};
   const flush=async()=>{
     if(!bridge.current||revoked.current)throw Error('The plug-in could not confirm saved state.');
@@ -40,7 +41,12 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
   useEffect(()=>{sendPresentation();const changed=()=>sendPresentation();document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[active,projectColors,session]);
   useEffect(()=>{bridge.current?.postMessage({type:'gen.plugin.state-changed',session});},[desktop?.state.windows,session]);
   useEffect(()=>{sendFocusedSurface();},[focusSurface,plugin.id,session]);
+  const disconnect=useRef<{frame:HTMLIFrameElement;close:()=>void}|null>(null);
+  // Suspense can disconnect effects while retaining the same connected document.
+  useEffect(()=>()=>{const owner=disconnect.current;if(owner&&!owner.frame.isConnected){owner.close();disconnect.current=null;}},[]);
   useLayoutEffect(()=>{
+    if(disconnect.current)return;
+    const documentFrame=frame.current;if(!documentFrame)return;
     let alive=true;
     // React may replay an initial effect before the child can execute. That
     // replay must not disable the first connection; a document that has ever
@@ -97,7 +103,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
       sendPresentation();
     };
     addEventListener('message',connect);
-    return()=>{alive=false;removeEventListener('message',connect);revoke();};
+    disconnect.current={frame:documentFrame,close:()=>{alive=false;removeEventListener('message',connect);revoke();}};
   },[plugin.id,session]);
   return <section className="plugin-workspace" aria-label={workspace?.title??plugin.name} hidden={!active}>{!surface&&!workspace&&<header className="workspace-header plugin-native-header"><strong>{plugin.name}</strong><DesktopWindowActions/></header>}{error&&<p className="notice" role="alert">{error}{revoked.current?<button className="quiet" onClick={reload}>Reload plug-in</button>:<><button className="quiet" onClick={()=>bridge.current?.postMessage({type:'gen.plugin.retry-saves',session})}>Retry saving drafts</button><button className="quiet" onClick={()=>setError('')}>Dismiss</button></>}</p>}<iframe ref={frame} title={workspace?.title??plugin.name} src={pluginFrameSource(plugin.id,session,initialTheme,surface,workspace)} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={()=>{if(loaded.current||!bridge.current||revoked.current){unavailable();return;}loaded.current=true;bridge.current.postMessage({type:'gen.plugin.theme',session,theme});}}/></section>;
 }

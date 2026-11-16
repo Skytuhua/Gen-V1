@@ -1,0 +1,218 @@
+diff --git a/packages/core/file-access.ts b/packages/core/file-access.ts
+index 8a48338b..32cdaaf7 100644
+--- a/packages/core/file-access.ts
++++ b/packages/core/file-access.ts
+@@ -9,19 +9,24 @@ import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectM
+ 
+ type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
+ export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
+-interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
++interface GuardSession { rpc(request: Record<string, unknown>, startupAcquisition?: boolean): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
+ const sessions = new AsyncLocalStorage<GuardSession>();
+ const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
++// A cold, app-owned Hermes guard may need PowerShell startup and C# initialization.
++// Extend only its first acquire, not unrelated reads, writes, or lease releases.
++export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean): number {
++  return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
++}
+ function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
+ 
+ /** Application-scoped namespace guard; never an OS sandbox for project code. */
+-export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void): Promise<T> {
++export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void,options?:{startupAcquisition?:boolean}): Promise<T> {
+   if(paths.some(path=>path.allowChildWrites&&path.leaf&&!path.childWriteRoot))throw new HarnessError('CAPABILITY_DENIED','A pinned file requires an explicit ancestor write scope.');
+   active(signal);
+   const session = sessions.getStore();
+   if (session) {
+     const id = randomUUID();
+-    const manifest = await session.rpc({ command: "acquire", id, paths });
++    const manifest = await session.rpc({ command: "acquire", id, paths },options?.startupAcquisition===true);
+     if(onLoss)session.loss.add(onLoss);
+     try { active(signal); const value = await action(manifest); if (session.exited) throw denied(); return value; }
+     finally { if(onLoss)session.loss.delete(onLoss);if (!session.exited) await session.rpc({ command: "release", id }); }
+@@ -44,16 +49,12 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal,
+   child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
+   const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
+   let queue = Promise.resolve();
+-  let initializing = true;
+-  current.rpc = request => {
++  current.rpc = (request,startupAcquisition=false) => {
+     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
+       if (current.exited) return reject(denied());
+       let output = "";
+       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
+-      // The first acquisition includes cold PowerShell/C# startup; later operations retain their own deadline.
+-      const timeoutMs = metadataImport ? 120_000 : initializing ? 45_000 : 15_000;
+-      initializing = false;
+-      const timer = setTimeout(() => finish(denied()), timeoutMs);
++      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition));
+       const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
+       const data = (bytes: string) => {
+         output += bytes;
+@@ -79,7 +80,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal,
+   const onError = () => {}; child.stdin.on("error", onError);
+   try {
+     child.stderr.resume();
+-    const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths });
++    const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths },options?.startupAcquisition===true);
+     active(signal); if (current.exited) throw denied();
+     const value = await sessions.run(current, () => action(manifest));
+     if (current.exited) throw denied();
+diff --git a/packages/runtime-hermes/home.ts b/packages/runtime-hermes/home.ts
+index 3040eb84..7179d1d8 100644
+--- a/packages/runtime-hermes/home.ts
++++ b/packages/runtime-hermes/home.ts
+@@ -23,5 +23,5 @@ export async function withHermesHome<T>(home:string,action:()=>Promise<T>,onLoss
+   await assertHermesTree(home);
+   const roots=[home];for(const name of ['skills','sessions','workspace','.curator_backups']){const path=join(home,name);try{await mkdir(path,{mode:0o700});}catch(error){if((error as NodeJS.ErrnoException).code!=='EEXIST')throw error;}roots.push(path);}
+   return withPathGuard(roots.map(path=>({path,leaf:false,allowChildWrites:true,childWriteRoot:parent})),signal,async()=>{await assertHermesTree(home);return action();});
+- },onLoss);
++ },onLoss,{startupAcquisition:true});
+ }
+diff --git a/tests/file-access-startup.test.ts b/tests/file-access-startup.test.ts
+index a6ac4be2..1db3faf1 100644
+--- a/tests/file-access-startup.test.ts
++++ b/tests/file-access-startup.test.ts
+@@ -1,7 +1,7 @@
+ import { EventEmitter } from 'node:events';
+ import { PassThrough, Writable } from 'node:stream';
+ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+-import { withPathGuard } from '../packages/core/file-access.ts';
++import { withPathGuard, type GuardEntry } from '../packages/core/file-access.ts';
+ 
+ const spawn = vi.hoisted(() => vi.fn());
+ vi.mock('node:child_process', async original => ({ ...await original<typeof import('node:child_process')>(), spawn }));
+@@ -34,6 +34,7 @@ function guard() {
+ }
+ const path = { path: 'C:\\owned\\host', leaf: false, allowChildWrites: true, childWriteRoot: 'C:\\owned\\host' };
+ const signal = () => new AbortController().signal;
++const startupGuard = <T>(paths: Parameters<typeof withPathGuard>[0], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>) => withPathGuard(paths, signal, action, undefined, { startupAcquisition: true });
+ function observe<T>(operation: Promise<T>) {
+   let settled = false;
+   const result = operation.then(value => ({ value, error: undefined }), error => ({ value: undefined, error })).finally(() => { settled = true; });
+@@ -42,7 +43,7 @@ function observe<T>(operation: Promise<T>) {
+ 
+ it('admits a valid first acquisition after the observed cold-start delay and closes its guard', async () => {
+   const g = guard(), action = vi.fn(async () => 'guarded');
+-  const observed = observe(withPathGuard([path], signal(), action));
++  const observed = observe(startupGuard([path], signal(), action));
+   await vi.advanceTimersByTimeAsync(31_944);
+   expect(action).not.toHaveBeenCalled();
+   expect(observed.settled()).toBe(false);
+@@ -55,7 +56,7 @@ it('admits a valid first acquisition after the observed cold-start delay and clo
+ 
+ it('denies a silent first acquisition at its bounded startup deadline without entering the action', async () => {
+   const g = guard(), action = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], signal(), action));
++  const observed = observe(startupGuard([path], signal(), action));
+   await vi.advanceTimersByTimeAsync(44_999);
+   expect(observed.settled()).toBe(false);
+   await vi.advanceTimersByTimeAsync(1);
+@@ -64,9 +65,9 @@ it('denies a silent first acquisition at its bounded startup deadline without en
+   expect(g.child.stdin.writableEnded).toBe(true);
+ });
+ 
+-it('keeps the later acquisition deadline at fifteen seconds after a slow successful startup', async () => {
++it('ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds', async () => {
+   const g = guard(), nested = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], signal(), () => withPathGuard([path], signal(), nested)));
++  const observed = observe(startupGuard([path], signal(), () => startupGuard([path], signal(), nested)));
+   await vi.advanceTimersByTimeAsync(31_944);
+   g.reply(0);
+   await vi.advanceTimersByTimeAsync(0);
+@@ -74,6 +75,7 @@ it('keeps the later acquisition deadline at fifteen seconds after a slow success
+   await vi.advanceTimersByTimeAsync(14_999);
+   expect(observed.settled()).toBe(false);
+   await vi.advanceTimersByTimeAsync(1);
++  expect(observed.settled()).toBe(true);
+   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+   expect(nested).not.toHaveBeenCalled();
+   expect(g.child.stdin.writableEnded).toBe(true);
+@@ -81,7 +83,7 @@ it('keeps the later acquisition deadline at fifteen seconds after a slow success
+ 
+ it('keeps the later release deadline at fifteen seconds', async () => {
+   const g = guard(), nested = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], signal(), () => withPathGuard([path], signal(), nested)));
++  const observed = observe(startupGuard([path], signal(), () => startupGuard([path], signal(), nested)));
+   await vi.advanceTimersByTimeAsync(0); g.reply(0);
+   await vi.advanceTimersByTimeAsync(0); g.reply(1);
+   await vi.advanceTimersByTimeAsync(0);
+@@ -96,7 +98,7 @@ it('keeps the later release deadline at fifteen seconds', async () => {
+ 
+ it('preserves the separately bounded metadata import deadline', async () => {
+   const g = guard(), action = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([{ ...path, tree: true, readOnly: true, gitMetadataImport: true }], signal(), action));
++  const observed = observe(startupGuard([{ ...path, tree: true, readOnly: true, gitMetadataImport: true }], signal(), action));
+   await vi.advanceTimersByTimeAsync(119_999);
+   expect(observed.settled()).toBe(false);
+   await vi.advanceTimersByTimeAsync(1);
+@@ -107,7 +109,7 @@ it('preserves the separately bounded metadata import deadline', async () => {
+ 
+ it('still denies a mismatched first response immediately', async () => {
+   const g = guard(), action = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], signal(), action));
++  const observed = observe(startupGuard([path], signal(), action));
+   await vi.advanceTimersByTimeAsync(0);
+   g.child.stdout.write('wrong-request-id\n');
+   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+@@ -117,7 +119,7 @@ it('still denies a mismatched first response immediately', async () => {
+ 
+ it('still denies native acquisition failure immediately and retains its numeric code', async () => {
+   const g = guard(), action = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], signal(), action));
++  const observed = observe(startupGuard([path], signal(), action));
+   await vi.advanceTimersByTimeAsync(0);
+   g.child.stderr.write('GUARD_NATIVE_ERROR:32\n'); g.close(1);
+   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED', details: { nativeCode: '32' } });
+@@ -127,10 +129,21 @@ it('still denies native acquisition failure immediately and retains its numeric
+ 
+ it('does not enter the action if cancelled while waiting for a valid startup reply', async () => {
+   const g = guard(), controller = new AbortController(), action = vi.fn(async () => undefined);
+-  const observed = observe(withPathGuard([path], controller.signal, action));
++  const observed = observe(startupGuard([path], controller.signal, action));
+   await vi.advanceTimersByTimeAsync(31_944);
+   controller.abort(); g.reply(0);
+   expect((await observed.result).error).toMatchObject({ code: 'CANCELLED' });
+   expect(action).not.toHaveBeenCalled();
+   expect(g.child.stdin.writableEnded).toBe(true);
+ });
++
++it('keeps unrelated first acquisitions at fifteen seconds', async () => {
++  const g = guard(), action = vi.fn(async () => undefined);
++  const observed = observe(withPathGuard([path], signal(), action));
++  await vi.advanceTimersByTimeAsync(14_999);
++  expect(observed.settled()).toBe(false);
++  await vi.advanceTimersByTimeAsync(1);
++  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
++  expect(action).not.toHaveBeenCalled();
++  expect(g.child.stdin.writableEnded).toBe(true);
++});
+diff --git a/tests/path-access.test.ts b/tests/path-access.test.ts
+index e89ff07f..b823cebc 100644
+--- a/tests/path-access.test.ts
++++ b/tests/path-access.test.ts
+@@ -7,7 +7,7 @@ import { Store } from "../packages/storage/store.ts";
+ import { Service } from "../packages/core/service.ts";
+ import { buildServer } from "../apps/server/server.ts";
+ import type { RuntimeAdapter, ResourceGrant, Thread, Operation } from "../packages/contracts/index.ts";
+-import { withResourceGrant, readBoundFile, withPathGuard, replaceOwnedFile, removeOwnedFile } from "../packages/core/file-access.ts";
++import { withResourceGrant, readBoundFile, withPathGuard, pathGuardRpcDeadline, replaceOwnedFile, removeOwnedFile } from "../packages/core/file-access.ts";
+ import { handleDomainTool, executeDomainOperation, type DomainContext } from "../packages/capabilities/index.ts";
+ import { stat } from "node:fs/promises";
+ import { DatabaseSync } from "node:sqlite";
+@@ -34,6 +34,15 @@ vi.mock("node:worker_threads", async importOriginal => {
+   } };
+ });
+ 
++it('bounds only the cold source guard acquire without extending ordinary or release RPCs',()=>{
++  expect(pathGuardRpcDeadline('acquire',false,false)).toBe(15_000);
++  expect(pathGuardRpcDeadline('acquire',false,true)).toBe(45_000);
++  expect(pathGuardRpcDeadline('release',false,true)).toBe(15_000);
++  expect(pathGuardRpcDeadline('removeOwned',false,true)).toBe(15_000);
++  expect(pathGuardRpcDeadline('acquire',true,true)).toBe(120_000);
++  expect(pathGuardRpcDeadline('acquire',true,false)).toBe(120_000);
++});
++
+ const cleanups: (() => Promise<void>)[] = [];
+ afterEach(async () => { race.beforeWorker = undefined; race.beforeGit = undefined; vi.restoreAllMocks(); for (const clean of cleanups.splice(0).reverse()) await clean(); });
+ async function fixture() {

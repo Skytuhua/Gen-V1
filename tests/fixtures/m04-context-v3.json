@@ -1,0 +1,47 @@
+{
+  "kind": "synthetic-acceptance-vectors",
+  "compiler": {
+    "stablePrefix": ["host-policy@1", "approved-tool-registry@2"],
+    "sourceCuts": [[1, 2, 3], [1, 2, 3, 4, 5], [1, 2]],
+    "expectedReads": [[1, 2, 3], [4, 5], [1, 2]],
+    "mustRebuildOn": ["owner", "account", "workspace", "model", "generation", "instructionDigest", "toolRegistryDigest"],
+    "unicode": {"value": "Aé漢🙂", "utf8Bytes": 10, "tokens": null, "measurement": "BYTE_ONLY"},
+    "unknownNativeContext": {"label": "OPAQUE_NATIVE_CONTEXT", "mayInferRoles": false}
+  },
+  "tools": {
+    "catalogSizes": [100, 500],
+    "initialVisible": ["discover", "describe"],
+    "describeNextRequestOnly": true,
+    "measure": "UTF8_SCHEMA_BYTES",
+    "preserveHiddenInAllModes": true,
+    "maxConcurrentReadOnlyCalls": 4
+  },
+  "results": {
+    "prefix": "BEGIN\n",
+    "fill": "λ",
+    "fillCount": 600000,
+    "suffix": "\nEND",
+    "expectedBytes": 1200010,
+    "previewCapBytes": 16384,
+    "rangeCapBytes": 1048576,
+    "maxContextReferences": 8,
+    "combinedPreviewCapBytes": 65536,
+    "scenarios": ["exact-authorized-range", "expired-unavailable", "deleted-unavailable", "write-failed-full-result-unavailable"]
+  },
+  "budget": {
+    "observedInputTokens": 8000,
+    "cacheReadSubsetTokens": 5000,
+    "newUnreportedToolTokens": 4000,
+    "reservedOutputTokens": 2000,
+    "expectedNextRequiredTokens": 14000,
+    "completeTurnRequestsCompaction": false
+  },
+  "compaction": {
+    "keep": ["unresolved-requirement", "decision", "pending-approval-reference", "active-work", "source-evidence-pointer", "recent-user-verbatim"],
+    "toolPairs": [{"call": "call-2", "result": "result-2"}],
+    "invalidateOn": ["source-cut", "generation", "model", "account", "workspace", "instructions", "tools", "cancelled", "tail-too-large"],
+    "unsupportedNativeResult": "UNSUPPORTED_COMPACTION",
+    "reviewMode": {"mutatesContext": false, "maxAnalysesPerCut": 1},
+    "failedPrecomputeCountsTowardSpend": true
+  }
+}

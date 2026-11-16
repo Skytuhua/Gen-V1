@@ -81,3 +81,14 @@ it('formats small numeric cells and orders natural text consistently on large ta
     expect(tableCellText(value, { type: 'number' })).toBe(format.format(value));
   }
 });
+
+
+it('finds a numeric cell using either the rendered text or the unformatted number', () => {
+  const columns = [{ key: 'value', label: 'Value', type: 'number' as const }];
+  const rows = [{ value: 1234567 }, { value: 100 }];
+  const displayed = tableCellText(rows[0]!.value, columns[0]!);
+  expect(displayed).not.toBe('1234567');
+  for (const query of [displayed, '1234567']) {
+    expect(tableView(rows, columns, query, null).map(row => row.index)).toEqual([0]);
+  }
+});

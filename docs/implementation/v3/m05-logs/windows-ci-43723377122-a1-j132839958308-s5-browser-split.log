@@ -1,0 +1,77 @@
+2026-11-15T14:17:17.5251952Z ##[group]Run pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-15T14:17:17.5252725Z pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-15T14:17:17.5310318Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T14:17:17.5310633Z env:
+2026-11-15T14:17:17.5310861Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:17:17.5311232Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:17.5311602Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:17:17.5311965Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:17.5312288Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:17.5312626Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:17:17.5313023Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:17:17.5313338Z   GEN_SPLIT_RENDERER_BROWSER: 1
+2026-11-15T14:17:17.5313545Z   GEN_SPLIT_APP_BROWSER: 1
+2026-11-15T14:17:17.5313740Z ##[endgroup]
+2026-11-15T14:17:18.4310540Z 
+2026-11-15T14:17:18.4312808Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T14:17:18.4313293Z 
+2026-11-15T14:18:26.1865126Z  ❯ tests/split-app-browser.test.ts (19 tests | 1 failed) 66308ms
+2026-11-15T14:18:26.1866256Z      × keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload 13793ms
+2026-11-15T14:18:26.1867455Z      ✓ embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)  6569ms
+2026-11-15T14:18:26.1869000Z      ✓ places a sidebar thread into a spatial edge target without duplicating its composer  1650ms
+2026-11-15T14:18:26.1871034Z      ✓ uses one canonical plan in the overview and detailed pane with actual companion sections  2813ms
+2026-11-15T14:18:26.1872414Z      ✓ starts a new chat in the chosen project while preserving a started pane and its pinned account  2550ms
+2026-11-15T14:18:26.1873539Z      ✓ reconciles an explicitly connected unstarted chat without remounting its composer or changing other saved view owners  4377ms
+2026-11-15T14:18:26.1874401Z      ✓ renders the canonical detailed plan requirements in an explicitly recovered canvas panel  1821ms
+2026-11-15T14:18:26.1875203Z      ✓ keeps a narrow focused composer visible on plan publication until the user opens the full plan  1886ms
+2026-11-15T14:18:26.1876401Z      ✓ reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus  1851ms
+2026-11-15T14:18:26.1877954Z      ✓ saves and applies split layouts while preserving drafts and the retained v1 canvas through explicit recovery  4720ms
+2026-11-15T14:18:26.1879319Z      ✓ uses the exact host save receipt and preserves geometry during name-only Rename  3286ms
+2026-11-15T14:18:26.1880552Z      ✓ shows installed generic workspaces without replacing the personal workspace bar  3015ms
+2026-11-15T14:18:26.1881799Z      ✓ defaults to single-chat view with a top-right workspace panel toggle, hides right popups while open, and removes the split history bar  3753ms
+2026-11-15T14:18:26.1885114Z      ✓ a browser dock shares the tool width budget and preserves chat space  1223ms
+2026-11-15T14:18:26.1886037Z      ✓ selected artifacts stay inside the stacked tool content without replacing their renderer  1169ms
+2026-11-15T14:18:26.1886769Z      ✓ panel bounds retain chat and title bar at drag extremes 1920x1080  1726ms
+2026-11-15T14:18:26.1887413Z      ✓ panel bounds retain chat and title bar at drag extremes 1440x900  1699ms
+2026-11-15T14:18:26.1888015Z      ✓ panel bounds retain chat and title bar at drag extremes 1024x768  1704ms
+2026-11-15T14:18:26.1888610Z      ✓ panel bounds stack tools below chat in a narrow workarea  1200ms
+2026-11-15T14:18:31.8079022Z  ✓ tests/split-workspace-renderer.test.ts (10 tests) 5106ms
+2026-11-15T14:18:31.8080487Z      ✓ uses the shared area menu for keyboard editor selection, Escape and outside dismissal  573ms
+2026-11-15T14:18:31.8081644Z      ✓ keeps editor focus when a pending area action completes  599ms
+2026-11-15T14:18:31.8082622Z      ✓ uses a shared narrow-area chooser without remounting either editor  588ms
+2026-11-15T14:18:31.8083610Z      ✓ does not reopen a menu after responsive layout removes its owning pane  385ms
+2026-11-15T14:18:31.8084724Z      ✓ supports keyboard divider movement and cancels pointer previews without a command  351ms
+2026-11-15T14:18:31.8085862Z      ✓ retains layout when draft flush fails and restores desktop geometry after narrow mode  603ms
+2026-11-15T14:18:31.8086817Z      ✓ moves a dragged tab to the center target and minimizes to a reachable strip  358ms
+2026-11-15T14:18:31.8088165Z      ✓ rejects an incoming conversation that cannot fit its actual minimum  371ms
+2026-11-15T14:18:31.8090851Z      ✓ keeps editor and recovery controls reachable inside a short pane  606ms
+2026-11-15T14:18:31.8112693Z 
+2026-11-15T14:18:31.8113777Z ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+2026-11-15T14:18:31.8114826Z 
+2026-11-15T14:18:31.8118383Z  FAIL  tests/split-app-browser.test.ts > actual App split workspace > keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload
+2026-11-15T14:18:31.8123569Z TimeoutError: page.goto: Timeout 7000ms exceeded.
+2026-11-15T14:18:31.8124168Z Call log:
+2026-11-15T14:18:31.8125028Z   - navigating to "http://127.0.0.1:5598/split-app-check", waiting until "load"
+2026-11-15T14:18:31.8125799Z 
+2026-11-15T14:18:31.8126566Z  ❯ fixture tests/split-app-browser.test.ts:93:14
+2026-11-15T14:18:31.8358905Z 
+2026-11-15T14:18:31.8360015Z  ❯ tests/split-app-browser.test.ts:102:14
+2026-11-15T14:18:31.8360295Z 
+2026-11-15T14:18:31.8361773Z ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+2026-11-15T14:18:31.8361969Z 
+2026-11-15T14:18:31.8364276Z 
+2026-11-15T14:18:31.8368050Z  Test Files  1 failed | 1 passed (2)
+2026-11-15T14:18:31.8368960Z       Tests  1 failed | 28 passed (29)
+2026-11-15T14:18:31.8369389Z    Start at  14:17:18
+2026-11-15T14:18:31.8370610Z    Duration  73.36s (transform 869ms, setup 0ms, import 1.64s, tests 71.41s, environment 0ms)
+2026-11-15T14:18:31.8372156Z 
+2026-11-15T14:18:31.8382965Z 
+2026-11-15T14:18:31.8402255Z ##[error]TimeoutError: page.goto: Timeout 7000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1:5598/split-app-check", waiting until "load"
+
+ ❯ fixture tests/split-app-browser.test.ts:93:14
+ ❯ tests/split-app-browser.test.ts:102:14
+
+
+2026-11-15T14:18:31.9627813Z ##[error]Process completed with exit code 1.

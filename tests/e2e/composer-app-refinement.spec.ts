@@ -27,8 +27,6 @@ async function fixture(page:Page,started=false){
   if(command.type==='workspace.canvas.viewport'){const canvas=envelope.state.canvases.find(value=>value.id===p.canvasId)!;canvas.viewport={x:Number(p.x),y:Number(p.y),zoom:Number(p.zoom)};}
   envelope.state.revision++;return route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:envelope}});
  });
- const splitLayout={version:2,id:'workspace',revision:0,root:{kind:'pane',paneId:'main'},panes:{main:{id:'main',viewIds:[],collapsed:false}},views:{},parkedViewIds:[],focusedPaneId:'main',undoDepth:0,redoDepth:0};
- await page.route('**/api/split-workspace**',route=>route.request().method()==='POST'?route.fulfill({json:{commandId:'split',seq:snapshot.seq,result:splitLayout}}):route.fulfill({json:splitLayout}));
  await page.route('**/api/commands',async route=>{
   const command=route.request().postDataJSON() as HostCommand;commands.push(command);let result:unknown={};
   if(command.type==='thread.mode')snapshot.threads.find(value=>value.id===command.threadId)!.mode=command.payload.mode as Thread['mode'];
@@ -107,7 +105,7 @@ test('chat header omits retired controls while sidebar rename and archive remain
  const header=page.locator('.workspace-header');
  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
  await expect(header.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)|side conversation|project context|thread options/i})).toHaveCount(0);
- await expect(header.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)/i})).toHaveCount(0);
  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();
@@ -130,12 +128,12 @@ test('a ready plan opens automatically and right-side tools can only be minimize
 });
 
 for(const alias of ['btw','side'])test(`/${alias} still sends a side question without a header button`,async({page})=>{
- const host=await fixture(page);
- await expect(page.locator('.side-chat-composer textarea')).toBeEnabled();
- await page.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
- await page.getByRole('button',{name:'Send message',exact:true}).click();
+ const host=await fixture(page),owner=page.locator('[data-split-view="thread:task-thread"]');
+ await expect(owner.locator('.side-chat-composer textarea')).toBeEnabled();
+ await owner.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
+ await owner.getByRole('button',{name:'Send message',exact:true}).click();
  await expect.poll(()=>host.commands.filter(command=>command.type==='message.send').map(command=>({threadId:command.threadId,content:command.payload.content}))).toEqual([{threadId:'side-thread',content:'Explain the next step'}]);
  expect(host.commands.find(command=>command.type==='thread.create')?.payload.sideParentId).toBe('task-thread');
- await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();
- await expect(page.locator('.workspace-header').getByRole('button',{name:'Open side conversation',exact:true})).toHaveCount(0);
+ await expect(owner.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();
+ await expect(owner.locator('.workspace-header').getByRole('button',{name:'Open side conversation',exact:true})).toHaveCount(0);
 });

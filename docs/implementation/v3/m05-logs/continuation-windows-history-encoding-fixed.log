@@ -1,0 +1,8 @@
+test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt) ... ok
+test_cancellation_while_persistence_is_pending_blocks_native_compaction (__main__.NativeCheckpointWorker.test_cancellation_while_persistence_is_pending_blocks_native_compaction) ... ok
+test_persistence_failure_prevents_native_inference_and_preserves_exact_history (__main__.NativeCheckpointWorker.test_persistence_failure_prevents_native_inference_and_preserves_exact_history) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.475s
+
+OK

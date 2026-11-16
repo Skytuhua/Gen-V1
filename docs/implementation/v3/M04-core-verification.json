@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "bundle": "M04-core-dependency",
+  "scope": "Host immutable request custody needed by M05; not full original M04 acceptance",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "reviewedDonorSha": "ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38",
+  "donorPr": 326,
+  "donorUnmodified": true,
+  "flags": {
+    "context.compilerV1": false
+  },
+  "sourceFiles": [
+    {
+      "path": "packages/contracts/index.ts",
+      "sha256": "a5fcd4813b2b4af6a027108d7e253c24c37013e17a9be65731595e5b97f820f5"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "sha256": "6f1dc5669b95a2697aa97df44a3d9c86d48ed15ec23bc75db4f20b257a1d2957"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "sha256": "b521d76771f979dafb9b1cf30aa6c7f74bfce9dc4e231730794df2364339b3be"
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "sha256": "c26065d87202b051faad3564db8d4a7912333496ef9de963b345336abbf1f423"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "sha256": "9811c6e5863c022e6f8854a6e3dbf3eba7a8141e8507d1bcf016633654cc59e2"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "sha256": "2a8d703f2947a725157b76c87b2c3abeb4778415a56433ca4f1cee695cfc5912"
+    },
+    {
+      "path": "tests/context-compiler-v3.test.ts",
+      "sha256": "5ae96021557ff129c2abc99cfcbc7d1a4da996c2f17536800a1a6a736ab98dd9"
+    },
+    {
+      "path": "tests/fixtures/m04-context-v3.json",
+      "sha256": "168349935146152c0e9a75ada69c4251eb324f2067e5ba1dbfda22c743a627c4"
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "sha256": "c798c6dca02c9ae558bab2fbd0082e360fb0ead30713b34895a5338743dde196"
+    }
+  ],
+  "sourceLockDigest": "7ba2a34c99b5dd13bd7146ae0fb2579e1d76a0029c421876d89637098e834dfb",
+  "localResult": "PASS_CORE_DEPENDENCY",
+  "remoteExactHeadCI": "PENDING_PUBLICATION",
+  "originalM04Completion": "NOT_CLAIMED",
+  "independentReview": {
+    "reviewer": "parent/root agent",
+    "observedTests": 35,
+    "result": "No remaining confirmed custody correctness issues reported"
+  },
+  "focusedTests": {
+    "files": 9,
+    "passed": 109,
+    "failed": 0,
+    "commandLog": "docs/implementation/v3/m04-core-logs/core-regression-green.log"
+  },
+  "strictTypecheck": {
+    "result": "PASS",
+    "commandLog": "docs/implementation/v3/m04-core-logs/typecheck-green-final.log"
+  },
+  "commandEvidence": [
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/m01-m02-compatibility.test.ts",
+        "tests/tool-authority-v3.test.ts",
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:19:11.884379+00:00",
+      "endedAt": "2026-11-15T11:19:14.518254+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/base-contracts.log",
+      "logDigest": "d5696b3a8e4798196b75e410b7cca8407ab2f68d78ba06dc4c0b39cb10c32275"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/context-compiler-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:27:37.968216+00:00",
+      "endedAt": "2026-11-15T11:27:38.899285+00:00",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/compiler-red.log",
+      "logDigest": "7f3779cfc21c03ecc8a298ac95fc55fa2b0adb52eb97d74335d00bbb18aa35e6"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:28:44.397830+00:00",
+      "endedAt": "2026-11-15T11:32:47.336510+00:00",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/service-preparation-red.log",
+      "logDigest": "34931cc8bd6f4c47ac891dd1298de49270fcad9b6df11869ed8b7ef38c24efb5"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/context-compiler-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:35:39.075906+00:00",
+      "endedAt": "2026-11-15T11:35:42.316612+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/service-preparation-green-attempt-1.log",
+      "logDigest": "b911685bd06ea27247bdb4708e742153a46cc09060b0331a7ebabefe90c62d90"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:36:47.887909+00:00",
+      "endedAt": "2026-11-15T11:37:21.044270+00:00",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/typecheck-first.log",
+      "logDigest": "c2dd5b94d05b9a52260ec1f9fb533a5b3cc69edc666eb60bdd1c0eabe27f1572"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "-t",
+        "prior native",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:39:35.192853+00:00",
+      "endedAt": "2026-11-15T11:39:37.217565+00:00",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/native-lifecycle-red.log",
+      "logDigest": "513788ab28a10cdbcc11ba1ae4b375fdd12253af973a1e55e3e70e153b5d6970"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/context-compiler-v3.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:41:18.023863+00:00",
+      "endedAt": "2026-11-15T11:41:20.690903+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/bounded-lifecycle-green.log",
+      "logDigest": "69edd40db3f0aabae80223bd221caf895a00a0a4afe152bd4d744d61642b6f92"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/context-compiler-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts",
+        "tests/tool-authority-v3.test.ts",
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts",
+        "tests/service-workspace-admission.test.ts",
+        "tests/accounts.test.ts",
+        "tests/public-source.test.ts",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:42:01.387159+00:00",
+      "endedAt": "2026-11-15T11:42:09.983720+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/core-regression-green.log",
+      "logDigest": "958285cdb43fb19c65ff3a645a8b3bf9671fbd26371bdd6e52b571a2b6e318db"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:42:01.398651+00:00",
+      "endedAt": "2026-11-15T11:42:24.736605+00:00",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/typecheck-green.log",
+      "logDigest": "69b40ef15501d663c403e01d9185ded0b18824bf4d1e9330f4196392aff3ee8d"
+    },
+    {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m04-core-dependency",
+      "executableIdentity": "corepack",
+      "startedAt": "2026-11-15T11:42:57.218275+00:00",
+      "endedAt": "2026-11-15T11:43:20.789823+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m04-core-logs/typecheck-green-final.log",
+      "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": [
+    "Host-owned context bytes only; native/provider context remains opaque",
+    "No live-provider or Windows-native validation claimed locally",
+    "No UI, attachment admission, native compaction CAS, or full M04 bundle acceptance",
+    "Trusted host activation defaults off; no public flag setter or M05-specific behavior"
+  ]
+}

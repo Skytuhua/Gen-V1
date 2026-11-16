@@ -1,0 +1,42 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-host-lifecycle-v3.test.ts (6 tests | 1 failed) 100ms
+   × requires a distinct authenticated project-only confirmation for reusable preferences and retains concurrent corrections 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > requires a distinct authenticated project-only confirmation for reusable preferences and retains concurrent corrections
+ZodError: [
+  {
+    "code": "invalid_union",
+    "errors": [],
+    "note": "No matching discriminator",
+    "discriminator": "action",
+    "options": [
+      "configure",
+      "accept",
+      "edit",
+      "reject",
+      "expire",
+      "forget",
+      "resolve"
+    ],
+    "path": [
+      "action"
+    ],
+    "message": "Invalid discriminator value. Expected 'configure' | 'accept' | 'edit' | 'reject' | 'expire' | 'forget' | 'resolve'"
+  }
+]
+ ❯ ProjectMemory.review packages/core/project-memory.ts:400:42
+
+ ❯ Object.act tests/project-memory-fixture.ts:22:81
+ ❯ tests/memory-host-lifecycle-v3.test.ts:88:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  19:21:58
+   Duration  1.04s (transform 390ms, setup 0ms, import 509ms, tests 100ms, environment 1ms)

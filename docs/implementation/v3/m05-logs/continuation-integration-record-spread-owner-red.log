@@ -1,0 +1,277 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+--------x------------------
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration-packaging-canonical-negative.test.ts > wheel-authenticated canonical Python packaging > rejects foreign distribution metadata ownership after wheel data spreading
+AssertionError: promise resolved "{ files: [ { …(4) }, …(14) ], …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "bytes": 1806,
++   "files": [
++     {
++       "bytes": 52,
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/entry_points.txt",
++       "sha256": "73d0078e891d191fade31d5501f82cf34867b7c59e736c566677d1cb0e0837b4",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/entry_points.txt",
++     },
++     {
++       "bytes": 4,
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/INSTALLER",
++       "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/INSTALLER",
++     },
++     {
++       "bytes": 42,
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/licenses/LICENSE",
++       "sha256": "a758e9bce9fb6099fcddda130361608346c998c51bf6cefea32a2735fdf2fdf5",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/licenses/LICENSE",
++     },
++     {
++       "bytes": 57,
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/METADATA",
++       "sha256": "692524e9acea4770d2ede6e377a1d892d0a0246486a8ed15c0fbb01aa8a27792",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/METADATA",
++     },
++     {
++       "bytes": 789,
++       "content": "fixture_alpha-1.0.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
++ fixture_alpha-1.0.0.dist-info/METADATA,sha256=aSUk6azqR3DS7ebjd6HYktCgJGSGqO0VwPuwGqiid5I,57
++ fixture_alpha-1.0.0.dist-info/RECORD,,
++ fixture_alpha-1.0.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
++ fixture_alpha-1.0.0.dist-info/WHEEL,sha256=YAp3H0z1KfemxpITeErQ822a4_oEVxXMqxghPLXfmTw,89
++ fixture_alpha-1.0.0.dist-info/entry_points.txt,sha256=c9AHjokdGR-t4x1VAfgs80hnt8Wec2xWZnfRyw4IN7Q,52
++ fixture_alpha-1.0.0.dist-info/licenses/LICENSE,sha256=p1jpvOn7YJn83doTA2Fgg0bJmMUb9s7-oyonNf3y_fU,42
++ fixture_beta-1.0.0.dist-info/licenses/LICENSE,sha256=6yCZxmzuIP1_SpPjvVKdgwDJDl4Ea9Y1qBLZIneU944,41
++ shared/alpha.py,sha256=BkqbiaX6m-wbdEPG6hqEQ5rUZUTLXaCaIdqVNr4y9rw,24
++ ",
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/RECORD",
++       "sha256": "a663f2288ef93487629c96b96f9c0b088e9348579bbe1073f772fb4b54f92e11",
++     },
++     {
++       "bytes": 0,
++       "content": "",
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/REQUESTED",
++       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++     },
++     {
++       "bytes": 89,
++       "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/WHEEL",
++       "sha256": "600a771f4cf529f7a6c69213784ad0f36d9ae3fa045715ccab18213cb5df993c",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/WHEEL",
++     },
++     {
++       "bytes": 50,
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/entry_points.txt",
++       "sha256": "e9ff90287e0425fbe4d5520155502f4203c7b3a77e748729ec9a95f68f9336ac",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/entry_points.txt",
++     },
++     {
++       "bytes": 4,
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/INSTALLER",
++       "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/INSTALLER",
++     },
++     {
++       "bytes": 41,
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/licenses/LICENSE",
++       "sha256": "eb2099c66cee20fd7f4a93e3bd529d8300c90e5e046bd635a812d9227794f78e",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/licenses/LICENSE",
++     },
++     {
++       "bytes": 56,
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/METADATA",
++       "sha256": "b0db2e11f5e1012a0bcbee6e15e5bcc7fe31d1ccc94efce09a29af091da38735",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/METADATA",
++     },
++     {
++       "bytes": 486,
++       "content": "fixture_beta-1.0.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
++ fixture_beta-1.0.0.dist-info/METADATA,sha256=sNsuEfXhASoLy-5uFeW8x_4x0czJTvzgmimvCR2jhzU,56
++ fixture_beta-1.0.0.dist-info/RECORD,,
++ fixture_beta-1.0.0.dist-info/WHEEL,sha256=YAp3H0z1KfemxpITeErQ822a4_oEVxXMqxghPLXfmTw,89
++ fixture_beta-1.0.0.dist-info/entry_points.txt,sha256=6f-QKH4EJfvk1VIBVVAvQgPHs6d-dIcp7JqV9o-TNqw,50
++ shared/beta.py,sha256=TkHYmjO9L3l2Lo2_sVT2YLTMu1RgmNfsUqpoht1L-A0,23
++ ",
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/RECORD",
++       "sha256": "a57b386e59427a42c8c82218db2475eeab7195c2dc991a531f6284c274acbdaa",
++     },
++     {
++       "bytes": 89,
++       "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/WHEEL",
++       "sha256": "600a771f4cf529f7a6c69213784ad0f36d9ae3fa045715ccab18213cb5df993c",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/WHEEL",
++     },
++     {
++       "bytes": 24,
++       "path": ".harness-integrations-python-deps/shared/alpha.py",
++       "sha256": "064a9b89a5fa9bec1b7443c6ea1a84439ad46544cb5da09a21da9536be32f6bc",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/shared/alpha.py",
++     },
++     {
++       "bytes": 23,
++       "path": ".harness-integrations-python-deps/shared/beta.py",
++       "sha256": "4e41d89a33bd2f79762e8dbfb154f660b4ccbb546098d7ec52aa6886dd4bf80d",
++       "source": "/tmp/integration-projection-u28IJY/.harness-integrations-python-deps/shared/beta.py",
++     },
++   ],
++   "inputDiagnosis": {
++     "actualFiles": 18,
++     "added": [
++       {
++         "bytes": 204,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/direct_url.json",
++         "sha256": "bb1c0a6f7bc75c71d04d41a44d749f88885012f811ec2df1474286d9b6c1f626",
++       },
++       {
++         "bytes": 0,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/REQUESTED",
++         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++       },
++       {
++         "bytes": 203,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/direct_url.json",
++         "sha256": "1fdcc846ee82154fdfb9dfdb610dbef51c03d862d8b6c51ddc4dc5ca621d871d",
++       },
++     ],
++     "addedCount": 3,
++     "changed": [
++       {
++         "actualBytes": 33,
++         "actualSha256": "b6aba327b80ebf69801761a2a4941a93180f53c224527a133f0b4625c6825e5c",
++         "expectedBytes": 107,
++         "expectedSha256": "fc34fd04ab9c0fc83479129738d48029b1b26cb25d9b1fe5497805eeb959f57f",
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/RECORD",
++       },
++       {
++         "actualBytes": 33,
++         "actualSha256": "b6aba327b80ebf69801761a2a4941a93180f53c224527a133f0b4625c6825e5c",
++         "expectedBytes": 105,
++         "expectedSha256": "881df2fa7205f5d4be2ec8a33713254c08e81e42c609616db9ca648aeb62a8da",
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/RECORD",
++       },
++     ],
++     "changedCount": 2,
++     "expectedFiles": 15,
++     "missing": [],
++     "missingCount": 0,
++     "truncated": false,
++   },
++   "receipt": {
++     "files": [
++       {
++         "bytes": 52,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/entry_points.txt",
++         "sha256": "73d0078e891d191fade31d5501f82cf34867b7c59e736c566677d1cb0e0837b4",
++       },
++       {
++         "bytes": 4,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/INSTALLER",
++         "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
++       },
++       {
++         "bytes": 42,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/licenses/LICENSE",
++         "sha256": "a758e9bce9fb6099fcddda130361608346c998c51bf6cefea32a2735fdf2fdf5",
++       },
++       {
++         "bytes": 57,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/METADATA",
++         "sha256": "692524e9acea4770d2ede6e377a1d892d0a0246486a8ed15c0fbb01aa8a27792",
++       },
++       {
++         "bytes": 789,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/RECORD",
++         "sha256": "a663f2288ef93487629c96b96f9c0b088e9348579bbe1073f772fb4b54f92e11",
++       },
++       {
++         "bytes": 0,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/REQUESTED",
++         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
++       },
++       {
++         "bytes": 89,
++         "path": ".harness-integrations-python-deps/fixture_alpha-1.0.0.dist-info/WHEEL",
++         "sha256": "600a771f4cf529f7a6c69213784ad0f36d9ae3fa045715ccab18213cb5df993c",
++       },
++       {
++         "bytes": 50,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/entry_points.txt",
++         "sha256": "e9ff90287e0425fbe4d5520155502f4203c7b3a77e748729ec9a95f68f9336ac",
++       },
++       {
++         "bytes": 4,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/INSTALLER",
++         "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
++       },
++       {
++         "bytes": 41,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/licenses/LICENSE",
++         "sha256": "eb2099c66cee20fd7f4a93e3bd529d8300c90e5e046bd635a812d9227794f78e",
++       },
++       {
++         "bytes": 56,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/METADATA",
++         "sha256": "b0db2e11f5e1012a0bcbee6e15e5bcc7fe31d1ccc94efce09a29af091da38735",
++       },
++       {
++         "bytes": 486,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/RECORD",
++         "sha256": "a57b386e59427a42c8c82218db2475eeab7195c2dc991a531f6284c274acbdaa",
++       },
++       {
++         "bytes": 89,
++         "path": ".harness-integrations-python-deps/fixture_beta-1.0.0.dist-info/WHEEL",
++         "sha256": "600a771f4cf529f7a6c69213784ad0f36d9ae3fa045715ccab18213cb5df993c",
++       },
++       {
++         "bytes": 24,
++         "path": ".harness-integrations-python-deps/shared/alpha.py",
++         "sha256": "064a9b89a5fa9bec1b7443c6ea1a84439ad46544cb5da09a21da9536be32f6bc",
++       },
++       {
++         "bytes": 23,
++         "path": ".harness-integrations-python-deps/shared/beta.py",
++         "sha256": "4e41d89a33bd2f79762e8dbfb154f660b4ccbb546098d7ec52aa6886dd4bf80d",
++       },
++     ],
++     "mode": "wheel-canonical-record-v2",
++     "sourceLockSha256": "cf5bccf7b51c750538080b50abb112fc3e3f7337a548c10a7a1536ff859cc98b",
++     "version": 2,
++     "wheels": [
++       {
++         "name": "fixture-alpha",
++         "sha256": "419de4addf13c7b591481193e245609d1707689848a350dac659248e466cad0c",
++         "version": "1.0.0",
++       },
++       {
++         "name": "fixture-beta",
++         "sha256": "cf3f7a354f47cf8ea88111c7f9d0d428e3a9d732b67ba28362b468d02a3f95b7",
++         "version": "1.0.0",
++       },
++     ],
++   },
+  }
+
+ ❯ tests/integration-packaging-canonical-negative.test.ts:184:32
+    182|     await rewriteWheel(value, 1, value.members[1].filter(member => mem…
+    183|     await rewriteWheel(value, 0, [...value.members[0], {...foreign, pa…
+    184|     await expect(collect(value)).rejects.toThrow(/foreign|owner|distri…
+       |                                ^
+    185|   });
+    186|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 skipped (27)
+   Start at  00:26:25
+   Duration  605ms (transform 95ms, setup 0ms, import 123ms, tests 255ms, environment 0ms)

@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-native-memory-export-repair-review-20261115",
+  "reviewedAt": "2026-11-15T19:44:55.306916+00:00",
+  "status": "LOCAL_TARGETED_VERIFIED_NATIVE_SAVE_EXECUTION_PENDING",
+  "sourceParentPublishedHead": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+  "sourceParentTree": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+  "localParentCommit": "d63f5cab7269c0517744cde067705e887fb2292a",
+  "scope": "Production native redacted project-memory export and its renderer/preload integration. This review does not admit the separate installed Save-dialog verifier as executed.",
+  "originalGuardConflict": {
+    "classification": "SOURCE_PROVEN_REACHABLE_BOUNDARY_DEFECT",
+    "baselineSourceFiles": [
+      {
+        "path": "apps/desktop/main.ts",
+        "gitBlob": "8ff44c2c6f1757d3a6c6291c1fd0c5add07d6712",
+        "bytes": 55693,
+        "sha256": "463f0e39cf1c90ccdd4157750d1a00772f81178fd5e3f3f168b6d39d4451d608"
+      },
+      {
+        "path": "apps/web/src/ProjectMemoryReview.tsx",
+        "gitBlob": "dedbc6f7a919a4fc4fe3af2bdaba2142f76b451c",
+        "bytes": 21556,
+        "sha256": "112c32ef5fd94f97b7a16e78c703336eea1144c0e29f5009f8e72967f47792ca"
+      }
+    ],
+    "evidence": [
+      "The parent desktop trusted-session policy prevents every will-download event and is installed for normal application windows.",
+      "The parent ProjectMemoryReview export handler fetches the host export and clicks a Blob URL anchor, then immediately displays downloaded without a terminal native save result.",
+      "Those paths conflict in the installed application. The prior installed run stopped before this export action, so that run is not claimed as an observed native export failure."
+    ],
+    "priorInstalledPhaseReview": {
+      "ref": "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+      "bytes": 20015,
+      "sha256": "1d66e95edeae50ec0a456513bc8a56bdb565ce13345bb80c0ed0adc3a2892363"
+    }
+  },
+  "sourceFiles": [
+    {
+      "ref": "apps/desktop/memory-export.ts",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+    },
+    {
+      "ref": "apps/desktop/main.ts",
+      "bytes": 55919,
+      "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f"
+    },
+    {
+      "ref": "apps/desktop/preload.ts",
+      "bytes": 3936,
+      "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0"
+    },
+    {
+      "ref": "packages/desktop-contract/index.ts",
+      "bytes": 11529,
+      "sha256": "d9bf1bd40368aa1802c65f6d6c98b5fab4c7623614ee037572a302bd10d41188"
+    },
+    {
+      "ref": "apps/web/src/project-memory-api.ts",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0"
+    },
+    {
+      "ref": "apps/web/src/ProjectMemoryReview.tsx",
+      "bytes": 21955,
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f"
+    },
+    {
+      "ref": "tests/desktop-memory-export.test.ts",
+      "bytes": 17324,
+      "sha256": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f"
+    },
+    {
+      "ref": "tests/memory-export-client-v3.test.ts",
+      "bytes": 5349,
+      "sha256": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8"
+    },
+    {
+      "ref": "tests/desktop-preload-accounts.test.ts",
+      "bytes": 1816,
+      "sha256": "4e91d70bd57bb73eba9fd87e5382207ecfac02fa5145ab3788de422da9e83fef"
+    }
+  ],
+  "newSourceAndTestFiles": [
+    "apps/desktop/memory-export.ts",
+    "tests/desktop-memory-export.test.ts",
+    "tests/memory-export-client-v3.test.ts"
+  ],
+  "publicSourceInventory": {
+    "ref": "scripts/public-source-files.json",
+    "bytes": 137549,
+    "sha256": "6e8a3d5d77449b7d4048738c200cdf1755cf002258ae46d2000168cb852f74ab",
+    "sourceEntries": 2353,
+    "runtimeEntries": 226,
+    "newPathsPresent": true,
+    "runtimeEntriesChangedByThisRepair": false
+  },
+  "supportingUnchangedContracts": [
+    {
+      "ref": "packages/contracts/project-memory.ts",
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9"
+    },
+    {
+      "ref": "packages/core/memory-publication.ts",
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711"
+    },
+    {
+      "ref": "apps/server/project-memory-routes.ts",
+      "bytes": 5818,
+      "sha256": "60f6e4e9d6ff04fe35f6935cac902b917989c40fe96de6432851e9532b33cb02"
+    },
+    {
+      "ref": "apps/web/src/DesktopEntry.tsx",
+      "bytes": 10077,
+      "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d"
+    },
+    {
+      "ref": "apps/web/src/ProjectContextSurface.tsx",
+      "bytes": 2824,
+      "sha256": "7cbb9068f912d51e604cbda4c9fe4b010f47dbe89023432ccf8bc02015343c53"
+    },
+    {
+      "ref": "packages/core/capability-flags.ts",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41"
+    }
+  ],
+  "admissionPolicy": {
+    "channel": "harness-desktop:memory-export",
+    "bridgeMethod": "exportProjectMemory(serializedExport)",
+    "httpAuthorization": "Existing authenticated Personal-host export route, CSRF, exact scope/account/project binding and isCurrent checks precede IPC.",
+    "ipcAuthorization": "Existing registerIpc handle wrapper requires the registered live sender, actual main frame and exact current document URL before the dedicated policy runs. The new channel is not in the plug-in lifecycle allowlist.",
+    "surfaces": [
+      "main",
+      "thread with exact scope.threadId",
+      "plan with exact scope.threadId",
+      "workspace with exact scope.threadId"
+    ],
+    "deniedSurfaces": [
+      "plugin",
+      "browser",
+      "navigation",
+      "usage",
+      "artifact",
+      "agent",
+      "unbound or foreign-thread detached surface"
+    ],
+    "data": "Strict MemoryExport schema with redacted:true. Reject source bodies/unknown fields, credential-bearing text and NUL. Main constructs the canonical JSON, digest, data URL and Windows-safe fixed-prefix filename. The caller cannot supply a destination, arbitrary URL or filename.",
+    "inputUtf8ByteCap": 8388608,
+    "canonicalUtf8ByteCap": 8388608,
+    "byteCapEvidence": "The schema permits 500 texts of 2 KiB UTF-8 plus 500 tombstones. A full-schema control-character fixture serializes above 6 MiB because JSON escapes each byte sixfold and is accepted within the 8 MiB cap.",
+    "capacity": {
+      "perWebContents": 1,
+      "allWindows": 4,
+      "admissionMilliseconds": 10000,
+      "saveCompletionMilliseconds": 300000
+    },
+    "isolatedWorld": 1701,
+    "customSecurityOrigin": false,
+    "matching": [
+      "same pending WebContents object",
+      "captured live main frame",
+      "unchanged trusted document and frame URLs",
+      "exact initiating origin",
+      "exact unique main-created data URL",
+      "single exact URL-chain entry",
+      "exact canonical filename"
+    ],
+    "oneUse": "Consume before native callbacks. Unrelated events remain denied and do not consume a pending permit.",
+    "diagnostics": "Admission expiry exposes only a fixed refusal enum. JSON/schema validation and native admission/received-byte getter failures use fixed errors instead of input-derived fragments.",
+    "saveDialog": {
+      "title": "Export project memory",
+      "defaultPath": "canonical basename only",
+      "filter": {
+        "name": "JSON",
+        "extensions": [
+          "json"
+        ]
+      },
+      "overwriteConfirmation": true,
+      "setSavePathUsed": false
+    },
+    "terminalResult": "Saved is returned only after native done=completed with the exact received byte count and a still-current owner. Cancellation returns cancelled; interruption or failed verification rejects.",
+    "cleanup": "Settlement, navigation, destruction, expiry, synchronous script failure and native completion error clear policy timers/listeners/permit state; failed admitted downloads are cancelled.",
+    "remoteBrowserDownloadPolicyChanged": false
+  },
+  "rendererBehavior": {
+    "savedNotice": "Redacted export downloaded.",
+    "cancelledNotice": "Export cancelled.",
+    "ordinaryBrowserNotice": "Redacted export download started.",
+    "nativeReceiptAttributes": [
+      "data-memory-export-status",
+      "data-memory-export-admitted",
+      "data-memory-export-filename",
+      "data-memory-export-bytes",
+      "data-memory-export-sha256"
+    ],
+    "nativeReceiptValidation": "Strict saved/cancelled admitted receipt with exact canonical filename, byte count and SHA-256; ownership is rechecked after asynchronous work.",
+    "browserFallback": "Only a non-desktop browser uses the explicit Blob anchor path. A missing native capability or refused native export fails closed without falling back to the blocked Blob path."
+  },
+  "localVerification": {
+    "currentTargetedResult": "PASS",
+    "passedCases": 108,
+    "files": 5,
+    "policyCases": 50,
+    "clientCases": 12,
+    "preloadCases": 4,
+    "existingProjectMemoryUiCases": 17,
+    "existingNativeAuthorityCases": 25,
+    "commands": [
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/memory-export-client-v3.test.ts",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:28:17.598115+00:00",
+        "endedAt": "2026-11-15T19:28:18.575183+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-red.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-red.log",
+          "bytes": 36777,
+          "sha256": "bf465e4348d3e5aa797ef05c517ebba4344c39b3434c77d0db878348b5f8bcd3"
+        },
+        "observedTestSummary": "49 failed (49)",
+        "classification": "INTENDED_FEATURE_ABSENCE_RED: 49 cases executed and failed because the explicit policy/client method was absent."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/desktop-preload-accounts.test.ts",
+          "--reporter=verbose",
+          "-t",
+          "bounds active exports|cancels an admitted|forwards only serialized"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:29:36.087387+00:00",
+        "endedAt": "2026-11-15T19:29:36.957601+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-capacity-red.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-capacity-red.log",
+          "bytes": 7952,
+          "sha256": "bf8cece1ee300c2d91d32f085fa58042e3ad68953cb5a39f81d3d47908ec354e"
+        },
+        "observedTestSummary": "3 failed | 40 skipped (43)",
+        "classification": "INTENDED_CAPACITY_PRELOAD_RED: three selected cases executed and failed before implementation; 40 other cases were skipped by the test-name filter."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/memory-export-client-v3.test.ts",
+          "tests/desktop-preload-accounts.test.ts",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:32:24.566071+00:00",
+        "endedAt": "2026-11-15T19:32:25.834799+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-1.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-green-1.log",
+          "bytes": 9047,
+          "sha256": "d90f3319830d50ce4468085d30c35f48d66922343b3c2a56e913ece72331457e"
+        },
+        "observedTestSummary": "2 failed | 53 passed (55)",
+        "classification": "FAILED_FIRST_GREEN_ATTEMPT: 53 passed and two failed because the boundary test double decoded an unrelated HTTPS URL as base64. The double was corrected; this was not evidence of a production defect."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "--reporter=verbose",
+          "-t",
+          "cleans native authority immediately"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:34:19.068851+00:00",
+        "endedAt": "2026-11-15T19:34:19.874840+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-sync-dispatch-red.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-sync-dispatch-red.log",
+          "bytes": 5564,
+          "sha256": "a05492f8c5009e974cb3a6ab32b03b846040f281816f99b6a00d4fd0e7d2939e"
+        },
+        "observedTestSummary": "1 failed | 39 skipped (40)",
+        "classification": "REPRODUCED_LIFECYCLE_RED: synchronous native script dispatch threw and left one admission timer active; one selected case failed before cleanup was fixed."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/memory-export-client-v3.test.ts",
+          "tests/desktop-preload-accounts.test.ts",
+          "tests/project-memory-ui.test.ts",
+          "tests/desktop-native.test.ts",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:34:32.554808+00:00",
+        "endedAt": "2026-11-15T19:34:34.026742+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-2.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-green-2.log",
+          "bytes": 12533,
+          "sha256": "c911e13974816c578f9e05558176702520e67bc90f3a3b2d7cf02b8850d68f9a"
+        },
+        "observedTestSummary": "98 passed (98)",
+        "classification": "INTERMEDIATE_GREEN: all 98 cases across five files passed before the final native event and validation privacy regressions were added."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "-t",
+          "current Electron|current frame details|fixed .* refusal|received-byte getter",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:38:53.149378+00:00",
+        "endedAt": "2026-11-15T19:38:53.982265+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-native-events-red.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-native-events-red.log",
+          "bytes": 13655,
+          "sha256": "2756ac16f8b4111dd989d1f3cabd91db0eddd7a2840dd707c643a7b82196c29f"
+        },
+        "observedTestSummary": "8 failed | 40 skipped (48)",
+        "classification": "REPRODUCED_NATIVE_EVENT_RED: eight selected cases failed for current navigation details/precedence, missing fixed refusal diagnostics, and an uncaught native received-byte getter exception."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/memory-export-client-v3.test.ts",
+          "tests/desktop-preload-accounts.test.ts",
+          "tests/project-memory-ui.test.ts",
+          "tests/desktop-native.test.ts",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:39:23.155976+00:00",
+        "endedAt": "2026-11-15T19:39:24.543769+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-3.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-green-3.log",
+          "bytes": 13440,
+          "sha256": "7573e48886e66e27ec92bcc46dbc2ab97c4358149b19529bf9b08b51a8f215cb"
+        },
+        "observedTestSummary": "106 passed (106)",
+        "classification": "INTERMEDIATE_GREEN: all 106 cases across five files passed before the final validation privacy regressions were added."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "-t",
+          "fixed validation error",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:41:15.772613+00:00",
+        "endedAt": "2026-11-15T19:41:16.571465+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-validation-red.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-validation-red.log",
+          "bytes": 7365,
+          "sha256": "9814ced872af0d887069e00e0b117dc505f26872dbad6012e5b1ee76574a22b9"
+        },
+        "observedTestSummary": "2 failed | 48 skipped (50)",
+        "classification": "REPRODUCED_VALIDATION_PRIVACY_RED: two selected cases exposed a synthetic JSON input fragment and a synthetic Zod unknown-key marker in the returned error."
+      },
+      {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/desktop-memory-export.test.ts",
+          "tests/memory-export-client-v3.test.ts",
+          "tests/desktop-preload-accounts.test.ts",
+          "tests/project-memory-ui.test.ts",
+          "tests/desktop-native.test.ts",
+          "--reporter=verbose"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T19:41:23.042644+00:00",
+        "endedAt": "2026-11-15T19:41:24.291808+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "generatedLedgerLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-final-green.log",
+        "originalRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-memory-export-final-green.log",
+          "bytes": 13685,
+          "sha256": "81e55e1bfa3b204b0b31c994d36cb89bb752822ab201ea964e2a2fc08c870471"
+        },
+        "observedTestSummary": "108 passed (108)",
+        "classification": "CURRENT_TARGETED_GREEN: all 108 cases across five files passed on the source hashes in this review."
+      }
+    ],
+    "scope": "Real production policy and client code run with bounded Electron/browser native-boundary doubles; the preload forwarding uses its actual bridge module. Existing native-authority tests cover sender and plug-in channel gates. These are local logic checks, not Windows Electron Save-dialog execution.",
+    "combinedTypecheckAndBuilds": "Recorded separately after the product and installed-verifier source cuts are both frozen; no result is inferred here."
+  },
+  "reviewInputLogCustody": {
+    "policy": "The original recorder output was archived before bounded-log normalization. All nine exact original inputs are retained under m05-review-inputs. generatedLedgerLogRef is a link to the display log, not a claim that any later normalized bytes retain the original digest.",
+    "originalsCopied": 9,
+    "failedAttemptsPreserved": 6,
+    "logsContainOnlyAuthoredFixtureValues": true
+  },
+  "originalRequirementRecheck": {
+    "spec": {
+      "ref": "docs/implementation/v3/M05-spec.md",
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee"
+    },
+    "uploadedPromptSha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee",
+    "identical": true,
+    "uiRequirement3": "Explicit redacted export now has a bounded native save path while retaining the ordinary browser path. Neither path starts automatically or syncs to a cloud service.",
+    "step12": "Export stays behind authenticated user review and the existing Personal native sender boundary; no agent or plug-in export/enablement authority was added.",
+    "otherSteps": "The previously reviewed steps1-12, source-linked rows, proposal/conflict actions, Forget, request exclusion and native history rules are unchanged by this narrow export repair.",
+    "detachedSurfaceCheck": "DesktopEntry renders ProjectContextSurface for thread-bound plan/workspace; App renders it for main/thread. ProjectContextSurface requires an owning main task and local project. Unbound workspace has no memoryTarget.",
+    "additionalImplementationFindings": []
+  },
+  "activation": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false,
+    "newDependencies": false,
+    "automaticCloudSync": false,
+    "providerCallsInTheseChecks": false
+  },
+  "limits": [
+    "The exact current Electron isolated-world initiator/frame/filename behavior and native Save dialog remain pending actual Windows installed execution.",
+    "No saved-file proof is inferred from will-download admission, JavaScript evaluation, a mocked terminal event or Playwright intercepted downloads. The separate installed verifier must restore ordinary download behavior and verify actual native saving.",
+    "The prior failed installed run did not reach retained memory export/actions/restart. Its successful payload/provider/uninstall observations do not establish retained-memory completion.",
+    "Full enabled installed recall/extraction/checkpoint lifecycle and the live repeated-task cost/quality study remain unmeasured; both memory flags remain false."
+  ]
+}

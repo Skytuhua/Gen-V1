@@ -1,0 +1,52 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-ui.test.ts (17 tests | 1 failed) 488ms
+   × does not publish source content when browser digest verification is unavailable 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-ui.test.ts > does not publish source content when browser digest verification is unavailable
+AssertionError: promise resolved "{ scope: { …(5) }, ref: { …(7) }, …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "content": "hello",
++   "label": "Message",
++   "ref": {
++     "capturedSeq": 4,
++     "digest": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
++     "observedStatus": "REPORTED",
++     "ownerThreadId": "thread-a",
++     "sourceId": "message-a",
++     "sourceKind": "MESSAGE",
++     "sourceRevision": "1",
++   },
++   "scope": {
++     "accountId": "account-a",
++     "bindingDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
++     "projectId": "project-a",
++     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "threadId": "thread-a",
++   },
+  }
+
+ ❯ tests/project-memory-ui.test.ts:76:82
+     74|   const pinned = {...item, sourceRefs: [{...item.sourceRefs[0], digest…
+     75|   responses({scope, ref: pinned.sourceRefs[0], label: 'Message', conte…
+     76|   await expect((await api()).getMemorySource(scope, pinned, pinned.sou…
+       |                                                                                  ^
+     77| });
+     78|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+   Start at  18:35:02
+   Duration  710ms (transform 314ms, setup 0ms, import 68ms, tests 488ms, environment 0ms)

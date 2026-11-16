@@ -1,0 +1,924 @@
+{
+  "schemaVersion": 1,
+  "status": "FAILED_INSTALLED_NATIVE_SAVE_WITH_RECORDED_FIRST_LAUNCH_REVIEW_ACTIONS",
+  "recordedAt": "2026-11-15 21:34:22 UTC",
+  "scope": "Independent read-only review of the original installed artifact JSON and byte custody for run 43760736519. Completed phases are separated from the failed native Save and unexecuted restart sequence. No implementation test or application was rerun by this reviewer.",
+  "repository": {
+    "fullName": "skytuhua-org/Gen-V1",
+    "id": 1442565952
+  },
+  "source": {
+    "headSha": "013c044d66f40136752df4f1903132d601d57851",
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "checkoutSha": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "sourceBindings": {
+      "ref": "docs/implementation/v3/M05-installed-source-bindings-43760736519.json",
+      "gitBlobSha": "f12a58aa76c239194da8e3302d235155ebcc07c5",
+      "bytes": 10220,
+      "sha256": "c8f3649185c26e6e29d76fe2120cd375b8f6d540a5a9ee2ed39eda1f3bc71c38",
+      "count": 34,
+      "method": "32 fully hashed immutable parent bindings plus the exact sole-parent two-file readiness repair; current changed blobs separately hashed. No new full local source checkout is claimed."
+    },
+    "relevantBindings": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "bytes": 12542,
+        "sha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f",
+        "gitBlobSha": "36e07921fb9981c1cd6525bb9a1feeb6a2652530"
+      },
+      {
+        "path": "apps/desktop/main.ts",
+        "bytes": 55919,
+        "sha256": "fb24c55abcd243668ff1491b752906e52c6e1228d4a4b7b49a7bd64a9ea7786f",
+        "gitBlobSha": "75a8b98d5e8468e24be8ae40ca00b466c640daf1"
+      },
+      {
+        "path": "apps/desktop/memory-export.ts",
+        "bytes": 8627,
+        "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+        "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+      },
+      {
+        "path": "apps/web/src/ProjectMemoryReview.tsx",
+        "bytes": 21955,
+        "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+        "gitBlobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+      },
+      {
+        "path": "apps/web/src/project-memory-api.ts",
+        "bytes": 8205,
+        "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+        "gitBlobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "bytes": 6848,
+        "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+        "gitBlobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+      },
+      {
+        "path": "packages/core/project-memory.ts",
+        "bytes": 63143,
+        "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+        "gitBlobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+      },
+      {
+        "path": "packages/desktop-contract/index.ts",
+        "bytes": 11529,
+        "sha256": "d9bf1bd40368aa1802c65f6d6c98b5fab4c7623614ee037572a302bd10d41188",
+        "gitBlobSha": "b3f90f92af5e72adae91c882a4f3bbf35c5ab5f1"
+      },
+      {
+        "path": "scripts/desktop-assets.ts",
+        "bytes": 7629,
+        "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+        "gitBlobSha": "dd51d62314c63657be29a098861293ad8051f339"
+      },
+      {
+        "path": "scripts/installed-memory-retention.ts",
+        "bytes": 22553,
+        "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+        "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8"
+      },
+      {
+        "path": "scripts/installed-native-save.ts",
+        "bytes": 25004,
+        "sha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d",
+        "gitBlobSha": "65b04348b353ef7c7f0f1a1d06f1cf974b8aa222"
+      },
+      {
+        "path": "scripts/integration-assets.ts",
+        "bytes": 14137,
+        "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f",
+        "gitBlobSha": "c3c939bf12f9e41d82793351d5495355ebe70c98"
+      },
+      {
+        "path": "scripts/integration_python_projection.py",
+        "bytes": 17295,
+        "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f",
+        "gitBlobSha": "9af564d744f4b9a8d83d549115a13afc0e7c2edf"
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "bytes": 137549,
+        "sha256": "6e8a3d5d77449b7d4048738c200cdf1755cf002258ae46d2000168cb852f74ab",
+        "gitBlobSha": "31868ce98902d6cf2744913da56a80f14cabb5a7"
+      },
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "bytes": 44330,
+        "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2",
+        "gitBlobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7"
+      },
+      {
+        "path": "scripts/verify-packaged-providers.ts",
+        "bytes": 21905,
+        "sha256": "5b0ec074f333c9e6dfec8c075f150ce38966cc0bea518c3432022690c929ccee",
+        "gitBlobSha": "45a4aced2626c39b2acfe24130c39e6b3b2c1782"
+      }
+    ]
+  },
+  "ci": {
+    "runId": 43760736519,
+    "attempt": 1,
+    "conclusion": "failure",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "installedJobId": 132954742228,
+    "installedJobConclusion": "failure",
+    "command": {
+      "executable": "pnpm",
+      "argv": [
+        "exec",
+        "tsx",
+        "scripts/verify-installed-desktop.ts",
+        "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+        "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+        "--project-memory-retention"
+      ],
+      "runnerExitCode": 1
+    },
+    "originalDecodedJobLog": {
+      "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132954742228/logs",
+      "bytes": 124272,
+      "sha256": "796053b3f9e4743e98be011d47a44b6feb0bf63748ab2e099269f9c2f3d4f313",
+      "representation": "Connector-decoded UTF-8 job log, not the original HTTP log archive."
+    },
+    "boundedJobLog": {
+      "gitBlobSha": "ddfa7ef606e7a4f430ad230eae0b569d5a93fed8",
+      "bytes": 65536,
+      "sha256": "5d8ee34bf1f70e76f62bf495baec06d5b96451d74435b5ac1782b93487e36734",
+      "scope": "Bounded/redacted derivative; not labeled as complete raw output."
+    },
+    "receipt": {
+      "ref": "docs/implementation/v3/M05-windows-ci-43760736519.json",
+      "gitBlobSha": "2e566a1da9d15bd93bcda7dc4f036914e318fe45",
+      "bytes": 44339,
+      "sha256": "8f651e988187a2ce70a657b9b2878c632c0616e6509f1c61e973344b1e5673dc"
+    },
+    "application": {
+      "passed": 3865,
+      "failed": 0,
+      "skipped": 39,
+      "todo": 0,
+      "flaky": 0
+    },
+    "actualCheckoutParents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "013c044d66f40136752df4f1903132d601d57851"
+    ]
+  },
+  "artifact": {
+    "bytes": 915052,
+    "createdAt": "2026-11-15T21:18:54Z",
+    "id": 14181271741,
+    "name": "installed-memory-43760736519-1",
+    "sha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34",
+    "archiveGitBlobSha": "725c63c21c3a2de40d9e08898b9d4406c8accbd6",
+    "fileCount": 12,
+    "jsonMembers": 5,
+    "pngMembers": 7,
+    "exportMembers": 0,
+    "members": [
+      {
+        "bytes": 53613,
+        "gitBlobSha": "3d9311ec4e3d0dea9984c7993cec14ea5a271f1e",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-main.png",
+        "role": "image",
+        "sha256": "06d05f1374a9327dd73a5a3e4c86311ebe0d8fc7a3498278092cc2af4bd93490",
+        "transport": "base64"
+      },
+      {
+        "bytes": 77712,
+        "gitBlobSha": "e69edeab2e40410fa75578153154cdeab03022fa",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-launch-1-failure.png",
+        "role": "image",
+        "sha256": "db9cf87e1ddaaa1d26ad49c8875b631d252c68faf7c79609a3595438e98d0331",
+        "transport": "base64"
+      },
+      {
+        "bytes": 77436,
+        "gitBlobSha": "fea488f1be4b38f38ed219a87ce5e01c072f2875",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-rejected.png",
+        "role": "image",
+        "sha256": "c15cf8495a4c0a5f4487c803af6fda11ba4b52bff07d382ec672449ca358045e",
+        "transport": "base64"
+      },
+      {
+        "bytes": 75870,
+        "gitBlobSha": "06eee6b03b9aadd7aaf1f9cda2ed02496a54ddbe",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-reviewed.png",
+        "role": "image",
+        "sha256": "7290b2b21b1c023140898f5cd2d8df41285160d31045d8fa323227343bbade38",
+        "transport": "base64"
+      },
+      {
+        "bytes": 82469,
+        "gitBlobSha": "d4308339e0fc154388862c429f52211cee56a103",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-source.png",
+        "role": "image",
+        "sha256": "47511ead91e55ccd664066af12bd4c86e41d8894ea511ff46c44ceb1ee1794a5",
+        "transport": "base64"
+      },
+      {
+        "bytes": 89089,
+        "gitBlobSha": "9a852926e6014abb76e8178922d66607a5645ec6",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-official-connections.png",
+        "role": "image",
+        "sha256": "40582a8d2c44e669a2e9de947735d892ef33f45d0cb576757bfa9710823e2057",
+        "transport": "base64"
+      },
+      {
+        "bytes": 84343,
+        "gitBlobSha": "567c969a57e9051797db598c9fbadb7e37fdcb48",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-settings.png",
+        "role": "image",
+        "sha256": "79d6ee39a1120daa13d34932f6305bd54b13f7ffa6c88cd36d6c62dc864799cb",
+        "transport": "base64"
+      },
+      {
+        "bytes": 330,
+        "gitBlobSha": "e982cf0efe715d45c35fca344f9431ea0951ed90",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/owner.json",
+        "role": "owner",
+        "sha256": "e40a56faf1e81e0ad8b0220d3d493db61afdef4751f3675385d0450fd74c2b47",
+        "transport": "base64"
+      },
+      {
+        "bytes": 20694,
+        "gitBlobSha": "ecd8925ff44de3f0d6424df7284ccd5c8a9d4f6d",
+        "path": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/verification.json",
+        "role": "main",
+        "sha256": "9ed308553d5f4fdeeaa3f964b22c1224c7cc02ed3def485452b242b16906505b",
+        "transport": "base64"
+      },
+      {
+        "bytes": 15611,
+        "gitBlobSha": "0a14385abb6e136fbc31784499cab99296cd9c84",
+        "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+        "role": "build",
+        "sha256": "2709e3c087328ecf0490db6b2ad86e5e1de4fa4d9747e13e68aab0b1d4cda6c9",
+        "transport": "base64"
+      },
+      {
+        "bytes": 1511066,
+        "gitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+        "path": ".harness-installed-package/desktop-stage-1794776187679/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+        "publishedGitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+        "role": "canonical",
+        "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+        "transport": "already-published-exact-bytes"
+      },
+      {
+        "bytes": 168090,
+        "gitBlobSha": "33ae055d1d066156a264daec321c1b5ae2db50de",
+        "path": ".harness-packaged-providers/run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8/verification.json",
+        "role": "providers",
+        "sha256": "608d1e789a08a45a901d7bd7f28bd523d123c8b2ef5fe221217e1b400beaffef",
+        "transport": "base64"
+      }
+    ]
+  },
+  "recovery": {
+    "runId": 43763315513,
+    "headSha": "1f14bb3380643d804c9fa852127bbb9b35b3b172",
+    "treeSha": "c2961363e7e4df1739f79850067b44639b066206",
+    "workflowGitBlobSha": "87220b56593caf1ce90307b6f17c8c977c2fa827",
+    "workflowSha256": "36069ffb7fe222c62d685a9c4924a82401a15898d4e0f35db301944fe25b31d9",
+    "shards": 16,
+    "allTransportJobsPassed": true,
+    "scope": "Exact byte transport only. Root verified all log/chunk/stream identities. This reviewer independently read the reconstructed original ZIP with Python zipfile, read all 12 members with CRC validation, and compared all extracted bytes, SHA256 values and Git blob hashes with the manifest. No artifact request was duplicated.",
+    "canonicalBytesOmittedOnlyAfterExactPublishedMatch": true,
+    "reconstructedArchiveSha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34"
+  },
+  "checks": {
+    "ownerAndBuild": {
+      "setupSha256": "f7d0f72a1eb592464261f59ad0a826358abb8f2cf73486be6b75196820342e43",
+      "setupBytes": 476201975,
+      "ownerInstallDirectoryMatches": true,
+      "ownerGuidMatches": true,
+      "buildInstallerMatches": true,
+      "nodeVersion": "24.22.2",
+      "electronVersion": "45.2.0",
+      "auth": false,
+      "inference": false
+    },
+    "preflights": {
+      "count": 6,
+      "allCompletedWithin60000ms": true,
+      "observations": [
+        {
+          "stage": "before-install",
+          "elapsedMs": 17780,
+          "status": "completed",
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "pre-install-recheck",
+          "elapsedMs": 11781,
+          "status": "completed",
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-install",
+          "elapsedMs": 11613,
+          "status": "completed",
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "before-uninstall",
+          "elapsedMs": 263,
+          "status": "completed",
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-uninstall-poll",
+          "elapsedMs": 252,
+          "status": "completed",
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-uninstall",
+          "elapsedMs": 250,
+          "status": "completed",
+          "timeoutMs": 60000
+        }
+      ],
+      "initialRegistryEntries": 0,
+      "initialProcesses": [],
+      "initialCachePresent": false,
+      "initialShortcutsPresent": 0
+    },
+    "installer": {
+      "status": "COMPLETED_NATURALLY",
+      "observation": {
+        "phase": "installer",
+        "startedAt": "2026-11-15T21:09:59.727Z",
+        "timeoutMs": 1200000,
+        "elapsedMs": 408147,
+        "status": "completed",
+        "pid": 3268,
+        "spawnElapsedMs": 14,
+        "exit": {
+          "elapsedMs": 408147,
+          "code": 0,
+          "signal": null
+        },
+        "close": {
+          "elapsedMs": 408147,
+          "code": 0,
+          "signal": null
+        },
+        "stdoutBytes": 0,
+        "stderrBytes": 0,
+        "failure": null,
+        "terminationRequested": false,
+        "pathProgress": [
+          {
+            "elapsedMs": 30024,
+            "durationMs": 2,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 16,
+            "sizeMatched": 0,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          },
+          {
+            "elapsedMs": 120017,
+            "durationMs": 1,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 16,
+            "sizeMatched": 0,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          },
+          {
+            "elapsedMs": 300017,
+            "durationMs": 4,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 7,
+            "sizeMatched": 9,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          }
+        ]
+      },
+      "command": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "elapsedMs": 408147
+      },
+      "causalLimit": "408147 ms is below the former 600000 ms installer limit. This run does not establish that a larger allowance caused completion or identify the cause of any previous timeout."
+    },
+    "fullInstalledPayload": {
+      "matches": true,
+      "files": 92880,
+      "bytes": 2567784308,
+      "sha256": "9cc44a75e5fb3e977b38ce354d4144949fe3bde8605b266cf6cda2110298a0e6",
+      "maxInstalledPathLength": 240,
+      "expectedAndActualIdentical": true,
+      "limitation": "The artifact retains the full-payload aggregate count/byte/hash receipt, not every installed file byte. It is not a new independent filesystem scan of the Windows installation."
+    },
+    "installedRegistry": {
+      "entries": [
+        {
+          "hive": "HKCU",
+          "view": 64,
+          "values": {
+            "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc"
+          },
+          "kind": "install"
+        },
+        {
+          "hive": "HKCU",
+          "view": 64,
+          "values": {
+            "DisplayVersion": "0.6.5",
+            "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\Uninstall Gen V1.exe\" /currentuser"
+          },
+          "kind": "uninstall"
+        },
+        {
+          "hive": "HKCU",
+          "view": 32,
+          "values": {
+            "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc"
+          },
+          "kind": "install"
+        },
+        {
+          "hive": "HKCU",
+          "view": 32,
+          "values": {
+            "DisplayVersion": "0.6.5",
+            "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\Uninstall Gen V1.exe\" /currentuser"
+          },
+          "kind": "uninstall"
+        }
+      ],
+      "hkcuViews": [
+        32,
+        64
+      ],
+      "exactOwnedInstallAndUninstallPaths": true
+    },
+    "canonicalPython": {
+      "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "canonicalSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "canonicalBytes": 1511066,
+      "canonicalGitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "fileCount": 7415,
+      "recordCount": 91,
+      "nonRecordCount": 7324,
+      "changedFinalRecords": 16,
+      "unchangedFinalRecords": 75,
+      "nonRecordMismatches": [],
+      "samePathSet": true,
+      "originalWheelPins": 91,
+      "originalWheelsMatchCanonical": true,
+      "buildWheelsMatchCanonical": true,
+      "comparisonMethod": "Original lock distribution wheelSha256 is compared with canonical sha256 by exact name/version; full canonical bytes match the newly decompressed artifact SHA256 and Git blob.",
+      "mode": "wheel-canonical-record-v2",
+      "currentBuildProjectionSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "currentBuildWheelsMatch": true,
+      "unchangedNonRecordRows": 7324,
+      "method": "The newly decompressed 1511066-byte canonical file was fully rehashed and equals the independently retained full canonical bytes. All 7415 path rows and all 91 wheel identities were compared again with the original immutable lock; every non-RECORD byte/hash row matches. Current build wheel identities match the same canonical file.",
+      "recordDistinction": "16 final RECORD rows differ in size or digest from the v1 lock; 75 reproduce its original rows. The historical pip-cache diagnosis of 91 changed RECORD inputs is a different comparison.",
+      "limitation": "Original wheel archives and complete staged runtime file contents are not members of this report artifact; no wheel download or packaging rerun was performed by this reviewer."
+    },
+    "packagedProviders": {
+      "passed": true,
+      "auth": false,
+      "inference": false,
+      "packageRootMatchesInstalledDirectory": true,
+      "node": {
+        "path": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\resources\\node\\node.exe",
+        "version": "24.22.2"
+      },
+      "nodeSha256": "1c331340fa6cac5e4294725959070a143fa0507195a78ad77eed7943f719aac9",
+      "checks": [
+        {
+          "provider": "claude-code",
+          "versionOutput": "2.1.316 (Claude Code)",
+          "elapsedMs": 43,
+          "arguments": [
+            "--version"
+          ],
+          "auth": false,
+          "inference": false
+        },
+        {
+          "provider": "gemini-cli",
+          "versionOutput": "0.66.0",
+          "elapsedMs": 617,
+          "arguments": [
+            "--version"
+          ],
+          "auth": false,
+          "inference": false
+        },
+        {
+          "provider": "cursor-sdk",
+          "versionOutput": "1.0.38",
+          "elapsedMs": 460,
+          "arguments": [],
+          "auth": false,
+          "inference": false,
+          "bootstrap": {
+            "credentialStore": "empty-memory",
+            "authStatus": "logged-out",
+            "agentCreate": true,
+            "networkRequests": 0,
+            "sandboxExecution": false,
+            "nativeHelper": {
+              "entry": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\resources\\host\\node_modules\\@cursor\\sdk-win32-x64\\bin\\rg.exe",
+              "versionOutput": "ripgrep 14.1.1-cursor3 (rev d1e1c655dc)\n\nfeatures:+pcre2\nsimd(compile):+SSE2,-SSSE3,-AVX2\nsimd(runtime):+SSE2,+SSSE3,+AVX2\n\nPCRE2 10.43 is available (JIT is available)",
+              "arguments": [
+                "--version"
+              ]
+            }
+          }
+        }
+      ],
+      "custody": [
+        {
+          "distribution": "cursorSdk",
+          "matches": true,
+          "files": 346,
+          "bytes": 24941153,
+          "sha256": "fa66a9481f56168f2a181648d298669d1ebde92b8a4f8f2cd5a974a52ddd8049",
+          "retainedRowBytesAndDigestIndependentlyRecomputed": true
+        },
+        {
+          "distribution": "cursorNative",
+          "matches": true,
+          "files": 11,
+          "bytes": 10818172,
+          "sha256": "c0d22684bf8a2b9c0ae117fdd0cd2e1bbfa06b085337b71194e8476512e79dc5",
+          "retainedRowBytesAndDigestIndependentlyRecomputed": true
+        },
+        {
+          "distribution": "claudeSdk",
+          "matches": true,
+          "files": 21,
+          "bytes": 4976758,
+          "sha256": "38726b36531c745fb35b0f1bafc25be6396c7f239e900f4c40c4a820bb9383f7",
+          "retainedRowBytesAndDigestIndependentlyRecomputed": true
+        },
+        {
+          "distribution": "claudeNative",
+          "matches": true,
+          "files": 4,
+          "bytes": 335469792,
+          "sha256": "96a9e25a86802c2c9fc323b0950088875ee7d8f2927c4fa26c5e0601c3ae54e1",
+          "retainedRowBytesAndDigestIndependentlyRecomputed": true
+        },
+        {
+          "distribution": "geminiBundle",
+          "matches": true,
+          "files": 446,
+          "bytes": 98791286,
+          "sha256": "6bc3e5fdd3bbac2e94e31900661284934ceaac9e475b6a8f22173bf067c8139b",
+          "retainedRowBytesAndDigestIndependentlyRecomputed": true
+        }
+      ],
+      "networkScope": "Cursor empty-store bootstrap reports networkRequests=0 for its instrumented probe. Total installed/provider network and paid model cost remain unmeasured/null."
+    },
+    "firstLaunchReadiness": {
+      "iteration": 1,
+      "pid": 2600,
+      "timeoutMs": 80000,
+      "status": "ready",
+      "observations": [
+        {
+          "phase": "waiting",
+          "elapsedMs": 0,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 0,
+            "ownedOrigin": 0,
+            "file": 0,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        },
+        {
+          "phase": "waiting",
+          "elapsedMs": 15183,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 1,
+            "ownedOrigin": 0,
+            "file": 1,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        },
+        {
+          "phase": "candidate",
+          "elapsedMs": 17203,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 2,
+            "ownedOrigin": 1,
+            "file": 1,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        },
+        {
+          "phase": "ready",
+          "elapsedMs": 17206,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 2,
+            "ownedOrigin": 1,
+            "file": 1,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        }
+      ],
+      "causalLimit": "Ready at 17206 ms is below the former 30000 ms page-discovery bound. The actual absent-page cause in run 43755565107 remains unmeasured; this run does not attribute readiness to the larger bound.",
+      "ownershipLimit": "The fixed current source revalidates exact executable and launch nonce before admitting a current expected-origin page. The receipt records PID, liveness and page-category counts, not the full CDP command-line response."
+    },
+    "firstLaunchMemory": {
+      "hostDefaultOff": true,
+      "seedEnablement": "Constructor-local fixture creation only; project disabled before installed launch.",
+      "profileId": "5b07e0387f62f81c02b9c4e0fa10689455a682cfc91f635619f304b110873a10",
+      "projectIdentity": "41c9db9a2aed485a4e3bf3ffe54151d8d83f035f755b6ad45c85fa68967d95fc",
+      "projectId": "installed-memory-project",
+      "threadId": "installed-memory-thread",
+      "seededItemCount": 4,
+      "providerNetworkCalls": null,
+      "observations": [
+        {
+          "iteration": 1,
+          "step": "installed-default-off-read",
+          "available": false,
+          "enabled": false,
+          "accountId": null,
+          "itemCount": 4,
+          "tombstoneCount": 0
+        },
+        {
+          "iteration": 1,
+          "step": "exact-pinned-source",
+          "itemId": "3d1f68e6-dab9-467a-a492-80da2e69d986",
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-edit",
+            "sourceRevision": "0af6a14921480cfcb3b2883a2a0fa47a37d36c8ddfc1c99012c408511efb986b",
+            "capturedSeq": 4,
+            "digest": "1cd9f1584c8176f2a0ff5d2e40c1eec62a41c430793ddbbc5be06b6d5b4d2c9a",
+            "observedStatus": "REPORTED"
+          },
+          "capturedTextMatched": true,
+          "changedMessageNotSubstituted": true,
+          "inertText": true,
+          "screenshot": {
+            "file": "installed-memory-source.png",
+            "bytes": 82469,
+            "sha256": "47511ead91e55ccd664066af12bd4c86e41d8894ea511ff46c44ceb1ee1794a5",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "review-edit-accept-reject",
+          "editedRevision": 3,
+          "acceptedRevision": 2,
+          "rejectedState": "EXPIRED",
+          "screenshot": {
+            "file": "installed-memory-reviewed.png",
+            "bytes": 75870,
+            "sha256": "7290b2b21b1c023140898f5cd2d8df41285160d31045d8fa323227343bbade38",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "rejected-record-retained",
+          "screenshot": {
+            "file": "installed-memory-rejected.png",
+            "bytes": 77436,
+            "sha256": "c15cf8495a4c0a5f4487c803af6fda11ba4b52bff07d382ec672449ca358045e",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "failed",
+          "error": "Native Save refused: dialog-timeout.",
+          "screenshot": {
+            "file": "installed-memory-launch-1-failure.png",
+            "bytes": 77712,
+            "sha256": "db9cf87e1ddaaa1d26ad49c8875b631d252c68faf7c79609a3595438e98d0331",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          },
+          "nativeSave": {
+            "downloadBehavior": "default",
+            "owner": {
+              "pid": 2600,
+              "executable": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\Gen V1.exe"
+            },
+            "dialog": {
+              "status": "failed",
+              "pid": 2600,
+              "processStartTicks": "639303742551205758",
+              "dialogHandle": null,
+              "dialogTitle": "Export project memory",
+              "events": [
+                {
+                  "phase": "ready",
+                  "pid": 2600,
+                  "processStartTicks": "639303742551205758",
+                  "dialogHandle": null,
+                  "elapsedMs": 1157
+                },
+                {
+                  "phase": "failed",
+                  "pid": 2600,
+                  "processStartTicks": "639303742551205758",
+                  "dialogHandle": null,
+                  "elapsedMs": 31244,
+                  "reason": "dialog-timeout"
+                }
+              ],
+              "failure": "dialog-timeout"
+            }
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "review-command-observation",
+          "commandTypes": [],
+          "providerNetworkCalls": null,
+          "providerNetworkMeasurement": "Not measured. This proof performs no model-generation or sign-in actions."
+        }
+      ],
+      "observedStepCount": 6,
+      "successfulSemanticSteps": [
+        "installed-default-off-read",
+        "exact-pinned-source",
+        "review-edit-accept-reject",
+        "rejected-record-retained"
+      ],
+      "sourceReferenceMatchesSeed": true,
+      "completedLaunchReceipts": 0,
+      "secondLaunchObserved": false,
+      "postExitStorageObserved": false,
+      "scope": "Actual first-launch default-off read, exact retained source, edit/accept/reject and retained rejection are recorded. These runtime observations do not establish same-profile restart durability. Empty general commandTypes does not mean the memory review HTTP mutations did not occur."
+    },
+    "nativeSave": {
+      "status": "FAIL_DIALOG_DISCOVERY_TIMEOUT",
+      "downloadBehavior": "default",
+      "owner": {
+        "pid": 2600,
+        "executable": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\Gen V1.exe"
+      },
+      "dialog": {
+        "status": "failed",
+        "pid": 2600,
+        "processStartTicks": "639303742551205758",
+        "dialogHandle": null,
+        "dialogTitle": "Export project memory",
+        "events": [
+          {
+            "phase": "ready",
+            "pid": 2600,
+            "processStartTicks": "639303742551205758",
+            "dialogHandle": null,
+            "elapsedMs": 1157
+          },
+          {
+            "phase": "failed",
+            "pid": 2600,
+            "processStartTicks": "639303742551205758",
+            "dialogHandle": null,
+            "elapsedMs": 31244,
+            "reason": "dialog-timeout"
+          }
+        ],
+        "failure": "dialog-timeout"
+      },
+      "productionTerminalSavedReceiptPresent": false,
+      "exportArtifactPresent": false,
+      "dialogMatched": false,
+      "completedSave": false,
+      "cause": "UNMEASURED_IN_JSON_RECEIPTS",
+      "limits": [
+        "The worker became ready at 1157 ms, then failed dialog-timeout at 31244 ms, with no recorded HWND or dialog-found event.",
+        "The JSON does not establish whether no native dialog opened, a dialog used different metadata, or the production download boundary denied the request.",
+        "No dialog-title, PID, initiator-origin, Electron-API or UIA-layout cause is inferred from timeout alone.",
+        "Image byte hashes were checked here; visual inspection belongs to the separate UI review."
+      ]
+    },
+    "cleanup": {
+      "status": "uninstalled-owned-installation",
+      "command": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "elapsedMs": 9537
+      },
+      "cache": {
+        "status": "removed-owned-exact-file",
+        "sha256": "f7d0f72a1eb592464261f59ad0a826358abb8f2cf73486be6b75196820342e43"
+      },
+      "shortcuts": "absent",
+      "installationKeys": "absent",
+      "nativeProcesses": "absent",
+      "ownedUninstallCompleted": true,
+      "cleanCompletedLaunchNotClaimed": true
+    }
+  },
+  "admission": {
+    "status": "REJECTED",
+    "reason": "The installed verification job failed. No completed native Save/export receipt, completed personal launch pair, Forget tombstone, restart or post-exit retained-state checks are present.",
+    "currentInstalledRequiredCase": "FAIL",
+    "firstLaunchPartialActions": "RECORDED_NOT_FULL_RETENTION_PASS",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN",
+    "flags": [
+      {
+        "key": "memory.projectV1",
+        "enabled": false
+      },
+      {
+        "key": "memory.externalRecallExperimentV1",
+        "enabled": false
+      }
+    ],
+    "reviewerApproval": false
+  },
+  "limitations": [
+    "The original passed:false receipt and observed runner exit 1 are preserved. Successful installation, provider custody and early review actions do not convert the required installed case to PASS.",
+    "There are seven original PNG members and no exported JSON member. This reviewer checked their bytes and identities but did not visually inspect them.",
+    "Native Save cause is limited to the JSON receipts; any later screenshot or pinned-source diagnosis must be separately identified.",
+    "No completed first-launch receipt or second launch exists; failure cleanup can succeed without establishing a clean normal launch/restart sequence.",
+    "Forget, tombstone persistence, exported redaction bytes and restart review remain unverified in this run.",
+    "Production activation remains false. No full enabled recall/extraction/checkpoint or live repeated-task quality/cost proof is admitted.",
+    "Provider/model network totals remain null unless explicitly measured by the narrow reported probe.",
+    "The lost historical strict-admission helper was not recovered or executed. This review applies its stated boundaries independently to actual retained evidence."
+  ],
+  "visualReview": {
+    "performedByThisReviewer": false,
+    "separateReview": {
+      "ref": "docs/implementation/v3/M05-installed-ui-review-43760736519.json",
+      "gitBlobSha": "46ac74b3130f8183929b9c9501869f95ee4d0794",
+      "bytes": 25170,
+      "sha256": "0c7becc947fb7c38e31afb164182e134946ce6c303740eb72133e12b2ac80328",
+      "status": "FAILED_INSTALLED_NATIVE_SAVE_WITH_PARTIAL_RETAINED_MEMORY_UI_EVIDENCE"
+    },
+    "scope": "This reviewer read the separate JSON review and verified its immutable bytes. The UI reviewer independently rendered all seven PNGs. Renderer screenshots do not establish native operating-system dialog presence or absence."
+  }
+}
