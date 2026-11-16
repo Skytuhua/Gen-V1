@@ -13,15 +13,15 @@ import type {workspacePanelBounds} from './panel-geometry';
 export {UsageSummary,snapshotDiffs} from './WorkspacePanelBodies';
 
 export function ResizeHandle({ label, value, minimum, maximum, change, side }: { label: string; value: number; minimum: number; maximum: number; change: (width: number) => void; side: 'left' | 'right' }) {
-  const cleanup = useRef<() => void>(() => {});
+  const cleanup = useRef<() => void>(() => {}), activePointer = useRef<number | null>(null);
   useEffect(() => () => cleanup.current(), []);
   const clamp = (number: number) => Math.max(minimum, Math.min(maximum, number));
   return <div role="separator" tabIndex={0} aria-label={label} aria-orientation="vertical" aria-valuenow={Math.round(value)} aria-valuemin={minimum} aria-valuemax={maximum} className={`panel-resizer panel-resizer-${side}`} onDoubleClick={() => change(clamp(side === 'left' ? 248 : 520))} onKeyDown={event => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); change(clamp(value + (event.key === 'ArrowRight' ? 20 : -20) * (side === 'left' ? 1 : -1))); } }} onPointerDown={event => {
-    if (event.button !== 0) return;
-    event.preventDefault(); cleanup.current(); const start = event.clientX, pointerId = event.pointerId, element = event.currentTarget;
+    if (event.button !== 0 || activePointer.current !== null) return;
+    event.preventDefault(); const start = event.clientX, pointerId = event.pointerId, element = event.currentTarget; activePointer.current = pointerId;
     const move = (next: PointerEvent) => { if (next.pointerId !== pointerId) return; change(clamp(value + (next.clientX - start) * (side === 'left' ? 1 : -1))); };
     let stopped = false;
-    const stop = () => { if (stopped) return; stopped = true; window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); window.removeEventListener('pointercancel', stop); window.removeEventListener('blur', stop); element.removeEventListener('lostpointercapture', stop); if (element.hasPointerCapture?.(pointerId)) element.releasePointerCapture(pointerId); document.documentElement.classList.remove('resizing-panel'); };
+    const stop = (ending?: Event) => { if (stopped || ending instanceof PointerEvent && ending.pointerId !== pointerId) return; stopped = true; activePointer.current = null; window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', stop); window.removeEventListener('pointercancel', stop); window.removeEventListener('blur', stop); element.removeEventListener('lostpointercapture', stop); if (element.hasPointerCapture?.(pointerId)) element.releasePointerCapture(pointerId); document.documentElement.classList.remove('resizing-panel'); };
     cleanup.current = stop; document.documentElement.classList.add('resizing-panel'); window.addEventListener('pointermove', move); window.addEventListener('pointerup', stop); window.addEventListener('pointercancel', stop); window.addEventListener('blur', stop); element.addEventListener('lostpointercapture', stop);
     element.setPointerCapture?.(pointerId);
   }} />;
