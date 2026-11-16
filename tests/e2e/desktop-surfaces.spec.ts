@@ -1,5 +1,5 @@
 import {test,expect,type Page} from '@playwright/test';
-import {taskFixture,serveTaskFixture} from './task-interface-fixture';
+import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
 import {EMPTY_USAGE} from '../../packages/contracts';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
 const fixture=()=>{const s=taskFixture({root:'field',elements:{field:{type:'Input',props:{stateKey:'name',label:'Review name'}}}});s.usage['task-thread']={...EMPTY_USAGE,inputTokens:1234};s.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-10-30T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'inspect',title:'Inspect the task boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});return s;};
@@ -16,7 +16,30 @@ async function bridge(page:Page,surface:Record<string,unknown>={kind:'main'}){
    focus:async(id:string)=>{w.__desktopCalls.push(['focus',id]);},browser:async(command:unknown)=>{w.__desktopCalls.push(['browser',command]);if(w.__desktopFail)throw Error('Native browser action failed');}};
  },surface);
 }
-test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const overview=page.getByRole('region',{name:'Project overview window',exact:true});await expect(overview).toBeVisible({timeout:15000});const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await page.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(toggle).toHaveAttribute('aria-expanded','false');await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();await page.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeHidden();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:/^Detach (thread|artifact|workspace|plan|navigation|browser)|^Minimize chat window$/})).toHaveCount(0);await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Detach thread',exact:true})).toBeVisible();await page.keyboard.press('Escape');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>['detach','minimize'].includes(call[0])))).toEqual([]);});
+test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{
+ await bridge(page);
+ await serveTaskFixture(page,fixture());
+ await serveTaskSplitLayout(page);
+ await page.goto('/');
+ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ const overview=page.getByRole('region',{name:'Project overview window',exact:true});
+ await expect(overview).toBeVisible({timeout:15000});
+ const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
+ await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');
+ await page.getByRole('button',{name:'Collapse Project overview',exact:true}).click();
+ await expect(toggle).toHaveAttribute('aria-expanded','false');
+ await page.getByRole('button',{name:'Show live usage',exact:true}).click();
+ await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Minimize live usage',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeHidden();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:/^Detach (thread|artifact|workspace|plan|navigation|browser)|^Minimize chat window$/})).toHaveCount(0);
+ await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();
+ await expect(page.getByRole('menuitem',{name:'Detach thread',exact:true})).toBeVisible();
+ await page.keyboard.press('Escape');
+ expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>['detach','minimize'].includes(call[0])))).toEqual([]);
+});
 test('authoritative detached plan ignores URL descriptors and restores its owning thread',async({page})=>{await bridge(page,{kind:'plan',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/?desktopWindow=ignored&threadId=wrong');await expect(page.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Return to workspace',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
 test('an artifact stays editable in the main window with no new-detachment entry',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Ada');await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Ada');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
 test('browser clients expose no native window controls',async({page})=>{await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('button',{name:'Minimize chat window',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);});
@@ -39,7 +62,34 @@ test('browser draft export is explicit and does not clear the source',async({pag
 
 test('native close saves the latest edit and lease before acknowledgment, retaining source DOM',async({page})=>{await bridge(page);const host=await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Final acknowledged value');const node=await input.elementHandle();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(host.snapshot.userStates[0].values.name).toBe('Final acknowledged value');expect(await node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);expect(await node!.evaluate(element=>element.isConnected)).toBe(true);const saved=host.commands.findIndex(command=>command.type==='state.save'),ended=host.commands.findIndex((command,index)=>index>saved&&command.type==='edit.end');expect(saved).toBeGreaterThanOrEqual(0);expect(ended).toBeGreaterThan(saved);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
 test('native close freezes the same workspace editor alias after acknowledged saving',async({page})=>{await bridge(page);const host=await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Workspace edit');const node=await input.elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(page.getByRole('button',{name:'Detach workspace',exact:true})).toHaveCount(0);expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);await expect.poll(()=>node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);expect(await node!.evaluate(element=>element.isConnected)).toBe(true);expect(host.commands.some(command=>command.type==='state.save'&&(command.payload.values as any).name==='Workspace edit')).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
-test('sidebar detaches a thread into its own window and the main workspace stays usable',async({page})=>{await bridge(page);const s=fixture();s.threads.push({...s.threads[0],id:'second-thread',title:'Second conversation'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Sidebar edit');await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['detach',{kind:'thread',threadId:'task-thread'}]);await expect(page.locator('.notice',{hasText:'This conversation is open in another window.'})).toBeVisible();await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();await expect(page.getByText('What are we working on?',{exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['focus','detached-1']);await page.getByRole('button',{name:'Second conversation Ready',exact:true}).click();await expect(page.locator('.breadcrumb')).toContainText('Second conversation');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Sidebar edit');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();});
+test('sidebar detaches a thread into its own window and the main workspace stays usable',async({page})=>{
+ await bridge(page);
+ const s=fixture();s.threads.push({...s.threads[0],id:'second-thread',title:'Second conversation'});
+ await serveTaskFixture(page,s);
+ await serveTaskSplitLayout(page);
+ await page.goto('/');
+ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ const input=page.getByRole('textbox',{name:'Review name',exact:true});
+ await input.fill('Sidebar edit');
+ await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['detach',{kind:'thread',threadId:'task-thread'}]);
+ await expect(page.locator('.notice',{hasText:'Conversation open in another window.'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();
+ const heldComposer=page.getByRole('textbox',{name:'Message',exact:true});
+ await expect.poll(()=>heldComposer.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
+ await expect.poll(()=>input.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
+ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['focus','detached-1']);
+ await page.getByRole('button',{name:'Second conversation Ready',exact:true}).click();
+ await expect(page.locator('.breadcrumb:visible').filter({hasText:'Second conversation'})).toHaveCount(1);
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));
+ // Canonical split selection follows the workspace layout, not a snapshot activeThreadId.
+ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Sidebar edit');
+ await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();
+});
 test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Open this artifact from the main workspace. Your current editor is kept open.');await expect(page.locator('[data-artifact-id="second-artifact"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
 test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
 
