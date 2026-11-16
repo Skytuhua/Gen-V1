@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type AriaAttributes } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type AriaAttributes } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { Popover } from './Popover';
 import { isComposing, useListNavigation } from './list-navigation';
@@ -26,6 +26,8 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
   const [fieldsetDisabled, setFieldsetDisabled] = useState(false), [invalid, setInvalid] = useState(false);
   const listId = useId(), errorId = useId(), start = useRef<'selected' | 'last' | string>('selected');
   const selected = options.findIndex(option => option.value === value);
+  const hasPlaceholder = options.some(option => option.value === '');
+  const nativeValue = selected >= 0 ? value : '';
   const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && (value === '' || selected < 0);
   const close = () => { setOpen(false); anchor.current?.focus(); };
   const choose = (index: number) => {
@@ -45,12 +47,23 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
     }
     update(); return () => observer.disconnect();
   }, [disabled]);
+  useLayoutEffect(() => {
+    const select = native.current;
+    if (!select) return;
+    const restore = options.some(option => option.value === initial.current) ? initial.current : '';
+    // The form's own reset must agree with the controlled trigger, including a stale initial value.
+    for (const option of select.options) {
+      if (option.defaultSelected !== (option.value === restore)) option.defaultSelected = option.value === restore;
+    }
+    select.value = nativeValue;
+  }, [options, nativeValue]);
   useEffect(() => {
     const owner = native.current?.form;
     const reset = (event: Event) => queueMicrotask(() => {
       if (event.defaultPrevented || !native.current) return;
-      const next = [...native.current.options].find(option => option.value === initial.current)?.value ?? native.current.options[0]?.value ?? '';
-      native.current.value = next; change.current(next); setOpen(false); setInvalid(false);
+      const next = initial.current;
+      native.current.value = [...native.current.options].some(option => option.value === next) ? next : '';
+      change.current(next); setOpen(false); setInvalid(false);
     });
     owner?.addEventListener('reset', reset);
     return () => owner?.removeEventListener('reset', reset);
@@ -66,9 +79,11 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
           event.preventDefault(); navigation.reset(); start.current = event.key === 'ArrowUp' ? 'last' : event.key === 'ArrowDown' ? 'selected' : event.key;
           setOpen(true);
         }
-      }}><span>{options[selected]?.label ?? options.find(option => option.value === '')?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
+      }}><span>{options[selected]?.label ?? options.find(option => option.value === '')?.label ?? (required ? 'Choose an option' : '')}</span><ChevronDown size={14} aria-hidden="true" /></button>
     <select ref={native} className="ui-select-native" aria-hidden="true" tabIndex={-1} name={name} form={form} disabled={disabled} required={required}
-      value={value} onChange={event => onValueChange(event.target.value)} onInvalid={event => { event.preventDefault(); setInvalid(true); anchor.current?.focus(); }}>
+      value={nativeValue} onChange={event => onValueChange(event.target.value)} onInvalid={event => { event.preventDefault(); setInvalid(true); anchor.current?.focus(); }}>
+      {/* Prevent the native form from falling back to its first real option. */}
+      {!hasPlaceholder && <option value="" hidden/>}
       {options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
     </select>
     {showInvalid && <span id={errorId}>Choose an option.</span>}
