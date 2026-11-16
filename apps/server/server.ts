@@ -32,6 +32,8 @@ import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
+import {SessionBranchReadModels} from '../../packages/core/session-branches.ts';
+import {registerSessionBranchReadRoutes} from './session-branch-routes.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
@@ -202,6 +204,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);
+  const sessionBranchReads=new SessionBranchReadModels(service.store);
+  registerSessionBranchReadRoutes(app,sessionBranchReads);
   const toolEffectReads=new ToolEffectReadModels(service.store);
   registerToolEffectReadRoutes(app,toolEffectReads);
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});

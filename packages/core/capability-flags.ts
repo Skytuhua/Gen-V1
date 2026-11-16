@@ -79,7 +79,13 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey;
+// M14 flag set: branchable sessions and inert history imports. Both stay off
+// until each sub-capability carries its own proof; disabling them removes
+// creation/import while preserving captured and imported provenance.
+export const M14_FLAG_KEYS = ["sessions.branchV1", "sessions.inertImportV1"] as const;
+export type M14FlagKey = (typeof M14_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
@@ -96,6 +102,8 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
   { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
   { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
+  { key: "sessions.branchV1", owner: "m14", description: "Immutable Inspect captures and explicitly labeled quoted-context new tasks; native fork stays unproven." },
+  { key: "sessions.inertImportV1", owner: "m14", description: "Strict ArchiveV1 inert history imports: staged validation, owner-bound dedup and atomic publication." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {
