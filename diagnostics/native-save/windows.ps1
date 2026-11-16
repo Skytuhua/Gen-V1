@@ -37,11 +37,12 @@ public static class OwnedWindowProbe {
   [DllImport("user32.dll")] public static extern IntPtr GetWindow(IntPtr h, uint command);
   [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr h);
   [DllImport("user32.dll")] public static extern IntPtr GetAncestor(IntPtr h, uint command);
+  [DllImport("user32.dll")] public static extern bool IsWindow(IntPtr h);
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
   [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr h);
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
-  public static uint Pid(IntPtr h) { uint p; GetWindowThreadProcessId(h, out p); return p; }
+  public static uint Pid(IntPtr h) { uint p=0; return GetWindowThreadProcessId(h, out p)==0?0:p; }
   public static long[] Windows(uint pid) { var items=new List<long>(); EnumWindows((h,p)=>{if(Pid(h)==pid && items.Count<32) items.Add(h.ToInt64());return true;},IntPtr.Zero);return items.ToArray(); }
   public static long[] Children(IntPtr parent,uint pid) { var items=new List<long>();EnumChildWindows(parent,(h,p)=>{if(Pid(h)==pid)items.Add(h.ToInt64());return items.Count<=64;},IntPtr.Zero);return items.ToArray(); }
   public static string TitleKind(IntPtr h) { var s=new StringBuilder(512);GetWindowText(h,s,s.Capacity);var v=s.ToString();return v=="Export project memory"?"expected-export":v=="M05 native Save diagnostic"?"fixture":v.Length==0?"empty":"other"; }
@@ -114,6 +115,23 @@ public static class OwnedWindowProbe {
       [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'Save')))
     return @{file=$element.FindAll([System.Windows.Automation.TreeScope]::Descendants,$fileCondition).Count;save=$element.FindAll([System.Windows.Automation.TreeScope]::Descendants,$saveCondition).Count}
   }
+  $closedDialogs=[Collections.Generic.HashSet[long]]::new()
+  function Observe-ClosedDialog($handle,$entry,$stage) {
+    $before=[OwnedWindowProbe]::Pid($handle)
+    if ($before -ne 0 -and $before -ne $ownedPid) {throw 'Dialog owner changed'}
+    $live=[OwnedWindowProbe]::IsWindow($handle)
+    $after=[OwnedWindowProbe]::Pid($handle)
+    if ($after -ne 0 -and $after -ne $ownedPid) {throw 'Dialog owner changed'}
+    if (-not $live -and $after -eq 0 -and -not [OwnedWindowProbe]::IsWindow($handle)) {
+      Check-Owner
+      [void]$closedDialogs.Add($handle.ToInt64())
+      if ($closedDialogs.Count -gt 32) {throw 'Closed dialog bound exceeded'}
+      if ($null -eq $entry['closedDuringObservation']) {$entry['closedDuringObservation']=[ordered]@{isWindow=$false;nativeOwnerPid=0;stage=$stage;elapsedMs=[int]$clock.ElapsedMilliseconds}}
+      return $true
+    }
+    if (-not $live -or $before -ne $ownedPid -or $after -ne $ownedPid -or $closedDialogs.Contains($handle.ToInt64())) {throw 'Dialog owner changed or handle reused'}
+    return $false
+  }
   Check-Owner
   foreach ($due in @(0,1000,5000,15000,28000,33000)) {
     $probeStage = 'waiting-sample'
@@ -130,6 +148,7 @@ public static class OwnedWindowProbe {
     $probeStage = 'owned-window-enumeration'
     foreach ($number in [OwnedWindowProbe]::Windows([uint32]$ownedPid)) {
       $probeStage = 'window-metadata'
+      if ($closedDialogs.Contains($number)) {throw 'Closed dialog handle was reused'}
       $handle = [IntPtr]::new($number)
       $owner = [OwnedWindowProbe]::GetWindow($handle,4)
       $rootOwner = [OwnedWindowProbe]::GetAncestor($handle,3)
@@ -166,14 +185,17 @@ public static class OwnedWindowProbe {
       if ($entry.titleKind -eq 'expected-export') {
         $probeStage = 'dialog-owner-before-children'
         Check-Owner
-        if ([OwnedWindowProbe]::Pid($handle) -ne $ownedPid) {throw 'Dialog owner changed'}
+        if (Observe-ClosedDialog $handle $entry 'before-children') {$windows += $entry;continue}
         $children=[OwnedWindowProbe]::Children($handle,[uint32]$ownedPid)
         if ($children.Length -gt 64) {throw 'Owned child enumeration exceeded its bound'}
-        $entry.ownedChildCount=$children.Length;$candidateCount=0
+        $entry.ownedChildCount=$children.Length;$candidateCount=0;$entry['childEnumerationComplete']=$true
         foreach ($childNumber in $children) {
           $probeStage = 'child-owner-before-metadata'
           $childHandle=[IntPtr]::new($childNumber)
-          if ([OwnedWindowProbe]::Pid($childHandle) -ne $ownedPid) {throw 'Native child owner changed'}
+          if ([OwnedWindowProbe]::Pid($childHandle) -ne $ownedPid) {
+            if (Observe-ClosedDialog $handle $entry 'during-children') {$entry['childEnumerationComplete']=$false;break}
+            throw 'Native child owner changed'
+          }
           $childClass=[OwnedWindowProbe]::ChildClass($childHandle);$childId=[OwnedWindowProbe]::GetDlgCtrlID($childHandle)
           $child=[ordered]@{hwnd=[string]$childNumber;pid=$ownedPid;id=$childId;class=$childClass;visible=[OwnedWindowProbe]::IsWindowVisible($childHandle);enabled=[OwnedWindowProbe]::IsWindowEnabled($childHandle);uia=$null;uiaError=$false}
           if ($childId -in @(1,2,1001) -or $childClass -in @('Edit','Button','ComboBox','ComboBoxEx32')) {
@@ -195,6 +217,7 @@ public static class OwnedWindowProbe {
         $entry.nativeCandidateCount=$candidateCount
         $probeStage = 'owner-after-children'
         Check-Owner
+        [void](Observe-ClosedDialog $handle $entry 'after-children')
       }
       $windows += $entry
     }
