@@ -53,6 +53,9 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     onClick={event => { if (pressedBackdrop.current && onBackdrop(event)) onClose(); pressedBackdrop.current = false; }}
     onKeyDown={event => {
       if (event.key === 'Escape') {
+        // An open modal owns Escape: do not let it bubble to ancestor
+        // collapse handlers (e.g. the docked summary hosting this dialog).
+        event.stopPropagation();
         if (isComposing(event)) event.preventDefault();
         const target = event.target;
         // Esc inside a native picker (date/time input, open select) must close
