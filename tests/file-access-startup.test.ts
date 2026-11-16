@@ -7,11 +7,14 @@ const spawn = vi.hoisted(() => vi.fn());
 vi.mock('node:child_process', async original => ({ ...await original<typeof import('node:child_process')>(), spawn }));
 
 const platform = Object.getOwnPropertyDescriptor(process, 'platform')!;
+const spawned: { emit(event: string, ...args: unknown[]): boolean }[] = [];
 beforeEach(() => {
   vi.useFakeTimers();
   Object.defineProperty(process, 'platform', { ...platform, value: 'win32' });
 });
 afterEach(() => {
+  // Close every spawned mock child so the pooled guard resets between tests.
+  for (const child of spawned.splice(0)) child.emit('close', 0);
   Object.defineProperty(process, 'platform', platform);
   vi.useRealTimers();
   spawn.mockReset();
@@ -26,7 +29,10 @@ function guard() {
       final(done) { queueMicrotask(() => close(0)); done(); },
     }),
     kill: vi.fn(() => { close(1); return true; }),
+    unref: vi.fn(),
+    stdio: [],
   });
+  spawned.push(child);
   let closed = false;
   function close(code: number) { if (!closed) { closed = true; child.emit('exit', code, null); child.emit('close', code, null); } }
   spawn.mockReturnValue(child);
@@ -41,16 +47,19 @@ function observe<T>(operation: Promise<T>) {
   return { result, settled: () => settled };
 }
 
-it('admits a valid first acquisition after the observed cold-start delay and closes its guard', async () => {
+it('admits a valid first acquisition after the observed cold-start delay and retains its guard', async () => {
   const g = guard(), action = vi.fn(async () => 'guarded');
   const observed = observe(startupGuard([path], signal(), action));
   await vi.advanceTimersByTimeAsync(31_944);
   expect(action).not.toHaveBeenCalled();
   expect(observed.settled()).toBe(false);
   g.reply(0);
+  await vi.advanceTimersByTimeAsync(0);
+  g.reply(1); // release
   expect(await observed.result).toEqual({ value: 'guarded', error: undefined });
   expect(action).toHaveBeenCalledOnce();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.requests.map(request => request.command)).toEqual(['acquire', 'release']);
+  expect(g.child.stdin.writableEnded).toBe(false);
   expect(g.child.kill).not.toHaveBeenCalled();
 });
 
@@ -62,7 +71,7 @@ it('denies a silent first acquisition at its bounded startup deadline without en
   await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds', async () => {
@@ -75,10 +84,15 @@ it('ignores a nested startup opt-in and keeps its acquisition deadline at fiftee
   await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
   await vi.advanceTimersByTimeAsync(1);
+  await vi.advanceTimersByTimeAsync(0);
+  expect(g.requests.map(request => request.command)).toEqual(['acquire', 'acquire', 'release']);
+  await vi.advanceTimersByTimeAsync(14_999);
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
   expect(observed.settled()).toBe(true);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(nested).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('keeps the later release deadline at fifteen seconds', async () => {
@@ -92,8 +106,11 @@ it('keeps the later release deadline at fifteen seconds', async () => {
   await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
   await vi.advanceTimersByTimeAsync(1);
+  await vi.advanceTimersByTimeAsync(14_999); // the outer release shares the same deadline
+  expect(observed.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('preserves the separately bounded metadata import deadline', async () => {
@@ -104,7 +121,7 @@ it('preserves the separately bounded metadata import deadline', async () => {
   await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('still denies a mismatched first response immediately', async () => {
@@ -114,7 +131,7 @@ it('still denies a mismatched first response immediately', async () => {
   g.child.stdout.write('wrong-request-id\n');
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('still denies native acquisition failure immediately and retains its numeric code', async () => {
@@ -124,7 +141,7 @@ it('still denies native acquisition failure immediately and retains its numeric 
   g.child.stderr.write('GUARD_NATIVE_ERROR:32\n'); g.close(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED', details: { nativeCode: '32' } });
   expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
 it('does not enter the action if cancelled while waiting for a valid startup reply', async () => {
@@ -132,32 +149,39 @@ it('does not enter the action if cancelled while waiting for a valid startup rep
   const observed = observe(startupGuard([path], controller.signal, action));
   await vi.advanceTimersByTimeAsync(31_944);
   controller.abort(); g.reply(0);
+  await vi.advanceTimersByTimeAsync(0);
+  g.reply(1); // release issued by the teardown path
   expect((await observed.result).error).toMatchObject({ code: 'CANCELLED' });
   expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
+  await vi.advanceTimersByTimeAsync(0);
+  expect(g.child.stdin.writableEnded).toBe(false);
 });
 
-it('keeps unrelated first acquisitions at fifteen seconds', async () => {
-  const g = guard(), action = vi.fn(async () => undefined);
-  const observed = observe(withPathGuard([path], signal(), action));
+it('extends the first acquisition on each cold spawned guard to its startup deadline', async () => {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const g = guard(), action = vi.fn(async () => 'guarded');
+    const observed = observe(withPathGuard([path], signal(), action));
+    await vi.advanceTimersByTimeAsync(44_999);
+    expect(observed.settled()).toBe(false); expect(action).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+    expect(action).not.toHaveBeenCalled(); expect(g.child.stdin.writableEnded).toBe(false);
+    g.close(1); // retire the pooled guard so the next operation respawns cold
+  }
+  expect(spawn).toHaveBeenCalledTimes(2);
+});
+
+it('keeps ordinary acquisitions on a warm shared guard at fifteen seconds', async () => {
+  const g = guard(), action = vi.fn(async () => 'warm'), second = vi.fn(async () => 'second');
+  const first = observe(withPathGuard([path], signal(), action));
+  await vi.advanceTimersByTimeAsync(0); g.reply(0);
+  await vi.advanceTimersByTimeAsync(0); g.reply(1); // release
+  expect(await first.result).toEqual({ value: 'warm', error: undefined });
+  const observed = observe(withPathGuard([path], signal(), second));
   await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
   await vi.advanceTimersByTimeAsync(1);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
-  expect(action).not.toHaveBeenCalled();
-  expect(g.child.stdin.writableEnded).toBe(true);
-});
-
-
-it('rejects late sixteen-second replies on each fresh ordinary guard', async () => {
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const g = guard(), action = vi.fn(async () => 'guarded');
-    const observed = observe(withPathGuard([path], signal(), action));
-    await vi.advanceTimersByTimeAsync(14_999);
-    expect(observed.settled()).toBe(false); expect(action).not.toHaveBeenCalled();
-    await vi.advanceTimersByTimeAsync(1_001); g.reply(0);
-    expect((await observed.result).error).toMatchObject({code: 'CAPABILITY_DENIED'});
-    expect(action).not.toHaveBeenCalled(); expect(g.child.stdin.writableEnded).toBe(true);
-  }
-  expect(spawn).toHaveBeenCalledTimes(2);
+  expect(second).not.toHaveBeenCalled();
+  expect(spawn).toHaveBeenCalledTimes(1);
 });
