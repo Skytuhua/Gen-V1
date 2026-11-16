@@ -402,7 +402,7 @@ export function ShellSidebar({
           type="button"
           className="icon-button sidebar-action-btn new-thread"
           aria-label="New thread"
-          title="New thread (⇧O)"
+          title={`New thread (${preferences.keybindings.newThread})`}
           onClick={create}
           disabled={!loaded || creating}
         >

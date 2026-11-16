@@ -190,6 +190,9 @@ export const screens: Screen[] = [
 ];
 // Single source for scope rules and the documentation mapping table. All matches accumulate.
 export const mapping = [
+  // Recent history still names the deleted standalone hosts. Capture the
+  // surviving shell, where both retired presets now resolve to supported layouts.
+  { pattern: '^apps/web/src/(?:CodeReviewHost\\.tsx|ResearchHost\\.tsx|(?:code-review|research)-host\\.css|code-review-workspace/(?:CodeReviewWorkspace\\.tsx|code-review-workspace\\.css)|research-workspace/(?:PassageInspector\\.tsx|ResearchWorkspace\\.tsx|SourceImport\\.tsx|SourceReader\\.tsx|research-workspace\\.css))$', screens: ['app-shell'] },
   {pattern:'(ProjectSearch|project-search|^apps/web/src/files/)',screens:['project-search']},
   {pattern:'(SavedDrafts|saved-drafts)',screens:['saved-drafts']},
   {pattern:'(TerminalExcerpt|terminal-excerpts|TerminalBody|ComposerAttachments|composer-entry)',screens:['terminal-excerpts']},

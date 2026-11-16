@@ -5,9 +5,16 @@ import { createSigningPdfFixture } from './document-preview-fixture';
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
 
 const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-const scrollSettled = (locator: ReturnType<Page['locator']>) => locator.evaluate(node => new Promise<void>(resolve => {
-  let last = node.scrollTop, still = 0, frames = 0;
-  const tick = () => { const delta = Math.abs(node.scrollTop - last); last = node.scrollTop; still = delta < .5 ? still + 1 : 0; if (++frames > 240 || still >= 10) resolve(); else requestAnimationFrame(tick); };
+const scrollSettled = (locator: ReturnType<Page['locator']>) => locator.evaluate(node => new Promise<void>((resolve, reject) => {
+  let top = node.scrollTop, left = node.scrollLeft, stableSince = performance.now();
+  const started = stableSince;
+  // Ten frames can finish before the spring rests on high refresh displays.
+  const tick = (now: number) => {
+    if (Math.abs(node.scrollTop - top) >= .5 || Math.abs(node.scrollLeft - left) >= .5) { top = node.scrollTop; left = node.scrollLeft; stableSince = now; }
+    if (now - stableSince >= 170) resolve();
+    else if (now - started >= 4000) reject(Error('PDF viewport did not settle within 4000ms'));
+    else requestAnimationFrame(tick);
+  };
   requestAnimationFrame(tick);
 }));
 

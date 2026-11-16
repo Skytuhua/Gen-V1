@@ -114,7 +114,7 @@ test('Shift+Enter adds a side-question newline without sending',async({page})=>{
 });
 test('a failed side send preserves the question after reload',async({page})=>{
  const host=await fixture(page);await page.goto('/');await openSide(page);const side=page.getByRole('region',{name:'Side conversation window',exact:true}),input=side.getByRole('textbox',{name:'Side question',exact:true});await input.fill('Keep this question.');
- host.failNext();await side.getByRole('button',{name:'Send side question',exact:true}).click();await expect(side.getByRole('alert')).toContainText('Side response is still working.');await expect(input).toHaveValue('Keep this question.');await page.reload();await openSide(page);await expect(input).toHaveValue('Keep this question.');
+ host.failNext();await side.getByRole('button',{name:'Send side question',exact:true}).click();await expect(side.getByRole('status').filter({hasText:'Side response is still working.'})).toBeVisible();await expect(input).toHaveValue('Keep this question.');await page.reload();await openSide(page);await expect(input).toHaveValue('Keep this question.');
 });
 
 test('typing during first side creation migrates the newest draft and only submits the original question',async({page})=>{
