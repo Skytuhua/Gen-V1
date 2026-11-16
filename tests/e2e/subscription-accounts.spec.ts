@@ -282,6 +282,7 @@ test('account labels fit the existing settings layout across dark, light, and na
 test('browser connection commands include the opaque account id and labels stay out of commands', async ({ page }) => {
   await host(page); await page.goto('/'); const provider = await openAccounts(page);
   await provider.getByRole('radio',{name:'Work',exact:true}).check();
+  await provider.getByText('Connect from a terminal',{exact:true}).click();
   await expect(provider.locator('.connection-account-auth code')).toHaveText(`pnpm agent:login --provider openai --account-id ${work}`);
   await expect(provider.locator('.connection-account-auth code')).not.toContainText('Work');
 });
@@ -299,9 +300,9 @@ test('shows per-account readiness without turning model counts or local labels i
   await host(page);
   await page.route(`**/api/account-auth?providerId=openai&accountId=${work}`,route=>route.fulfill({json:{providerId:'openai',accountId:work,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'No credential configured.'}}));
   await page.goto('/');const provider=await openAccounts(page),detail=provider.locator('.connection-account-auth');
-  await expect(detail).toContainText('Credential configured');await expect(detail).toContainText('Authenticated identity unavailable.');
+  await expect(detail).toContainText('Saved, not verified');await expect(detail).toContainText('Authenticated identity unavailable.');
   await expect(detail.getByRole('button',{name:'Sign out locally',exact:true})).toBeEnabled();
-  await provider.getByRole('radio',{name:'Work',exact:true}).check();await expect(detail).toContainText('signed out');
+  await provider.getByRole('radio',{name:'Work',exact:true}).check();await expect(detail).toContainText('Not signed in');
   await expect(provider.locator('header').first()).not.toContainText('models available');await expect(provider).not.toContainText('Verified provider user');
   await expect(detail.getByRole('button',{name:'Sign out locally',exact:true})).toBeDisabled();
 });
@@ -339,7 +340,7 @@ for(const lateError of [false,true])test(`switching account cancels readiness an
   });
   await page.goto('/');const provider=await openAccounts(page);await expect.poll(()=>started).toBe(true);
   await provider.getByRole('radio',{name:'Work',exact:true}).check();
-  const detail=provider.locator('.connection-account-auth');await expect(detail).toContainText('Credential configured');
+  const detail=provider.locator('.connection-account-auth');await expect(detail).toContainText('Saved, not verified');
   release();await expect.poll(()=>finished).toBe(true);await expect.poll(()=>aborted).toBe(true);
   await expect(detail).not.toContainText(/late-personal|Late Personal|Connection status is unavailable/);
   await expect(provider.getByRole('radio',{name:'Work',exact:true})).toBeChecked();
@@ -383,4 +384,14 @@ test('auth refresh retains an unavailable explicit model and unsent draft until 
   await expect(draft).toHaveValue('Keep this unsent draft and my explicit model.');await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeDisabled();
   await picker.click();await page.getByRole('option',{name:'Other provider model',exact:true}).click();await page.keyboard.press('Escape');
   await expect(picker).toContainText('Other provider model');await expect(draft).toHaveValue('Keep this unsent draft and my explicit model.');
+});
+
+
+test('terminal-owned sign-in shows progress and blocks conflicting account actions',async({page})=>{
+  await page.addInitScript(()=>{const context={windowId:'main',surface:{kind:'main'},windows:[]};(window as any).harnessDesktop={getContext:async()=>context,ready:async()=>context,onState:()=>()=>{},onCloseRequested:()=>()=>{},list:async()=>[],signIn:async()=>{throw Error('Unexpected sign-in');},browser:async()=>({})};});
+  await host(page);
+  await page.route('**/api/account-auth?*',route=>{const query=new URL(route.request().url()).searchParams;return route.fulfill({json:{providerId:query.get('providerId'),accountId:query.get('accountId'),state:'signing-in',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'A terminal sign-in is already active.'}});});
+  await page.goto('/');const provider=await openAccounts(page),detail=provider.locator('.connection-account-auth');
+  await expect(detail).toHaveAttribute('data-state','signing-in');await expect(detail.locator('.connection-auth-summary strong')).toHaveText('Sign-in in progress');
+  await expect(detail.getByRole('button',{name:'Connect Personal',exact:true})).toBeDisabled();await expect(detail.getByRole('button',{name:'Sign out locally',exact:true})).toBeDisabled();
 });

@@ -31,7 +31,7 @@ test('subscription inventory exposes OAuth, plan keys and official runtimes with
   const connections = page.getByRole('region', { name: 'AI subscription connections' });
   for(const provider of SUBSCRIPTION_CONNECTIONS){
     await connections.getByRole('button',{name:provider.label,exact:true}).click();const detail=connections.locator(`[data-provider="${provider.id}"]`);await expect(connections.locator('[data-provider]')).toHaveCount(1);
-    if(provider.status==='available'){await expect(detail.locator('code')).toHaveText(`pnpm agent:login --provider ${provider.id}`);await expect(detail).toContainText('Synthetic status; identity unavailable.');}
+    if(provider.status==='available'){await detail.getByText('Connect from a terminal',{exact:true}).click();await expect(detail.locator('code')).toHaveText(`pnpm agent:login --provider ${provider.id}`);await expect(detail).toContainText('Synthetic status; identity unavailable.');}
     else await expect(detail).toContainText('Unavailable.');
     await detail.getByText('Runtime and setup details',{exact:true}).click();await expect(detail).toContainText(provider.description);
   }

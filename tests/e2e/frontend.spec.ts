@@ -1033,6 +1033,7 @@ test('empty workspace, unavailable models, system theme, recovery and navigation
   await page.reload();
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Keep my draft');
   await page.getByRole('button', { name: 'Connect a model to get started' }).click();
+  await page.getByRole('dialog', {name:'Settings',exact:true}).getByText('Connect from a terminal',{exact:true}).click();
   await expect(page.getByText('pnpm agent:login --provider openai', { exact: true })).toBeVisible();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Appearance', exact: true }).click(); await page.getByRole('combobox', { name: 'Color scheme', exact: true }).click(); await page.getByRole('option', { name: 'Light', exact: true }).click(); await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Apply', exact: true }).click(); await page.keyboard.press('Escape');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');

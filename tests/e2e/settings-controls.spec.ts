@@ -87,6 +87,7 @@ test('desktop browser opens from the default anchored workspace after the save g
 test('Environments and every section stay free of stray scalars through blank, matching, empty and reset search', async ({ page }, info) => {
   const { dialog, nav, search, composer } = await openSettings(page);
   await nav.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
+  await dialog.getByText('Environment variables and advanced runtime settings',{exact:true}).click();
   await expect(dialog.getByText('No variables configured.', { exact: true })).toBeVisible();
   await dialog.screenshot({ path: info.outputPath('environments.png') });
   expect(await scalarText(dialog.locator('main'))).toEqual([]);
@@ -233,6 +234,7 @@ test('preferences and supported environment actions remain usable after search r
   await expect(dialog.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
   await expect(dialog.getByRole('combobox', { name: 'Chat width', exact: true })).toContainText('Full available width');
   await nav.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
+  await dialog.getByText('Environment variables and advanced runtime settings',{exact:true}).click();
   await expect(search).toHaveValue('');
   const entry = { scope: 'device', name: 'EXAMPLE_VALUE', secret: false, updatedAt: '2026-11-05T00:00:00.000Z' };
   const mutations: { method: string; payload: Record<string, unknown> }[] = [];
@@ -337,8 +339,9 @@ test('appearance preview, cancel, failed apply and retry preserve accepted prefe
 
 for(const theme of ['dark','light'] as const) test(`${theme} short narrow settings keep nav, controls and keyboard menus within the modal`,async({page},info)=>{
   await page.setViewportSize({width:520,height:520});
-  const {dialog,nav}=await openSettings(page,theme);
-  await nav.getByRole('button',{name:'Appearance',exact:true}).click();
+  const {dialog}=await openSettings(page,theme),sections=dialog.getByRole('combobox',{name:'Settings section',exact:true});
+  await sections.focus();await sections.press('ArrowDown');await page.keyboard.press('Home');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+  await expect(dialog.getByRole('heading',{level:1})).toHaveText('Appearance');
   const density=dialog.getByRole('combobox',{name:'Density',exact:true});
   await density.focus(); await density.press('ArrowDown');
   const options=dialog.getByRole('listbox',{name:'Density',exact:true});
@@ -371,4 +374,29 @@ test('manual-browser start page persists and the injected adapter opens the acce
   await dialog.getByRole('button',{name:'Open browser',exact:true}).click();
   expect(await page.evaluate(()=>(window as unknown as {openedUrls:string[]}).openedUrls)).toEqual(['https://example.com/review']);
   await expect(dialog).toHaveCount(0);
+});
+
+for (const [theme, width] of [['dark', 1440], ['light', 1440], ['dark', 390], ['light', 390]] as const) test(`all Settings sections remain clear and reachable ${theme} ${width}`, async ({page}, info) => {
+  await page.setViewportSize({width, height: 900}); await page.emulateMedia({reducedMotion: 'reduce'});
+  const host = await openSettings(page, theme), picker = host.dialog.getByRole('combobox', {name: 'Settings section', exact: true});
+  const sections = ['General', 'Appearance', 'Chat & Composer', 'Models & Accounts', 'Projects & Working Copies', 'Source Control & Reviews', 'Skills & Integrations', 'Notifications & Usage', 'Browser', 'Keyboard Shortcuts', 'Data & Recovery', 'About & Licenses'];
+  if (width < 700) await expect(picker).toBeVisible(); else await expect(host.nav).toBeVisible();
+  for (const [index, label] of sections.entries()) {
+    if (width < 700) { await picker.click(); await host.dialog.getByRole('option', {name: label, exact: true}).click(); }
+    else await host.nav.getByRole('button', {name: label, exact: true}).click();
+    await expect(host.dialog.getByRole('heading', {level: 1})).toHaveText(label);
+    const tones = await host.dialog.evaluate((node, narrow) => {
+      const badge = node.querySelector(narrow ? '.settings-section-select .ui-select-trigger>span' : '.settings-navigation [aria-current="page"] .settings-category-label')!;
+      const style = getComputedStyle(badge), text = getComputedStyle(node).getPropertyValue('--text').trim();
+      const luminance = (color: string) => color.match(/[\d.]+/g)!.slice(0,3).map(Number).map(value => {const channel=value/255;return channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index]!,0);
+      const foreground=luminance(style.color),background=luminance(style.backgroundColor),probe=document.createElement('span');
+      probe.style.color=text;node.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();
+      return {contrast:(Math.max(foreground,background)+.05)/(Math.min(foreground,background)+.05),heading:getComputedStyle(node.querySelector('h1')!).color,neutral};
+    }, width < 700);
+    expect(tones.contrast).toBeGreaterThanOrEqual(4.5);expect(tones.heading).toBe(tones.neutral);
+    expect(await host.dialog.evaluate(node => node.scrollWidth <= node.clientWidth + 1)).toBe(true);
+    if (process.env.HARNESS_CAPTURE_UI === '1' && ((theme === 'dark' && width === 1440) || label === 'Models & Accounts' || (label === 'Appearance' && width === 390 && theme === 'light') || (label === 'General' && width === 1440 && theme === 'light'))) await host.dialog.screenshot({path: info.outputPath(`settings-${theme}-${width}-${index}.png`)});
+  }
+  expect(host.commands.filter(command => command.type === 'settings.update' || command.type.startsWith('account.') || command.type === 'message.send')).toEqual([]);
+  await page.keyboard.press('Escape'); await expect(host.dialog).toHaveCount(0); await expect(host.composer).toHaveValue('Retain this conversation draft');
 });
