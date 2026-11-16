@@ -11,6 +11,7 @@ import type { TerminalHost } from '../packages/workspace/terminal.ts';
 import { WorkspaceActionOutcomes } from '../packages/workspace/action-outcomes.ts';
 import {
   workspaceActionPayloadSchemas,
+  createdPullRequestResultSchema,
   type WorkspaceActionEnvelope,
   type WorkspaceActionOperation,
 } from '../packages/contracts/workspace-action-outcomes.ts';
@@ -26,6 +27,10 @@ it('accepts canonical Unicode review text without normalizing a leading BOM or w
   const payload = { number: 12, event: 'COMMENT', body, head: 'a'.repeat(40), revision: 'b'.repeat(64) };
   expect(() => workspaceActionPayloadSchemas['review-pr'].parse(payload)).not.toThrow();
   expect(workspaceActionPayloadSchemas['review-pr'].parse(payload).body).toBe('\uFEFF\u00e9\u{1f680}\r\n  Literal\\n  ');
+});
+it('bounds created receipt URLs to their repository while preserving canonical case differences',()=>{
+ const result={url:'https://github.com/example/fixture/pull/14',repo:'Example/Fixture',head:'a'.repeat(40),revision:'b'.repeat(64)};expect(createdPullRequestResultSchema.parse(result)).toEqual(result);
+ for(const url of ['https://evil.example/example/fixture/pull/14','https://github.com/other/fixture/pull/14','https://github.com/example/fixture/pull/14?token=private','https://github.com@example.invalid/example/fixture/pull/14'])expect(createdPullRequestResultSchema.safeParse({...result,url}).success).toBe(false);
 });
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'gen-action-outcome-')),
@@ -107,7 +112,9 @@ async function fixture() {
         comparison = await projects.gitComparison(projectId, thread.id, { scope: type === 'commit' ? 'staged' : 'worktree' });
       if (comparison.state !== 'ready' && comparison.state !== 'empty') throw Error('Fixture comparison failed');
       const payload =
-        type === 'review-pr'
+        type === 'create-pr'
+          ? {title:'Private draft title',body:'Private draft description',base:'main',push:false,head:status.head,revision:status.revision}
+          : type === 'review-pr'
           ? { number: 12, event: 'COMMENT' as const, body: 'private review text', head: status.head, revision: status.revision }
           : type === 'commit'
             ? { message: 'private commit message', expectedHead: status.head, revision: status.revision }
@@ -149,6 +156,40 @@ async function fixture() {
     },
   };
 }
+
+it('a create preflight refusal is not-applied and permits a fresh reviewed intent',async()=>{
+ const f=await fixture(),{input,status}=await f.operation('create-pr');let remoteHead='0'.repeat(40),writes=0;
+ const run=vi.fn(async(_path:string,args:string[])=>{if(args[0]==='api')return JSON.stringify({object:{sha:remoteHead}});if(args[0]==='pr'&&args[1]==='create'){writes++;return'https://github.com/example/fixture/pull/14';}if(args[0]==='pr'&&args[1]==='view')return JSON.stringify({headRefOid:status.head});throw Error('Unexpected synthetic CLI call');});
+ (f.github as unknown as {run:typeof run}).run=run;
+ expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'not-applied'});expect(writes).toBe(0);
+ remoteHead=status.head;expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'not-applied'});expect((await f.outcomes.execute(f.projectId,{...input,id:randomUUID()})).state).toBe('confirmed');expect(writes).toBe(1);
+});
+it('retains an uncertain create command across restart without repeating its effect',async()=>{
+ const f=await fixture(),{input}=await f.operation('create-pr');let writes=0;
+ vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{beforeWrite?.();writes++;throw Error('Synthetic lost remote acknowledgment');});
+ expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'uncertain'});expect(writes).toBe(1);
+ await f.restart();const repeated=vi.spyOn(f.github,'create');expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'uncertain'});expect(repeated).not.toHaveBeenCalled();expect(writes).toBe(1);
+});
+it('keeps a post-push create failure uncertain without pushing the original intent again',async()=>{
+ const f=await fixture(),prepared=await f.operation('create-pr'),input={...prepared.input,payload:{...prepared.input.payload,push:true}};let pushes=0;
+ const git=f.projects.git.bind(f.projects);vi.spyOn(f.projects,'git').mockImplementation(async(...args)=>{if(args[1].includes('push')){pushes++;return'';}return git(...args);});
+ const run=vi.fn(async(_path:string,args:string[])=>{if(args[0]==='api')return JSON.stringify({object:{sha:'0'.repeat(40)}});throw Error('The create call must not follow a mismatched pushed branch');});(f.github as unknown as {run:typeof run}).run=run;
+ expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'uncertain'});expect(pushes).toBe(1);expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'uncertain'});expect(pushes).toBe(1);
+});
+it('recovers an admitted legacy create receipt without a new effect or extra result fields',async()=>{
+ const f=await fixture(),{input,status}=await f.operation('create-pr'),result={url:'https://github.com/example/fixture/pull/14',head:status.head,revision:status.revision,repo:'example/fixture'};
+ const receipt=f.store.command({...input,type:'project.create-pr',payload:{...input.payload,projectId:f.projectId}},()=>result),create=vi.spyOn(f.github,'create');
+ expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'confirmed',receipt});expect(create).not.toHaveBeenCalled();
+});
+it('refuses a recovered PR request whose pinned repository changed',async()=>{
+ const f=await fixture(),{input}=await f.operation('create-pr'),create=vi.spyOn(f.github,'create');
+ expect(await f.outcomes.execute(f.projectId,{...input,payload:{...input.payload,repo:'other/repository'}})).toEqual({state:'revoked'});expect(create).not.toHaveBeenCalled();
+});
+it('never publishes a created result for a different repository or reviewed revision',async()=>{
+ const f=await fixture(),{input,status}=await f.operation('create-pr');
+ vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{beforeWrite?.();return{url:'https://github.com/other/repository/pull/14',head:status.head,revision:status.revision,repo:'other/repository'};});
+ expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'uncertain'});const receipt=f.store.receipt({...input,type:'project.create-pr',payload:{...input.payload,projectId:f.projectId}});expect(receipt).toBeNull();
+});
 
 // Only the external CLI edge is simulated; tool validation and private input handling stay real.
 function remote(f: Awaited<ReturnType<typeof fixture>>, post: (body: unknown) => Promise<unknown>) {
