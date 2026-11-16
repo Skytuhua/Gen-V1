@@ -57,6 +57,16 @@ test('a foreign pointer leaving does not clear the active composer press', async
   await page.mouse.up(); await expect(control).not.toHaveAttribute('data-pointer-pressed');
 });
 
+test('a foreign primary pointer does not replace the active composer press', async ({ page }) => {
+  await fixture(page, true);
+  const control = page.getByRole('button', { name: 'Select project', exact: true });
+  const other = page.getByRole('button', { name: 'Attach files', exact: true });
+  await control.hover(); await page.mouse.down(); await expect(control).toHaveAttribute('data-pointer-pressed');
+  await other.dispatchEvent('pointerdown', { button: 0, isPrimary: true, pointerId: 77, pointerType: 'touch', bubbles: true });
+  await expect(control).toHaveAttribute('data-pointer-pressed'); await expect(other).not.toHaveAttribute('data-pointer-pressed');
+  await page.mouse.up(); await expect(control).not.toHaveAttribute('data-pointer-pressed');
+});
+
 for (const width of [1024, 1440]) {
   test(`pointer presses use 80ms, .97 and immediate release at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
