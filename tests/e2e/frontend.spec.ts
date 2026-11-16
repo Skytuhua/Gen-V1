@@ -5,6 +5,8 @@ import { build } from 'esbuild';
 import { WIDGET_WORKER_CSP } from '../../packages/widgets/protocol';
 import {serveTaskSplitLayout} from './task-interface-fixture';
 
+test.afterEach(async ({ page }) => { if (!page.isClosed()) await page.evaluate(() => (window as unknown as { __closeStreams?: () => void }).__closeStreams?.()); await page.unrouteAll({ behavior: 'wait' }); });
+
 const workerBundle = build({ entryPoints: ['packages/widgets/worker.ts'], bundle: true, platform: 'browser', format: 'iife', write: false });
 
 // Explicit protocol fixtures: no production startup data or model calls are used.
@@ -51,7 +53,7 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
       close() { const index = streams.indexOf(this); if (index >= 0) streams.splice(index, 1); }
     }
     Object.defineProperty(window, 'EventSource', { value: MockEventSource });
-    Object.assign(window, { __disconnect: () => [...streams].forEach(stream => (stream as MockEventSource).onerror?.()), __emitWorkspace: (seq: number) => [...streams].forEach(stream => stream.dispatchEvent(new MessageEvent('workspace', { data: JSON.stringify({ seq, id: `event-${seq}`, type: 'test', threadId: null, payload: {}, occurredAt: new Date().toISOString() }) }))) });
+    Object.assign(window, { __closeStreams: () => [...streams].forEach(stream => (stream as MockEventSource).close()), __disconnect: () => [...streams].forEach(stream => (stream as MockEventSource).onerror?.()), __emitWorkspace: (seq: number) => [...streams].forEach(stream => stream.dispatchEvent(new MessageEvent('workspace', { data: JSON.stringify({ seq, id: `event-${seq}`, type: 'test', threadId: null, payload: {}, occurredAt: new Date().toISOString() }) }))) });
   });
   await page.route('**/api/**', async route => {
     const url = new URL(route.request().url());
@@ -1276,6 +1278,22 @@ for (const edge of ['center', 'right'] as const) test(`dirty widget ownership su
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Retain during drop');
   expect(state.mounts).toBe(1); expect(await unloadIsGuarded(page)).toBe(true);
   expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __dropWidget: Element }).__dropWidget)).toBe(true);
+});
+
+test('hidden widget discard accepts its unchanged owner after an unrelated committed refresh', async ({ page }) => {
+  const state = await host(page, widgetWorkspace()); await page.goto('/');
+  const frame = page.frameLocator('iframe.widget-frame');
+  await frame.getByRole('textbox', { name: 'Widget note' }).fill('Discard this generation');
+  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  const requested = gate(), acknowledgment = gate();
+  state.afterCommand = async command => { if (command.type === 'edit.end') { requested.release(); await acknowledgment.promise; } };
+  await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click(); await requested.promise;
+  state.snapshot.settings.theme = 'light'; state.snapshot.seq++; await emit(page, state.snapshot.seq);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light'); expect(state.mounts).toBe(1);
+  acknowledgment.release(); await expect.poll(() => state.mounts).toBe(2);
+  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Original checkpoint');
+  expect(await unloadIsGuarded(page)).toBe(false);
 });
 
 test('hidden widget discard preserves edits made while its lease release acknowledgment is pending', async ({ page }) => {
