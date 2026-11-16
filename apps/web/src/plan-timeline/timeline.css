@@ -32,6 +32,8 @@
 .step-blocked>.plan-step-summary .plan-step-badge,.step-review_required>.plan-step-summary .plan-step-badge {color:var(--pending);}
 .step-accepted>.plan-step-summary .plan-step-node {color:var(--success);}
 .plan-step-summary>svg,.plan-agent-summary>svg:last-child {color:var(--muted);margin-top:4px;transition:transform var(--ui-motion-status) var(--ui-ease-enter);}
+.plan-step-summary:hover,.plan-agent-summary:hover {background:var(--subtle);border-radius:6px;}
+.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:var(--muted);}
 .plan-step-summary[aria-expanded=true]>svg,.plan-agent-summary[aria-expanded=true]>svg:last-child {transform:rotate(90deg);}
 .plan-step-details>.task-motion-inner {padding:8px 0 0 16px;}
 .plan-fact {font-size:12px;line-height:1.6;margin:0 0 12px;min-width:0;}
