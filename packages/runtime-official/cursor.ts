@@ -56,6 +56,8 @@ function startWorker(dataDir: string, cwd: string, spawnChild: typeof spawn, own
 }
 
 export async function openCursor(context: DriverContext, spawnChild: typeof spawn, modelId?: string, maintenance = false): Promise<OfficialDriver> {
+  const purpose=context.purpose;
+  if(purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_UNSUPPORTED','This external adapter cannot provide an ephemeral memory extraction session.');
   if (maintenance) throw new HarnessError('OFFICIAL_COMPACTION_UNSUPPORTED', 'The pinned Cursor SDK does not advertise a verifiable native compaction operation.');
   if (!context.current()) throw aborted();
   const worker = startWorker(context.dataDir, context.taskDir, spawnChild, child => context.own(child));
@@ -109,7 +111,7 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(context.purpose?{purpose:context.purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
     await bounded(startup.promise, 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }
 }

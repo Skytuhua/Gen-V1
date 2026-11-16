@@ -1,0 +1,52 @@
+[
+  {
+    "path": "composer-app-refinement--b-1b87b-ion-without-a-header-button/error-context.md",
+    "bytes": 27516,
+    "sha256": "3d40ff0b4a66a1f40e566ecead2c6c37e4073da43af5c28f6055689f85127012"
+  },
+  {
+    "path": "composer-app-refinement--b-1b87b-ion-without-a-header-button/trace.zip",
+    "bytes": 483388,
+    "sha256": "fd340486797c06ad54f049f1f7d1771080a1c28702244ca5fa0c639ef93ca87a"
+  },
+  {
+    "path": "composer-app-refinement--s-062f4-ion-without-a-header-button/error-context.md",
+    "bytes": 27516,
+    "sha256": "3d40ff0b4a66a1f40e566ecead2c6c37e4073da43af5c28f6055689f85127012"
+  },
+  {
+    "path": "composer-app-refinement--s-062f4-ion-without-a-header-button/trace.zip",
+    "bytes": 526801,
+    "sha256": "2b9a7a239929cbb848dab02578b85d4d5ba4031b2c116e57a52f051aa48fbf05"
+  },
+  {
+    "path": "composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only/error-context.md",
+    "bytes": 26254,
+    "sha256": "562d668d03c89e4b4347330864f5c43276db58ee4371a9491a1e600a73a7b9cf"
+  },
+  {
+    "path": "composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only/trace.zip",
+    "bytes": 687585,
+    "sha256": "8526b51dec047a79c9892431462a46e9f80ed43be675665e7cba0172a07c94b1"
+  },
+  {
+    "path": "composer-app-refinement-pr-5b673--leaves-attachments-on-plus/error-context.md",
+    "bytes": 30076,
+    "sha256": "40b51d5cec392f10fb8d2fd0c20fc6ee90262f4274d18dc79ea6242188ab9a98"
+  },
+  {
+    "path": "composer-app-refinement-pr-5b673--leaves-attachments-on-plus/trace.zip",
+    "bytes": 1002155,
+    "sha256": "78a90c4ce1a91c6df4601cb956adcc9d962bb1f99cefffaa675051fa9eb88e76"
+  },
+  {
+    "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md",
+    "bytes": 11480,
+    "sha256": "52e02ac5e8704fea4b85050b44beb1666f7b87797b872cf2628957816453efdf"
+  },
+  {
+    "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip",
+    "bytes": 1607793,
+    "sha256": "f8651adcb2fd8c81b58f30e0cf0629d4964c33613c4fd287d3040051176b94cb"
+  }
+]

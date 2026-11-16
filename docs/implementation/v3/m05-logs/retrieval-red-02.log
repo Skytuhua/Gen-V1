@@ -1,0 +1,286 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-retrieval-v3.test.ts (21 tests | 13 failed) 63ms
+     × finds exact symbols late in a bounded item rather than truncating its searchable terms 5ms
+     × does not fall back to an old accepted revision when the newer revision is malformed 3ms
+     × freezes a captured generation and rejects a different query or generation 1ms
+     × allows exclusion only while preparing and never edits stored memory 1ms
+     × refuses new snapshots at capacity until the host releases one 0ms
+     × does no egress without enable, explicit consent and an approved provider 0ms
+     × returns validated proposals separately and never treats them as accepted recall 0ms
+     × rejects metadata mismatches rather than accepting another owner or stale generation 0ms
+     × rejects accepted, unsupported, secret or deleted provider proposals before publication 0ms
+     × times out at 750 ms while holding orphan capacity until the provider actually settles 1ms
+     × cancellation cannot release a hung call or permit a second pending recall for the request 0ms
+     × bounds circuit keys instead of opening an unbounded owner map 1ms
+     × rechecks current authorization before releasing a provider response 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > finds exact symbols late in a bounded item rather than truncating its searchable terms
+AssertionError: expected [] to deeply equal [ 'late-symbol' ]
+
+- Expected
++ Received
+
+- [
+-   "late-symbol",
+- ]
++ []
+
+ ❯ tests/memory-retrieval-v3.test.ts:136:47
+    134|     const { lexicalRecall } = await implementation();
+    135|     const result = lexicalRecall(input([memory('late-symbol', Array.fr…
+    136|     expect(result.items.map(item => item.id)).toEqual(['late-symbol']);
+       |                                               ^
+    137|   });
+    138|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > does not fall back to an old accepted revision when the newer revision is malformed
+AssertionError: expected [ { id: 'corrupt-head', …(13) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "assertedBy": {
++       "id": "agent-1",
++       "kind": "AGENT",
++     },
++     "expiresAt": null,
++     "id": "corrupt-head",
++     "kind": "FACT",
++     "observedAt": "2026-11-14T10:00:00.000Z",
++     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "reviewDecision": {
++       "action": "ACCEPT",
++       "at": "2026-11-14T10:00:00.000Z",
++       "userId": "user-1",
++     },
++     "revision": 1,
++     "scope": "PROJECT",
++     "sensitivity": "NORMAL",
++     "sourceRefs": [
++       {
++         "capturedSeq": 1,
++         "digest": "2d972af4114d22f84fab690768df7e03fce8142bf1493c33a3c8dd1784a14de6",
++         "observedStatus": "REPORTED",
++         "ownerThreadId": "thread-1",
++         "sourceId": "corrupt-head",
++         "sourceKind": "MESSAGE",
++         "sourceRevision": "revision-1",
++       },
++     ],
++     "state": "ACCEPTED",
++     "supersedes": [],
++     "text": "Parser.parse preserves project constraints.",
++   },
++ ]
+
+ ❯ tests/memory-retrieval-v3.test.ts:142:26
+    140|     const { lexicalRecall } = await implementation();
+    141|     const result = lexicalRecall(input([memory('corrupt-head'), memory…
+    142|     expect(result.items).toEqual([]);
+       |                          ^
+    143|     expect(result.recall.exclusions).toContainEqual({ itemId: 'corrupt…
+    144|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > freezes a captured generation and rejects a different query or generation
+AssertionError: M05 needs the bounded retrieval export MemoryRequestSnapshots: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:149:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > allows exclusion only while preparing and never edits stored memory
+AssertionError: M05 needs the bounded retrieval export MemoryRequestSnapshots: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:165:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > refuses new snapshots at capacity until the host releases one
+AssertionError: M05 needs the bounded retrieval export MemoryRequestSnapshots: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:178:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > does no egress without enable, explicit consent and an approved provider
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:190:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > returns validated proposals separately and never treats them as accepted recall
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:200:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rejects metadata mismatches rather than accepting another owner or stale generation
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:211:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rejects accepted, unsupported, secret or deleted provider proposals before publication
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:225:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > times out at 750 ms while holding orphan capacity until the provider actually settles
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:240:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > cancellation cannot release a hung call or permit a second pending recall for the request
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:265:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > bounds circuit keys instead of opening an unbounded owner map
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:284:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rechecks current authorization before releasing a provider response
+AssertionError: M05 needs the bounded retrieval export BoundedMemoryRecallProvider: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:78
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded[symbol], 'M05 needs the bounded retrieval export ' + s…
+       |                                                                              ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:294:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 8 passed (21)
+   Start at  18:30:09
+   Duration  323ms (transform 75ms, setup 0ms, import 126ms, tests 63ms, environment 0ms)

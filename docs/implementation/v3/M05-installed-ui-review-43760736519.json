@@ -1,0 +1,585 @@
+{
+  "schemaVersion": 1,
+  "status": "FAILED_INSTALLED_NATIVE_SAVE_WITH_PARTIAL_RETAINED_MEMORY_UI_EVIDENCE",
+  "reviewedAt": "2026-11-15 21:33:32 UTC",
+  "scope": "Independent inspection of the recovered original artifact, exact tested source, complete main receipt and all seven renderer PNGs. This is partial real installed default-off review evidence, not a completed retention/restart or native Save pass.",
+  "repository": "skytuhua-org/Gen-V1",
+  "source": {
+    "attempt": 1,
+    "conclusion": "failure",
+    "headSha": "013c044d66f40136752df4f1903132d601d57851",
+    "id": 43760736519,
+    "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+    "actualCheckoutSha": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "job": {
+      "conclusion": "failure",
+      "id": 132954742228,
+      "name": "Installed desktop memory retention"
+    },
+    "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760736519",
+    "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760736519/job/132954742228",
+    "bindings": [
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "gitBlobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7",
+        "bytes": 44330,
+        "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2"
+      },
+      {
+        "path": "scripts/installed-memory-retention.ts",
+        "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8",
+        "bytes": 22553,
+        "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb"
+      },
+      {
+        "path": "scripts/installed-native-save.ts",
+        "gitBlobSha": "65b04348b353ef7c7f0f1a1d06f1cf974b8aa222",
+        "bytes": 25004,
+        "sha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d"
+      },
+      {
+        "path": "apps/desktop/memory-export.ts",
+        "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc",
+        "bytes": 8627,
+        "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9"
+      }
+    ]
+  },
+  "artifact": {
+    "bytes": 915052,
+    "createdAt": "2026-11-15T21:18:54Z",
+    "id": 14181271741,
+    "name": "installed-memory-43760736519-1",
+    "sha256": "c7f321bb813f3eb23d0bb60b6f09f05c89bb10c2a716484e7fafa187044e8f34",
+    "members": 12,
+    "jsonMembers": 5,
+    "pngMembers": 7,
+    "exportMembers": 0
+  },
+  "transport": {
+    "recovery": {
+      "attempt": 1,
+      "branch": "agent/m05-evidence-recovery-43760736519",
+      "headSha": "1f14bb3380643d804c9fa852127bbb9b35b3b172",
+      "runId": 43763315513
+    },
+    "scope": "Read-only evidence transport only; original installed failure remains unchanged.",
+    "independentLocalChecks": "Read the recovered original ZIP, verified its exact 915052-byte SHA256, exercised Python zipfile CRC/decompression for all 12 members, matched every member byte-for-byte to its recovered file, and independently rehashed every recovered file as SHA256 and Git blob SHA1. No second download of the original artifact was made.",
+    "originalShardReconstruction": "Root separately validated all 16 transport logs, framing/chunk/stream/Git digests and ZIP central-directory identities. This reviewer did not repeat the recovery-log fetch."
+  },
+  "rawJobLog": {
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132954742228/logs",
+    "bytes": 124272,
+    "sha256": "796053b3f9e4743e98be011d47a44b6feb0bf63748ab2e099269f9c2f3d4f313",
+    "custodian": "dependency_audit; no original job-log re-download by this reviewer"
+  },
+  "boundedJobLog": {
+    "gitBlobSha": "ddfa7ef606e7a4f430ad230eae0b569d5a93fed8",
+    "bytes": 65536,
+    "sha256": "5d8ee34bf1f70e76f62bf495baec06d5b96451d74435b5ac1782b93487e36734",
+    "scope": "Separate bounded representation; its digest is not the raw log digest."
+  },
+  "methods": [
+    "Read recovered-files.json and the full verification.json before conclusions.",
+    "Read the exact tested installed-retention helper, native Save worker and production export policy; the helper emits completed observations only after the corresponding assertions.",
+    "Visually inspected all seven PNGs through view_image, not inferred from filenames or hashes.",
+    "Recomputed all 12 local member byte counts, SHA256 hashes and Git blob SHA1 values, and independently checked original ZIP contents and CRCs.",
+    "Did not rerun installation, alter any source/test/ref/ledger, or infer unrecorded native-window states from renderer screenshots."
+  ],
+  "receipts": [
+    {
+      "originalMember": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "localName": "build-manifest.json",
+      "bytes": 15611,
+      "sha256": "2709e3c087328ecf0490db6b2ad86e5e1de4fa4d9747e13e68aab0b1d4cda6c9",
+      "gitBlobSha": "0a14385abb6e136fbc31784499cab99296cd9c84",
+      "crc32": "2f0a400c"
+    },
+    {
+      "originalMember": ".harness-installed-package/desktop-stage-1794776187679/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "localName": "PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "gitBlobSha": "36681cd0179881c91d4f08d9fffc68fc39d2bb69",
+      "crc32": "3dc6a1af"
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/owner.json",
+      "localName": "owner.json",
+      "bytes": 330,
+      "sha256": "e40a56faf1e81e0ad8b0220d3d493db61afdef4751f3675385d0450fd74c2b47",
+      "gitBlobSha": "e982cf0efe715d45c35fca344f9431ea0951ed90",
+      "crc32": "28a2ebad"
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/verification.json",
+      "localName": "verification.json",
+      "bytes": 20694,
+      "sha256": "9ed308553d5f4fdeeaa3f964b22c1224c7cc02ed3def485452b242b16906505b",
+      "gitBlobSha": "ecd8925ff44de3f0d6424df7284ccd5c8a9d4f6d",
+      "crc32": "cbdb2883"
+    },
+    {
+      "originalMember": ".harness-packaged-providers/run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8/verification.json",
+      "localName": "provider-verification.json",
+      "bytes": 168090,
+      "sha256": "608d1e789a08a45a901d7bd7f28bd523d123c8b2ef5fe221217e1b400beaffef",
+      "gitBlobSha": "33ae055d1d066156a264daec321c1b5ae2db50de",
+      "crc32": "65e17f7e"
+    }
+  ],
+  "phaseResults": {
+    "overall": {
+      "passed": false,
+      "completedLaunches": 0,
+      "interpretation": "The first installed window and recorded memory actions executed, but no complete owned launch receipt or second launch was admitted."
+    },
+    "installer": {
+      "status": "completed",
+      "elapsedMs": 408147,
+      "timeoutMs": 1200000,
+      "exit": {
+        "elapsedMs": 408147,
+        "code": 0,
+        "signal": null
+      },
+      "close": {
+        "elapsedMs": 408147,
+        "code": 0,
+        "signal": null
+      },
+      "terminationRequested": false,
+      "setupSha256": "f7d0f72a1eb592464261f59ad0a826358abb8f2cf73486be6b75196820342e43",
+      "interpretation": "Natural exit/close zero below the former 600-second cutoff; this run does not establish that the larger limit caused completion."
+    },
+    "installedPayload": {
+      "matches": true,
+      "files": 92880,
+      "bytes": 2567784308,
+      "sha256": "9cc44a75e5fb3e977b38ce354d4144949fe3bde8605b266cf6cda2110298a0e6"
+    },
+    "packagedProviderCheck": {
+      "passed": true,
+      "receipt": "D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8\\verification.json"
+    },
+    "providerProofLimit": "The main receipt records packaged startup/distribution verification. This UI review rehashes that separate receipt but leaves its full inventory analysis to the independent custody review. It is not live-account or paid inference proof.",
+    "mainPageReadiness": [
+      {
+        "iteration": 1,
+        "pid": 2600,
+        "timeoutMs": 80000,
+        "status": "ready",
+        "observations": [
+          {
+            "phase": "waiting",
+            "elapsedMs": 0,
+            "process": {
+              "alive": true,
+              "exitCode": null,
+              "signalCode": null
+            },
+            "pages": {
+              "total": 0,
+              "ownedOrigin": 0,
+              "file": 0,
+              "blank": 0,
+              "other": 0,
+              "closed": 0
+            }
+          },
+          {
+            "phase": "waiting",
+            "elapsedMs": 15183,
+            "process": {
+              "alive": true,
+              "exitCode": null,
+              "signalCode": null
+            },
+            "pages": {
+              "total": 1,
+              "ownedOrigin": 0,
+              "file": 1,
+              "blank": 0,
+              "other": 0,
+              "closed": 0
+            }
+          },
+          {
+            "phase": "candidate",
+            "elapsedMs": 17203,
+            "process": {
+              "alive": true,
+              "exitCode": null,
+              "signalCode": null
+            },
+            "pages": {
+              "total": 2,
+              "ownedOrigin": 1,
+              "file": 1,
+              "blank": 0,
+              "other": 0,
+              "closed": 0
+            }
+          },
+          {
+            "phase": "ready",
+            "elapsedMs": 17206,
+            "process": {
+              "alive": true,
+              "exitCode": null,
+              "signalCode": null
+            },
+            "pages": {
+              "total": 2,
+              "ownedOrigin": 1,
+              "file": 1,
+              "blank": 0,
+              "other": 0,
+              "closed": 0
+            }
+          }
+        ]
+      }
+    ],
+    "readinessLimit": "The helper admitted readiness at 17206ms, below the former 30-second cutoff. This run executes the new ownership/liveness helper but does not explain the prior missing page or measure a general startup improvement.",
+    "retainedUi": {
+      "completedSteps": [
+        {
+          "iteration": 1,
+          "step": "installed-default-off-read",
+          "available": false,
+          "enabled": false,
+          "accountId": null,
+          "itemCount": 4,
+          "tombstoneCount": 0
+        },
+        {
+          "iteration": 1,
+          "step": "exact-pinned-source",
+          "itemId": "3d1f68e6-dab9-467a-a492-80da2e69d986",
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-edit",
+            "sourceRevision": "0af6a14921480cfcb3b2883a2a0fa47a37d36c8ddfc1c99012c408511efb986b",
+            "capturedSeq": 4,
+            "digest": "1cd9f1584c8176f2a0ff5d2e40c1eec62a41c430793ddbbc5be06b6d5b4d2c9a",
+            "observedStatus": "REPORTED"
+          },
+          "capturedTextMatched": true,
+          "changedMessageNotSubstituted": true,
+          "inertText": true,
+          "screenshot": {
+            "file": "installed-memory-source.png",
+            "bytes": 82469,
+            "sha256": "47511ead91e55ccd664066af12bd4c86e41d8894ea511ff46c44ceb1ee1794a5",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "review-edit-accept-reject",
+          "editedRevision": 3,
+          "acceptedRevision": 2,
+          "rejectedState": "EXPIRED",
+          "screenshot": {
+            "file": "installed-memory-reviewed.png",
+            "bytes": 75870,
+            "sha256": "7290b2b21b1c023140898f5cd2d8df41285160d31045d8fa323227343bbade38",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        },
+        {
+          "iteration": 1,
+          "step": "rejected-record-retained",
+          "screenshot": {
+            "file": "installed-memory-rejected.png",
+            "bytes": 77436,
+            "sha256": "c15cf8495a4c0a5f4487c803af6fda11ba4b52bff07d382ec672449ca358045e",
+            "viewport": {
+              "width": 1024,
+              "height": 720
+            },
+            "theme": "dark"
+          }
+        }
+      ],
+      "observedDefaultOff": true,
+      "observedAccountId": null,
+      "scope": "Production installed host with disposable seeded records and flags off. Exact source text/inertness, correction to revision3, acceptance to revision2 and rejection retained as EXPIRED revision2 are actual completed assertions. Conflict resolution and enabled recall were not exercised."
+    },
+    "nativeSave": {
+      "status": "FAILED",
+      "error": "Native Save refused: dialog-timeout.",
+      "downloadBehavior": "default",
+      "owner": {
+        "pid": 2600,
+        "executable": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-f807a0490fcc\\Gen V1.exe"
+      },
+      "dialog": {
+        "status": "failed",
+        "pid": 2600,
+        "processStartTicks": "639303742551205758",
+        "dialogHandle": null,
+        "dialogTitle": "Export project memory",
+        "events": [
+          {
+            "phase": "ready",
+            "pid": 2600,
+            "processStartTicks": "639303742551205758",
+            "dialogHandle": null,
+            "elapsedMs": 1157
+          },
+          {
+            "phase": "failed",
+            "pid": 2600,
+            "processStartTicks": "639303742551205758",
+            "dialogHandle": null,
+            "elapsedMs": 31244,
+            "reason": "dialog-timeout"
+          }
+        ],
+        "failure": "dialog-timeout"
+      },
+      "interpretation": "The worker established its process/root ready phase, then found no dialog matching all its exact owned PID, title and top-level Window conditions before the bounded discovery timeout. No dialog handle, control inventory, Save invocation, completion acknowledgement, saved file readback or release sequence is recorded. The cause of the missing matching dialog is unmeasured."
+    },
+    "commandObservation": {
+      "iteration": 1,
+      "step": "review-command-observation",
+      "commandTypes": [],
+      "providerNetworkCalls": null,
+      "providerNetworkMeasurement": "Not measured. This proof performs no model-generation or sign-in actions."
+    },
+    "commandObservationLimit": "The empty list covers POST /api/commands observed by the helper, not the dedicated memory review-action routes. It must not be described as zero review actions or a measured global provider/network count.",
+    "cleanup": {
+      "status": "uninstalled-owned-installation",
+      "command": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "elapsedMs": 9537
+      },
+      "cache": {
+        "status": "removed-owned-exact-file",
+        "sha256": "f7d0f72a1eb592464261f59ad0a826358abb8f2cf73486be6b75196820342e43"
+      },
+      "shortcuts": "absent",
+      "installationKeys": "absent",
+      "nativeProcesses": "absent"
+    },
+    "missing": [
+      "Native download admission/completion receipt",
+      "Matched native Save dialog/control identity and actual Save invocation",
+      "Saved redacted export bytes and readback hash",
+      "Forget/tombstone observation",
+      "First-launch clean completion receipt",
+      "Second owned launch and same-profile/origin restart",
+      "Post-exit memory/storage invariants",
+      "Full enabled installed request injection/exclusion/extraction/checkpoint behavior",
+      "Authorized live repeated-task comparison"
+    ]
+  },
+  "images": [
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-main.png",
+      "localName": "installed-main.png",
+      "bytes": 53613,
+      "sha256": "06d05f1374a9327dd73a5a3e4c86311ebe0d8fc7a3498278092cc2af4bd93490",
+      "gitBlobSha": "3d9311ec4e3d0dea9984c7993cec14ea5a271f1e",
+      "crc32": "5d6091cc",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Visual inspection of the retained renderer PNG",
+      "viewport": null,
+      "viewportBasis": "Not separately serialized; PNG dimensions are recorded",
+      "visuallyInspected": true,
+      "phase": "initial-installed-main",
+      "observations": [
+        "Dark application shell shows the seeded completed task in the sidebar and an unbound New conversation in the main area.",
+        "The composer asks for a model connection and Project overview is collapsed.",
+        "A Reconnecting indicator is visible in this single renderer frame; the later recorded memory reads/actions succeeded, so this image alone does not establish a backend outage."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-launch-1-failure.png",
+      "localName": "installed-memory-launch-1-failure.png",
+      "bytes": 77712,
+      "sha256": "db9cf87e1ddaaa1d26ad49c8875b631d252c68faf7c79609a3595438e98d0331",
+      "gitBlobSha": "e69edeab2e40410fa75578153154cdeab03022fa",
+      "crc32": "be450487",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Actual screenshot receipt and visual inspection",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "viewportBasis": "Actual memory screenshot receipt",
+      "visuallyInspected": true,
+      "phase": "failed-native-save",
+      "observations": [
+        "The Project memory modal remains open with its host-disabled notice, source selection, four tabs and corrected accepted revision 3.",
+        "Refresh and Export redacted JSON appear dimmed; no export-error notice is visible in this frame.",
+        "This is a renderer page screenshot. It does not capture the operating-system desktop or prove whether a native Save window existed, was hidden, had another title, or was outside the matched UIA tree."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-rejected.png",
+      "localName": "installed-memory-rejected.png",
+      "bytes": 77436,
+      "sha256": "c15cf8495a4c0a5f4487c803af6fda11ba4b52bff07d382ec672449ca358045e",
+      "gitBlobSha": "fea488f1be4b38f38ed219a87ce5e01c072f2875",
+      "crc32": "e02993f1",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Actual screenshot receipt and visual inspection",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "viewportBasis": "Actual memory screenshot receipt",
+      "visuallyInspected": true,
+      "phase": "rejected-record-retained",
+      "observations": [
+        "The rejected proposal remains visible as Expired, revision 2, with project/source metadata and review controls.",
+        "The separate sensitive accepted record is still visible below it; Forget had not executed."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-reviewed.png",
+      "localName": "installed-memory-reviewed.png",
+      "bytes": 75870,
+      "sha256": "7290b2b21b1c023140898f5cd2d8df41285160d31045d8fa323227343bbade38",
+      "gitBlobSha": "06eee6b03b9aadd7aaf1f9cda2ed02496a54ddbe",
+      "crc32": "ec8a9123",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Actual screenshot receipt and visual inspection",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "viewportBasis": "Actual memory screenshot receipt",
+      "visuallyInspected": true,
+      "phase": "review-edit-accept-reject",
+      "observations": [
+        "The modal explicitly states that memory is disabled by this host and existing records remain reviewable; project enablement is unavailable.",
+        "The Accepted tab shows the corrected ISO 8601 UTC instruction at accepted revision 3.",
+        "The four review tabs remain visible. Acceptance of the separate proposal is established by the retained behavioral assertion/observation, not by an offscreen row in this image."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-memory-source.png",
+      "localName": "installed-memory-source.png",
+      "bytes": 82469,
+      "sha256": "47511ead91e55ccd664066af12bd4c86e41d8894ea511ff46c44ceb1ee1794a5",
+      "gitBlobSha": "d4308339e0fc154388862c429f52211cee56a103",
+      "crc32": "e885f228",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Actual screenshot receipt and visual inspection",
+      "viewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "viewportBasis": "Actual memory screenshot receipt",
+      "visuallyInspected": true,
+      "phase": "exact-pinned-source",
+      "observations": [
+        "The supporting-source panel shows the exact source revision, captured sequence 4, digest and original UTC instruction.",
+        "The synthetic script-shaped source appears literally inside preformatted text.",
+        "The fixture's exact text equality and undefined execution marker assertions precede this screenshot; the image alone is not a cryptographic or script-execution test."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-official-connections.png",
+      "localName": "installed-official-connections.png",
+      "bytes": 89089,
+      "sha256": "40582a8d2c44e669a2e9de947735d892ef33f45d0cb576757bfa9710823e2057",
+      "gitBlobSha": "9a852926e6014abb76e8178922d66607a5645ec6",
+      "crc32": "b52efb86",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Visual inspection of the retained renderer PNG",
+      "viewport": null,
+      "viewportBasis": "Not separately serialized; PNG dimensions are recorded",
+      "visuallyInspected": true,
+      "phase": "baseline-official-connections",
+      "observations": [
+        "The scrolled Models & Accounts view shows Gemini and Cursor as ready to connect, with connection status not checked and identity unavailable.",
+        "The visible controls offer account connection; no successful sign-in is shown."
+      ]
+    },
+    {
+      "originalMember": ".harness-desktop-installed/run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1/installed-settings.png",
+      "localName": "installed-settings.png",
+      "bytes": 84343,
+      "sha256": "79d6ee39a1120daa13d34932f6305bd54b13f7ffa6c88cd36d6c62dc864799cb",
+      "gitBlobSha": "567c969a57e9051797db598c9fbadb7e37fdcb48",
+      "crc32": "d2118987",
+      "dimensions": {
+        "width": 1024,
+        "height": 720
+      },
+      "theme": "dark",
+      "themeBasis": "Visual inspection of the retained renderer PNG",
+      "viewport": null,
+      "viewportBasis": "Not separately serialized; PNG dimensions are recorded",
+      "visuallyInspected": true,
+      "phase": "baseline-settings",
+      "observations": [
+        "Models & Accounts is selected in the Settings modal.",
+        "The visible view reports zero models from connected runtimes and no configured environment variables.",
+        "The screenshot shows the normal settings surface; it is not a provider-authentication or network measurement."
+      ]
+    }
+  ],
+  "limitations": [
+    "The seven images are renderer page screenshots, not operating-system desktop captures; they cannot establish the presence or absence of a native file dialog.",
+    "Dimmed controls and the absence of a visible export error are visual observations only. No export-admission, native-dialog-shape, scheduler, window-visibility or timing cause is inferred.",
+    "No exported file or saved native completion exists in the artifact. The failed run is not admitted as an installed retention pass.",
+    "The canonical receipt was verified byte-identical by hash in this review; detailed wheel/non-RECORD membership comparison is a separate independent review.",
+    "Provider network calls and paid model spend remain null. No model-generation or sign-in action was performed by this retained-review scenario, but that statement is not a global traffic measurement.",
+    "Both memory capability defaults remain false. A future successful seeded default-off review would still not establish the enabled installed lifecycle or live quality/cost study."
+  ],
+  "proofGates": {
+    "installedRetainedMemory": "FAIL_PARTIAL_OBSERVATIONS_ONLY",
+    "nativeSave": "FAIL_DIALOG_TIMEOUT",
+    "restart": "NOT_RUN",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN",
+    "providerNetworkCalls": null,
+    "paidModelSpend": null,
+    "capabilityDefaults": {
+      "memory.projectV1": false,
+      "memory.externalRecallExperimentV1": false
+    }
+  }
+}

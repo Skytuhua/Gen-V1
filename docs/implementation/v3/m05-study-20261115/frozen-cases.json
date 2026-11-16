@@ -1,0 +1,39 @@
+{
+  "policy": "Export report timestamps as UTC ISO 8601 with milliseconds. Format monetary amounts with exactly two decimal places. Preserve original source files.",
+  "cases": [
+    {
+      "id": "report-1",
+      "input": {
+        "timestamp": "2026-02-03T16:04:05+02:00",
+        "amount": "12"
+      },
+      "expected": {
+        "timestamp": "2026-02-03T14:04:05.000Z",
+        "amount": "12.00"
+      }
+    },
+    {
+      "id": "report-2",
+      "input": {
+        "timestamp": "2026-06-07T01:02:03-07:00",
+        "amount": "4.5"
+      },
+      "expected": {
+        "timestamp": "2026-06-07T08:02:03.000Z",
+        "amount": "4.50"
+      }
+    },
+    {
+      "id": "report-3",
+      "input": {
+        "timestamp": "2026-10-11T23:59:59Z",
+        "amount": "0.08"
+      },
+      "expected": {
+        "timestamp": "2026-10-11T23:59:59.000Z",
+        "amount": "0.08"
+      }
+    }
+  ],
+  "fixtureDigest": "a497101f589777e661b6d3cfd3c6c9aa9a73ff0e0e1c9d1c5dfecb487c94f26f"
+}

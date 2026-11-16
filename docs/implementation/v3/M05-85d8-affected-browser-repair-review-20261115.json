@@ -1,0 +1,719 @@
+{
+  "schemaVersion": 1,
+  "kind": "M05 accepted-main composer, summary-rail and real-host browser repair review",
+  "reviewDate": "2026-11-15",
+  "status": "LOCAL_FOCUSED_PASS_CURRENT_WINDOWS_PENDING",
+  "scope": {
+    "repository": "skytuhua-org/Gen-V1",
+    "publishedHeadBeforeRepair": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "publishedTreeBeforeRepair": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "actualCanonicalCheckout": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "actualCanonicalTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+    "acceptedMain": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+    "localFinalCut": {
+      "capture": "continuation-85d8-composer-rail-green-3",
+      "committedHead": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "committedTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "files": [
+        {
+          "path": "tests/e2e/composer-app-refinement.spec.ts",
+          "bytes": 16268,
+          "sha256": "a618b8f2b94e086ca722e896b3fd710d2219a8efd3d8f34acfa4dce114a6a2af",
+          "gitBlobSha": "54897f81bae78912856766190a05b23ae5e2bde0"
+        },
+        {
+          "path": "tests/e2e/reserved-rail.spec.ts",
+          "bytes": 11360,
+          "sha256": "ef7588f9e28933acec25e231bb87a23b779ba31528085770a05006b2af348e9e",
+          "gitBlobSha": "18d6a326ef5d207d50f81592f4fb108a11439900"
+        },
+        {
+          "path": "tests/e2e/host-loop.spec.ts",
+          "bytes": 28082,
+          "sha256": "e4fd5377ce59e142f7110872834a780b85f81cb4203ea2bf8248f22168a10d8b",
+          "gitBlobSha": "733db88e031cd8c3b148842c21c4f7d46adf7389"
+        },
+        {
+          "path": "tests/e2e/plan-timeline.spec.ts",
+          "bytes": 12270,
+          "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+          "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+        },
+        {
+          "path": "tests/e2e/task-interface-fixture.ts",
+          "bytes": 13070,
+          "sha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+          "gitBlobSha": "67a7609a54f37fdb5fed4ec2fb050b0c46f86f8a"
+        },
+        {
+          "path": "tests/e2e/artifact-style.spec.ts",
+          "bytes": 24417,
+          "sha256": "9c7ff627549ccb9e237d189d3f63eaecc4b1e34d152880bea0c4e7bd34961ff0",
+          "gitBlobSha": "e1464d64b3f802166bc495fe52fb4bf9a373da3b"
+        },
+        {
+          "path": "tests/e2e/document-smoothness.spec.ts",
+          "bytes": 18728,
+          "sha256": "2603e212017a03d68dc2a749e1716c4def82b3bf217a51bf0dbce6c727809bed",
+          "gitBlobSha": "37a060e4f07924cbc7bb70dadaedc434c5bbd485"
+        },
+        {
+          "path": "apps/web/src/App.tsx",
+          "bytes": 155211,
+          "sha256": "b4f5b0ad66accace517bdac34eda4ad2a840b5b6d129bf320b301756dbc9a58a",
+          "gitBlobSha": "d5766fae8b5e493a169d6ad06157e31a177e537c"
+        },
+        {
+          "path": "apps/web/src/WorkspacePanel.tsx",
+          "bytes": 9544,
+          "sha256": "024c03a028e42776c1f1816e5f4c4ae984ecf9e1100bba41a360caa5e1269d39",
+          "gitBlobSha": "be44aed045aca7b6782bbeafbd6a8b47d7901c68"
+        },
+        {
+          "path": "apps/web/src/workspace-integration.css",
+          "bytes": 2443,
+          "sha256": "ae4ca268d220afd0c84331ceb84a9a357952cea72089fad2c65fdba1dedbb83a",
+          "gitBlobSha": "9b6fbb49cb97e29250a5cee1576ba942be055da1"
+        },
+        {
+          "path": "vite.config.ts",
+          "bytes": 1072,
+          "sha256": "42e4cce3e9ccb52ee15256c06cb652ed0902bc472eb6b2a89f07eb3838431c62",
+          "gitBlobSha": "e9a0f5d5fb457401deae3586e9476c24a4ca7d0e"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "bytes": 12556,
+          "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+          "gitBlobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+        }
+      ],
+      "note": "Exact source copies taken while parent held the source freeze for the named active run; command outcome is not assumed."
+    },
+    "sourceIdentityLimit": "The selected twelve source files were copied byte-for-byte while source was frozen for the final command. The recorder binds the committed tree plus the actual tracked working diff, not a complete immutable tested tree. The next canonical Windows run must bind the final published source."
+  },
+  "originalWindowsFailure": {
+    "runId": 43771171183,
+    "jobId": 132987186065,
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43771171183/job/132987186065",
+    "rawLog": {
+      "localPath": "/workspace/scratch/36f66011d961/m05-ci-43771171183/job-132987186065.log",
+      "bytes": 223967,
+      "sha256": "7c804aa6deefe693b32527d73b9e7bb34afebc8062e61aa771996d607a3cbdc0"
+    },
+    "browserTotal": {
+      "passed": 248,
+      "failed": 29,
+      "skipped": 2
+    },
+    "groups": {
+      "artifactStyle": 7,
+      "composerAppRefinement": 10,
+      "documentSmoothness": 7,
+      "reservedRail": 2,
+      "hostLoop": 1,
+      "planTimeline": 2
+    },
+    "treeDrift": "This actual run tested c4d82ef4/tree005a, not published94b/tree74d."
+  },
+  "ownedChanges": [
+    {
+      "path": "tests/e2e/composer-app-refinement.spec.ts",
+      "reason": "A private forever-empty split route shadowed the canonical production-reducer fixture and removed the actual conversation owner. Remove it; query the current workspace launcher at its actual page location, and scope side-question controls to the exact retained task-thread owner.",
+      "retainedAssertions": "Attachment lifetime and DOM identity, IME no-send, draft preservation, mode commands, local project binding, new-project task isolation, retired header controls, exact sideParentId and exact side-thread send remain."
+    },
+    {
+      "path": "tests/e2e/reserved-rail.spec.ts",
+      "reason": "Measure the summary rail against the complete canonical split frame. Resolve the retained task-thread composer before deciding whether to click its usage launcher. Initial boot readiness is explicitly fifteen seconds; interaction and geometry expectations stay at their existing five seconds.",
+      "retainedAssertions": "Artifact inside the real panel, exact same renderer node, hidden summaries during explicit artifact use,38px usage/110px narrow compact flow, viewport bounds, draft preservation, composer/Stop hit testing and no retired move/resize/detach/close controls remain."
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "reason": "The canonical split workspace retains both old and new breadcrumbs. Capture the newly created thread ID and assert the visible exact owner breadcrumb. CRLF is preserved.",
+      "retainedAssertions": "Actual generated infinite-loop widget, Settings response, Stop/cancellation count, worker termination, native new-thread/project selection and existing three-second responsiveness bounds remain."
+    }
+  ],
+  "coordinatedParentChanges": [
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "change": "Optional canonical initial snapshot uses the existing production split reducer. A narrowly scoped host-only thread.reconcile adapter enforces exact payload keys/workspace/revision/expected local binding/canonical project, updates only matching local thread views and schema-parses revision+1. Every other command still uses the production reducer."
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "change": "Split summary allocation and live-usage visibility yield to an explicitly open right panel, matching the existing non-split path."
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "change": "Remove redundant embedded composer horizontal padding while retaining vertical padding. Only an active split surface containing the docked artifact changes contain:layout style to contain:style, preserving the renderer in its original DOM and existing body portals."
+    },
+    {
+      "path": "apps/web/src/WorkspacePanel.tsx",
+      "change": "Final bytes are identical to the actual base HEAD. Original measured viewport slot coordinates remain. The intermediate local-coordinate proposal is rejected by real geometry evidence."
+    },
+    {
+      "path": "vite.config.ts",
+      "change": "Parent prebundles the existing lazy PDF entry after a real Windows504 Outdated Optimize Dep failure. This review does not relabel any separate parent command outcome."
+    }
+  ],
+  "geometryEvidence": {
+    "originalDiagnostic": {
+      "capture": "continuation-85d8-rail-containment-diagnostic-2",
+      "artifact": {
+        "x": 1662,
+        "y": 233.59375,
+        "width": 495,
+        "height": 853.203125
+      },
+      "viewportSlot": {
+        "left": 1413,
+        "top": 214.796875
+      },
+      "panel": {
+        "x": 1400,
+        "y": 92.796875,
+        "width": 520
+      },
+      "measuredSource": "split-surface layout containment with a109px scroll; its top127.796875 less scroll109 equals the observed18.796875 vertical offset."
+    },
+    "rejectedIntermediate": {
+      "capture": "continuation-85d8-rail-containment-diagnostic-5",
+      "artifact": {
+        "x": 1165,
+        "y": 122,
+        "width": 495,
+        "height": 853.203125,
+        "offsetParent": null
+      },
+      "cssSlot": {
+        "left": 1165,
+        "top": 122
+      },
+      "outerToolOwner": {
+        "x": 248,
+        "y": 92.796875,
+        "containerType": "size"
+      },
+      "finding": "After removing layout containment the fixed renderer uses viewport coordinates. The remaining size container did not establish the assumed fixed containing block in the measured browser."
+    },
+    "finalProof": "The original containment predicate and exact renderer-node identity pass in the complete nineteen-case final run. Diagnostic catch/logging is absent from final source. No renderer remount, forced click, top-layer workaround or weakened geometry tolerance was introduced."
+  },
+  "narrowReadinessEvidence": {
+    "failedCapture": "continuation-85d8-composer-rail-green-2",
+    "traceRelativeMs": {
+      "initialLauncherVisible": 59707.352,
+      "launcherVisibilityCheckFalse": 59945.084,
+      "finalUsageExpectationStart": 59962.23
+    },
+    "observed": "The helper matched an initial App launcher, then observed it absent during canonical owner replacement and executed no click. The final DOM again has the canonical composer launcher and a hidden root usage summary.",
+    "repair": "Wait for the exact retained conversation Message to be enabled, and scope only the launcher to that owner. The visible Live usage region stays rooted in the outer split summaries."
+  },
+  "localSetup": {
+    "pinnedPackageManager": "pnpm10.30.3 via existing Corepack shims",
+    "nodePty": "The initial declared dependency lacked its Linux binary. Plain pnpm rebuild was a recorded no-op. An explicit pinned node-gyp build used complete existing Node24.22.1 headers and produced the binary; no dependency version, network download, source assertion, install policy or global account changed."
+  },
+  "actualCommands": [
+    {
+      "label": "continuation-85d8-composer-rail-red",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 33973,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "b778b26d504c240624e32844c79c202ef4c032dee459d92f83ca96df4548f8b6",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-red.log",
+        "bytes": 11216,
+        "sha256": "853978d29186215f8bf1a3e8e8e85ec8b6b38503fb0f94fdd2b4b79f3f9fc368",
+        "gitBlobSha": "171fba32d01e8cd57753394eace22802e866800a"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-red.meta.json",
+        "bytes": 2111,
+        "sha256": "3670a3ccb57c866c2318c17722673f188daa8de30239ed87333ad5e6ca68647a",
+        "gitBlobSha": "ce2a1c307e6d309c5fdc8f316b3d6f94d22d2d25"
+      },
+      "interpretation": "Three actual selected browser failures before fixture/geometry repairs.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 3,
+        "skipped": 0
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:10:07.890228+00:00",
+        "endedAt": "2026-11-15T23:10:41.903326+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-red.meta.json"
+    },
+    {
+      "label": "continuation-85d8-host-navigation-build",
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "elapsedMs": 14104,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-build.log",
+        "bytes": 8398,
+        "sha256": "7bdaceaa227eee2f6dfb52281095f409427a8296c414d0c4c978b410f56e37af",
+        "gitBlobSha": "707006c1d76fa5b6727e0d95fbc2e3276f76560a"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-build.meta.json",
+        "bytes": 1769,
+        "sha256": "e145701c288361ce994b48147ad4c274c1bd19b900087f2da2379800b20e606b",
+        "gitBlobSha": "78be1cc9f723dcbf9710c4dcddb46233d7448d01"
+      },
+      "interpretation": "Actual production web build before the real-host navigation check.",
+      "execution": {
+        "startedAt": "2026-11-15T23:12:12.859717+00:00",
+        "endedAt": "2026-11-15T23:12:26.989821+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-build.meta.json"
+    },
+    {
+      "label": "continuation-85d8-host-navigation-green",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 11438,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green.log",
+        "bytes": 1819,
+        "sha256": "8b08aadeac09cbb476fab8d5993bcbc521cfd450a583d55ee6363b1643e741b5",
+        "gitBlobSha": "7452c32065794319d348ea59f7131e3d8e170855"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green.meta.json",
+        "bytes": 1970,
+        "sha256": "26f60b6ff2b075186f16b2d5b000d339db08d973c105cc5c314f1acb107e3716",
+        "gitBlobSha": "36c6a0d2fd35d67400c68dc57b7a87e070842c13"
+      },
+      "interpretation": "Setup failure before test discovery: declared node-pty Linux binary missing. This is not the intended semantic red and not browser proof.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "testDiscoveryReached": false
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:12:35.747158+00:00",
+        "endedAt": "2026-11-15T23:12:47.205663+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green.meta.json"
+    },
+    {
+      "label": "continuation-85d8-node-pty-rebuild",
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "elapsedMs": 1500,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-rebuild.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gitBlobSha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-rebuild.meta.json",
+        "bytes": 1841,
+        "sha256": "3ff30e4c1e488f683df691c64e2a70ea54a35e41ff8dead4f0e61c456c03e118",
+        "gitBlobSha": "14d942646f7c8e5b8b46b4934c1ba97ac109b2d1"
+      },
+      "interpretation": "The pinned pnpm rebuild command exits0 with empty output but does not produce pty.node under the existing onlyBuiltDependencies policy. A command PASS, not successful native setup.",
+      "execution": {
+        "startedAt": "2026-11-15T23:14:00.502479+00:00",
+        "endedAt": "2026-11-15T23:14:02.068930+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-rebuild.meta.json"
+    },
+    {
+      "label": "continuation-85d8-node-pty-explicit-rebuild",
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "elapsedMs": 2836,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-explicit-rebuild.log",
+        "bytes": 2868,
+        "sha256": "1be80aac6260845586b6819780b56548eb954d4756407c21d134a2eff75a5f8a",
+        "gitBlobSha": "dfd5527af5fe8187793d6b3ac8ac3b8f91a19580"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-explicit-rebuild.meta.json",
+        "bytes": 1577,
+        "sha256": "8cb8cacdbbe287633217a5b6ff70e3f744d84898b94abc7e13b193b67744d944",
+        "gitBlobSha": "0528b9c3bb999e540c3420951bb4d08426b5fe3a"
+      },
+      "interpretation": "Explicit declared node-gyp12.4.0 build of the declared node-pty1.1.0 with complete existing Node24.22.1 cached headers succeeds. No new dependency, download or project build-policy edit.",
+      "execution": {
+        "startedAt": "2026-11-15T23:14:42.574649+00:00",
+        "endedAt": "2026-11-15T23:14:45.437401+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-node-pty-explicit-rebuild.meta.json"
+    },
+    {
+      "label": "continuation-85d8-host-navigation-green-2",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 14847,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green-2.log",
+        "bytes": 919,
+        "sha256": "14cd7c9db23dd409a415f359468b1dae65c488a488a85fb3b6c5acf5e048c617",
+        "gitBlobSha": "d06039f5aca472cb0910c4b2e632ff7ceb148bda"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green-2.meta.json",
+        "bytes": 1970,
+        "sha256": "1bceadfb39557a92262df7d71e6068099d34e8ea7c93c025a6a37e83fc119658",
+        "gitBlobSha": "5990e9dd2d858a21fb75de321e306affe760b6c3"
+      },
+      "interpretation": "Actual local real host and child widget execution: Settings, Stop/cancellation, worker termination, new owner and three-second navigation assertion pass.",
+      "testCounts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:14:59.904911+00:00",
+        "endedAt": "2026-11-15T23:15:14.776040+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-host-navigation-green-2.meta.json"
+    },
+    {
+      "label": "continuation-85d8-composer-rail-green-1",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 91680,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "09247b6a801ea7e8e1889ed6abdf5d65e195fbcebbbb084d1f2d3bfbb90fbd6c",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-1.log",
+        "bytes": 20734,
+        "sha256": "35f040a621dbe09b58eab0033af80acd86fae958544d86b358f0570cc0c1bd41",
+        "gitBlobSha": "cd6ff6a9b666f1c392b275d554dd90004806f74c"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-1.meta.json",
+        "bytes": 2000,
+        "sha256": "9548993b97e8e4273ac599999cfa7410fbabe71198b281e67c04f11e9f96b974",
+        "gitBlobSha": "4f868f340d09958e08b282f7da7ba47a0f77fd71"
+      },
+      "interpretation": "Despite its planned label, actual FAIL. Canonical owner restored; remaining five exposed host-only thread.reconcile absence, stale header/side-owner selectors and real artifact containment.",
+      "testCounts": {
+        "passed": 14,
+        "failed": 5,
+        "skipped": 0
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:16:37.150916+00:00",
+        "endedAt": "2026-11-15T23:18:08.845278+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-1.meta.json"
+    },
+    {
+      "label": "continuation-85d8-rail-containment-diagnostic",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 11760,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "f6db57cc0f496bca1b3ed0ab204de25af35c8226b2c9277ca2192727604d6d44",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic.log",
+        "bytes": 3615,
+        "sha256": "e502a908c23bf9f22fca05f8b2c757b358f173eafb95014717eb4b2bdb69e6a1",
+        "gitBlobSha": "c1e744e0e5e29e71dccfbbe596056573d3ebf594"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic.meta.json",
+        "bytes": 2003,
+        "sha256": "c821602eae9441ea8bdff707548ebb1f4856a22601c2fe47ed781494391004a5",
+        "gitBlobSha": "ff40957dc09a894245f5fb6554b1fc44177137bc"
+      },
+      "interpretation": "Setup timeout before requested geometry. Preserved as failure, not a geometry result.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "bodyReached": false
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:20:27.294831+00:00",
+        "endedAt": "2026-11-15T23:20:39.059913+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic.meta.json"
+    },
+    {
+      "label": "continuation-85d8-rail-containment-diagnostic-2",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 19765,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "1c0c11559cae47e190556617607b6b3ab9ff5fb19b56cddada61ce04e8e7e342",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-2.log",
+        "bytes": 13424,
+        "sha256": "21d6ab16637a0ae0d333398a9d0defd52ee541e25386b890ad715170ae890a1d",
+        "gitBlobSha": "863b6a91756b53ded4ab3d339a436a908467ed4f"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-2.meta.json",
+        "bytes": 2007,
+        "sha256": "ffe4346a764ea1da2c256b91fbb74858dda64e17852ce8cd81bfe44efff8fbb6",
+        "gitBlobSha": "c7bb5830ff14a8976041cd08d6d3474ea7008d9a"
+      },
+      "interpretation": "Original failing artifact viewport coordinates and intervening containment chain measured after the unchanged predicate times out.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "bodyReached": true
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:21:47.943475+00:00",
+        "endedAt": "2026-11-15T23:22:07.746586+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-2.meta.json"
+    },
+    {
+      "label": "continuation-85d8-composer-rail-green-2",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 84966,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "bcbd0a847b43dcb635f11ba84f86286c5a79a0187bdcc75a74bbd3d884c05f03",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-2.log",
+        "bytes": 10056,
+        "sha256": "dd46d982da208659fdcd295f5f0e45c2cd6275b021327f9d2a577f6eff7ed7ca",
+        "gitBlobSha": "b22047e5a19d0f5f0e5a02a813feb536d1458cf8"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-2.meta.json",
+        "bytes": 2000,
+        "sha256": "ef8be0f2ae779bc77135c1f3f3e616a9ff0222f94241e60a21c56ca574c709a2",
+        "gitBlobSha": "f5ac673fc0c6e11c42123a7d50de89fe6c0ff5a8"
+      },
+      "interpretation": "Despite its planned label, actual FAIL. All eleven composer cases pass. Real containment still fails after the first coordinate-conversion proposal; narrow usage helper observes a transient initial launcher and skips the click during canonical owner replacement.",
+      "testCounts": {
+        "passed": 17,
+        "failed": 2,
+        "skipped": 0
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:28:41.768439+00:00",
+        "endedAt": "2026-11-15T23:30:06.753232+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-2.meta.json"
+    },
+    {
+      "label": "continuation-85d8-rail-containment-diagnostic-3",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 13787,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "a9951f89c23c8a891d6a36659140cd1c1b0214ea3517f7756df3fea3c94fb376",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-3.log",
+        "bytes": 3911,
+        "sha256": "91987427bfdec5f841cdd361b38400f3f36c143b19c998c346f0b31ebe241db6",
+        "gitBlobSha": "a0fc56781ce2a2a7b1bca858a00dd45d9c31b2c7"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-3.meta.json",
+        "bytes": 2005,
+        "sha256": "e37dac4892fdd0976377ee35ed2d302c7263f436061c37aba305407bb2357644",
+        "gitBlobSha": "d123c7c177f3a4e0f4c19c052584a8d2a824a876"
+      },
+      "interpretation": "Five-second initial Message readiness expires before canonical App setup completes. Geometry not reached.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "bodyReached": false
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:31:55.350285+00:00",
+        "endedAt": "2026-11-15T23:32:09.163307+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-3.meta.json"
+    },
+    {
+      "label": "continuation-85d8-rail-containment-diagnostic-4",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 12363,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "a9951f89c23c8a891d6a36659140cd1c1b0214ea3517f7756df3fea3c94fb376",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-4.log",
+        "bytes": 3911,
+        "sha256": "1c758da0cdda96cb24ba3266961ed86c6d53de834d69ebd6290c523273adedb1",
+        "gitBlobSha": "0e5216796d74f1870a1c2d9f6f27e0f79e03efa0"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-4.meta.json",
+        "bytes": 2005,
+        "sha256": "abe6691c7eeef0c49367ecaec9c72adcaf4a56d708c6dca0d55f132b79cf0625",
+        "gitBlobSha": "1cd94d03e871ab704c5583974e577a3d588a9a43"
+      },
+      "interpretation": "Identical-command repeat again expires at initial Message readiness. No geometry result; further identical retries stopped.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "bodyReached": false
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:32:55.452228+00:00",
+        "endedAt": "2026-11-15T23:33:07.827298+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-4.meta.json"
+    },
+    {
+      "label": "continuation-85d8-rail-containment-diagnostic-5",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 17205,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "eade259b82ca0cfd117d544a463bc7ebf3e74cbc769b8659c26e98456c01ce05",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-5.log",
+        "bytes": 22565,
+        "sha256": "ecc0aefdce828bb29d187ba5c9f931ca3acc33e249467880182d6f4d81c29349",
+        "gitBlobSha": "0495e5ee6d44b7fd85cc46f4bf8f5160e8d06a07"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-5.meta.json",
+        "bytes": 2007,
+        "sha256": "f7efeb845ad9748f77d173c73e29e87a54608556c189cacde4b4b336ce200bda",
+        "gitBlobSha": "e3e832ed5a4399d487d8bd8fc6b042322b795d2d"
+      },
+      "interpretation": "With explicit fifteen-second initial canonical readiness, the unchanged containment assertion fails and measures offsetParent:null. This disproves the intermediate outer-container coordinate assumption; final code restores original viewport coordinates.",
+      "testCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "bodyReached": true
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:34:01.506723+00:00",
+        "endedAt": "2026-11-15T23:34:18.732975+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-rail-containment-diagnostic-5.meta.json"
+    },
+    {
+      "label": "continuation-85d8-composer-rail-green-3",
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "elapsedMs": 76327,
+      "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "workingDiffSha256": "7e6e3268928af007845523ebe962c99d79ae5ef9f3c23e0065e981441bbf45ee",
+      "log": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-3.log",
+        "bytes": 3582,
+        "sha256": "8949bb8f4532bd463b867f7de5942aae07cf5fc1b80a7675590da5ad3ca6efea",
+        "gitBlobSha": "6c59848cbab36118366600a9ab388e60e5d7d6f9"
+      },
+      "metadata": {
+        "path": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-3.meta.json",
+        "bytes": 1998,
+        "sha256": "5f7e41250baac94e07a640fdc7664d5b3069b9e0357d05b108b2066528ac8d77",
+        "gitBlobSha": "f500576731d962513b2312ec6908f879e0df8267"
+      },
+      "interpretation": "Actual final nineteen-case PASS with original functional assertions, minimal active-surface containment correction, and canonical-owner boot readiness.",
+      "testCounts": {
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0
+      },
+      "execution": {
+        "startedAt": "2026-11-15T23:36:09.739262+00:00",
+        "endedAt": "2026-11-15T23:37:26.090511+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS"
+      },
+      "exactArgvAndEnvironmentRef": "docs/implementation/v3/m05-logs/continuation-85d8-composer-rail-green-3.meta.json"
+    }
+  ],
+  "priorPlanProof": {
+    "mapPath": "docs/implementation/v3/M05-plan-native-immutable-import-map-20261115.json",
+    "mapGitBlobSha": "84ea1972105ad2941a493395632ad816fd3d568b",
+    "mapBytes": 6508,
+    "mapSha256": "7a0a59b2639497d86b9ec6fcc53cb6d7767cf4a94286874ccc94d87cccec8bd1",
+    "red": {
+      "passed": 15,
+      "failed": 2
+    },
+    "green": {
+      "passed": 17,
+      "failed": 0
+    },
+    "limit": "Separate local command/source cut. Do not sum these results into an unexecuted full suite."
+  },
+  "proofLimits": [
+    "This is focused local browser and real local-host evidence, not a complete Windows workflow pass.",
+    "Synthetic task fixtures exercise production UI/reducer behavior with fixture source data; they are not installed-desktop or live-provider proof.",
+    "The installed native Save/default-target failure and its candidate repairs remain separate from these browser results.",
+    "Both M05 feature flags remain false. Full enabled installed lifecycle and authorized live repeated-task study remain unproved.",
+    "All failed commands remain preserved, including misleadingly planned green labels, setup failures, the no-op rebuild and rejected geometry proposal."
+  ]
+}

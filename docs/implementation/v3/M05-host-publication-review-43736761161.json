@@ -1,0 +1,281 @@
+{
+  "version": 1,
+  "kind": "host-operation-publication-trace-and-repair-review",
+  "reviewedAt": "2026-11-15T17:07:15.107261+00:00",
+  "identity": {
+    "runId": 43736761161,
+    "head": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
+    "tree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b",
+    "actualCheckout": "ce93c20a3394157af18f585f794c97dd067f37a5",
+    "browserJobId": 132880966837,
+    "artifactId": 14170209844
+  },
+  "evidence": {
+    "archiveTraceAndRawLog": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43736761161/browser-43736761161-1.zip",
+        "bytes": 5077455,
+        "sha256": "0f203a3457cf4c8c9991bad55c1eebf2a01c436c6ed5367c5a02715c7ecc8b33"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43736761161/artifact/run-1794761241080-4c92a8b8-2513-4e2e-a791-fd3bae20a125/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/trace.zip",
+        "bytes": 3015305,
+        "sha256": "b390674f3d3c2dff5a78574abb37d69614317ed6323b88c1247aaf8e7d265a9c"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/job-132880966837.log",
+        "bytes": 115042,
+        "sha256": "ae873113d07ef18a7f1d18515833bcb11bd0b2dac32d5bdd5d26d503bbcc355a"
+      }
+    ],
+    "artifactRetrievalCount": 1,
+    "rootResults": {
+      "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43736761161/artifact/run-1794761241080-4c92a8b8-2513-4e2e-a791-fd3bae20a125/root/results.json",
+      "sha256": "75ed7aa274f6be5f58ca99ab90ab0260348d80979091aae62c18ddd8bbac5eb5",
+      "stats": {
+        "startTime": "2026-11-15T16:47:21.995Z",
+        "duration": 287106.99799999996,
+        "expected": 111,
+        "skipped": 1,
+        "unexpected": 1,
+        "flaky": 0
+      }
+    },
+    "visuallyInspectedFrame": {
+      "path": "/workspace/scratch/36f66011d961/m05-browser-triage-43736761161/host-operation-before-failure.jpeg",
+      "sha256": "8641f951d6f194ee00c1ebae7862c545044890eb777fe55bf957f645d60c967d",
+      "timestampMs": 99326.805,
+      "width": 1440,
+      "height": 1000,
+      "observation": "Actual host displays the scripted assistant message and Working indicator, with no artifact or error panel. This is a pre-failure frame, not new passing visual evidence."
+    }
+  },
+  "failedCase": {
+    "title": "generated operation button requires native approval; restart restores without repeating effects",
+    "file": "host-loop.spec.ts",
+    "line": 252,
+    "status": "failed",
+    "wholeTestDurationMs": 20931,
+    "configuredTimeoutMs": 30000,
+    "retry": 0,
+    "failure": "Initial artifact attachment exceeded15000ms before approval, revision, file-effect or restart assertions ran."
+  },
+  "chronology": {
+    "commands": [
+      {
+        "type": "thread.create",
+        "startMs": 83242.609,
+        "durationMs": 3.234,
+        "httpStatus": 200,
+        "eventSeq": 3
+      },
+      {
+        "type": "resource.grant",
+        "startMs": 84073.532,
+        "durationMs": 6.2540000000000004,
+        "httpStatus": 200,
+        "eventSeq": 4
+      },
+      {
+        "type": "message.send",
+        "startMs": 84298.555,
+        "durationMs": 5.789,
+        "httpStatus": 200,
+        "eventSeq": 5
+      }
+    ],
+    "postSendSnapshots": [
+      {
+        "startMs": 84314.577,
+        "endMs": 84321.751,
+        "seq": 9,
+        "artifactCount": 0,
+        "operationCount": 0,
+        "dataCount": 0,
+        "threads": [
+          {
+            "status": "working",
+            "error": null
+          }
+        ],
+        "bodySha1": "b390370431f8fdca4589dd7c6489368adaf16602.json"
+      },
+      {
+        "startMs": 84360.238,
+        "endMs": 84362.373,
+        "seq": 9,
+        "artifactCount": 0,
+        "operationCount": 0,
+        "dataCount": 0,
+        "threads": [
+          {
+            "status": "working",
+            "error": null
+          }
+        ],
+        "bodySha1": "b390370431f8fdca4589dd7c6489368adaf16602.json"
+      },
+      {
+        "startMs": 84393.574,
+        "endMs": 84395.015,
+        "seq": 9,
+        "artifactCount": 0,
+        "operationCount": 0,
+        "dataCount": 0,
+        "threads": [
+          {
+            "status": "working",
+            "error": null
+          }
+        ],
+        "bodySha1": "b390370431f8fdca4589dd7c6489368adaf16602.json"
+      }
+    ],
+    "attachmentCall": {
+      "callId": "call@1765",
+      "startMs": 84318.052,
+      "endMs": 99362.6,
+      "timeoutMs": 15000,
+      "locator": "[data-artifact-id] >> nth=0"
+    },
+    "enclosingTestExpectation": {
+      "startMs": 84316.867,
+      "endMs": 99368.863
+    },
+    "fixtureTeardownStartsMs": 99369.875,
+    "consoleErrors": [
+      {
+        "timeMs": 99379.844,
+        "text": "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING",
+        "url": "http://127.0.0.1:4337/api/events?after=2"
+      },
+      {
+        "timeMs": 101883.088,
+        "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "url": "http://127.0.0.1:4337/api/bootstrap"
+      }
+    ],
+    "noLaterRecordedSnapshot": true,
+    "timingCorrection": "The parsed Frame.expect end is99362.600ms. An earlier inter-agent message incorrectly gave99365.436ms; this artifact supersedes that value."
+  },
+  "diagnosis": {
+    "observed": "All recorded post-send snapshots are seq9 with a working thread, null error and zero operations/data/artifacts. No subsequent publication or native failure result is retained before the attachment assertion ends.",
+    "sseOrdering": "The incomplete-chunked-encoding console error appears after fixture teardown starts; the later bootstrap connection refusal also follows teardown. Neither establishes the initiating failure.",
+    "missingEvidence": "The prior workflow uploaded results, PNGs and traces but omitted the already-written host-observations.json. That fixture version did not record per-tool start/end/error metadata.",
+    "sourceInference": "The scripted runtime awaits file_replace_prepare, then text_import, then ui_present. No operation.prepared snapshot was observed, which is consistent with incomplete first preparation but does not identify its pending substage.",
+    "uncertainty": "Initial domain import, resource resolution, native acquisition, file reading and guard cleanup cannot be distinguished. This trace does not establish native timeout, CAPABILITY_DENIED, late successful guards, a rendering defect or measured individual native-operation duration."
+  },
+  "sourceBounds": {
+    "nativeDefaultRpcTimeoutMs": 15000,
+    "nativeChildForcedKillTimerMs": 2000,
+    "gitMetadataImportRpcTimeoutMs": 120000,
+    "gitMetadataImportApplicable": false,
+    "sequentialFileTools": [
+      "file_replace_prepare",
+      "text_import"
+    ],
+    "publicationFollowsBoth": true,
+    "limit": "There is no single15-second whole-publication guarantee. Per-RPC deadlines and a forced-kill timer do not measure total startup time."
+  },
+  "repair": {
+    "scope": "Scripted operation-fixture readiness and diagnostic retention only.",
+    "operationPublicationBudgetMs": 40000,
+    "operationOuterTestBudgetMs": 60000,
+    "otherFixtureAttachmentBudgetMs": 15000,
+    "visibleAssertionDefaultMs": 5000,
+    "approvalWaitDefaultMs": 5000,
+    "retriesAdded": 0,
+    "authority": "The operation case supplies its exact HostFixture explicitly. No process search, global fixture pointer, WeakMap or new fixture dependency.",
+    "failureBehavior": "Runtime and tool wrappers record bounded failure metadata and rethrow the original error. Readiness checks the recorded failure and host thread errors before each attachment check and again after finding attachment. Poll interval is at most100ms by configuration, not a hard scheduling-latency claim.",
+    "timeoutBehavior": "The40-second readiness deadline throws with pending runtime/tool stage names; pending or failed work cannot count as success.",
+    "metadata": {
+      "recordsPerRuntimeMax": 64,
+      "fields": [
+        "kind",
+        "name",
+        "status",
+        "startedAt",
+        "startedMs",
+        "finishedAt",
+        "elapsedMs",
+        "error.name",
+        "error.code",
+        "error.message"
+      ],
+      "nameMaxCharacters": 120,
+      "errorNameOrCodeMaxCharacters": 80,
+      "errorMessageMaxCharacters": 500,
+      "argumentsOrSourceBytesAdded": false
+    },
+    "retention": "runtimeStages are added to existing host-observations.json. Workflow upload adds only this exact basename under browser artifact directories.",
+    "preservation": {
+      "remainingHostLoopBytesExact": true,
+      "crlfPreserved": true,
+      "approvalRequiredAssertions": true,
+      "staleRevisionDenial": true,
+      "beforeAndAfterFileContentAssertions": true,
+      "operationStartedExactlyOnce": true,
+      "restartStateAndNoRepeatedEffects": true,
+      "productionGuardUnchanged": true
+    }
+  },
+  "sourceFiles": [
+    {
+      "path": "tests/host-fixture.ts",
+      "failedCiTreeSha256": "54b7c58b1f02d7ec5adada5b638f32a4c5405d5609939ebb3f01c5ff9368bc11",
+      "reviewedCurrentSha256": "7e0127235204ff69d585af1ea6cf83d8ed18f348f79538095b87824ea862eb3c",
+      "currentBytes": 17463,
+      "unchanged": false
+    },
+    {
+      "path": "tests/e2e/host-loop.spec.ts",
+      "failedCiTreeSha256": "776c90a8aaef7b7fb386e876a69ae78958d996332817e163c7d9b1f47335b278",
+      "reviewedCurrentSha256": "f86c816974f1ceae293ada90afddeafc804101af8116dc45bd8cff04ce796503",
+      "currentBytes": 27651,
+      "unchanged": false
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "failedCiTreeSha256": "6728cdd5e9eb90e27e7c2f4791ff280ca2622bae70dcb98b70741348fbac53c2",
+      "reviewedCurrentSha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f",
+      "currentBytes": 12542,
+      "unchanged": false
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "failedCiTreeSha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "reviewedCurrentSha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "currentBytes": 11810,
+      "unchanged": true
+    },
+    {
+      "path": "packages/capabilities/index.ts",
+      "failedCiTreeSha256": "583f078d27886f0a161d60aeff8e62da28521a91c7f08bf8a9eee7384482ecdd",
+      "reviewedCurrentSha256": "583f078d27886f0a161d60aeff8e62da28521a91c7f08bf8a9eee7384482ecdd",
+      "currentBytes": 23408,
+      "unchanged": true
+    },
+    {
+      "path": "packages/core/service.ts",
+      "failedCiTreeSha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451",
+      "reviewedCurrentSha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451",
+      "currentBytes": 150475,
+      "unchanged": true
+    }
+  ],
+  "validation": {
+    "redEvidence": "Actual failed Windows case and trace above.",
+    "rootSourceReview": "Complete frozen diff reviewed; no concrete issue reported.",
+    "independentByteComparison": "Confirmed that host-loop differs only by the60-second operation timeout and explicit host argument; workflow differs only by the exact observations upload.",
+    "newTargetPass": false,
+    "typecheck": "Separately owned final check follows the frozen source. No result inferred here.",
+    "newBrowserLaunchByReviewer": false,
+    "ledgerWritesByReviewer": false
+  },
+  "proofLimits": [
+    "The new bounded wait is a fixture-readiness and diagnostic repair, not a claim that the old native operation succeeded.",
+    "No approval/file-effect assertion passed in the failed case; all remain required in the next exact-head Windows execution.",
+    "No production guard or authority check was relaxed. The fixture remains scripted with no model inference.",
+    "This scratch review supplies no new CI success or installed-retention proof."
+  ]
+}

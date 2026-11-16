@@ -1,0 +1,395 @@
+Browser results: /workspace/scratch/36f66011d961/m05-v3/test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20
+
+Browser suite: usage-context (1 spec files)
+[WebServer] (node:32) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:72) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt (15ms)
+(node:90) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session (2ms)
+(node:103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/e2e/usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context (5ms)
+(node:116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/e2e/usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger (2ms)
+(node:129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges (4ms)
+(node:142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns (3ms)
+(node:155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart (3ms)
+(node:168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow (2ms)
+(node:181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success (2ms)
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work (7ms)
+(node:207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values (2ms)
+(node:220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (2ms)
+(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (3ms)
+(node:246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark (3ms)
+(node:259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light (3ms)
+(node:272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark (3ms)
+(node:285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:285) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light (2ms)
+(node:298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:298) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (4ms)
+(node:311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (3ms)
+(node:324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  20 tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (2ms)
+
+
+  1) tests/e2e/usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-token-decr-9a88d-is-not-a-compaction-receipt/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-token-decr-9a88d-is-not-a-compaction-receipt/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-compaction-d7575-different-thread-or-session/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-compaction-d7575-different-thread-or-session/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-late-failu-1ec89--the-newly-selected-context/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-a-late-failu-1ec89--the-newly-selected-context/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-take-aae8e-efore-restoring-its-trigger/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-take-aae8e-efore-restoring-its-trigger/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-first-reveal-92da3-rome-and-all-viewport-edges/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-first-reveal-92da3-rome-and-all-viewport-edges/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-Usage-has-se-f3044-ata-and-per-metric-unknowns/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-Usage-has-se-f3044-ata-and-per-metric-unknowns/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-accepted-rec-c64c5-tional-and-reset-on-restart/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-accepted-rec-c64c5-tional-and-reset-on-restart/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-reported-seg-674f0-mulative-separator-overflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-reported-seg-674f0-mulative-separator-overflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-pending-swee-f1455-ate-is-not-accepted-success/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-pending-swee-f1455-ate-is-not-accepted-success/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-unknown-and--1d714-s-never-retain-stale-values/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-unknown-and--1d714-s-never-retain-stale-values/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-loading-empt-d9ca2-rve-honest-per-metric-state/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-loading-empt-d9ca2-rve-honest-per-metric-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-accepted-tra-05b38-suppresses-travel-and-sweep/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-accepted-tra-05b38-suppresses-travel-and-sweep/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-optional-sum-3f75f-its-independent-body-action/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-optional-sum-3f75f-its-independent-body-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-invalidating-fe45b-nd-after-its-timer-deadline/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811256-f7e65c80-eaec-492e-ad55-13a97cb51c20/usage-context/artifacts/usage-context-invalidating-fe45b-nd-after-its-timer-deadline/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    tests/e2e/usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt
+    tests/e2e/usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session
+    tests/e2e/usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context
+    tests/e2e/usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger
+    tests/e2e/usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges
+    tests/e2e/usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns
+    tests/e2e/usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart
+    tests/e2e/usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow
+    tests/e2e/usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success
+    tests/e2e/usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work
+    tests/e2e/usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values
+    tests/e2e/usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection
+    tests/e2e/usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state
+    tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark
+    tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light
+    tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark
+    tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light
+    tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep
+    tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action
+    tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline
+
+Failed browser suites: usage-context (exit 1)

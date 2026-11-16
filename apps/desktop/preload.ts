@@ -12,6 +12,7 @@ ipcRenderer.on(channels.closeRequest,(_event,requestId:unknown)=>{
  void Promise.all([...closeHandlers].map(handler=>Promise.resolve().then(handler).catch(()=>false))).then(results=>ipcRenderer.invoke(channels.closeAnswer,{requestId,allow:results.every(Boolean)})).catch(()=>{});
 });
 const bridge:DesktopBridge={
+ exportProjectMemory:serializedExport=>ipcRenderer.invoke(channels.memoryExport,serializedExport),
  openAttention:eventId=>ipcRenderer.invoke(channels.attentionOpen,eventId),
  onAttentionOpen:listener=>{const receive=(_event:Electron.IpcRendererEvent,value:unknown)=>{if(value&&typeof value==='object'&&Object.keys(value).length===1&&typeof(value as {threadId?:unknown}).threadId==='string'&&/^[A-Za-z0-9_.:-]{1,200}$/.test((value as {threadId:string}).threadId))listener((value as {threadId:string}).threadId);};ipcRenderer.on(channels.attentionSelected,receive);return()=>ipcRenderer.removeListener(channels.attentionSelected,receive);},
  setTheme:theme=>ipcRenderer.invoke(channels.theme,theme),

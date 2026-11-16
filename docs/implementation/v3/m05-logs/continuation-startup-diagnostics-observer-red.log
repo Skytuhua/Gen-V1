@@ -1,0 +1,80 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup
+ ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller
+ ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options
+ ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner
+ ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents
+ ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile
+ ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck
+ ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > keeps draining when optional diagnostic construction fails 11ms
+   → expected [Function] to not throw an error but 'Error: PRIVATE_CLOCK_FAILURE' was thrown
+ × tests/installed-desktop-verification.test.ts > bounded installed startup output custody > cannot throw from process lifecycle listeners when the optional clock later fails 3ms
+   → expected [Function] to not throw an error but 'Error: PRIVATE_CLOCK_FAILURE' was thrown
+ ↓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > reassembles only strict chunked markers while retaining separate output digest and byte counts
+ ↓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > drops malformed, private and extra fields and accepts the next complete line
+ ↓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > bounds parsing, retained events and hash bytes while continuing to drain later output
+ ↓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > retains a renderer loss before the final generic failure
+ ↓ tests/installed-desktop-verification.test.ts > bounded installed startup output custody > retains the first startup failure while separately observing later process exit and close
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > keeps draining when optional diagnostic construction fails
+AssertionError: expected [Function] to not throw an error but 'Error: PRIVATE_CLOCK_FAILURE' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: PRIVATE_CLOCK_FAILURE"
+
+ ❯ tests/installed-desktop-verification.test.ts:332:156
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > bounded installed startup output custody > cannot throw from process lifecycle listeners when the optional clock later fails
+AssertionError: expected [Function] to not throw an error but 'Error: PRIVATE_CLOCK_FAILURE' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: PRIVATE_CLOCK_FAILURE"
+
+ ❯ tests/installed-desktop-verification.test.ts:339:75
+    337|   const child=Object.assign(new EventEmitter(),{pid:17,stdout:new Pass…
+    338|   const capture=installedVerification.observeInstalledStartup(child as…
+    339|   expect(()=>{child.emit('exit',1,null);child.emit('close',1,null);}).…
+       |                                                                           ^
+    340|   expect(capture.read()).toMatchObject({exit:{elapsedMs:null,code:1,si…
+    341|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 31 skipped (33)
+   Start at  08:51:50
+   Duration  1.41s (transform 508ms, setup 0ms, import 1.13s, tests 15ms, environment 0ms)
+

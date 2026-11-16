@@ -1,0 +1,23 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-preparation-ui.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-preparation-ui.test.ts [ tests/project-memory-preparation-ui.test.ts ]
+Error: Cannot find module '../apps/web/src/project-memory-preparation' imported from /workspace/scratch/36f66011d961/m05-continuation/tests/project-memory-preparation-ui.test.ts
+ ❯ tests/project-memory-preparation-ui.test.ts:2:1
+      1| import {expect, it, vi} from 'vitest';
+      2| import {MemoryPreparationController, type MemoryPreparationTransport, …
+       | ^
+      3| import type {MemoryPreparedRequest, MemoryScope} from '../packages/con…
+      4|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  19:29:02
+   Duration  166ms (transform 26ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

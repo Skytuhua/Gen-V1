@@ -1,0 +1,11 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+ Test Files  23 passed (23)
+      Tests  277 passed (277)
+   Start at  18:56:41
+   Duration  12.50s (transform 4.25s, setup 0ms, import 7.98s, tests 12.69s, environment 2ms)

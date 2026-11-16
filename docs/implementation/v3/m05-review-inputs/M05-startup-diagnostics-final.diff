@@ -1,0 +1,508 @@
+diff --git a/apps/desktop/backend-policy.ts b/apps/desktop/backend-policy.ts
+index d88b09c3..128e0336 100644
+--- a/apps/desktop/backend-policy.ts
++++ b/apps/desktop/backend-policy.ts
+@@ -1,29 +1,112 @@
+ import {join} from 'node:path';
++import {createHash} from 'node:crypto';
+ import {pathToFileURL} from 'node:url';
+ import type {ChildProcess} from 'node:child_process';
++const STARTUP_CODES=['ENOENT','EACCES','EPERM','EADDRINUSE','EADDRNOTAVAIL','EPIPE','ECONNRESET','ECONNREFUSED','ETIMEDOUT','ENOSPC','EMFILE','ENFILE','EIO','EINVAL','EBUSY','ERR_MODULE_NOT_FOUND','MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ERR_INVALID_ARG_TYPE','ERR_INVALID_ARG_VALUE','ERR_SQLITE_ERROR','SQLITE_BUSY','SQLITE_LOCKED','SQLITE_CANTOPEN','SQLITE_CORRUPT','ERR_CONNECTION_REFUSED','ERR_ABORTED','ERR_FAILED','ERR_FILE_NOT_FOUND','ERR_TIMED_OUT'] as const;
++const STARTUP_CATEGORIES=['error','type-error','range-error','syntax-error','aggregate-error','unknown'] as const;
++const STARTUP_STAGES=['app-ready','layout-ready','shell-ready','backend-starting','backend-ready','backend-error','backend-stream-error','backend-spawn-error','backend-exit','backend-disconnect','backend-deadline','backend-relay-error','backend-activation-stopped','backend-activation-error','backend-active','backend-output','main-opening','main-document-loaded','main-ready','main-load-failed','main-renderer-gone','main-deadline','startup-failed'] as const;
++export type StartupErrorDiagnostic={category:typeof STARTUP_CATEGORIES[number];code:typeof STARTUP_CODES[number]|null};
++type StartupOutputSummary={bytes:number;hashedBytes:number;sha256:string;truncated:boolean};
++export type StartupObservation={stage:typeof STARTUP_STAGES[number];error:StartupErrorDiagnostic|null};
++export type StartupDiagnostic=StartupObservation&{elapsedMs:number;output?:{stdout:StartupOutputSummary;stderr:StartupOutputSummary}};
++const PREFIX='HARNESS_STARTUP_V1 ',OUTPUT_LIMIT=262144,LINE_LIMIT=2048,EVENT_LIMIT=32;
++const unknownError=():StartupErrorDiagnostic=>({category:'unknown',code:null});
++function plainRecord(value:unknown):Record<string,unknown>|undefined{
++ if(!value||typeof value!=='object'||Array.isArray(value))return;
++ const proto=Object.getPrototypeOf(value);if(proto!==Object.prototype&&proto!==null)return;
++ if(Object.values(Object.getOwnPropertyDescriptors(value)).some(item=>!('value'in item)))return;
++ return value as Record<string,unknown>;
++}
++function keys(value:Record<string,unknown>,expected:readonly string[]){const actual=Object.keys(value);return actual.length===expected.length&&actual.every(key=>expected.includes(key));}
++/** Never inspect or stringify a message, stack, path, arbitrary name or getter. */
++export function startupErrorDiagnostic(error:unknown):StartupErrorDiagnostic{
++ try{
++  const category=error instanceof TypeError?'type-error':error instanceof RangeError?'range-error':error instanceof SyntaxError?'syntax-error':error instanceof AggregateError?'aggregate-error':error instanceof Error?'error':'unknown';
++  const descriptor=error&&typeof error==='object'?Object.getOwnPropertyDescriptor(error,'code'):undefined,value=descriptor&&'value'in descriptor?descriptor.value:undefined;
++  const code=typeof value==='string'&&value.length<=32&&STARTUP_CODES.includes(value as typeof STARTUP_CODES[number])?value as typeof STARTUP_CODES[number]:null;
++  return {category,code};
++ }catch{return unknownError();}
++}
++function parseStartupError(value:unknown):StartupErrorDiagnostic|undefined{
++ const item=plainRecord(value);if(!item||!keys(item,['category','code'])||!STARTUP_CATEGORIES.includes(item.category as typeof STARTUP_CATEGORIES[number])||item.code!==null&&!STARTUP_CODES.includes(item.code as typeof STARTUP_CODES[number]))return;
++ return {category:item.category as StartupErrorDiagnostic['category'],code:item.code as StartupErrorDiagnostic['code']};
++}
++function parseOutput(value:unknown):StartupOutputSummary|undefined{
++ const item=plainRecord(value);if(!item||!keys(item,['bytes','hashedBytes','sha256','truncated'])||!Number.isSafeInteger(item.bytes)||Number(item.bytes)<0||!Number.isSafeInteger(item.hashedBytes)||Number(item.hashedBytes)<0||Number(item.hashedBytes)!==Math.min(Number(item.bytes),OUTPUT_LIMIT)||typeof item.sha256!=='string'||!/^[a-f0-9]{64}$/.test(item.sha256)||item.truncated!==(Number(item.bytes)>OUTPUT_LIMIT))return;
++ return {bytes:Number(item.bytes),hashedBytes:Number(item.hashedBytes),sha256:item.sha256,truncated:item.truncated as boolean};
++}
++function parseStartupDiagnostic(value:unknown):StartupDiagnostic|undefined{
++ try{
++  const item=plainRecord(value);if(!item||!STARTUP_STAGES.includes(item.stage as StartupDiagnostic['stage'])||!keys(item,item.stage==='backend-output'?['stage','elapsedMs','error','output']:['stage','elapsedMs','error'])||!Number.isSafeInteger(item.elapsedMs)||Number(item.elapsedMs)<0||Number(item.elapsedMs)>3600000)return;
++  const error=item.error===null?null:parseStartupError(item.error);if(error===undefined)return;
++  const result:StartupDiagnostic={stage:item.stage as StartupDiagnostic['stage'],elapsedMs:Number(item.elapsedMs),error};
++  if(item.stage==='backend-output'){
++   const output=plainRecord(item.output);if(!output||!keys(output,['stdout','stderr'])||error!==null)return;
++   const stdout=parseOutput(output.stdout),stderr=parseOutput(output.stderr);if(!stdout||!stderr)return;result.output={stdout,stderr};
++  }
++  return result;
++ }catch{return;}
++}
++/** Optional diagnostics can neither throw nor serialize an unvalidated caller value. */
++export function writeStartupDiagnostic(sink:(line:string)=>void,value:unknown):void{
++ try{const item=parseStartupDiagnostic(value);if(item)sink(PREFIX+JSON.stringify(item)+'\n');}catch{}
++}
++function observeStartup(observe:((value:StartupObservation)=>void)|undefined,value:StartupObservation):void{try{observe?.(value);}catch{}}
++/** Hash and parse only the first 256 KiB of each stream; continue counting/draining every chunk. */
++export function createStartupOutputCapture(clock:()=>number=Date.now,observe?:(value:StartupDiagnostic)=>void){
++ const started=clock(),make=()=>({bytes:0,hashedBytes:0,hash:createHash('sha256'),line:[] as number[],dropping:false});
++ const streams={stdout:make(),stderr:make()},events:(StartupDiagnostic&{stream:'stdout'|'stderr';observedElapsedMs:number})[]=[];
++ let firstFailure:typeof events[number]|null=null,rejectedLines=0,overlongLines=0;
++ const retain=(stream:'stdout'|'stderr',line:string)=>{
++  if(!line.startsWith(PREFIX))return;
++  let value:StartupDiagnostic|undefined;try{value=parseStartupDiagnostic(JSON.parse(line.slice(PREFIX.length)));}catch{}
++  if(!value){rejectedLines++;return;}
++  const event={...value,stream,observedElapsedMs:Math.max(0,clock()-started)};
++  if(value.error!==null||/-(?:failed|error|exit|disconnect|deadline|stopped|gone)$/.test(value.stage))firstFailure??=event;
++  if(events.length<EVENT_LIMIT){events.push(event);try{observe?.(value);}catch{}}
++ };
++ const summary=(value:typeof streams.stdout):StartupOutputSummary=>({bytes:value.bytes,hashedBytes:value.hashedBytes,sha256:value.hash.copy().digest('hex'),truncated:value.bytes>OUTPUT_LIMIT});
++ return {
++  write(stream:'stdout'|'stderr',chunk:Buffer):void{
++   try{
++    const value=streams[stream];value.bytes=Math.min(Number.MAX_SAFE_INTEGER,value.bytes+chunk.length);
++    const limit=Math.min(chunk.length,OUTPUT_LIMIT-value.hashedBytes);if(limit<=0)return;
++    const bytes=chunk.subarray(0,limit);value.hash.update(bytes);value.hashedBytes+=limit;
++    for(const byte of bytes){
++     if(byte===10){if(!value.dropping)retain(stream,Buffer.from(value.line).toString('utf8'));value.line=[];value.dropping=false;}
++     else if(!value.dropping){if(value.line.length===LINE_LIMIT){value.line=[];value.dropping=true;overlongLines++;}else value.line.push(byte);}
++    }
++    if(value.hashedBytes===OUTPUT_LIMIT){value.line=[];value.dropping=true;}
++   }catch{}
++  },
++  read:()=>({hashScope:'prefix' as const,hashLimitBytes:OUTPUT_LIMIT,lineLimitBytes:LINE_LIMIT,eventLimit:EVENT_LIMIT,streams:{stdout:summary(streams.stdout),stderr:summary(streams.stderr)},events:events.slice(),firstFailure,rejectedLines,overlongLines})
++ };
++}
++
+ export function nodeSidecarArguments(hostRoot:string):string[]{return ['--import',pathToFileURL(join(hostRoot,'node_modules/tsx/dist/loader.mjs')).href,join(hostRoot,'apps/server/main.ts')];}
+ export function requestBackendShutdown(child:Pick<ChildProcess,'connected'|'send'>,token:string,failed:()=>void):void{
+  if(!child.connected){failed();return;}
+  // IPC errors arrive asynchronously; a try/catch alone lets EPIPE escape cleanup.
+  try{child.send({type:'harness.shutdown',token},error=>{if(error)failed();});}catch{failed();}
+ }
+-export function waitForBackendReady(child:ChildProcess,token:string,port:number,stderr:()=>string):Promise<Record<string,unknown>>{
++export function waitForBackendReady(child:ChildProcess,token:string,port:number,stderr:()=>string,observe?:(value:StartupObservation)=>void):Promise<Record<string,unknown>>{
+  return new Promise((resolveReady,reject)=>{
+   // Cold original Hermes/Python initialization can exceed the former 25-second bound.
+-  let done=false;const timer=setTimeout(()=>finish(Error('The local backend did not become ready')),60000);
++  let done=false;const timer=setTimeout(()=>{observeStartup(observe,{stage:'backend-deadline',error:null});finish(Error('The local backend did not become ready'));},60000);
+   const finish=(error?:Error,value?:Record<string,unknown>)=>{if(done)return;done=true;clearTimeout(timer);child.removeListener('message',message);child.removeListener('error',failed);child.removeListener('exit',exited);child.removeListener('disconnect',disconnected);if(error)reject(error);else resolveReady(value!);};
+-  const failed=(error:Error)=>finish(error),exited=(code:number|null)=>finish(Error('The local backend stopped during startup ('+code+'). '+stderr().slice(-500)));
+-  const disconnected=()=>finish(Error('The local backend disconnected during startup.'));
+-  const message=(raw:unknown)=>{if(!raw||typeof raw!=='object')return;const value=raw as Record<string,unknown>;if(value.token!==token)return;if(value.type==='harness.error')finish(Error(typeof value.message==='string'?value.message:'The local backend failed'));if(value.type==='harness.ready'&&value.origin==='http://127.0.0.1:'+port&&value.pid===child.pid)finish(undefined,value);};
++  const failed=(error:Error)=>{observeStartup(observe,{stage:'backend-spawn-error',error:startupErrorDiagnostic(error)});finish(error);},exited=(code:number|null)=>{observeStartup(observe,{stage:'backend-exit',error:null});finish(Error('The local backend stopped during startup ('+code+'). '+stderr().slice(-500)));};
++  const disconnected=()=>{observeStartup(observe,{stage:'backend-disconnect',error:null});finish(Error('The local backend disconnected during startup.'));};
++  const message=(raw:unknown)=>{if(!raw||typeof raw!=='object')return;const value=raw as Record<string,unknown>;if(value.token!==token)return;if(value.type==='harness.error'){let error=unknownError();try{error=parseStartupError(value.diagnostic)??error;}catch{}observeStartup(observe,{stage:'backend-error',error});finish(Error(typeof value.message==='string'?value.message:'The local backend failed'));}if(value.type==='harness.ready'&&value.origin==='http://127.0.0.1:'+port&&value.pid===child.pid){observeStartup(observe,{stage:'backend-ready',error:null});finish(undefined,value);}};
+   child.on('message',message);child.once('error',failed);child.once('exit',exited);child.once('disconnect',disconnected);
+  });
+ }
+ 
+ /** The ready IPC handshake can precede an asynchronous relay handoff. */
+-export async function finishBackendStartup(child:Pick<ChildProcess,'exitCode'|'signalCode'>,previousRelayClosed:Promise<void>|undefined,stderr:()=>string,activate:()=>void):Promise<void>{
+- await previousRelayClosed;
++export async function finishBackendStartup(child:Pick<ChildProcess,'exitCode'|'signalCode'>,previousRelayClosed:Promise<void>|undefined,stderr:()=>string,activate:()=>void,observe?:(value:StartupObservation)=>void):Promise<void>{
++ try{await previousRelayClosed;}catch(error){observeStartup(observe,{stage:'backend-relay-error',error:startupErrorDiagnostic(error)});throw error;}
+  const stopped=child.exitCode??child.signalCode;
+- if(stopped!==null)throw Error('The local backend stopped during startup ('+stopped+'). '+stderr().slice(-500));
++ if(stopped!==null){observeStartup(observe,{stage:'backend-activation-stopped',error:null});throw Error('The local backend stopped during startup ('+stopped+'). '+stderr().slice(-500));}
+  // Publish readiness and install the normal exit listener in the same turn.
+- activate();
++ try{activate();}catch(error){observeStartup(observe,{stage:'backend-activation-error',error:startupErrorDiagnostic(error)});throw error;}
++ observeStartup(observe,{stage:'backend-active',error:null});
+ }
+diff --git a/apps/desktop/main.ts b/apps/desktop/main.ts
+index 5726cc64..f33ec5d0 100644
+--- a/apps/desktop/main.ts
++++ b/apps/desktop/main.ts
+@@ -2,7 +2,7 @@ import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tra
+ import {spawn,type ChildProcess} from 'node:child_process';
+ import {randomBytes,randomUUID} from 'node:crypto';
+ import {readFile,writeFile,mkdir} from 'node:fs/promises';
+-import {mkdirSync,existsSync} from 'node:fs';
++import {mkdirSync,existsSync,writeSync} from 'node:fs';
+ import {createRequire} from 'node:module';
+ import {GITHUB_DEVICE_URL,githubDevicePopup} from './github-device-policy.ts';
+ import {createDesktopUpdater,type DesktopUpdater,type DesktopUpdateDriver,type UpdateStatus} from './updater.ts';
+@@ -12,7 +12,7 @@ import {fileURLToPath} from 'node:url';
+ import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
+ import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
+ import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
+-import {finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,waitForBackendReady} from './backend-policy.ts';
++import {createStartupOutputCapture,finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,startupErrorDiagnostic,waitForBackendReady,writeStartupDiagnostic,type StartupDiagnostic,type StartupObservation} from './backend-policy.ts';
+ import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
+ import {ensureMainDockedBrowser} from './docked-browser.ts';
+ import {nativeBrowserBounds} from './browser-bounds.ts';
+@@ -33,6 +33,12 @@ interface WindowRecord extends NativeCloseOwner {id:string;surface:DesktopSurfac
+ interface SavedWindow {surface:DesktopSurface;bounds:DesktopBounds;placement?:DesktopPlacement;open:boolean;visible?:boolean;alwaysOnTop?:boolean;dockedBrowserId?:string}
+ const windows=new Map<string,WindowRecord>(),browsers=new Map<string,BrowserRecord>();
+ const testData=process.env.HARNESS_DESKTOP_TEST_DATA_DIR;
++const startupStarted=Date.now();let startupSettled=false;
++function startupDiagnostic(stage:StartupDiagnostic['stage'],error:StartupDiagnostic['error']=null,output?:StartupDiagnostic['output']){
++ try{if(!testData||startupSettled)return;
++ writeStartupDiagnostic(line=>{writeSync(2,line);},{stage,elapsedMs:Math.max(0,Date.now()-startupStarted),error,...(output?{output}:{})});}catch{}
++}
++const observeStartup=(value:StartupObservation)=>startupDiagnostic(value.stage,value.error);
+ app.setName('Gen V1');
+ const profileRoot=testData?resolve(testData,'desktop-profile'):join(app.getPath('appData'),'GenerativeHarnessDesktop');mkdirSync(profileRoot,{recursive:true});mkdirSync(join(profileRoot,'session'),{recursive:true});app.setPath('userData',profileRoot);app.setPath('sessionData',join(profileRoot,'session'));
+ app.commandLine.appendSwitch('disable-quic');app.commandLine.appendSwitch('disable-features','WebTransport,DirectSockets');
+@@ -156,7 +162,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
+  native.on('query-session-end',()=>{osSessionEnding=true;});native.on('session-end',()=>{osSessionEnding=true;});
+  let resolveReady!:(value:DesktopWindowInfo)=>void,rejectReady!:(error:Error)=>void;
+  const readyPromise=new Promise<DesktopWindowInfo>((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});void readyPromise.catch(()=>{});
+- const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,normalBounds:createNormalBounds(bounds),placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
++ const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,normalBounds:createNormalBounds(bounds),placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;if(surface.kind==='main')startupDiagnostic('main-deadline');record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
+  windows.set(id,record);broadcast();
+  native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url,currentUrl:native.webContents.mainFrame.url},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
+  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
+@@ -172,6 +178,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
+  native.on('will-move',manuallyPlaced);native.on('will-resize',manuallyPlaced);
+  native.on('move',resized);native.on('resize',resized);native.on('minimize',()=>broadcast());native.on('restore',()=>broadcast());
+  native.webContents.on('render-process-gone',()=>{
++  if(surface.kind==='main')startupDiagnostic('main-renderer-gone');
+   if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);record.closeRequest=undefined;}
+   const wasReady=record.ready;record.ready=false;clearTimeout(record.readyTimer);
+   if(quitting||!wasReady||(record.recoveries??0)>=2){record.settled=true;record.rejectReady(Error('The detached view failed to load'));loseBrowserOwner(record);native.destroy();return;}
+@@ -181,8 +188,8 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
+   broadcast();
+   setTimeout(()=>{if(native.isDestroyed()||quitting)return;void (async()=>{if(surface.kind==='plugin'&&(await backendRequest('harness.plugin.validate',{surface})).allowed!==true)throw Error('The plug-in host did not authorize this window.');if(!native.isDestroyed()&&!quitting)await native.loadURL(url);})().catch(error=>{if(native.isDestroyed())return;record.settled=true;record.rejectReady(error);destroyWindow(record);});},150);
+  });
+- native.webContents.once('did-fail-load',(_event,code,description)=>{if(code!==-3&&!record.ready){record.settled=true;record.rejectReady(Error(description));loseBrowserOwner(record);native.destroy();}});
+- await native.loadURL(url).catch(error=>{if(!record.settled){record.settled=true;record.rejectReady(error);}if(!native.isDestroyed())native.destroy();});
++ native.webContents.once('did-fail-load',(_event,code,description)=>{if(code!==-3&&!record.ready){if(surface.kind==='main')startupDiagnostic('main-load-failed');record.settled=true;record.rejectReady(Error(description));loseBrowserOwner(record);native.destroy();}});
++ await native.loadURL(url).then(()=>{if(surface.kind==='main')startupDiagnostic('main-document-loaded');}).catch(error=>{if(surface.kind==='main')startupDiagnostic('main-load-failed',startupErrorDiagnostic(error));if(!record.settled){record.settled=true;record.rejectReady(error);}if(!native.isDestroyed())native.destroy();});
+  return readyPromise;
+ }
+ function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
+@@ -302,9 +309,13 @@ async function startBackend():Promise<void>{
+  const env:NodeJS.ProcessEnv={...process.env,HARNESS_DATA_DIR:backendDataDir,HARNESS_PORT:String(backendPort),HARNESS_WIDGET_PORT:String(widgetPort),HARNESS_DESKTOP_LAUNCH_TOKEN:token,HARNESS_DEV:'0'};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
+  env.HARNESS_PACKAGED=app.isPackaged?'1':'0';env.HARNESS_BUNDLED_GIT=join(root,'.harness-tool-bundles/git/cmd/git.exe');
+  const pathKey=Object.keys(env).find(key=>key.toLowerCase()==='path')??'PATH';env[pathKey]=dirname(env.HARNESS_BUNDLED_GIT)+';'+(env[pathKey]??'');
++ startupDiagnostic('backend-starting');
+  const child=spawn(nodePath,nodeSidecarArguments(root),{cwd:root,env,stdio:['ignore','pipe','pipe','ipc'],windowsHide:true,serialization:'json'});backend=child;
+- let stderr='';child.stderr?.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-8000);});child.stdout?.on('data',()=>{});
+- const value=await waitForBackendReady(child,token,backendPort,()=>stderr);
++ let output:ReturnType<typeof createStartupOutputCapture>|undefined;
++ if(testData&&!startupSettled)try{output=createStartupOutputCapture(Date.now,value=>{if(value.stage==='backend-error')startupDiagnostic('backend-stream-error',value.error);});}catch{}
++ let stderr='';child.stderr?.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-8000);output?.write('stderr',bytes);});child.stdout?.on('data',(bytes:Buffer)=>output?.write('stdout',bytes));
++ try{
++ const value=await waitForBackendReady(child,token,backendPort,()=>stderr,observeStartup);
+  const oldRelay=workspaceRelay;workspaceRelay=undefined;
+  await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
+   backendOrigin=value.origin as string;
+@@ -312,7 +323,8 @@ async function startBackend():Promise<void>{
+   workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
+   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
+   backendError=undefined;broadcast();
+- });
++ },observeStartup);
++ }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{}}
+ }
+ async function stopBackend():Promise<boolean>{
+  let clean=true;
+@@ -365,15 +377,16 @@ if(!app.requestSingleInstanceLock()){app.exit(0);}else{
+  app.on('window-all-closed',()=>{if(!quitting)app.quit();});
+  app.on('before-quit',event=>{if(quitting)return;event.preventDefault();if(quitPending)return;quitPending=true;void closeApplication().catch(()=>{for(const record of windows.values())cancelClose(record);}).finally(()=>{quitPending=false;if(!quitting)restartForUpdate=false;});});
+  void app.whenReady().then(async()=>{
++  startupDiagnostic('app-ready');
+   if(!Number.isInteger(backendPort)||backendPort<1024||backendPort>65535||(!Number.isInteger(widgetPort)||widgetPort<1024||widgetPort>65535||backendPort===widgetPort))throw Error('Desktop backend ports are invalid');
+-  await loadSaved();registerIpc();
++  await loadSaved();startupDiagnostic('layout-ready');registerIpc();
+   powerMonitor.on('shutdown',()=>{osSessionEnding=true;});
+-  installApplicationMenu();installTray();
++  installApplicationMenu();installTray();startupDiagnostic('shell-ready');
+   startupTimer=setTimeout(()=>{if(quitting||quitPending)return;startup=new BrowserWindow({width:420,height:190,...nativeTitlebarOptions(process.platform),resizable:false,maximizable:false,minimizable:false,title:'Opening Gen V1',autoHideMenuBar:true,backgroundColor:'#0f0f0f',webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});startup.webContents.setWindowOpenHandler(()=>({action:'deny'}));startup.webContents.on('will-navigate',event=>event.preventDefault());void startup.loadFile(join(dirname(fileURLToPath(import.meta.url)),'startup.html')).catch(()=>{});},1200);
+-  await startBackend();if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;const main=await mainWindow();clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
++  await startBackend();if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;startupDiagnostic('main-opening');const main=await mainWindow();startupDiagnostic('main-ready');clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
+   const failures:string[]=[];for(const entry of initial)try{await openSurface(entry.surface);}catch(error){failures.push(displayTitle(entry.surface)+': '+String(error instanceof Error?error.message:error));}
+   restoringLayout=false;if(failures.length){layoutError='Some saved windows could not restore. Their layout is retained: '+failures.join('; ').slice(0,800);broadcast();}else if(!layoutError)persist();
+   startUpdater();startAttention();
+-  const displaysChanged=()=>{attentionPopups?.displayChanged();const all=displays();for(const record of windows.values()){record.monitorRescued=!!record.placement&&!all.some(display=>display.id===record.placement!.displayId);applyPlacement(record,restoreDesktopPlacement(record.placement,all,surfaceSize(record.surface)));}installApplicationMenu();};screen.on('display-removed',displaysChanged);screen.on('display-added',displaysChanged);screen.on('display-metrics-changed',displaysChanged);
+- }).catch(async error=>{clearTimeout(startupTimer);startup?.destroy();startup=undefined;const message=String(error instanceof Error?error.message:error).slice(0,1200);process.stderr.write('Gen V1 startup failed: '+message+'\n');quitting=true;await stopBackend();if(!testData)await dialog.showMessageBox({type:'error',title:'Gen V1 could not start',message,buttons:['Close']});app.exit(1);});
++  const displaysChanged=()=>{attentionPopups?.displayChanged();const all=displays();for(const record of windows.values()){record.monitorRescued=!!record.placement&&!all.some(display=>display.id===record.placement!.displayId);applyPlacement(record,restoreDesktopPlacement(record.placement,all,surfaceSize(record.surface)));}installApplicationMenu();};screen.on('display-removed',displaysChanged);screen.on('display-added',displaysChanged);screen.on('display-metrics-changed',displaysChanged);startupSettled=true;
++ }).catch(async error=>{startupDiagnostic('startup-failed',startupErrorDiagnostic(error));startupSettled=true;clearTimeout(startupTimer);startup?.destroy();startup=undefined;const message=String(error instanceof Error?error.message:error).slice(0,1200);process.stderr.write('Gen V1 startup failed: '+message+'\n');quitting=true;await stopBackend();if(!testData)await dialog.showMessageBox({type:'error',title:'Gen V1 could not start',message,buttons:['Close']});app.exit(1);});
+ }
+diff --git a/apps/server/main.ts b/apps/server/main.ts
+index 75721b9d..9e76d4dc 100644
+--- a/apps/server/main.ts
++++ b/apps/server/main.ts
+@@ -1,8 +1,20 @@
+ import {timingSafeEqual} from 'node:crypto';
++import {writeSync} from 'node:fs';
+ import {launchHost,readHostOptions,type RunningHost} from './host.ts';
+ import {handleDesktopControl} from './desktop-controls.ts';
+ 
+-const token=process.env.HARNESS_DESKTOP_LAUNCH_TOKEN;
++const STARTUP_CODES=['ENOENT','EACCES','EPERM','EADDRINUSE','EADDRNOTAVAIL','EPIPE','ECONNRESET','ECONNREFUSED','ETIMEDOUT','ENOSPC','EMFILE','ENFILE','EIO','EINVAL','EBUSY','ERR_MODULE_NOT_FOUND','MODULE_NOT_FOUND','ERR_DLOPEN_FAILED','ERR_INVALID_ARG_TYPE','ERR_INVALID_ARG_VALUE','ERR_SQLITE_ERROR','SQLITE_BUSY','SQLITE_LOCKED','SQLITE_CANTOPEN','SQLITE_CORRUPT','ERR_CONNECTION_REFUSED','ERR_ABORTED','ERR_FAILED','ERR_FILE_NOT_FOUND','ERR_TIMED_OUT'] as const;
++// Keep the packaged server self-contained; only finite metadata crosses this boundary.
++function startupErrorDiagnostic(error:unknown):{category:string;code:string|null}{
++ try{
++  const category=error instanceof TypeError?'type-error':error instanceof RangeError?'range-error':error instanceof SyntaxError?'syntax-error':error instanceof AggregateError?'aggregate-error':error instanceof Error?'error':'unknown';
++  const descriptor=error&&typeof error==='object'?Object.getOwnPropertyDescriptor(error,'code'):undefined,value=descriptor&&'value'in descriptor?descriptor.value:undefined;
++  const code=typeof value==='string'&&value.length<=32&&STARTUP_CODES.includes(value as typeof STARTUP_CODES[number])?value as typeof STARTUP_CODES[number]:null;
++  return {category,code};
++ }catch{return {category:'unknown',code:null};}
++}
++
++const startupStarted=Date.now(),token=process.env.HARNESS_DESKTOP_LAUNCH_TOKEN;
+ const validToken=token!==undefined&&/^[a-f0-9]{32,128}$/i.test(token);
+ let host:RunningHost|undefined,closing=false,requestedClose=false,deadline:ReturnType<typeof setTimeout>|undefined;
+ const message=(value:Record<string,unknown>)=>new Promise<void>(resolve=>{
+@@ -37,6 +49,8 @@ try{
+  }
+ }catch(error){
+  const detail=error instanceof Error?error.message:'Could not start the local harness.';
+- if(validToken)await message({type:'harness.error',token,message:detail});
++ const diagnostic=startupErrorDiagnostic(error);
++ if(validToken&&process.env.HARNESS_DESKTOP_TEST_DATA_DIR)try{writeSync(1,'HARNESS_STARTUP_V1 '+JSON.stringify({stage:'backend-error',elapsedMs:Math.max(0,Date.now()-startupStarted),error:diagnostic})+'\n');}catch{}
++ if(validToken)await message({type:'harness.error',token,message:detail,diagnostic});
+  process.stderr.write(detail+'\n');process.exit(1);
+ }
+diff --git a/scripts/verify-installed-desktop.ts b/scripts/verify-installed-desktop.ts
+index 047e04ae..b87c4271 100644
+--- a/scripts/verify-installed-desktop.ts
++++ b/scripts/verify-installed-desktop.ts
+@@ -10,6 +10,7 @@ import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
+ import {verificationPorts,assertWrapperArguments} from './portable-verification.ts';
+ import {verifyPackagedProviders} from './verify-packaged-providers.ts';
+ import type {InstalledMemorySeed,InstalledMemoryObservation} from './installed-memory-retention.ts';
++import {createStartupOutputCapture,startupErrorDiagnostic} from '../apps/desktop/backend-policy.ts';
+ 
+ const APP_ID='local.generativeharness.desktop';
+ const APP_FILE='Gen V1.exe',UNINSTALL_FILE='Uninstall Gen V1.exe';
+@@ -348,12 +349,33 @@ export async function waitForInstalledMainPage<T extends InstalledPageCandidate>
+  catch{failure??='page-query';emit('failed');throw refuse(failure);}
+  finally{settled=true;clearTimeout(pollTimer);clearTimeout(deadlineTimer);clearInterval(livenessTimer);}
+ }
++/** Optional evidence only: no output contents, startup decision, timer or child action. */
++export function observeInstalledStartup(child:ChildProcess,iteration:number,clock:()=>number=Date.now){
++ const unavailable={iteration,pid:child.pid??null,available:false,reason:'capture-unavailable'} as const;
++ try{
++  type ObservedEnd=Omit<ProcessEnd,'elapsedMs'>&{elapsedMs:number|null};
++  const started=clock(),capture=createStartupOutputCapture(clock);let exit:ObservedEnd|null=null,close:ObservedEnd|null=null,spawnError:ReturnType<typeof startupErrorDiagnostic>|null=null;
++  const elapsed=()=>{try{return Math.max(0,clock()-started);}catch{return null;}};
++  child.stdout?.on('data',(chunk:Buffer)=>capture.write('stdout',chunk));child.stderr?.on('data',(chunk:Buffer)=>capture.write('stderr',chunk));
++  child.stdout?.on('error',()=>{});child.stderr?.on('error',()=>{});
++  child.once('error',error=>{spawnError??=startupErrorDiagnostic(error);});
++  child.once('exit',(code,signal)=>{exit={elapsedMs:elapsed(),code,signal};});child.once('close',(code,signal)=>{close={elapsedMs:elapsed(),code,signal};});
++  return {read:()=>{try{return {iteration,pid:child.pid??null,available:true,clock:'since-launch-observer-attached',...capture.read(),spawnError,exit,close};}catch{return unavailable;}}};
++ }catch{
++  for(const stream of [child.stdout,child.stderr])try{stream?.on('error',()=>{});stream?.on('data',()=>{});stream?.resume();}catch{}
++  return {read:()=>unavailable};
++ }
++}
+ async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
+  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
+  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
+- const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:'ignore'});
++ const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:['ignore','pipe','pipe']});
++ let startupCapture:ReturnType<typeof observeInstalledStartup>|undefined;const startupDiagnostic:Record<string,unknown>={};
++ const refreshStartup=()=>{try{if(startupCapture)Object.assign(startupDiagnostic,startupCapture.read());}catch{}};
+  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
+  try{
++  startupCapture=observeInstalledStartup(child,iteration);refreshStartup();child.once('close',refreshStartup);
++  ((receipt.launchDiagnostics??=[]) as unknown[]).push(startupDiagnostic);
+   await expect.poll(async()=>{if(launchError)throw launchError;if(child.exitCode!==null||child.signalCode!==null)throw Error('Installed application exited before readiness.');try{return (await fetch(debugOrigin+'/json/version',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:45000,intervals:[100,250,500]}).toBe(true);
+   browser=await chromium.connectOverCDP(debugOrigin);
+   const verifyBrowserOwner=async()=>{verifiedOwner=false;const session=await browser!.newBrowserCDPSession();try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}};
+@@ -383,6 +405,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
+  }finally{
+   if(verifiedOwner)await browser?.close().catch(()=>{});
+   if(child.exitCode===null&&child.signalCode===null)await terminateProcessTree(child);
++  refreshStartup();
+  }
+ }
+ 
+diff --git a/tests/desktop-backend-handoff.test.ts b/tests/desktop-backend-handoff.test.ts
+index 680842e0..1d43af4e 100644
+--- a/tests/desktop-backend-handoff.test.ts
++++ b/tests/desktop-backend-handoff.test.ts
+@@ -29,3 +29,15 @@ it('activates a live backend only after the old relay is closed', async () => {
+   await result;
+   expect(activate).toHaveBeenCalledOnce();
+ });
++
++
++it('keeps the original relay rejection when diagnostic observation fails',async()=>{
++ const original=Error('PRIVATE_RELAY_FAILURE'),events:unknown[]=[],activate=vi.fn();
++ const outcome=(finishBackendStartup as unknown as (...args:unknown[])=>Promise<void>)({exitCode:null,signalCode:null},Promise.reject(original),()=>'',activate,(event:unknown)=>{events.push(event);throw Error('PRIVATE_OBSERVER_FAILURE');}).catch(error=>error);
++ expect(await outcome).toBe(original);expect(activate).not.toHaveBeenCalled();expect(events).toEqual([{stage:'backend-relay-error',error:{category:'error',code:null}}]);
++});
++it('records a backend stopped during relay close without changing refusal',async()=>{
++ const events:unknown[]=[],activate=vi.fn();
++ const outcome=(finishBackendStartup as unknown as (...args:unknown[])=>Promise<void>)({exitCode:9,signalCode:null},undefined,()=>'',activate,(event:unknown)=>events.push(event)).catch(error=>error);
++ expect(await outcome).toBeInstanceOf(Error);expect(activate).not.toHaveBeenCalled();expect(events).toEqual([{stage:'backend-activation-stopped',error:null}]);
++});
+diff --git a/tests/desktop-native.test.ts b/tests/desktop-native.test.ts
+index 8b12a6b8..672db4b7 100644
+--- a/tests/desktop-native.test.ts
++++ b/tests/desktop-native.test.ts
+@@ -7,7 +7,11 @@ import {createBrowserProxy,pinnedBrowserTarget} from '../apps/desktop/browser-pr
+ import {createServer,request as httpRequest} from 'node:http';
+ import {createServer as tcpServer,connect} from 'node:net';
+ import {nodeSidecarArguments,waitForBackendReady} from '../apps/desktop/backend-policy.ts';
+-import {execFileSync,type ChildProcess} from 'node:child_process';
++import * as backendPolicy from '../apps/desktop/backend-policy.ts';
++import {execFileSync,spawn,type ChildProcess} from 'node:child_process';
++import {mkdtemp,rm} from 'node:fs/promises';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
+ import {resolve} from 'node:path';
+ import {fileURLToPath} from 'node:url';
+ import {releaseOwnedBrowsers} from '../apps/desktop/browser-lifecycle.ts';
+@@ -164,3 +168,71 @@ describe('isolated built-in browser',()=>{
+   for(const value of [{type:'executeJavaScript',code:'process.exit()'},{type:'back',url:'file:///'},{type:'bounds',bounds:{x:Infinity,y:0,width:1,height:1}},{type:'navigate',url:'https://example.org',extra:true}])expect(()=>parseBrowserCommand(value)).toThrow();
+  });
+ });
++
++
++describe('private desktop startup diagnostics',()=>{
++ const diagnostic=()=>{const value=(backendPolicy as unknown as {startupErrorDiagnostic:(error:unknown)=>{category:string;code:string|null}}).startupErrorDiagnostic;expect(typeof value).toBe('function');return value;};
++ it('classifies only native error kinds and known codes without reading private error text',()=>{
++  const normalize=diagnostic();const secret='PRIVATE_STARTUP_SOURCE_TOKEN';
++  const error=Object.assign(new TypeError(secret),{code:'ENOENT',path:secret});
++  Object.defineProperty(error,'message',{get(){throw Error(secret);}});Object.defineProperty(error,'stack',{get(){throw Error(secret);}});
++  expect(normalize(error)).toEqual({category:'type-error',code:'ENOENT'});
++  expect(normalize(Object.assign(Error(secret),{code:secret,name:secret}))).toEqual({category:'error',code:null});
++  expect(normalize(new Proxy({}, {get(){throw Error(secret);},getPrototypeOf(){throw Error(secret);}}))).toEqual({category:'unknown',code:null});
++ });
++ it('emits fixed metadata and swallows an optional sink failure',()=>{
++  const write=(backendPolicy as unknown as {writeStartupDiagnostic:(sink:(line:string)=>void,value:unknown)=>void}).writeStartupDiagnostic;expect(typeof write).toBe('function');
++  const output:string[]=[];const value={stage:'startup-failed',elapsedMs:12,error:{category:'type-error',code:'ENOENT'}};
++  write(line=>output.push(line),value);expect(output).toEqual(['HARNESS_STARTUP_V1 '+JSON.stringify(value)+'\n']);
++  write(line=>output.push(line),{...value,private:'PRIVATE_STARTUP_SOURCE_TOKEN'});
++  write(line=>output.push(line),{...value,error:{...value.error,stack:'PRIVATE_STARTUP_SOURCE_TOKEN'}});expect(output).toHaveLength(1);
++  expect(()=>write(()=>{throw Error('PRIVATE_STARTUP_SOURCE_TOKEN');},value)).not.toThrow();
++ });
++ it('observes only authenticated backend errors and retains the original rejection',async()=>{
++  const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
++  const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
++  child.emit('message',{type:'harness.error',token:'b'.repeat(64),message:'FOREIGN_PRIVATE',diagnostic:{category:'type-error',code:'ENOENT'}});expect(events).toEqual([]);
++  child.emit('message',{type:'harness.error',token:'a'.repeat(64),message:'ORIGINAL_PRIVATE',diagnostic:{category:'type-error',code:'ENOENT'}});
++  expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});
++  expect(events).toEqual([{stage:'backend-error',error:{category:'type-error',code:'ENOENT'}}]);
++  expect(JSON.stringify(events)).not.toMatch(/PRIVATE|token|message/);
++ });
++ it('rejects extra diagnostic fields without changing an authenticated error',async()=>{
++  const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
++  const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
++  child.emit('message',{type:'harness.error',token:'a'.repeat(64),message:'ORIGINAL_PRIVATE',diagnostic:{category:'error',code:'ENOENT',stack:'PRIVATE_STACK'}});
++  expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});expect(events).toEqual([{stage:'backend-error',error:{category:'unknown',code:null}}]);
++ });
++ it('cannot change exact ready admission or rejection when the optional observer throws',async()=>{
++  for(const failure of [false,true]){
++   const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,original=Error('ORIGINAL_PRIVATE'),message={type:'harness.ready',token:'a'.repeat(64),origin:'http://127.0.0.1:4357',pid:1234};
++   const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',()=>{throw Error('OBSERVER_PRIVATE');}).then(value=>value,error=>error);
++   if(failure)child.emit('error',original);else child.emit('message',message);
++   expect(await outcome).toBe(failure?original:message);
++  }
++ });
++ it.each(['exit','disconnect','deadline'] as const)('records the actual backend %s boundary without extending readiness',async kind=>{
++  vi.useFakeTimers();try{
++   const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
++   const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
++   if(kind==='deadline')await vi.advanceTimersByTimeAsync(60000);else child.emit(kind,1);
++   expect(await outcome).toBeInstanceOf(Error);expect(events).toEqual([{stage:'backend-'+kind,error:null}]);expect(vi.getTimerCount()).toBe(0);
++  }finally{vi.useRealTimers();}
++ });
++});
++
++
++it('preserves real sidecar error IPC and stderr while emitting a private fixed fallback on owned stdout',async()=>{
++ const directory=await mkdtemp(join(tmpdir(),'desktop-startup-diagnostic-')),token='a'.repeat(64),events:unknown[]=[];
++ const env:NodeJS.ProcessEnv={...process.env,HARNESS_DATA_DIR:directory,HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_LAUNCH_TOKEN:token,HARNESS_PORT:'INVALID_PRIVATE_INPUT',NODE_NO_WARNINGS:'1'};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
++ const child=spawn(process.execPath,nodeSidecarArguments(resolve('.')),{env,stdio:['ignore','pipe','pipe','ipc'],windowsHide:true});let stdout='',stderr='';
++ child.stdout?.on('data',chunk=>{stdout+=chunk.toString();});child.stderr?.on('data',chunk=>{stderr+=chunk.toString();});child.on('message',value=>events.push(value));
++ const timer=setTimeout(()=>child.kill(),15000);
++ try{
++  const code=await new Promise<number|null>((accept,reject)=>{child.once('error',reject);child.once('close',accept);});
++  expect(code).toBe(1);expect(events).toEqual([{type:'harness.error',token,message:'HARNESS_PORT must be a port between 1 and 65535.',diagnostic:{category:'error',code:null}}]);
++  expect(stderr).toBe('HARNESS_PORT must be a port between 1 and 65535.\n');
++  expect(stdout).toMatch(/^HARNESS_STARTUP_V1 /);const marker=JSON.parse(stdout.slice('HARNESS_STARTUP_V1 '.length));
++  expect(marker).toEqual({stage:'backend-error',elapsedMs:expect.any(Number),error:{category:'error',code:null}});expect(stdout).not.toMatch(/INVALID_PRIVATE_INPUT|token|message|stack/);
++ }finally{clearTimeout(timer);if(child.exitCode===null&&child.signalCode===null)child.kill();await rm(directory,{recursive:true,force:true});}
++},20000);
+diff --git a/tests/installed-desktop-verification.test.ts b/tests/installed-desktop-verification.test.ts
+index c0795d20..b4b847a5 100644
+--- a/tests/installed-desktop-verification.test.ts
++++ b/tests/installed-desktop-verification.test.ts
+@@ -3,6 +3,7 @@ import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:
+ import {tmpdir} from 'node:os';
+ import {join} from 'node:path';
+ import {EventEmitter} from 'node:events';
++import {createHash} from 'node:crypto';
+ import {PassThrough} from 'node:stream';
+ import type {ChildProcess} from 'node:child_process';
+ import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertWindowsDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
+@@ -317,3 +318,58 @@ describe('installed main-page readiness',()=>{
+   const before=JSON.stringify(state.events);release();await vi.advanceTimersByTimeAsync(0);expect(JSON.stringify(state.events)).toBe(before);
+  }));
+ });
++
++
++describe('bounded installed startup output custody',()=>{
++ const fixture=()=>{
++  const observe=(installedVerification as unknown as {observeInstalledStartup:(child:ChildProcess,iteration:number,clock:()=>number)=>{read:()=>any}}).observeInstalledStartup;expect(typeof observe).toBe('function');
++  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let now=100;
++  return {child,capture:observe(child as unknown as ChildProcess,1,()=>now),advance:(value:number)=>{now+=value;}};
++ };
++ const marker=(value:unknown)=>Buffer.from('HARNESS_STARTUP_V1 '+JSON.stringify(value)+'\n');
++ it('keeps draining when optional diagnostic construction fails',()=>{
++  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let capture:ReturnType<typeof installedVerification.observeInstalledStartup>|undefined;
++  expect(()=>{capture=installedVerification.observeInstalledStartup(child as unknown as ChildProcess,1,()=>{throw Error('PRIVATE_CLOCK_FAILURE');});}).not.toThrow();
++  child.stdout.write('PRIVATE_STDOUT');child.stderr.write('PRIVATE_STDERR');
++  expect(child.stdout.readableLength).toBe(0);expect(child.stderr.readableLength).toBe(0);expect(capture!.read()).toMatchObject({available:false,reason:'capture-unavailable'});expect(JSON.stringify(capture!.read())).not.toContain('PRIVATE');
++ });
++ it('cannot throw from process lifecycle listeners when the optional clock later fails',()=>{
++  const child=Object.assign(new EventEmitter(),{pid:17,stdout:new PassThrough(),stderr:new PassThrough()});let calls=0;
++  const capture=installedVerification.observeInstalledStartup(child as unknown as ChildProcess,1,()=>{if(++calls>2)throw Error('PRIVATE_CLOCK_FAILURE');return 0;});
++  expect(()=>{child.emit('exit',1,null);child.emit('close',1,null);}).not.toThrow();
++  expect(capture.read()).toMatchObject({exit:{elapsedMs:null,code:1,signal:null},close:{elapsedMs:null,code:1,signal:null}});expect(JSON.stringify(capture.read())).not.toContain('PRIVATE');
++ });
++ it('reassembles only strict chunked markers while retaining separate output digest and byte counts',()=>{
++  const state=fixture(),event={stage:'backend-error',elapsedMs:15,error:{category:'error',code:'EADDRINUSE'}},line=marker(event);
++  state.child.stderr.write(Buffer.from('PRIVATE_SOURCE_TOKEN\n'));state.advance(20);
++  state.child.stderr.write(line.subarray(0,7));state.child.stderr.write(line.subarray(7));
++  const value=state.capture.read(),bytes=Buffer.concat([Buffer.from('PRIVATE_SOURCE_TOKEN\n'),line]);
++  expect(value.events).toEqual([{...event,stream:'stderr',observedElapsedMs:20}]);
++  expect(value.streams.stderr).toEqual({bytes:bytes.length,hashedBytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),truncated:false});
++  expect(JSON.stringify(value)).not.toContain('PRIVATE_SOURCE_TOKEN');expect(value.firstFailure).toEqual(value.events[0]);
++ });
++ it('drops malformed, private and extra fields and accepts the next complete line',()=>{
++  const state=fixture(),good={stage:'main-ready',elapsedMs:1,error:null};
++  for(const value of [{...good,private:'PRIVATE_TOKEN'},{...good,stage:'PRIVATE_TOKEN'},{...good,error:{category:'error',code:'PRIVATE_TOKEN'}},{...good,error:{category:'error',code:null,stack:'PRIVATE_TOKEN'}},{...good,elapsedMs:-1}])state.child.stderr.write(marker(value));
++  state.child.stderr.write('HARNESS_STARTUP_V1 {PRIVATE_MALFORMED}\n');state.child.stderr.write(Buffer.alloc(3000,65));state.child.stderr.write('\n');state.child.stderr.write(marker(good));
++  const value=state.capture.read();expect(value.events).toEqual([{...good,stream:'stderr',observedElapsedMs:0}]);expect(value.rejectedLines).toBe(6);expect(value.overlongLines).toBe(1);expect(JSON.stringify(value)).not.toContain('PRIVATE');
++ });
++ it('bounds parsing, retained events and hash bytes while continuing to drain later output',()=>{
++  const state=fixture(),line=marker({stage:'main-opening',elapsedMs:1,error:null});for(let index=0;index<50;index++)state.child.stdout.write(line);
++  const failure=marker({stage:'startup-failed',elapsedMs:2,error:{category:'error',code:null}});state.child.stdout.write(failure);
++  const bulk=Buffer.alloc(400000,80);state.child.stdout.write(bulk);state.child.stdout.write(Buffer.alloc(400000,81));
++  const value=state.capture.read();expect(value.events).toHaveLength(32);expect(value.firstFailure).toMatchObject({stage:'startup-failed'});
++  expect(value.streams.stdout).toMatchObject({bytes:50*line.length+failure.length+800000,hashedBytes:262144,truncated:true});
++  expect(value.streams.stdout.sha256).toBe(createHash('sha256').update(Buffer.concat([...Array.from({length:50},()=>line),failure,bulk]).subarray(0,262144)).digest('hex'));
++  expect(state.child.stdout.readableLength).toBe(0);expect(JSON.stringify(value).length).toBeLessThan(9000);
++ });
++ it('retains a renderer loss before the final generic failure',()=>{
++  const state=fixture();state.child.stderr.write(marker({stage:'main-renderer-gone',elapsedMs:1,error:null}));state.child.stderr.write(marker({stage:'startup-failed',elapsedMs:2,error:{category:'error',code:null}}));expect(state.capture.read().firstFailure).toMatchObject({stage:'main-renderer-gone'});
++ });
++ it('retains the first startup failure while separately observing later process exit and close',()=>{
++  const state=fixture();state.child.stderr.write(marker({stage:'backend-error',elapsedMs:5,error:{category:'error',code:'ENOENT'}}));state.advance(10);
++  state.child.emit('error',Object.assign(Error('PRIVATE_LATE_ERROR'),{code:'EACCES'}));state.child.emit('exit',1,null);state.advance(3);state.child.emit('close',1,null);
++  const value=state.capture.read();expect(value.firstFailure).toMatchObject({stage:'backend-error',error:{category:'error',code:'ENOENT'}});
++  expect(value.exit).toEqual({elapsedMs:10,code:1,signal:null});expect(value.close).toEqual({elapsedMs:13,code:1,signal:null});expect(JSON.stringify(value)).not.toContain('PRIVATE_LATE_ERROR');
++ });
++});

@@ -1,0 +1,21 @@
+2026-11-16T01:53:26.3396020Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-16T01:53:26.3396456Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-16T01:53:26.3454408Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T01:53:26.3454704Z env:
+2026-11-16T01:53:26.3454922Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T01:53:26.3455253Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:53:26.3455611Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T01:53:26.3455963Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:53:26.3456287Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:53:26.3456628Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T01:53:26.3456984Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T01:53:26.3457319Z ##[endgroup]
+2026-11-16T01:53:29.6374973Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-16T01:53:29.7322754Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-16T01:53:29.8321404Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-16T01:53:29.9185512Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-16T01:53:29.9231043Z 
+2026-11-16T01:53:29.9231399Z ----------------------------------------------------------------------
+2026-11-16T01:53:29.9231780Z Ran 4 tests in 3.105s
+2026-11-16T01:53:29.9231907Z 
+2026-11-16T01:53:29.9231997Z OK

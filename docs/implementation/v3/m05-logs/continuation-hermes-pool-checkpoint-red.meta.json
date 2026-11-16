@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/hermes-runtime.test.ts",
+      "-t",
+      "production pool"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm",
+    "startedAt": "2026-11-15T22:22:09.289259+00:00",
+    "endedAt": "2026-11-15T22:22:11.298711+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-hermes-pool-checkpoint-red.log",
+    "logDigest": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "65aaaf7e3c6670a336277fb159dc4c08b2806ea3",
+  "workingDiffSha256": "1bedfce97739e13dda0dd5305af14cf48b476b044a6f54df2a636c4c0fb33d1a",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 1989,
+  "rawOutputBytes": 2295,
+  "rawOutputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "excerptInputBytes": 2295,
+  "excerptInputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "originalCaptureMetadata": {
+    "path": "docs/implementation/v3/m05-review-inputs/continuation-hermes-pool-checkpoint-red.meta.json",
+    "bytes": 1392,
+    "sha256": "9a3e3d3071471fef9a15035faf82ea28efc84dff5c2e7db95a71ebb165e51087",
+    "blobSha": "271772cc29a41797058368de0f0a053ec96f26e0"
+  },
+  "phaseClassificationReview": {
+    "originalPhaseIds": [
+      "REGRESSION_REQUIRED"
+    ],
+    "reviewedPhaseIds": [
+      "BUILD_AND_SETUP"
+    ],
+    "changed": true,
+    "reason": "The fallback package-manager command failed before test collection with the no-TTY dependency-install refusal.",
+    "commandFieldsUnchanged": true,
+    "logBytesUnchanged": true
+  }
+}

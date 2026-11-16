@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "workflow": {
+    "id": 419474335,
+    "name": "M05 installed startup boundary",
+    "path": ".github/workflows/m05-startup-repair-43755565107.yml",
+    "runId": 43760214518,
+    "runNumber": 1,
+    "attempt": 1,
+    "event": "push",
+    "branch": "agent/m05-startup-repair-43755565107",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-11-15T20:49:29Z",
+    "startedAt": "2026-11-15T20:49:29Z",
+    "updatedAt": "2026-11-15T20:50:57Z",
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760214518",
+    "source": {
+      "bytes": 1161,
+      "sha256": "5aaa54cd7481e3195196db67857cdb11c9083a98b61299baee3d80e72b6a77f8"
+    }
+  },
+  "headSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+  "treeSha": "ae69c78c890b3de36ca8bab7985614af74f90351",
+  "testedCheckout": {
+    "commitSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+    "treeSha": "ae69c78c890b3de36ca8bab7985614af74f90351",
+    "parents": [
+      "0e072230965d15e0bcad8bb7579653a1332085e4"
+    ],
+    "matchesSourceHeadTree": true,
+    "scope": "Isolated push workflow, not a PR merge checkout."
+  },
+  "sourceFiles": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "blobSha": "ea0d6b99358a4fa35e95bc79040de97424ffb386",
+      "bytes": 44218,
+      "sha256": "e3d62eed21df251491fa30911297bbfc3e4654fe827968410bd7566ecb4c61c3"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "blobSha": "c0795d20ec91e7b37780a7a56f0c7dca0329be74",
+      "bytes": 25212,
+      "sha256": "f82de49b1c9dba1e195df4e6fcf755ea33fec6955f84b5c295a1e90496b971a2"
+    }
+  ],
+  "sourceApis": [
+    {
+      "kind": "run",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43760214518",
+      "bytes": 12448,
+      "sha256": "18558a7f8733af9c8d262a9d92af0ba62d9d625c641ff3390a9292d3332f578e"
+    },
+    {
+      "kind": "jobs",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43760214518/jobs",
+      "bytes": 2162,
+      "sha256": "7a0791349d7b45397261028434efcabbc949d3d364b0055fea2c83f4fb1c77d9"
+    },
+    {
+      "kind": "commit",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+      "bytes": 1185,
+      "sha256": "76ef7f3a73590659084ac6ce3092d90469caf487fbfaa4e633787ac14854fa26"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 132953117298,
+      "name": "Installed startup boundary reproduction",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T20:49:31Z",
+      "completedAt": "2026-11-15T20:50:57Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T20:49:32Z",
+          "completed_at": "2026-11-15T20:49:33Z"
+        },
+        {
+          "name": "Check out exact repair source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T20:49:33Z",
+          "completed_at": "2026-11-15T20:49:53Z"
+        },
+        {
+          "name": "Install pinned toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T20:49:53Z",
+          "completed_at": "2026-11-15T20:50:49Z"
+        },
+        {
+          "name": "Reproduce premature installed page deadline",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-11-15T20:50:49Z",
+          "completed_at": "2026-11-15T20:50:52Z"
+        },
+        {
+          "name": "Post Install pinned toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-15T20:50:52Z",
+          "completed_at": "2026-11-15T20:50:52Z"
+        },
+        {
+          "name": "Post Check out exact repair source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-15T20:50:52Z",
+          "completed_at": "2026-11-15T20:50:55Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T20:50:55Z",
+          "completed_at": "2026-11-15T20:50:55Z"
+        }
+      ],
+      "runner": {
+        "id": 1000001433,
+        "name": "GitHub Actions 1000001433",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132953117298/logs",
+      "rawLogDigest": "251d43596e762b7416b7ef9db9f8bda9ac9a0a28341847a7ee648a15ba4b3a1e",
+      "rawLogBytes": 42063,
+      "logRef": "docs/implementation/v3/m05-logs/windows-startup-43760214518-j132953117298.log",
+      "logDigest": "3df2e337488d7ed78c75f93f86e0f67320b66d2954af77fabf3726fd03b73fc3",
+      "logBytes": 40094
+    }
+  ],
+  "actualTests": {
+    "passed": 0,
+    "failed": 1,
+    "skipped": 25,
+    "total": 26,
+    "failedFiles": 1,
+    "failedCase": "installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff",
+    "wholeCaseDurationMs": 15,
+    "observedError": "The installed main page exceeded its readiness deadline.",
+    "assertion": {
+      "file": "tests/installed-desktop-verification.test.ts",
+      "line": 248,
+      "expected": "undefined",
+      "received": "Error with the fixed readiness-deadline message"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/installed-desktop-verification.test.ts",
+        "-t",
+        "waits for a correctly owned main page beyond the old 30-second cutoff",
+        "--reporter=verbose"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T20:50:49Z",
+      "endedAt": "2026-11-15T20:50:52Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.log",
+      "logDigest": "1da1352e90284b5dcf9182b428aa40bec0932336cb5a1a2a2754c3e18cc6700d"
+    }
+  ],
+  "scope": {
+    "actualResult": "FAIL",
+    "intent": "Fail-first reproduction of the verifier's old 30-second page readiness boundary with a correctly owned candidate published at fake-clock time 35,000 ms.",
+    "clock": "Vitest fake timers. The case's 15-ms whole-test duration is not an installed application startup measurement.",
+    "notExecuted": [
+      "Production installer",
+      "Installed native main page",
+      "Native Save dialog",
+      "Installed memory retention",
+      "Installed restart"
+    ],
+    "causeLimit": "This fixture does not establish why the earlier installed application failed to expose its expected-origin page."
+  },
+  "logPolicy": {
+    "raw": "Exact connector-decoded strings encoded as UTF-8, with original BOM and line endings retained in agent memory. No raw job-log blob is published.",
+    "jobTransformations": [
+      "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+      "UTF8_BOM_REMOVED_IF_PRESENT",
+      "ANSI_REMOVED_IF_PRESENT",
+      "LINE_ENDINGS_NORMALIZED_TO_LF"
+    ],
+    "commandTransformations": [
+      "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+      "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+      "UTF8_BOM_REMOVED_IF_PRESENT",
+      "ANSI_REMOVED_IF_PRESENT",
+      "LINE_ENDINGS_NORMALIZED_TO_LF"
+    ],
+    "timing": "Command times are observed GitHub step envelopes, not per-process durations.",
+    "files": "Immutable blob preparation only while workspace is unavailable. No local command execution or local file creation is claimed."
+  }
+}

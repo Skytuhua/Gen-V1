@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "python",
+      "-I",
+      "-S",
+      "-B",
+      "tests/hermes_source_contract.py",
+      "-v"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "python",
+    "startedAt": "2026-11-16T01:53:24Z",
+    "endedAt": "2026-11-16T01:53:26Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43788747998-a1-j133042158250-s4-hermes-source.log",
+    "logDigest": "c70e2265d5f4414ace64b68069093f2c70cd01d4596c8363317115eb3b5f35bd"
+  },
+  "phaseIds": [
+    "INTEGRATION_NATIVE_CHECKPOINT"
+  ],
+  "runId": 43788747998,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+  "testedCheckout": {
+    "commitSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+    "treeSha": "e1043f88dd78f72a2dd529a6583f2536fc9008c9",
+    "parents": [
+      "95aae2f748e43564e835a63cabaa556f7f27bc6a"
+    ],
+    "matchesPublishedTree": true,
+    "matchesPublishedCommit": true,
+    "event": "push",
+    "expectedBranch": "agent/m05-v3",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/e0d64e3987675a270264ab5d34dd3543f75ee95e",
+    "rawResponseSha256": "e982eb51e0849d983315c73662b086740d3680bd2fd874e5c61db38dc0fe3899"
+  },
+  "job": {
+    "id": 133042158250,
+    "name": "Hermes contracts",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43788747998/job/133042158250",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001963,
+      "name": "GitHub Actions 1000001963",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Verify original source custody",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 4,
+    "started_at": "2026-11-16T01:53:24Z",
+    "completed_at": "2026-11-16T01:53:26Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43788747998.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133042158250/logs",
+  "rawJobLogDigest": "14d6647fe77cb699d44f4bcad10f9f073cc37d001643adc0e3770e4b38b7fbb8",
+  "rawJobLogBytes": 50023,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      385,
+      406
+    ]
+  ],
+  "excerptInputSha256": "a7e0ae275f9603dcce6f1d1f2f58b686a340342cd51ac1e279228eb27fb902e0",
+  "excerptInputBytes": 2187,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 2154,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "python -I -S -B tests/hermes_source_contract.py -v",
+  "receiptSha256": "1a465bd973bafb6c315511605256531323a36f3431b725820b42be717124776d"
+}

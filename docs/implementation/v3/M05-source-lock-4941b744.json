@@ -1,0 +1,500 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "4941b74496c808b5318888ca6b68378c3329b87e",
+  "inspectedPaths": [
+    {
+      "path": ".github/actions/setup/action.yml",
+      "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "blobSha": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d"
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "blobSha": "2063e498d4131b608baf3ba74d7eead023db6d87"
+    },
+    {
+      "path": "apps/desktop/window-policy.ts",
+      "blobSha": "c75a4658539a572fb31fe8fcd30b42ddd4b5a15e"
+    },
+    {
+      "path": "apps/server/host.ts",
+      "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
+    },
+    {
+      "path": "apps/server/profile-lease.ts",
+      "blobSha": "8ba9106aa0607c27403f69035355612ab1a138b4"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45"
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea"
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "blobSha": "420f0beea5169dd46f259b6f554940ad22cb17cf"
+    },
+    {
+      "path": "apps/web/src/ProjectContextSurface.tsx",
+      "blobSha": "0008281500bc9bb2216160978b81565885afa27d"
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d"
+    },
+    {
+      "path": "docs/implementation/v3/M02-source-lock.json",
+      "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9"
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
+    },
+    {
+      "path": "docs/implementation/v3/M04-core-verification.json",
+      "blobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d"
+    },
+    {
+      "path": "evals/cases.ts",
+      "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae"
+    },
+    {
+      "path": "evals/runner.ts",
+      "blobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f"
+    },
+    {
+      "path": "package.json",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57"
+    },
+    {
+      "path": "packages/contracts/model-request.ts",
+      "blobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537"
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b"
+    },
+    {
+      "path": "packages/core/effect-recovery.ts",
+      "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412"
+    },
+    {
+      "path": "packages/core/learning.ts",
+      "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1"
+    },
+    {
+      "path": "packages/core/skills.ts",
+      "blobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae"
+    },
+    {
+      "path": "packages/core/task-memory.ts",
+      "blobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/desktop-contract/index.ts",
+      "blobSha": "a149b2c3bb89f3b712feba4e94d646ebb0544c18"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "blobSha": "3e9a425b28b150874cfee1a29725308133bf193b"
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "blobSha": "ba0bf768e44ee9385065401a067028131fe3392c"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "blobSha": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6"
+    },
+    {
+      "path": "packages/runtime/request-capabilities.ts",
+      "blobSha": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43"
+    },
+    {
+      "path": "packages/runtime/request-scheduler.ts",
+      "blobSha": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "packages/workspace/tools.ts",
+      "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "blobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "blobSha": "f839822ffbfbc1d601f3f327db1f4504f4e7a40f"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "blobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25"
+    },
+    {
+      "path": "tests/context-compiler-v3.test.ts",
+      "blobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10"
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "blobSha": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00"
+    },
+    {
+      "path": "tests/desktop-preload-accounts.test.ts",
+      "blobSha": "0dadeefca7b3cb98c6084f32cb84d5e0f2440ad6"
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "blobSha": "ea70ad3f662754095df20f6686457317266a5e23"
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "blobSha": "aa26bcf8997e450de648ac26006770d745a0434c"
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893"
+    },
+    {
+      "path": "tests/task-memory.test.ts",
+      "blobSha": "2ada92f323eda1d39131c3a5a17835392f857cac"
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "blobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectsV3",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.EffectRecovery",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Store.SynchronousCommand",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-forget-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Workspace.PhysicalBinding",
+      "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "testIds": [
+        "tests/project-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "ResourceGrant.StorageBoundary",
+      "version": "693f251361bc464caee26df795c57002d120c9a7",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/account-storage-boundary.test.ts"
+      ]
+    },
+    {
+      "name": "Existing.TaskMemory",
+      "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "testIds": [
+        "tests/task-memory.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestContextV1",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestCustody",
+      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.ContextCompiler",
+      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.HostRequestPreparation",
+      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.ModelRequestObservationV1",
+      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "testIds": [
+        "tests/model-transport-v3.test.ts",
+        "tests/usage-accounting-v3.test.ts",
+        "tests/hermes-runtime.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestScheduler",
+      "version": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+      "testIds": [
+        "tests/model-scheduling-v3.test.ts",
+        "tests/memory-extraction-runtime-v3.test.ts",
+        "tests/memory-extraction-scheduler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestCapabilities",
+      "version": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "testIds": [
+        "tests/model-transport-v3.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "f331cf16b268282da888a41da42fc776ea7befd5",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+    "399cde39ff4ee82272c7a7700944325c44b36070",
+    "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "4941b74496c808b5318888ca6b68378c3329b87e"
+  ],
+  "approvedDrift": [
+    {
+      "path": "packages/core/capability-flags.ts",
+      "fromBlob": "a45226df77eae1e58594609140252c1f93a985f6",
+      "toBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "note": "The accepted main base already adds M08 finite registry keys after the M02 receipt. Current M01/M02 compatibility tests pass. M05 only adds its two specified default-false keys; no UI preference or runtime contract is substituted."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "fromBlob": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
+      "toBlob": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "fromBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "toBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "fromBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "toBlob": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "fromBlob": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+      "toBlob": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "fromBlob": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+      "toBlob": "08e1c4b1db2ef47da609364fcba4d28de3078167",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "fromBlob": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "toBlob": "ce8d20eae27cc81716669365257bb34ce9575420",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "fromBlob": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "toBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+      "toBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime/request-capabilities.ts",
+      "fromBlob": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "toBlob": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "note": "Accepted main PR360 (ef6919803f8c6993efb836ac084221b6c8c6e0ed) copies capability reasons before normalization, preserving frozen/shared caller input. Function signature and RequestCapabilitiesV1 schema are unchanged; no provider/account/grant authority is added. The original 399cde39 lock is retained byte-for-byte as historical evidence. Current merged-source runtime verification remains a separate required gate."
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "fromBlob": "8ff44c2c6f1757d3a6c6291c1fd0c5add07d6712",
+      "toBlob": "a5371b6092aad49c0b3f62f93cea9d4e8b289f9d",
+      "note": "Accepted main adds safer native close delivery, per-window state broadcast isolation and the owned launch token on workspace event bootstrap. M05 trusted IPC/export policy is retained in the merged feature source; no download or sender predicate is broadened."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "fromBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "toBlob": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "note": "Accepted main adds optional RuntimeAdapter.invalidateModels. Existing M04 requestContext and M05 memoryCheckpoint/callback/compact contracts remain present in the feature merge. Production Hermes pool forwarding required a separate captured repair; this lock does not claim that repair executed on Windows."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "fromBlob": "08e1c4b1db2ef47da609364fcba4d28de3078167",
+      "toBlob": "3e9a425b28b150874cfee1a29725308133bf193b",
+      "note": "Accepted main adds catalog invalidation delegation. The feature merge retains pinned checkpoint capability negotiation, source ownership, maintenance observation ownership and required compaction persistence paths. The separate production pool repair is reviewed with actual local red/green evidence."
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "fromBlob": "c944011f863d8e54cefb027ccde24e4445a4738b",
+      "toBlob": "95b77b1e1f77ede6b86271a5b4505b0e3d131fc6",
+      "note": "Conflict resolution keeps the complete M05 start structuredClone/checkpoint reservation and follow-up extraction/account/checkpoint guards, while adding the accepted optional per-account catalog invalidation method. Manual compact preserves checkpoint forwarding and legacy argument behavior."
+    },
+    {
+      "path": "packages/runtime/request-scheduler.ts",
+      "fromBlob": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "toBlob": "551265b0b26e86f7aeac2ed4ed16f6d8e7a4f6f5",
+      "note": "Accepted main uses a monotonic clock per waiter and queue position to break equal-priority ties; provider/account lanes, limits, abort removal and permit lifetime remain. M05 background admission and actual teardown ownership are unchanged."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
+      "toBlob": "f839822ffbfbc1d601f3f327db1f4504f4e7a40f",
+      "note": "Accepted main source inventory advancement. M05 final inventory union and current-file hashes are separate feature evidence; this row binds only the exact accepted base inventory."
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "fromBlob": "f388036f11d8e6d60b611b1834e1717711b83d91",
+      "toBlob": "8b12a6b811f12ec1b4e657c1dea9e775dcd60f00",
+      "note": "Accepted native startup regression now covers IPC disconnect and listener cleanup without increasing the existing production deadline. Test source is bound here; current-cut execution remains a separate gate."
+    }
+  ]
+}

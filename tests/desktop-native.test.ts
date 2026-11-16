@@ -7,7 +7,11 @@ import {createBrowserProxy,pinnedBrowserTarget} from '../apps/desktop/browser-pr
 import {createServer,request as httpRequest} from 'node:http';
 import {createServer as tcpServer,connect} from 'node:net';
 import {nodeSidecarArguments,waitForBackendReady} from '../apps/desktop/backend-policy.ts';
-import {execFileSync,type ChildProcess} from 'node:child_process';
+import * as backendPolicy from '../apps/desktop/backend-policy.ts';
+import {execFileSync,spawn,type ChildProcess} from 'node:child_process';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {releaseOwnedBrowsers} from '../apps/desktop/browser-lifecycle.ts';
@@ -164,3 +168,71 @@ describe('isolated built-in browser',()=>{
   for(const value of [{type:'executeJavaScript',code:'process.exit()'},{type:'back',url:'file:///'},{type:'bounds',bounds:{x:Infinity,y:0,width:1,height:1}},{type:'navigate',url:'https://example.org',extra:true}])expect(()=>parseBrowserCommand(value)).toThrow();
  });
 });
+
+
+describe('private desktop startup diagnostics',()=>{
+ const diagnostic=()=>{const value=(backendPolicy as unknown as {startupErrorDiagnostic:(error:unknown)=>{category:string;code:string|null}}).startupErrorDiagnostic;expect(typeof value).toBe('function');return value;};
+ it('classifies only native error kinds and known codes without reading private error text',()=>{
+  const normalize=diagnostic();const secret='PRIVATE_STARTUP_SOURCE_TOKEN';
+  const error=Object.assign(new TypeError(secret),{code:'ENOENT',path:secret});
+  Object.defineProperty(error,'message',{get(){throw Error(secret);}});Object.defineProperty(error,'stack',{get(){throw Error(secret);}});
+  expect(normalize(error)).toEqual({category:'type-error',code:'ENOENT'});
+  expect(normalize(Object.assign(Error(secret),{code:secret,name:secret}))).toEqual({category:'error',code:null});
+  expect(normalize(new Proxy({}, {get(){throw Error(secret);},getPrototypeOf(){throw Error(secret);}}))).toEqual({category:'unknown',code:null});
+ });
+ it('emits fixed metadata and swallows an optional sink failure',()=>{
+  const write=(backendPolicy as unknown as {writeStartupDiagnostic:(sink:(line:string)=>void,value:unknown)=>void}).writeStartupDiagnostic;expect(typeof write).toBe('function');
+  const output:string[]=[];const value={stage:'startup-failed',elapsedMs:12,error:{category:'type-error',code:'ENOENT'}};
+  write(line=>output.push(line),value);expect(output).toEqual(['HARNESS_STARTUP_V1 '+JSON.stringify(value)+'\n']);
+  write(line=>output.push(line),{...value,private:'PRIVATE_STARTUP_SOURCE_TOKEN'});
+  write(line=>output.push(line),{...value,error:{...value.error,stack:'PRIVATE_STARTUP_SOURCE_TOKEN'}});expect(output).toHaveLength(1);
+  expect(()=>write(()=>{throw Error('PRIVATE_STARTUP_SOURCE_TOKEN');},value)).not.toThrow();
+ });
+ it('observes only authenticated backend errors and retains the original rejection',async()=>{
+  const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
+  const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
+  child.emit('message',{type:'harness.error',token:'b'.repeat(64),message:'FOREIGN_PRIVATE',diagnostic:{category:'type-error',code:'ENOENT'}});expect(events).toEqual([]);
+  child.emit('message',{type:'harness.error',token:'a'.repeat(64),message:'ORIGINAL_PRIVATE',diagnostic:{category:'type-error',code:'ENOENT'}});
+  expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});
+  expect(events).toEqual([{stage:'backend-error',error:{category:'type-error',code:'ENOENT'}}]);
+  expect(JSON.stringify(events)).not.toMatch(/PRIVATE|token|message/);
+ });
+ it('rejects extra diagnostic fields without changing an authenticated error',async()=>{
+  const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
+  const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
+  child.emit('message',{type:'harness.error',token:'a'.repeat(64),message:'ORIGINAL_PRIVATE',diagnostic:{category:'error',code:'ENOENT',stack:'PRIVATE_STACK'}});
+  expect(await outcome).toMatchObject({message:'ORIGINAL_PRIVATE'});expect(events).toEqual([{stage:'backend-error',error:{category:'unknown',code:null}}]);
+ });
+ it('cannot change exact ready admission or rejection when the optional observer throws',async()=>{
+  for(const failure of [false,true]){
+   const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,original=Error('ORIGINAL_PRIVATE'),message={type:'harness.ready',token:'a'.repeat(64),origin:'http://127.0.0.1:4357',pid:1234};
+   const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',()=>{throw Error('OBSERVER_PRIVATE');}).then(value=>value,error=>error);
+   if(failure)child.emit('error',original);else child.emit('message',message);
+   expect(await outcome).toBe(failure?original:message);
+  }
+ });
+ it.each(['exit','disconnect','deadline'] as const)('records the actual backend %s boundary without extending readiness',async kind=>{
+  vi.useFakeTimers();try{
+   const child=Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess,events:unknown[]=[];
+   const outcome=(waitForBackendReady as unknown as (...args:unknown[])=>Promise<unknown>)(child,'a'.repeat(64),4357,()=>'',(event:unknown)=>events.push(event)).catch(error=>error);
+   if(kind==='deadline')await vi.advanceTimersByTimeAsync(60000);else child.emit(kind,1);
+   expect(await outcome).toBeInstanceOf(Error);expect(events).toEqual([{stage:'backend-'+kind,error:null}]);expect(vi.getTimerCount()).toBe(0);
+  }finally{vi.useRealTimers();}
+ });
+});
+
+
+it('preserves real sidecar error IPC and stderr while emitting a private fixed fallback on owned stdout',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'desktop-startup-diagnostic-')),token='a'.repeat(64),events:unknown[]=[];
+ const env:NodeJS.ProcessEnv={...process.env,HARNESS_DATA_DIR:directory,HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_LAUNCH_TOKEN:token,HARNESS_PORT:'INVALID_PRIVATE_INPUT',NODE_NO_WARNINGS:'1'};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
+ const child=spawn(process.execPath,nodeSidecarArguments(resolve('.')),{env,stdio:['ignore','pipe','pipe','ipc'],windowsHide:true});let stdout='',stderr='';
+ child.stdout?.on('data',chunk=>{stdout+=chunk.toString();});child.stderr?.on('data',chunk=>{stderr+=chunk.toString();});child.on('message',value=>events.push(value));
+ const timer=setTimeout(()=>child.kill(),15000);
+ try{
+  const code=await new Promise<number|null>((accept,reject)=>{child.once('error',reject);child.once('close',accept);});
+  expect(code).toBe(1);expect(events).toEqual([{type:'harness.error',token,message:'HARNESS_PORT must be a port between 1 and 65535.',diagnostic:{category:'error',code:null}}]);
+  expect(stderr).toBe('HARNESS_PORT must be a port between 1 and 65535.\n');
+  expect(stdout).toMatch(/^HARNESS_STARTUP_V1 /);const marker=JSON.parse(stdout.slice('HARNESS_STARTUP_V1 '.length));
+  expect(marker).toEqual({stage:'backend-error',elapsedMs:expect.any(Number),error:{category:'error',code:null}});expect(stdout).not.toMatch(/INVALID_PRIVATE_INPUT|token|message|stack/);
+ }finally{clearTimeout(timer);if(child.exitCode===null&&child.signalCode===null)child.kill();await rm(directory,{recursive:true,force:true});}
+},20000);

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "python",
+      "-B",
+      "tests/memory_native_checkpoint_worker_v3.py",
+      "-v"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "python",
+    "startedAt": "2026-11-15T14:49:06Z",
+    "endedAt": "2026-11-15T14:49:24Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442427-s7-native-worker.log",
+    "logDigest": "deb9ab1e6b6bf45ea7771f2241fae89ac19fd0db9d3d3005b6ac6e093ec11f8f"
+  },
+  "runId": 43726164418,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "d081973eedf23c684986076424cbbec9db7af951",
+  "testedCheckout": {
+    "commitSha": "9caea6e081805c19a961030fe61fa9fa856153e1",
+    "treeSha": "ffac9062087884b98f2ba73eb1c03e5219b43edb",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "d081973eedf23c684986076424cbbec9db7af951"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43726164418/checkout-commit.json",
+    "rawResponseSha256": "0a646683fdcb74cfcefa56031bdb424f155ddcb19952818970a717f3775b9ae3"
+  },
+  "job": {
+    "id": 132848442427,
+    "name": "Hermes contracts",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43726164418/job/132848442427",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001087,
+      "name": "GitHub Actions 1000001087",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Verify native memory checkpoint ordering and failure isolation",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 7,
+    "started_at": "2026-11-15T14:49:06Z",
+    "completed_at": "2026-11-15T14:49:24Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43726164418.json",
+  "receiptSha256": "1e7cad6540fbd07ff66a1c2aac5732c6e5423c08c249be72b57cde4e926c4e53",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43726164418/job-132848442427.log",
+  "rawJobLogDigest": "02c4a59e6620c7cad9580e848670fdab9b7f0db9116f314e172b4fac21dc4588",
+  "rawJobLogBytes": 49735,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      457,
+      470
+    ],
+    [
+      481,
+      488
+    ]
+  ],
+  "excerptInputSha256": "48c16cffccbc3b1854a06f26cd7d9caf7a57b093993860d5e1231183a6a90f55",
+  "excerptInputBytes": 2131,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 2076,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Final command in the guarded two-command script. Single-command step completed successfully in the jobs API.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "python -B tests/memory_native_checkpoint_v3.py -v\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\npython -B tests/memory_native_checkpoint_worker_v3.py -v"
+}

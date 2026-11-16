@@ -1,0 +1,35 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-native-save-focus-repair
+
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > keeps the complete fixed PowerShell command below the real Windows argv limit without a policy override 4ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > uses one absent fixed file in the verified evidence directory and reads only that completed regular file 12ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a redirected evidence directory and preserves an existing redirected output 5ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > refuses a replaced evidence directory and empty or oversized saved files 10ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > admits only the ordered native dialog lifecycle for the same process and dialog 6ms
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > rejects another process, process reuse, replacement dialogs, missing stages and forged fields 3ms
+ × tests/installed-native-save.test.ts > installed native Save proof custody > binds measured focus to the owned control and the matching native action phase 6ms
+   → Invalid native Save dialog observation.
+ ✓ tests/installed-native-save.test.ts > installed native Save proof custody > preserves bounded fixed failure metadata without accepting completion or unrelated control text 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/installed-native-save.test.ts > installed native Save proof custody > binds measured focus to the owned control and the matching native action phase
+Error: Invalid native Save dialog observation.
+ ❯ invalid scripts/installed-native-save.ts:54:25
+     52| /** Native diagnostics contain only fixed stages and bounded control i…
+     53| export function parseInstalledNativeSaveTranscript(raw: string, pid: n…
+     54|   const invalid = () => Error('Invalid native Save dialog observation.…
+       |                         ^
+     55|   if (!Number.isSafeInteger(pid) || pid < 1 || pid > 2147483647 || Buf…
+     56|   const lines = raw.split(/\r?\n/).filter(line => line.trim());
+ ❯ parseInstalledNativeSaveTranscript scripts/installed-native-save.ts:62:69
+ ❯ tests/installed-native-save.test.ts:93:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  07:26:12
+   Duration  684ms (transform 201ms, setup 0ms, import 318ms, tests 51ms, environment 0ms)
+

@@ -1,0 +1,34 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts (15 tests | 2 failed) 577ms
+   × joins the original cancellation promise when it settles instead of releasing through a second cancel call 59ms
+   × joins the original cancellation promise when it rejects instead of releasing through a second cancel call 55ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > joins the original cancellation promise when it settles instead of releasing through a second cancel call
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > joins the original cancellation promise when it rejects instead of releasing through a second cancel call
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:150:35
+    148|     waiting = scheduler.acquire('provider', 'account', waitingControl.…
+    149|     control.abort(); await expect(pending).resolves.toMatchObject({sta…
+    150|     await turn(); expect(granted).toBe(false); expect(owner.busy).toBe…
+       |                                   ^
+    151|     if (result === 'settles') {
+    152|       cancellation.resolve(); await owner.cancel(); const next = await…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 passed (15)
+   Start at  21:46:32
+   Duration  2.60s (transform 1.32s, setup 0ms, import 1.82s, tests 577ms, environment 0ms)

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "scope": "NEW_OFFLINE_INSTALLED_ADMISSION_INPUTS",
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "checkoutSha": "299aa79fce281bacc370bd76373f760082046941",
+  "runId": 43789647166,
+  "jobId": 133044988913,
+  "artifactId": 14193350904,
+  "runAttempt": 1,
+  "expectedEvent": "push",
+  "expectedBranch": "agent/m05-v3",
+  "inputs": {
+    "ciReceipt": {
+      "path": "../M05-windows-ci-43789647166.json",
+      "bytes": 57029,
+      "sha256": "a5be303f63e53d901d42101ac9b5d08fb9ffc75f0a00986f8e0a076dabd29555",
+      "gitBlobSha": "1c3bced2b57b806d323289b83f39e5f871ae05d1"
+    },
+    "commandMeta": {
+      "path": "../m05-logs/windows-ci-43789647166-a1-j133044988913-s7-installed-retention.meta.json",
+      "bytes": 7298,
+      "sha256": "5515351820edfe0bc8c2736b89e506624fac815be5580cd956ab47226f329240",
+      "gitBlobSha": "3565ff7b1fffcd9105fe605f1d90f137d4155bc7"
+    },
+    "commandLog": {
+      "path": "../m05-logs/windows-ci-43789647166-a1-j133044988913-s7-installed-retention.log",
+      "bytes": 2708,
+      "sha256": "41d504116d95035cdda951a3f803a3c3a49c9bfde784c451cd1f4f4ca346f21f",
+      "gitBlobSha": "1c703acbe7fb884eaa8f36d3b6f8b5448362cc47"
+    },
+    "sourceBindings": {
+      "path": "source-bindings.json",
+      "bytes": 8326,
+      "sha256": "7a4375b6034a1b7397f4a432b64ac35197d9096960ba87fe67ea7705e742aef5",
+      "gitBlobSha": "34423b64f3489e2380599981c769e6c84b134e04"
+    },
+    "reviewedSourceProfile": {
+      "path": "reviewed-source-profile.json",
+      "bytes": 10418,
+      "sha256": "b3f77c787e0131021f0c75efe144a87ff8c642a5e6c62bcc6ce5fecf7c0c4f09",
+      "gitBlobSha": "a7c813a35c98ad94bde273a3c39c95088f888d96"
+    },
+    "artifactMetadata": {
+      "path": "artifact-api.json",
+      "bytes": 1434,
+      "sha256": "d15815f6336fa5f44d12ec0998176b4139c46f74cf6f74531f27960c6996b694",
+      "gitBlobSha": "676413d46500c6d2da7ff2e1ebb66a53ffc63f05"
+    },
+    "visualReview": {
+      "path": "../M05-installed-visual-review-43789647166.json",
+      "bytes": 10625,
+      "sha256": "2edf9ff035355be622dbab48d0e7b5dd995acbd354abd727b550ebfa71ec6225",
+      "gitBlobSha": "49585c3138ead312b355a22723cb908864f22cd8"
+    },
+    "archive": {
+      "path": "original-artifact.zip",
+      "bytes": 1047038,
+      "sha256": "c7c9432e99b2ec9934e2f597f87ad5118eb3bf582ce64b5bdaf49171bcc6ca8b",
+      "gitBlobSha": "b84292747645bcd458c97580970254991743639a"
+    }
+  }
+}

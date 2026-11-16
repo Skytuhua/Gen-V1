@@ -1,0 +1,730 @@
+2026-11-15T13:01:33.7539692Z ##[group]Run $failedSuites = @()
+2026-11-15T13:01:33.7540368Z $failedSuites = @()
+2026-11-15T13:01:33.7541020Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-15T13:01:33.7541843Z   pnpm test:browser --suite $suite
+2026-11-15T13:01:33.7542403Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-15T13:01:33.7542920Z }
+2026-11-15T13:01:33.7543275Z if ($failedSuites.Count -gt 0) {
+2026-11-15T13:01:33.7543777Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T13:01:33.7544243Z }
+2026-11-15T13:01:33.7633480Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T13:01:33.7634285Z env:
+2026-11-15T13:01:33.7634873Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T13:01:33.7635683Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T13:01:33.7636768Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T13:01:33.7637665Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T13:01:33.7638423Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T13:01:33.7639277Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T13:01:33.7640173Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T13:01:33.7641017Z ##[endgroup]
+2026-11-15T13:06:36.1843135Z Browser suite: root (16 spec files)
+2026-11-15T13:06:44.5345648Z 
+2026-11-15T13:06:44.5346500Z Running 113 tests using 1 worker
+2026-11-15T13:06:44.5346806Z 
+2026-11-15T13:06:51.7357161Z   ok   1 tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (6.3s)
+2026-11-15T13:06:54.2537746Z   ok   2 tests\e2e\clarity-data-work.spec.ts:16:1 › trend gives its actual scale and units without hiding gaps or fabricating a zero baseline (2.5s)
+2026-11-15T13:06:56.6461652Z   ok   3 tests\e2e\clarity-data-work.spec.ts:63:1 › flat and unavailable trends describe only supplied values (2.4s)
+2026-11-15T13:06:58.9628687Z   ok   4 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px light (2.3s)
+2026-11-15T13:07:01.2714819Z   ok   5 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 390px light (2.3s)
+2026-11-15T13:07:03.6820459Z   ok   6 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px dark (2.4s)
+2026-11-15T13:07:08.0910174Z   ok   7 tests\e2e\clarity-data-work.spec.ts:162:40 › light architecture is legible before selecting a node (4.4s)
+2026-11-15T13:07:12.4700851Z   ok   8 tests\e2e\clarity-data-work.spec.ts:162:40 › dark architecture is legible before selecting a node (4.4s)
+2026-11-15T13:07:14.9312027Z   ok   9 tests\e2e\clarity-data-work.spec.ts:190:1 › save feedback reserves its checkmark for acknowledged saves (2.4s)
+2026-11-15T13:07:15.1153309Z   ok  10 tests\e2e\dark-default.spec.ts:3:1 › the document paints dark before the application module starts (165ms)
+2026-11-15T13:07:16.3250263Z   ok  11 tests\e2e\dark-default.spec.ts:20:1 › the mounted shell stays dark while fresh settings are still loading on a light device (1.2s)
+2026-11-15T13:07:18.6059163Z   ok  12 tests\e2e\dark-default.spec.ts:61:42 › an existing light preference still controls the loaded application (2.3s)
+2026-11-15T13:07:20.8500566Z   ok  13 tests\e2e\dark-default.spec.ts:61:42 › an existing system preference still controls the loaded application (2.2s)
+2026-11-15T13:07:24.7610582Z   ok  14 tests\e2e\document-window.spec.ts:5:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately (3.7s)
+2026-11-15T13:07:30.2743098Z   ok  15 tests\e2e\document-window.spec.ts:64:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload (5.5s)
+2026-11-15T13:07:33.6523835Z   ok  16 tests\e2e\document-window.spec.ts:117:1 › new source never overwrites edited text and the document can explicitly adopt the update (3.4s)
+2026-11-15T13:07:35.8762182Z   ok  17 tests\e2e\document-window.spec.ts:145:1 › granted text clears immediately on revocation and retry rereads the authorized source (2.2s)
+2026-11-15T13:07:38.4175798Z   ok  18 tests\e2e\document-window.spec.ts:213:1 › narrow document window has no page overflow and keyboard undocking retains its editor (2.5s)
+2026-11-15T13:07:49.3719235Z   ok  19 tests\e2e\document-window.spec.ts:251:1 › large edited source fits the real host state limit without duplicating the source text (10.9s)
+2026-11-15T13:07:54.1385465Z   ok  20 tests\e2e\document-window.spec.ts:271:1 › closing and reloading the handoff preserves its reading position (4.8s)
+2026-11-15T13:07:57.6412041Z   ok  21 tests\e2e\document-window.spec.ts:309:1 › oversized UTF-8 edits are rejected without replacing the last durable draft (3.5s)
+2026-11-15T13:08:01.0863508Z   ok  22 tests\e2e\document-window.spec.ts:333:1 › retargeting a document cannot overwrite a draft belonging to its previous source (3.4s)
+2026-11-15T13:08:08.6125120Z   x   23 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px (7.4s)
+2026-11-15T13:08:17.4366168Z   x   24 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px (7.6s)
+2026-11-15T13:08:26.1338207Z   x   25 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px (7.5s)
+2026-11-15T13:08:30.0783266Z   ok  26 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px (2.9s)
+2026-11-15T13:08:33.6786060Z   ok  27 tests\e2e\host-loop.spec.ts:46:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload (2.9s)
+2026-11-15T13:08:36.2562218Z   ok  28 tests\e2e\host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once (2.6s)
+2026-11-15T13:08:45.7647325Z   ok  29 tests\e2e\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects (9.5s)
+2026-11-15T13:08:47.3249269Z   ok  30 tests\e2e\host-loop.spec.ts:343:1 › stale structured action shows rejection and retains its local review UI (1.5s)
+2026-11-15T13:08:51.5476230Z   ok  31 tests\e2e\host-loop.spec.ts:372:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe (4.2s)
+2026-11-15T13:08:56.7433166Z   ok  32 tests\e2e\host-loop.spec.ts:623:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive (5.2s)
+2026-11-15T13:08:58.9076591Z   ok  33 tests\e2e\host-loop.spec.ts:731:1 › generated program startup failure preserves host controls and durable artifact state (2.2s)
+2026-11-15T13:08:59.0273969Z   -   34 tests\e2e\host-loop.spec.ts:786:1 › the real host rejects generated apps while preserving its trusted interface
+2026-11-15T13:08:59.8633104Z   ok  35 tests\e2e\journal-reload.spec.ts:2:1 › a last edit survives reload before IndexedDB opens its write transaction (814ms)
+2026-11-15T13:09:01.2640388Z   ok  36 tests\e2e\journal-reload.spec.ts:44:1 › successful CAS clear stays newer across clock rollback (1.4s)
+2026-11-15T13:09:01.7499733Z   ok  37 tests\e2e\journal-reload.spec.ts:122:1 › repeated CAS replacements advance when the wall clock stays fixed (474ms)
+2026-11-15T13:09:03.3714799Z   ok  38 tests\e2e\journal-reload.spec.ts:147:1 › a later peer edit survives an acknowledgment of the captured generation (1.6s)
+2026-11-15T13:09:11.3753283Z   ok  39 tests\e2e\latency.spec.ts:5:1 › records local, committed-event and specification latency independently of inference (8.0s)
+2026-11-15T13:09:13.9646551Z
+[CI command excerpt bounded; middle omitted]
+-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1300620Z 
+2026-11-15T13:20:59.1301464Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1302201Z 
+2026-11-15T13:20:59.1302511Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1303252Z     Expected: "3px"
+2026-11-15T13:20:59.1303886Z     Error: element(s) not found
+2026-11-15T13:20:59.1304259Z 
+2026-11-15T13:20:59.1304476Z     Call log:
+2026-11-15T13:20:59.1305118Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1306012Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1306497Z 
+2026-11-15T13:20:59.1306518Z 
+2026-11-15T13:20:59.1306860Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1307564Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1308449Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1309347Z         |                                                   ^
+2026-11-15T13:20:59.1310361Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1310984Z       8 | });
+2026-11-15T13:20:59.1311411Z       9 |
+2026-11-15T13:20:59.1312022Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1312450Z 
+2026-11-15T13:20:59.1313698Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-manu-df1fb-and-rejects-stale-revisions\error-context.md
+2026-11-15T13:20:59.1314856Z 
+2026-11-15T13:20:59.1315528Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1317097Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-manu-df1fb-and-rejects-stale-revisions\trace.zip
+2026-11-15T13:20:59.1318326Z     Usage:
+2026-11-15T13:20:59.1318561Z 
+2026-11-15T13:20:59.1319703Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-manu-df1fb-and-rejects-stale-revisions\trace.zip
+2026-11-15T13:20:59.1321173Z 
+2026-11-15T13:20:59.1321712Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1322205Z 
+2026-11-15T13:20:59.1323027Z   7) tests\e2e\plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication 
+2026-11-15T13:20:59.1323821Z 
+2026-11-15T13:20:59.1325667Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1326219Z 
+2026-11-15T13:20:59.1326598Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1327249Z       3 |
+2026-11-15T13:20:59.1327711Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1328259Z         |      ^
+2026-11-15T13:20:59.1328779Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1330115Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1331055Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1331812Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1332242Z 
+2026-11-15T13:20:59.1332923Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1333523Z 
+2026-11-15T13:20:59.1333799Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1334459Z     Expected: "3px"
+2026-11-15T13:20:59.1334986Z     Error: element(s) not found
+2026-11-15T13:20:59.1335270Z 
+2026-11-15T13:20:59.1335441Z     Call log:
+2026-11-15T13:20:59.1335961Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1336653Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1337035Z 
+2026-11-15T13:20:59.1337046Z 
+2026-11-15T13:20:59.1337304Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1337904Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1338788Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1339545Z         |                                                   ^
+2026-11-15T13:20:59.1340158Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1340690Z       8 | });
+2026-11-15T13:20:59.1341049Z       9 |
+2026-11-15T13:20:59.1341493Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1341856Z 
+2026-11-15T13:20:59.1342937Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-resets-the-s-f302f--during-restart-publication\error-context.md
+2026-11-15T13:20:59.1344073Z 
+2026-11-15T13:20:59.1344737Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1346202Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-resets-the-s-f302f--during-restart-publication\trace.zip
+2026-11-15T13:20:59.1347255Z     Usage:
+2026-11-15T13:20:59.1347438Z 
+2026-11-15T13:20:59.1348536Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-resets-the-s-f302f--during-restart-publication\trace.zip
+2026-11-15T13:20:59.1349664Z 
+2026-11-15T13:20:59.1350390Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1350862Z 
+2026-11-15T13:20:59.1351571Z   8) tests\e2e\plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed 
+2026-11-15T13:20:59.1352203Z 
+2026-11-15T13:20:59.1352676Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1353415Z 
+2026-11-15T13:20:59.1353732Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1354254Z       3 |
+2026-11-15T13:20:59.1354602Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1355046Z         |      ^
+2026-11-15T13:20:59.1355515Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1356385Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1357426Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1358091Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1358495Z 
+2026-11-15T13:20:59.1359110Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1359692Z 
+2026-11-15T13:20:59.1359924Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1360465Z     Expected: "3px"
+2026-11-15T13:20:59.1360864Z     Error: element(s) not found
+2026-11-15T13:20:59.1361148Z 
+2026-11-15T13:20:59.1361308Z     Call log:
+2026-11-15T13:20:59.1361853Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1362558Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1362926Z 
+2026-11-15T13:20:59.1362936Z 
+2026-11-15T13:20:59.1363174Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1363720Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1364567Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1365363Z         |                                                   ^
+2026-11-15T13:20:59.1366072Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1366591Z       8 | });
+2026-11-15T13:20:59.1367084Z       9 |
+2026-11-15T13:20:59.1367618Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1368047Z 
+2026-11-15T13:20:59.1369172Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-a-va-eb4da-anonical-graph-is-malformed\error-context.md
+2026-11-15T13:20:59.1370627Z 
+2026-11-15T13:20:59.1371254Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1372728Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-a-va-eb4da-anonical-graph-is-malformed\trace.zip
+2026-11-15T13:20:59.1373881Z     Usage:
+2026-11-15T13:20:59.1374085Z 
+2026-11-15T13:20:59.1375171Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-retains-a-va-eb4da-anonical-graph-is-malformed\trace.zip
+2026-11-15T13:20:59.1376329Z 
+2026-11-15T13:20:59.1378094Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1378571Z 
+2026-11-15T13:20:59.1379431Z   9) tests\e2e\plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+2026-11-15T13:20:59.1380202Z 
+2026-11-15T13:20:59.1380683Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1381152Z 
+2026-11-15T13:20:59.1381499Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1383091Z       3 |
+2026-11-15T13:20:59.1385646Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1386200Z         |      ^
+2026-11-15T13:20:59.1386626Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1387340Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1388430Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1389576Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1389939Z 
+2026-11-15T13:20:59.1390576Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1393517Z 
+2026-11-15T13:20:59.1393789Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1394401Z     Expected: "3px"
+2026-11-15T13:20:59.1394887Z     Error: element(s) not found
+2026-11-15T13:20:59.1395173Z 
+2026-11-15T13:20:59.1395328Z     Call log:
+2026-11-15T13:20:59.1396333Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1397040Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1397389Z 
+2026-11-15T13:20:59.1397398Z 
+2026-11-15T13:20:59.1397634Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1398225Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1399019Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1399823Z         |                                                   ^
+2026-11-15T13:20:59.1400427Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1400930Z       8 | });
+2026-11-15T13:20:59.1401251Z       9 |
+2026-11-15T13:20:59.1401738Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1402110Z 
+2026-11-15T13:20:59.1403150Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-host-replan--d8016-r-when-earlier-details-grow\error-context.md
+2026-11-15T13:20:59.1404220Z 
+2026-11-15T13:20:59.1404780Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1406154Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-host-replan--d8016-r-when-earlier-details-grow\trace.zip
+2026-11-15T13:20:59.1407221Z     Usage:
+2026-11-15T13:20:59.1407394Z 
+2026-11-15T13:20:59.1408802Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-host-replan--d8016-r-when-earlier-details-grow\trace.zip
+2026-11-15T13:20:59.1409891Z 
+2026-11-15T13:20:59.1410376Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1410802Z 
+2026-11-15T13:20:59.1411695Z   10) tests\e2e\plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it 
+2026-11-15T13:20:59.1412427Z 
+2026-11-15T13:20:59.1412886Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1413337Z 
+2026-11-15T13:20:59.1413661Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1414484Z       3 |
+2026-11-15T13:20:59.1414872Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1415365Z         |      ^
+2026-11-15T13:20:59.1415827Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1416659Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1417472Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1418133Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1418505Z 
+2026-11-15T13:20:59.1419278Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1419822Z 
+2026-11-15T13:20:59.1420038Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1420595Z     Expected: "3px"
+2026-11-15T13:20:59.1421002Z     Error: element(s) not found
+2026-11-15T13:20:59.1421275Z 
+2026-11-15T13:20:59.1421463Z     Call log:
+2026-11-15T13:20:59.1421987Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1422671Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1423035Z 
+2026-11-15T13:20:59.1423045Z 
+2026-11-15T13:20:59.1423292Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1423818Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1424625Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1425407Z         |                                                   ^
+2026-11-15T13:20:59.1426005Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1426483Z       8 | });
+2026-11-15T13:20:59.1426841Z       9 |
+2026-11-15T13:20:59.1427319Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1427699Z 
+2026-11-15T13:20:59.1428985Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-collapsed-st-b3800-ale-epochs-never-regress-it\error-context.md
+2026-11-15T13:20:59.1430072Z 
+2026-11-15T13:20:59.1430689Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1432041Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-collapsed-st-b3800-ale-epochs-never-regress-it\trace.zip
+2026-11-15T13:20:59.1433151Z     Usage:
+2026-11-15T13:20:59.1433346Z 
+2026-11-15T13:20:59.1434413Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-collapsed-st-b3800-ale-epochs-never-regress-it\trace.zip
+2026-11-15T13:20:59.1435504Z 
+2026-11-15T13:20:59.1435977Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1436386Z 
+2026-11-15T13:20:59.1437131Z   11) tests\e2e\plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+2026-11-15T13:20:59.1438465Z 
+2026-11-15T13:20:59.1439393Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1440264Z 
+2026-11-15T13:20:59.1440679Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1441245Z       3 |
+2026-11-15T13:20:59.1441685Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1442184Z         |      ^
+2026-11-15T13:20:59.1442689Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1443582Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1444458Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1445174Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1445586Z 
+2026-11-15T13:20:59.1446359Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1447266Z 
+2026-11-15T13:20:59.1447505Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1448560Z     Expected: "3px"
+2026-11-15T13:20:59.1449056Z     Error: element(s) not found
+2026-11-15T13:20:59.1449326Z 
+2026-11-15T13:20:59.1449521Z     Call log:
+2026-11-15T13:20:59.1450115Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1450817Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1451197Z 
+2026-11-15T13:20:59.1451376Z 
+2026-11-15T13:20:59.1451654Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1452277Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1453193Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1454026Z         |                                                   ^
+2026-11-15T13:20:59.1454703Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1455290Z       8 | });
+2026-11-15T13:20:59.1455695Z       9 |
+2026-11-15T13:20:59.1456196Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1456627Z 
+2026-11-15T13:20:59.1457686Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-deep-nested--71516-anel-without-hiding-details\error-context.md
+2026-11-15T13:20:59.1458779Z 
+2026-11-15T13:20:59.1459408Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1460905Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-deep-nested--71516-anel-without-hiding-details\trace.zip
+2026-11-15T13:20:59.1462086Z     Usage:
+2026-11-15T13:20:59.1462308Z 
+2026-11-15T13:20:59.1463422Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-deep-nested--71516-anel-without-hiding-details\trace.zip
+2026-11-15T13:20:59.1464595Z 
+2026-11-15T13:20:59.1465130Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1465598Z 
+2026-11-15T13:20:59.1466398Z   12) tests\e2e\plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity 
+2026-11-15T13:20:59.1467168Z 
+2026-11-15T13:20:59.1467945Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1468503Z 
+2026-11-15T13:20:59.1468894Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1469493Z       3 |
+2026-11-15T13:20:59.1469974Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1470452Z         |      ^
+2026-11-15T13:20:59.1470968Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1472059Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1472993Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1473727Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1474170Z 
+2026-11-15T13:20:59.1474842Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1475422Z 
+2026-11-15T13:20:59.1475668Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1476251Z     Expected: "3px"
+2026-11-15T13:20:59.1476773Z     Error: element(s) not found
+2026-11-15T13:20:59.1477078Z 
+2026-11-15T13:20:59.1477222Z     Call log:
+2026-11-15T13:20:59.1477841Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1478609Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1478991Z 
+2026-11-15T13:20:59.1479008Z 
+2026-11-15T13:20:59.1479269Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1479904Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1480774Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1481622Z         |                                                   ^
+2026-11-15T13:20:59.1482285Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1482854Z       8 | });
+2026-11-15T13:20:59.1483235Z       9 |
+2026-11-15T13:20:59.1483972Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1484407Z 
+2026-11-15T13:20:59.1485515Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-manual-colla-825d9-ct-thread-and-step-identity\error-context.md
+2026-11-15T13:20:59.1486626Z 
+2026-11-15T13:20:59.1487256Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1489105Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-manual-colla-825d9-ct-thread-and-step-identity\trace.zip
+2026-11-15T13:20:59.1490240Z     Usage:
+2026-11-15T13:20:59.1490460Z 
+2026-11-15T13:20:59.1491570Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-manual-colla-825d9-ct-thread-and-step-identity\trace.zip
+2026-11-15T13:20:59.1492713Z 
+2026-11-15T13:20:59.1493251Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1493691Z 
+2026-11-15T13:20:59.1494262Z   13) tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion ───
+2026-11-15T13:20:59.1494844Z 
+2026-11-15T13:20:59.1495329Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1495824Z 
+2026-11-15T13:20:59.1496206Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1496838Z       3 |
+2026-11-15T13:20:59.1497272Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1497817Z         |      ^
+2026-11-15T13:20:59.1498329Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1499222Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1500174Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1500912Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1501318Z 
+2026-11-15T13:20:59.1501973Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1502574Z 
+2026-11-15T13:20:59.1502834Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1503399Z     Expected: "3px"
+2026-11-15T13:20:59.1504137Z     Error: element(s) not found
+2026-11-15T13:20:59.1504435Z 
+2026-11-15T13:20:59.1504626Z     Call log:
+2026-11-15T13:20:59.1505231Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1505950Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1506371Z 
+2026-11-15T13:20:59.1506380Z 
+2026-11-15T13:20:59.1506649Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1507285Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1508582Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1509502Z         |                                                   ^
+2026-11-15T13:20:59.1510132Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1510725Z       8 | });
+2026-11-15T13:20:59.1511131Z       9 |
+2026-11-15T13:20:59.1511686Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1512135Z 
+2026-11-15T13:20:59.1513283Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--ad25f-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1514318Z 
+2026-11-15T13:20:59.1514938Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1516386Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--ad25f-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1517494Z     Usage:
+2026-11-15T13:20:59.1517695Z 
+2026-11-15T13:20:59.1518790Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--ad25f-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1519938Z 
+2026-11-15T13:20:59.1520429Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1520954Z 
+2026-11-15T13:20:59.1521534Z   14) tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion ───
+2026-11-15T13:20:59.1522104Z 
+2026-11-15T13:20:59.1522561Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1523010Z 
+2026-11-15T13:20:59.1523357Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1523937Z       3 |
+2026-11-15T13:20:59.1524379Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1524856Z         |      ^
+2026-11-15T13:20:59.1525300Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1526139Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1526990Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1527693Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1528101Z 
+2026-11-15T13:20:59.1528999Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1529552Z 
+2026-11-15T13:20:59.1529781Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1530342Z     Expected: "3px"
+2026-11-15T13:20:59.1530824Z     Error: element(s) not found
+2026-11-15T13:20:59.1531105Z 
+2026-11-15T13:20:59.1531271Z     Call log:
+2026-11-15T13:20:59.1531805Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1532471Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1532828Z 
+2026-11-15T13:20:59.1532837Z 
+2026-11-15T13:20:59.1533075Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1533640Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1534448Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1535469Z         |                                                   ^
+2026-11-15T13:20:59.1536083Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1536599Z       8 | });
+2026-11-15T13:20:59.1536920Z       9 |
+2026-11-15T13:20:59.1537412Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1537784Z 
+2026-11-15T13:20:59.1538991Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--59f47-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1540075Z 
+2026-11-15T13:20:59.1540736Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1542185Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--59f47-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1543269Z     Usage:
+2026-11-15T13:20:59.1543468Z 
+2026-11-15T13:20:59.1544539Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--59f47-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1545637Z 
+2026-11-15T13:20:59.1546470Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1546872Z 
+2026-11-15T13:20:59.1547492Z   15) tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion ───
+2026-11-15T13:20:59.1548066Z 
+2026-11-15T13:20:59.1548526Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1549004Z 
+2026-11-15T13:20:59.1549358Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1549930Z       3 |
+2026-11-15T13:20:59.1550333Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1550848Z         |      ^
+2026-11-15T13:20:59.1551328Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1552197Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1553010Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1553683Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1554092Z 
+2026-11-15T13:20:59.1554693Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1555255Z 
+2026-11-15T13:20:59.1555481Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1556011Z     Expected: "3px"
+2026-11-15T13:20:59.1556455Z     Error: element(s) not found
+2026-11-15T13:20:59.1556734Z 
+2026-11-15T13:20:59.1556900Z     Call log:
+2026-11-15T13:20:59.1557450Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1558370Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1558735Z 
+2026-11-15T13:20:59.1558745Z 
+2026-11-15T13:20:59.1558976Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1559535Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1560394Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1561237Z         |                                                   ^
+2026-11-15T13:20:59.1561842Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1562332Z       8 | });
+2026-11-15T13:20:59.1562682Z       9 |
+2026-11-15T13:20:59.1563190Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1563581Z 
+2026-11-15T13:20:59.1564659Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--cf1eb-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1565726Z 
+2026-11-15T13:20:59.1566574Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1567945Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--cf1eb-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1569094Z     Usage:
+2026-11-15T13:20:59.1569295Z 
+2026-11-15T13:20:59.1570578Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-narrow--cf1eb-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1571743Z 
+2026-11-15T13:20:59.1572274Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1572719Z 
+2026-11-15T13:20:59.1573318Z   16) tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion ──
+2026-11-15T13:20:59.1573899Z 
+2026-11-15T13:20:59.1574375Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1574865Z 
+2026-11-15T13:20:59.1575200Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1575731Z       3 |
+2026-11-15T13:20:59.1576158Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1576647Z         |      ^
+2026-11-15T13:20:59.1577082Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1577942Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1578820Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1579480Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1579842Z 
+2026-11-15T13:20:59.1580461Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1581052Z 
+2026-11-15T13:20:59.1581251Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1581815Z     Expected: "3px"
+2026-11-15T13:20:59.1582285Z     Error: element(s) not found
+2026-11-15T13:20:59.1582566Z 
+2026-11-15T13:20:59.1582733Z     Call log:
+2026-11-15T13:20:59.1583256Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1583947Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1584312Z 
+2026-11-15T13:20:59.1584320Z 
+2026-11-15T13:20:59.1584558Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1585147Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1586005Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1587039Z         |                                                   ^
+2026-11-15T13:20:59.1587629Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1588158Z       8 | });
+2026-11-15T13:20:59.1588748Z       9 |
+2026-11-15T13:20:59.1589283Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1589697Z 
+2026-11-15T13:20:59.1590773Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-1ef76-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1591874Z 
+2026-11-15T13:20:59.1592482Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1594045Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-1ef76-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1595172Z     Usage:
+2026-11-15T13:20:59.1595373Z 
+2026-11-15T13:20:59.1596475Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-1ef76-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1597612Z 
+2026-11-15T13:20:59.1598105Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1598545Z 
+2026-11-15T13:20:59.1599095Z   17) tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion ──
+2026-11-15T13:20:59.1599655Z 
+2026-11-15T13:20:59.1600119Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1600604Z 
+2026-11-15T13:20:59.1600958Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1601522Z       3 |
+2026-11-15T13:20:59.1601946Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1602397Z         |      ^
+2026-11-15T13:20:59.1602856Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1603694Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1604556Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1605198Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1605601Z 
+2026-11-15T13:20:59.1606213Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1607062Z 
+2026-11-15T13:20:59.1607315Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1607891Z     Expected: "3px"
+2026-11-15T13:20:59.1608359Z     Error: element(s) not found
+2026-11-15T13:20:59.1608611Z 
+2026-11-15T13:20:59.1608783Z     Call log:
+2026-11-15T13:20:59.1609329Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1610008Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1610365Z 
+2026-11-15T13:20:59.1610374Z 
+2026-11-15T13:20:59.1610609Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1611146Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1611996Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1612800Z         |                                                   ^
+2026-11-15T13:20:59.1613382Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1613901Z       8 | });
+2026-11-15T13:20:59.1614225Z       9 |
+2026-11-15T13:20:59.1614707Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1615117Z 
+2026-11-15T13:20:59.1616179Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-9f8b7-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1617272Z 
+2026-11-15T13:20:59.1617843Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1619304Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-9f8b7-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1620564Z     Usage:
+2026-11-15T13:20:59.1620755Z 
+2026-11-15T13:20:59.1621773Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-9f8b7-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1622900Z 
+2026-11-15T13:20:59.1623396Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1623844Z 
+2026-11-15T13:20:59.1624590Z   18) tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion ──
+2026-11-15T13:20:59.1625154Z 
+2026-11-15T13:20:59.1625637Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1626110Z 
+2026-11-15T13:20:59.1626698Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1627213Z       3 |
+2026-11-15T13:20:59.1627675Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1628166Z         |      ^
+2026-11-15T13:20:59.1628646Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1629451Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1630334Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1631016Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1631412Z 
+2026-11-15T13:20:59.1632078Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1632654Z 
+2026-11-15T13:20:59.1632885Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1633387Z     Expected: "3px"
+2026-11-15T13:20:59.1633857Z     Error: element(s) not found
+2026-11-15T13:20:59.1634141Z 
+2026-11-15T13:20:59.1634307Z     Call log:
+2026-11-15T13:20:59.1634851Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1635524Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1635888Z 
+2026-11-15T13:20:59.1635897Z 
+2026-11-15T13:20:59.1636136Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1636715Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1637569Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1638363Z         |                                                   ^
+2026-11-15T13:20:59.1639038Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1639583Z       8 | });
+2026-11-15T13:20:59.1639948Z       9 |
+2026-11-15T13:20:59.1640446Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1640791Z 
+2026-11-15T13:20:59.1641739Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-88abc-geometry-and-reduced-motion\error-context.md
+2026-11-15T13:20:59.1643009Z 
+2026-11-15T13:20:59.1643610Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1645083Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-88abc-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1646207Z     Usage:
+2026-11-15T13:20:59.1646407Z 
+2026-11-15T13:20:59.1647769Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-narrow-88abc-geometry-and-reduced-motion\trace.zip
+2026-11-15T13:20:59.1648903Z 
+2026-11-15T13:20:59.1649421Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1649862Z 
+2026-11-15T13:20:59.1650456Z   19) tests\e2e\plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join ─────────────
+2026-11-15T13:20:59.1651058Z 
+2026-11-15T13:20:59.1651508Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1651966Z 
+2026-11-15T13:20:59.1652309Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1652883Z       3 |
+2026-11-15T13:20:59.1653318Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1653778Z         |      ^
+2026-11-15T13:20:59.1654249Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1655288Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1656135Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1656807Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1657176Z 
+2026-11-15T13:20:59.1657796Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1658360Z 
+2026-11-15T13:20:59.1658572Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1659130Z     Expected: "3px"
+2026-11-15T13:20:59.1659575Z     Error: element(s) not found
+2026-11-15T13:20:59.1659852Z 
+2026-11-15T13:20:59.1659984Z     Call log:
+2026-11-15T13:20:59.1660529Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1661245Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1661623Z 
+2026-11-15T13:20:59.1661632Z 
+2026-11-15T13:20:59.1661886Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1662468Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1663293Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1664126Z         |                                                   ^
+2026-11-15T13:20:59.1664759Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1665288Z       8 | });
+2026-11-15T13:20:59.1665604Z       9 |
+2026-11-15T13:20:59.1666102Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1666501Z 
+2026-11-15T13:20:59.1667783Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-desktop-parallel-branches-and-join\error-context.md
+2026-11-15T13:20:59.1668838Z 
+2026-11-15T13:20:59.1669449Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1670846Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T13:20:59.1671939Z     Usage:
+2026-11-15T13:20:59.1672094Z 
+2026-11-15T13:20:59.1673124Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-dark-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T13:20:59.1674404Z 
+2026-11-15T13:20:59.1674903Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1675341Z 
+2026-11-15T13:20:59.1675909Z   20) tests\e2e\plan-timeline.spec.ts:240:40 › light desktop parallel branches and join ────────────
+2026-11-15T13:20:59.1676441Z 
+2026-11-15T13:20:59.1676910Z     Test timeout of 30000ms exceeded while running "beforeEach" hook.
+2026-11-15T13:20:59.1677392Z 
+2026-11-15T13:20:59.1677878Z       2 | import { timelineSnapshot } from "./plan-timeline-fixture";
+2026-11-15T13:20:59.1678459Z       3 |
+2026-11-15T13:20:59.1678872Z     > 4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1679379Z         |      ^
+2026-11-15T13:20:59.1679873Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1680768Z       6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1681668Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1682381Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:4:6
+2026-11-15T13:20:59.1682803Z 
+2026-11-15T13:20:59.1683426Z     Error: expect(locator).toHaveCSS(expected) failed
+2026-11-15T13:20:59.1684010Z 
+2026-11-15T13:20:59.1684237Z     Locator: locator('.plan-overall-bar')
+2026-11-15T13:20:59.1684797Z     Expected: "3px"
+2026-11-15T13:20:59.1685259Z     Error: element(s) not found
+2026-11-15T13:20:59.1685529Z 
+2026-11-15T13:20:59.1685686Z     Call log:
+2026-11-15T13:20:59.1686218Z       - Expect "toHaveCSS" with timeout 30000ms
+2026-11-15T13:20:59.1687262Z       - waiting for locator('.plan-overall-bar')
+2026-11-15T13:20:59.1687625Z 
+2026-11-15T13:20:59.1687665Z 
+2026-11-15T13:20:59.1687883Z       4 | test.beforeEach(async ({ page }) => {
+2026-11-15T13:20:59.1688483Z       5 |   await page.goto("/plan-timeline.html");
+2026-11-15T13:20:59.1689343Z     > 6 |   await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+2026-11-15T13:20:59.1690181Z         |                                                   ^
+2026-11-15T13:20:59.1690732Z       7 |   await page.evaluate(() => document.fonts.ready);
+2026-11-15T13:20:59.1691257Z       8 | });
+2026-11-15T13:20:59.1691621Z       9 |
+2026-11-15T13:20:59.1692137Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\plan-timeline.spec.ts:6:51
+2026-11-15T13:20:59.1692546Z 
+2026-11-15T13:20:59.1693537Z     Error Context: test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-desktop-parallel-branches-and-join\error-context.md
+2026-11-15T13:20:59.1694580Z 
+2026-11-15T13:20:59.1695134Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1696587Z     test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T13:20:59.1697686Z     Usage:
+2026-11-15T13:20:59.1697888Z 
+2026-11-15T13:20:59.1698928Z         pnpm exec playwright show-trace test-results\browser\run-1794747996180-b2b6273d-5ba6-439b-965b-3ef00b7bab57\root\artifacts\plan-timeline-light-desktop-parallel-branches-and-join\trace.zip
+2026-11-15T13:20:59.1700026Z 
+2026-11-15T13:20:59.1700549Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T13:20:59.1700967Z 
+2026-11-15T13:20:59.1701127Z   20 failed
+2026-11-15T13:20:59.1701955Z     tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px 
+2026-11-15T13:20:59.1703273Z     tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px 
+2026-11-15T13:20:59.1705054Z     tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px 
+2026-11-15T13:20:59.1707643Z     tests\e2e\plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread 
+2026-11-15T13:20:59.1709574Z     tests\e2e\plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step 
+2026-11-15T13:20:59.1711367Z     tests\e2e\plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions 
+2026-11-15T13:20:59.1712401Z     tests\e2e\plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication 
+2026-11-15T13:20:59.1713335Z     tests\e2e\plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed 
+2026-11-15T13:20:59.1714255Z     tests\e2e\plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+2026-11-15T13:20:59.1715294Z     tests\e2e\plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it 
+2026-11-15T13:20:59.1716297Z     tests\e2e\plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+2026-11-15T13:20:59.1717279Z     tests\e2e\plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity 
+2026-11-15T13:20:59.1718143Z     tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion ─────
+2026-11-15T13:20:59.1718907Z     tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion ─────
+2026-11-15T13:20:59.1719661Z     tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion ─────
+2026-11-15T13:20:59.1720397Z     tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion ────
+2026-11-15T13:20:59.1721160Z     tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion ────
+2026-11-15T13:20:59.1721879Z     tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion ────
+2026-11-15T13:20:59.1722634Z     tests\e2e\plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join ───────────────
+2026-11-15T13:20:59.1723380Z     tests\e2e\plan-timeline.spec.ts:240:40 › light desktop parallel branches and join ──────────────
+2026-11-15T13:20:59.1723885Z   1 skipped
+2026-11-15T13:20:59.1724153Z   92 passed (14.4m)
+2026-11-15T13:20:59.1795255Z 
+2026-11-15T13:20:59.1795652Z Failed browser suites: root (exit 1)
+2026-11-15T13:20:59.2328491Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-15T13:20:59.5046698Z Exception: D:\a\_temp\732d0670-37f3-43b7-8426-db7fd67de93e.ps1:8
+2026-11-15T13:20:59.5047565Z Line |
+2026-11-15T13:20:59.5048838Z    8 |    throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T13:20:59.5049943Z      |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-11-15T13:20:59.5051027Z      | Failed browser suites: root
+2026-11-15T13:20:59.5340082Z ##[error]Process completed with exit code 1.

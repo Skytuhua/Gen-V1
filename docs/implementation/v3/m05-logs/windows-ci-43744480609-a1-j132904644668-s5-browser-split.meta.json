@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/split-workspace-renderer.test.ts",
+      "tests/split-app-browser.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T18:04:22Z",
+    "endedAt": "2026-11-15T18:05:34Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s5-browser-split.log",
+    "logDigest": "7879e9656e14089eae13caf8261decfde81eb921c204f1f8c7c3e3e6d9f6e2dc"
+  },
+  "runId": 43744480609,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+  "testedCheckout": {
+    "commitSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+    "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "60f030a2a6a764b858da110586c666353705a5fd"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/checkout-commit.json",
+    "rawResponseSha256": "30c2383d04254b1614bcbb119f5fac4af8fa46fccba68c7562d712a40aaf85ed"
+  },
+  "job": {
+    "id": 132904644668,
+    "name": "Browser tests",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43744480609/job/132904644668",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001301,
+      "name": "GitHub Actions 1000001301",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Exercise split workspace in the browser",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 5,
+    "started_at": "2026-11-15T18:04:22Z",
+    "completed_at": "2026-11-15T18:05:34Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43744480609.json",
+  "receiptSha256": "06207654d12c3c5d1587e0aa39e594908eef528c3c701241ddc59ad0737c2ce6",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43744480609/job-132904644668.log",
+  "rawJobLogDigest": "bf423755393d1f0c32a7e965e7f7b4fb86a41c2e4d429da7b5415f38c78db3f6",
+  "rawJobLogBytes": 113530,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      558,
+      611
+    ]
+  ],
+  "excerptInputSha256": "13f713f7b23d53e443a10cc764492fa4beb38118b234513bccbc2fa64c9ff625",
+  "excerptInputBytes": 7079,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 5648,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Single-command step completed successfully in the jobs API.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1"
+}

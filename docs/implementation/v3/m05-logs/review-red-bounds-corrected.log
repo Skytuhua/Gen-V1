@@ -1,0 +1,32 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-forget-v3.test.ts (8 tests | 1 failed | 7 skipped) 57ms
+   × bounds each physical purge batch even when an item has a long revision history 55ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > bounds each physical purge batch even when an item has a long revision history
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/memory-forget-v3.test.ts:48:45
+     46|   f.act({ action: 'forget', itemId: item.id, baseRevision: 800 });
+     47|   const afterRetention = Date.now() + 8 * 86400000;
+     48|   expect(f.memory.purge(afterRetention, 1)).toBe(0);
+       |                                             ^
+     49|   const remaining = f.store.all('projectMemoryRevision').length;
+     50|   expect(remaining).toBeGreaterThan(0); expect(remaining).toBeLessThan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 skipped (8)
+   Start at  18:43:26
+   Duration  1.31s (transform 287ms, setup 0ms, import 418ms, tests 57ms, environment 0ms)

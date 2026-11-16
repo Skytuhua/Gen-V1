@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/workspace.playwright.config.ts",
+      "tests/e2e/workspace-ui.spec.ts",
+      "--grep",
+      "primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload",
+      "--reporter=line",
+      "--output",
+      "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-workspace-toggle-red-artifacts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm",
+    "startedAt": "2026-11-15T21:44:20.730635+00:00",
+    "endedAt": "2026-11-15T21:44:23.457554+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-workspace-toggle-red.log",
+    "logDigest": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "indexTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+  "elapsedMs": 2709,
+  "rawOutputBytes": 2295,
+  "rawOutputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "excerptInputBytes": 2295,
+  "excerptInputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

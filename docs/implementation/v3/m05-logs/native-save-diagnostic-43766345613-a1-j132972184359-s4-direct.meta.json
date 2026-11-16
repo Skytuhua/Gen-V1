@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "diagnostics/native-save/run.ts",
+      "direct"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T21:57:02Z",
+    "endedAt": "2026-11-15T21:57:53Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43766345613-a1-j132972184359-s4-direct.log",
+    "logDigest": "3077021f125f53bcff766688655a0d0ad5d27e26578df739fafacefcd6443ea5"
+  },
+  "runId": 43766345613,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+  "testedCheckout": {
+    "commitSha": "105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+    "treeSha": "e6239f0a8c033ea31069a48c2ce66a5fa3dd8c92",
+    "parents": [
+      "f924bd3e7e16893101255b066ba7a713b9a795e4"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/105b80ddee80c779118a4d7580f8be25b1e2e9a7",
+    "rawResponseSha256": "3e7bb21503f7eb38200625930a7cdef9657c37f55f6dc640365cba1312ea0861"
+  },
+  "job": {
+    "id": 132972184359,
+    "name": "Native Save diagnostic (direct)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43766345613/job/132972184359",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001576,
+      "name": "GitHub Actions 1000001576",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run the actual native Save lane",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 4,
+    "started_at": "2026-11-15T21:57:02Z",
+    "completed_at": "2026-11-15T21:57:53Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-native-save-diagnostic-43766345613.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132972184359/logs",
+  "rawJobLogDigest": "814a21a65e442b7adc260181169fdc39fdabe53fe8fafafa52dfbb308a6bfd50",
+  "rawJobLogBytes": 190672,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained in scratch and agent memory. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      342,
+      362
+    ]
+  ],
+  "excerptInputSha256": "619a49bfaf13be302a5a3460898568fd210e3b86351c0386eef8dcdf31b18bbf",
+  "excerptInputBytes": 155276,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Timestamps are jobs-API execution-step bounds. A separate native process or dialog duration is not inferred from them.",
+  "exitBasis": "The exact selected command group reports Process completed with exit code 1 and the corresponding jobs-API step concludes failure.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked pnpm command name; no resolved launcher executable path is claimed.",
+  "cwdBasis": "Observed checkout working directory; the selected script contains no directory change.",
+  "observedScript": "pnpm exec tsx diagnostics/native-save/run.ts direct",
+  "interpretation": {
+    "kind": "NATIVE_DISCOVERY_REPRODUCTION",
+    "expectedNegativeRelabelledAsPass": false,
+    "nativeSaveDispatched": true,
+    "nativeResult": "failed",
+    "scope": "Direct native Save and exact unchanged helper; not production export admission."
+  },
+  "receiptSha256": "872574f602a4ae3b6b2dcf516642e844463369adfbf4475e0c3f0e898cdc3946"
+}

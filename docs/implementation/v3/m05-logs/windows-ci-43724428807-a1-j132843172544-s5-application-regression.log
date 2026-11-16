@@ -1,0 +1,431 @@
+2026-11-15T14:29:08.2842378Z ##[group]Run pnpm test --maxWorkers=2 --shard=1/4
+2026-11-15T14:29:08.2842771Z pnpm test --maxWorkers=2 --shard=1/4
+2026-11-15T14:29:08.2901933Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T14:29:08.2902222Z env:
+2026-11-15T14:29:08.2902480Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:29:08.2902832Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:08.2903196Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:29:08.2903557Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:08.2903902Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:08.2904228Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:08.2904606Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:29:08.2904948Z ##[endgroup]
+2026-11-15T14:29:08.8067562Z 
+2026-11-15T14:29:08.8068252Z > gen-v1@0.6.5 test D:\a\Gen-V1\Gen-V1
+2026-11-15T14:29:08.8068809Z > pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=1/4"
+2026-11-15T14:29:08.8069108Z 
+2026-11-15T14:29:09.1170181Z 
+2026-11-15T14:29:09.1171011Z > gen-v1@0.6.5 build:credential-lease D:\a\Gen-V1\Gen-V1
+2026-11-15T14:29:09.1171455Z > tsx scripts/build-windows-credential-lease.ts
+2026-11-15T14:29:09.1171639Z 
+2026-11-15T14:29:13.5989448Z windows-credential-lease.cc
+2026-11-15T14:29:28.1394834Z    Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+2026-11-15T14:29:28.2644253Z Windows credential lease built.
+2026-11-15T14:29:28.5847217Z 
+2026-11-15T14:29:28.5848128Z > gen-v1@0.6.5 build:widgets D:\a\Gen-V1\Gen-V1
+2026-11-15T14:29:28.5848670Z > node scripts/build-widgets.mjs
+2026-11-15T14:29:28.5848947Z 
+2026-11-15T14:29:29.1048102Z 
+2026-11-15T14:29:29.1050311Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T14:29:29.1050679Z 
+2026-11-15T14:29:37.0373023Z  ✓ tests/runtime-pi.test.ts (32 tests) 6680ms
+2026-11-15T14:29:37.0373812Z      ✓ creates independent task sessions and opens the exact supplied persisted file  1009ms
+2026-11-15T14:29:37.0375750Z      ✓ returns useful subscription auth errors with the original run context, never API-key fallback  5271ms
+2026-11-15T14:29:53.6524545Z  ✓ tests/project-memory-service-v3.test.ts (29 tests) 22069ms
+2026-11-15T14:29:53.6525411Z    ✓ uses one shared host ProjectMemory authority for routes and Service lifecycle  312ms
+2026-11-15T14:29:53.6526523Z    ✓ carries the same prepared memory request identity through actual Service send and final dispatch  653ms
+2026-11-15T14:29:53.6527390Z    ✓ excludes an exact revision only from the same preparing token and never mutates captured prompt bytes  511ms
+2026-11-15T14:29:53.6528153Z    ✓ includes M04 framing within the real 4 KiB MEMORY segment and eight-item limit  472ms
+2026-11-15T14:29:53.6529383Z    ✓ denies stale final memory bytes when an authenticated forget wins during awaited finalization  884ms
+2026-11-15T14:29:53.6530819Z    ✓ extracts only the actual settled run through a fresh pinned tool-free auxiliary factory and publishes proposals  302ms
+2026-11-15T14:29:53.6532175Z    ✓ defers optional extraction while an admitted M09 child is awaiting its runtime factory  331ms
+2026-11-15T14:29:53.6535477Z    ✓ makes pending extraction spend visible synchronously at settled while its factory is unresolved  526ms
+2026-11-15T14:29:53.6538073Z    ✓ counts a scheduled and dispatched extraction as one pending auxiliary owner  846ms
+2026-11-15T14:29:53.6539392Z    ✓ recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend  631ms
+2026-11-15T14:29:53.6540684Z    ✓ refuses host recovery while a current auxiliary owner remains active  1063ms
+2026-11-15T14:29:53.6541947Z    ✓ rechecks auxiliary ownership after awaited library initialization during recovery  1853ms
+2026-11-15T14:29:53.6543231Z    ✓ cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals  1696ms
+2026-11-15T14:29:53.6544508Z    ✓ drains auxiliary extraction before dispatching an executor-generated outbox input  1966ms
+2026-11-15T14:29:53.6546021Z    ✓ drains scheduled source cleanup before cancellation completes even before an extraction runtime exists  1361ms
+2026-11-15T14:29:53.6547200Z    ✓ rejects a native checkpoint when its session changes while host access is awaited  873ms
+2026-11-15T14:29:53.6548444Z    ✓ acknowledges a host checkpoint only after durable accepted-revision persistence and registers it for Forget  858ms
+2026-11-15T14:29:53.6549579Z    ✓ refuses a native checkpoint request with a stale epoch binding  848ms
+2026-11-15T14:29:53.6550506Z    ✓ refuses a native checkpoint request with a stale model binding  887ms
+2026-11-15T14:29:53.6551429Z    ✓ refuses a native checkpoint request with a stale account binding  945ms
+2026-11-15T14:29:53.6552372Z    ✓ refuses a native checkpoint request with a stale session binding  1477ms
+2026-11-15T14:29:53.6553542Z    ✓ blocks native manual compaction on a required host checkpoint failure and retains the original session path  932ms
+2026-11-15T14:29:56.5092968Z  ✓ tests/memory-consolidation-v3.test.ts (73 tests) 19196ms
+2026-11-15T14:29:56.5093938Z      ✓ rejects 'client secret assignment' before provider or derived publication  350ms
+2026-11-15T14:29:56.5094701Z      ✓ stores only accepted current references and emits no memory prose in events  383ms
+2026-11-15T14:29:56.5095441Z      ✓ skips further provider calls for unchanged accepted input and validated output  338ms
+2026-11-15T14:29:56.5096567Z      ✓ supplies only changed accepted bodies to an optional provider and keeps corrected references  443ms
+2026-11-15T14:29:56.5097283Z      ✓ refuses publication after correction races provider completion  461ms
+2026-11-15T14:29:56.5097897Z      ✓ refuses publication after forget races provider completion  1033ms
+2026-11-15T14:29:56.5098538Z      ✓ refuses publication after watermark races provider completion  649ms
+2026-11-15T14:29:56.5099446Z      ✓ refuses publication after binding races provider completion  792ms
+2026-11-15T14:29:56.5100104Z      ✓ does not dispatch captured prose after pre-dispatch correction  452ms
+2026-11-15T14:29:56.5100709Z      ✓ does not dispatch captured prose after pre-dispatch forget  305ms
+2026-11-15T14:29:56.5102062Z      ✓ does not dispatch captured prose after pre-dispatch source-revocation  354ms
+2026-11-15T14:29:56.5102707Z      ✓ does not dispatch captured prose after pre-dispatch binding  444ms
+2026-11-15T14:29:56.5103320Z      ✓ does not dispatch captured prose after pre-dispatch lease-token  438ms
+2026-11-15T14:29:56.5103941Z      ✓ does not dispatch captured prose after pre-dispatch lease-expiry  881ms
+2026-11-15T14:29:56.5104656Z      ✓ durably records an unknown-cost attempt before the optional provider receives source text  599ms
+2026-11-15T14:29:56.5105389Z      ✓ rechecks forget caused by a pending-usage observer before provider dispatch  590ms
+2026-11-15T14:29:56.5106079Z      ✓ rechecks lease-token caused by a pending-usage observer before provider dispatch  442ms
+2026-11-15T14:29:56.5106788Z      ✓ rechecks cancel caused by a pending-usage observer before provider dispatch  318ms
+2026-11-15T14:29:56.5107590Z      ✓ counts synchronous provider cancellation as dispatched and holds capacity until its actual promise settles  583ms
+2026-11-15T14:29:56.5108385Z      ✓ honors a shared lease across coordinator instances without duplicate paid work  393ms
+2026-11-15T14:29:56.5109049Z      ✓ rejects a stolen or expired lease before publishing the result  394ms
+2026-11-15T14:29:56.5109696Z      ✓ excludes tombstoned source claims even when replayed under a new item id  463ms
+2026-11-15T14:29:56.5110360Z      ✓ rejects fabricated provider references and leaves no usable derived index  337ms
+2026-11-15T14:29:56.5111049Z      ✓ keeps a cancelled orphan in the capacity count until its real call settles  641ms
+2026-11-15T14:29:56.5111744Z      ✓ separates same-project account indexes and refuses mismatched snapshot ownership  370ms
+2026-11-15T14:29:56.5112470Z      ✓ times out publication while retaining the global pending cap for an orphaned call  1022ms
+2026-11-15T14:29:56.5113158Z      ✓ does not start paid work when cancellation wins before provider dispatch  733ms
+2026-11-15T14:29:56.5113890Z      ✓ records late provider spend after timeout without losing pending accounting or memory privacy  372ms
+2026-11-15T14:29:56.5114686Z      ✓ detaches deadline listeners while preserving an orphan hold and avoids writes after Store close  339ms
+2026-11-15T14:29:56.5115535Z      ✓ refuses unsupported checkpoint capability null without touching history  428ms
+2026-11-15T14:29:56.5116427Z      ✓ refuses unsupported checkpoint capability {"adapterId":"legacy-adapter","apiVersion":1,"hostOwned":true} without touching history  347ms
+2026-11-15T14:29:56.5117332Z      ✓ blocks compaction when correction changes while checkpoint persistence is pending  656ms
+2026-11-15T14:29:56.5118061Z      ✓ blocks compaction when account changes while checkpoint persistence is pending  335ms
+2026-11-15T14:30:32.4486249Z  ✓ tests/capabilities.test.ts (24 tests) 35489ms
+2026-11-15T14:30:32.4487411Z      ✓ publishes resource sourced text with an exact content hash  2380ms
+2026-11-15T14:30:32.4500783Z      ✓ prepares without writing and rejects absent approval and changed source bytes  858ms
+2026-11-15T14:30:32.4534211Z      ✓ executes approved replacement, publishes actual results and re-resolves write permissions  958ms
+2026-11-15T14:30:32.4563106Z      ✓ rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch  861ms
+2026-11-15T14:30:32.4568286Z      ✓ reconciles before/after replacement hashes read-only and leaves changed bytes unknown  2265ms
+2026-11-15T14:30:32.4583147Z      ✓ runs the exact node-test recipe and reports actual success and failure exits  2696ms
+2026-11-15T14:30:32.4587290Z      ✓ cancels the actual process tree and records cancellation instead of success  1062ms
+2026-11-15T14:30:32.4598627Z      ✓ inspects real rows and applies exact prepared counts with integrity/version checks  2255ms
+2026-11-15T14:30:32.4622982Z      ✓ bounds inspect rows by serialized bytes and reports truncation  1515ms
+2026-11-15T14:30:32.4637406Z      ✓ rolls back wrong counts, denies attachment and rejects stale database versions  2719ms
+2026-11-15T14:30:32.4641401Z      ✓ reports actual migration DML counts independently from schema statements  2284ms
+2026-11-15T14:30:32.4655457Z      ✓ inspects fields, fills supported types and places typed/drawn marks in a new local export  5288ms
+2026-11-15T14:30:32.4688174Z      ✓ creates fixtures only at an exclusive new destination including real git conflict  8461ms
+2026-11-15T14:30:32.4713718Z      ✓ runs the installed CLI entry points in disposable destinations with honest pending exit  1837ms
+2026-11-15T14:30:45.5061321Z  ✓ tests/verification-v3.test.ts (17 tests) 12743ms
+2026-11-15T14:30:45.5062146Z    ✓ an approved recipe runs the fixed phase order and records bound observations  2169ms
+2026-11-15T14:30:45.5062952Z    ✓ readiness requires the launched process tree to own the approved endpoint  4170ms
+2026-11-15T14:30:45.5064123Z    ✓ freshness is derived from the current source cut and never rewrites the recorded outcome  2139ms
+2026-11-15T14:30:45.5065258Z    ✓ a START server stays owned and alive; early exit fails the phase  2170ms
+2026-11-15T14:30:45.5066506Z    ✓ an audited task_finish does not block its own completion assessment  397ms
+2026-11-15T14:30:55.8790324Z  ✓ tests/skill-invocation.test.ts (36 tests) 61806ms
+2026-11-15T14:30:55.8793164Z    ✓ materializes exact entry bytes and captured support without changing prompt or resources  5839ms
+2026-11-15T14:30:55.8795407Z    ✓ denies stale support, forged identity, cross-source and private-provider references  2805ms
+2026-11-15T14:30:55.8797095Z    ✓ rejects every changed authority dimension before admission  453ms
+2026-11-15T14:30:55.8798695Z    ✓ fences authority changes during catalog awaits and again before commit/runtime/support reads  1809ms
+2026-11-15T14:30:55.8799967Z    ✓ honors pre-abort and an abort that wins a catalog await without producing an admission  1697ms
+2026-11-15T14:30:55.8801219Z    ✓ denies support-bytes between fresh catalog custody and materialization  1491ms
+2026-11-15T14:30:55.8802682Z    ✓ denies entry-bytes between fresh catalog custody and materialization  1471ms
+2026-11-15T14:30:55.8804711Z    ✓ denies file-swap between fresh catalog custody and materialization  2280ms
+2026-11-15T14:30:55.8806788Z    ✓ denies directory-swap between fresh catalog custody and materialization  2173ms
+2026-11-15T14:30:55.8807946Z    ✓ denies hardlink between fresh catalog custody and materialization  1377ms
+2026-11-15T14:30:55.8809098Z    ✓ denies junction between fresh catalog custody and materialization  981ms
+2026-11-15T14:30:55.8811503Z    ✓ denies extra-file between fresh catalog custody and materialization  1447ms
+2026-11-15T14:30:55.8812873Z    ✓ revalidates the canonical source after capture rather than accepting its earlier index  1605ms
+2026-11-15T14:30:55.8814458Z    ✓ restores authenticated exact bytes across host restart without rediscovering changed skills  1674ms
+2026-11-15T14:30:55.8815427Z    ✓ rejects command-ID reuse with changed content, model, thinking, reference or authority  1661ms
+2026-11-15T14:30:55.8816170Z    ✓ denies replay tampering and key loss instead of falling back to rediscovery  2078ms
+2026-11-15T14:30:55.8817176Z    ✓ denies forged admissions, mismatched runtime owners and arbitrary support paths  1414ms
+2026-11-15T14:30:55.8817947Z    ✓ reads the exact Harness version/document with no latest-name or ambient projection fallback  928ms
+2026-11-15T14:30:55.8818870Z    ✓ denies a package exceeding files instead of silently truncating it  1790ms
+2026-11-15T14:30:55.8819998Z    ✓ denies a package exceeding fileBytes instead of silently truncating it  1442ms
+2026-11-15T14:30:55.8822144Z    ✓ denies a package exceeding packageBytes instead of silently truncating it  1389ms
+2026-11-15T14:30:55.8823503Z    ✓ rejects malformed payloads rather than accepting browser supplied text, paths or authority grants  474ms
+2026-11-15T14:30:55.8825201Z    ✓ selection preserves every reference field without a body read or admission capability, and bundles for browsers  535ms
+2026-11-15T14:30:55.8827597Z    ✓ denies a changed runtime thinking level even when the model is unchanged  1209ms
+2026-11-15T14:30:55.8828700Z    ✓ preserves UTF-8 BOM and original line endings in admitted guidance  1627ms
+2026-11-15T14:30:55.8829846Z    ✓ admits all selected references in order, never silently dropping a stale second selection  3722ms
+2026-11-15T14:30:55.8832897Z    ✓ bounds Harness entry bytes before materializing an oversized saved document  523ms
+2026-11-15T14:30:55.8835491Z    ✓ captures only a verified installed App package, without activating its host, and rechecks registry revocation  2544ms
+2026-11-15T14:30:55.8836901Z    ✓ uses the bundled manifest pin and denies an index replacement between custody and capture  2527ms
+2026-11-15T14:30:55.8838215Z    ✓ resolves only the connected canonical project/worktree and denies its root identity changing  2285ms
+2026-11-15T14:30:55.8839430Z    ✓ aborts after capture while the final source recheck is in flight  1364ms
+2026-11-15T14:30:55.8840499Z    ✓ returns cancellation while an obsolete catalog read is still pending  1108ms
+2026-11-15T14:30:55.8843189Z    ✓ replays the same command after an actual Store reopen without another message or current-source read  1528ms
+2026-11-15T14:30:55.8844819Z    ✓ precommit authority revalidation leaves message/outbox/capture storage empty on a race  1478ms
+2026-11-15T14:30:55.8846045Z    ✓ sanitizes authority-provider failures at precommit without leaking host paths  1548ms
+2026-11-15T14:30:55.8847189Z    ✓ accepts the parent raw skills array while taking expected authority only from host options  1527ms
+2026-11-15T14:30:58.9577201Z  ✓ tests/personal-visuals-ui.test.ts (7 tests) 12739ms
+2026-11-15T14:30:58.9579894Z    ✓ keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame  3176ms
+2026-11-15T14:30:58.9581099Z    ✓ oversized formatted import retains every previous state owner  1661ms
+2026-11-15T14:30:58.9585727Z    ✓ accepted import survives replacement confirmation autosave handoff reload save and export  2780ms
+2026-11-15T14:30:58.9587247Z    ✓ rejected import preserves pending autosave and unconfirmed save identity  1538ms
+2026-11-15T14:30:58.9588586Z    ✓ explains the workspace purpose until dismissed and restores it from About Visuals  1033ms
+2026-11-15T14:30:58.9589799Z    ✓ persists intro dismissal through the host presentation bridge  1455ms
+2026-11-15T14:30:58.9591033Z    ✓ keeps a preexisting compact near-limit durable record and raw draft recoverable  1092ms
+2026-11-15T14:31:04.0141972Z  ✓ tests/agent-projection.test.ts (17 tests) 7827ms
+2026-11-15T14:31:04.0143386Z    ✓ projects scoped sequenced updates without full snapshots, rejects stale checkpoints and signals retention gaps  3922ms
+2026-11-15T14:31:04.0145236Z    ✓ bounds content lookup by signed message identity, independently of conversation length  1498ms
+2026-11-15T14:31:12.4444701Z  ✓ tests/ui-guard.test.ts (29 tests) 7902ms
+2026-11-15T14:31:12.4445439Z      ✓ follows declared map callbacks and array-returning components  405ms
+2026-11-15T14:31:12.4446219Z      ✓ keeps hoisted discarded callbacks equivalent to inline handlers, while checking dual render use  470ms
+2026-11-15T14:31:12.4447476Z      ✓ checks numeric children supplied through JSX spreads and shorthand factory props  306ms
+2026-11-15T14:31:12.4449248Z      ✓ checks helper HTML at srcdoc and explicit HTML response sinks without flagging unused documentation  330ms
+2026-11-15T14:31:12.4450547Z    ✓ the CLI exits nonzero for seeded numeric and overlay violations in an existing legacy file  2404ms
+2026-11-15T14:31:14.3003245Z  ✓ tests/runtime-worker-settlement.test.ts (9 tests) 1617ms
+2026-11-15T14:31:14.3017752Z      ✓ rejects B held in parent-to-worker IPC until A settles and the host has cleared its run  1340ms
+2026-11-15T14:31:14.9472267Z  ✓ tests/desktop-native.test.ts (25 tests) 257ms
+2026-11-15T14:31:17.0029588Z  ✓ tests/memory-native-checkpoint-v3.test.ts (28 tests) 347ms
+2026-11-15T14:31:23.7001436Z  ✓ tests/memory-forget-v3.test.ts (17 tests) 6351ms
+2026-11-15T14:31:23.7002916Z    ✓ forgets immediately, invalidates derived references and rejects source replay and stale restoration  967ms
+2026-11-15T14:31:23.7003935Z    ✓ bounds each physical purge batch even when an item has a long revision history  526ms
+2026-11-15T14:31:23.7005021Z    ✓ does not report physical purge complete while a reader retains old WAL pages  354ms
+2026-11-15T14:31:23.7007142Z    ✓ keeps an authoritative deletion fence outside an in-place full-profile backup restore  307ms
+2026-11-15T14:31:23.7008538Z    ✓ purges bytes freed by earlier revisions when SQLite starts with secure_delete disabled (retained padding 64)  368ms
+2026-11-15T14:31:23.7010015Z    ✓ purges bytes freed by earlier revisions when SQLite starts with secure_delete disabled (retained padding 128)  541ms
+2026-11-15T14:31:23.7011473Z    ✓ scrubs a legacy profile before acknowledging physical purge after reopen (retained padding 64)  307ms
+2026-11-15T14:31:23.7012831Z    ✓ scrubs a legacy profile before acknowledging physical purge after reopen (retained padding 128)  321ms
+2026-11-15T14:31:23.7013916Z    ✓ does not complete the legacy storage migration while an old reader pins pre-scrub pages  374ms
+2026-11-15T14:31:23.7015137Z    ✓ reopens purge work if an old backup restores already-purged local text  631ms
+2026-11-15T14:31:23.7015996Z    ✓ reopens physical purge when a replay restores only an excluded source snapshot  338ms
+2026-11-15T14:31:28.3034564Z  ✓ tests/side-chat.test.ts (15 tests) 3920ms
+2026-11-15T14:31:28.3035924Z    ✓ continues the saved side session without quoting parent context again  346ms
+2026-11-15T14:31:28.3044087Z    ✓ revokes the old side owner before settlement so it cannot mutate a later run  316ms
+2026-11-15T14:31:28.3045647Z    ✓ keeps side context bounded, quoted once, and does not inherit later parent edits  306ms
+2026-11-15T14:31:28.3046951Z    ✓ releases pending side work when Stop arrives before the adapter startup acknowledgment  426ms
+2026-11-15T14:31:28.3048177Z    ✓ keeps an active side conversation reachable when the idle parent is archived  432ms
+2026-11-15T14:31:30.2671594Z  ✓ tests/store.test.ts (12 tests) 1692ms
+2026-11-15T14:31:31.5146416Z  ✓ tests/file-checkpoints.test.ts (59 tests) 299ms
+2026-11-15T14:31:44.4162840Z  ✓ tests/plugin-tools-dock.test.ts (12 tests) 12280ms
+2026-11-15T14:31:44.4164295Z    ✓ keeps tools, diagram controls and readable inspector separate at 768px, including recovered free placement  1040ms
+2026-11-15T14:31:44.4166275Z    ✓ keeps tools, diagram controls and readable inspector separate at 1024px, including recovered free placement  937ms
+2026-11-15T14:31:44.4167996Z    ✓ keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement  916ms
+2026-11-15T14:31:44.4169650Z    ✓ uses the settled split on its first visible frame after a delayed read at 1024 px (preferred 720)  1207ms
+2026-11-15T14:31:44.4171192Z    ✓ uses the settled split on its first visible frame after a delayed read at 1440 px (preferred 720)  1182ms
+2026-11-15T14:31:44.4172107Z    ✓ uses the settled split on its first visible frame after a delayed read at 1024 px (preferred 400)  1183ms
+2026-11-15T14:31:44.4184148Z    ✓ uses the settled split on its first visible frame after a delayed read at 1440 px (preferred 400)  1214ms
+2026-11-15T14:31:44.4185465Z    ✓ expands on reopening when an expansion request arrived while collapsed and closed  650ms
+2026-11-15T14:31:44.4186776Z    ✓ suppresses Close for minimize-only windows and keeps Escape minimizing  645ms
+2026-11-15T14:31:44.4187948Z    ✓ keeps drafts mounted through collapse, resize and close; journals collapse without overwriting legacy coordinates  1532ms
+2026-11-15T14:31:44.4189000Z    ✓ retains recovery and journal retry barriers for the dock  889ms
+2026-11-15T14:31:44.8427670Z  ✓ tests/execution-boundary-v3.test.ts (14 tests) 145ms
+2026-11-15T14:31:45.5665780Z  ✓ tests/memory-study-v3.test.ts (14 tests) 427ms
+2026-11-15T14:31:54.4458396Z  ✓ tests/project-search-routes.test.ts (38 tests) 7669ms
+2026-11-15T14:31:54.4459659Z    ✓ uses existing host/origin/session gates and sets no-store on every denied GET  380ms
+2026-11-15T14:31:54.4460963Z    ✓ returns stable cursor pages and rejects mismatched, forged, expired and rebound cursors  414ms
+2026-11-15T14:31:54.4462131Z    ✓ returns typed partial 200 data for guard denial and the actual two-second deadline  2120ms
+2026-11-15T14:31:55.1931531Z  ✓ tests/code-review-comparisons.test.ts (12 tests) 55889ms
+2026-11-15T14:31:55.1933162Z    ✓ reads index and worktree overlap separately and binds selected patches to the complete revision  9872ms
+2026-11-15T14:31:55.1934844Z    ✓ reports clean, untracked text, binary and bounded large patches honestly  8101ms
+2026-11-15T14:31:55.1936103Z    ✓ pins remote PR patches to exact three-dot identity without substituting local unstaged changes  3747ms
+2026-11-15T14:31:55.1937367Z    ✓ returns explicit transport errors and never calls a local diff as fallback  2573ms
+2026-11-15T14:31:55.1938461Z    ✓ reads staged deletions and renames by exact selected paths  5661ms
+2026-11-15T14:31:55.1939598Z    ✓ keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD  5919ms
+2026-11-15T14:31:55.1941148Z    ✓ denies delegates, Company, cross-project and replaced-directory reads before remote transport  1909ms
+2026-11-15T14:31:55.1942338Z    ✓ keeps snapshots isolated from returned mutable data and never accepts another owner  3319ms
+2026-11-15T14:31:55.1944416Z    ✓ distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs  4357ms
+2026-11-15T14:31:55.1945138Z    ✓ never reads a hardlinked changed file into a patch  3948ms
+2026-11-15T14:31:55.1945840Z    ✓ reads an already-attested remote origin without a source Git checkout or source file projection  2461ms
+2026-11-15T14:31:55.1946642Z    ✓ rejects mismatched remote identities and reports empty and capped file inventories honestly  4020ms
+2026-11-15T14:31:55.6399781Z  ✓ tests/subscription-connections.test.ts (37 tests) 149ms
+2026-11-15T14:31:58.1446564Z  ✓ tests/effect-recovery-v3.test.ts (11 tests) 2113ms
+2026-11-15T14:31:58.1454068Z    ✓ pages invocations through a bounded cursor and fences other owners  639ms
+2026-11-15T14:31:58.1455482Z    ✓ marks outstanding effects uncertain on rollback and preserves approvals  372ms
+2026-11-15T14:32:02.4104477Z  ✓ tests/attention-service-lifecycle.test.ts (18 tests) 3708ms
+2026-11-15T14:32:02.4105289Z    ✓ publishes a genuine runtime failure with its exact committed run identity  631ms
+2026-11-15T14:32:02.4106157Z    ✓ publishes a rejected runtime start through the same canonical failure path  331ms
+2026-11-15T14:32:02.4107338Z    ✓ preserves read, dismissal and claimed delivery when the same failure is reread or reopened  365ms
+2026-11-15T14:32:04.1808693Z  ✓ tests/split-workspace-profiles.test.ts (8 tests) 1478ms
+2026-11-15T14:32:04.1814718Z    ✓ limits each workspace to fifty named layouts while allowing updates and scoped removal  515ms
+2026-11-15T14:32:04.5308441Z  ✓ tests/project-search.test.ts (44 tests) 75ms
+2026-11-15T14:32:07.5844179Z  ✓ tests/server.test.ts (12 tests) 2268ms
+2026-11-15T14:32:07.5844918Z    ✓ serves a selected file under a directory grant and denies paths outside it  584ms
+2026-11-15T14:32:08.5194077Z  ✓ tests/composer-prediction.test.ts (11 tests) 655ms
+2026-11-15T14:32:37.4953591Z  ✓ tests/integration-mcp.test.ts (12 tests) 42577ms
+2026-11-15T14:32:37.4954913Z    ✓ initializes the genuine Context7 stdio service and revokes its owned process on disable  651ms
+2026-11-15T14:32:37.4956590Z    ✓ runs the genuine Promptfoo CLI MCP evaluation through only the scoped host callback  2325ms
+2026-11-15T14:32:37.4958962Z    ✓ builds a real Graphify code graph, queries its stdio server and exports GraphML without a model  20538ms
+2026-11-15T14:32:37.4960517Z    ✓ initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host  11096ms
+2026-11-15T14:32:37.4961759Z    ✓ keeps Promptfoo away from project default configuration discovery  2290ms
+2026-11-15T14:32:37.4963382Z    ✓ refuses linked Graphify graph input and linked export directories inside the owned fixture  1368ms
+2026-11-15T14:32:37.4964518Z    ✓ evicts a disconnected owned MCP child and can lazily restart it  1139ms
+2026-11-15T14:32:37.4965643Z    ✓ releases only the ended run owner and leaves other owned MCP sessions available  1104ms
+2026-11-15T14:32:37.4967173Z    ✓ routes Biome proposals through the registered granted-file approval flow  1895ms
+2026-11-15T14:32:45.8167372Z  ✓ tests/loading-state.test.ts (7 tests) 7719ms
+2026-11-15T14:32:45.8169296Z      ✓ reserves project rows immediately and reveals structural feedback only after 150ms  3146ms
+2026-11-15T14:32:45.8171902Z      ✓ cancels delayed feedback for a fast load and shows real content immediately  649ms
+2026-11-15T14:32:45.8173722Z      ✓ retains the loaded input, selection, focus and draft throughout refresh and read failure  588ms
+2026-11-15T14:32:45.8175935Z      ✓ marks the pending action busy immediately, keeps its label and draft, and recovers locally after rejection  583ms
+2026-11-15T14:32:45.8178344Z      ✓ ends first-load skeletons on error without inventing a connected project  440ms
+2026-11-15T14:32:45.8182413Z      ✓ keeps skeletons static with reduced motion, app motion off and reduced transparency  412ms
+2026-11-15T14:32:45.8212811Z      ✓ fills the tool width under the real app stylesheet instead of inheriting the legacy root loader flex layout  461ms
+2026-11-15T14:32:49.2597914Z  ✓ tests/workspace-action-outcome-routes.test.ts (5 tests) 40319ms
+2026-11-15T14:32:49.2598883Z    ✓ routes supported writes through durable identity and keeps inspection read-only  10857ms
+2026-11-15T14:32:49.2600122Z    ✓ an exact local stale-head preflight is not-applied before entering a mutation  8862ms
+2026-11-15T14:32:49.2606041Z    ✓ an exact local stale-worktree preflight is not-applied before entering a mutation  5674ms
+2026-11-15T14:32:49.2607455Z    ✓ valid Unicode review text fits submission and exact read-only inspection  9391ms
+2026-11-15T14:32:49.2608940Z    ✓ returns an unsuccessful response for an unconfirmed action so existing controls retain their draft  5534ms
+2026-11-15T14:32:49.5188715Z  ✓ tests/thread-hover.test.ts (12 tests) 16ms
+2026-11-15T14:32:52.0355346Z  ✓ tests/ime-artifact-dismissal.test.ts (13 tests) 5576ms
+2026-11-15T14:32:52.0356517Z    ✓ modal capture preserves composing Escape (native)  344ms
+2026-11-15T14:32:52.0367110Z    ✓ floating owners preserve composing Escape (native, close)  673ms
+2026-11-15T14:32:52.0368724Z    ✓ floating owners preserve composing Escape (native, collapse)  325ms
+2026-11-15T14:32:52.0370221Z    ✓ floating owners preserve composing Escape (native, minimize)  326ms
+2026-11-15T14:32:52.0371503Z    ✓ document window preserves composing Escape (native)  352ms
+2026-11-15T14:32:52.0372697Z    ✓ ordinary Escape dismisses child before region (native)  360ms
+2026-11-15T14:32:52.0374326Z    ✓ floating owners preserve composing Escape (legacy, close)  664ms
+2026-11-15T14:32:52.0375589Z    ✓ floating owners preserve composing Escape (legacy, collapse)  312ms
+2026-11-15T14:32:52.0376815Z    ✓ floating owners preserve composing Escape (legacy, minimize)  322ms
+2026-11-15T14:32:52.0378056Z    ✓ document window preserves composing Escape (legacy)  412ms
+2026-11-15T14:32:52.0379267Z    ✓ ordinary Escape dismisses child before region (legacy)  366ms
+2026-11-15T14:32:52.0380676Z    ✓ hierarchy fixture delegates nested scope and restores focus/inert on region disposal  326ms
+2026-11-15T14:32:52.5238632Z  ✓ tests/personal-visuals.test.ts (7 tests) 171ms
+2026-11-15T14:32:57.0017051Z  ✓ tests/desktop-auth-launcher.test.ts (11 tests) 4263ms
+2026-11-15T14:32:57.0043258Z      ✓ opens a real interactive console with the bundled-style Node path  947ms
+2026-11-15T14:32:57.0045161Z      ✓ cancels its owned interactive process and reports cancellation without forwarding console output  1032ms
+2026-11-15T14:32:57.0046479Z      ✓ cancels a native sign-in descendant as well as its console helper  837ms
+2026-11-15T14:32:57.0047756Z      ✓ cancels startup before metadata without leaving a late interactive process  706ms
+2026-11-15T14:32:57.0049085Z      ✓ preserves Unicode, spaces and literal shell characters in host and data paths  733ms
+2026-11-15T14:32:59.1757284Z  ✓ tests/agent-inventory-routes.test.ts (4 tests) 1361ms
+2026-11-15T14:32:59.1759522Z    ✓ registers bounded Personal reads beneath existing host/origin/session gates with no snapshot bootstrap  331ms
+2026-11-15T14:32:59.1761097Z    ✓ streams scoped checkpoints and visible transcript invalidations through the actual authenticated HTTP route  343ms
+2026-11-15T14:32:59.1762638Z    ✓ keeps delegated transcript reads read-only through the existing command and resource authority  495ms
+2026-11-15T14:32:59.4435702Z  ✓ tests/desktop-packaging.test.ts (11 tests) 34ms
+2026-11-15T14:32:59.8020524Z  ✓ tests/model-scheduling-v3.test.ts (8 tests) 68ms
+2026-11-15T14:33:00.1331591Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > selects the repository-root fixture and excludes overlapping caller projects
+2026-11-15T14:33:00.1333677Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180127-d8ff0597-8097-438e-93e5-2d729993d9f0
+2026-11-15T14:33:00.1334305Z 
+2026-11-15T14:33:00.1334589Z Browser suite: terminal-read (1 spec files)
+2026-11-15T14:33:00.1334918Z 
+2026-11-15T14:33:00.1335186Z Browser suite: files-reading (1 spec files)
+2026-11-15T14:33:00.1335506Z 
+2026-11-15T14:33:00.1373474Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > isolates all three Memory modes and their discovery reports from ambient settings
+2026-11-15T14:33:00.1375615Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180132-53a982cd-be9b-491e-a28a-09496c722743
+2026-11-15T14:33:00.1376467Z 
+2026-11-15T14:33:00.1376859Z Browser suite: memory-recovery (1 spec files)
+2026-11-15T14:33:00.1377315Z 
+2026-11-15T14:33:00.1377881Z Browser suite: memory-recovery-app (1 spec files)
+2026-11-15T14:33:00.1378764Z 
+2026-11-15T14:33:00.1379189Z Browser suite: memory-recovery-journal (1 spec files)
+2026-11-15T14:33:00.1379728Z 
+2026-11-15T14:33:00.1422029Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > runs every suite after a child failure and preserves its exit code
+2026-11-15T14:33:00.1423826Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180137-68078d4b-bc49-4bf3-a156-d76c814b2455
+2026-11-15T14:33:00.1424462Z 
+2026-11-15T14:33:00.1424706Z Browser suite: root (16 spec files)
+2026-11-15T14:33:00.1424994Z 
+2026-11-15T14:33:00.1425254Z Browser suite: terminal-read (1 spec files)
+2026-11-15T14:33:00.1425547Z 
+2026-11-15T14:33:00.1449212Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > retains prior reports when the same suite is invoked again
+2026-11-15T14:33:00.1450949Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180142-56be0296-bb59-471a-abf4-93222be21c9a
+2026-11-15T14:33:00.1451575Z 
+2026-11-15T14:33:00.1452148Z Browser suite: root (16 spec files)
+2026-11-15T14:33:00.1453007Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180143-9961bb5f-20ac-4ff0-9ba4-4fc012d490d8
+2026-11-15T14:33:00.1453540Z 
+2026-11-15T14:33:00.1453746Z Browser suite: root (16 spec files)
+2026-11-15T14:33:00.1454005Z 
+2026-11-15T14:33:00.1474680Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > treats an interrupted child or failed spawn as failure
+2026-11-15T14:33:00.1476570Z stderr | tests/browser-runner.test.ts > browser suite entrypoint > treats an interrupted child or failed spawn as failure
+2026-11-15T14:33:00.1477465Z 
+2026-11-15T14:33:00.1477883Z Failed browser suites: root (exit 1)
+2026-11-15T14:33:00.1478864Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180144-a3174f0d-0f2a-4c5d-bd66-dc027f8032c1
+2026-11-15T14:33:00.1479474Z 
+2026-11-15T14:33:00.1479484Z 
+2026-11-15T14:33:00.1479712Z Browser suite: root (16 spec files)
+2026-11-15T14:33:00.1480705Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180146-6e7efba6-628c-4a3e-9080-d86612f8acab
+2026-11-15T14:33:00.1481251Z 
+2026-11-15T14:33:00.1481442Z Browser suite: root (16 spec files)
+2026-11-15T14:33:00.1481714Z 
+2026-11-15T14:33:00.4022026Z stdout | tests/browser-runner.test.ts > browser suite entrypoint > runs a selected suite without changing its source configuration
+2026-11-15T14:33:00.4023733Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180399-d3f5844f-ae9f-4be6-9387-45cc9f524ac6
+2026-11-15T14:33:00.4024356Z 
+2026-11-15T14:33:00.4024640Z Browser suite: browser-action (1 spec files)
+2026-11-15T14:33:00.4024953Z 
+2026-11-15T14:33:00.4035274Z stdout | tests/browser-runner.test.ts > QA #130 passes the actual overridden Playwright output to its fixture server
+2026-11-15T14:33:00.4036819Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753180402-3deee764-e6e4-4ef2-b553-8049328d890e
+2026-11-15T14:33:00.4037406Z 
+2026-11-15T14:33:00.4037700Z Browser suite: file-checkpoints (1 spec files)
+2026-11-15T14:33:00.4037968Z 
+2026-11-15T14:33:00.4387118Z  ✓ tests/browser-runner.test.ts (14 tests) 329ms
+2026-11-15T14:33:01.1802647Z  ✓ tests/dev-plugin-runtime.test.ts (3 tests) 11048ms
+2026-11-15T14:33:01.1803649Z    ✓ returns 503 for fixed runtime routes in a source-only checkout  743ms
+2026-11-15T14:33:01.1804646Z    ✓ prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children  9855ms
+2026-11-15T14:33:01.1805525Z    ✓ does not launch development children when the shared runtime build fails  450ms
+2026-11-15T14:33:01.2282715Z  ✓ tests/official-runtime-headless.test.ts (3 tests) 309ms
+2026-11-15T14:33:01.4548608Z  ✓ tests/attention-popups.test.ts (11 tests) 20ms
+2026-11-15T14:33:01.8066423Z  ✓ tests/plugin-workspace-navigation.test.ts (42 tests) 245ms
+2026-11-15T14:33:01.8161679Z  ✓ tests/api-response-validation.test.ts (16 tests) 151ms
+2026-11-15T14:33:02.0499049Z  ✓ tests/journal.test.ts (6 tests) 28ms
+2026-11-15T14:33:02.0561848Z  ✓ tests/regression-selection.test.ts (13 tests) 23ms
+2026-11-15T14:33:03.0184720Z  ✓ tests/qa-delegation-v3.test.ts (7 tests) 682ms
+2026-11-15T14:33:03.3703281Z  ✓ tests/review-fixtures.test.ts (9 tests) 46ms
+2026-11-15T14:33:06.7073851Z  ✓ tests/workspace-journal-v3.test.ts (7 tests) 3082ms
+2026-11-15T14:33:06.7074687Z    ✓ records a proven structured edit only after the confirmed write  1038ms
+2026-11-15T14:33:06.7075402Z    ✓ keeps conflicting edits to the same path as independent receipts  437ms
+2026-11-15T14:33:06.7076269Z    ✓ marks shell-window changes process-window-only and unexplained files unattributed  378ms
+2026-11-15T14:33:06.7077586Z    ✓ admits receipts with no digest when file access lacked read authority  456ms
+2026-11-15T14:33:06.7078922Z    ✓ rejects receipts that miss their scope or write journal state outside a transaction  348ms
+2026-11-15T14:33:07.0899955Z  ✓ tests/event-stream.test.ts (5 tests) 4338ms
+2026-11-15T14:33:07.0901397Z    ✓ pauses historical replay at backpressure, then delivers replay and live arrivals in order  613ms
+2026-11-15T14:33:07.0902761Z    ✓ pauses a live burst without building an in-memory event backlog  2957ms
+2026-11-15T14:33:07.0903972Z    ✓ releases a disconnected drain waiter and its store subscription  496ms
+2026-11-15T14:33:07.1895307Z  ✓ tests/plugin-routes.test.ts (12 tests) 146ms
+2026-11-15T14:33:07.9486764Z  ✓ tests/installed-desktop-verification.test.ts (8 tests) 49ms
+2026-11-15T14:33:09.3279507Z  ✓ tests/redundant-ui.test.ts (12 tests) 33ms
+2026-11-15T14:33:09.5333151Z  ✓ tests/chat-layout.test.ts (27 tests) 16ms
+2026-11-15T14:33:15.2808825Z  ✓ tests/startup-feedback.test.ts (8 tests) 5179ms
+2026-11-15T14:33:15.2810944Z      ✓ keeps all feedback below OS controls without overflow at 420x190  1033ms
+2026-11-15T14:33:16.4635950Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-15T14:33:18.8800096Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-15T14:33:24.7698540Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-15T14:33:25.3098968Z warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+2026-11-15T14:33:27.8889741Z  ✓ tests/project-tools.test.ts (4 tests) 12341ms
+2026-11-15T14:33:27.8890925Z    ✓ enrolls a local project and assigns new agents separate real branches and working copies  3062ms
+2026-11-15T14:33:27.8891805Z    ✓ reports live managed untracked/staged changes and refuses an action against an old revision  5877ms
+2026-11-15T14:33:27.8892559Z    ✓ rejects a remote company reference and a thread from another project  396ms
+2026-11-15T14:33:27.8893627Z    ✓ keeps Git status inside the enrolled root even when repository config names another worktree  3005ms
+2026-11-15T14:33:28.5854515Z  ✓ tests/shell-settings.test.ts (9 tests) 10ms
+2026-11-15T14:33:30.9927670Z  ✓ tests/agent-projection-review-regressions.test.ts (4 tests) 1830ms
+2026-11-15T14:33:30.9929629Z    ✓ observes real executor progress in both current activity and visible transcript invalidation  576ms
+2026-11-15T14:33:30.9931292Z    ✓ continues an unchanged long historical message while another message streams  536ms
+2026-11-15T14:33:30.9932481Z    ✓ does not scan all roots to project a newly created conversation  567ms
+2026-11-15T14:33:32.9730911Z  ✓ tests/official-claude-stdio.test.ts (5 tests) 1495ms
+2026-11-15T14:33:32.9732786Z    ✓ contains a native Claude stdin error during discovery without losing the host  375ms
+2026-11-15T14:33:32.9738908Z    ✓ contains a native Claude stdout error during discovery without losing the host  427ms
+2026-11-15T14:33:32.9739907Z    ✓ contains a native Claude stderr error during discovery without losing the host  315ms
+2026-11-15T14:33:32.9740787Z    ✓ contains a native Claude process error during discovery without losing the host  317ms
+2026-11-15T14:33:33.4533575Z  ✓ tests/plan-timeline-ui.test.ts (16 tests) 67ms
+2026-11-15T14:33:33.7186093Z  ✓ tests/plan-visibility.test.ts (5 tests) 10ms
+2026-11-15T14:33:34.1249548Z  ✓ tests/inbox-presentation.test.ts (5 tests) 20ms
+2026-11-15T14:33:34.3835898Z  ✓ tests/desktop-account-login.test.ts (6 tests) 62ms
+2026-11-15T14:33:42.9141610Z  ✓ tests/hermes-host.test.ts (1 test) 34891ms
+2026-11-15T14:33:42.9142584Z    ✓ serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host  34889ms
+2026-11-15T14:33:43.1405900Z  ✓ tests/plugin-validation-policy.test.ts (2 tests) 8091ms
+2026-11-15T14:33:43.8609122Z    ✓ boots the actual presentation bundle in an opaque browser frame without Node globals or dynamic code  8079ms
+2026-11-15T14:33:43.8610037Z  ✓ tests/integrations.test.ts (4 tests) 345ms
+2026-11-15T14:33:45.0230027Z  ✓ tests/agents-workspace-integration.test.ts (1 test) 1794ms
+2026-11-15T14:33:45.0239701Z    ✓ reads actual PR33 projection pages, full Unicode content and visible-only updates  1793ms
+2026-11-15T14:33:47.1048046Z  ✓ tests/memory-review-extra-v3.test.ts (5 tests) 1775ms
+2026-11-15T14:33:47.1049272Z    ✓ host source authority excludes a retained FILE snapshot when its grant is physical-replacement  627ms
+2026-11-15T14:33:47.1050149Z    ✓ host source authority excludes a retained FILE snapshot when its grant is missing-file  629ms
+2026-11-15T14:33:47.2580725Z {"evidence":"SYNTHETIC_ONLY","summaryCount":10000,"projects":20,"pageSize":37,"pageBytes":20391,"bootstrapMs":260.5950999999999,"firstPageMs":17.74149999999986,"scopedProgressEvents":100,"scopedProgressMs":1415.2216}
+2026-11-15T14:33:47.3143450Z  ✓ tests/agent-projection-scale.test.ts (1 test) 3204ms
+2026-11-15T14:33:47.3144851Z    ✓ synthetic scale: pages 10000 canonical summaries and refreshes only the changed parent group  3203ms
+2026-11-15T14:33:47.4962720Z  ✓ tests/connection-login.test.ts (6 tests) 10ms
+2026-11-15T14:33:47.6481627Z  ✓ tests/web-events-recovery.test.ts (3 tests) 129ms
+2026-11-15T14:33:48.2824596Z  ✓ tests/profile-lease.test.ts (4 tests) 490ms
+2026-11-15T14:33:48.2825943Z    ✓ lets a successor acquire the profile after the real owner process exits  436ms
+2026-11-15T14:33:49.1739877Z  ✓ tests/memory-enrollment-recovery-v3.test.ts (1 test) 574ms
+2026-11-15T14:33:49.1740811Z    ✓ persists ledger enrollment when configure retries after its first enrollment transaction failed  573ms
+2026-11-15T14:33:49.3902866Z  ✓ tests/signature-pdf.test.ts (3 tests) 1363ms
+2026-11-15T14:33:49.3904208Z      ✓ requires resolved PNG bytes and embeds the exact approved resource without changing its source  1349ms
+2026-11-15T14:33:49.5290863Z  ✓ tests/wo8-color-pairing.test.ts (3 tests) 10ms
+2026-11-15T14:33:49.6959521Z  ✓ tests/personal-visuals-draft.test.ts (3 tests) 36ms
+2026-11-15T14:33:49.8738651Z  ✓ tests/desktop-workspace-events.test.ts (2 tests) 133ms
+2026-11-15T14:33:50.0431255Z  ✓ tests/task-design-recording.test.ts (3 tests) 30ms
+2026-11-15T14:33:50.3205174Z  ✓ tests/signature-assets-pending.test.ts (3 tests) 4ms
+2026-11-15T14:33:50.4923885Z  ✓ tests/editor-handoff.test.ts (3 tests) 5ms
+2026-11-15T14:33:50.5395296Z  ✓ tests/hermes-settings.test.ts (2 tests) 285ms
+2026-11-15T14:33:50.9356081Z  ✓ tests/schema-admission.test.ts (4 tests) 96ms
+2026-11-15T14:33:50.9358358Z  ✓ tests/sidebar-project-order.test.ts (2 tests) 6ms
+2026-11-15T14:33:51.2082243Z  ✓ tests/skill-catalog-search.test.ts (1 test) 7ms
+2026-11-15T14:33:51.4444512Z  ✓ tests/official-native-boundaries.test.ts (4 tests) 6ms
+2026-11-15T14:33:51.5330901Z  ✓ tests/dark-default.test.ts (3 tests) 333ms
+2026-11-15T14:33:51.6294886Z  ✓ tests/browser-lifecycle-cleanup.test.ts (1 test) 4ms
+2026-11-15T14:33:51.8421898Z  ✓ tests/desktop-thread-ownership.test.ts (1 test) 3ms
+2026-11-15T14:33:51.8479537Z 
+2026-11-15T14:33:51.8485835Z  Test Files  88 passed (88)
+2026-11-15T14:33:51.8492599Z       Tests  1073 passed (1073)
+2026-11-15T14:33:51.8493641Z    Start at  14:29:29
+2026-11-15T14:33:51.8495741Z    Duration  262.71s (transform 6.31s, setup 0ms, import 25.11s, tests 485.08s, environment 19ms)
+2026-11-15T14:33:51.8497599Z 

@@ -1,0 +1,37 @@
+2026-11-16T00:12:54.3305565Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-16T00:12:54.3306053Z $ErrorActionPreference = 'Stop'
+2026-11-16T00:12:54.3306492Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-16T00:12:54.3307085Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-16T00:12:54.3307699Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-16T00:12:54.3308324Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-16T00:12:54.3308969Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-16T00:12:54.3309646Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-16T00:12:54.3310216Z & pnpm @verifyArgs
+2026-11-16T00:12:54.3310520Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-16T00:12:54.3374846Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T00:12:54.3375239Z env:
+2026-11-16T00:12:54.3375532Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T00:12:54.3375979Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:12:54.3376410Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T00:12:54.3376863Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:12:54.3377254Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:12:54.3377650Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:12:54.3378100Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T00:12:54.3378615Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-52fda3f2495747aba5b43105e1dafeef
+2026-11-16T00:12:54.3379053Z ##[endgroup]
+2026-11-16T00:12:54.7658521Z HARNESS_INSTALLED_VERIFY_ARGV={"args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"],"executable":"pnpm"}
+2026-11-16T00:24:01.6774777Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794788636289-a84de80b-57f7-49dd-a351-7a2bcd5c5c2a","passed":true}
+2026-11-16T00:26:51.7172022Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9","passed":false}
+2026-11-16T00:26:51.7244194Z D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:305
+2026-11-16T00:26:51.7276104Z  const refuse=(reason:InstalledPageFailure)=>{failure??=reason;return Error(messages[failure]);};
+2026-11-16T00:26:51.7277077Z                                                                       ^
+2026-11-16T00:26:51.7282137Z 
+2026-11-16T00:26:51.7282434Z Error: The installed application exited before its main page was ready.
+2026-11-16T00:26:51.7288362Z     at refuse (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:305:71)
+2026-11-16T00:26:51.7289029Z     at waitForInstalledMainPage (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:348:52)
+2026-11-16T00:26:51.7293702Z     at async launchInstalled (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:363:14)
+2026-11-16T00:26:51.7294308Z     at async verifyInstalledDesktop (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:428:84)
+2026-11-16T00:26:51.7306332Z     at async <anonymous> (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:450:2)
+2026-11-16T00:26:51.7306688Z 
+2026-11-16T00:26:51.7306808Z Node.js v24.22.2
+2026-11-16T00:26:51.8628028Z ##[error]Process completed with exit code 1.

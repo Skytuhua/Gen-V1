@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+      "--import",
+      "file:///D:/a/Gen-V1/Gen-V1/node_modules/tsx/dist/loader.mjs",
+      "diagnostics/guard-startup/run.ts",
+      "protocol"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "D:\\a\\_temp\\m05-node-v24.22.2\\node-v24.22.2-win-x64\\node.exe",
+    "startedAt": "2026-11-16T01:50:03Z",
+    "endedAt": "2026-11-16T01:50:38Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-43788430810-a1-j133041185462-s5-protocol.log",
+    "logDigest": "fcd09ed025b0cc1b0d2a22fe2e1ad8a32d563dfc761b6b90884628c2a1336d74"
+  },
+  "capture": "Actual GitHub Actions command with observed exact argv marker; timestamps are the API step envelope, not per-request timings. The complete decoded job log is below65536bytes and retained unchanged.",
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "scope": "Isolated Windows guard startup diagnostic; does not establish installed application or memory UI proof.",
+  "workflowRunId": 43788430810,
+  "workflowRunAttempt": 1,
+  "workflowJobId": 133041185462,
+  "workflowStepNumber": 5,
+  "headSha": "90a6fb729d57e7ec15ae2f2eea96e0790dd4f931",
+  "treeSha": "55608c03588fdfe8d473008c20cc80082d58cf5b",
+  "actualCheckoutSha": "90a6fb729d57e7ec15ae2f2eea96e0790dd4f931",
+  "basisSourceSha": "de8700651e6eb97c5a60bf849802b51086244857",
+  "rawOutputBytes": 42364,
+  "rawOutputSha256": "fcd09ed025b0cc1b0d2a22fe2e1ad8a32d563dfc761b6b90884628c2a1336d74",
+  "excerptInputBytes": 42364,
+  "excerptInputSha256": "fcd09ed025b0cc1b0d2a22fe2e1ad8a32d563dfc761b6b90884628c2a1336d74",
+  "transformations": [],
+  "receiptRef": "docs/implementation/v3/m05-review-inputs/guard-startup-43788430810/receipt-protocol.json",
+  "receiptBytes": 3280,
+  "receiptSha256": "2e35da09a9c6fae5920c0b4693ee9a4805897cc4c7573c85d511421b7662028d",
+  "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43788430810",
+  "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43788430810/job/133041185462",
+  "operationOutcome": "passed",
+  "captureCompleted": true
+}

@@ -1,0 +1,21 @@
+2026-11-15T15:04:55.2444476Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T15:04:55.2445133Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T15:04:55.2511782Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T15:04:55.2512331Z env:
+2026-11-15T15:04:55.2512864Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T15:04:55.2513413Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:04:55.2513940Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T15:04:55.2514522Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:04:55.2515059Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:04:55.2515518Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T15:04:55.2516402Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T15:04:55.2517016Z ##[endgroup]
+2026-11-15T15:04:59.3404482Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T15:04:59.4028987Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T15:04:59.4891645Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T15:04:59.5680519Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T15:04:59.5719901Z 
+2026-11-15T15:04:59.5720462Z ----------------------------------------------------------------------
+2026-11-15T15:04:59.5721801Z Ran 4 tests in 3.765s
+2026-11-15T15:04:59.5722340Z 
+2026-11-15T15:04:59.5723015Z OK

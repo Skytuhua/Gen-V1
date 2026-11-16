@@ -1,0 +1,217 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ↓ tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request
+ ↓ tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"}
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents
+ ↓ tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on navigation
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on destroyed
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame
+ × tests/desktop-memory-export.test.ts > revokes navigation from the current Electron main-frame event details 142ms
+   → expected 1 to be +0 // Object.is equality
+ × tests/desktop-memory-export.test.ts > uses current frame details before deprecated navigation arguments 4ms
+   → expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ × tests/desktop-memory-export.test.ts > retains only a fixed origin refusal reason until admission expiry 3ms
+   → expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+ × tests/desktop-memory-export.test.ts > retains only a fixed url refusal reason until admission expiry 2ms
+   → expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+ × tests/desktop-memory-export.test.ts > retains only a fixed filename refusal reason until admission expiry 1ms
+   → expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+ × tests/desktop-memory-export.test.ts > retains only a fixed chain refusal reason until admission expiry 1ms
+   → expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+ × tests/desktop-memory-export.test.ts > retains only a fixed frame refusal reason until admission expiry 1ms
+   → expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+ ↓ tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download
+ ↓ tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound
+ ↓ tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved
+ ↓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted
+ ↓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes
+ × tests/desktop-memory-export.test.ts > cleans the admitted export when the native received-byte getter throws 2ms
+   → expected [Function] to not throw an error but 'Error: private-native-getter-detail' was thrown
+ ↓ tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails
+ ↓ tests/desktop-memory-export.test.ts > cleans native authority immediately when script dispatch throws synchronously
+ ↓ tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request
+ ↓ tests/desktop-memory-export.test.ts > bounds active exports across windows and releases capacity after terminal cancellation
+ ↓ tests/desktop-memory-export.test.ts > cancels an admitted native download when its owning document is destroyed
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution
+ ↓ tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > revokes navigation from the current Electron main-frame event details
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/desktop-memory-export.test.ts:124:30
+    122|   const f = await fixture(), pending = f.request(); await Promise.reso…
+    123|   f.contents.emit('did-start-navigation', {isMainFrame: true});
+    124|   expect(vi.getTimerCount()).toBe(0); expect((await pending).error).to…
+       |                              ^
+    125|   expect(f.download().event.preventDefault).toHaveBeenCalledOnce();
+    126| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > uses current frame details before deprecated navigation arguments
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array []
+
+
+Number of calls: 1
+
+ ❯ tests/desktop-memory-export.test.ts:131:72
+    129|   const f = await fixture(), pending = f.request(); await Promise.reso…
+    130|   f.contents.emit('did-start-navigation', {isMainFrame: false}, 'https…
+    131|   const {item, event} = f.download(); expect(event.preventDefault).not…
+       |                                                                        ^
+    132|   item.emit('done', {}, 'cancelled'); expect((await pending).result?.s…
+    133| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > retains only a fixed origin refusal reason until admission expiry
+AssertionError: expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+
+Expected: "Project memory export: the native download was not admitted before expiry (refusal=ORIGIN_MISMATCH)."
+Received: "Project memory export: the native download was not admitted before expiry."
+
+ ❯ tests/desktop-memory-export.test.ts:141:42
+    139|   expect(f.download(changes, f.contents, field === 'frame' ? {url: pri…
+    140|   await vi.advanceTimersByTimeAsync(10_000);
+    141|   expect((await pending).error?.message).toBe('Project memory export: …
+       |                                          ^
+    142|   expect(vi.getTimerCount()).toBe(0);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > retains only a fixed url refusal reason until admission expiry
+AssertionError: expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+
+Expected: "Project memory export: the native download was not admitted before expiry (refusal=URL_MISMATCH)."
+Received: "Project memory export: the native download was not admitted before expiry."
+
+ ❯ tests/desktop-memory-export.test.ts:141:42
+    139|   expect(f.download(changes, f.contents, field === 'frame' ? {url: pri…
+    140|   await vi.advanceTimersByTimeAsync(10_000);
+    141|   expect((await pending).error?.message).toBe('Project memory export: …
+       |                                          ^
+    142|   expect(vi.getTimerCount()).toBe(0);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > retains only a fixed filename refusal reason until admission expiry
+AssertionError: expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+
+Expected: "Project memory export: the native download was not admitted before expiry (refusal=FILENAME_MISMATCH)."
+Received: "Project memory export: the native download was not admitted before expiry."
+
+ ❯ tests/desktop-memory-export.test.ts:141:42
+    139|   expect(f.download(changes, f.contents, field === 'frame' ? {url: pri…
+    140|   await vi.advanceTimersByTimeAsync(10_000);
+    141|   expect((await pending).error?.message).toBe('Project memory export: …
+       |                                          ^
+    142|   expect(vi.getTimerCount()).toBe(0);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > retains only a fixed chain refusal reason until admission expiry
+AssertionError: expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+
+Expected: "Project memory export: the native download was not admitted before expiry (refusal=CHAIN_MISMATCH)."
+Received: "Project memory export: the native download was not admitted before expiry."
+
+ ❯ tests/desktop-memory-export.test.ts:141:42
+    139|   expect(f.download(changes, f.contents, field === 'frame' ? {url: pri…
+    140|   await vi.advanceTimersByTimeAsync(10_000);
+    141|   expect((await pending).error?.message).toBe('Project memory export: …
+       |                                          ^
+    142|   expect(vi.getTimerCount()).toBe(0);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > retains only a fixed frame refusal reason until admission expiry
+AssertionError: expected 'Project memory export: the native dow…' to be 'Project memory export: the native dow…' // Object.is equality
+
+Expected: "Project memory export: the native download was not admitted before expiry (refusal=FRAME_MISMATCH)."
+Received: "Project memory export: the native download was not admitted before expiry."
+
+ ❯ tests/desktop-memory-export.test.ts:141:42
+    139|   expect(f.download(changes, f.contents, field === 'frame' ? {url: pri…
+    140|   await vi.advanceTimersByTimeAsync(10_000);
+    141|   expect((await pending).error?.message).toBe('Project memory export: …
+       |                                          ^
+    142|   expect(vi.getTimerCount()).toBe(0);
+    143| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > cleans the admitted export when the native received-byte getter throws
+AssertionError: expected [Function] to not throw an error but 'Error: private-native-getter-detail' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: private-native-getter-detail"
+
+ ❯ tests/desktop-memory-export.test.ts:169:56
+    167|   const f = await fixture(), pending = f.request(); await Promise.reso…
+    168|   item.getReceivedBytes = () => {throw Error('private-native-getter-de…
+    169|   expect(() => item.emit('done', {}, 'completed')).not.toThrow();
+       |                                                        ^
+    170|   expect((await pending).error?.message).toBe('Project memory export: …
+    171|   expect(item.cancelled).toBe(true); expect(vi.getTimerCount()).toBe(0…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 40 skipped (48)
+   Start at  03:38:53
+   Duration  433ms (transform 105ms, setup 0ms, import 70ms, tests 157ms, environment 0ms)

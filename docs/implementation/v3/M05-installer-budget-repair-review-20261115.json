@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-installer-budget-repair-review-20261115",
+  "reviewedAt": "2026-11-15T18:39:11.539083+00:00",
+  "status": "LOCAL_VERIFIED_WINDOWS_EXECUTION_PENDING",
+  "sourceParentPublishedHead": "60f030a2a6a764b858da110586c666353705a5fd",
+  "reviewers": [
+    "root",
+    "ui_audit",
+    "memory_integration_audit",
+    "dependency_audit"
+  ],
+  "sourceFiles": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 38841,
+      "sha256": "d19e7c8cfaa656a15a0a7af2193e33e6a4d644de969d5f95770df0ba95c015cd"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "bytes": 18352,
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+    }
+  ],
+  "observedFailureRef": "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+  "independentPhaseReviewRef": "docs/implementation/v3/M05-installed-phase-review-43744480609.json",
+  "failedWindowsCommandRef": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s7-installed-retention.log",
+  "measuredRationale": "The real installer had no recorded exit before termination at600000ms and newly present expected-size sampled files between300033ms and540022ms. A single finite1200000ms installer allowance is supported for another attempt, without estimating completion percentage or predicting successful completion. The old ZIP timeout cause remains unobserved.",
+  "changes": {
+    "installerTimeoutMs": 1200000,
+    "progressCheckpointsMs": [
+      30000,
+      120000,
+      300000,
+      540000,
+      900000,
+      1140000
+    ],
+    "localPathHelper": "assertWindowsDestinationFits",
+    "pathBudgetCharacters": 260,
+    "pathGuardBehaviorChanged": false
+  },
+  "unchanged": {
+    "readOnlyPreflightTimeoutMs": 60000,
+    "uninstallerTimeoutMs": 180000,
+    "sampleFileLimit": 16,
+    "fixedUninstallerSample": true,
+    "sampleDeadlineMs": 5000,
+    "sampleMetadataCheckLimit": 1200,
+    "pendingSampleLimit": 1,
+    "naturalZeroExitAndPipeCloseRequired": true,
+    "completePayloadPathByteAndSha256EqualityRequired": true,
+    "registryExecutableProfileAndCleanupCustodyRequired": true,
+    "twoInstalledLaunchesAndRetainedMemoryAssertionsRequired": true,
+    "productionMemoryFlags": {
+      "memory.projectV1": false,
+      "memory.externalRecallExperimentV1": false
+    }
+  },
+  "localVerification": {
+    "existingCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "commands": [
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/installed-desktop-verification.test.ts"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T18:36:33.494971+00:00",
+        "endedAt": "2026-11-15T18:36:35.352710+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-regression.log",
+        "logDigest": "99a50ffec5516ec6952367c926120365b30f98f2114ed9f356f4a7bf51ea55fe"
+      },
+      {
+        "argv": [
+          "/workspace/scratch/36f66011d961/bin/pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+        "startedAt": "2026-11-15T18:36:50.909092+00:00",
+        "endedAt": "2026-11-15T18:37:16.764181+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-typecheck.log",
+        "logDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca"
+      }
+    ]
+  },
+  "reviewInputLogCustody": {
+    "policy": "Exact pre-normalization recorder inputs are archived; generated ledger logs apply the declared display normalization, preserving original argv, times, exit and outcome. Output hashes are independently checked after generation.",
+    "bindings": [
+      {
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-regression.log",
+        "originalRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-progress-budget-regression.log",
+        "originalRecorderInputBytes": 235,
+        "originalRecorderInputSha256": "0734e56e984bf2583f787a37725d808ec158f7402de8937b320056b5bfb0206c",
+        "publishedNormalizedBytes": 234,
+        "publishedNormalizedSha256": "99a50ffec5516ec6952367c926120365b30f98f2114ed9f356f4a7bf51ea55fe",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      },
+      {
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-typecheck.log",
+        "originalRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-installed-progress-budget-typecheck.log",
+        "originalRecorderInputBytes": 91,
+        "originalRecorderInputSha256": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+        "publishedNormalizedBytes": 90,
+        "publishedNormalizedSha256": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+        "transformations": [
+          "DISPLAY_WHITESPACE_NORMALIZED"
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "No installed success is inferred from process progress, local fixtures or this budget change.",
+    "Full enabled installed memory and live repeated-task study remain unverified.",
+    "No production acceptance or cleanup bypass, account change, new dependency or capability activation."
+  ],
+  "independentSourceReview": {
+    "reviewer": "dependency_audit",
+    "findings": [],
+    "exactDiffScopeVerified": true,
+    "installedJobBoundMinutes": 60,
+    "observedWindowsResultBelongsToPrior600SecondCut": true
+  }
+}

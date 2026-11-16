@@ -91,7 +91,10 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
      try{await owned.runtime?.dispose();release?.();if(owned.runtime)stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
       const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
-      const observation=metrics.finish(outcome,usageV1(usage),failure instanceof Error?failure.message:undefined);
+      // Adapter errors can contain source text or credentials. This telemetry
+      // lives outside memory Forget custody, so publish only a fixed diagnosis.
+      const diagnostic=outcome==='failed'?'The owned model request failed.':outcome==='cancelled'?'The owned model request was cancelled.':undefined;
+      const observation=metrics.finish(outcome,usageV1(usage),diagnostic);
       observations.set(metadata.sequence,observation);if(observations.size>256)observations.delete(observations.keys().next().value!);
       try{options.onObservation?.(observation,metadata);}catch{/* Observation cannot prevent native teardown. */}
       // Every dispatched request spends a call, usage report or not; missing

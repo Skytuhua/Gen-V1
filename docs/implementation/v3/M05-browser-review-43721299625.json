@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "pullRequest": 347,
+  "runId": 43721299625,
+  "runAttempt": 1,
+  "browserJobId": 132833661108,
+  "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43721299625",
+  "headSha": "a0755d344513feced0f79717cf90d39f64cfe619",
+  "treeSha": "c391fa72e7fa1e263442195a119adfc1aa073cd0",
+  "testedCheckout": {
+    "commitSha": "887a831e29b6f13ee75cd645e641aeb71855cbfb",
+    "treeSha": "c391fa72e7fa1e263442195a119adfc1aa073cd0",
+    "matchesPublishedTree": true
+  },
+  "runner": "windows-latest",
+  "browserJobConclusion": "success",
+  "artifact": {
+    "id": 14164773288,
+    "name": "browser-43721299625-1",
+    "zipBytes": 2471434,
+    "zipSha256": "64760970da9e8f85ba9dd7a44450f7cc7a190641430fb8e6c695e1fb065f8771",
+    "entries": 43,
+    "githubAdvertisedSizeAndDigestVerified": true,
+    "workflowHeadVerified": true,
+    "failureTraces": 0
+  },
+  "evidenceClass": "Synthetic browser evidence from Windows CI using fixtures and scripted/test hosts. This is not installed-desktop proof or a live-provider repeated-task study.",
+  "sources": {
+    "ciReceipt": "docs/implementation/v3/M05-windows-ci-43721299625.json",
+    "rawBrowserLogSha256": "cb63fd852f6ccbc12849bd28365141f008c19f084d4a2eebc35579c1095d3295",
+    "rawBrowserLogBytes": 110540
+  },
+  "suites": [
+    {
+      "name": "split-workspace",
+      "framework": "vitest browser integration",
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "source": "Browser job raw log; separate CI step, not one of the four archived Playwright results files"
+    },
+    {
+      "name": "project-memory",
+      "framework": "playwright",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "resultsEntry": "run-1794750890078-a8c40118-898c-4a7c-91da-4a6170657bb8/project-memory/results.json",
+      "resultsSha256": "e1db3d8274c3597bc5e3157c11ac786193ce0ddfc9b861e8ae8204a811118d75"
+    },
+    {
+      "name": "usage-context",
+      "framework": "playwright",
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "resultsEntry": "run-1794750906888-a2f4f7f2-b024-4d35-847e-04fb188f2a85/usage-context/results.json",
+      "resultsSha256": "1e5c62d970264c351336c965ce9460c9f87cedc710de941b5896cf9cea142f19"
+    },
+    {
+      "name": "frontend-refinement",
+      "framework": "playwright",
+      "passed": 90,
+      "failed": 0,
+      "skipped": 1,
+      "flaky": 0,
+      "resultsEntry": "run-1794750929301-2b787fa3-df18-48ec-bc3c-2e54a8e82a61/frontend-refinement/results.json",
+      "resultsSha256": "3902b63eafe56d9ed60a1924a06abdfe5ba49654b8d98af6932b6d3fe70bdb28"
+    },
+    {
+      "name": "root",
+      "framework": "playwright",
+      "passed": 112,
+      "failed": 0,
+      "skipped": 1,
+      "flaky": 0,
+      "resultsEntry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/results.json",
+      "resultsSha256": "0ef6e85f8814714e6485db5dddfbafa67f1c602e0fda4f672c4185ea74ef06e4"
+    }
+  ],
+  "totals": {
+    "browserJob": {
+      "passed": 267,
+      "failed": 0,
+      "skipped": 2,
+      "flaky": 0
+    },
+    "archivedPlaywright": {
+      "passed": 238,
+      "failed": 0,
+      "skipped": 2,
+      "flaky": 0
+    }
+  },
+  "skippedTests": [
+    {
+      "suite": "frontend-refinement",
+      "file": "artifact-style.spec.ts",
+      "test": "capture synthetic signing, operations and FAQ against supplied reference compositions",
+      "reason": "Opt-in single batched visual pass."
+    },
+    {
+      "suite": "root",
+      "file": "host-loop.spec.ts",
+      "test": "the real host rejects generated apps while preserving its trusted interface",
+      "reason": "Exercises the current disabled-feature boundary."
+    }
+  ],
+  "previouslyBlockedAssertions": {
+    "planTimeline": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "fixture": "/plan-timeline.html; actual renderer body assertions executed",
+      "testTitles": [
+        "does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+        "all details are expanded and assigned branches nest and rejoin before the dependent step",
+        "retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+        "resets the snapshot fence on thread switch and retains the old plan during restart publication",
+        "retains a valid plan when the latest canonical graph is malformed",
+        "host replan preserves assignment, collapse and reading anchor when earlier details grow",
+        "collapsed step identity survives returning from another thread and stale epochs never regress it",
+        "deep nested agents and long output labels fit a 280px panel without hiding details",
+        "manual collapse survives reopening the plan with the same exact thread and step identity",
+        "dark narrow/short 100% geometry and reduced motion",
+        "dark narrow/short 125% geometry and reduced motion",
+        "dark narrow/short 150% geometry and reduced motion",
+        "light narrow/short 100% geometry and reduced motion",
+        "light narrow/short 125% geometry and reduced motion",
+        "light narrow/short 150% geometry and reduced motion",
+        "dark desktop parallel branches and join",
+        "light desktop parallel branches and join"
+      ]
+    },
+    "planAndDocument": {
+      "passed": 4,
+      "failed": 0,
+      "viewportWidths": [
+        1920,
+        1440,
+        1280,
+        390
+      ],
+      "behavior": "Explicit desktop expansion and narrow automatic expansion retain the final summary, document, composer and overflow assertions."
+    }
+  },
+  "visualReview": {
+    "reviewedScreenshotCount": 21,
+    "finding": "No actionable visual defect observed in the reviewed plan, Skills and usage/context screenshots. Screenshot observations are limited to visible content; interactive behavior and geometry are evidenced separately by the passing tests.",
+    "screenshots": [
+      {
+        "entry": "run-1794750906888-a2f4f7f2-b024-4d35-847e-04fb188f2a85/usage-context/artifacts/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/context-light-short.png",
+        "viewportCssPixels": [
+          340,
+          320
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          340,
+          320
+        ],
+        "sha256": "cc6a77974e64a9dd0e43ff8643976bed81401f953a1a34a1b610b3317248b515",
+        "observation": "Context categories and the Tools & MCP detail card stay within the short viewport; the detail card is readable without crossing the window edges."
+      },
+      {
+        "entry": "run-1794750906888-a2f4f7f2-b024-4d35-847e-04fb188f2a85/usage-context/artifacts/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/context-dark-short.png",
+        "viewportCssPixels": [
+          340,
+          320
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          340,
+          320
+        ],
+        "sha256": "4a9b7e64dc2be45766620da823c225499704055750f0f6af16d93609a5c138e6",
+        "observation": "Context categories and the Tools & MCP detail card stay within the short viewport; the detail card is readable without crossing the window edges."
+      },
+      {
+        "entry": "run-1794750906888-a2f4f7f2-b024-4d35-847e-04fb188f2a85/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/usage-light-short.png",
+        "viewportCssPixels": [
+          340,
+          320
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          340,
+          320
+        ],
+        "sha256": "19bf66d74f6accbe2d411c4a394f22d22e100ef7cc47b9afc3b711120f4b6014",
+        "observation": "Usage title, close action, tabs and filters remain visible above the scrolled provider row; the modal stays within the short viewport."
+      },
+      {
+        "entry": "run-1794750906888-a2f4f7f2-b024-4d35-847e-04fb188f2a85/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/usage-dark-short.png",
+        "viewportCssPixels": [
+          340,
+          320
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          340,
+          320
+        ],
+        "sha256": "5bc69e29ec62fa5003362a3ef59dde52d7936c3fe68e00c30c4b62d5434326fd",
+        "observation": "Usage title, close action, tabs and filters remain visible above the scrolled provider row; the modal stays within the short viewport."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-dark-desktop-parallel-branches-and-join/dark-branches.png",
+        "viewportCssPixels": [
+          1200,
+          900
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          1200,
+          900
+        ],
+        "sha256": "acf19539c705a5014b67ad7d8b2a4c17977cca135091c8edfd58d45fa0a68c6b",
+        "observation": "Parallel agent cards share a row; the nested Evidence helper, branch labels and rejoin text remain readable without visible horizontal clipping."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-dark-narrow--59f47-geometry-and-reduced-motion/dark-1.25.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "dark",
+        "cssZoom": 1.25,
+        "imagePixels": [
+          560,
+          538
+        ],
+        "sha256": "202c4b0f125cad3dff5388aa349986633ddff58fc44dd2c788555b94efcfc560",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-dark-narrow--ad25f-geometry-and-reduced-motion/dark-1.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "dark",
+        "cssZoom": 1.0,
+        "imagePixels": [
+          560,
+          430
+        ],
+        "sha256": "7a330247171c6ed260c3a5a4e7dbfb93bedca1e40dad0171ab90b4b29c9cff7f",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-dark-narrow--cf1eb-geometry-and-reduced-motion/dark-1.5.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "dark",
+        "cssZoom": 1.5,
+        "imagePixels": [
+          560,
+          645
+        ],
+        "sha256": "e66186f409c04be0fb5534fdaa90e30143efef7022e04bf0073eaa836d5a2ac6",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-deep-nested--71516-anel-without-hiding-details/deep-narrow.png",
+        "viewportCssPixels": [
+          280,
+          600
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          280,
+          600
+        ],
+        "sha256": "1d56c8a0aa31f2b98f9ee040db85f6202f05d380b8a56c4550527b8d23dd6126",
+        "observation": "The visible 280px plan excerpt wraps objective, blocker and agent text within the panel. Deeper descendant visibility is established by the passing test, not this cropped excerpt."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-light-desktop-parallel-branches-and-join/light-branches.png",
+        "viewportCssPixels": [
+          1200,
+          900
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          1200,
+          900
+        ],
+        "sha256": "db6872ae949dd5c0654bc929fa0c9cbbecfba189d0e927e8c517c6465c0b7fb8",
+        "observation": "Parallel agent cards share a row; the nested Evidence helper, branch labels and rejoin text remain readable without visible horizontal clipping."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-light-narrow-1ef76-geometry-and-reduced-motion/light-1.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "light",
+        "cssZoom": 1.0,
+        "imagePixels": [
+          560,
+          430
+        ],
+        "sha256": "20c2aaaaf67cce2da65218f8590795dfe129cbf21e413762f3531482e28b6204",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-light-narrow-88abc-geometry-and-reduced-motion/light-1.5.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "light",
+        "cssZoom": 1.5,
+        "imagePixels": [
+          560,
+          645
+        ],
+        "sha256": "1d4698b955cbd5a754c25e1340f1d553553635ac8f924a507ca23a0d6580b0e1",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/plan-timeline-light-narrow-9f8b7-geometry-and-reduced-motion/light-1.25.png",
+        "viewportCssPixels": [
+          560,
+          430
+        ],
+        "theme": "light",
+        "cssZoom": 1.25,
+        "imagePixels": [
+          560,
+          538
+        ],
+        "sha256": "d442d4d70515784389dfdbd6f0b7de64166154a2122537e3b49a584156c1553d",
+        "observation": "Summary, progress line, step identity and visible detail remain readable within the horizontal viewport. The compact toolbar stays inside the panel at the recorded CSS zoom; further content remains scrollable."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-1440-dark-controls.png",
+        "viewportCssPixels": [
+          1440,
+          1000
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          1440,
+          1000
+        ],
+        "sha256": "dd109cf22ea60f333ef4e7e9b7bd8fda7798db0b2a9c8f00dd3942c94860454e",
+        "observation": "Sidebar navigation and Skills controls occupy separate columns; labels, toggles and saved-skill actions remain readable and contained."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-1440-dark-editor.png",
+        "viewportCssPixels": [
+          1440,
+          1000
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          1440,
+          1000
+        ],
+        "sha256": "aef141614ad4ef4c14c08291a4bd48993ca83eb5b4f60011993a9e117a2a547e",
+        "observation": "The description, instructions editor and draft actions use the available content width while the sidebar and modal header remain visible."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-1440-light-controls.png",
+        "viewportCssPixels": [
+          1440,
+          1000
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          1440,
+          1000
+        ],
+        "sha256": "2c63b8a9659b0a8cd7b4b82d1e6b5eafc9bd61b3217963262bb37b54479713df",
+        "observation": "Sidebar navigation and Skills controls occupy separate columns; labels, toggles and saved-skill actions remain readable and contained."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-1440-light-editor.png",
+        "viewportCssPixels": [
+          1440,
+          1000
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          1440,
+          1000
+        ],
+        "sha256": "e3d3cd5012e3c4b61a7f30bc8ad4b75d7a5cf29612bddafaaec9b5130ec25f02",
+        "observation": "The description, instructions editor and draft actions use the available content width while the sidebar and modal header remain visible."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-390-dark-controls.png",
+        "viewportCssPixels": [
+          390,
+          1000
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          390,
+          1000
+        ],
+        "sha256": "4b78bc8f39faf5adea2ac4c19d222451297474e53e2c0865a063209c57fa8aed",
+        "observation": "Horizontal settings navigation keeps the selected Skills & Integrations section visible; controls and wrapped labels fit the modal without visible page overflow."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-390-dark-editor.png",
+        "viewportCssPixels": [
+          390,
+          1000
+        ],
+        "theme": "dark",
+        "cssZoom": 1,
+        "imagePixels": [
+          390,
+          1000
+        ],
+        "sha256": "834ca95669bc623f6fc47bff69552c77d4ee2cf096635465d5132083795c8fd8",
+        "observation": "The instructions editor, draft actions and supporting-file controls remain inside the narrow modal with usable width; the fixed settings header stays visible while content scrolls."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-390-light-controls.png",
+        "viewportCssPixels": [
+          390,
+          1000
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          390,
+          1000
+        ],
+        "sha256": "c092d3787fdd42a234a0a2e5e9cd1d962594a95dbf50ad7c124f4ea7dbca7f02",
+        "observation": "Horizontal settings navigation keeps the selected Skills & Integrations section visible; controls and wrapped labels fit the modal without visible page overflow."
+      },
+      {
+        "entry": "run-1794751081159-c4620824-44ae-4e03-92e2-d120bcb3301e/root/artifacts/skills-skill-controls-and--23490-narrow-light-and-dark-views/skills-390-light-editor.png",
+        "viewportCssPixels": [
+          390,
+          1000
+        ],
+        "theme": "light",
+        "cssZoom": 1,
+        "imagePixels": [
+          390,
+          1000
+        ],
+        "sha256": "e43ff737900ff9d91cfdbdb19d1b89bec1ae4da3535fbf57dd1b8bfb7e519a6b",
+        "observation": "The instructions editor, draft actions and supporting-file controls remain inside the narrow modal with usable width; the fixed settings header stays visible while content scrolls."
+      }
+    ]
+  },
+  "limits": [
+    "The 15 project-memory browser cases use a synthetic fixture and do not establish live-provider extraction or paid repeated-task outcomes.",
+    "The desktop CI build and these browser screenshots do not establish an installed-desktop workflow.",
+    "The two explicit skipped cases remain skipped and are not counted as passes."
+  ]
+}
