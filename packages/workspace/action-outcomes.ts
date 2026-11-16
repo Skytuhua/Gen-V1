@@ -7,6 +7,7 @@ import {
   workspaceActionOperationSchema,
   workspaceActionOwnerSchema,
   workspaceActionPayloadSchemas,
+  createdPullRequestResultSchema,
   type WorkspaceActionEnvelope,
   type WorkspaceActionExecution,
   type WorkspaceActionOutcome,
@@ -133,8 +134,9 @@ export class WorkspaceActionOutcomes {
       if (!this.current(fence)) throw denied();
       return publish(fence);
     };
-    if (input.type === 'review-pr') {
+    if (input.type === 'review-pr' || input.type === 'create-pr') {
       repo = (await this.github.repo(projectId, input.threadId)).repo;
+      if (input.payload.repo !== undefined && input.payload.repo !== repo) throw denied();
       const path = join(this.store.dataDir, 'github', 'credentials.json'),
         info = await lstat(path, { bigint: true });
       if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1n) throw denied();
@@ -148,20 +150,32 @@ export class WorkspaceActionOutcomes {
     }
     return finish();
   }
-  private result(command: HostCommand, intent: Intent, fence: Fence): WorkspaceActionExecution {
-    if (!this.current(fence) || intent.version !== 1 || intent.ownerFence !== fence.hash) return { state: 'revoked' };
+  private result(command: HostCommand, intent: Intent | null, fence: Fence): WorkspaceActionExecution {
+    if (!this.current(fence)) return { state: 'revoked' };
+    if (!intent) {
+      if (command.type !== 'project.create-pr') return {state:'uncertain'};
+      const receipt = this.store.receipt(command), created = createdPullRequestResultSchema.safeParse(receipt?.result);
+      return command.type === 'project.create-pr' && receipt && created.success && created.data.repo === fence.repo && created.data.head === command.payload.head && created.data.revision === command.payload.revision ? {state:'confirmed',receipt} : {state:'uncertain'};
+    }
+    if (intent.version !== 1 || intent.ownerFence !== fence.hash) return { state: 'revoked' };
     if (intent.status === 'not-applied') return { state: 'not-applied' };
     if (intent.status === 'confirmed') {
       const receipt = this.store.receipt(command),
         summary = receipt?.result;
       // Only our bounded summary is replayable; never return a legacy/private tool result.
-      if (receipt && digest(summary) === digest(this.summary(command, 'confirmed'))) return { state: 'confirmed', receipt };
+      try { if (receipt && digest(summary) === digest(this.receiptResult(command, 'confirmed', intent.result, fence.repo))) return { state: 'confirmed', receipt }; } catch { return {state:'uncertain'}; }
       if (receipt && digest(summary) === digest(this.summary(command, 'revoked'))) return { state: 'revoked' };
     }
     return { state: 'uncertain' };
   }
   private summary(command: HostCommand, state: WorkspaceActionOutcome['state']) {
     return { operationId: command.id, operation: command.type.slice('project.'.length), state };
+  }
+  private receiptResult(command: HostCommand, state: WorkspaceActionOutcome['state'], result: unknown, repo?: string) {
+    if (command.type !== 'project.create-pr' || state !== 'confirmed') return this.summary(command, state);
+    const created = createdPullRequestResultSchema.parse(result);
+    if (created.repo !== repo || created.head !== command.payload.head || created.revision !== command.payload.revision) throw denied();
+    return created;
   }
   async execute(projectId: string, raw: unknown): Promise<WorkspaceActionExecution> {
     workspaceActionOwnerSchema.shape.projectId.parse(projectId);
@@ -177,11 +191,11 @@ export class WorkspaceActionOutcomes {
     }
     if (!this.current(fence)) return { state: 'revoked' };
     const existing = this.read(command);
-    if (existing) {
+    if (existing || input.type === 'create-pr' && this.store.receipt(command)) {
       try {
         const result = await this.withFence(projectId, input, (fresh) => {
           const current = this.read(command);
-          return fresh.hash === fence.hash && current ? this.result(command, current, fresh) : ({ state: 'revoked' } as const);
+          return fresh.hash === fence.hash ? this.result(command, current, fresh) : ({ state: 'revoked' } as const);
         });
         return this.current(fence) ? result : { state: 'revoked' };
       } catch (error) {
@@ -214,20 +228,24 @@ export class WorkspaceActionOutcomes {
         const payload = workspaceActionPayloadSchemas[input.type].parse(input.payload);
         if (input.type !== 'review-pr') {
           const current = await this.projects.gitStatus(projectId, input.threadId);
-          if (input.payload.expectedHead !== current.head || payload.revision !== current.revision)
+          if ((input.type === 'create-pr' ? input.payload.head : input.payload.expectedHead) !== current.head || payload.revision !== current.revision)
             throw new HarnessError('REVISION_CHANGED', 'The reviewed changes are out of date.');
         }
-        if (!this.current(fence)) throw denied();
-        this.store.internal('project.action.started', input.threadId ?? null, () => {
-          const current = this.read(command);
-          if (!current || current.status !== 'prepared' || current.ownerFence !== fence.hash) throw denied();
-          this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'started' });
-          return this.summary(command, 'uncertain');
-        });
-        started = true;
-        if (!this.current(fence)) throw denied(); // Store subscribers run before internal() returns.
+        const beginWrite = () => {
+          if (!this.current(fence)) throw denied();
+          if (!started) this.store.internal('project.action.started', input.threadId ?? null, () => {
+            const current = this.read(command);
+            if (!current || current.status !== 'prepared' || current.ownerFence !== fence.hash) throw denied();
+            this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'started' });
+            return this.summary(command, 'uncertain');
+          });
+          started = true;
+          if (!this.current(fence)) throw denied(); // Store subscribers run before internal() returns.
+        };
+        if (input.type !== 'create-pr') beginWrite();
         let result: unknown;
         if (input.type === 'review-pr') result = await this.github.review(projectId, input.threadId, input.payload);
+        else if (input.type === 'create-pr') result = await this.github.create(projectId, input.threadId, input.payload, beginWrite);
         else result = await this.projects.gitAction(projectId, input.threadId, { type: input.type, ...payload });
         let fresh: Fence | undefined;
         try {
@@ -241,7 +259,7 @@ export class WorkspaceActionOutcomes {
           // A completed tool result is historical truth, even when access was revoked.
           // Only publish a current-owner confirmation while the admitted fence still holds.
           this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'confirmed', result });
-          return this.summary(command, fresh?.hash === fence.hash && this.current(fence) ? 'confirmed' : 'revoked');
+          return this.receiptResult(command, fresh?.hash === fence.hash && this.current(fence) ? 'confirmed' : 'revoked', result, fence.repo);
         });
         const current = this.read(command);
         return current ? this.result(command, current, fence) : ({ state: 'uncertain' } as const);
@@ -287,7 +305,7 @@ export class WorkspaceActionOutcomes {
       action = operation.action;
     if (
       p.revision !== action.revision ||
-      (input.type === 'review-pr' ? p.head : p.expectedHead) !== action.head ||
+      (input.type === 'review-pr' || input.type === 'create-pr' ? p.head : p.expectedHead) !== action.head ||
       comparison.headOid !== action.head
     )
       return { state: 'uncertain' };
@@ -313,7 +331,6 @@ export class WorkspaceActionOutcomes {
         captured = fence;
         if (target.kind === 'pull-request' && target.repo !== fence.repo) return { state: 'revoked' } as const;
         const current = this.read(command);
-        if (!current) return { state: 'uncertain' } as const;
         return { state: this.result(command, current, fence).state };
       });
       return captured && this.current(captured) ? result : { state: 'revoked' };
