@@ -38,7 +38,7 @@ export interface ConversationHost {
   choosePreset(preset: WorkspacePreset, binding?: PanelBinding): Promise<void>;
   selectThread(id: string | undefined): void;
   initialThreadId?: string;
-  intent?: {id: number; kind: ConversationIntent; pluginId?: string; workspaceId?: string};
+  intent?: {id: number; kind: ConversationIntent; pluginId?: string; workspaceId?: string; review?: {repo:string;number:number;threadId:string;projectId:string}};
   consumeIntent(id: number): void;
   composers: SharedAgentComposers;
   pluginCatalog: ReturnType<typeof usePluginCatalog>;
@@ -144,7 +144,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         const row=await getShellNavigationItem(scope.threadId);
         if(row.projectId!==scope.projectId||row.workspaceId!==scope.workingCopyId||(row.threadRevision??threadNavigationRevision(row))!==scope.revision)throw Error('Thread details changed. Reopen the current details.');
         selected.current=scope.threadId;changed=true;
-        setIntent({id:++intentSequence.current,kind:'linked-pull-requests'});
+        setIntent({id:++intentSequence.current,kind:'linked-pull-requests',review:{...target,threadId:scope.threadId,projectId:scope.projectId!}});
       },undefined,isCurrent);
       if(isCurrent())try{localStorage.setItem('harness:selected-thread',scope.threadId);}catch{/* The explicit owner still reaches the mounted conversation. */}
     }catch(cause){if(changed){selected.current=previous;setIntent(undefined);}if(alive.current)setError(message(cause));throw cause;}
