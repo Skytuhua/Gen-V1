@@ -6,7 +6,8 @@ import type { ComparisonIdentity } from './code-review.ts';
 const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
 const revision = z.string().regex(/^[a-f0-9]{64}$/),
   oid = z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
-export const workspaceActionTypeSchema = z.enum(['stage', 'unstage', 'commit', 'review-pr']);
+const repo = z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/);
+export const workspaceActionTypeSchema = z.enum(['stage', 'unstage', 'commit', 'review-pr', 'create-pr']);
 export type WorkspaceActionType = z.infer<typeof workspaceActionTypeSchema>;
 export const workspaceActionEnvelopeSchema = z.strictObject({
   id: identifier,
@@ -34,9 +35,19 @@ export const workspaceActionPayloadSchemas = {
   unstage: z.strictObject({ ...local, paths }),
   commit: z.strictObject({ ...local, message: text(4000).refine((value) => value.trim().length > 0) }),
   'review-pr': z.strictObject({
+    repo: repo.optional(),
     number: z.number().int().positive(),
     event: z.enum(['COMMENT', 'APPROVE', 'REQUEST_CHANGES']),
     body: z.string().max(64000).refine(unicode),
+    head: oid,
+    revision,
+  }),
+  'create-pr': z.strictObject({
+    repo: repo.optional(),
+    title: text(200).refine(value => value.trim().length > 0),
+    body: z.string().max(64000).refine(unicode).optional(),
+    base: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9/_-]{0,150}$/).optional(),
+    push: z.boolean().optional(),
     head: oid,
     revision,
   }),
@@ -47,8 +58,9 @@ export const workspaceActionOwnerSchema = z.strictObject({
   projectId: identifier,
   threadId: identifier.optional(),
 });
-const repo = z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),
-  branch = z.string().max(1024);
+const branch = z.string().max(1024);
+export const createdPullRequestResultSchema = z.strictObject({url:z.string().max(2048),head:oid,revision,repo})
+  .refine(value => value.url.toLowerCase().startsWith(`https://github.com/${value.repo}/pull/`.toLowerCase()) && /^[1-9]\d*$/.test(value.url.slice(`https://github.com/${value.repo}/pull/`.length)));
 const localComparison = z.strictObject({
   kind: z.literal('local'),
   id: revision,

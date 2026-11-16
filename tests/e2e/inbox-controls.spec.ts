@@ -147,3 +147,93 @@ test('narrow themed controls and popup fit without overflow and retain list/read
   await rows(page).first().click(); await expect(page.locator('.agent-inbox')).toHaveAttribute('data-columns', 'item');
   await page.keyboard.press('Escape'); await expect(page.locator('.agent-inbox')).toHaveAttribute('data-columns', 'list'); await expect(rows(page).first()).toBeFocused();
 });
+
+
+test('Mark unread cancels the selected Inbox item’s delayed automatic read', async ({page}) => {
+  await fixture(page);
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 100));
+  await rows(page).filter({hasText: 'Question'}).first().click();
+  expect(await calls(page)).toEqual([]);
+  await page.getByRole('button', {name: 'Mark unread', exact: true}).click();
+  await page.clock.runFor(600);
+  expect(await calls(page)).toEqual([{type: 'unread', id: 'question'}]);
+  await expect(page.getByRole('button', {name: 'Question, Needs your input, unread', exact: true})).toBeVisible();
+});
+
+test('Mark unread wins over an automatic read already in flight for that Inbox item', async ({page}) => {
+  await fixture(page);
+  await page.evaluate(() => {
+    window.inboxControls.holdRead = new Promise(resolve => window.addEventListener('fixture-release-read', () => resolve(), {once:true}));
+  });
+  await rows(page).filter({hasText: 'Question'}).first().click();
+  await expect.poll(() => calls(page)).toEqual([{type: 'read', id: 'question'}]);
+  await page.getByRole('button', {name: 'Mark unread', exact: true}).click();
+  const beforeRelease=await calls(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('fixture-release-read')));
+  expect(beforeRelease).toEqual([{type: 'read', id: 'question'}]);
+  await expect.poll(() => calls(page)).toEqual([{type: 'read', id: 'question'}, {type: 'unread', id: 'question'}]);
+  await expect(page.getByRole('button', {name: 'Question, Needs your input, unread', exact: true})).toBeVisible();
+});
+
+
+for(const action of ['refresh','unread','open'] as const){
+  test(`successful ${action} retry clears only its current failure`,async({page})=>{
+    await fixture(page);await rows(page).filter({hasText:'Review'}).click();
+    const button=page.getByRole('button',{name:action==='refresh'?'Refresh inbox':action==='unread'?'Mark unread':'Open conversation',exact:true});
+    await page.evaluate(action=>{const state=window.inboxControls;if(action==='refresh')state.refreshMode='reject';else if(action==='unread')state.unreadMode='reject';else state.openMode='reject';},action);
+    await button.click();await expect(page.locator('.agent-inbox-error')).toContainText(action==='refresh'?'Refresh failed.':action==='unread'?'Unread state could not save.':'Navigation failed.');
+    await page.evaluate(action=>{const state=window.inboxControls;if(action==='refresh')state.refreshMode='success';else if(action==='unread')state.unreadMode='success';else state.openMode='success';},action);
+    await button.click();await expect(page.locator('.agent-inbox-error')).toHaveCount(0);
+  });
+}
+for(const outcome of ['success','reject'] as const){
+  test(`late ${outcome} for item A cannot replace item B's current error`,async({page})=>{
+    await fixture(page);await rows(page).filter({hasText:'Review'}).click();
+    await page.evaluate(outcome=>{window.inboxControls.unreadMode=outcome;window.inboxControls.holdUnread=new Promise(resolve=>window.addEventListener('release-unread',()=>resolve(),{once:true}));},outcome);
+    await page.getByRole('button',{name:'Mark unread',exact:true}).click();
+    await expect.poll(()=>calls(page)).toEqual([{type:'unread',id:'review'}]);
+    await page.evaluate(()=>{window.inboxControls.readMode='reject';});
+    await rows(page).filter({hasText:'Failed task'}).click();
+    await expect(page.locator('.agent-inbox-error')).toHaveText('Read state could not save.');
+    await page.evaluate(()=>window.dispatchEvent(new Event('release-unread')));
+    await page.evaluate(async()=>{await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);});
+    await expect(page.locator('.agent-inbox-error')).toHaveText('Read state could not save.');
+  });
+  test(`late refresh ${outcome} cannot overwrite a newer refresh result`,async({page})=>{
+    await fixture(page);
+    await page.evaluate(outcome=>{window.inboxControls.refreshMode=outcome;window.inboxControls.holdRefresh=new Promise(resolve=>window.addEventListener('release-refresh',()=>resolve(),{once:true}));},outcome);
+    const refresh=page.getByRole('button',{name:'Refresh inbox',exact:true});await refresh.click();
+    await expect.poll(()=>calls(page)).toEqual([{type:'refresh'}]);
+    await page.evaluate(outcome=>{window.inboxControls.holdRefresh=undefined;window.inboxControls.refreshMode=outcome==='success'?'reject':'success';},outcome);
+    await refresh.click();
+    if(outcome==='success')await expect(page.locator('.agent-inbox-error')).toContainText('Refresh failed.');else await expect(page.locator('.agent-inbox-error')).toHaveCount(0);
+    await page.evaluate(()=>window.dispatchEvent(new Event('release-refresh')));
+    await page.evaluate(async()=>{await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);});
+    if(outcome==='success')await expect(page.locator('.agent-inbox-error')).toContainText('Refresh failed.');else await expect(page.locator('.agent-inbox-error')).toHaveCount(0);
+  });
+}
+
+
+test('a deferred automatic read cannot clear a newer navigation failure',async({page})=>{
+  await fixture(page);await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+100));
+  await rows(page).filter({hasText:'Question'}).first().click();
+  await page.evaluate(()=>{window.inboxControls.openMode='reject';});
+  await page.getByRole('button',{name:'Open conversation',exact:true}).click();
+  await expect(page.locator('.agent-inbox-error')).toHaveText('Navigation failed.');
+  await page.clock.runFor(600);
+  await expect.poll(()=>calls(page)).toEqual([{type:'open',id:'thread-question'},{type:'read',id:'question'}]);
+  await expect(page.locator('.agent-inbox-error')).toHaveText('Navigation failed.');
+});
+
+test('reselecting an item observes its held read failure without another write',async({page})=>{
+  await fixture(page);await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+100));
+  await page.evaluate(()=>{window.inboxControls.readMode='reject';window.inboxControls.holdRead=new Promise(resolve=>window.addEventListener('release-read',()=>resolve(),{once:true}));});
+  const question=rows(page).filter({hasText:'Question'}).first();await question.click();await page.clock.runFor(600);
+  await expect.poll(()=>calls(page)).toEqual([{type:'read',id:'question'}]);
+  await question.click();await page.clock.runFor(600);
+  expect(await calls(page)).toEqual([{type:'read',id:'question'}]);
+  await page.evaluate(()=>window.dispatchEvent(new Event('release-read')));
+  await expect(page.locator('.agent-inbox-error')).toHaveText('Read state could not save.');
+  expect(await calls(page)).toEqual([{type:'read',id:'question'}]);
+});
