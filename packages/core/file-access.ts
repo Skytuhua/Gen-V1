@@ -9,19 +9,24 @@ import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectM
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
-interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
+interface GuardSession { rpc(request: Record<string, unknown>, startupAcquisition?: boolean): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
+// A cold, app-owned Hermes guard may need PowerShell startup and C# initialization.
+// Extend only its first acquire, not unrelated reads, writes, or lease releases.
+export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean): number {
+  return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
+}
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
 /** Application-scoped namespace guard; never an OS sandbox for project code. */
-export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void): Promise<T> {
+export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void,options?:{startupAcquisition?:boolean}): Promise<T> {
   if(paths.some(path=>path.allowChildWrites&&path.leaf&&!path.childWriteRoot))throw new HarnessError('CAPABILITY_DENIED','A pinned file requires an explicit ancestor write scope.');
   active(signal);
   const session = sessions.getStore();
   if (session) {
     const id = randomUUID();
-    const manifest = await session.rpc({ command: "acquire", id, paths });
+    const manifest = await session.rpc({ command: "acquire", id, paths },options?.startupAcquisition===true);
     if(onLoss)session.loss.add(onLoss);
     try { active(signal); const value = await action(manifest); if (session.exited) throw denied(); return value; }
     finally { if(onLoss)session.loss.delete(onLoss);if (!session.exited) await session.rpc({ command: "release", id }); }
@@ -44,12 +49,12 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
   const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
   let queue = Promise.resolve();
-  current.rpc = request => {
+  current.rpc = (request,startupAcquisition=false) => {
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
       if (current.exited) return reject(denied());
       let output = "";
       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
-      const timer = setTimeout(() => finish(denied()), metadataImport ? 120_000 : 15_000);
+      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition));
       const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
@@ -75,7 +80,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   const onError = () => {}; child.stdin.on("error", onError);
   try {
     child.stderr.resume();
-    const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths });
+    const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths },options?.startupAcquisition===true);
     active(signal); if (current.exited) throw denied();
     const value = await sessions.run(current, () => action(manifest));
     if (current.exited) throw denied();
