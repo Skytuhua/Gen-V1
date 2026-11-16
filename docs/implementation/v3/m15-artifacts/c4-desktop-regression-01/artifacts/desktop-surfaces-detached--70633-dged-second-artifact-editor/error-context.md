@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - strong [ref=e5]: Source-bound task fixture
+      - button "Return to workspace" [ref=e6] [cursor=pointer]
+    - status [ref=e7]: Open this artifact from the main workspace. Your current editor is kept open.
+    - generic [ref=e8]:
+      - complementary "Workspace panel" [ref=e9]:
+        - generic [ref=e10]:
+          - tablist "Workspace views" [ref=e11]:
+            - tab "Artifact" [selected] [ref=e12] [cursor=pointer]
+          - button "Add surface" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Close workspace panel" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+        - tabpanel "Artifact" [ref=e19]:
+          - generic [ref=e21]:
+            - combobox "Workspace artifact" [active] [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: Task surface
+              - img [ref=e24]
+            - combobox [ref=e26]
+      - region "Task surface" [ref=e27]:
+        - generic [ref=e28]:
+          - strong [ref=e30]: Task surface
+          - generic [ref=e31]:
+            - button "Saved" [ref=e32] [cursor=pointer]:
+              - img [ref=e33]
+              - generic [ref=e35]: Saved
+            - generic [ref=e36]:
+              - button "View artifact source" [ref=e37] [cursor=pointer]:
+                - img [ref=e38]
+              - button "Pin artifact" [ref=e42] [cursor=pointer]:
+                - img [ref=e43]
+              - button "Archive artifact" [ref=e45] [cursor=pointer]:
+                - img [ref=e46]
+            - button "Return artifact to conversation" [ref=e49] [cursor=pointer]:
+              - img [ref=e50]
+        - generic [ref=e55]:
+          - text: Review name
+          - textbox "Review name" [ref=e56]:
+            - /placeholder: ""
+            - text: Keep the owning editor
+  - region "Notifications"
+```

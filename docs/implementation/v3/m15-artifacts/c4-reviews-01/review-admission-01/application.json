@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "operation": "APPLY",
+  "manifestSha256": "148aae6ebca4aee6295598ce98acf53e8280dec80ae0d55f1339aef20a71da2f",
+  "head": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "indexSha256": "b7e5d01a49bb04af4e8804adb705d29ebda18aee1c2e97f91dc9b21ced30b8cb",
+  "files": 134,
+  "bytes": 1163319,
+  "repositoryWrites": 134,
+  "sourceBytesVerified": true,
+  "destinationAbsenceVerified": true,
+  "indexUnchanged": true,
+  "headUnchanged": true,
+  "remoteMutation": false
+}

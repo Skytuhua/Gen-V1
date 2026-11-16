@@ -1,0 +1,7 @@
+{
+  "status": "TEST_CONFIGURATION_CORRECTED_NOT_EXECUTED",
+  "beforeSha256": "d9db1c91ba7e39850a2cd77d1937631b9ec87f3e9ab47a3b0c66e551d833f608",
+  "afterSha256": "3bf27c2ccf584ec1f2129cf051447373882cabb02ff7f2a9f2cc3435ba649579",
+  "change": "Remove illegal describe-local worker trace option; preserve original top-level trace off and all test bodies/deadlines.",
+  "productionChanged": false
+}

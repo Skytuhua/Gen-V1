@@ -45,7 +45,7 @@ export async function serveWorkbenchNativeReturnFixture(page:Page){
  snapshot.messages.push({...snapshot.messages[0],id:'reply-b',threadId:'second-thread',content:'Owner B has a different immutable source and draft.'});
  const owners={a:{threadId:'task-thread',projectId:null,workspaceId:'source-copy-a'},b:{threadId:'second-thread',projectId:null,workspaceId:'source-copy-b'}} satisfies Record<string,LogicalOwnerV1>;
  const host=await serveTaskFixture(page,snapshot);
- await serveTaskSplitLayout(page,owners.a.threadId);
+ await serveTaskSplitLayout(page, snapshot);
  const captures=new Map<string,CapturedSourceV1>();
  const events:Array<Record<string,unknown>>=[];
  const splitCommands:Array<{id:string;type:string;payload:Record<string,unknown>}>=[];

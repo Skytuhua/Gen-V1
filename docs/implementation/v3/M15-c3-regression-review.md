@@ -1,3 +1,5 @@
+> Historical evidence: this document retains its original source-bound results. Current C4 behavior, final local checks and outstanding Windows requirements are recorded in [M15-c4-regression-review.md](M15-c4-regression-review.md) and [M15-handoff.md](M15-handoff.md). Earlier failures and platform limits remain unchanged.
+
 # M15 C3 regression and evidence review
 
 ## Current cut and disposition

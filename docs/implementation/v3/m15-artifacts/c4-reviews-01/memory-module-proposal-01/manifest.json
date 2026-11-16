@@ -1,0 +1,36 @@
+{
+  "baseHead": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "baseTree": "4eda96307edd16e63c4e32c3c3a9d718b117a703",
+  "applied": false,
+  "executionStatus": "NOT_RUN; proposed production files only",
+  "files": [
+    {
+      "path": "packages/core/source-workbench.ts",
+      "baseBytes": 51691,
+      "baseSha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925",
+      "proposedBytes": 52861,
+      "proposedSha256": "9fc076adf608a620156fc39e49c34e92f4bb69ed58da6d8e7c4fc2d915fa0227"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "baseBytes": 159752,
+      "baseSha256": "9ddcfd42b0ef741484a1b72cb3455d35867e7d960cf0322c1e40afc0a336c508",
+      "proposedBytes": 160368,
+      "proposedSha256": "c65007b5f1b181d4ee7e444400e70a2fbb76afd9fdf4803c769050b41fba1909"
+    }
+  ],
+  "patchSha256": "0691371d473610cf98c161bd4c0c3e65d3a5309976e52f10cf82b00b8f33bafc",
+  "designSha256": "4ffe0b37a26e90e8e136690be5c2348c0bad1533fcdc6897d8cdfd9c34c18398",
+  "initialGate": {
+    "id": "c4-source-memory-initial-01",
+    "status": "FAIL",
+    "passed": 10,
+    "failed": 12,
+    "skipped": 0,
+    "sourceCutSha256": "45c8c271338bfda89e8411636d0786430ae387a204cf1187d1f2eed5f7e38141",
+    "verifiedBefore": true,
+    "verifiedAfter": true,
+    "logSha256": "7a73f344926fa02de43dee467036a7760c8a2cac382f4bdc592ecf813f70cd6f",
+    "resultsSha256": "d32c824bc50fa7d03e1182ae1abb64ee394e231499d4d048d4bcaf85d1c53481"
+  }
+}

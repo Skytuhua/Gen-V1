@@ -103,7 +103,7 @@ export async function importDraftTransfer(text:string,input:ReferenceInput,signa
   if(existing.some(Boolean)||localSources.some(row=>sourceThread(row.key)===threadId)){finish(group,'retained','A local prompt or source context already exists; both were retained');continue;}
   // A failed generation or write leaves both text and every full-owner companion
   // untouched. Source identities remain inert until the host validates them.
-  const saved=await journalCompareAndSwapMany(group.map(row=>({key:row.key,generation:undefined,value:row.record.value})));
+  const saved=await journalCompareAndSwapMany(group.map(row=>({key:row.key,generation:undefined,value:row.record.value})),[],{acknowledgeHandoffRetry:true});
   finish(group,saved?'imported':'retained',saved?undefined:'A local edit arrived during import');
  }
  for(const row of rows){

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/m15-evidence.mts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T06:28:13.268Z",
+  "endedAt": "2026-11-16T06:28:16.774Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-evidence-check-01.log",
+  "logDigest": "4af26a050d2b3ce8e4b8dd080a90233e2653d515442d420ef45fbc969eb8e0de"
+}

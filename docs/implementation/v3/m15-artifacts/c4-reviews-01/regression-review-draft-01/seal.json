@@ -1,0 +1,25 @@
+{
+  "kind": "M15_C4_REGRESSION_REVIEW_DRAFT_SEAL",
+  "reviewedThroughRun": "c4-source-handoff-initial-01",
+  "reviewedThroughUtc": "2026-11-16T04:51:29.757Z",
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-01/M15-c4-regression-review.md",
+      "bytes": 31271,
+      "sha256": "aabad3fe68c07e20287fceb7c573e9364ff21806e27add57597e664cbf91e954"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-01/M15-c4-regression-review.evidence.json",
+      "bytes": 373072,
+      "sha256": "80a53c2aaef4fe4c133171b1581680b276f50be8036e0054b53052d030a0fa86"
+    }
+  ],
+  "checks": {
+    "receiptLogResultHashesMatched": true,
+    "commandRecords": 23,
+    "sourceCuts": 6,
+    "documentLinksResolveAtIntendedRepoLocation": true,
+    "noRepositoryEditsOrJobs": true
+  },
+  "scope": "Outside-repository draft only. Root owns application and final-gate updates."
+}

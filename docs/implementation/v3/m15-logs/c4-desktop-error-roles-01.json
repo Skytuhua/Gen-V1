@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/desktop-surfaces.playwright.config.ts",
+    "--grep",
+    "detached workspace selection does not acquire|export refuses pending signature assets|review: a failed detached workspace close retains",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T04:28:42.794Z",
+  "endedAt": "2026-11-16T04:28:58.141Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-desktop-error-roles-01.log",
+  "logDigest": "992a1ace1172b0ee3a0f1df44487d142b0cc88f6487996de31d8b0c423ce5a65"
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "34d8dd1e0e68af44265cea69b082ce4088366017",
+  "executionBaseSha": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
   "inspectedPaths": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -10,6 +10,10 @@
     {
       "path": ".github/workflows/ci.yml",
       "blobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    },
+    {
+      "path": "apps/server/project-memory-routes.ts",
+      "blobSha": "831de697aa0961028c5d91874a45a1d2dee51b3c"
     },
     {
       "path": "apps/server/server.ts",
@@ -24,6 +28,10 @@
       "blobSha": "0548641327ee0b0e728e3a8d031095e8cb5a658a"
     },
     {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "blobSha": "908da828392bc9f9fe515cc295980d280c1962f3"
+    },
+    {
       "path": "apps/web/src/FileCheckpoints.tsx",
       "blobSha": "3c0c56f8c6ebe358985f3c03f5383ef354fb922c"
     },
@@ -32,12 +40,20 @@
       "blobSha": "87c2fd9228f3e3bf53564adfffd687d6aecb730c"
     },
     {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "blobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+    },
+    {
       "path": "apps/web/src/SurfaceBoundary.tsx",
       "blobSha": "6f3cb0c2a589ca9c6d7397372ed0979aaf812dd0"
     },
     {
       "path": "apps/web/src/UsageDialog.tsx",
       "blobSha": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f"
+    },
+    {
+      "path": "apps/web/src/UsageFooter.tsx",
+      "blobSha": "ae83fd6d48d68abb9c7b1526a9eb22acb0c8bd63"
     },
     {
       "path": "apps/web/src/WorkspaceHost.tsx",
@@ -52,8 +68,20 @@
       "blobSha": "7a94caf228cae1bb7c844f9f6cbf1f1c14bbabb3"
     },
     {
+      "path": "apps/web/src/conversation-placement.ts",
+      "blobSha": "0fb7bc91ee04f8f39c9021a55feec4d3c3ad77b9"
+    },
+    {
       "path": "apps/web/src/conversation-workspace/reader.ts",
       "blobSha": "fcf2d5c3f0a13801e99e1786a69de54ac40fc8c6"
+    },
+    {
+      "path": "apps/web/src/desktop-context.tsx",
+      "blobSha": "aebecbb594f4bb866e69374976b1a54fe4aa0246"
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "blobSha": "d50d53d4fe61da005ac1bc01c136dae4ca96856c"
     },
     {
       "path": "apps/web/src/editor-handoff.ts",
@@ -68,12 +96,24 @@
       "blobSha": "73d17a1661e87173a238d07042e2a1945137234b"
     },
     {
+      "path": "apps/web/src/project-memory-api.ts",
+      "blobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+    },
+    {
+      "path": "apps/web/src/project-memory-preparation.ts",
+      "blobSha": "ea5a90610481baa1a1059700a79b2762a459506e"
+    },
+    {
       "path": "packages/contracts/implementation-evidence.ts",
       "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
     },
     {
       "path": "packages/contracts/index.ts",
       "blobSha": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "blobSha": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
     },
     {
       "path": "packages/contracts/request-context.ts",
@@ -96,8 +136,28 @@
       "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
     },
     {
+      "path": "packages/core/file-access.ts",
+      "blobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/core/memory-retrieval.ts",
+      "blobSha": "85b8ca85a57b5033cf5178ebb112d9ac809c4c79"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "blobSha": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "blobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
       "path": "packages/core/request-custody.ts",
       "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
     },
     {
       "path": "packages/core/service.ts",
@@ -134,6 +194,10 @@
     {
       "path": "packages/runtime-hermes/worker.py",
       "blobSha": "c736b8a9165b8265b6de527021d50f8068900549"
+    },
+    {
+      "path": "packages/runtime/memory-checkpoint.ts",
+      "blobSha": "f7f90985d8b2d62dc389337bf0bb1f802a94f472"
     },
     {
       "path": "packages/storage/store.ts",
@@ -248,12 +312,70 @@
       "testIds": [
         "tests/request-preparation-service-v3.test.ts"
       ]
+    },
+    {
+      "name": "packages/contracts/project-memory.ts",
+      "version": "760aaecd420b260b7d8c948f89ef0d32718b17e7",
+      "testIds": [
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory.ts",
+      "version": "08f522d2ebd1e82851f26c2a16575c1d469ab66b",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-storage-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory-host.ts",
+      "version": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c",
+      "testIds": [
+        "tests/memory-host-lifecycle-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "apps/server/project-memory-routes.ts",
+      "version": "831de697aa0961028c5d91874a45a1d2dee51b3c",
+      "testIds": [
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/runtime/memory-checkpoint.ts",
+      "version": "f7f90985d8b2d62dc389337bf0bb1f802a94f472",
+      "testIds": [
+        "tests/memory-native-checkpoint-v3.test.ts",
+        "tests/memory-checkpoint-worker-ownership-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/file-access.ts",
+      "version": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c",
+      "testIds": [
+        "tests/memory-native-file-capture-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/security.ts",
+      "version": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
     }
   ],
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
-    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "34d8dd1e0e68af44265cea69b082ce4088366017"
   ],
   "approvedDrift": [
     {
@@ -326,6 +448,18 @@
       "path": "packages/contracts/workspace.ts",
       "fromBlob": "88e08fbaee575c8ab5414ad055ec5639c812fdc2",
       "toBlob": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "fromBlob": "92a47a04de82a9450e93371cb51ed25124346c9d",
+      "toBlob": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/core/security.ts",
+      "fromBlob": "693f251361bc464caee26df795c57002d120c9a7",
+      "toBlob": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {

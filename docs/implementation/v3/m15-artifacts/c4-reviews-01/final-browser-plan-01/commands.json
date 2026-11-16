@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "kind": "C4_FINAL_DECLARED_CHROMIUM_BROWSER_PLAN",
+  "state": "WAITING_FOR_PARENT_FINAL_SOURCE_CUT_AND_RELEASE",
+  "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+  "preserveDraft01": {
+    "doc": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-01/M15-c4-regression-review.md",
+      "sha256": "aabad3fe68c07e20287fceb7c573e9364ff21806e27add57597e664cbf91e954",
+      "bytes": 31271
+    },
+    "evidence": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-01/M15-c4-regression-review.evidence.json",
+      "sha256": "80a53c2aaef4fe4c133171b1581680b276f50be8036e0054b53052d030a0fa86",
+      "bytes": 373072
+    }
+  },
+  "observedUnitPrerequisite": {
+    "id": "c4-source-handoff-policy-01",
+    "receipt": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.json",
+      "sha256": "d089c5211b33b287ba7408c41232ddedae10d5242c44889de9ecdd0df2398dc3",
+      "bytes": 794
+    },
+    "result": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json",
+      "sha256": "95f2ef1d5178e976c5e0e46a8dbe9f74b877bb63b2151ad2db512b8d1e4b3b99",
+      "bytes": 10073
+    },
+    "sourceCut": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/source-cut.json",
+      "sha256": "4ce32ce11edfac8cfaf89728f783266e67adc17f42a9338ab9d8e48842cc53ed",
+      "bytes": 548158
+    },
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "files": {
+      "source-handoff-v3.test.ts": 22,
+      "editor-handoff.test.ts": 3
+    },
+    "limit": "Unit-only Phase B result, including both concurrent same-owner schedules. It is not the final browser source cut."
+  },
+  "executionPrerequisites": [
+    "Parent confirms the new import-close browser fixture is final.",
+    "Parent supplies final source-cut path and SHA after final typecheck/build.",
+    "Parent explicitly releases the browser slot with no competing build/browser job.",
+    "All output IDs remain unused."
+  ],
+  "finalSourceCut": {
+    "path": null,
+    "sha256": null,
+    "state": "MUST_BE_SUPPLIED_AT_RELEASE; do not substitute the earlier unit-only cut."
+  },
+  "verification": {
+    "expectedCutHashBeforeEveryVerification": true,
+    "beforeEach": [
+      "python",
+      "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+      "verify",
+      "<finalSourceCut.path>"
+    ],
+    "afterEach": [
+      "python",
+      "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+      "verify",
+      "<finalSourceCut.path>"
+    ],
+    "onMismatch": "Stop; retain the exact command/result and report the mismatch. Never rebind the run to changed bytes."
+  },
+  "order": [
+    "c4-workbench-app-final-01",
+    "c4-desktop-final-01",
+    "c4-workbench-final-01"
+  ],
+  "runs": [
+    {
+      "id": "c4-workbench-app-final-01",
+      "suite": "workbench-app",
+      "expectedCases": 26,
+      "caseCountQualification": "Complete existing declared selection; no grep or exclusions.",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "recorderArgv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-workbench-app-final-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench-app.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts"
+      ],
+      "recordedChildArgv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench-app.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts"
+      ],
+      "environment": {
+        "PATHPrefix": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/results.json"
+      },
+      "declaredConfigAtPlan": {
+        "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+        "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6",
+        "bytes": 476
+      },
+      "channel": "Declared default Chromium; no private channel override.",
+      "port": 5592,
+      "testTimeoutMs": 30000,
+      "workers": 1,
+      "output": {
+        "receipt": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-workbench-app-final-01.json",
+        "log": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-workbench-app-final-01.log",
+        "result": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/results.json",
+        "artifacts": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts"
+      },
+      "state": "NOT_RUN"
+    },
+    {
+      "id": "c4-desktop-final-01",
+      "suite": "desktop-surfaces",
+      "expectedCases": 31,
+      "caseCountQualification": "30 existing plus one pending import-close case; must confirm final fixture freeze before execution.",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "recorderArgv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-desktop-final-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-01/artifacts"
+      ],
+      "recordedChildArgv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-01/artifacts"
+      ],
+      "environment": {
+        "PATHPrefix": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-desktop-final-01/results.json"
+      },
+      "declaredConfigAtPlan": {
+        "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.playwright.config.ts",
+        "sha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73",
+        "bytes": 459
+      },
+      "channel": "Declared default Chromium; no private channel override.",
+      "port": 5248,
+      "testTimeoutMs": 30000,
+      "workers": 1,
+      "output": {
+        "receipt": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-desktop-final-01.json",
+        "log": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-desktop-final-01.log",
+        "result": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-desktop-final-01/results.json",
+        "artifacts": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-desktop-final-01/artifacts"
+      },
+      "state": "NOT_RUN"
+    },
+    {
+      "id": "c4-workbench-final-01",
+      "suite": "workbench",
+      "expectedCases": 18,
+      "caseCountQualification": "Complete existing declared selection; no grep or exclusions.",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "recorderArgv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-workbench-final-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-01/artifacts"
+      ],
+      "recordedChildArgv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-01/artifacts"
+      ],
+      "environment": {
+        "PATHPrefix": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-final-01/results.json"
+      },
+      "declaredConfigAtPlan": {
+        "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.playwright.config.ts",
+        "sha256": "8fc46e2ac81103eb3674ad3cf0a0b550c673395b3aa2d6aeb14310d229b7e8c4",
+        "bytes": 461
+      },
+      "channel": "Declared default Chromium; no private channel override.",
+      "port": 5591,
+      "testTimeoutMs": 30000,
+      "workers": 1,
+      "output": {
+        "receipt": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-workbench-final-01.json",
+        "log": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-logs/c4-workbench-final-01.log",
+        "result": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-final-01/results.json",
+        "artifacts": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-final-01/artifacts"
+      },
+      "state": "NOT_RUN"
+    }
+  ],
+  "executionRules": [
+    "Run sequentially in the listed order under the parent release.",
+    "No retries, filters, deadline changes, source edits, browser-channel override or skipped-case success.",
+    "Always verify the cut after a finished test command, including failure.",
+    "Inspect exit, report errors, passed/failed/skipped/flaky counts and attachments before proceeding.",
+    "Record and report every failure without relabeling; no corrective run without a new parent-authorized source cut or explicit diagnostic instruction.",
+    "Keep the renderer benchmark free from competing CPU-heavy jobs; report controlled-fixture timing scope separately from functional count."
+  ],
+  "limits": [
+    "Declared local Chromium evidence only; installed Edge and installed desktop remain separate gates.",
+    "The desktop suite uses a scripted native bridge.",
+    "The renderer benchmark is controlled Vite/React fixture evidence, not a whole-App or native performance guarantee."
+  ]
+}

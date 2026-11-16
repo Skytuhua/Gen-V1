@@ -1,0 +1,166 @@
+{
+  "kind": "C4_USAGE_OWNER_VALIDATION",
+  "status": "PASS_WITH_PLATFORM_AND_CALLER_LIMITS",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-usage-owner-01/source-cut.json",
+    "sha256": "a2a3c75f73e6646c5fc8fd5fb2ec59241d76bfc6844ebe48fda88f4dc18c01a6",
+    "bytes": 547943
+  },
+  "verification": {
+    "beforeAndAfterObserved": true,
+    "sourceFiles": 2390,
+    "bytes": 55418271,
+    "head": "082264877e3bb61e8c87f257ccd831b5c1438472"
+  },
+  "receipt": {
+    "path": "docs/implementation/v3/m15-logs/c4-usage-owner-chromium-01.json",
+    "sha256": "ae955720b4289d60eae80dbeaaeba54ea515360206d61bdd551bfc7f1c0663ef",
+    "bytes": 855
+  },
+  "log": {
+    "path": "docs/implementation/v3/m15-logs/c4-usage-owner-chromium-01.log",
+    "sha256": "a87a77f1c074d6854adee252d6b99524e3a6f8e98d139777f5cf2e3a2378ed85",
+    "bytes": 3654
+  },
+  "result": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-usage-owner-chromium-01/results.json",
+    "sha256": "f740e0f0af18b01a388ed1b88b92c8e1979d36c7f4b328f54e8b510f87c12444",
+    "bytes": 19751
+  },
+  "stats": {
+    "startTime": "2026-11-16T04:43:16.722Z",
+    "duration": 78784.915,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "cases": [
+    {
+      "title": "mobile navigation backdrop remains clickable after a nested Settings dialog closes",
+      "status": "passed",
+      "durationMs": 7348
+    },
+    {
+      "title": "failed handoffs have one dismissible shell presenter and keep drafts and commands guarded",
+      "status": "passed",
+      "durationMs": 4248
+    },
+    {
+      "title": "the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection",
+      "status": "passed",
+      "durationMs": 3967
+    },
+    {
+      "title": "actual App sidebar Usage opens canonical modal and retains the conversation draft",
+      "status": "passed",
+      "durationMs": 3354
+    },
+    {
+      "title": "actual App live usage launcher starts closed and toggles the summary at 375px",
+      "status": "passed",
+      "durationMs": 7348
+    },
+    {
+      "title": "actual App live usage launcher starts closed and toggles the summary at 768px",
+      "status": "passed",
+      "durationMs": 7088
+    },
+    {
+      "title": "actual App live usage launcher starts closed and toggles the summary at 1440px",
+      "status": "passed",
+      "durationMs": 6484
+    },
+    {
+      "title": "actual App Live usage preference controls the composer launcher without opening the summary",
+      "status": "passed",
+      "durationMs": 3871
+    },
+    {
+      "title": "split conversation launchers control the shared summary for the active pane and start closed after reload",
+      "status": "passed",
+      "durationMs": 9138
+    },
+    {
+      "title": "actual App dock header remains a disclosure and its body opens the same Usage modal",
+      "status": "passed",
+      "durationMs": 2484
+    },
+    {
+      "title": "actual App context portal protects IME, retains its owner command, and never infers a receipt",
+      "status": "passed",
+      "durationMs": 3576
+    },
+    {
+      "title": "actual App captured usage scope does not switch to another thread on snapshots",
+      "status": "passed",
+      "durationMs": 3142
+    },
+    {
+      "title": "actual App restores the old single Usage route to modal and leaves saved Thread memory reachable",
+      "status": "passed",
+      "durationMs": 2687
+    },
+    {
+      "title": "review: a closed remembered Usage tab must not open a blocking dialog on launch",
+      "status": "passed",
+      "durationMs": 2879
+    },
+    {
+      "title": "review: an open restored Usage tab resolves its loaded conversation scope",
+      "status": "passed",
+      "durationMs": 2553
+    },
+    {
+      "title": "review: an open restored Usage tab stays closed in split workspace and keeps both composers available",
+      "status": "passed",
+      "durationMs": 2734
+    }
+  ],
+  "proposal": {
+    "patch": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/usage-owner-proposal-01/implementation.patch",
+      "sha256": "34c331588970e8ed447f18db772674932151121989d63540c9c7481d14ca98dd",
+      "bytes": 23780
+    },
+    "manifest": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/usage-owner-proposal-01/manifest.json",
+      "sha256": "c5102371f4504b3d94cc8593b773763df16cda7b029f673726c3d0cee880f465",
+      "bytes": 2264
+    },
+    "review": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/usage-owner-proposal-01/review.md",
+      "sha256": "167c206ab2a33a7a472b9ebee47ddee636fa66926a0f7afdb39e69cbe5c465d9",
+      "bytes": 6781
+    },
+    "currentFilesMatchProposedHashes": true
+  },
+  "priorFailure": {
+    "sourceCutSha256": "f542de949b162bf343058a77b2cbb6091d7f6ebb10ef1df1926776a3d3e5006a",
+    "run": "c4-usage-chromium-corrected-01",
+    "result": {
+      "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/results.json",
+      "sha256": "324e5fdfac40260ae3eaa15ec32c594dd5f27438676153f74db239cbf9c72e42",
+      "bytes": 35982
+    },
+    "analysis": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-corrections-review-01/review.json",
+      "sha256": "914ffd84151b70e7f3e6bb6bdb3d5ffa74f83817a30723778b7fc25a6060058b",
+      "bytes": 62306
+    },
+    "counts": {
+      "passed": 13,
+      "failed": 3
+    }
+  },
+  "limits": [
+    "One complete 16-case execution, no retries, zero skipped/flaky/report errors.",
+    "Private Linux Chromium override of the unchanged declared Edge configuration; no Edge proof.",
+    "Runtime source changed only after the prior failure was diagnosed and the exact private proposal reviewed/applied by parent.",
+    "Full actual-App and shared split caller suites remain separate later gates.",
+    "Native-close journal custody remains independently pending and was not tested by this suite.",
+    "Hidden/detached/archived eligibility was statically reviewed in this proposal; this 16-case result does not claim separate native transition execution.",
+    "Original failures and all earlier source-cut receipts remain retained."
+  ]
+}

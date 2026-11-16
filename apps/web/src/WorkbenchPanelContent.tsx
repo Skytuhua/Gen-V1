@@ -17,12 +17,13 @@ export interface WorkbenchPanelContentProps {
  persistView:(type:'SOURCES'|'EVIDENCE',selectedItem?:string|null,anchor?:WorkbenchViewV1['scrollAnchor'])=>void;
  onSelect:(candidate:SourceCandidateV1)=>Promise<void>;
  attach:(source:SelectedSourceV1,action:SourceSelectionAction)=>Promise<void>;
- open:(ref:SourceRefV1)=>Promise<void>; report:(cause:unknown)=>void;
+ open:(ref:SourceRefV1)=>Promise<void>; openMemoryReview?:()=>void; report:(cause:unknown)=>void;
 }
 
 /** Optional views load only after the stable dialog shell opens. */
-export function WorkbenchPanelContent({tab,setTab,snapshot,owner,enabled,candidates,capabilities,selected,evidence,error,api,view,persistView,onSelect,attach,open,report}:WorkbenchPanelContentProps) {
+export function WorkbenchPanelContent({tab,setTab,snapshot,owner,enabled,candidates,capabilities,selected,evidence,error,api,view,persistView,onSelect,attach,open,openMemoryReview,report}:WorkbenchPanelContentProps) {
  const [evidenceKind,setEvidenceKind]=useState('ALL');
+ const memoryHref=owner.projectId?`/api/projects/${encodeURIComponent(owner.projectId)}/memory?threadId=${encodeURIComponent(owner.threadId)}`:undefined;
  return <>
   {tab==='evidence'&&!evidence&&!error&&<p role="status">Loading task evidence.</p>}
   {(tab==='request'||tab==='tools')&&<WorkbenchRequestPanel key={tab} owner={owner} tools={tab==='tools'}/>}
@@ -35,7 +36,7 @@ export function WorkbenchPanelContent({tab,setTab,snapshot,owner,enabled,candida
    <nav aria-label="Evidence categories">{[['ALL','All'],['REQUIREMENT','Requirements'],['CHECK','Checks'],['ARTIFACT','Artifacts'],['SOURCE','Sources']].map(([kind,label])=><button type="button" key={kind} aria-pressed={evidenceKind===kind} onClick={()=>setEvidenceKind(kind)}>{label}</button>)}</nav>
    {evidence?.items.filter(item=>evidenceKind==='ALL'||item.kind===evidenceKind).map(item=><article className="workbench-evidence-item" key={item.id}><h3>{item.label}</h3><dl><dt>Evidence</dt><dd>{item.grade}</dd><dt>Freshness</dt><dd>{item.freshness}</dd><dt>Outcome</dt><dd>{item.outcome??'Not recorded'}</dd><dt>Revision</dt><dd>{item.sourceRevision??'Not recorded'}</dd>{item.parentId&&<><dt>Parent</dt><dd>{item.parentId}</dd></>}{item.command&&<><dt>Command</dt><dd><code>{JSON.stringify(item.command)}</code></dd></>}<dt>Logs</dt><dd>{item.logRefs.join(', ')||'Not recorded'}</dd><dt>Screenshots</dt><dd>{item.screenshotRefs.join(', ')||'Not recorded'}</dd></dl>{item.sourceRef&&<button type="button" onClick={()=>{void open(item.sourceRef!).then(()=>setTab('sources')).catch(report);}}>Open evidence source</button>}</article>)}
    {evidence?.items.length===0&&<p>No evidence is recorded for this task.</p>}
-   <h3>Module panels</h3>{evidence?.modules.map(module=><article key={module.id}><h4>{module.id}: {module.title}</h4><p>{module.state}{module.reason?`: ${module.reason}`:''}</p>{module.state==='AVAILABLE'&&module.href?.startsWith('/api/')&&<a href={module.href} target="_blank" rel="noreferrer">Open module record</a>}</article>)}
+   <h3>Module panels</h3>{evidence?.modules.map(module=><article key={module.id}><h4>{module.id}: {module.title}</h4><p>{module.state}{module.reason?`: ${module.reason}`:''}</p>{module.id==='M05'?module.state!=='UNSUPPORTED'&&module.readOnly&&module.href===memoryHref&&openMemoryReview&&<button type="button" onClick={openMemoryReview}>Open memory review</button>:module.state==='AVAILABLE'&&module.href?.startsWith('/api/')&&<a href={module.href} target="_blank" rel="noreferrer">Open module record</a>}</article>)}
   </>:null}
  </>;
 }

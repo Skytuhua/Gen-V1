@@ -9,7 +9,7 @@ test('an older snapshot cannot replace a newer acknowledged selection', async ({
   } }, { rows: [{ id: 'row-0', name: 'First record' }] }, { selection: ['row-0'] });
   snapshot.userStates[0].revision = 1;
   const host = await serveTaskFixture(page, snapshot);
-  await serveTaskSplitLayout(page, snapshot.activeThreadId!);
+  await serveTaskSplitLayout(page, snapshot);
   const saves: UserStateRecord[] = [];
   let visibleState = structuredClone(snapshot.userStates[0]), endHeld = false;
   let releaseFirst!: () => void, releaseEnd!: () => void;

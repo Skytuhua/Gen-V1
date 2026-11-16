@@ -1,0 +1,306 @@
+{
+  "fixture": "Host contract fixture (no model inference)",
+  "ports": [
+    4337,
+    4338
+  ],
+  "commands": [
+    {
+      "id": "e12ff394-1e08-45e8-b3ec-f76c31024ab3",
+      "type": "thread.create",
+      "payload": {}
+    },
+    {
+      "id": "9ca4f526-df2d-4311-a0e0-6057f4d4a73b",
+      "type": "message.send",
+      "payload": {
+        "content": "[fixture:decision] Verify the local host contract.",
+        "modelId": "fixture/host-contract",
+        "thinkingLevel": null
+      },
+      "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+    },
+    {
+      "id": "4840b007-ea17-4245-89ee-7e6d79572b3a",
+      "type": "request.respond",
+      "payload": {
+        "requestId": "0c568051-89b8-4eea-aa15-73b6626c7391",
+        "revision": 1,
+        "response": {
+          "choice": "INVALID"
+        }
+      },
+      "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+    },
+    {
+      "id": "ef9e05d3-b4b7-49ab-8ae0-bb4c33ab4bfe",
+      "type": "request.respond",
+      "payload": {
+        "requestId": "0c568051-89b8-4eea-aa15-73b6626c7391",
+        "revision": 1,
+        "response": {
+          "choice": "Keep",
+          "reason": "Verified source evidence."
+        }
+      },
+      "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+    },
+    {
+      "id": "392e2d0b-792c-4ca0-ae0d-06596f4f4d06",
+      "type": "request.respond",
+      "payload": {
+        "requestId": "0c568051-89b8-4eea-aa15-73b6626c7391",
+        "revision": 1,
+        "response": {
+          "choice": "Revise"
+        }
+      },
+      "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+    }
+  ],
+  "runtimeDeliveries": [
+    [
+      {
+        "method": "start",
+        "input": {
+          "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+          "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+          "epoch": 1,
+          "accountId": null,
+          "modelId": "fixture/host-contract",
+          "thinkingLevel": null,
+          "sessionPath": null,
+          "inputId": "9ca4f526-df2d-4311-a0e0-6057f4d4a73b",
+          "inputIds": [
+            "9ca4f526-df2d-4311-a0e0-6057f4d4a73b"
+          ],
+          "resources": [],
+          "prompt": "For multi-step work, publish plan_update at the start and update it at real task, assignment, blocker, check and result transitions. Preserve step/check IDs and objectives when replanning. Give useful objective/details, outputs and results; use dependsOn for real branch/join dependencies and describe independent work in parallel. Do not write UI metadata, collapse/focus/scroll instructions or presentation essays. Use baseRevision from the latest plan result (0 for a new plan); a stale response includes the current record for reconciliation. Use an explicit stable commandId for a retry of the same update. Canonical job assignment and execution are host-owned; do not invent or rebind jobs or employees. Requirements and reported checks describe evidence, never host verification. Completed, review_required and accepted differ: 100% is not acceptance. An approved plan does not grant execution permission; plan mode remains read-only.\nCurrent plan revision: 0\n\nCurrent procedure catalog changed (metadata only; use skills_list/skill_view for details).\n{\"catalogId\":\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\"skills\":[],\"nextOffset\":null}\n\nInput 9ca4f526-df2d-4311-a0e0-6057f4d4a73b:\n[fixture:decision] Verify the local host contract."
+        }
+      },
+      {
+        "method": "followUp",
+        "input": {
+          "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+          "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+          "epoch": 1,
+          "accountId": null,
+          "modelId": "fixture/host-contract",
+          "thinkingLevel": null,
+          "sessionPath": "D:\\a\\Gen-V1\\Gen-V1\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\isolated-host-mcn1Ek\\fixture-session-8af25c5f-1c93-4935-a365-f87ad24632c9.json",
+          "inputId": "b70c7bc3-ba3a-4649-8cc6-431bd409393f",
+          "inputIds": [
+            "b70c7bc3-ba3a-4649-8cc6-431bd409393f"
+          ],
+          "resources": [],
+          "prompt": "For multi-step work, publish plan_update at the start and update it at real task, assignment, blocker, check and result transitions. Preserve step/check IDs and objectives when replanning. Give useful objective/details, outputs and results; use dependsOn for real branch/join dependencies and describe independent work in parallel. Do not write UI metadata, collapse/focus/scroll instructions or presentation essays. Use baseRevision from the latest plan result (0 for a new plan); a stale response includes the current record for reconciliation. Use an explicit stable commandId for a retry of the same update. Canonical job assignment and execution are host-owned; do not invent or rebind jobs or employees. Requirements and reported checks describe evidence, never host verification. Completed, review_required and accepted differ: 100% is not acceptance. An approved plan does not grant execution permission; plan mode remains read-only.\nCurrent plan revision: 0\n\nInput b70c7bc3-ba3a-4649-8cc6-431bd409393f:\nDecision Publish this evidence?\n{\"requestId\":\"0c568051-89b8-4eea-aa15-73b6626c7391\",\"requestRevision\":1,\"basis\":[],\"response\":{\"choice\":\"Keep\",\"reason\":\"Verified source evidence.\"}}"
+        }
+      }
+    ]
+  ],
+  "snapshot": {
+    "seq": 16,
+    "threads": [
+      {
+        "id": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "kind": "main",
+        "title": "[fixture:decision] Verify the local host contract.",
+        "projectName": null,
+        "createdAt": "2026-11-16T03:39:46.779Z",
+        "updatedAt": "2026-11-16T03:39:48.031Z",
+        "status": "working",
+        "epoch": 1,
+        "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+        "modelId": "fixture/host-contract",
+        "sessionPath": "D:\\a\\Gen-V1\\Gen-V1\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\isolated-host-mcn1Ek\\fixture-session-8af25c5f-1c93-4935-a365-f87ad24632c9.json",
+        "accountId": null,
+        "thinkingLevel": null,
+        "error": null,
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+      }
+    ],
+    "archivedThreads": [],
+    "messages": [
+      {
+        "id": "9b016040-08db-4028-8ecc-085b0b24166d",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "role": "user",
+        "content": "[fixture:decision] Verify the local host contract.",
+        "createdAt": "2026-11-16T03:39:46.861Z",
+        "runId": null
+      },
+      {
+        "id": "5993efaa-b652-47a9-9271-be3536a38b11",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "role": "assistant",
+        "content": "Host contract fixture (no model inference)",
+        "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+        "createdAt": "2026-11-16T03:39:46.867Z"
+      },
+      {
+        "id": "96a90442-5cc4-4a35-9da9-0387b11d799e",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "role": "assistant",
+        "content": "",
+        "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+        "createdAt": "2026-11-16T03:39:46.870Z"
+      },
+      {
+        "id": "a424ff99-b2a4-4eeb-bd07-b1297f4368dc",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "role": "assistant",
+        "content": "Fixture continued the durable decision in the same owning runtime.",
+        "runId": "0ad5f449-404c-47af-9be8-f752df8bfe07",
+        "createdAt": "2026-11-16T03:39:48.038Z"
+      }
+    ],
+    "messagesTruncated": {},
+    "artifacts": [
+      {
+        "id": "b9b3db4c-dfb3-4af5-854a-29efc45bb156",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "messageId": "96a90442-5cc4-4a35-9da9-0387b11d799e",
+        "title": "Evidence document",
+        "purpose": "Host contract fixture (no model inference)",
+        "revision": 1,
+        "kind": "structured",
+        "spec": {
+          "root": "root",
+          "elements": {
+            "root": {
+              "type": "Stack",
+              "props": {
+                "gap": "lg"
+              },
+              "children": [
+                "document",
+                "note",
+                "details",
+                "action"
+              ]
+            },
+            "document": {
+              "type": "Document",
+              "props": {
+                "title": "Evidence ledger",
+                "text": "# A working document\n\n## What we know\nThe conversation owns this document and its review notes.\n\n## Next observation\nEdits are saved by the local host and survive reload.\n\nExplicit deterministic regression content; no model inference."
+              }
+            },
+            "note": {
+              "type": "Input",
+              "props": {
+                "stateKey": "note",
+                "label": "Review notes",
+                "inputType": "textarea"
+              }
+            },
+            "details": {
+              "type": "Disclosure",
+              "props": {
+                "title": "Evidence and provenance",
+                "text": "Host contract fixture (no model inference)",
+                "stateKey": "evidenceOpen"
+              }
+            },
+            "action": {
+              "type": "Button",
+              "props": {
+                "label": "Continue document review",
+                "actionId": "continue",
+                "tone": "primary"
+              }
+            }
+          }
+        },
+        "widget": null,
+        "bindings": {},
+        "actions": {
+          "continue": {
+            "kind": "agent",
+            "prompt": "Continue source review"
+          }
+        },
+        "stateId": "4868a2a8-a62a-4a72-bcbc-23a7a4f210ef",
+        "lifecycle": "active",
+        "placement": "inline",
+        "pinned": false,
+        "presentation": {
+          "width": "standard",
+          "frame": "card"
+        },
+        "catalogVersion": "1",
+        "createdAt": "2026-11-16T03:39:46.870Z",
+        "updatedAt": "2026-11-16T03:39:46.870Z"
+      }
+    ],
+    "userStates": [
+      {
+        "id": "4868a2a8-a62a-4a72-bcbc-23a7a4f210ef",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "revision": 0,
+        "schemaVersion": 1,
+        "values": {
+          "note": "Review the source before continuing."
+        }
+      }
+    ],
+    "data": [],
+    "requests": [
+      {
+        "id": "0c568051-89b8-4eea-aa15-73b6626c7391",
+        "threadId": "8af25c5f-1c93-4935-a365-f87ad24632c9",
+        "artifactId": null,
+        "revision": 2,
+        "title": "Publish this evidence?",
+        "prompt": "Choose a disposition. This is a scripted host-contract decision.",
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "choice",
+            "reason"
+          ],
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "Keep",
+                "Revise"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "title": "Decision rationale",
+              "minLength": 10
+            }
+          },
+          "additionalProperties": false
+        },
+        "basis": [],
+        "status": "accepted",
+        "response": {
+          "choice": "Keep",
+          "reason": "Verified source evidence."
+        }
+      }
+    ],
+    "accounts": [],
+    "skills": [],
+    "skillProposals": [],
+    "learning": {
+      "supported": false,
+      "status": "idle",
+      "lastCuratedAt": "2026-11-16T03:39:46.197Z",
+      "lastReview": null
+    },
+    "operations": [],
+    "resources": [],
+    "memory": [],
+    "usage": {},
+    "modelRequests": {},
+    "settings": {
+      "theme": "dark",
+      "modelId": null
+    },
+    "activeThreadId": "8af25c5f-1c93-4935-a365-f87ad24632c9"
+  }
+}

@@ -41,7 +41,7 @@ jobs:
             runAttempt = '${{ github.run_attempt }}'
             runner = '${{ runner.os }}-${{ runner.arch }}'
             image = $env:ImageVersion
-            acceptedBase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
             lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
             recordedAt = [DateTime]::UtcNow.ToString('o')
           } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
@@ -90,6 +90,15 @@ jobs:
             'tests/source-selection-v3.test.ts',
             'tests/source-workbench-host-v3.test.ts',
             'tests/source-workbench-hermes-v3.test.ts',
+            'tests/source-workbench-memory-v3.test.ts',
+            'tests/project-memory-service-v3.test.ts',
+            'tests/project-memory-request-http-v3.test.ts',
+            'tests/memory-host-lifecycle-v3.test.ts',
+            'tests/memory-native-file-capture-v3.test.ts',
+            'tests/memory-native-checkpoint-v3.test.ts',
+            'tests/memory-extraction-native-v3.test.ts',
+            'tests/memory-checkpoint-worker-ownership-v3.test.ts',
+            'tests/memory-source-reuse-v3.test.ts',
             'tests/request-preparation-service-v3.test.ts',
             'tests/source-selection-dom-v3.test.ts',
             'tests/source-composer-v3.test.ts',
@@ -98,6 +107,7 @@ jobs:
             'tests/workbench-input-recovery-v3.test.ts',
             'tests/workbench-performance-v3.test.ts',
             'tests/workbench-recovery-v3.test.ts',
+            'tests/source-handoff-v3.test.ts',
             'tests/agents-workspace-composer.test.ts',
             'tests/agents-workspace-dispatch.test.ts',
             'tests/saved-drafts.test.ts',
@@ -119,7 +129,7 @@ jobs:
             '--reporter=json',
             '--outputFile=test-results/m15/native-results.json'
           )
-          node scripts/m15-record.mjs "c3-windows-native-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/vitest/vitest.mjs run @testArgs
+          node scripts/m15-record.mjs "c4-windows-native-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/vitest/vitest.mjs run @testArgs
 
       - name: Retain native evidence
         if: always()
@@ -128,7 +138,7 @@ jobs:
           name: m15-native-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             test-results/m15/
-            docs/implementation/v3/m15-logs/c3-windows-*
+            docs/implementation/v3/m15-logs/c4-windows-*
           retention-days: 14
           if-no-files-found: error
 
@@ -161,7 +171,7 @@ jobs:
             runAttempt = '${{ github.run_attempt }}'
             runner = '${{ runner.os }}-${{ runner.arch }}'
             image = $env:ImageVersion
-            acceptedBase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
             lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
             recordedAt = [DateTime]::UtcNow.ToString('o')
           } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
@@ -180,7 +190,7 @@ jobs:
           [ordered]@{
             head = $head
             tree = (git rev-parse 'HEAD^{tree}')
-            acceptedBase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
             event = '${{ github.event_name }}'
             ref = '${{ github.ref }}'
             runId = '${{ github.run_id }}'
@@ -199,7 +209,7 @@ jobs:
       - name: Check out the accepted base
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          ref: 49cd633273a3f61c14a4191a9877e99ab23ec88f
+          ref: b4aa2caa5a3cedb29a0fddb510e49b5abd802a73
           path: baseline
           persist-credentials: false
 
@@ -208,7 +218,7 @@ jobs:
         working-directory: baseline
         run: |
           $baselineHead = git rev-parse HEAD
-          if ($baselineHead -ne '49cd633273a3f61c14a4191a9877e99ab23ec88f') { throw 'The measured baseline differs from the accepted base.' }
+          if ($baselineHead -ne 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73') { throw 'The measured baseline differs from the accepted base.' }
           [ordered]@{
             head = $baselineHead
             tree = (git rev-parse 'HEAD^{tree}')
@@ -227,11 +237,11 @@ jobs:
       - name: Run the complete accepted-base root suite
         if: ${{ !cancelled() && steps.baseline-build.outcome == 'success' }}
         working-directory: baseline
-        run: node (Join-Path $env:RUNNER_TEMP 'm15-record.mjs') "c3-windows-root-baseline-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
+        run: node (Join-Path $env:RUNNER_TEMP 'm15-record.mjs') "c4-windows-root-baseline-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
 
       - name: Run the complete candidate root suite
         if: ${{ !cancelled() && steps.candidate-build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-root-candidate-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
+        run: node scripts/m15-record.mjs "c4-windows-root-candidate-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
 
       - name: Retain both complete root results
         if: always()
@@ -244,8 +254,8 @@ jobs:
             baseline/test-results/browser/
             docs/evidence/ui-clarity-20261031/stats-dark-confirm.png
             baseline/docs/evidence/ui-clarity-20261031/stats-dark-confirm.png
-            docs/implementation/v3/m15-logs/c3-windows-*
-            baseline/docs/implementation/v3/m15-logs/c3-windows-*
+            docs/implementation/v3/m15-logs/c4-windows-*
+            baseline/docs/implementation/v3/m15-logs/c4-windows-*
           retention-days: 14
           if-no-files-found: error
 
@@ -278,7 +288,7 @@ jobs:
             runAttempt = '${{ github.run_attempt }}'
             runner = '${{ runner.os }}-${{ runner.arch }}'
             image = $env:ImageVersion
-            acceptedBase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
             lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
             recordedAt = [DateTime]::UtcNow.ToString('o')
           } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
@@ -333,42 +343,50 @@ jobs:
 
       - name: Exercise source selection and output
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-workbench-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench
+        run: node scripts/m15-record.mjs "c4-windows-workbench-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench
 
       - name: Exercise the production App workbench integration
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-workbench-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench-app
+        run: node scripts/m15-record.mjs "c4-windows-workbench-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench-app
+
+      - name: Exercise the owning project memory review in Chromium
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-project-memory-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite project-memory
+
+      - name: Exercise current main composer and workspace regressions in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-frontend-refinement-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite frontend-refinement
 
       - name: Exercise saved drafts
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-saved-drafts-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-drafts
+        run: node scripts/m15-record.mjs "c4-windows-saved-drafts-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-drafts
 
       - name: Exercise canonical chat layout and Escape ownership
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-chat-view-modes-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite chat-view-modes
+        run: node scripts/m15-record.mjs "c4-windows-chat-view-modes-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite chat-view-modes
 
       - name: Exercise artifact acknowledgment ordering
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
         env:
           GEN_E2E: '1'
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/m15/artifact-acknowledgment/results.json
-        run: node scripts/m15-record.mjs "c3-windows-artifact-acknowledgment-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config playwright.config.ts tests/e2e/artifact-acknowledgment.spec.ts --trace retain-on-failure --output test-results/m15/artifact-acknowledgment/artifacts --reporter=list,json
+        run: node scripts/m15-record.mjs "c4-windows-artifact-acknowledgment-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config playwright.config.ts tests/e2e/artifact-acknowledgment.spec.ts --trace retain-on-failure --output test-results/m15/artifact-acknowledgment/artifacts --reporter=list,json
 
       - name: Exercise scoped conversations in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-scoped-conversation-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite scoped-conversation
+        run: node scripts/m15-record.mjs "c4-windows-scoped-conversation-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite scoped-conversation
 
       - name: Exercise shared overlay placement and focus in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-ui-shell-overlays-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-overlays
+        run: node scripts/m15-record.mjs "c4-windows-ui-shell-overlays-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-overlays
 
       - name: Exercise shared selection controls in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-ui-shell-controls-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-controls
+        run: node scripts/m15-record.mjs "c4-windows-ui-shell-controls-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-controls
 
       - name: Exercise usage and context in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-usage-context-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-context
+        run: node scripts/m15-record.mjs "c4-windows-usage-context-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-context
 
       - name: Exercise the agents workspace in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
@@ -376,7 +394,7 @@ jobs:
           AGENTSUI_EVIDENCE_DIR: test-results/m15/agents-candidate
         run: |
           $env:GITHUB_SHA = (git rev-parse HEAD)
-          node scripts/m15-record.mjs "c3-windows-agents-workspace-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite agents-workspace
+          node scripts/m15-record.mjs "c4-windows-agents-workspace-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite agents-workspace
 
       - name: Exercise agents against the actual App in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
@@ -385,23 +403,23 @@ jobs:
           AGENTSUI_APP_CANDIDATE: '0'
           AGENTSUI_EVIDENCE_DIR: test-results/m15/agents-actual-app
           PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/m15/agents-actual-app/results.json
-        run: node scripts/m15-record.mjs "c3-windows-agents-actual-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config tests/e2e/agents-workspace.playwright.config.ts tests/e2e/agents-workspace.spec.ts --output test-results/m15/agents-actual-app/artifacts --reporter=list,json
+        run: node scripts/m15-record.mjs "c4-windows-agents-actual-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config tests/e2e/agents-workspace.playwright.config.ts tests/e2e/agents-workspace.spec.ts --output test-results/m15/agents-actual-app/artifacts --reporter=list,json
 
       - name: Exercise retained workspace ownership in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-workspace-host-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workspace-host
+        run: node scripts/m15-record.mjs "c4-windows-workspace-host-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workspace-host
 
       - name: Exercise saved layouts and retired records in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-saved-layout-chooser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-layout-chooser
+        run: node scripts/m15-record.mjs "c4-windows-saved-layout-chooser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-layout-chooser
 
       - name: Exercise App usage, shell errors and mobile navigation in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-usage-app-integration-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-app-integration
+        run: node scripts/m15-record.mjs "c4-windows-usage-app-integration-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-app-integration
 
       - name: Exercise declared desktop bridge browser fixtures in Chromium
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c3-windows-desktop-surfaces-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite desktop-surfaces
+        run: node scripts/m15-record.mjs "c4-windows-desktop-surfaces-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite desktop-surfaces
 
       - name: Exercise both explicitly enabled split browser suites in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
@@ -439,7 +457,7 @@ jobs:
           & $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json
           exit $LASTEXITCODE
           '@
-          node scripts/m15-record.mjs "c3-windows-split-browser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command pwsh).Source -NoLogo -NoProfile -NonInteractive -Command $testCommand
+          node scripts/m15-record.mjs "c4-windows-split-browser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command pwsh).Source -NoLogo -NoProfile -NonInteractive -Command $testCommand
 
       - name: Retain browser evidence
         if: always()
@@ -449,7 +467,7 @@ jobs:
           path: |
             test-results/m15/
             test-results/browser/
-            docs/implementation/v3/m15-logs/c3-windows-*
+            docs/implementation/v3/m15-logs/c4-windows-*
           retention-days: 14
           if-no-files-found: error
 
@@ -486,7 +504,7 @@ jobs:
             runAttempt = '${{ github.run_attempt }}'
             runner = '${{ runner.os }}-${{ runner.arch }}'
             image = $env:ImageVersion
-            acceptedBase = '49cd633273a3f61c14a4191a9877e99ab23ec88f'
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
             lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
             recordedAt = [DateTime]::UtcNow.ToString('o')
           } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
@@ -537,7 +555,7 @@ jobs:
           exit $LASTEXITCODE
           '@
           $pwsh = (Get-Command pwsh -ErrorAction Stop).Source
-          node scripts/m15-record.mjs "c3-windows-full-shard-${{ matrix.shard }}-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" $pwsh -NoLogo -NoProfile -NonInteractive -Command $testCommand
+          node scripts/m15-record.mjs "c4-windows-full-shard-${{ matrix.shard }}-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" $pwsh -NoLogo -NoProfile -NonInteractive -Command $testCommand
 
       - name: Retain this complete repository shard
         if: always()
@@ -546,6 +564,6 @@ jobs:
           name: m15-full-shard-${{ matrix.shard }}-of-4-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             test-results/m15/
-            docs/implementation/v3/m15-logs/c3-windows-*
+            docs/implementation/v3/m15-logs/c4-windows-*
           retention-days: 14
           if-no-files-found: error

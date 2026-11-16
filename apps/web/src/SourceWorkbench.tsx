@@ -2,6 +2,8 @@ import {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, 
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {Select} from '../../../packages/ui-shell/Select';
 import type {Snapshot} from '../../../packages/contracts';
+import type {MemoryOwner} from './project-memory-api';
+import type {ProjectMemoryReviewProps} from './ProjectMemoryReview';
 import type {WorkbenchPanelContentProps,WorkbenchPanelTab} from './WorkbenchPanelContent';
 import {pendingInputRecoveries,recoverWorkbenchInput} from './workbench-input-recovery';
 import {registerEditorHandoff} from './editor-handoff';
@@ -11,7 +13,7 @@ import {
 } from '../../../packages/contracts/source-selection';
 import {SourceSelectionActions, type SourceSelectionAction, type VisibleSourceSelection} from './SourceSelectionActions';
 import {journalCompareAndSwap, journalReadRecord, journalSubscribe} from './journal';
-import {composeDraftContext, loadWorkbenchViews, prepareWorkbenchHandoff, readSourceDraft, saveWorkbenchView, sourceDraftKey, updateSourceDraft, type SourceDraftSnapshot} from './workbench-recovery';
+import {loadWorkbenchViews, noteSourceDraftWork, prepareSourceOwnerHandoff, readSourceDraft, saveWorkbenchView, sourceDraftKey, updateSourceDraft, type SourceDraftSnapshot} from './workbench-recovery';
 import {messageSelection, workbenchApi, type WorkbenchApi} from './workbench-api';
 import './source-workbench.css';
 
@@ -82,10 +84,7 @@ export function SourceWorkbenchProvider({owner,ownerEpoch='',active=true,snapsho
  useEffect(()=>()=>{clearTimeout(viewTimer.current);if(viewLatest.current)void saveWorkbenchView(viewLatest.current).catch(()=>{});},[]);
  useEffect(()=>registerEditorHandoff('source-workbench:'+scope,async()=>{
   clearTimeout(viewTimer.current);if(viewLatest.current)await saveWorkbenchView(viewLatest.current);
-  if(owner&&(await readSourceDraft(owner)).sourceRefs.length){
-   const result=await prepareWorkbenchHandoff({draft:await composeDraftContext(owner),acknowledge:async()=> (await journalReadRecord(`agents-pending:${owner.threadId}`))?.value?'UNCERTAIN':'ACKNOWLEDGED'});
-   if(result.status!=='READY')throw Error(result.message);
-  }
+  if(owner)await prepareSourceOwnerHandoff(owner);
  }),[scope]);
  useLayoutEffect(()=>{
   controller.current?.abort(); const pending=new AbortController();controller.current=pending;
@@ -108,6 +107,7 @@ export function SourceWorkbenchProvider({owner,ownerEpoch='',active=true,snapsho
  },[scope,draft?.generation,api]);
  const change=async(fn:Parameters<typeof updateSourceDraft>[1])=>{
   if(!owner||!isCurrent())throw Error('Choose the current conversation before editing source context.');
+  noteSourceDraftWork(owner);
   const value=await updateSourceDraft(owner,fn);if(isCurrent())setDraft({scope,value});
  };
  const show=(tab?:PanelTab)=>{setInitialTab(tab??(view?.viewType==='EVIDENCE'?'evidence':'sources'));setPanelScope(scope);setSelected(undefined);setError(undefined);void reloadInputs();if(owner)void api.evidence(owner,controller.current?.signal).then(value=>{if(isCurrent())setEvidence({scope,...value});}).catch(report);};
@@ -117,6 +117,7 @@ export function SourceWorkbenchProvider({owner,ownerEpoch='',active=true,snapsho
  };
  const attach=async(source:SelectedSourceV1,action:SourceSelectionAction)=>{
   if(!owner||!enabled||!isCurrent())throw Error('Source selection is unavailable for this conversation.');
+  if(action!=='open')noteSourceDraftWork(owner);
   const captured=await api.capture(source,controller.current?.signal);
   if(!isCurrent())return;remember(captured);
   if(action==='open'){await open(captured.ref);return;}
@@ -142,7 +143,7 @@ export function SourceWorkbenchProvider({owner,ownerEpoch='',active=true,snapsho
   },
   remove:ref=>change(state=>({...state,sourceRefs:state.sourceRefs.filter(item=>item.captureId!==ref.captureId)})),
   keep:ref=>change(state=>({...state,sourceRefs:state.sourceRefs.map(item=>item.captureId===ref.captureId?{...item,keepCaptured:true}:item)})),
-  async refresh(ref){if(!owner||!enabled)return;const value=await api.refresh(owner,ref,controller.current?.signal);if(!isCurrent())return;remember(value);await change(state=>({...state,sourceRefs:state.sourceRefs.map(item=>item.captureId===ref.captureId?value.ref:item)}));},
+  async refresh(ref){if(!owner||!enabled)return;if(isCurrent())noteSourceDraftWork(owner);const value=await api.refresh(owner,ref,controller.current?.signal);if(!isCurrent())return;remember(value);await change(state=>({...state,sourceRefs:state.sourceRefs.map(item=>item.captureId===ref.captureId?value.ref:item)}));},
   setMode:sendMode=>change(state=>({...state,sendMode})),
  };
  return <Context.Provider value={context}>{children}{panelScope===scope&&owner&&<WorkbenchDialog initialTab={initialTab} snapshot={snapshot} owner={owner} enabled={enabled} candidates={loaded?.scope===scope?loaded.candidates:[]} capabilities={loaded?.scope===scope?loaded.capabilities:[]} selected={selected} evidence={evidence?.scope===scope?evidence:undefined} error={error} api={api} view={view&&ownerKey(view.logicalOwner)===key?view:undefined} persistView={persistView} close={()=>setPanelScope(null)} onSelect={async(candidate)=>{try{const value=await api.describe(owner,candidate.locator,controller.current?.signal);if(isCurrent()){setSelected(value);persistView('SOURCES',value.locator.sourceId);}}catch(cause){report(cause);}}} attach={attach} open={open} report={report}/>}</Context.Provider>;
@@ -177,15 +178,29 @@ export function WorkbenchComposer({title,working=false,disabled=false}:{title:st
 function WorkbenchDialog({initialTab,snapshot,owner,enabled,candidates,capabilities,selected,evidence,error,api,view,persistView,close,onSelect,attach,open,report}:{initialTab:PanelTab;snapshot?:Snapshot;owner:LogicalOwnerV1;enabled:boolean;candidates:SourceCandidateV1[];capabilities:SourceCapabilityV1[];selected?:SourceDescriptorV1|SourceOpenV1;evidence?:{items:WorkbenchEvidenceItemV1[];modules:WorkbenchModuleV1[]};error:string;api:WorkbenchApi;view?:WorkbenchViewV1;persistView:(type:'SOURCES'|'EVIDENCE',selectedItem?:string|null,anchor?:WorkbenchViewV1['scrollAnchor'])=>void;close:()=>void;onSelect:(candidate:SourceCandidateV1)=>Promise<void>;attach:(source:SelectedSourceV1,action:SourceSelectionAction)=>Promise<void>;open:(ref:SourceRefV1)=>Promise<void>;report:(cause:unknown)=>void}) {
  const [tab,setTab]=useState<PanelTab>(initialTab);
  const [Content,setContent]=useState<ComponentType<WorkbenchPanelContentProps>>(),[loadError,setLoadError]=useState('');
+ const thread=snapshot?.threads.find(value=>value.id===owner.threadId&&value.projectId===owner.projectId&&(value.workspaceId??null)===owner.workspaceId&&(!value.kind||value.kind==='main')&&!value.parentThreadId&&!value.sideParentId&&!value.jobId);
+ const memoryOwner:MemoryOwner|undefined=owner.projectId&&thread?{projectId:owner.projectId,threadId:owner.threadId,accountId:thread.accountId??null}:undefined;
+ const memoryKey=memoryOwner?JSON.stringify([memoryOwner.projectId,memoryOwner.threadId,memoryOwner.accountId]):'',memoryScope=useRef(memoryKey);memoryScope.current=memoryKey;
+ const [memoryRequest,setMemoryRequest]=useState<{key:string}>(),[memoryError,setMemoryError]=useState('');
+ const [memoryReview,setMemoryReview]=useState<{key:string;Component:ComponentType<ProjectMemoryReviewProps>}>();
  useEffect(()=>{
   let current=true;
   void import('./WorkbenchPanelContent').then(module=>{if(current)setContent(()=>module.WorkbenchPanelContent);}).catch(()=>{if(current)setLoadError('The source views could not be loaded. Close this panel to continue editing. Reload the window to retry. The draft was retained.');});
   return()=>{current=false;};
  },[]);
- return <Modal open title="Sources and evidence" onClose={close} className="workbench-panel">
+ useEffect(()=>{
+  if(!memoryRequest)return;
+  let current=true;
+  void import('./ProjectMemoryReview').then(module=>{if(current&&memoryScope.current===memoryRequest.key)setMemoryReview({key:memoryRequest.key,Component:module.ProjectMemoryReview});}).catch(()=>{if(current&&memoryScope.current===memoryRequest.key)setMemoryError('The memory review could not be loaded. Close this panel to continue editing. Reload the window to retry. The draft was retained.');});
+  return()=>{current=false;};
+ },[memoryRequest]);
+ const memoryOpen=Boolean(memoryOwner&&memoryRequest?.key===memoryKey),MemoryReview=memoryReview?.key===memoryKey?memoryReview.Component:undefined;
+ const openMemoryReview=memoryOwner?()=>{setMemoryReview(undefined);setMemoryError('');setMemoryRequest({key:memoryKey});}:undefined;
+ return <><Modal open title="Sources and evidence" onClose={close} className="workbench-panel">
   <p>Task {owner.threadId} · Workspace {owner.workspaceId??'none'}</p>
   <nav aria-label="Workbench views"><button type="button" aria-pressed={tab==='request'} onClick={()=>setTab('request')}>Last request</button><button type="button" aria-pressed={tab==='tools'} onClick={()=>setTab('tools')}>Tools</button><button type="button" aria-pressed={tab==='run'} onClick={()=>setTab('run')}>Run</button><button type="button" aria-pressed={tab==='sources'} onClick={()=>{setTab('sources');persistView('SOURCES');}}>Sources</button><button type="button" aria-pressed={tab==='evidence'} onClick={()=>{setTab('evidence');persistView('EVIDENCE');}}>Evidence</button></nav>
   {error&&<p role="alert">{error}</p>}
-  {loadError?<p role="alert">{loadError}</p>:Content?<Content tab={tab} setTab={setTab} snapshot={snapshot} owner={owner} enabled={enabled} candidates={candidates} capabilities={capabilities} selected={selected} evidence={evidence} error={error} api={api} view={view} persistView={persistView} onSelect={onSelect} attach={attach} open={open} report={report}/>:<p role="status">Loading source views.</p>}
- </Modal>;
+  {memoryOpen&&memoryError?<p role="alert">{memoryError}</p>:memoryOpen&&!MemoryReview&&<p role="status">Loading memory review.</p>}
+  {loadError?<p role="alert">{loadError}</p>:Content?<Content tab={tab} setTab={setTab} snapshot={snapshot} owner={owner} enabled={enabled} candidates={candidates} capabilities={capabilities} selected={selected} evidence={evidence} error={error} api={api} view={view} persistView={persistView} onSelect={onSelect} attach={attach} open={open} openMemoryReview={openMemoryReview} report={report}/>:<p role="status">Loading source views.</p>}
+ </Modal>{memoryOpen&&MemoryReview&&memoryOwner&&<MemoryReview owner={memoryOwner} readOnly close={()=>setMemoryRequest(undefined)}/>}</>;
 }

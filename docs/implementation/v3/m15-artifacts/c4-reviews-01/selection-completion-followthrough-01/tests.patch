@@ -1,0 +1,16 @@
+--- a/tests/e2e/workbench.spec.ts
++++ b/tests/e2e/workbench.spec.ts
+@@ -52,6 +52,13 @@
+   await expect(page.locator('[data-held-state]')).toHaveText('complete');
+   await expect(page.locator('[data-held-action]')).toHaveText(captured);
+   await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:true});
++  await toolbar.getByRole('button',{name:'Attach to prompt',exact:true}).click();
++  await expect(page.locator('[data-held-state]')).toHaveText('pending');
++  await expect(page.locator('[data-held-action]')).toHaveText(JSON.stringify({kind:'attach',start:0,end:7,text:'Visible'}));
++  await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:false});
++  await page.locator('[data-complete-selection]').evaluate((element:HTMLButtonElement)=>element.click());
++  await expect(page.locator('[data-held-state]')).toHaveText('complete');
++  await expect.poll(readState).toEqual({selection:{text:'',ranges:0,start:null,end:null,withinTarget:false},toolbarVisible:false,attachEnabled:false});
+  });
+ });
+ test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});

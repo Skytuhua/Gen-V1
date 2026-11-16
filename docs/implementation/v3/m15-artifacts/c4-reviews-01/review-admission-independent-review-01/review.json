@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_SAFETY_AND_POSTCOPY_IDENTITY",
+  "outcome": "EXACT_CALL_CONDITIONALLY_ACCEPTABLE_GENERAL_HELPER_FINDING_RETAINED",
+  "helperSha256": "7e443d3f85bba57bea8a052c17991a1dcd76ba79c74d23a3cd424b54e5d91d8f",
+  "manifestSha256": "148aae6ebca4aee6295598ce98acf53e8280dec80ae0d55f1339aef20a71da2f",
+  "reviewerExecution": "No admission helper, tests, staging or repository mutation by reviewer. Root application was observed during review.",
+  "fileCount": 134,
+  "totalBytes": 1163319,
+  "allSourceAndCopiedBytesModesMatch": true,
+  "allSourcesRegularUtf8Files": true,
+  "allDestinationPathsWithinDeclaredRoots": true,
+  "allDestinationParentsWithoutSymlinks": true,
+  "finding": {
+    "id": "REPORT_PATH_CONTAINMENT",
+    "status": "OPEN_IN_SEALED_HELPER_MITIGATED_FOR_EXACT_CALL",
+    "description": "Path.absolute retains parent traversal and does not resolve symlink ancestors. Lexical report containment plus only immediate-parent symlink checking is not a general outside-repository guarantee.",
+    "rootCallCondition": "Use only the fixed application.json path; before invocation require resolve()==supplied absolute path, reject every symlink ancestor, require outside-repository containment and nonexistence.",
+    "observedCurrentReportPath": {
+      "fixedPath": "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-01/application.json",
+      "resolvedEqualsSupplied": true,
+      "outsideRepository": true,
+      "symlinkAncestor": false,
+      "existsAfterRootApplication": true
+    }
+  },
+  "rootApplication": {
+    "reportSha256": "f18ef6fe1cfe52b6b60361211fc5de2b13e3f3ca7d1b7d55136908ed0041ed10",
+    "value": {
+      "schemaVersion": 1,
+      "status": "PASS",
+      "operation": "APPLY",
+      "manifestSha256": "148aae6ebca4aee6295598ce98acf53e8280dec80ae0d55f1339aef20a71da2f",
+      "head": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+      "indexSha256": "b7e5d01a49bb04af4e8804adb705d29ebda18aee1c2e97f91dc9b21ced30b8cb",
+      "files": 134,
+      "bytes": 1163319,
+      "repositoryWrites": 134,
+      "sourceBytesVerified": true,
+      "destinationAbsenceVerified": true,
+      "indexUnchanged": true,
+      "headUnchanged": true,
+      "remoteMutation": false
+    }
+  },
+  "independentPostcopyReadback": {
+    "head": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+    "indexSha256": "b7e5d01a49bb04af4e8804adb705d29ebda18aee1c2e97f91dc9b21ced30b8cb",
+    "headMatchesApplication": true,
+    "indexMatchesApplication": true
+  },
+  "limitations": [
+    "No generalized helper approval for arbitrary report arguments.",
+    "Cleanup is fail closed but not a transaction: incomplete or changed new files may remain on an exceptional failure and must not be overwritten automatically.",
+    "No independent reapproval of every historical review conclusion or complete private-content audit.",
+    "No browser/native/product/packaging/publication PASS follows from copying review evidence."
+  ]
+}

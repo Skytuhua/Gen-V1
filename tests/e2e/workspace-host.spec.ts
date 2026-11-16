@@ -350,7 +350,10 @@ test('review: returning through All Agents retains the latest conversation selec
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
- await page.getByRole('textbox',{name:'Message',exact:true}).fill('Draft belongs to latest B');
+ await expect(page.getByRole('tab',{name:'Empty draft stays in navigation',exact:true})).toHaveAttribute('aria-selected','true');
+ const draftB=page.locator('[data-split-view="thread:empty-draft"]').getByRole('textbox',{name:'Message',exact:true});
+ await expect(draftB).toBeVisible();await expect(draftB).toBeEnabled();
+ await draftB.fill('Draft belongs to latest B');
  await page.getByRole('button',{name:'All Agents',exact:true}).click();
  await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Workspace',exact:true}).click();

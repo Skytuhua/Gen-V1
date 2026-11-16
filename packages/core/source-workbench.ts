@@ -29,6 +29,17 @@ interface RequestContextRecord {status: 'HOST_PREPARED'; inputId: string; runId:
 /** Projection of the existing Service outbox, never a second input transport. */
 export interface WorkbenchQueuedInput {id: string; threadId: string; content: string; status: 'persisted' | 'processing' | 'handled'; runId: string | null; enteredRuntime?: boolean; requestContextId?: string; sourceRefs?: SourceRefV1[]; sourceFailure?: {code: string; reason: string}; sourceRecovery?: {action: 'KEEP_CAPTURED' | 'CANCEL'; commandId: string; at: string; resumeRequired: boolean}}
 export interface PreparedSourceContext {refs: SourceRefV1[]; text: string; assertCurrent: () => void}
+/** Host-owned module reads expose metadata only and retain the owning read fence. */
+export interface WorkbenchModuleRead {
+  readonly state: Exclude<WorkbenchModuleV1['state'], 'UNSUPPORTED'>;
+  readonly reason: string | null;
+  readonly href: string | null;
+  readonly assertCurrent: () => void;
+}
+export interface SourceWorkbenchHostReaders {
+  readonly requestContextEnabled?: () => boolean;
+  readonly readMemoryModule?: (owner: Readonly<LogicalOwnerV1 & {projectId: string}>) => Promise<WorkbenchModuleRead>;
+}
 const locatorOf = (source: SelectedSourceV1): SourceLocatorV1 => {
   if (source.kind === 'MESSAGE') return {kind: source.kind, sourceId: source.sourceId};
   if (source.kind === 'FILE_RANGE') return {kind: source.kind, sourceId: source.sourceId, ...(source.path ? {path: source.path} : {})};
@@ -93,7 +104,7 @@ export class SourceWorkbench {
   private projects?: ProjectTools;
   private github?: GitHubTools;
   private readonly recoveries = new Map<string, {commitment: string; work: Promise<CommandReceipt>}>();
-  constructor(private readonly store: Store, private readonly releasePreparation: (requestId: string) => void = () => {}) {}
+  constructor(private readonly store: Store, private readonly releasePreparation: (requestId: string) => void = () => {}, private readonly hostReaders: SourceWorkbenchHostReaders = {}) {}
   /** Host composition only, reusing the exact existing comparison cache. */
   bindProjectReaders(projects: ProjectTools, github: GitHubTools): void {
     if (this.projects && this.projects !== projects) denied('The project reader is already bound.');
@@ -473,10 +484,16 @@ export class SourceWorkbench {
       const ref: SourceRefV1 = {captureId: record.id, source: record.source, keepCaptured: true};
       try {const opened = await this.open({logicalOwner, ref}); items.push({id: record.id, kind: 'SOURCE', label: record.label, grade: record.source.kind === 'MESSAGE' ? 'REPORTED' : 'OBSERVED', freshness: opened.state === 'CURRENT' ? 'CURRENT' : opened.state === 'STALE' ? 'STALE' : 'UNKNOWN', outcome: opened.state, sourceRevision: record.source.sourceRevision, command: null, logRefs: [], screenshotRefs: [], sourceRef: ref, ...(record.source.kind === 'ARTIFACT_REGION' && items.some(item => item.id === 'artifact:' + record.source.sourceId) ? {parentId: 'artifact:' + record.source.sourceId} : {})});} catch {/* Revoked material is excluded from the authorized evidence model. */}
     }
+    const readMemoryModule = this.hostReaders.readMemoryModule;
+    const memoryRead = logicalOwner.projectId && readMemoryModule ? await readMemoryModule({...logicalOwner, projectId: logicalOwner.projectId}) : null;
+    const memoryModule: Pick<WorkbenchModuleV1, 'state' | 'reason' | 'href'> = memoryRead ?? (readMemoryModule
+      ? {state: 'EMPTY', reason: null, href: null}
+      : {state: 'UNSUPPORTED', reason: 'No tested typed memory-review contract is registered for this panel.', href: null});
+    const requestContextEnabled = this.hostReaders.requestContextEnabled?.() ?? capabilityEnabled('context.compilerV1');
     const module = (id: WorkbenchModuleV1['id'], title: string, state: WorkbenchModuleV1['state'], reason: string | null, href: string | null): WorkbenchModuleV1 => ({id, title, state, reason, href, readOnly: true});
     const modules = [
-      module('M04', 'Context and tools', capabilityEnabled('context.compilerV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('context.compilerV1') ? null : 'Context custody is not enabled by this host.', '/api/workbench/threads/' + threadId + '/context'),
-      module('M05', 'Memory review', 'UNSUPPORTED', 'No tested typed memory-review contract is registered for this panel.', null),
+      module('M04', 'Context and tools', requestContextEnabled ? 'AVAILABLE' : 'DISABLED', requestContextEnabled ? null : 'Context custody is not enabled by this host.', '/api/workbench/threads/' + threadId + '/context'),
+      module('M05', 'Memory review', memoryModule.state, memoryModule.reason, memoryModule.href),
       module('M06', 'Verification', hostFlagEnabled('verification.workflowV1') ? 'AVAILABLE' : 'DISABLED', hostFlagEnabled('verification.workflowV1') ? null : 'The verification workflow is disabled; saved evidence remains readable.', '/api/threads/' + threadId + '/verification'),
       module('M08', 'Checkpoints and review', capabilityEnabled('workspace.checkpointsV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('workspace.checkpointsV1') ? null : 'Checkpoint capture and restore have separate host gates.', null),
       module('M09', 'Task tree', capabilityEnabled('agents.workV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('agents.workV1') ? null : 'Typed agent work is disabled.', null),
@@ -484,6 +501,7 @@ export class SourceWorkbench {
       module('M11', 'Request timings', capabilityEnabled('models.requestMetricsV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('models.requestMetricsV1') ? null : 'Measured request timings are disabled. Unknown timings remain unknown.', '/api/snapshot'),
       module('M14', 'Conversation branches', 'UNSUPPORTED', 'No tested conversation-branch contract is registered for this panel.', null),
     ];
+    memoryRead?.assertCurrent();
     if (this.assertOwner(logicalOwner) !== ownerStamp) denied('The evidence owner changed during this read.');
     return {logicalOwner, items, modules};
   }

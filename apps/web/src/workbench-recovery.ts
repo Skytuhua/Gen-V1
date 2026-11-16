@@ -2,7 +2,7 @@ import {
   WORKBENCH_LIMITS, draftContextV1Schema, logicalOwnerV1Schema, sameLogicalOwner, workbenchViewV1Schema,
   type DraftContextV1, type LogicalOwnerV1, type WorkbenchViewV1,
 } from '../../../packages/contracts/source-selection';
-import {journalCompareAndSwap, journalCompareAndSwapMany, journalFlush, journalReadRecord, journalWrite} from './journal';
+import {journalCompareAndSwap, journalCompareAndSwapMany, journalFlush, journalHandoffState, journalNoteLocalWork, journalReadRecord, journalWrite, settleJournalHandoff} from './journal';
 
 /** The existing composer journal remains the only active text owner. */
 export const sourceDraftKey = (owner: LogicalOwnerV1) => `source-context:${[owner.threadId, owner.projectId ?? '', owner.workspaceId ?? ''].map(encodeURIComponent).join(':')}`;
@@ -43,8 +43,8 @@ export async function updateSourceDraft(owner: LogicalOwnerV1, change: (state: S
     // legacy text-only import that previously saw no draft must then retain its
     // backup instead of silently pairing unrelated text with this new context.
     const changed = active
-      ? await journalCompareAndSwap(sourceDraftKey(owner), current.generation, next)
-      : await journalCompareAndSwapMany([{key: sourceDraftKey(owner), generation: current.generation, value: next}, {key: `draft:${owner.threadId}`, generation: undefined, value: ''}]);
+      ? await journalCompareAndSwap(sourceDraftKey(owner), current.generation, next, {acknowledgeHandoffRetry: true})
+      : await journalCompareAndSwapMany([{key: sourceDraftKey(owner), generation: current.generation, value: next}, {key: `draft:${owner.threadId}`, generation: undefined, value: ''}], [], {acknowledgeHandoffRetry: true});
     if (changed) return readSourceDraft(owner);
   }
   throw Error('Source context changed in another window. Review the current draft before retrying.');
@@ -103,6 +103,53 @@ export async function prepareWorkbenchHandoff(options: {
   catch {retained = 'MEMORY';}
   return {status: 'CONFLICT', reason, retained, conflictKey, draft,
     message: retained === 'JOURNAL' ? 'Draft and source context retained as a conflict copy. Handoff is blocked until acknowledgment is certain.' : 'Draft and source context remain in this window. Keep it open because durable recovery could not be confirmed.'};
+}
+
+/** A source action can start at the host before it reaches a local CAS. */
+export function noteSourceDraftWork(logicalOwner: LogicalOwnerV1): void {
+  journalNoteLocalWork([sourceDraftKey(logicalOwnerV1Schema.parse(logicalOwner))]);
+}
+
+// Logical owners on one thread share the composer and pending-send keys. Each
+// invocation validates independently, in order, so concurrent guards cannot
+// mistake a peer's empty IndexedDB read for newly pending local work.
+const sourceHandoffs = new Map<string, Promise<void>>();
+
+/** Shared source portion of browser and native handoff; no registry recursion. */
+export async function prepareSourceOwnerHandoff(logicalOwner: LogicalOwnerV1): Promise<void> {
+  const owner = logicalOwnerV1Schema.parse(logicalOwner), previous = sourceHandoffs.get(owner.threadId);
+  const work = (previous?.catch(() => undefined) ?? Promise.resolve()).then(() => validateSourceOwnerHandoff(owner));
+  sourceHandoffs.set(owner.threadId, work);
+  try {await work;} finally {if (sourceHandoffs.get(owner.threadId) === work) sourceHandoffs.delete(owner.threadId);}
+}
+
+async function validateSourceOwnerHandoff(owner: LogicalOwnerV1): Promise<void> {
+  const keys = [sourceDraftKey(owner), `draft:${owner.threadId}`, `agents-pending:${owner.threadId}`];
+  for (;;) {
+    await settleJournalHandoff(keys);
+    const beforeFlush = journalHandoffState(keys);
+    await journalFlush();
+    const observed = journalHandoffState(keys);
+    if (observed.some((state, index) => state.pending || state.revision !== beforeFlush[index].revision)) continue;
+    const failed = observed[0];
+    // Source CAS failures have no staged value to retry through journalFlush.
+    // Ordinary composer persistence remains owned by journalFlush.
+    if (failed.failure) throw failed.failure.cause;
+    // Only an untouched renderer whose original reads all failed is cold.
+    // Successful empty recovery, any acquired record, a source action or a CAS
+    // permanently removes this allowance for the same journal owner.
+    if (observed.every(state => state.readFailures > 0 && !state.readSucceeded && !state.recordSeen && !state.localWorkAttempted)) return;
+    const source = await readSourceDraft(owner);
+    if (source.sourceRefs.length) {
+      const result = await prepareWorkbenchHandoff({draft: await composeDraftContext(owner),
+        acknowledge: async () => (await journalReadRecord(`agents-pending:${owner.threadId}`))?.value ? 'UNCERTAIN' : 'ACKNOWLEDGED'});
+      if (result.status !== 'READY') throw Error(result.message);
+    }
+    const afterRead = journalHandoffState(keys);
+    // A new local write or acquired generation can arrive during an await.
+    if (afterRead.some((state, index) => state.pending || state.changeRevision !== observed[index].changeRevision)) continue;
+    return;
+  }
 }
 
 const ownerKey = (owner: LogicalOwnerV1) => JSON.stringify([owner.threadId, owner.projectId, owner.workspaceId]);

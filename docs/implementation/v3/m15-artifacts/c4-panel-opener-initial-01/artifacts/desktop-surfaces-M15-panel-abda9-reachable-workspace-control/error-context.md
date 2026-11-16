@@ -1,0 +1,127 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary "Thread navigation" [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - strong [ref=e9]: Gen V1
+        - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - textbox "Search threads" [ref=e19]:
+            - /placeholder: Search
+        - button "Filter threads" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - button "Connect project" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+        - button "New thread" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+      - navigation "Threads" [ref=e29]:
+        - generic [ref=e30]: Your threads will appear here.
+      - generic "App controls" [ref=e31]:
+        - button "Settings" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+          - generic [ref=e36]: Settings
+        - button "Pull requests" [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - generic [ref=e42]: PRs
+        - button "Usage" [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+          - generic [ref=e46]: Usage
+        - button "Update" [disabled] [ref=e47]:
+          - img [ref=e48]
+          - generic [ref=e51]: Update
+    - separator "Resize sidebar" [ref=e52]
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - status [ref=e55]:
+          - generic [ref=e56]: Plug-ins could not be loaded.
+          - button "Retry" [ref=e57] [cursor=pointer]
+        - generic "Workspace layouts" [ref=e58]:
+          - button "Workspace" [pressed] [ref=e59] [cursor=pointer]
+          - button "All Agents" [ref=e60] [cursor=pointer]
+          - button "Open workspace panel" [ref=e61] [cursor=pointer]:
+            - img [ref=e62]
+          - button "Layouts" [ref=e65] [cursor=pointer]:
+            - img [ref=e66]
+            - text: Layouts
+            - img [ref=e70]
+      - generic [ref=e75]:
+        - generic [ref=e77]:
+          - main "Chat" [ref=e78]:
+            - generic [ref=e79]:
+              - strong [ref=e81]: New conversation
+              - generic [ref=e82]:
+                - button "Find in conversation" [ref=e84] [cursor=pointer]:
+                  - img [ref=e85]
+                - button "Open workspace panel" [ref=e88] [cursor=pointer]:
+                  - img [ref=e89]
+                - generic [ref=e91]:
+                  - generic "Switch layout (Ctrl/⌘+Shift+L)" [ref=e92]:
+                    - button "Switch layout" [ref=e93] [cursor=pointer]:
+                      - img [ref=e94]
+                  - button "Detach chat" [ref=e96] [cursor=pointer]:
+                    - img [ref=e97]
+            - generic "Conversation" [ref=e105]:
+              - generic [ref=e108]:
+                - img [ref=e110]
+                - heading "What are we working on?" [level=1] [ref=e112]
+                - paragraph [ref=e113]: Start with a question, file, or project.
+            - generic [ref=e117]:
+              - generic [ref=e118]:
+                - textbox "Message" [active] [ref=e120]:
+                  - /placeholder: Ask anything…
+                  - text: Retain the ordinary new-conversation draft
+                - group "Task actions" [ref=e121]:
+                  - button "Inspect changes" [ref=e122] [cursor=pointer]:
+                    - img [ref=e123]
+                    - generic [ref=e125]: Changes
+                  - button "Create PR" [ref=e126] [cursor=pointer]:
+                    - img [ref=e127]
+                    - generic [ref=e132]: Create PR
+              - status [ref=e133]
+              - generic [ref=e135]:
+                - group "Project and runtime" [ref=e136]:
+                  - button "Saved drafts" [disabled] [ref=e137]
+                  - button "Attach files" [ref=e138] [cursor=pointer]:
+                    - img [ref=e139]
+                  - button "Select project" [ref=e140] [cursor=pointer]:
+                    - img [ref=e141]
+                    - generic [ref=e143]: Select project
+                  - generic "Local workspace" [ref=e144]:
+                    - img [ref=e145]
+                    - text: Local
+                  - button "Task mode" [ref=e147] [cursor=pointer]:
+                    - img [ref=e148]
+                    - generic [ref=e151]: Build
+                  - button "Show live usage" [ref=e152] [cursor=pointer]:
+                    - img [ref=e153]
+                - group "Model and voice" [ref=e155]:
+                  - combobox "Model" [ref=e156] [cursor=pointer]:
+                    - img [ref=e157]
+                    - generic [ref=e160]: Fixture
+                    - img [ref=e161]
+                  - button "Inspect context usage" [ref=e164] [cursor=pointer]:
+                    - img [ref=e165]
+                  - button "Start voice input" [ref=e166] [cursor=pointer]:
+                    - img [ref=e167]
+                  - button "Send message" [ref=e171] [cursor=pointer]:
+                    - img [ref=e172]
+          - generic:
+            - img
+            - generic: Dock chat
+        - complementary "Conversation summaries" [ref=e175]:
+          - region "Project overview window" [ref=e176]:
+            - button "Expand Project overview" [ref=e178] [cursor=pointer]:
+              - strong [ref=e179]: Project overview
+              - img [ref=e180]
+    - region "Notifications"
+  - status [ref=e182]:
+    - generic [ref=e183]: Plug-ins could not be loaded. Check the host connection, then retry.
+    - button "Dismiss notification" [ref=e184] [cursor=pointer]:
+      - img [ref=e185]
+```

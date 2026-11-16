@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "sourceTree": "c9f23e785df5fc66311fe0f9fd4822636f92ea6f",
+  "scope": "Exact published evidence metadata. Publication identity does not prove the test execution source or promote external interpretations.",
+  "files": [
+    {
+      "sourcePath": "docs/implementation/v3/M15-artifacts.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-artifacts.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "d8344a1f575985e13fad69ea1fe976c1c62beb9e",
+      "bytes": 202502,
+      "sha256": "68bcf09c67c188cf764c18479707fc35146ec32a2875799e6e68b5e58b36c691"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-browser-baseline.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-browser-baseline.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "95671f61ecc303137b83805cd93993acc759a785",
+      "bytes": 10241,
+      "sha256": "e79c16010ef8f451dea16dd4a1c9c120f2fe88489b7d177f33fbe29cb1567b11"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-browser-regression-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-browser-regression-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "d01ad2ff766c0b796bf21e2242708ebdbeaff143",
+      "bytes": 14757,
+      "sha256": "082252a582b72c0ee5acb836ec8199e95cc795ec9bede5bc7370b890cf7523ed"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-c2-browser-regression-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-c2-browser-regression-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "ee419e6ab5062ffcdf59ecff0812fc380d4da149",
+      "bytes": 27411,
+      "sha256": "d86043e1a9e8e6d0a3794c26f2500841767337516888f0a201dc66642892503e"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-c3-regression-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-c3-regression-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8bee7f3b1af8fbc379324e470072c613885b0ec9",
+      "bytes": 30766,
+      "sha256": "3d4ab96db60eb073612bc2b8d59e373cd7220ba11c4ee04de1aabeea41ec33c2"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-command-index.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-command-index.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "41ac828a7cb7ddf94fe834b647bb89b0e2ec0eee",
+      "bytes": 64153,
+      "sha256": "2d65715f20b624ce1191cc8f56cf86516345a40749b1af693f66e8cdec1b346d"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-dependency-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-dependency-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "9402659e655b1c2d11f8642b6ccb4dd122cb5af8",
+      "bytes": 6426,
+      "sha256": "113a16812c09e300cbd91bdca0f2535a94d035db2b1b6931beef8386ed85b09c"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-draft-transfer-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-draft-transfer-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "4fedc442c5efad49559d8a42e5c7e7ac1cc70a48",
+      "bytes": 10988,
+      "sha256": "5433d739dba0c7d15fb32deb1f4d9072d08517817003522e1f9259f8f30ab5a8"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-evidence-plan.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-evidence-plan.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "16c2fd54310a1e7046207215a13440edf0619dd8",
+      "bytes": 27796,
+      "sha256": "95f29e78c792870857dfd7ad5a81a735eaa38b4e3d442fa4a3dff51c7d290e5a"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-feature-comparison.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-feature-comparison.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8cb575794634bbeed6ef32d08900be6d260d0db8",
+      "bytes": 10801,
+      "sha256": "6c5c24b9e59efe6ccc8ba2c68561bb39a70572b5411771f58ce7aff466fc1880"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-final-review.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-final-review.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "65639ea9bd490ed6c2b2af00518aa08d8e90f6f7",
+      "bytes": 13854,
+      "sha256": "4408e516f332242534ee822341edbe6535d3a4c9eb5e66dac9a001fc4cdca94d"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-handoff.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-handoff.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "bc7ccfdbe4bdb72f7bfc4c9b111b663552d698ce",
+      "bytes": 18733,
+      "sha256": "9b017dfc10face9487391479a915e36f2b8bc08b18ada9224aae34e7727f17d3"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-original-prompt-audit.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-original-prompt-audit.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "9392df6acbd111f83a9bde4d017b500dff83e555",
+      "bytes": 13754,
+      "sha256": "1709c11443a95a3847f66f6f84376c72ebb9af89c0ef50bf683ccb7573b81376"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-plan.md",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-plan.md",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "91fc356ae0837de340edc60b98bbcd56f75f4c90",
+      "bytes": 5718,
+      "sha256": "f902d3ad5fc3092f748aa337fe134a6822b67690c8bde195e8a91ae392ecb18f"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-source-cut.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-source-cut.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "29a48f90ba462f99a5863c8bb73fc2db935fe0f0",
+      "bytes": 16846,
+      "sha256": "79993c85ca7a431fd0711accfa0483cfac00111528675354fa2424fe4302e820"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-source-lock.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-source-lock.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "5b48c425e7bf9c5030f3415aaad9a0f18bfa7cab",
+      "bytes": 15571,
+      "sha256": "23e52f6a6453b21658491e4019ae4fdea0217620e53f561029394eb270b73ac2"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-validation-summary.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-validation-summary.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "2885de31d5b1de1bf351c8c4cc9175d8ca6f0e6c",
+      "bytes": 341,
+      "sha256": "65008d948f10e885e3776a4362ce8b617f0e36a742f1bf1058665b62dde32774"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-verification.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/M15-verification.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e849d4a4e23cf86560b8ecda6433961146fc336e",
+      "bytes": 438039,
+      "sha256": "de0b15e610573ca9e205c3a36d2d7613cbc23a41caf411eda7c1f7d6bb12d80c"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-full-vitest.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "fe318ad25d45b36ac84f7aa0e6f0645976e2ce99",
+      "bytes": 498,
+      "sha256": "49df0d53de454a9a108a66770e8fcfac0cfedbbf6ffa6a31a2969ffdec8b6d27"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-full-vitest.log",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "d1fa34a515690b83b0334c68517f4cae6f72f700",
+      "bytes": 55158,
+      "sha256": "07f395d16e9d73b0f43a134b8d67bc02a74eb2b920a4404e28e708f2a983e940"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-linux-vitest.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e3b07781acce362240736ba0adc304e71dbe8969",
+      "bytes": 450,
+      "sha256": "34ecebc2743f49c96a6e1c25579f07856b1552e98929bd6f3106c0bfca8a8c1a"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.log",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-linux-vitest.log",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "f190ff7eab1498ff05d79ec308663582e64c8fce",
+      "bytes": 303310,
+      "sha256": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd"
+    }
+  ]
+}

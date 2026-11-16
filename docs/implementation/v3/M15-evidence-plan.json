@@ -1,10 +1,10 @@
 {
-  "executionBaseSha": "34d8dd1e0e68af44265cea69b082ce4088366017",
-  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
-    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "34d8dd1e0e68af44265cea69b082ce4088366017"
   ],
   "dependencyContracts": [
     {
@@ -72,33 +72,98 @@
       "testIds": [
         "tests/request-preparation-service-v3.test.ts"
       ]
+    },
+    {
+      "name": "packages/contracts/project-memory.ts",
+      "testIds": [
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory.ts",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-storage-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory-host.ts",
+      "testIds": [
+        "tests/memory-host-lifecycle-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "apps/server/project-memory-routes.ts",
+      "testIds": [
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/runtime/memory-checkpoint.ts",
+      "testIds": [
+        "tests/memory-native-checkpoint-v3.test.ts",
+        "tests/memory-checkpoint-worker-ownership-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/file-access.ts",
+      "testIds": [
+        "tests/memory-native-file-capture-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/security.ts",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
     }
   ],
   "inspectedPaths": [
     ".github/actions/setup/action.yml",
     ".github/workflows/ci.yml",
+    "apps/server/project-memory-routes.ts",
     "apps/server/server.ts",
     "apps/web/src/App.tsx",
     "apps/web/src/ContextInspector.tsx",
+    "apps/web/src/DraftTransfer.tsx",
     "apps/web/src/FileCheckpoints.tsx",
     "apps/web/src/Markdown.tsx",
+    "apps/web/src/ProjectMemoryReview.tsx",
     "apps/web/src/SurfaceBoundary.tsx",
     "apps/web/src/UsageDialog.tsx",
+    "apps/web/src/UsageFooter.tsx",
     "apps/web/src/WorkspaceHost.tsx",
     "apps/web/src/WorkspaceSplitLayout.tsx",
     "apps/web/src/agents-workspace/composer.ts",
+    "apps/web/src/conversation-placement.ts",
     "apps/web/src/conversation-workspace/reader.ts",
+    "apps/web/src/desktop-context.tsx",
+    "apps/web/src/draft-transfer.ts",
     "apps/web/src/editor-handoff.ts",
     "apps/web/src/journal.ts",
     "apps/web/src/project-api.ts",
+    "apps/web/src/project-memory-api.ts",
+    "apps/web/src/project-memory-preparation.ts",
     "packages/contracts/implementation-evidence.ts",
     "packages/contracts/index.ts",
+    "packages/contracts/project-memory.ts",
     "packages/contracts/request-context.ts",
     "packages/contracts/tool-effects.ts",
     "packages/contracts/workspace.ts",
     "packages/core/capability-flags.ts",
     "packages/core/effect-recovery.ts",
+    "packages/core/file-access.ts",
+    "packages/core/memory-retrieval.ts",
+    "packages/core/project-memory-host.ts",
+    "packages/core/project-memory.ts",
     "packages/core/request-custody.ts",
+    "packages/core/security.ts",
     "packages/core/service.ts",
     "packages/core/tool-authority.ts",
     "packages/core/tool-effects.ts",
@@ -108,6 +173,7 @@
     "packages/runtime-hermes/client.ts",
     "packages/runtime-hermes/index.ts",
     "packages/runtime-hermes/worker.py",
+    "packages/runtime/memory-checkpoint.ts",
     "packages/storage/store.ts",
     "packages/ui-shell/ChatView.tsx",
     "packages/ui-shell/Modal.tsx",
@@ -118,431 +184,475 @@
     "scripts/browser-suites.ts",
     "tests/e2e/chat-view-modes.spec.ts"
   ],
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
   "remainingGates": [
-    "C3 accepts main 49cd633273a3f61c14a4191a9877e99ab23ec88f and preserves incoming published C2 a1349b0a7ffa1420566da9c7770faf80d6be5bf3. C2 documents are archived byte-for-byte in publication-cut-02. Prior C2 current phases move to retained attempt history for this new source cut; this does not relabel their outcomes or certify the new cut.",
-    "C2 complete repository remains historically FAIL: 3344 passed, 271 failed, 56 skipped and 4 unhandled errors at its pre-UI source; C2 final ChatView remains FAIL: 5 passed, 1 completed five-second readiness failure. Fresh C3 counterparts are required. Their results must not be inferred from C2 or from static source comparison.",
-    "C3 focused01 passes 335 cases with 3 genuine Windows-only skips. Build01, typecheck03, UI policy01, workspace contracts01 and standalone workbench-browser01 pass. The current c3-activity-sync-full-01 App run passes all 22 cases after repairing a proven missing canonical-placement prerequisite in the activity test. Product App bytes are unchanged. Earlier App01 FAIL 21/1 and diagnostic FAIL 20/2 remain retained; no product cause or repair is established for the original native-return failure. Final public packaging passes all 11 checks, final custody passes, and controller integrity passes. Remaining affected browser, full repository and platform executions are pending; overall acceptance remains PARTIAL.",
-    "Actual Windows native file guards, non-null account admission and original-Hermes source/history continuity require executed test bodies. Linux skips are not native passes. The workflow retains exact pushed head/tree/run/attempt. Installed desktop, Pi continuity and live-provider execution remain unobserved.",
-    "All four unfiltered Windows repository shards and both accepted 49/candidate root browser results must be collected from one exact run/attempt. Ordinary PR CI tests its own merge tree and stays separate. A push workflow cannot establish compatibility with later unreviewed main changes.",
-    "The root browser selection contains 16 specs and does not cover every changed workspace surface. C3 separately requires workspace-host, saved-layout-chooser, usage/shell-error ownership, desktop-surfaces, and both explicitly enabled split-browser suites. Unfiltered repository shards without the activation flags do not execute those guarded browser bodies.",
-    "Edge acceptance applies only to suites whose declared channel is msedge. Workbench, actual-App, saved-draft, chat and root configurations use bundled Chromium. Installed Edge preflight alone is not a successful browser test.",
-    "Linux file leaf reads remain deliberately unsupported. DIFF_HUNK capture still requires an owning atomic complete-comparison witness. Retiring old Code Review and Research surfaces supplies no replacement source authority.",
-    "Historical log/screenshot navigation requires an authenticated retained-artifact reader. Formatted inline selection requires trusted source offsets; exact canonical message selection remains supported.",
-    "M05 memory review, M10 background work and M14 branches have no tested owning integration and remain unsupported.",
-    "The renderer benchmark is a controlled browser-fixture measurement that excludes paint and does not establish whole-App startup, task-tree scaling, installed-desktop DPI or universal-device performance.",
-    "Feature-flag rollback with current code preserves durable source references. A downgrade to the first-cut binary lacks the account-admission witness and can fail closed; no legacy authority is migrated.",
-    "Merge, release and production activation are not granted. ui.sourceWorkbenchV1 and reviewerApproval remain false.",
-    "Initial integrity01 included 120 ignored Vite dependency prebundles in its 1002 artifact hashes. Their exact bytes are retained outside the repository and indexed by c3-artifact-intermediates-01.json; no test result, source snapshot, log, trace or published evidence was relocated. Final packaging/custody and controller records describe the reviewed export separately.",
-    "Publication preflight observed later main b4aa2caa5a3cedb29a0fddb510e49b5abd802a73. This C3 source and its required push CI remain pinned to accepted 49cd633273a3f61c14a4191a9877e99ab23ec88f. The later main is under separate read-only drift review and is neither accepted nor tested by these results; current-main merge compatibility is not claimed.",
-    "This preserved C2 review cut accepts base 34d8dd1e0e68af44265cea69b082ce4088366017 (post-M05). Main advanced past the earlier reconciled base 49cd633273a3f61c14a4191a9877e99ab23ec88f; the branch additionally merged a1349b0a (parallel M15 reconciliation) and 34d8dd1e (M05 project memory). Windows-side re-verification is retained under the RECONCILIATION phase; a Linux-parity rerun remains required before merge."
+    "This new current-selection proposal supersedes only the phase selection in proposal01; the historical 5f proposal and every earlier failed receipt remain unchanged. Current local tests bind to local HEAD eeda4a89879aa1f3baaa04e60dd4a2d9c520761c, accepted b4aa, and exact 2391-file source cut 0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260.",
+    "The intended publication parent is 98db97d1d0a1910f47879f0e3d54477bcc59feed, tree 19d92af279985a059bbda7a9be4f5bb95b70f842, one child of tested-context HEAD eeda. Its only incoming changes are M15-source-cut.json and M15-validation-summary.json. Those metadata changes create no new execution coverage; the exact incoming archive and final publication custody remain separate gates.",
+    "Current local outcomes: normal handoff green 31/0, complete host selection 410/0/2 across 28 files, typecheck/build/UI policy PASS, actual-App Chromium fixture 26/0, desktop scripted-bridge Chromium fixture 31/0, renderer/output fixture 21/0. These overlap and are not summed as a unique total. Earlier 5f App 22/4, desktop 26/5, the asynchronous diagnostic and both normal red attempts remain FAIL. The two earlier App startup/reload causes remain unclassified.",
+    "Four earlier-source relevant passes are explicitly bounded to their own cuts: Usage 16 at a2a3c75f, workspace 48 and saved-layout 15 at f542de94, project-memory 15 at 692fe4b7. They are not current 0c coverage, actual Edge proof or installed desktop evidence.",
+    "ATTEMPT_HISTORY is appended by the controller, never explicitly declared. Each selected actual command occurs once; every unassigned receipt retains its real status, exit, argv, times and log. Retention PASS does not relabel setup failures, behavioral red commands, external failures or C3 platform failures.",
+    "Actual C4 Windows native, configured Edge/Chromium browser suites, four complete repository shards and accepted-b4aa/candidate root comparison remain NOT_RUN. Workflow v4 declares seven runtime jobs and 25 required receipts: native 1, browser 18, root 2 and full shards 4. No future command ID is fabricated or assigned.",
+    "Declared browser channels and original deadlines remain. Both split suites require GEN_SPLIT_RENDERER_BROWSER=1, GEN_SPLIT_APP_BROWSER=1 and GEN_TEST_BROWSER_CHANNEL=msedge. The 45-minute browser-job limit can leave incomplete evidence and is not a completion guarantee.",
+    "Final public-source packaging passed all 11 contract cases; source/evidence custody passed its pinned eeda/0c-to98 checks. Recorded controller assembly and checking passed integrity validation. The final assemble/check refresh includes those completed receipts and current phase membership. Integrity PASS is separate from PARTIAL acceptance, unrun C4 Windows gates and false reviewerApproval.",
+    "The complete historical C3 Windows run 43797606300 attempt 1 remains FAIL at commit 3f68a8f1bc1ca5a588862571d905163861e94492/tree be7e206431f13b654b6aecd7c12c23d0e4b2dfdb against accepted49: full shards 3604/0/46, native 326/0/1, browser 302/29, paired root 30/82/1 and 31/81/1. Shared failed identities establish outcome overlap, not a common cause. None supplies current C4 target coverage.",
+    "M05 has owner-bound host/UI integration and local Service/Store/browser evidence; it is no longer an unsupported owning module. Its C4 actual Windows combined Hermes/file/history body remains unrun. Scripted model transport does not prove a live provider.",
+    "Later observed main 199a2e240aac0374228e82599fe7aeba4afafaf2 is unaccepted. Its M07 and other changes require separate owning integration review; no runtime compatibility or merge approval is claimed. Ordinary PR CI retains accepted-b4aa bytes and separate merge-tree provenance.",
+    "The controlled renderer fixture reports 5.6 ms/34 rows versus 2038.1 ms/100000 rows, excludes paint and uses a stubbed read model. It does not establish whole-App startup, full task-tree scaling, installed-desktop DPI or universal-device performance.",
+    "Unavailable atomic complete-diff witness, authenticated historical-artifact reader, trusted formatted-inline offsets and optional M10/M14 integrations remain blocked. Feature rollback retains current-code durable source references; old binaries lacking the account-admission witness can fail closed. ui.sourceWorkbenchV1 and reviewerApproval remain false. No merge, release, deployment or activation is granted."
   ],
   "phases": [
     {
-      "id": "CORE",
+      "id": "HOST_SOURCE_MEMORY_AND_JOURNAL_LOCAL",
       "status": "PASS",
       "cases": [
         {
-          "id": "accepted-M01-M02-contracts",
+          "id": "real-store-source-account-and-m04-admission",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.json; 72 passed across six owning suites."
+          "evidence": "The current 28-file selection passed 410 cases with two Windows-only skips. Real Store ownership, first-account witness, M04 admission/rollback and retained source assertions remain bounded to their executed fixtures."
         },
         {
-          "id": "source-draft-recovery-composer-and-touched-host-contracts",
+          "id": "m05-owning-module-and-service-boundaries",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json;335 passed,3 genuine Windows-only skips,24 files."
+          "evidence": "Effective M04 availability, actual M05 access/read metadata, owner/account rechecks, exact source/memory envelopes and durable retry identity passed through the owning local Service/Store fixtures."
+        },
+        {
+          "id": "journal-handoff-and-composer-callers",
+          "status": "PASS",
+          "evidence": "The current selection includes the 28 source-handoff and three editor-registry cases plus the selected journal, transfer, recovery and shared composer callers. Overlapping commands are not added into a unique test total."
         }
       ],
       "commandIds": [
-        "c3-core-prerequisites-01",
-        "c3-final-focused-01"
+        "c4-final-host-regression-02"
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-core-prerequisites-01-results.json",
-        "docs/implementation/v3/m15-artifacts/c3-final-focused-01-results.json"
+        "docs/implementation/v3/m15-artifacts/c4-final-host-regression-02/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
       ]
     },
     {
-      "id": "INTEGRATION_HOST",
+      "id": "EMPTY_OWNER_HANDOFF_ASYNC_SCHEDULE",
       "status": "PASS",
       "cases": [
         {
-          "id": "initial-account-and-durable-source-admission",
+          "id": "two-empty-owner-guards-and-queued-obligations",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
-        },
-        {
-          "id": "request-custody-rollback-and-authority-fences",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
-        },
-        {
-          "id": "failed-Hermes-startup-custody-cleanup",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-focused-01.json; complete current focused selection includes owner/account/M04/Hermes cleanup cases. Native Windows cases remain platform-gated."
-        },
-        {
-          "id": "legacy-layout-and-retired-creation-preserve-source-authority",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-layout-source-02.json;1 selected PASS with47 filter exclusions; complete focused run also passes this case. Initial fixture assertion failure remains retained."
-        },
-        {
-          "id": "current-workspace-retirement-and-project-owner-contracts",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.json;17 passed across four owning suites."
+          "evidence": "The unchanged 31-case normal red/green selection moved from 27 passed/four failed to 31 passed. Per-thread FIFO runs separate full-owner validations; later CAS failure, first hydration, uncertain retained input and cross-owner ordering remain checked. The earlier outside diagnostic and both normal red commands stay FAIL in automatic history."
         }
       ],
       "commandIds": [
-        "c3-workspace-contracts-01",
-        "c3-layout-source-02"
+        "c4-empty-owner-green-01"
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.md",
-        "docs/implementation/v3/m15-artifacts/c3-host-compatibility-review-01.json",
-        "docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json",
-        "docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json"
+        "docs/implementation/v3/m15-artifacts/c4-empty-owner-green-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-empty-owner-red-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-empty-owner-red-02/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
       ]
     },
     {
-      "id": "INTEGRATION_APP",
+      "id": "BUILD_TYPECHECK_AND_UI_POLICY",
       "status": "PASS",
       "cases": [
         {
-          "id": "canonical-selection-durable-send-recovery-and-lazy-failure",
+          "id": "typescript-final03",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json; complete current App suite passes all 22 cases with zero skips, flaky cases or runner errors."
+          "evidence": "pnpm typecheck completed with exit 0; the whole 0c source cut was verified before and after the gate group."
         },
         {
-          "id": "accepted-split-layout-and-M15-handoff-merge",
+          "id": "production-build-final03",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json; current App22 passes at its recorded source cut. The activity test now waits for acknowledged canonical A placement before reload; product App bytes remain unchanged."
+          "evidence": "pnpm build completed with exit 0 on the same source-verified 0c cut."
         },
         {
-          "id": "native-return-and-delayed-source-preserve-owner-drafts",
+          "id": "ui-policy-final02",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json; current native case passes with separate retained A/B drafts and two captures. The earlier native-return failure remains unexplained and is not claimed repaired. The delayed request aborted; installed desktop and delivery of an uncancellable stale response remain unproven."
+          "evidence": "545 sources, zero violations, 39 inventoried legacy/geometry occurrences and zero retired entries. Inventory is not primitive approval."
         }
       ],
       "commandIds": [
-        "c3-activity-sync-full-01"
+        "c4-typecheck-final-03",
+        "c4-build-final-03",
+        "c4-ui-policy-final-02"
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-app-resolution-proposal-01.md",
-        "docs/implementation/v3/m15-artifacts/c3-app-resolution-static-01.json",
-        "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/source-cut.json",
-        "docs/implementation/v3/m15-artifacts/c3-workbench-app-01/results.json",
-        "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/analysis.md",
-        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-cut.json",
-        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json",
-        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json",
-        "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/validation.md"
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-verify-before-builds.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-verify-after-builds.json"
       ]
     },
     {
-      "id": "DRAFT_AND_CHAT_REGRESSION",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "saved-drafts-complete-browser-suite",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        },
-        {
-          "id": "canonical-chat-layout-and-direct-Escape-IME-cases",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        }
-      ],
-      "commandIds": [],
-      "artifactRefs": []
-    },
-    {
-      "id": "SHARED_UI_REGRESSION",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "existing-overlay-focus-and-IME-contracts",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        },
-        {
-          "id": "existing-select-action-menu-and-form-contracts",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        }
-      ],
-      "commandIds": [],
-      "artifactRefs": []
-    },
-    {
-      "id": "PERFORMANCE_BROWSER",
+      "id": "APP_INTEGRATION_LOCAL",
       "status": "PASS",
       "cases": [
         {
-          "id": "large-renderer-selection-layout-and-recovery",
+          "id": "complete-app-26-case-gate",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.json; all 18 standalone cases passed. Renderer-only controlled fixture excludes paint, complete App startup, installed desktop and general-device claims."
+          "evidence": "The complete current Linux Chromium actual-App fixture passed 26/26 with zero skipped, flaky or report errors and verified 0c before/after. Earlier 22/4 remains FAIL; two earlier startup/reload causes remain unclassified, not retrospectively assigned to FIFO."
         }
       ],
       "commandIds": [
-        "c3-workbench-browser-01"
+        "c4-workbench-app-final-02"
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/results.json",
-        "docs/implementation/v3/m15-artifacts/c3-workbench-browser-01/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json"
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-02/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
       ]
     },
     {
-      "id": "RECONCILED_BROWSER_TARGETS",
-      "status": "BLOCKED",
+      "id": "DESKTOP_BRIDGE_BROWSER_LOCAL",
+      "status": "PASS",
       "cases": [
         {
-          "id": "agents-workspace-complete-candidate-suite",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        },
-        {
-          "id": "artifact-acknowledgment-after-measured-App-readiness",
-          "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        },
-        {
-          "id": "accepted-workspace-host-routing-and-retirement",
-          "status": "NOT_RUN",
-          "evidence": "Requires the complete workspace-host browser configuration on its declared Edge target; root browser selection does not contain it."
-        },
-        {
-          "id": "saved-layout-chooser-and-legacy-restoration",
-          "status": "NOT_RUN",
-          "evidence": "Requires the complete saved-layout-chooser browser configuration on its declared Edge target."
-        },
-        {
-          "id": "surface-boundary-usage-shell-and-mobile-ownership",
-          "status": "NOT_RUN",
-          "evidence": "Requires the complete usage-app-integration configuration, including shell-error-ownership and mobile-navigation, on its declared Edge target."
-        },
-        {
-          "id": "desktop-surface-canonical-placement-bridge",
-          "status": "NOT_RUN",
-          "evidence": "Requires complete desktop-surfaces configuration on bundled Chromium. Scripted desktop bridge coverage is distinct from installed-desktop execution."
-        },
-        {
-          "id": "enabled-split-workspace-renderer-browser",
-          "status": "NOT_RUN",
-          "evidence": "Requires GEN_SPLIT_RENDERER_BROWSER=1 with an explicitly recorded browser channel; a skipped body in an unfiltered shard is not execution."
-        },
-        {
-          "id": "enabled-split-actual-App-browser",
-          "status": "NOT_RUN",
-          "evidence": "Requires GEN_SPLIT_APP_BROWSER=1 with an explicitly recorded browser channel; a skipped body in an unfiltered shard is not execution."
+          "id": "complete-desktop-31-case-gate",
+          "status": "PASS",
+          "evidence": "The complete current configured Chromium suite passed 31/31 with zero skipped, flaky or report errors and verified 0c before/after. It uses a scripted native bridge, including actual component import/close guards; it does not establish installed desktop execution. Earlier 26/5 remains FAIL."
         }
       ],
-      "commandIds": [],
+      "commandIds": [
+        "c4-desktop-final-02"
+      ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
-        "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md"
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-02/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
       ]
     },
     {
-      "id": "FULL_REPOSITORY_REGRESSION",
-      "status": "BLOCKED",
+      "id": "OUTPUT_BROWSER_AND_RENDERER_LOCAL",
+      "status": "PASS",
       "cases": [
         {
-          "id": "current-Windows-full-repository-four-shard-CI",
-          "status": "NOT_RUN",
-          "evidence": "Push workflow will run unfiltered pnpm test on all four shards; ordinary merge-tree CI is unchanged."
+          "id": "complete-output-browser-21-case-gate",
+          "status": "PASS",
+          "evidence": "The complete current renderer/output suite passed 21/21 with zero skipped, flaky or report errors and verified 0c before/after. Its three deferred-selection completion cases include later foreign/same-component range preservation and follow-through. Their older filtered command is not assigned again."
         },
         {
-          "id": "accepted-base-root-browser-Windows",
-          "status": "NOT_RUN",
-          "evidence": "Paired workflow pins accepted49 and records its actual tree."
+          "id": "controlled-renderer-windowing-measurement",
+          "status": "PASS",
+          "evidence": "Thirty trusted measured samples after three warmups per sequential condition: windowed p95 5.6 ms with 34 mounted rows versus unwindowed 2038.1 ms with 100,000 rows. Click capture to MutationObserver excludes paint; Linux Vite/React development fixture, explicit read-model stub, no whole-App startup/task-tree/installed-desktop/DPI/universal-device claim."
+        }
+      ],
+      "commandIds": [
+        "c4-workbench-final-02"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+      ]
+    },
+    {
+      "id": "EARLIER_SOURCE_OWNING_UI_REGRESSIONS",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "historical-usage-owner-16",
+          "status": "PASS",
+          "evidence": "c4-usage-owner-chromium-01 passed 16/16 at a2a3c75f73e6646c5fc8fd5fb2ec59241d76bfc6844ebe48fda88f4dc18c01a6. Private Linux Chromium override of the declared Edge configuration; source-specific earlier pass, not current 0c or actual Edge coverage."
         },
         {
-          "id": "candidate-root-browser-Windows",
+          "id": "historical-workspace-owner-48",
+          "status": "PASS",
+          "evidence": "c4-workspace-chromium-corrected-01 passed 48/48 at f542de949b162bf343058a77b2cbb6091d7f6ebb10ef1df1926776a3d3e5006a. Private Linux Chromium override; earlier source-specific owner/layout coverage only."
+        },
+        {
+          "id": "historical-saved-layout-15",
+          "status": "PASS",
+          "evidence": "c4-layout-chromium-corrected-01 passed 15/15 at f542de949b162bf343058a77b2cbb6091d7f6ebb10ef1df1926776a3d3e5006a. Private Linux Chromium override; earlier source-specific saved-layout coverage only."
+        },
+        {
+          "id": "historical-project-memory-15",
+          "status": "PASS",
+          "evidence": "c4-project-memory-regression-01 passed 15/15 at 692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a. Declared Chromium fixture, earlier source-specific owning-M05 UI coverage only."
+        }
+      ],
+      "commandIds": [
+        "c4-usage-owner-chromium-01",
+        "c4-workspace-chromium-corrected-01",
+        "c4-layout-chromium-corrected-01",
+        "c4-project-memory-regression-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-usage-owner-chromium-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-layout-chromium-corrected-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-project-memory-regression-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-usage-owner-01/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c4-browser-corrections-01/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-validation-01/validation.json",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-corrections-review-01/review.json",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-test-proposal-02/evidence.json"
+      ]
+    },
+    {
+      "id": "WINDOWS_NATIVE_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "windows-native-37-file-selection",
           "status": "NOT_RUN",
-          "evidence": "Paired workflow records the exact pushed head/tree."
+          "evidence": "Execute the exact v4 native command against the future published C4 head/tree/run/attempt. Declaration and Linux skips are not actual-target execution."
+        },
+        {
+          "id": "windows-leaf-guard-and-first-account-capture",
+          "status": "NOT_RUN",
+          "evidence": "Both locally skipped Windows source-host bodies must actually execute and be reviewed."
+        },
+        {
+          "id": "hermes-source-memory-and-history-continuity",
+          "status": "NOT_RUN",
+          "evidence": "The combined real Hermes/Store/M04/M05 fixture requires actual Windows execution; scripted transport does not establish live-provider operation."
         }
       ],
       "commandIds": [],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/publication-cut-02/M15-verification.json",
-        "docs/implementation/v3/m15-artifacts/c2-full-repository-audit.md",
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md"
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/ingest-ci-artifact.py"
       ]
     },
     {
-      "id": "BUILD_AND_PACKAGING",
-      "status": "PASS",
+      "id": "WINDOWS_BROWSER_ACTUAL",
+      "status": "NOT_RUN",
       "cases": [
         {
-          "id": "typecheck",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.json; current activity synchronization spec passes typecheck. Initial fixture typing failure remains retained."
-        },
-        {
-          "id": "production-build",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-build-01.json"
-        },
-        {
-          "id": "complete-reviewed-public-package-and-import-closure",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-package-02.json; all 11 checks pass with 3214 explicit public source paths and 216 unchanged runtime paths. Ignored Vite prebundles were preserved outside the export, with their exact hashes retained separately."
-        },
-        {
-          "id": "UI-architecture-policy",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.json; 527 sources, zero violations, 39 unchanged legacy entries."
-        }
-      ],
-      "commandIds": [
-        "c3-final-build-01",
-        "c3-final-ui-policy-01",
-        "c3-final-typecheck-03",
-        "c3-final-package-02"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-final-package-01-results.json",
-        "docs/implementation/v3/m15-artifacts/c3-public-admission-review-01.json",
-        "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json",
-        "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json"
-      ]
-    },
-    {
-      "id": "PLATFORM",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "actual-Windows-file-capture-and-nonnull-account",
+          "id": "actual-windows-browser-workbench",
           "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "actual-original-Hermes-source-history-continuity",
+          "id": "actual-windows-browser-workbench-app",
           "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "installed-desktop-handoff-and-Pi-continuity",
+          "id": "actual-windows-browser-project-memory",
           "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "declared-Edge-browser",
+          "id": "actual-windows-browser-frontend-refinement",
           "status": "NOT_RUN",
-          "evidence": "Awaiting the corresponding C3 execution on reconciled base 49. C2 receipts retain their archived source scope."
-        }
-      ],
-      "commandIds": [],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-design.md",
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-01.md",
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-v2-design.md",
-        "docs/implementation/v3/m15-artifacts/c3-windows-workflow-ingestion-review-02.md",
-        "docs/implementation/v3/m15-artifacts/c3-ci-v2-browser-path-review-01.md",
-        "docs/implementation/v3/m15-artifacts/c3-workflow-v2-application-01.json"
-      ]
-    },
-    {
-      "id": "UNAVAILABLE_CAPABILITIES",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "atomic-diff-capture",
-          "status": "NOT_RUN",
-          "evidence": "Owning comparison witness unavailable."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "historical-evidence-artifact-navigation",
+          "id": "actual-windows-browser-saved-drafts",
           "status": "NOT_RUN",
-          "evidence": "Authorized retained-artifact reader unavailable."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "transformed-inline-source-map",
+          "id": "actual-windows-browser-chat-view-modes",
           "status": "NOT_RUN",
-          "evidence": "Canonical message selector is the supported fallback."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         },
         {
-          "id": "optional-M05-M10-M14",
+          "id": "actual-windows-browser-artifact-acknowledgment",
           "status": "NOT_RUN",
-          "evidence": "Typed owning contracts unavailable."
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-scoped-conversation",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-ui-shell-overlays",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-ui-shell-controls",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-usage-context",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-agents-workspace",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-agents-actual-app",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-workspace-host",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-saved-layout-chooser",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-usage-app-integration",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-desktop-surfaces",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-split-browser",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
         }
       ],
       "commandIds": [],
       "artifactRefs": [
-        "docs/implementation/v3/M15-original-prompt-audit.md"
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/workflow-contract.json"
       ]
     },
     {
-      "id": "EVIDENCE_INTEGRITY",
+      "id": "FULL_REPOSITORY_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "actual-windows-full-shard-1-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-2-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-3-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-4-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml"
+      ]
+    },
+    {
+      "id": "ROOT_BROWSER_COMPARISON_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "accepted-b4aa-root-suite",
+          "status": "NOT_RUN",
+          "evidence": "Complete root suite at accepted b4aa with independent source metadata and command outcome."
+        },
+        {
+          "id": "candidate-c4-root-suite",
+          "status": "NOT_RUN",
+          "evidence": "Complete root suite at the actual future published C4 commit; comparison retains every failure and does not turn matching failures into PASS."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser-comparison-01.json"
+      ]
+    },
+    {
+      "id": "PUBLIC_SOURCE_PACKAGING",
       "status": "PASS",
       "cases": [
         {
-          "id": "current-controller-hashes-and-source-cut",
+          "id": "all-changed-paths-explicitly-admitted",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-integrity-02.json; integrity PASS / bundle PARTIAL at its measured source cut. Final M15-validation-summary.json incorporates this receipt and the completed plan without relabeling historical failures or unexecuted required cases."
-        },
-        {
-          "id": "original-checkout-preserved",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/c3-final-custody-02.json; original checkout clean at 399cde3, both exact 16+17 archives verified, all 709 published evidence files retain indexed mode/blob and regular working bytes, unchanged lockfile and ordinary CI, complete explicit admission and scoped whitespace pass."
+          "evidence": "Explicit public source admission retains all prior 3,275 source entries, adds the reviewed 899 paths, and preserves the exact 228 runtime entries and serialized runtime suffix. All 11 package contract cases pass, including host/browser/desktop resolution and local import closure. Final output reservations are checked before payload creation."
         }
       ],
       "commandIds": [
-        "c3-final-custody-02",
-        "c3-final-integrity-02"
+        "c4-public-admission-01",
+        "c4-public-package-final-01"
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
-        "docs/implementation/v3/m15-artifacts/publication-cut-02/archive-manifest.json",
-        "docs/implementation/v3/M15-handoff.md",
-        "docs/implementation/v3/M15-final-review.md",
-        "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-01.md",
-        "docs/implementation/v3/m15-artifacts/c3-final-custody-independent-review-02.md",
+        "scripts/public-source-files.json",
+        "tests/public-source.test.ts",
+        "docs/implementation/v3/m15-artifacts/c4-public-package-final-01/results.json"
+      ]
+    },
+    {
+      "id": "FINAL_SOURCE_AND_EVIDENCE_CUSTODY",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "published-parent-and-historical-custody",
+          "status": "PASS",
+          "evidence": "The executed narrow v2 checker passed: original checkout clean at399cde3, six exact full archives plus the exact two-file incoming98 delta, all898 published evidence files unchanged, 2,390 tested nonmanifest source files unchanged, lock/ordinary CI unchanged, runtime228 unchanged, all current paths admitted, authored whitespace clean. Tested eeda/0c and published-parent98 remain separate identities."
+        }
+      ],
+      "commandIds": [
+        "c4-final-custody-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+        "docs/implementation/v3/m15-logs/c4-final-custody-01.log"
+      ]
+    },
+    {
+      "id": "FINAL_EVIDENCE_CONTROLLER",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "complete-receipts-artifact-hashes-and-source-lock",
+          "status": "PASS",
+          "evidence": "Recorded assemble and check commands completed with integrity PASS and no issues. A final unrecorded assemble/check refresh runs after these immutable receipts are present and this current phase membership is written, avoiding omission of the controller receipts themselves. Integrity describes source/evidence consistency; required C4 Windows gates remain NOT_RUN and overall acceptance is PARTIAL."
+        }
+      ],
+      "commandIds": [
+        "c4-evidence-assemble-01",
+        "c4-evidence-check-01"
+      ],
+      "artifactRefs": [
+        "scripts/m15-evidence.mts",
+        "packages/contracts/implementation-evidence.ts",
         "docs/implementation/v3/M15-validation-summary.json",
-        "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json"
+        "docs/implementation/v3/M15-command-index.json"
       ]
     },
     {
-      "id": "RECONCILIATION",
-      "status": "FAIL",
+      "id": "UNAVAILABLE_OPTIONAL_SOURCE_CAPABILITIES",
+      "status": "BLOCKED",
       "cases": [
         {
-          "id": "reconcile-union-merge",
-          "status": "PASS",
-          "evidence": "agent/m15-v3 merged origin/main 34d8dd1e (M05 project memory) and parallel reconciliation a1349b0a; conflicts resolved as feature union; pnpm lint and pnpm typecheck clean on the union tree."
+          "id": "atomic-complete-diff-witness",
+          "status": "NOT_RUN",
+          "evidence": "DIFF_HUNK remains unavailable without an owning atomic complete-comparison witness."
         },
         {
-          "id": "reconcile-focused-vitest",
-          "status": "PASS",
-          "evidence": "112/112 pass after widening the win32 first-capture case's vi.waitFor timeout to 45s: delivery needs ~15s because each file guard acquisition spawns a cold PowerShell windows-path-guard process (deadline 15s); the test asserted admission, not latency. Defect confirmed pre-existing on a1349b0a. See docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
+          "id": "authenticated-retained-artifact-navigation",
+          "status": "NOT_RUN",
+          "evidence": "Historical log/screenshot navigation still requires an authenticated retained-artifact reader."
         },
         {
-          "id": "reconcile-full-repo-vitest",
-          "status": "FAIL",
-          "evidence": "Windows-native failures persist on the union tree; the previously failing focused case is fixed by the waitFor timeout change; see docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
+          "id": "formatted-inline-trusted-offsets",
+          "status": "NOT_RUN",
+          "evidence": "Formatted inline selection requires trusted source offsets; canonical exact message selection is the supported path."
         },
         {
-          "id": "reconcile-e2e-browser",
-          "status": "PASS",
-          "evidence": "workbench 16, workbench-app 19, chat-view-modes 6, saved-drafts 27 pass on Chromium via playwright fixtures (receipts reconcile-e2e-*)."
+          "id": "optional-m10-and-m14-owners",
+          "status": "NOT_RUN",
+          "evidence": "No tested owning M10 background-work or M14 branch integration is supplied."
         },
         {
-          "id": "reconcile-linux-parity",
-          "status": "PASS",
-          "evidence": "Exact head 364d3f55 executed under WSL Ubuntu (node v24.22.2, pnpm 10.30.3): 3644 passed / 306 failed / 196 skipped in 181.91s. Every M15-owned file passes on Linux (source-workbench-host-v3 46/48 with 2 win32-only skips, source-selection-v3/-dom-v3, draft-transfer, composer-*, task-interface-* all green). All 40 failing files are non-M15 host/platform surfaces dominated by the deliberately-unsupported Linux path-guard leaf-read denials (58 CAPABILITY_DENIED) plus absent bundled-integration python deps - the same platform-scope limits the C3 gates document. node-pty linux-x64 prebuild supplied via the installed @lydell/node-pty-linux-x64 binary. See docs/implementation/v3/m15-logs/reconcile-linux-vitest.log"
+          "id": "installed-desktop-pi-and-live-provider-continuity",
+          "status": "NOT_RUN",
+          "evidence": "Browser bridges, scripted models and Linux unit passes do not prove these separate targets."
         }
       ],
-      "commandIds": [
-        "reconcile-lint",
-        "reconcile-typecheck",
-        "reconcile-focused-vitest",
-        "reconcile-e2e-workbench",
-        "reconcile-e2e-workbench-app",
-        "reconcile-e2e-chat-view-modes",
-        "reconcile-e2e-saved-drafts",
-        "reconcile-full-vitest",
-        "reconcile-linux-vitest"
-      ],
+      "commandIds": [],
       "artifactRefs": []
     }
   ]

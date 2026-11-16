@@ -1,0 +1,78 @@
+--- a/tests/source-handoff-v3.test.ts
++++ b/tests/source-handoff-v3.test.ts
+@@ -40,7 +40,8 @@
+ 
+ /** Only IndexedDB, staging and broadcast are scripted. The actual journal,
+  * source parsing, generations, CAS, recovery and import functions execute. */
+-function storage(options: {broadcast?: boolean} = {}) {
++function storage(options: {broadcast?: boolean; macrotasks?: boolean} = {}) {
++  const deliver = options.macrotasks ? (callback: () => void) => {setImmediate(callback);} : queueMicrotask;
+   const rows = new Map<string, JournalRecord>(), staged = new Map<string, string>();
+   const state: {unavailable?: Error; opens: number; failCommit?: Error} = {opens: 0};
+   const reads: {key: string; gate: ReturnType<typeof gate>}[] = [];
+@@ -64,7 +65,7 @@
+     const finish = () => {
+       if (pending || finished) return;
+       finished = true;
+-      queueMicrotask(() => {void (async () => {
++      deliver(() => {void (async () => {
+         commitGate?.enter();
+         if (commitGate) await commitGate.pending;
+         if (aborted || commitFailure) {tx.error = commitFailure ?? tx.error; tx.onabort?.();}
+@@ -76,7 +77,7 @@
+       const selected = reads.findIndex(item => item.key === key);
+       const readGate = selected < 0 ? undefined : reads.splice(selected, 1)[0].gate;
+       const item: {result: unknown; error: Error | null; onsuccess?: () => void; onerror?: () => void} = {result: undefined, error: null};
+-      queueMicrotask(() => {void (async () => {
++      deliver(() => {void (async () => {
+         readGate?.enter();
+         if (readGate) await readGate.pending;
+         try {item.result = structuredClone(read()); item.onsuccess?.();}
+@@ -99,7 +100,7 @@
+     state.opens++;
+     if (state.unavailable) throw state.unavailable;
+     const request = {result: database, onsuccess: undefined as (() => void) | undefined};
+-    queueMicrotask(() => request.onsuccess?.());
++    deliver(() => request.onsuccess?.());
+     return request;
+   }});
+   return {rows, staged, state,
+@@ -417,4 +418,38 @@
+     } finally {held.release(); await Promise.all([hydrating, handing.result]); sentinel.mockRestore(); removeApp(); removeWorkbench();}
+   });
+ 
++
++  it.each([false, true])('settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: %s)', async initialPending => {
++    const local = storage({macrotasks: true});
++    const journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const {prepareEditorHandoff, registerEditorHandoff} = await import('../apps/web/src/editor-handoff');
++    const held = initialPending ? local.holdRead(sourceKey) : undefined;
++    const recovering = Promise.all(keys.map(key => journal.journalReadRecord(key)));
++    if (held) await held.entered;
++    else expect(await recovering).toEqual([undefined, undefined, undefined]);
++    // Unlike retained records, a successful absent read is not cached. Deliver
++    // each IDB request as its own event-loop task so peer reads remain observable.
++    const observe = journal.journalHandoffState; let inspections = 0;
++    const sentinel = vi.spyOn(journal, 'journalHandoffState').mockImplementation(names => {
++      if (++inspections > 64) throw Error('Empty-owner guards did not settle after 64 metadata inspections.');
++      return observe(names);
++    });
++    const started: string[] = [], finished: string[] = [];
++    const guard = (name: string) => async () => {started.push(name); await recovery.prepareSourceOwnerHandoff(owner); finished.push(name);};
++    const removeApp = registerEditorHandoff('composer-journal:thread-a', guard('App'));
++    const removeWorkbench = registerEditorHandoff('source-workbench:owner-a', guard('SourceWorkbench'));
++    const handing = watch(prepareEditorHandoff());
++    try {
++      if (held) {
++        await turn(); expect(handing.settled).toBe(false);
++        held.release(); expect(await recovering).toEqual([undefined, undefined, undefined]);
++      }
++      expect(await handing.result).toEqual({ok: true, value: undefined});
++      expect(started).toEqual(['App', 'SourceWorkbench']); expect(finished.sort()).toEqual(['App', 'SourceWorkbench']);
++      expect(journal.journalGeneration(sourceKey)).toBeUndefined();
++      expect(local.rows.size).toBe(0); expect(local.staged.size).toBe(0);
++    } finally {held?.release(); await Promise.all([recovering, handing.result]); sentinel.mockRestore(); removeApp(); removeWorkbench();}
++  });
++
+ });

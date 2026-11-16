@@ -131,7 +131,14 @@ export class Service {
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
       released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
     });
-    this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'));
+    this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
+      requestContextEnabled: () => this.requestContextEnabled(),
+      readMemoryModule: async owner => {
+        const memory = this.projectMemory, access = await memory.access(owner.projectId, owner.threadId), view = memory.read(access);
+        return {state: !view.available ? 'DISABLED' : view.items.length || view.tombstones.length ? 'AVAILABLE' : 'EMPTY', reason: view.available ? null : view.disabledReason,
+          href: '/api/projects/' + encodeURIComponent(owner.projectId) + '/memory?threadId=' + encodeURIComponent(owner.threadId), assertCurrent: () => memory.assertAccess(access)};
+      },
+    });
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;

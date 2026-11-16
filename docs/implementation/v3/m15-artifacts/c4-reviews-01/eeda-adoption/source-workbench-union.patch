@@ -1,0 +1,20 @@
+--- a/apps/web/src/SourceWorkbench.tsx
++++ b/apps/web/src/SourceWorkbench.tsx
+@@ -19,6 +19,8 @@
+ 
+ const ownerKey=(owner?:LogicalOwnerV1)=>owner?JSON.stringify([owner.threadId,owner.projectId,owner.workspaceId]):'';
+ const messageOf=(cause:unknown)=>cause instanceof Error?cause.message:'The source could not be read. The draft was retained.';
++const shortRevision=(value:string)=>value.length>16?`${value.slice(0,12)}\u2026`:value;
++const formatCaptured=(iso:string)=>{const time=Date.parse(iso);return Number.isNaN(time)?iso:new Date(time).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
+ function sourceRange(ref:SourceRefV1){const source=ref.source;switch(source.kind){case 'MESSAGE':return `UTF-16 [${source.range.start}, ${source.range.end})`;case 'FILE_RANGE':return `Lines ${source.range.startLine} to ${source.range.endLine}`;case 'DIFF_HUNK':return `Hunk lines ${source.range.startLine} to ${source.range.endLine}`;case 'ARTIFACT_REGION':return `Binding ${source.binding}, pointer ${source.range.pointer||'(root)'}`;}}
+ function localDevice(){try{const key='harness:workbench-device',existing=localStorage.getItem(key);if(existing)return existing;const id=crypto.randomUUID();localStorage.setItem(key,id);return id;}catch{return 'local-window';}}
+ type PanelTab=WorkbenchPanelTab;
+@@ -166,7 +168,7 @@
+   {(context.error||localError)&&<p role="alert">{localError||context.error}</p>}
+   <div className="workbench-source-chips">{context.draft?.sourceRefs.map(ref=>{const source=context.sources[ref.captureId],state=source?.state;return <article key={ref.captureId} className="workbench-source-chip" aria-label={`Selected source ${source?.label??ref.source.sourceId}`}>
+    <header><span>{source?.label??ref.source.sourceId} · {ref.source.kind}</span><button type="button" disabled={disabled} onClick={()=>run(()=>context.open(ref))}>Open source</button><button type="button" disabled={disabled} onClick={()=>run(()=>context.remove(ref))}>Remove source</button></header>
+-   <small>Revision {ref.source.sourceRevision} · {sourceRange(ref)} · Captured {ref.source.capturedAt}</small>
++   <small title={`Revision ${ref.source.sourceRevision} · Captured ${ref.source.capturedAt}`}>Revision {shortRevision(ref.source.sourceRevision)} · {sourceRange(ref)} · Captured {formatCaptured(ref.source.capturedAt)}</small>
+    {source&&<pre>{source.preview}{source.previewTruncated?'\nPreview truncated. Open source for the complete capture.':''}</pre>}
+    {state&&state!=='CURRENT'&&<div role="status">{state==='STALE'?'The source has changed.':'The original source is unavailable.'} {ref.keepCaptured?'Using the retained capture.':'Refresh or explicitly keep the retained capture before sending.'}<div className="workbench-source-actions"><button type="button" disabled={disabled||!context.enabled} onClick={()=>run(()=>context.refresh(ref))}>Refresh source</button><button type="button" disabled={disabled||ref.keepCaptured} onClick={()=>run(()=>context.keep(ref))}>Keep captured source</button></div></div>}
+   </article>;})}</div>

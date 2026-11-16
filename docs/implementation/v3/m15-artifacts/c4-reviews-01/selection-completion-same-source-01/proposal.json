@@ -1,0 +1,15 @@
+{
+  "status": "PROPOSED_TEST_ONLY_NOT_APPLIED_NOT_RUN",
+  "path": "tests/e2e/workbench.spec.ts",
+  "beforeSha256": "3bf27c2ccf584ec1f2129cf051447373882cabb02ff7f2a9f2cc3435ba649579",
+  "proposedSha256": "e57edc4b1f2f58132f75aeb391adc0499a4b0fa86dfdefeee898da305997efa2",
+  "patchSha256": "819b0675aae6daba04f6dadceb80a06ec1b53c04436e055330292faee16ae185",
+  "newCases": 1,
+  "totalSelectedCases": 3,
+  "grep": "M15 completed selection action",
+  "assertion": "One combined post-ack observation requires the exact newer same-root range, a visible toolbar, and the enabled Attach action. Missing toolbar is a boolean false, not a locator wait or a skipped later assertion.",
+  "limits": [
+    "No fixture change, rerender trigger, production edit, deadline override or trace override.",
+    "Red02 confirmed foreign range loss; same-source range and toolbar behavior remains unexecuted."
+  ]
+}

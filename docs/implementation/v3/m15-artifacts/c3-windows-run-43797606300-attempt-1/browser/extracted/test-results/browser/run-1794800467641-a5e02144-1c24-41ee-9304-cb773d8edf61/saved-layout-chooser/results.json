@@ -1,0 +1,703 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "saved-layout-chooser.spec.ts"
+        ],
+        "timeout": 15000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --host 127.0.0.1 --port 5416 --strictPort",
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "url": "http://127.0.0.1:5416",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "saved-layout-chooser.spec.ts",
+      "file": "saved-layout-chooser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "saved rows replace the name/action bank and apply only on explicit activation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1985,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:10.713Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-0d4bcb258c4610ae1d5b",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 13,
+          "column": 1
+        },
+        {
+          "title": "save asks for a name on demand, selects its exact ID, and reports current then modified",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2182,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:12.952Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-e9aa7fb48a804f4ec9f8",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "same-task repeated activation is locked, and an already current row does not apply twice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2003,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:15.154Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-1f5576ddd82d49bdb974",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "failed apply keeps the chooser, arrangement, current identity and conversation draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 981,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:17.175Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-cadab68f88e07ce55d95",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 109,
+          "column": 1
+        },
+        {
+          "title": "row overflow updates, renames and confirms deletion without applying on focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2928,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:18.173Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-c2835e3a57e9c08ea11f",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 129,
+          "column": 1
+        },
+        {
+          "title": "cancel and IME keys preserve the name draft and unwind one overlay at a time",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:21.117Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-436e7c25268f224b375f",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 214,
+          "column": 1
+        },
+        {
+          "title": "empty, loading and failed lists stay distinct and offer retry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:22.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-8d85187f60f790fdd090",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 254,
+          "column": 1
+        },
+        {
+          "title": "historical records are explicit recovery rows and never inferred as the current split",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1107,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:24.369Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-45e9cc8e6c95c7ec865b",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 293,
+          "column": 1
+        },
+        {
+          "title": "a stale metadata failure from the old workspace cannot replace the new workspace state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 748,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:25.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-f6984b1656361e29839b",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 316,
+          "column": 1
+        },
+        {
+          "title": "keyboard users can reach row overflow with Tab and Escape returns through both layers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 619,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:26.259Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-422543187fbe319e1f4a",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 362,
+          "column": 1
+        },
+        {
+          "title": "externally changed saved metadata invalidates an observed current badge",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 972,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:26.896Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-dd8caa871ebc191121ff",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 386,
+          "column": 1
+        },
+        {
+          "title": "reopening reveals and focuses the observed selected row",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 922,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:27.883Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-e59fb5cfc160f584d80a",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 408,
+          "column": 1
+        },
+        {
+          "title": "pending layout application cannot race a workspace preset change",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1556,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:28.821Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-2ac313b36b9ef2659ad5",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 426,
+          "column": 1
+        },
+        {
+          "title": "short narrow dark chooser scrolls with row gaps, keyboard access and distinct states",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 980,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.995159149169922\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.995159149169922\u001b[39m\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts:57:1383",
+                    "location": {
+                      "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                      "column": 1383,
+                      "line": 57
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 56 |\u001b[39m \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m theme \u001b[36mof\u001b[39m [\u001b[32m'dark'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'light'\u001b[39m])test(\u001b[32m`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m({page}\u001b[33m,\u001b[39minfo)\u001b[33m=>\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m  \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39msetViewportSize({width\u001b[33m:\u001b[39m\u001b[35m360\u001b[39m\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39m\u001b[35m300\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/saved-layouts?large=1'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(value\u001b[33m=>\u001b[39m{document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mdataset\u001b[33m.\u001b[39mtheme\u001b[33m=\u001b[39mvalue\u001b[33m;\u001b[39m}\u001b[33m,\u001b[39mtheme)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m trigger\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Layouts'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m trigger\u001b[33m.\u001b[39mfocus()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m trigger\u001b[33m.\u001b[39mpress(\u001b[32m'ArrowDown'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m popup\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Saved layouts'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(popup)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Coding'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'r'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Review 1'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'End'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Save current layout…'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m bounds\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mboundingBox()\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mx)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m8\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m50\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mx\u001b[33m+\u001b[39mbounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mwidth)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m352\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39my\u001b[33m+\u001b[39mbounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mheight)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m292\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m geometry\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mevaluate(node\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m list\u001b[33m=\u001b[39mnode\u001b[33m.\u001b[39mquerySelector(\u001b[32m'.saved-layout-list'\u001b[39m)\u001b[33m!\u001b[39m\u001b[33m,\u001b[39mrows\u001b[33m=\u001b[39m[\u001b[33m...\u001b[39mlist\u001b[33m.\u001b[39mquerySelectorAll(\u001b[32m'.saved-layout-row'\u001b[39m)]\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m{overflow\u001b[33m:\u001b[39mgetComputedStyle(list)\u001b[33m.\u001b[39moverflowY\u001b[33m,\u001b[39mgap\u001b[33m:\u001b[39mparseFloat(getComputedStyle(list)\u001b[33m.\u001b[39mrowGap)\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39mrows[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mgetBoundingClientRect()\u001b[33m.\u001b[39mheight}\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39moverflow)\u001b[33m.\u001b[39mtoBe(\u001b[32m'auto'\u001b[39m)\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39mgap)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m4\u001b[39m)\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39mheight)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m32\u001b[39m)\u001b[33m;\u001b[39mexpect(\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mevaluate(node\u001b[33m=>\u001b[39mgetComputedStyle(node)\u001b[33m.\u001b[39mfontFamily))\u001b[33m.\u001b[39mtoContain(\u001b[32m'Inter'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'ArrowUp'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Review 49'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m`layouts-${theme}.png`\u001b[39m)})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'Escape'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(trigger)\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                        "column": 1383,
+                        "line": 57
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.995159149169922\u001b[39m\n\n  55 | });\n  56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{\n> 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  58 | });\n  59 |\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts:57:1383"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:30.394Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\\saved-layout-chooser\\artifacts\\saved-layout-chooser-short-07f37--access-and-distinct-states\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\\saved-layout-chooser\\artifacts\\saved-layout-chooser-short-07f37--access-and-distinct-states\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                    "column": 1383,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-21c397b82ac4fa676264",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 447,
+          "column": 40
+        },
+        {
+          "title": "short narrow light chooser scrolls with row gaps, keyboard access and distinct states",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1560,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.998329162597656\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.998329162597656\u001b[39m\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts:57:1383",
+                    "location": {
+                      "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                      "column": 1383,
+                      "line": 57
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 56 |\u001b[39m \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m theme \u001b[36mof\u001b[39m [\u001b[32m'dark'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'light'\u001b[39m])test(\u001b[32m`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m({page}\u001b[33m,\u001b[39minfo)\u001b[33m=>\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m  \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39msetViewportSize({width\u001b[33m:\u001b[39m\u001b[35m360\u001b[39m\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39m\u001b[35m300\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/saved-layouts?large=1'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(value\u001b[33m=>\u001b[39m{document\u001b[33m.\u001b[39mdocumentElement\u001b[33m.\u001b[39mdataset\u001b[33m.\u001b[39mtheme\u001b[33m=\u001b[39mvalue\u001b[33m;\u001b[39m}\u001b[33m,\u001b[39mtheme)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m trigger\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Layouts'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m trigger\u001b[33m.\u001b[39mfocus()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m trigger\u001b[33m.\u001b[39mpress(\u001b[32m'ArrowDown'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m popup\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m'dialog'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Saved layouts'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(popup)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Coding'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'r'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Review 1'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'End'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Save current layout…'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m bounds\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mboundingBox()\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mx)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m8\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39my)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m50\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mx\u001b[33m+\u001b[39mbounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mwidth)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m352\u001b[39m)\u001b[33m;\u001b[39mexpect(bounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39my\u001b[33m+\u001b[39mbounds\u001b[33m!\u001b[39m\u001b[33m.\u001b[39mheight)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m292\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m geometry\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mevaluate(node\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m list\u001b[33m=\u001b[39mnode\u001b[33m.\u001b[39mquerySelector(\u001b[32m'.saved-layout-list'\u001b[39m)\u001b[33m!\u001b[39m\u001b[33m,\u001b[39mrows\u001b[33m=\u001b[39m[\u001b[33m...\u001b[39mlist\u001b[33m.\u001b[39mquerySelectorAll(\u001b[32m'.saved-layout-row'\u001b[39m)]\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m{overflow\u001b[33m:\u001b[39mgetComputedStyle(list)\u001b[33m.\u001b[39moverflowY\u001b[33m,\u001b[39mgap\u001b[33m:\u001b[39mparseFloat(getComputedStyle(list)\u001b[33m.\u001b[39mrowGap)\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39mrows[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mgetBoundingClientRect()\u001b[33m.\u001b[39mheight}\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39moverflow)\u001b[33m.\u001b[39mtoBe(\u001b[32m'auto'\u001b[39m)\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39mgap)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m4\u001b[39m)\u001b[33m;\u001b[39mexpect(geometry\u001b[33m.\u001b[39mheight)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m32\u001b[39m)\u001b[33m;\u001b[39mexpect(\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mevaluate(node\u001b[33m=>\u001b[39mgetComputedStyle(node)\u001b[33m.\u001b[39mfontFamily))\u001b[33m.\u001b[39mtoContain(\u001b[32m'Inter'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'ArrowUp'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Apply Review 49'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m`layouts-${theme}.png`\u001b[39m)})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'Escape'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(trigger)\u001b[33m.\u001b[39mtoBeFocused()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                        "column": 1383,
+                        "line": 57
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.998329162597656\u001b[39m\n\n  55 | });\n  56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{\n> 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  58 | });\n  59 |\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts:57:1383"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:41:32.501Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\\saved-layout-chooser\\artifacts\\saved-layout-chooser-short-072e8--access-and-distinct-states\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\\saved-layout-chooser\\artifacts\\saved-layout-chooser-short-072e8--access-and-distinct-states\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\saved-layout-chooser.spec.ts",
+                    "column": 1383,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "03e88ba0c59464652133-2b2705074337664d6c5f",
+          "file": "saved-layout-chooser.spec.ts",
+          "line": 447,
+          "column": 40
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:41:08.748Z",
+    "duration": 25982.181,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

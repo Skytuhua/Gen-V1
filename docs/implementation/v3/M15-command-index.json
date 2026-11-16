@@ -758,7 +758,7 @@
   {
     "id": "c3-activity-sync-full-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json",
-    "phase": "INTEGRATION_APP",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:46:17.342Z",
@@ -767,7 +767,7 @@
   {
     "id": "c3-core-prerequisites-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-core-prerequisites-01.json",
-    "phase": "CORE",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:03:43.413Z",
@@ -776,7 +776,7 @@
   {
     "id": "c3-final-build-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-build-01.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:03:05.115Z",
@@ -794,7 +794,7 @@
   {
     "id": "c3-final-custody-02",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-custody-02.json",
-    "phase": "EVIDENCE_INTEGRITY",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:06:49.699Z",
@@ -803,7 +803,7 @@
   {
     "id": "c3-final-focused-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-focused-01.json",
-    "phase": "CORE",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:14:55.913Z",
@@ -821,7 +821,7 @@
   {
     "id": "c3-final-integrity-02",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-integrity-02.json",
-    "phase": "EVIDENCE_INTEGRITY",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:07:20.813Z",
@@ -839,7 +839,7 @@
   {
     "id": "c3-final-package-02",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-package-02.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:06:22.742Z",
@@ -866,7 +866,7 @@
   {
     "id": "c3-final-typecheck-03",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-typecheck-03.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:51:24.643Z",
@@ -875,7 +875,7 @@
   {
     "id": "c3-final-ui-policy-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-final-ui-policy-01.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:06:14.522Z",
@@ -893,7 +893,7 @@
   {
     "id": "c3-layout-source-02",
     "receipt": "docs/implementation/v3/m15-logs/c3-layout-source-02.json",
-    "phase": "INTEGRATION_HOST",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:11:03.604Z",
@@ -927,6 +927,213 @@
     "endedAt": "2026-11-16T02:37:53.540Z"
   },
   {
+    "id": "c3-windows-agents-actual-app-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:38:17.725Z",
+    "endedAt": "2026-11-16T03:39:03.678Z"
+  },
+  {
+    "id": "c3-windows-agents-workspace-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:37:29.479Z",
+    "endedAt": "2026-11-16T03:38:17.331Z"
+  },
+  {
+    "id": "c3-windows-artifact-acknowledgment-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:35:49.916Z",
+    "endedAt": "2026-11-16T03:36:00.601Z"
+  },
+  {
+    "id": "c3-windows-chat-view-modes-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:35:30.397Z",
+    "endedAt": "2026-11-16T03:35:49.499Z"
+  },
+  {
+    "id": "c3-windows-desktop-surfaces-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:43:26.401Z",
+    "endedAt": "2026-11-16T03:49:07.551Z"
+  },
+  {
+    "id": "c3-windows-full-shard-1-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-full-shard-1-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:36:44.137Z",
+    "endedAt": "2026-11-16T03:41:10.440Z"
+  },
+  {
+    "id": "c3-windows-full-shard-2-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-full-shard-2-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:37:55.352Z",
+    "endedAt": "2026-11-16T03:41:28.900Z"
+  },
+  {
+    "id": "c3-windows-full-shard-3-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-full-shard-3-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:30:53.320Z",
+    "endedAt": "2026-11-16T03:33:41.109Z"
+  },
+  {
+    "id": "c3-windows-full-shard-4-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-full-shard-4-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:31:33.698Z",
+    "endedAt": "2026-11-16T03:35:08.113Z"
+  },
+  {
+    "id": "c3-windows-native-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-native-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:36:29.140Z",
+    "endedAt": "2026-11-16T03:37:47.795Z"
+  },
+  {
+    "id": "c3-windows-root-baseline-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-root-baseline-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:34:40.628Z",
+    "endedAt": "2026-11-16T03:51:29.658Z"
+  },
+  {
+    "id": "c3-windows-root-candidate-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-root-candidate-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:51:29.972Z",
+    "endedAt": "2026-11-16T04:08:19.540Z"
+  },
+  {
+    "id": "c3-windows-saved-drafts-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:33:50.301Z",
+    "endedAt": "2026-11-16T03:35:30.006Z"
+  },
+  {
+    "id": "c3-windows-saved-layout-chooser-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:41:07.427Z",
+    "endedAt": "2026-11-16T03:41:34.758Z"
+  },
+  {
+    "id": "c3-windows-scoped-conversation-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:36:01.039Z",
+    "endedAt": "2026-11-16T03:36:20.445Z"
+  },
+  {
+    "id": "c3-windows-split-browser-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-split-browser-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:49:07.958Z",
+    "endedAt": "2026-11-16T03:50:40.560Z"
+  },
+  {
+    "id": "c3-windows-ui-shell-controls-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:36:38.133Z",
+    "endedAt": "2026-11-16T03:37:01.850Z"
+  },
+  {
+    "id": "c3-windows-ui-shell-overlays-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:36:20.805Z",
+    "endedAt": "2026-11-16T03:36:37.717Z"
+  },
+  {
+    "id": "c3-windows-usage-app-integration-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:41:35.145Z",
+    "endedAt": "2026-11-16T03:43:26.025Z"
+  },
+  {
+    "id": "c3-windows-usage-context-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-usage-context-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:37:02.251Z",
+    "endedAt": "2026-11-16T03:37:29.037Z"
+  },
+  {
+    "id": "c3-windows-workbench-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:31:23.562Z",
+    "endedAt": "2026-11-16T03:32:16.342Z"
+  },
+  {
+    "id": "c3-windows-workbench-app-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:32:16.757Z",
+    "endedAt": "2026-11-16T03:33:49.910Z"
+  },
+  {
+    "id": "c3-windows-workspace-host-43797606300-1",
+    "receipt": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:39:04.056Z",
+    "endedAt": "2026-11-16T03:41:07.021Z"
+  },
+  {
     "id": "c3-workbench-app-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-workbench-app-01.json",
     "phase": "ATTEMPT_HISTORY",
@@ -938,7 +1145,7 @@
   {
     "id": "c3-workbench-browser-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-workbench-browser-01.json",
-    "phase": "PERFORMANCE_BROWSER",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:22:03.009Z",
@@ -947,11 +1154,848 @@
   {
     "id": "c3-workspace-contracts-01",
     "receipt": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.json",
-    "phase": "INTEGRATION_HOST",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:06:14.500Z",
     "endedAt": "2026-11-16T02:06:22.000Z"
+  },
+  {
+    "id": "c4-browser-corrections-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-browser-corrections-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:27:43.242Z",
+    "endedAt": "2026-11-16T04:27:43.436Z"
+  },
+  {
+    "id": "c4-build-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-build-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:05:18.637Z",
+    "endedAt": "2026-11-16T05:05:35.273Z"
+  },
+  {
+    "id": "c4-build-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-build-final-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:30:56.457Z",
+    "endedAt": "2026-11-16T05:31:17.761Z"
+  },
+  {
+    "id": "c4-build-final-03",
+    "receipt": "docs/implementation/v3/m15-logs/c4-build-final-03.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:58:22.261Z",
+    "endedAt": "2026-11-16T05:58:46.768Z"
+  },
+  {
+    "id": "c4-c3-retention-admission-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-c3-retention-admission-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:44:28.430Z",
+    "endedAt": "2026-11-16T04:44:29.173Z"
+  },
+  {
+    "id": "c4-c3-windows-admission-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-c3-windows-admission-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:39:58.731Z",
+    "endedAt": "2026-11-16T04:39:59.849Z"
+  },
+  {
+    "id": "c4-current-docs-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-current-docs-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:11:11.473Z",
+    "endedAt": "2026-11-16T06:11:11.593Z"
+  },
+  {
+    "id": "c4-current-docs-metadata-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-current-docs-metadata-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:15:12.741Z",
+    "endedAt": "2026-11-16T06:15:12.803Z"
+  },
+  {
+    "id": "c4-current-ledger-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-current-ledger-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:14:31.478Z",
+    "endedAt": "2026-11-16T06:14:31.510Z"
+  },
+  {
+    "id": "c4-current-ledger-application-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-current-ledger-application-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:14:44.752Z",
+    "endedAt": "2026-11-16T06:14:44.817Z"
+  },
+  {
+    "id": "c4-desktop-error-roles-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-desktop-error-roles-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:28:42.794Z",
+    "endedAt": "2026-11-16T04:28:58.141Z"
+  },
+  {
+    "id": "c4-desktop-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-desktop-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:42:09.052Z",
+    "endedAt": "2026-11-16T05:46:33.080Z"
+  },
+  {
+    "id": "c4-desktop-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-desktop-final-02.json",
+    "phase": "DESKTOP_BRIDGE_BROWSER_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:03:58.053Z",
+    "endedAt": "2026-11-16T06:06:16.897Z"
+  },
+  {
+    "id": "c4-desktop-regression-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:05:45.699Z",
+    "endedAt": "2026-11-16T04:07:21.037Z"
+  },
+  {
+    "id": "c4-empty-owner-diagnostic-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-diagnostic-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:48:24.716Z",
+    "endedAt": "2026-11-16T05:48:25.478Z"
+  },
+  {
+    "id": "c4-empty-owner-fix-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-fix-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:57:43.019Z",
+    "endedAt": "2026-11-16T05:57:43.128Z"
+  },
+  {
+    "id": "c4-empty-owner-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-green-01.json",
+    "phase": "EMPTY_OWNER_HANDOFF_ASYNC_SCHEDULE",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:57:44.978Z",
+    "endedAt": "2026-11-16T05:57:49.357Z"
+  },
+  {
+    "id": "c4-empty-owner-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:53:42.343Z",
+    "endedAt": "2026-11-16T05:53:50.717Z"
+  },
+  {
+    "id": "c4-empty-owner-red-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-red-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:57:05.024Z",
+    "endedAt": "2026-11-16T05:57:07.350Z"
+  },
+  {
+    "id": "c4-empty-owner-tests-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-empty-owner-tests-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:53:36.286Z",
+    "endedAt": "2026-11-16T05:53:36.423Z"
+  },
+  {
+    "id": "c4-evidence-assemble-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-evidence-assemble-01.json",
+    "phase": "FINAL_EVIDENCE_CONTROLLER",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:27:39.670Z",
+    "endedAt": "2026-11-16T06:27:44.855Z"
+  },
+  {
+    "id": "c4-evidence-check-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-evidence-check-01.json",
+    "phase": "FINAL_EVIDENCE_CONTROLLER",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:28:13.268Z",
+    "endedAt": "2026-11-16T06:28:16.774Z"
+  },
+  {
+    "id": "c4-evidence-plan-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-evidence-plan-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:17:24.285Z",
+    "endedAt": "2026-11-16T06:17:24.355Z"
+  },
+  {
+    "id": "c4-external-adoption-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-adoption-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:51:17.449Z",
+    "endedAt": "2026-11-16T03:51:22.243Z"
+  },
+  {
+    "id": "c4-external-adoption-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-adoption-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:27:34.657Z",
+    "endedAt": "2026-11-16T04:27:36.527Z"
+  },
+  {
+    "id": "c4-external-reconcile-e2e-chat-view-modes-e38ead1996",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-chat-view-modes-e38ead1996.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:25:04.412Z",
+    "endedAt": "2026-11-16T02:25:37.337Z"
+  },
+  {
+    "id": "c4-external-reconcile-e2e-saved-drafts-ea0cc6b8a9",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-saved-drafts-ea0cc6b8a9.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:21:21.306Z",
+    "endedAt": "2026-11-16T02:24:11.072Z"
+  },
+  {
+    "id": "c4-external-reconcile-e2e-workbench-app-59332159f9",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-app-59332159f9.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:22:56.241Z",
+    "endedAt": "2026-11-16T02:25:03.657Z"
+  },
+  {
+    "id": "c4-external-reconcile-e2e-workbench-bfc9af6b02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-bfc9af6b02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:20:45.246Z",
+    "endedAt": "2026-11-16T02:22:55.332Z"
+  },
+  {
+    "id": "c4-external-reconcile-focused-vitest-3a16d69f55",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-3a16d69f55.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:20:11.786Z",
+    "endedAt": "2026-11-16T02:20:41.750Z"
+  },
+  {
+    "id": "c4-external-reconcile-focused-vitest-ad8ae63c25",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-ad8ae63c25.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:30:31.417Z",
+    "endedAt": "2026-11-16T03:30:59.590Z"
+  },
+  {
+    "id": "c4-external-reconcile-focused-vitest-f359df0af7",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-f359df0af7.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T02:48:15.263Z",
+    "endedAt": "2026-11-16T02:48:43.944Z"
+  },
+  {
+    "id": "c4-external-reconcile-full-vitest-52ec1936d2",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-52ec1936d2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T02:18:57.614Z",
+    "endedAt": "2026-11-16T02:35:56.084Z"
+  },
+  {
+    "id": "c4-external-reconcile-full-vitest-c308ee76e3",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-c308ee76e3.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:09:56.642Z",
+    "endedAt": "2026-11-16T03:26:34.318Z"
+  },
+  {
+    "id": "c4-external-reconcile-lint-4dea2f09aa",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-4dea2f09aa.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:19:12.263Z",
+    "endedAt": "2026-11-16T02:19:38.867Z"
+  },
+  {
+    "id": "c4-external-reconcile-lint-6db662aab2",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-6db662aab2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:47:24.341Z",
+    "endedAt": "2026-11-16T02:47:47.238Z"
+  },
+  {
+    "id": "c4-external-reconcile-typecheck-02df932368",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-02df932368.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:19:39.093Z",
+    "endedAt": "2026-11-16T02:20:11.259Z"
+  },
+  {
+    "id": "c4-external-reconcile-typecheck-e352e07c02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-e352e07c02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:47:47.342Z",
+    "endedAt": "2026-11-16T02:48:15.203Z"
+  },
+  {
+    "id": "c4-final-custody-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-final-custody-01.json",
+    "phase": "FINAL_SOURCE_AND_EVIDENCE_CUSTODY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:26:38.741Z",
+    "endedAt": "2026-11-16T06:26:41.654Z"
+  },
+  {
+    "id": "c4-final-host-regression-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-final-host-regression-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:29:48.191Z",
+    "endedAt": "2026-11-16T05:30:18.640Z"
+  },
+  {
+    "id": "c4-final-host-regression-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-final-host-regression-02.json",
+    "phase": "HOST_SOURCE_MEMORY_AND_JOURNAL_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:59:16.185Z",
+    "endedAt": "2026-11-16T06:00:03.328Z"
+  },
+  {
+    "id": "c4-host-regression-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-host-regression-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:02:22.084Z",
+    "endedAt": "2026-11-16T04:02:50.770Z"
+  },
+  {
+    "id": "c4-incoming-metadata-preservation-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-incoming-metadata-preservation-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T06:13:20.963Z",
+    "endedAt": "2026-11-16T06:13:21.093Z"
+  },
+  {
+    "id": "c4-incoming-metadata-preservation-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-incoming-metadata-preservation-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:13:39.234Z",
+    "endedAt": "2026-11-16T06:13:39.391Z"
+  },
+  {
+    "id": "c4-incoming-ux-adoption-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-incoming-ux-adoption-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:13:10.423Z",
+    "endedAt": "2026-11-16T05:13:11.622Z"
+  },
+  {
+    "id": "c4-layout-chromium-corrected-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-layout-chromium-corrected-01.json",
+    "phase": "EARLIER_SOURCE_OWNING_UI_REGRESSIONS",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:33:49.030Z",
+    "endedAt": "2026-11-16T04:34:17.016Z"
+  },
+  {
+    "id": "c4-layout-chromium-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-layout-chromium-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:14:21.397Z",
+    "endedAt": "2026-11-16T04:14:49.950Z"
+  },
+  {
+    "id": "c4-main-merge-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-main-merge-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:24:01.345Z",
+    "endedAt": "2026-11-16T03:24:14.222Z"
+  },
+  {
+    "id": "c4-native-close-browser-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-native-close-browser-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:04:01.590Z",
+    "endedAt": "2026-11-16T05:04:01.794Z"
+  },
+  {
+    "id": "c4-native-close-phase-a-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-native-close-phase-a-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:51:25.972Z",
+    "endedAt": "2026-11-16T04:51:26.131Z"
+  },
+  {
+    "id": "c4-native-close-phase-b-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-native-close-phase-b-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:56:49.974Z",
+    "endedAt": "2026-11-16T04:56:50.224Z"
+  },
+  {
+    "id": "c4-native-coverage-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-native-coverage-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:45:19.636Z",
+    "endedAt": "2026-11-16T04:45:19.741Z"
+  },
+  {
+    "id": "c4-panel-opener-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-panel-opener-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:59:42.178Z",
+    "endedAt": "2026-11-16T03:59:56.363Z"
+  },
+  {
+    "id": "c4-panel-opener-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-panel-opener-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:54:59.980Z",
+    "endedAt": "2026-11-16T03:55:19.491Z"
+  },
+  {
+    "id": "c4-prerequisites-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-prerequisites-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:31:42.539Z",
+    "endedAt": "2026-11-16T03:32:48.906Z"
+  },
+  {
+    "id": "c4-project-memory-regression-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-project-memory-regression-01.json",
+    "phase": "EARLIER_SOURCE_OWNING_UI_REGRESSIONS",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:05:00.070Z",
+    "endedAt": "2026-11-16T04:05:24.951Z"
+  },
+  {
+    "id": "c4-public-admission-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-public-admission-01.json",
+    "phase": "PUBLIC_SOURCE_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:25:30.542Z",
+    "endedAt": "2026-11-16T06:25:31.464Z"
+  },
+  {
+    "id": "c4-public-package-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-public-package-final-01.json",
+    "phase": "PUBLIC_SOURCE_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:25:43.744Z",
+    "endedAt": "2026-11-16T06:25:47.629Z"
+  },
+  {
+    "id": "c4-queued-validation-tests-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-queued-validation-tests-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:57:03.107Z",
+    "endedAt": "2026-11-16T05:57:03.242Z"
+  },
+  {
+    "id": "c4-review-evidence-admission-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-review-evidence-admission-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:39:54.124Z",
+    "endedAt": "2026-11-16T05:40:01.179Z"
+  },
+  {
+    "id": "c4-review-evidence-admission-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-review-evidence-admission-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:17:48.320Z",
+    "endedAt": "2026-11-16T06:17:49.728Z"
+  },
+  {
+    "id": "c4-review-evidence-admission-03",
+    "receipt": "docs/implementation/v3/m15-logs/c4-review-evidence-admission-03.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:23:22.295Z",
+    "endedAt": "2026-11-16T06:23:22.938Z"
+  },
+  {
+    "id": "c4-selection-completion-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-completion-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:27:53.475Z",
+    "endedAt": "2026-11-16T05:28:05.967Z"
+  },
+  {
+    "id": "c4-selection-completion-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-completion-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:23:07.897Z",
+    "endedAt": "2026-11-16T05:23:14.298Z"
+  },
+  {
+    "id": "c4-selection-completion-red-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-completion-red-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:23:44.061Z",
+    "endedAt": "2026-11-16T05:23:59.016Z"
+  },
+  {
+    "id": "c4-selection-completion-red-03",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-completion-red-03.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:26:34.263Z",
+    "endedAt": "2026-11-16T05:26:55.901Z"
+  },
+  {
+    "id": "c4-selection-fix-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-fix-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:27:51.937Z",
+    "endedAt": "2026-11-16T05:27:52.058Z"
+  },
+  {
+    "id": "c4-selection-tests-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-selection-tests-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:23:05.602Z",
+    "endedAt": "2026-11-16T05:23:05.678Z"
+  },
+  {
+    "id": "c4-source-handoff-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:51:27.616Z",
+    "endedAt": "2026-11-16T04:51:29.757Z"
+  },
+  {
+    "id": "c4-source-handoff-policy-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:56:52.948Z",
+    "endedAt": "2026-11-16T04:56:57.074Z"
+  },
+  {
+    "id": "c4-source-memory-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-source-memory-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:58:32.814Z",
+    "endedAt": "2026-11-16T03:58:36.887Z"
+  },
+  {
+    "id": "c4-source-memory-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-source-memory-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:53:35.967Z",
+    "endedAt": "2026-11-16T03:53:39.392Z"
+  },
+  {
+    "id": "c4-typecheck-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-typecheck-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:31:42.544Z",
+    "endedAt": "2026-11-16T03:32:59.403Z"
+  },
+  {
+    "id": "c4-typecheck-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-typecheck-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:02:15.481Z",
+    "endedAt": "2026-11-16T04:03:15.081Z"
+  },
+  {
+    "id": "c4-typecheck-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-typecheck-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:04:03.195Z",
+    "endedAt": "2026-11-16T05:05:04.721Z"
+  },
+  {
+    "id": "c4-typecheck-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-typecheck-final-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:28:35.341Z",
+    "endedAt": "2026-11-16T05:29:34.822Z"
+  },
+  {
+    "id": "c4-typecheck-final-03",
+    "receipt": "docs/implementation/v3/m15-logs/c4-typecheck-final-03.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:58:22.193Z",
+    "endedAt": "2026-11-16T05:59:36.024Z"
+  },
+  {
+    "id": "c4-ui-policy-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-ui-policy-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:30:56.469Z",
+    "endedAt": "2026-11-16T05:31:55.487Z"
+  },
+  {
+    "id": "c4-ui-policy-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-ui-policy-final-02.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:58:22.224Z",
+    "endedAt": "2026-11-16T05:59:15.057Z"
+  },
+  {
+    "id": "c4-usage-chromium-corrected-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-usage-chromium-corrected-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:29:28.412Z",
+    "endedAt": "2026-11-16T04:30:51.691Z"
+  },
+  {
+    "id": "c4-usage-chromium-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:07:58.355Z",
+    "endedAt": "2026-11-16T04:08:00.756Z"
+  },
+  {
+    "id": "c4-usage-chromium-initial-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:10:08.706Z",
+    "endedAt": "2026-11-16T04:11:29.951Z"
+  },
+  {
+    "id": "c4-usage-owner-application-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-usage-owner-application-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:42:35.561Z",
+    "endedAt": "2026-11-16T04:42:35.733Z"
+  },
+  {
+    "id": "c4-usage-owner-chromium-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-usage-owner-chromium-01.json",
+    "phase": "EARLIER_SOURCE_OWNING_UI_REGRESSIONS",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:43:14.090Z",
+    "endedAt": "2026-11-16T04:44:35.572Z"
+  },
+  {
+    "id": "c4-workbench-app-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-app-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T05:37:09.910Z",
+    "endedAt": "2026-11-16T05:41:17.510Z"
+  },
+  {
+    "id": "c4-workbench-app-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-app-final-02.json",
+    "phase": "APP_INTEGRATION_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:00:40.571Z",
+    "endedAt": "2026-11-16T06:03:24.307Z"
+  },
+  {
+    "id": "c4-workbench-app-regression-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-app-regression-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:02:11.276Z",
+    "endedAt": "2026-11-16T04:04:20.307Z"
+  },
+  {
+    "id": "c4-workbench-final-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-final-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T05:49:08.072Z",
+    "endedAt": "2026-11-16T05:50:51.593Z"
+  },
+  {
+    "id": "c4-workbench-final-02",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-final-02.json",
+    "phase": "OUTPUT_BROWSER_AND_RENDERER_LOCAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T06:06:51.766Z",
+    "endedAt": "2026-11-16T06:08:18.752Z"
+  },
+  {
+    "id": "c4-workbench-memory-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-memory-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:58:47.137Z",
+    "endedAt": "2026-11-16T03:59:15.555Z"
+  },
+  {
+    "id": "c4-workbench-memory-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workbench-memory-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T03:53:19.345Z",
+    "endedAt": "2026-11-16T03:54:01.591Z"
+  },
+  {
+    "id": "c4-workspace-chromium-corrected-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workspace-chromium-corrected-01.json",
+    "phase": "EARLIER_SOURCE_OWNING_UI_REGRESSIONS",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T04:31:34.983Z",
+    "endedAt": "2026-11-16T04:33:25.985Z"
+  },
+  {
+    "id": "c4-workspace-chromium-initial-01",
+    "receipt": "docs/implementation/v3/m15-logs/c4-workspace-chromium-initial-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:11:44.753Z",
+    "endedAt": "2026-11-16T04:13:57.385Z"
   },
   {
     "id": "candidate-root-artifact-quiet-01",
@@ -1604,7 +2648,7 @@
   {
     "id": "reconcile-e2e-chat-view-modes",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:02:05.646Z",
@@ -1613,7 +2657,7 @@
   {
     "id": "reconcile-e2e-saved-drafts",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:02:42.858Z",
@@ -1622,7 +2666,7 @@
   {
     "id": "reconcile-e2e-workbench-app",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:58:14.007Z",
@@ -1631,7 +2675,7 @@
   {
     "id": "reconcile-e2e-workbench",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T02:56:35.509Z",
@@ -1640,7 +2684,7 @@
   {
     "id": "reconcile-focused-vitest",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:34:05.406Z",
@@ -1649,7 +2693,7 @@
   {
     "id": "reconcile-full-vitest",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-16T03:34:44.102Z",
@@ -1658,7 +2702,7 @@
   {
     "id": "reconcile-lint",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-lint.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:29:34.475Z",
@@ -1667,7 +2711,7 @@
   {
     "id": "reconcile-linux-vitest",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-16T04:09:14.000Z",
@@ -1676,7 +2720,7 @@
   {
     "id": "reconcile-typecheck",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
-    "phase": "RECONCILIATION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-16T03:30:00.562Z",

@@ -1,0 +1,7 @@
+{
+  "fixture": "Host contract fixture (no model inference)",
+  "browser": "Chromium",
+  "scope": "Single local fixture run; measurements are not model latency or a performance benchmark.",
+  "checkpointToDurableAcknowledgmentMs": 229.24299999999948,
+  "sameIframeExpansion": true
+}

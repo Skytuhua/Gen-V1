@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/native-coverage-application-01/apply.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T04:45:19.636Z",
+  "endedAt": "2026-11-16T04:45:19.741Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-native-coverage-application-01.log",
+  "logDigest": "6d9c20bc14bbf38352767375c98bb38ecd7bbcc377ea995c16548b4115a69155"
+}

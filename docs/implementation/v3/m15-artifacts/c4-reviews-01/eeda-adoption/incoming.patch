@@ -1,0 +1,66 @@
+diff --git a/apps/web/src/SourceSelectionActions.tsx b/apps/web/src/SourceSelectionActions.tsx
+index a75c0d6..23af719 100644
+--- a/apps/web/src/SourceSelectionActions.tsx
++++ b/apps/web/src/SourceSelectionActions.tsx
+@@ -86,7 +86,7 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
+     const value=candidateRef.current,element=root.current,version=revision.current;
+     if(!value||!element||busy||!latest.current.enabled||authored.current!==latest.current.text||element.textContent!==value.rendered||!visible(value.range,element))return;
+     setBusy(true);setError('');
+-    try{await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});if(version===revision.current)setCandidate(null);}
++    try{await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});if(version===revision.current){setCandidate(null);getSelection()?.removeAllRanges();}}
+     catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
+     finally{if(version===revision.current)setBusy(false);}
+   }
+diff --git a/apps/web/src/SourceWorkbench.tsx b/apps/web/src/SourceWorkbench.tsx
+index 26786c8..f67db02 100644
+--- a/apps/web/src/SourceWorkbench.tsx
++++ b/apps/web/src/SourceWorkbench.tsx
+@@ -17,6 +17,8 @@ import './source-workbench.css';
+ 
+ const ownerKey=(owner?:LogicalOwnerV1)=>owner?JSON.stringify([owner.threadId,owner.projectId,owner.workspaceId]):'';
+ const messageOf=(cause:unknown)=>cause instanceof Error?cause.message:'The source could not be read. The draft was retained.';
++const shortRevision=(value:string)=>value.length>16?`${value.slice(0,12)}\u2026`:value;
++const formatCaptured=(iso:string)=>{const time=Date.parse(iso);return Number.isNaN(time)?iso:new Date(time).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
+ function sourceRange(ref:SourceRefV1){const source=ref.source;switch(source.kind){case 'MESSAGE':return `UTF-16 [${source.range.start}, ${source.range.end})`;case 'FILE_RANGE':return `Lines ${source.range.startLine} to ${source.range.endLine}`;case 'DIFF_HUNK':return `Hunk lines ${source.range.startLine} to ${source.range.endLine}`;case 'ARTIFACT_REGION':return `Binding ${source.binding}, pointer ${source.range.pointer||'(root)'}`;}}
+ function localDevice(){try{const key='harness:workbench-device',existing=localStorage.getItem(key);if(existing)return existing;const id=crypto.randomUUID();localStorage.setItem(key,id);return id;}catch{return 'local-window';}}
+ type PanelTab=WorkbenchPanelTab;
+@@ -165,7 +167,7 @@ export function WorkbenchComposer({title,working=false,disabled=false}:{title:st
+   {(context.error||localError)&&<p role="alert">{localError||context.error}</p>}
+   <div className="workbench-source-chips">{context.draft?.sourceRefs.map(ref=>{const source=context.sources[ref.captureId],state=source?.state;return <article key={ref.captureId} className="workbench-source-chip" aria-label={`Selected source ${source?.label??ref.source.sourceId}`}>
+    <header><span>{source?.label??ref.source.sourceId} · {ref.source.kind}</span><button type="button" disabled={disabled} onClick={()=>run(()=>context.open(ref))}>Open source</button><button type="button" disabled={disabled} onClick={()=>run(()=>context.remove(ref))}>Remove source</button></header>
+-   <small>Revision {ref.source.sourceRevision} · {sourceRange(ref)} · Captured {ref.source.capturedAt}</small>
++   <small title={`Revision ${ref.source.sourceRevision} · Captured ${ref.source.capturedAt}`}>Revision {shortRevision(ref.source.sourceRevision)} · {sourceRange(ref)} · Captured {formatCaptured(ref.source.capturedAt)}</small>
+    {source&&<pre>{source.preview}{source.previewTruncated?'\nPreview truncated. Open source for the complete capture.':''}</pre>}
+    {state&&state!=='CURRENT'&&<div role="status">{state==='STALE'?'The source has changed.':'The original source is unavailable.'} {ref.keepCaptured?'Using the retained capture.':'Refresh or explicitly keep the retained capture before sending.'}<div className="workbench-source-actions"><button type="button" disabled={disabled||!context.enabled} onClick={()=>run(()=>context.refresh(ref))}>Refresh source</button><button type="button" disabled={disabled||ref.keepCaptured} onClick={()=>run(()=>context.keep(ref))}>Keep captured source</button></div></div>}
+   </article>;})}</div>
+diff --git a/apps/web/src/source-workbench.css b/apps/web/src/source-workbench.css
+index 8873575..d05b228 100644
+--- a/apps/web/src/source-workbench.css
++++ b/apps/web/src/source-workbench.css
+@@ -3,11 +3,12 @@
+ .workbench-panel>header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+ .workbench-panel input { max-width:100%; }
+ .workbench-panel input[type=number] { width:90px; }
+-.source-selection-toolbar { flex-direction: row; flex-wrap: wrap; gap: var(--ui-space-1); font-size: 13px; }
++.source-selection-toolbar { flex-direction: row; flex-wrap: wrap; gap: var(--ui-space-1); font-size: 13px; overflow-y: hidden; scrollbar-gutter: auto; }
+ .source-selection-toolbar button { min-height: 32px; flex: 1 1 auto; }
+ .source-selection-toolbar [role=alert] { width: 100%; }
+ .workbench-panel { display: flex; flex-direction: column; gap: 12px; width: min(760px, calc(100% - 32px)); max-height: calc(100% - 64px); overflow: auto; min-width: 0; }
+ .workbench-panel nav,.workbench-source-actions { display: flex; flex-wrap: wrap; gap: 6px; }
++.workbench-panel nav button[aria-pressed="true"] { color: var(--text); background: var(--selection-bg); }
+ .workbench-panel pre { overflow: auto; max-height: 50dvh; white-space: pre-wrap; overflow-wrap: anywhere; }
+ .workbench-source-chips { display: flex; flex-direction: column; gap: 6px; padding: 6px; max-height: 240px; overflow: auto; }
+ .workbench-source-chip { border: 1px solid var(--border, #555); border-radius: 6px; padding: 6px; min-width: 0; }
+diff --git a/apps/web/src/workbench-output.css b/apps/web/src/workbench-output.css
+index 1dc4727..d08e4a7 100644
+--- a/apps/web/src/workbench-output.css
++++ b/apps/web/src/workbench-output.css
+@@ -6,7 +6,7 @@
+ .workbench-output-actions button,.workbench-output-search-result button{white-space:normal;min-height:32px}
+ .workbench-output-state{margin:0;padding:6px 10px;font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+ .workbench-output-search-result{font-size:12px}
+-.workbench-output-viewport{height:min(360px,50vh);min-height:88px;max-width:100%;overflow:auto;overflow-anchor:none;overscroll-behavior:contain;scroll-behavior:auto;border-top:1px solid var(--border);font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);font-size:12px}
++.workbench-output-viewport{height:min(360px,50vh);min-height:88px;max-width:100%;overflow:auto;overflow-anchor:none;overscroll-behavior:contain;scroll-behavior:auto;border-top:1px solid var(--border);font-family:var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);font-size:12px;padding-bottom:120px}
+ .workbench-output-row{height:var(--workbench-row-height,22px);line-height:var(--workbench-row-height,22px);min-width:max-content;padding:0 10px;white-space:pre;overflow:hidden}
+ .workbench-output :focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+ @media(prefers-reduced-motion:reduce){.workbench-output *{scroll-behavior:auto;animation:none;transition:none}}

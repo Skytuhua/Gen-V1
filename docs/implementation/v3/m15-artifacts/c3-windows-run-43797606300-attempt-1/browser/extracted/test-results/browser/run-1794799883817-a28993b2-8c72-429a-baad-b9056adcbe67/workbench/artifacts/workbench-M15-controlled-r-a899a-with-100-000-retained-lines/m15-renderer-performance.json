@@ -1,0 +1,359 @@
+{
+  "capturedAt": "2026-11-16T03:32:16.165Z",
+  "scope": "Controlled React renderer fixture only. Unwindowed reference and candidate use the same immutable retained data. Not full application, live provider, desktop or universal-device performance.",
+  "readModel": "Explicit fixture stub. Host authorization has separate host integration tests.",
+  "metric": "Trusted click event capture to MutationObserver delivery for a local selected-message control; excludes paint and presentation. Thirty measured samples per condition after three warmups; sequential unwindowed then windowed, no CPU or network throttling; trace capture disabled for both measured conditions.",
+  "hardware": {
+    "platform": "win32",
+    "release": "10.0.20348",
+    "cpu": "AMD EPYC 7763 64-Core Processor                ",
+    "logicalCpus": 4,
+    "totalMemoryBytes": 17174360064
+  },
+  "runtime": {
+    "node": "v24.22.2",
+    "browser": "141.0.7390.37",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "headless": true,
+    "build": "Vite development fixture with React development runtime"
+  },
+  "fixture": {
+    "messageMetadata": 10000,
+    "tasks": 500,
+    "retainedOutputLines": 100000
+  },
+  "sourceDigests": {
+    "apps/web/src/WorkbenchOutput.tsx": "97af6b234bd842ada92ef37258942128370acb07cc4534c32dc9a8c2848d63a0",
+    "apps/web/src/workbench-window.ts": "f60e74407b09c9bea6956153f65a90fc124c009d8b06cf6d10f2c3943e856a2d",
+    "apps/web/src/workbench-output.css": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
+    "apps/web/src/workbench-recovery.ts": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+    "apps/web/src/journal.ts": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+    "apps/web/src/SourceSelectionActions.tsx": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+    "apps/web/src/source-workbench.css": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+    "apps/web/src/Markdown.tsx": "b590c8746468fd7d2eeb894cd22599cb1075ae35ff49bcb4b787288424938297",
+    "packages/contracts/source-selection.ts": "e63ce5749be5468b122df211f2663275bec8deb01d83b9fb908dc636fb4a7f25",
+    "tests/e2e/workbench-fixture.tsx": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71",
+    "tests/e2e/workbench.spec.ts": "56dbae9c54d6fbafdfa02d3ee8f0e6303f508a7642a2496eee7d325a4e15b2bd"
+  },
+  "measurements": {
+    "unwindowed": {
+      "mountedRows": 100000,
+      "samples": [
+        {
+          "durationMs": 720.5,
+          "trusted": true,
+          "value": "4"
+        },
+        {
+          "durationMs": 593.1999999999534,
+          "trusted": true,
+          "value": "5"
+        },
+        {
+          "durationMs": 728.2999999999884,
+          "trusted": true,
+          "value": "6"
+        },
+        {
+          "durationMs": 608.9000000000233,
+          "trusted": true,
+          "value": "7"
+        },
+        {
+          "durationMs": 840.2999999999884,
+          "trusted": true,
+          "value": "8"
+        },
+        {
+          "durationMs": 595.2000000000116,
+          "trusted": true,
+          "value": "9"
+        },
+        {
+          "durationMs": 847.5999999999767,
+          "trusted": true,
+          "value": "10"
+        },
+        {
+          "durationMs": 598.6999999999534,
+          "trusted": true,
+          "value": "11"
+        },
+        {
+          "durationMs": 861.2000000000116,
+          "trusted": true,
+          "value": "12"
+        },
+        {
+          "durationMs": 845.5,
+          "trusted": true,
+          "value": "13"
+        },
+        {
+          "durationMs": 591.3000000000466,
+          "trusted": true,
+          "value": "14"
+        },
+        {
+          "durationMs": 840.5,
+          "trusted": true,
+          "value": "15"
+        },
+        {
+          "durationMs": 587.8000000000466,
+          "trusted": true,
+          "value": "16"
+        },
+        {
+          "durationMs": 834,
+          "trusted": true,
+          "value": "17"
+        },
+        {
+          "durationMs": 588.8999999999651,
+          "trusted": true,
+          "value": "18"
+        },
+        {
+          "durationMs": 832.2999999999884,
+          "trusted": true,
+          "value": "19"
+        },
+        {
+          "durationMs": 586.7000000000116,
+          "trusted": true,
+          "value": "20"
+        },
+        {
+          "durationMs": 830.7999999999884,
+          "trusted": true,
+          "value": "21"
+        },
+        {
+          "durationMs": 594.6000000000349,
+          "trusted": true,
+          "value": "22"
+        },
+        {
+          "durationMs": 839.8000000000466,
+          "trusted": true,
+          "value": "23"
+        },
+        {
+          "durationMs": 589.5,
+          "trusted": true,
+          "value": "24"
+        },
+        {
+          "durationMs": 849.0999999999767,
+          "trusted": true,
+          "value": "25"
+        },
+        {
+          "durationMs": 587.6000000000349,
+          "trusted": true,
+          "value": "26"
+        },
+        {
+          "durationMs": 838.2000000000116,
+          "trusted": true,
+          "value": "27"
+        },
+        {
+          "durationMs": 592.5,
+          "trusted": true,
+          "value": "28"
+        },
+        {
+          "durationMs": 843.5999999999767,
+          "trusted": true,
+          "value": "29"
+        },
+        {
+          "durationMs": 592,
+          "trusted": true,
+          "value": "30"
+        },
+        {
+          "durationMs": 835.0999999999767,
+          "trusted": true,
+          "value": "31"
+        },
+        {
+          "durationMs": 590.8000000000466,
+          "trusted": true,
+          "value": "32"
+        },
+        {
+          "durationMs": 835.3000000000466,
+          "trusted": true,
+          "value": "33"
+        }
+      ],
+      "p95Ms": 849.0999999999767
+    },
+    "windowed": {
+      "mountedRows": 29,
+      "samples": [
+        {
+          "durationMs": 3,
+          "trusted": true,
+          "value": "4"
+        },
+        {
+          "durationMs": 3.2000000000116415,
+          "trusted": true,
+          "value": "5"
+        },
+        {
+          "durationMs": 3.5,
+          "trusted": true,
+          "value": "6"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "7"
+        },
+        {
+          "durationMs": 2.900000000023283,
+          "trusted": true,
+          "value": "8"
+        },
+        {
+          "durationMs": 3.1000000000349246,
+          "trusted": true,
+          "value": "9"
+        },
+        {
+          "durationMs": 2.800000000046566,
+          "trusted": true,
+          "value": "10"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "11"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "12"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "13"
+        },
+        {
+          "durationMs": 2.8999999999650754,
+          "trusted": true,
+          "value": "14"
+        },
+        {
+          "durationMs": 3,
+          "trusted": true,
+          "value": "15"
+        },
+        {
+          "durationMs": 2.900000000023283,
+          "trusted": true,
+          "value": "16"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "17"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "18"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "19"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "20"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "21"
+        },
+        {
+          "durationMs": 2.599999999976717,
+          "trusted": true,
+          "value": "22"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "23"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "24"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "25"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "26"
+        },
+        {
+          "durationMs": 2.699999999953434,
+          "trusted": true,
+          "value": "27"
+        },
+        {
+          "durationMs": 3.2999999999883585,
+          "trusted": true,
+          "value": "28"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "29"
+        },
+        {
+          "durationMs": 2.699999999953434,
+          "trusted": true,
+          "value": "30"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "31"
+        },
+        {
+          "durationMs": 2.7999999999883585,
+          "trusted": true,
+          "value": "32"
+        },
+        {
+          "durationMs": 2.7000000000116415,
+          "trusted": true,
+          "value": "33"
+        }
+      ],
+      "p95Ms": 3.2999999999883585
+    }
+  },
+  "acceptance": {
+    "candidateP95Under100ms": true,
+    "candidateMountedRowsAtMost300": true
+  }
+}

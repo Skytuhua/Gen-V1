@@ -1,3 +1,5 @@
+> Historical evidence: this document retains its original source-bound results. Current C4 behavior, final local checks and outstanding Windows requirements are recorded in [M15-c4-regression-review.md](M15-c4-regression-review.md) and [M15-handoff.md](M15-handoff.md). Earlier failures and platform limits remain unchanged.
+
 # M15 browser regression review
 
 The latest corrected-source ChatView gate remains FAIL, five passed and one failed at the original canonical App input-readiness deadline. Complete corrected App, workbench, shared-overlay/control and saved-draft configurations pass within their recorded scopes. Earlier six-case ChatView and full-root results below retain their historical source attribution. No current complete root parity or native/Edge acceptance is claimed.

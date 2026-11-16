@@ -1,0 +1,1101 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T06:17:24.698287+00:00",
+  "kind": "READ_ONLY_CURRENT_C4_DOCUMENT_REVIEW",
+  "status": "NO_CONCRETE_MISMATCH_FOUND",
+  "scope": "Six current narrative documents, their relative links, exact current and historical result scope, and specified UI ownership claims. No new product/test execution, compatibility certification or publication approval.",
+  "documents": [
+    {
+      "path": "docs/implementation/v3/M15-dependency-review.md",
+      "bytes": 12067,
+      "sha256": "463d1a057894860dce7914b4d6313a30db41c0c075b32ace53a5f795bd8982be"
+    },
+    {
+      "path": "docs/implementation/v3/M15-feature-comparison.md",
+      "bytes": 13409,
+      "sha256": "6f23912f1dc3da249c1fb18c79590a196e7d432eba60250224c940265bddcb27"
+    },
+    {
+      "path": "docs/implementation/v3/M15-final-review.md",
+      "bytes": 13545,
+      "sha256": "417146e77f79f0d17619c5834bd8ad9a9ee7990003ed38b73067f70901d212df"
+    },
+    {
+      "path": "docs/implementation/v3/M15-handoff.md",
+      "bytes": 19902,
+      "sha256": "ff8482cbc20418003fb63790c4bb2287a2c4ff2090655edb7298ce0894ef8b6e"
+    },
+    {
+      "path": "docs/implementation/v3/M15-original-prompt-audit.md",
+      "bytes": 14020,
+      "sha256": "637ccfa3492b2defb71b08697601ffd4ac04a1955ede7768bd29009e07008e5f"
+    },
+    {
+      "path": "docs/implementation/v3/M15-plan.md",
+      "bytes": 6166,
+      "sha256": "b23b9d9b34fcee974086d6a86320974f706bd9ab3a6683fd3f2a7adb53d45632"
+    }
+  ],
+  "ledger": {
+    "path": "docs/implementation/v3/M15-c4-regression-review.md",
+    "bytes": 53088,
+    "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+  },
+  "ledgerEqualsSealedDraft03": true,
+  "links": [
+    {
+      "document": "M15-dependency-review.md",
+      "target": "m15-artifacts/c3-windows-run-43797606300-attempt-1/cohort-file-map.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/cohort-file-map.json",
+        "bytes": 447489,
+        "sha256": "9c7e30fbf8d6239bcf8b34c5960480aa6c86fb1cc4b21a84d7882215ff09530a"
+      }
+    },
+    {
+      "document": "M15-dependency-review.md",
+      "target": "m15-artifacts/c4-dependency-review-01/upstream-m05-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-dependency-review-01/upstream-m05-review.md",
+        "bytes": 12267,
+        "sha256": "169c7c05f89b955f3af7296fac65c2b8404eee875ad50a7d2b19c39c56591a67"
+      }
+    },
+    {
+      "document": "M15-dependency-review.md",
+      "target": "M15-c4-regression-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-c4-regression-review.md",
+        "bytes": 53088,
+        "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+      }
+    },
+    {
+      "document": "M15-feature-comparison.md",
+      "target": "M15-c4-regression-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-c4-regression-review.md",
+        "bytes": 53088,
+        "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+      }
+    },
+    {
+      "document": "M15-feature-comparison.md",
+      "target": "m15-artifacts/c4-validation-final-03/source-cut.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "bytes": 548158,
+        "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+      }
+    },
+    {
+      "document": "M15-final-review.md",
+      "target": "m15-artifacts/c4-validation-final-03/source-cut.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "bytes": 548158,
+        "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+      }
+    },
+    {
+      "document": "M15-final-review.md",
+      "target": "M15-c4-regression-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-c4-regression-review.md",
+        "bytes": 53088,
+        "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+      }
+    },
+    {
+      "document": "M15-final-review.md",
+      "target": "M15-dependency-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-dependency-review.md",
+        "bytes": 12067,
+        "sha256": "463d1a057894860dce7914b4d6313a30db41c0c075b32ace53a5f795bd8982be"
+      }
+    },
+    {
+      "document": "M15-final-review.md",
+      "target": "m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+        "bytes": 1567,
+        "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+      }
+    },
+    {
+      "document": "M15-handoff.md",
+      "target": "M15-c4-regression-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-c4-regression-review.md",
+        "bytes": 53088,
+        "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+      }
+    },
+    {
+      "document": "M15-handoff.md",
+      "target": "m15-artifacts/c4-validation-final-03/source-cut.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "bytes": 548158,
+        "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+      }
+    },
+    {
+      "document": "M15-handoff.md",
+      "target": "m15-artifacts/c3-windows-run-43797606300-attempt-1/cohort-file-map.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/cohort-file-map.json",
+        "bytes": 447489,
+        "sha256": "9c7e30fbf8d6239bcf8b34c5960480aa6c86fb1cc4b21a84d7882215ff09530a"
+      }
+    },
+    {
+      "document": "M15-handoff.md",
+      "target": "m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+        "bytes": 1567,
+        "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+      }
+    },
+    {
+      "document": "M15-handoff.md",
+      "target": "m15-artifacts/c4-workbench-final-02/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+        "bytes": 9457,
+        "sha256": "48989b4d853933b8b97287db25f7036cb77dff86535c7f3ae31c9beee2b336b2"
+      }
+    },
+    {
+      "document": "M15-original-prompt-audit.md",
+      "target": "m15-artifacts/c4-validation-final-03/source-cut.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+        "bytes": 548158,
+        "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+      }
+    },
+    {
+      "document": "M15-original-prompt-audit.md",
+      "target": "M15-c4-regression-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-c4-regression-review.md",
+        "bytes": 53088,
+        "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716"
+      }
+    },
+    {
+      "document": "M15-original-prompt-audit.md",
+      "target": "M15-dependency-review.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-dependency-review.md",
+        "bytes": 12067,
+        "sha256": "463d1a057894860dce7914b4d6313a30db41c0c075b32ace53a5f795bd8982be"
+      }
+    },
+    {
+      "document": "M15-original-prompt-audit.md",
+      "target": "M15-feature-comparison.md",
+      "resolved": {
+        "path": "docs/implementation/v3/M15-feature-comparison.md",
+        "bytes": 13409,
+        "sha256": "6f23912f1dc3da249c1fb18c79590a196e7d432eba60250224c940265bddcb27"
+      }
+    },
+    {
+      "document": "M15-original-prompt-audit.md",
+      "target": "m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+      "resolved": {
+        "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+        "bytes": 1567,
+        "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+      }
+    }
+  ],
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+    "bytes": 548158,
+    "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+  },
+  "sourceHeadAtCapture": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "intendedPublicationParent": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+  "acceptedContractBlobs": [
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "acceptedGitBlob": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "acceptedGitBlob": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "acceptedGitBlob": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/core/effect-recovery.ts",
+      "acceptedGitBlob": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "acceptedGitBlob": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "acceptedGitBlob": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "acceptedGitBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "acceptedGitBlob": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "acceptedGitBlob": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "acceptedGitBlob": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "acceptedGitBlob": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "acceptedGitBlob": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "acceptedGitBlob": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+    },
+    {
+      "path": "apps/server/project-memory-routes.ts",
+      "acceptedGitBlob": "831de697aa0961028c5d91874a45a1d2dee51b3c"
+    },
+    {
+      "path": "packages/runtime/memory-checkpoint.ts",
+      "acceptedGitBlob": "f7f90985d8b2d62dc389337bf0bb1f802a94f472"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "acceptedGitBlob": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "acceptedGitBlob": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+    }
+  ],
+  "reviewedReceipts": [
+    {
+      "id": "c4-final-host-regression-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-final-host-regression-02.json",
+        "bytes": 1918,
+        "sha256": "69a9acc5426575ee5a058e217bcf9353a2e96342f48d8c4fd0dddcf891be37ae"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-final-host-regression-02.log",
+        "bytes": 4746,
+        "sha256": "bca141340126288f1d60834bf65df434c91a1f5510be3fb65a9cf746a8c86223"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/source-workbench-memory-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/source-selection-v3.test.ts",
+        "tests/source-selection-dom-v3.test.ts",
+        "tests/source-composer-v3.test.ts",
+        "tests/source-draft-transfer-v3.test.ts",
+        "tests/workbench-input-recovery-v3.test.ts",
+        "tests/workbench-recovery-v3.test.ts",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/context-compiler-v3.test.ts",
+        "tests/accounts.test.ts",
+        "tests/project-memory-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts",
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/memory-host-lifecycle-v3.test.ts",
+        "tests/memory-forget-v3.test.ts",
+        "tests/memory-enrollment-recovery-v3.test.ts",
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/memory-retrieval-v3.test.ts",
+        "tests/journal.test.ts",
+        "tests/source-handoff-v3.test.ts",
+        "tests/editor-handoff.test.ts",
+        "tests/draft-transfer.test.ts",
+        "tests/compact-draft-transfer.test.ts",
+        "tests/saved-drafts.test.ts",
+        "tests/agents-workspace-composer.test.ts",
+        "tests/agents-workspace-dispatch.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c4-final-host-regression-02/results.json"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-final-host-regression-02/results.json",
+        "bytes": 137311,
+        "sha256": "0a488c05d7a192df2e6258f96bc6f0747fe0696b4ed50a8433b7b4c545efa513"
+      },
+      "counts": {
+        "numTotalTests": 412,
+        "numPassedTests": 410,
+        "numFailedTests": 0,
+        "numPendingTests": 2
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-workbench-app-final-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-final-02.json",
+        "bytes": 763,
+        "sha256": "18b9900211d90ea698b309b367dc2060ef8a8c19e59f3450785e961c69ab9573"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-final-02.log",
+        "bytes": 4866,
+        "sha256": "1b748dadaa08a03657b6331c43a98440a18f61bb41685111ea677f1c7574b5da"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench-app.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-02/artifacts"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-02/results.json",
+        "bytes": 66161,
+        "sha256": "47d0050b3dbc9bc1ffff13144e2cfe26aadef878a738b55146267ac06fa7288a"
+      },
+      "counts": {
+        "startTime": "2026-11-16T06:00:42.817Z",
+        "duration": 161360.562,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-desktop-final-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-final-02.json",
+        "bytes": 754,
+        "sha256": "1639fd62b6241f979a421548513aa7765df9d56ffe12643d88c3bb902041831c"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-final-02.log",
+        "bytes": 6130,
+        "sha256": "6e182e572cfdab831a4639afaf25ba244a99842e30d96bddc097df4423c5e0df"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-02/artifacts"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-final-02/results.json",
+        "bytes": 35065,
+        "sha256": "b0ec20e1b1b65c9b1c79c6b3349070a8ea91155492ca36c2d97ac9f013f89655"
+      },
+      "counts": {
+        "startTime": "2026-11-16T06:04:01.442Z",
+        "duration": 135316.61000000002,
+        "expected": 31,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-workbench-final-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-final-02.json",
+        "bytes": 751,
+        "sha256": "c58c5486deeba838892c8234e3046a8e1aa283a7066f9ca6ed45c9b85562134e"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-final-02.log",
+        "bytes": 4036,
+        "sha256": "8b78ccbe1e3a3211f3d288f4ec3e5cfc775e57517c231a23efafb7fe6704417d"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/artifacts"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/results.json",
+        "bytes": 38317,
+        "sha256": "93feba7564a0881e17548a6b44cd662f77c306a8259d69f27b902a98cba3af4c"
+      },
+      "counts": {
+        "startTime": "2026-11-16T06:06:56.739Z",
+        "duration": 81900.884,
+        "expected": 21,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-typecheck-final-03",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-typecheck-final-03.json",
+        "bytes": 542,
+        "sha256": "25df07c119025b5ba4f29b8130cff7ae2da65018193575fce3b9baee5e44b0b7"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-typecheck-final-03.log",
+        "bytes": 182,
+        "sha256": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "typecheck"
+      ]
+    },
+    {
+      "id": "c4-build-final-03",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-build-final-03.json",
+        "bytes": 534,
+        "sha256": "80be7eceb34b1a420049d8a939b2ccae37669e65b072c86f9c91c2edb54fbfad"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-build-final-03.log",
+        "bytes": 8917,
+        "sha256": "6860a635d343aad7ba9bd1080845751c8b0a04c560f6c96adcda50b0412a7bce"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "build"
+      ]
+    },
+    {
+      "id": "c4-ui-policy-final-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-ui-policy-final-02.json",
+        "bytes": 563,
+        "sha256": "59770d59cf4f60053ed66f0b0935ddd14f262c1074eb0b200b3859e7c4f9900a"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-ui-policy-final-02.log",
+        "bytes": 263,
+        "sha256": "8060b73a95555edd9808371268a9693222c53b798306d8a73245966faabdf7d3"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "node",
+        "--import",
+        "tsx",
+        "scripts/lint-ui.ts",
+        "--check"
+      ]
+    },
+    {
+      "id": "c4-workbench-app-final-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-final-01.json",
+        "bytes": 763,
+        "sha256": "da4a16c43f82b27e4bd9ba5546b45912f54185ce8a60579fcbfe42f71865c06e"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-final-01.log",
+        "bytes": 18129,
+        "sha256": "0b8e1bfa7b12dc04c1352856c94bcde56c0087f52b394f151d826ec4c1f40f60"
+      },
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench-app.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/results.json",
+        "bytes": 88648,
+        "sha256": "9dc4d31494f7940463f9d435ce893e4aec8fde681f9f68f462c7d8eba9649c57"
+      },
+      "counts": {
+        "startTime": "2026-11-16T05:37:11.998Z",
+        "duration": 245380.97,
+        "expected": 22,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-desktop-final-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-final-01.json",
+        "bytes": 754,
+        "sha256": "5681c070b4c4d2ec57da40dc696de3d42590ff9e5ec334b6968dea43fdce3ab1"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-final-01.log",
+        "bytes": 30077,
+        "sha256": "22770fb0244a2c3c9f928f103a633a81391beef05f07093d17dc1fa59b8fc8e9"
+      },
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-01/artifacts"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-final-01/results.json",
+        "bytes": 59813,
+        "sha256": "7e4540696283a6cd5e686445a8210e8b9adfcdaf60951c3529ea86e94f5ace1a"
+      },
+      "counts": {
+        "startTime": "2026-11-16T05:42:10.799Z",
+        "duration": 262090.99399999998,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 5,
+        "flaky": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-empty-owner-red-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-empty-owner-red-02.json",
+        "bytes": 800,
+        "sha256": "3a88a66f2f42a71382206c5acff50a04cd36b33c6f84cf5f94f4c5a1e0fbf553"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-empty-owner-red-02.log",
+        "bytes": 6506,
+        "sha256": "849cb518aaa333cbc5194dfe6c99598b1ca6f69f5d69711c8814692efecbbc53"
+      },
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/source-handoff-v3.test.ts",
+        "tests/editor-handoff.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c4-empty-owner-red-02/results.json"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-empty-owner-red-02/results.json",
+        "bytes": 13764,
+        "sha256": "a1d8b21a4565ae1c4a5e061f79f5957463e07d2af0495cf72b6e55786c10d007"
+      },
+      "counts": {
+        "numTotalTests": 31,
+        "numPassedTests": 27,
+        "numFailedTests": 4,
+        "numPendingTests": 0
+      },
+      "reportErrors": 0
+    },
+    {
+      "id": "c4-empty-owner-green-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-empty-owner-green-01.json",
+        "bytes": 804,
+        "sha256": "327039546fa12460e84c20d84178bf0e6c2f686bd8d37c46f905aa535668bdc5"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-empty-owner-green-01.log",
+        "bytes": 784,
+        "sha256": "86a7ba55cacbeea6e218e70ddcf5d9db4ee6a3111100ff19fe3856ae0eec9c54"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/source-handoff-v3.test.ts",
+        "tests/editor-handoff.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c4-empty-owner-green-01/results.json"
+      ],
+      "results": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-empty-owner-green-01/results.json",
+        "bytes": 12467,
+        "sha256": "1692c72562a593768805016a6b74ece121e31702a01a721d28f8ed40f0a98cef"
+      },
+      "counts": {
+        "numTotalTests": 31,
+        "numPassedTests": 31,
+        "numFailedTests": 0,
+        "numPendingTests": 0
+      },
+      "reportErrors": 0
+    }
+  ],
+  "retainedBrowserSourceVerifications": [
+    {
+      "id": "c4-workbench-app-final-02",
+      "stage": "before",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-02/source-before.json",
+        "bytes": 1009,
+        "sha256": "478c4d7e5e84137c5fc13c9d79ead5b89d5f39e76c87dad2dcfbe88a6e69ab39"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-workbench-app-final-02",
+        "phase": "before",
+        "startedAt": "2026-11-16T06:00:39.351965+00:00",
+        "endedAt": "2026-11-16T06:00:39.987992+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "c4-workbench-app-final-02",
+      "stage": "after",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-02/source-after.json",
+        "bytes": 1008,
+        "sha256": "cd0b96521db3a81b8f828e9c26296823a32e4eff88321b0b6149eeaff8862d83"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-workbench-app-final-02",
+        "phase": "after",
+        "startedAt": "2026-11-16T06:03:45.247521+00:00",
+        "endedAt": "2026-11-16T06:03:46.016535+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "c4-desktop-final-02",
+      "stage": "before",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-final-02/source-before.json",
+        "bytes": 1003,
+        "sha256": "f8688645d27df8b44581e2f39dab06badcf648ca4dadb178a2d24fa2322ee23b"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-desktop-final-02",
+        "phase": "before",
+        "startedAt": "2026-11-16T06:03:57.133710+00:00",
+        "endedAt": "2026-11-16T06:03:57.432912+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "c4-desktop-final-02",
+      "stage": "after",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-final-02/source-after.json",
+        "bytes": 1002,
+        "sha256": "712e2c41564333bb634fb70a393792ea50e3c23132650814878d3dd6d9313005"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-desktop-final-02",
+        "phase": "after",
+        "startedAt": "2026-11-16T06:06:32.733245+00:00",
+        "endedAt": "2026-11-16T06:06:33.258549+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "c4-workbench-final-02",
+      "stage": "before",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/source-before.json",
+        "bytes": 1005,
+        "sha256": "f9dc4447457b14e36120612c39d3085b32af8dabd9cc04f859e2b32b7b77394c"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-workbench-final-02",
+        "phase": "before",
+        "startedAt": "2026-11-16T06:06:49.967491+00:00",
+        "endedAt": "2026-11-16T06:06:51.110081+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "c4-workbench-final-02",
+      "stage": "after",
+      "record": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-final-02/source-after.json",
+        "bytes": 1004,
+        "sha256": "ba1617d2e8f5289d2e0115c7595234884da7517d46d937f0e8742fc04b3eb259"
+      },
+      "observation": {
+        "kind": "SOURCE_CUT_VERIFICATION",
+        "run": "c4-workbench-final-02",
+        "phase": "after",
+        "startedAt": "2026-11-16T06:08:37.213399+00:00",
+        "endedAt": "2026-11-16T06:08:37.638655+00:00",
+        "argv": [
+          "python",
+          "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+          "verify",
+          "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json"
+        ],
+        "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+        "expectedManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "actualManifestSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+        "exitCode": 0,
+        "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55491032, \"sourceCutSha256\": \"0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "uiOwnershipSources": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 161584,
+      "sha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "bytes": 22799,
+      "sha256": "de0cac5c3f3575621a12822d8c1b963932bc47911591f78ffbead2a61cd34965"
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "bytes": 28963,
+      "sha256": "00b5ac2bb4a69c4ee99acdf4fb5c1767879af5b62c51eba82a29cb98b41845f5"
+    }
+  ],
+  "uiOwnershipFindings": [
+    "M05 workbench eligibility matches an exact main-kind thread, project and working-copy workspace and derives the account from that thread. It does not require canonical main placement.",
+    "App retains the main WorkspaceControls opener, one pinned nonembedded header opener and no embedded header duplicate.",
+    "Visible Usage ownership filters current active view IDs and eligible local thread bindings while preserving canonical placement."
+  ],
+  "historicalC3": {
+    "summary": {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/terminal-results-summary-01.json",
+      "bytes": 220730,
+      "sha256": "d431c69c9fffdc17dbdadd99e2e24c8896a4d045b2636f55ebddeec3e1eaa270"
+    },
+    "cohort": {
+      "path": "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/cohort-file-map.json",
+      "bytes": 447489,
+      "sha256": "9c7e30fbf8d6239bcf8b34c5960480aa6c86fb1cc4b21a84d7882215ff09530a"
+    },
+    "identity": {
+      "repository": "skytuhua-org/Gen-V1",
+      "runId": 43797606300,
+      "attempt": 1,
+      "event": "push",
+      "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+      "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+      "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+      "acceptedBaseTree": "2ecdb4c95fc6b604159257a125064ad585b966e5",
+      "runStatus": "completed",
+      "runConclusion": "failure"
+    },
+    "nativeCounts": {
+      "numTotalTests": 327,
+      "numPassedTests": 326,
+      "numFailedTests": 0,
+      "numPendingTests": 1,
+      "numTodoTests": 0
+    },
+    "nativeUnexecuted": [
+      {
+        "file": "D:/a/Gen-V1/Gen-V1/tests/source-workbench-host-v3.test.ts",
+        "name": "keeps file captures unavailable under the real unsupported Linux leaf guard",
+        "status": "skipped"
+      }
+    ],
+    "fullCounts": {
+      "numTotalTests": 3650,
+      "numPassedTests": 3604,
+      "numFailedTests": 0,
+      "numPendingTests": 46,
+      "numTodoTests": 0
+    },
+    "browserCounts": {
+      "expected": 302,
+      "unexpected": 29,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "root": {
+      "comparison": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/root-browser-comparison-01.json",
+        "bytes": 1162962,
+        "sha256": "466bffcf0309c834937e69e41c242cc2943e9e80b0feae2d2e8a26b3036cc3fc"
+      },
+      "acceptedBase": {
+        "startTime": "2026-11-16T03:34:41.708Z",
+        "duration": 1007899.725,
+        "expected": 30,
+        "skipped": 1,
+        "unexpected": 82,
+        "flaky": 0
+      },
+      "candidate": {
+        "startTime": "2026-11-16T03:51:31.063Z",
+        "duration": 1008418.3080000001,
+        "expected": 31,
+        "skipped": 1,
+        "unexpected": 81,
+        "flaky": 0
+      },
+      "sameCollectedCases": 113,
+      "bothFailed": 81,
+      "candidateFailedBasePassed": 0,
+      "baseFailedCandidatePassed": 1,
+      "limits": "Shared failed identities establish paired outcome overlap only, not identical causes, root-suite PASS or all-browser regression freedom."
+    },
+    "archiveCount": 7,
+    "memberCount": 602
+  },
+  "incomingMetadata": {
+    "manifest": {
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+      "bytes": 1567,
+      "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+    },
+    "exactDeltaPaths": [
+      "docs/implementation/v3/M15-source-cut.json",
+      "docs/implementation/v3/M15-validation-summary.json"
+    ],
+    "files": [
+      {
+        "sourcePath": "docs/implementation/v3/M15-source-cut.json",
+        "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/M15-source-cut.json",
+        "mode": "100644",
+        "kind": "blob",
+        "blob": "8f23f2ddfb67f512bd8f70e92aa97cbbbf946b7a",
+        "bytes": 16846,
+        "sha256": "a3af48b45c2d50f33241e3905383fc7ae05c2ef94aa25e39678c95820a30d2c4",
+        "exactGitBytes": true
+      },
+      {
+        "sourcePath": "docs/implementation/v3/M15-validation-summary.json",
+        "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/M15-validation-summary.json",
+        "mode": "100644",
+        "kind": "blob",
+        "blob": "e3405c2edffb8e7a72de99b9ab15d027c2085be5",
+        "bytes": 341,
+        "sha256": "38f92519022261148049332bc04e399ea1dc6da34a2fb82d381c00efbe67664c",
+        "exactGitBytes": true
+      }
+    ],
+    "createsTestExecution": false
+  },
+  "laterMain": {
+    "from": "5f5276816deacdf896369f608045f993b00f2827",
+    "to": "199a2e240aac0374228e82599fe7aeba4afafaf2",
+    "pathCount": 44,
+    "paths": [
+      "apps/server/code-intelligence-routes.ts",
+      "apps/server/server.ts",
+      "apps/web/src/App.tsx",
+      "apps/web/src/FloatingWindow.tsx",
+      "apps/web/src/WorkspacePanel.tsx",
+      "apps/web/src/code-review-workspace/CodeIntelligencePanel.tsx",
+      "apps/web/src/conversation-scroll.ts",
+      "docs/implementation/v3/M07-verification.json",
+      "docs/implementation/v3/logs/m07-core-01-typecheck.log",
+      "docs/implementation/v3/logs/m07-core-02-lint.log",
+      "docs/implementation/v3/logs/m07-core-03-build.log",
+      "docs/implementation/v3/logs/m07-core-04-full-suite.log",
+      "docs/implementation/v3/logs/m07-dep-01-contracts.log",
+      "docs/implementation/v3/logs/m07-feed-01-advisory.log",
+      "docs/implementation/v3/logs/m07-fix-01-failing-fixture.log",
+      "docs/implementation/v3/logs/m07-plt-01-browser-suite.log",
+      "docs/implementation/v3/logs/m07-spec-01-vitest.log",
+      "docs/implementation/v3/logs/m07-spec-02-secret-custody.log",
+      "docs/implementation/v3/logs/m07-src-01-worktree.log",
+      "packages/contracts/code-intelligence.ts",
+      "packages/core/attention.ts",
+      "packages/core/code-intelligence.ts",
+      "packages/core/debug-session.ts",
+      "packages/core/edit-preview.ts",
+      "packages/core/host-flags.ts",
+      "packages/core/project-verification.ts",
+      "packages/core/verification-gate.ts",
+      "packages/storage/store.ts",
+      "scripts/public-source-files.json",
+      "tests/attention.test.ts",
+      "tests/conversation-scroll.test.ts",
+      "tests/debug-policy-v3.test.ts",
+      "tests/e2e/code-intelligence-scenarios.ts",
+      "tests/e2e/graph-popovers.spec.ts",
+      "tests/e2e/memory-recovery.spec.ts",
+      "tests/e2e/model-picker.spec.ts",
+      "tests/e2e/table-controls.spec.ts",
+      "tests/e2e/task-reviewing.spec.ts",
+      "tests/edit-preview-v3.test.ts",
+      "tests/gesture-cleanup.test.ts",
+      "tests/lsp-revisions-v3.test.ts",
+      "tests/rename-recovery-v3.test.ts",
+      "tests/secret-custody-v3.test.ts",
+      "tests/verification-v3.test.ts"
+    ],
+    "accepted": false,
+    "compatibilityReviewedByThisCheck": false
+  },
+  "workflowDeclaration": {
+    "file": {
+      "path": ".github/workflows/m15-evidence.yml",
+      "bytes": 29046,
+      "sha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44"
+    },
+    "jobKeys": [
+      "native",
+      "root-browser",
+      "browser",
+      "full-repository"
+    ],
+    "fullRepositoryMatrix": {
+      "shard": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "browserCommandSteps": 18,
+    "totalExpandedJobs": 7,
+    "requiredCommandReceipts": 25,
+    "executionClaim": false
+  },
+  "findings": [],
+  "limits": [
+    "Current C4 Windows/native/Edge, paired root and full-repository results remain NOT_RUN at this review checkpoint.",
+    "Publication packaging, final custody/controller and remote publication are pending document fields, not passed observations here.",
+    "The two final02 App startup/reload failure causes remain unclassified despite final03 passing.",
+    "Historical C3 and external failed outcomes remain bound to their original heads and attempts; shared failure identities do not establish a common cause.",
+    "The controlled renderer metric excludes paint and does not establish native, whole-App or device performance.",
+    "This review does not rewrite the immutable draft03 cutoff or validate compatibility with unaccepted main199."
+  ],
+  "mutations": {
+    "repositoryFiles": false,
+    "index": false,
+    "productOrTests": false,
+    "newTestJobs": false,
+    "outsideReportOnly": true
+  }
+}

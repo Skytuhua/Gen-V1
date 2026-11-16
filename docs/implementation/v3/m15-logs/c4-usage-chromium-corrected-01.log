@@ -1,0 +1,166 @@
+argv: ["pnpm","exec","playwright","test","--config","/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 16 tests using 1 worker
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/16] tests/e2e/mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes
+[1A[2K[2/16] tests/e2e/shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded
+[1A[2K[3/16] tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection
+[1A[2K  1) tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTitle('Studio', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByTitle('Studio', { exact: true })[22m
+
+
+      32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
+      33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
+    > 34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+         |                                                                                                                                    ^
+      35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
+      36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();
+      37 |  await expect(iframe).toBeVisible();await page.keyboard.press('Escape');await expect(iframe).toBeVisible();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:34:132
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/16] tests/e2e/usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft
+[1A[2K[5/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 375px
+[1A[2K[6/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 768px
+[1A[2K[7/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 1440px
+[1A[2K[8/16] tests/e2e/usage-app-integration.spec.ts:217:1 › actual App Live usage preference controls the composer launcher without opening the summary
+[1A[2K[9/16] tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload
+[1A[2K  2) tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"Other synthetic owner"[39m
+    Received string:    [31m"UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_a_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported"[22m
+
+
+      67 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+      68 |  await summary.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(modal(page)).toBeVisible();
+    > 69 |  await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('Other synthetic owner');await expect(modal(page)).toContainText('999');
+         |                                                                                                  ^
+      70 |  await page.keyboard.press('Escape');await page.reload();await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();
+      71 |  for(const pane of [first,second])await expect(pane.getByRole('button',{name:'Show live usage',exact:true})).toHaveAttribute('aria-pressed','false');
+      72 |  await expect(first.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep the first pane draft');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:69:98
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[10/16] tests/e2e/usage-app-integration.spec.ts:345:1 › actual App dock header remains a disclosure and its body opens the same Usage modal
+[1A[2K[11/16] tests/e2e/usage-app-integration.spec.ts:372:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt
+[1A[2K[12/16] tests/e2e/usage-app-integration.spec.ts:403:1 › actual App captured usage scope does not switch to another thread on snapshots
+[1A[2K[13/16] tests/e2e/usage-app-integration.spec.ts:429:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable
+[1A[2K[14/16] tests/e2e/usage-app-integration.spec.ts:455:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch
+[1A[2K[15/16] tests/e2e/usage-app-integration.spec.ts:465:1 › review: an open restored Usage tab resolves its loaded conversation scope
+[1A[2K[16/16] tests/e2e/usage-app-integration.spec.ts:481:1 › review: an open restored Usage tab stays closed in split workspace and keeps both composers available
+[1A[2K  3) tests/e2e/usage-app-integration.spec.ts:481:1 › review: an open restored Usage tab stays closed in split workspace and keeps both composers available 
+
+    [31mTest timeout of 15000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('textarea[aria-label="Message"]').first()
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for locator('textarea[aria-label="Message"]').first()[22m
+    [2m    11 × locator resolved to <textarea rows="1" aria-label="Message" placeholder="Ask anything…"></textarea>[22m
+    [2m       - unexpected value "hidden"[22m
+
+
+      21 |   await page.route('**/api/split-workspace/commands',r=>{const c=r.request().postDataJSON();layout=applySplitWorkspaceCommand(layout,c.type,c.payload);return r.fulfill({json:{commandId:c.id,seq:1,result:layout}});});
+      22 |  }
+    > 23 |  await page.goto('/');await expect(page.locator('textarea[aria-label="Message"]').first()).toBeVisible({timeout:15000});return h;
+         |                                                                                            ^
+      24 | }
+      25 | test('actual App sidebar Usage opens canonical modal and retains the conversation draft',async({page})=>{
+      26 |  const h=await host(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Preserve this draft');
+        at host (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:23:92)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:115:10
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  3 failed
+    tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+    tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+    tests/e2e/usage-app-integration.spec.ts:481:1 › review: an open restored Usage tab stays closed in split workspace and keeps both composers available 
+  13 passed (1.4m)

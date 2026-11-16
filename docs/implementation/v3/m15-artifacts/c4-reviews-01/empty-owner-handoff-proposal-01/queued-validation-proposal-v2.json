@@ -1,0 +1,18 @@
+{
+  "scope": "Version2 keeps version1 unexecuted and immutable. Bounds the injection wait by both actual validator settlements, asserting injection occurred before reading outcomes. No product, case, deadline or adapter change. Not executed.",
+  "proposedCases": 28,
+  "files": {
+    "queued-validation-tests-v2.patch": {
+      "sha256": "a5e7d1fe674bbdc28eedac4d9ae71ef6ab08527848d628e5e875eef9ad5d3b1a",
+      "bytes": 7236
+    },
+    "source-handoff.fifo-boundaries-v2.test.ts": {
+      "sha256": "8378a53a26963b97fa27b64dc0aa094b97bef7f21e66766be02c6a74a50c89bf",
+      "bytes": 36949
+    },
+    "queued-validation-addition-v2.ts": {
+      "sha256": "6f762188f7061755aa1f63cbedff627f498673aa41b540ac9f338880ee8c8312",
+      "bytes": 6888
+    }
+  }
+}

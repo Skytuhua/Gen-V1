@@ -1,0 +1,106 @@
+--- v2/ingest-ci-artifact.py
++++ v3/ingest-ci-artifact.py
+@@ -17,17 +17,18 @@
+ REPOSITORY = "skytuhua-org/Gen-V1"
+ WORKFLOW = ".github/workflows/m15-evidence.yml"
+ BRANCH = "agent/m15-v3"
+-ACCEPTED_BASE = "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+-ACCEPTED_TREE = "2ecdb4c95fc6b604159257a125064ad585b966e5"
++ACCEPTED_BASE = "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73"
++ACCEPTED_TREE = "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f"
+ LOG_ROOT = "docs/implementation/v3/m15-logs/"
+ KINDS = {
+     "native": {"job": "M15 native contracts (Windows, exact branch head)", "source": "test-results/m15/native-source.json", "receipts": [("", "native")]},
+     "root-browser": {"job": "M15 root browser comparison (Windows, accepted base and exact branch head)", "source": "test-results/m15/root-comparison-source.json", "receipts": [("baseline/", "root-baseline"), ("", "root-candidate")]},
+-    "browser": {"job": "M15 browser contracts (Windows and installed Edge, exact branch head)", "source": "test-results/m15/browser-source.json", "receipts": [("", name) for name in ("workbench", "workbench-app", "saved-drafts", "chat-view-modes", "artifact-acknowledgment", "scoped-conversation", "ui-shell-overlays", "ui-shell-controls", "usage-context", "agents-workspace", "agents-actual-app", "workspace-host", "saved-layout-chooser", "usage-app-integration", "desktop-surfaces", "split-browser")]},
++    "browser": {"job": "M15 browser contracts (Windows and installed Edge, exact branch head)", "source": "test-results/m15/browser-source.json", "receipts": [("", name) for name in ("workbench", "workbench-app", "project-memory", "frontend-refinement", "saved-drafts", "chat-view-modes", "artifact-acknowledgment", "scoped-conversation", "ui-shell-overlays", "ui-shell-controls", "usage-context", "agents-workspace", "agents-actual-app", "workspace-host", "saved-layout-chooser", "usage-app-integration", "desktop-surfaces", "split-browser")]},
+     "full-shard": {"job": "M15 full repository (Windows, exact branch head, shard {shard}/4)", "source": "test-results/m15/full-source.json", "receipts": [("", "full-shard-{shard}")]},
+ }
+ 
+-ADDED_BROWSER_SUITES = ("workspace-host", "saved-layout-chooser", "usage-app-integration", "desktop-surfaces")
++BROWSER_RUNNER_SUITES = ('workbench', 'workbench-app', 'project-memory', 'frontend-refinement', 'saved-drafts', 'chat-view-modes', 'scoped-conversation', 'ui-shell-overlays', 'ui-shell-controls', 'usage-context', 'agents-workspace', 'workspace-host', 'saved-layout-chooser', 'usage-app-integration', 'desktop-surfaces')
++NATIVE_TESTS = ['tests/source-selection-v3.test.ts', 'tests/source-workbench-host-v3.test.ts', 'tests/source-workbench-hermes-v3.test.ts', 'tests/source-workbench-memory-v3.test.ts', 'tests/project-memory-service-v3.test.ts', 'tests/project-memory-request-http-v3.test.ts', 'tests/memory-host-lifecycle-v3.test.ts', 'tests/memory-native-file-capture-v3.test.ts', 'tests/memory-native-checkpoint-v3.test.ts', 'tests/memory-extraction-native-v3.test.ts', 'tests/memory-checkpoint-worker-ownership-v3.test.ts', 'tests/memory-source-reuse-v3.test.ts', 'tests/request-preparation-service-v3.test.ts', 'tests/source-selection-dom-v3.test.ts', 'tests/source-composer-v3.test.ts', 'tests/source-draft-transfer-v3.test.ts', 'tests/activity-output-v3.test.ts', 'tests/workbench-input-recovery-v3.test.ts', 'tests/workbench-performance-v3.test.ts', 'tests/workbench-recovery-v3.test.ts', 'tests/agents-workspace-composer.test.ts', 'tests/agents-workspace-dispatch.test.ts', 'tests/saved-drafts.test.ts', 'tests/draft-transfer.test.ts', 'tests/compact-draft-transfer.test.ts', 'tests/journal.test.ts', 'tests/editor-handoff.test.ts', 'tests/public-source.test.ts', 'tests/accounts.test.ts', 'tests/hermes-client-startup.test.ts', 'tests/hermes-client.test.ts', 'tests/hermes-original-integration.test.ts', 'tests/hermes-multi-original.test.ts', 'tests/dev-plugin-runtime.test.ts', 'tests/skill-catalog.test.ts', 'tests/desktop-host.test.ts']
+ SPLIT_BROWSER_FLAGS = {"GEN_SPLIT_RENDERER_BROWSER": "1", "GEN_SPLIT_APP_BROWSER": "1", "GEN_TEST_BROWSER_CHANNEL": "msedge"}
+ SPLIT_BROWSER_TESTS = ["tests/split-workspace-renderer.test.ts", "tests/split-app-browser.test.ts"]
+ SPLIT_BROWSER_SOURCE = "test-results/m15/split-browser-source.json"
+@@ -226,7 +227,7 @@
+ def validate_receipts(args, extracted):
+     expected, observed, missing = [], [], []
+     for prefix, label in kind_contract(args)["receipts"]:
+-        path = f"{prefix}{LOG_ROOT}c3-windows-{label}-{args.run_id}-{args.attempt}.json"
++        path = f"{prefix}{LOG_ROOT}c4-windows-{label}-{args.run_id}-{args.attempt}.json"
+         expected.append(path)
+         local = extracted / path
+         if not local.is_file():
+@@ -240,15 +241,19 @@
+             require(value["exitCode"] == 0 and value["termination"] == "NONE", f"Successful receipt lacks observed zero exit: {path}")
+         if value["status"] == "EXPECTED_NEGATIVE":
+             require(value.get("expectedNegative", {}).get("observed") is True and value["expectedNegative"].get("assertedFailure"), f"Expected-negative receipt lacks proof: {path}")
++        if args.kind == "native":
++            arguments = value["argv"]
++            require(arguments[0].replace("\\", "/").rsplit("/", 1)[-1].casefold() == "node.exe", "Native recorder did not launch the declared Node executable")
++            require(arguments[1:] == ["node_modules/vitest/vitest.mjs", "run", *NATIVE_TESTS, "--maxWorkers=2", "--reporter=default", "--reporter=json", "--outputFile=test-results/m15/native-results.json"], "Native test selection or reporting differs")
+         if args.kind == "full-shard":
+             arguments = value["argv"]
+             require(arguments[0].replace("\\", "/").rsplit("/", 1)[-1].casefold() == "pwsh.exe", "Full-repository recorder did not launch the declared PowerShell executable")
+             require(arguments[1:5] == ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command"] and len(arguments) == 6, "Full-repository command wrapper differs")
+             require(arguments[5].replace("\r\n", "\n").strip() == full_test_command(args.shard), "Full-repository command is filtered, changed, or belongs to another shard")
+-        if args.kind == "browser" and label in ADDED_BROWSER_SUITES:
++        if args.kind == "browser" and label in BROWSER_RUNNER_SUITES:
+             arguments = value["argv"]
+-            require(arguments[0].replace("\\", "/").rsplit("/", 1)[-1].casefold() == "node.exe", "Added browser suite did not launch the declared Node executable")
+-            require(arguments[1:] == ["--import", "tsx", "scripts/test-browser.ts", "--suite", label], "Added browser suite command is filtered or selects another suite")
++            require(arguments[0].replace("\\", "/").rsplit("/", 1)[-1].casefold() == "node.exe", "Registered browser suite did not launch the declared Node executable")
++            require(arguments[1:] == ["--import", "tsx", "scripts/test-browser.ts", "--suite", label], "Registered browser suite command is filtered or selects another suite")
+         if args.kind == "browser" and label == "split-browser":
+             arguments = value["argv"]
+             require(arguments[0].replace("\\", "/").rsplit("/", 1)[-1].casefold() == "pwsh.exe", "Split browser recorder did not launch the declared PowerShell executable")
+@@ -263,9 +268,30 @@
+         require(log.startswith(header), f"Receipt log observation header differs: {path}")
+         require(datetime.fromisoformat(value["endedAt"].replace("Z", "+00:00")) >= datetime.fromisoformat(value["startedAt"].replace("Z", "+00:00")), f"Receipt timing differs: {path}")
+         observed.append({"path": path, "sha256": sha256(local.read_bytes()), "status": value["status"], "exitCode": value["exitCode"], "termination": value["termination"], "log": expected_log, "logSha256": value["logDigest"]})
+-    actual = [path.relative_to(extracted).as_posix() for path in extracted.rglob("c3-windows-*.json") if path.parent.as_posix().endswith(LOG_ROOT.rstrip("/"))]
++    actual = [path.relative_to(extracted).as_posix() for path in extracted.rglob("c4-windows-*.json") if path.parent.as_posix().endswith(LOG_ROOT.rstrip("/"))]
+     unexpected = sorted(set(actual) - set(expected))
+     return {"observed": observed, "missing": missing, "additionalRetainedReceipts": unexpected}
++
++
++def validate_native_result(args, extracted):
++    if args.kind != "native":
++        return None
++    path = "test-results/m15/native-results.json"
++    local = extracted / path
++    if not local.is_file():
++        return {"status": "INCOMPLETE", "missing": [path]}
++    value = read_json(local)
++    require(type(value.get("success")) is bool and isinstance(value.get("testResults"), list), "Native JSON result shape differs")
++    keys = ("numTotalTestSuites", "numPassedTestSuites", "numFailedTestSuites", "numPendingTestSuites", "numTotalTests", "numPassedTests", "numFailedTests", "numPendingTests", "numTodoTests")
++    require(all(type(value.get(key)) is int and value[key] >= 0 for key in keys), "Native JSON counts are missing or invalid")
++    files = []
++    for result in value["testResults"]:
++        name = result.get("name", "").replace("\\", "/")
++        matches = [test for test in NATIVE_TESTS if name == test or name.endswith("/" + test)]
++        require(len(matches) == 1 and matches[0] not in files, "Native result has an unexpected or duplicated test file")
++        files.append(matches[0])
++    require(set(files) == set(NATIVE_TESTS), "Native JSON omitted a selected test file")
++    return {"status": "PRESENT", "path": path, "sha256": sha256(local.read_bytes()), "success": value["success"], "counts": {key: value[key] for key in keys}, "reportedTestFiles": files, "note": "Exact selected-file JSON presence is verified; inspect actual assertions, skips and unhandled errors before assigning a gate result."}
+ 
+ 
+ def validate_full_result(args, extracted):
+@@ -341,6 +367,7 @@
+         records = extract_zip(archive, extracted, args.max_files, args.max_member_bytes, args.max_total_bytes)
+         sources = validate_sources(args, extracted)
+         receipts = validate_receipts(args, extracted)
++        native_result = validate_native_result(args, extracted)
+         full_result = validate_full_result(args, extracted)
+         split_result = validate_split_result(args, extracted)
+         metadata_records = []
+@@ -350,7 +377,7 @@
+             metadata_records.append({"path": path, "bytes": len(raw), "sha256": sha256(raw)})
+         identity = write_json(folder / "files.json", records)
+         result = {"schemaVersion": 2, "ingestionStatus": "BYTES_VERIFIED", "testOutcome": "Read original job conclusions and command statuses; ingestion does not grant a passing test result.", "repository": REPOSITORY, "workflow": WORKFLOW, "head": args.head, "tree": args.tree, "runId": args.run_id, "runAttempt": args.attempt, "runConclusion": run.get("conclusion"), "artifactId": artifact["id"], "artifactName": artifact["name"], "kind": args.kind, "shard": getattr(args, "shard", None), "shardCount": 4 if args.kind == "full-shard" else None, "event": "push", "acceptedBase": ACCEPTED_BASE, "jobId": job["id"], "jobConclusion": job.get("conclusion"), "archive": {"path": "archive.zip", "bytes": size, "sha256": archive_sha, "githubDigest": declared_digest, "githubDigestVerified": declared_digest is not None}, "metadata": metadata_records, "files": {"path": "files.json", "entries": len(records), **identity}, "sourceValidation": sources, "commands": receipts, "fullRepositoryResult": full_result, "ingestedAt": datetime.now(timezone.utc).isoformat(), "ingestionHelperSha256": sha256(Path(__file__).read_bytes())}
+-        result.update(workflowEvidenceRevision="c3-v2", splitBrowserResult=split_result)
++        result.update(workflowEvidenceRevision="c4-v3", splitBrowserResult=split_result, nativeResult=native_result)
+         sealed = write_json(folder / "ingestion.json", result)
+         (folder / "ingestion.sha256").write_text(sealed["sha256"] + "\n", encoding="ascii")
+         os.rename(folder, out)

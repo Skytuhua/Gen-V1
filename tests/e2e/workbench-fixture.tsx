@@ -11,6 +11,19 @@ import type {OutputScrollAnchor,WorkbenchOutputRow} from '../../apps/web/src/wor
 const transformedMessage='| Column |\n| --- |\n| left\\|right |\n\nPlain later left|right';
 function Fixture(){const [action,setAction]=useState('');return <main style={{padding:24}}><SourceSelectionActions text="Visible selected text from an assistant." enabled onAction={(kind,selection)=>setAction(kind+':'+selection.text)}><p id="source-text">Visible selected text from an assistant.</p></SourceSelectionActions><button id="background">Other pane</button><output>{action}</output><div data-source-id="forged">Forged selected text</div><section id="transformed-source"><SourceSelectionActions text={transformedMessage} enabled onAction={(kind,selection)=>setAction(kind+':'+selection.start)}><Markdown text={transformedMessage}/></SourceSelectionActions></section></main>;}
 
+function HeldSelectionFixture(){
+ const [action,setAction]=useState(''),[state,setState]=useState('idle'),release=useRef<(()=>void)|null>(null);
+ return <main style={{padding:24}}>
+  <SourceSelectionActions text="Visible selected text from an assistant." enabled onAction={async(kind,selection)=>{
+   setAction(JSON.stringify({kind,...selection}));setState('pending');
+   await new Promise<void>(resolve=>{release.current=resolve;});release.current=null;setState('complete');
+  }}><p id="source-text">Visible selected text from an assistant.</p></SourceSelectionActions>
+  <section id="foreign-root" tabIndex={0}><p id="foreign-text">A newer foreign selection belongs to another pane.</p></section>
+  <button type="button" data-complete-selection onClick={()=>release.current?.()}>Complete held action</button>
+  <output data-held-state>{state}</output><output data-held-action>{action}</output>
+ </main>;
+}
+
 const tallCanonicalText=Array.from({length:150},(_,index)=>index===75?'Visible selected canonical text from the current owner.':`Retained canonical line ${index}.`).join('\n');
 function ModalSelectionFixture(){
  const [open,setOpen]=useState(false),[action,setAction]=useState('');
@@ -131,4 +144,4 @@ function OutputFixture() {
 }
 
 const fixtureKind=new URLSearchParams(location.search).get('fixture');
-createRoot(document.getElementById('root')!).render(fixtureKind==='output'?<OutputFixture/>:fixtureKind==='selection-modal'?<ModalSelectionFixture/>:<Fixture/>);
+createRoot(document.getElementById('root')!).render(fixtureKind==='output'?<OutputFixture/>:fixtureKind==='selection-modal'?<ModalSelectionFixture/>:fixtureKind==='selection-held'?<HeldSelectionFixture/>:<Fixture/>);

@@ -1,0 +1,74 @@
+argv: ["python3","/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2.py","--parent","eeda4a89879aa1f3baaa04e60dd4a2d9c520761c","--published-parent","98db97d1d0a1910f47879f0e3d54477bcc59feed","--tested-cut","docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json","--tested-cut-sha256","0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260","--tested-public-manifest","/workspace/scratch/1b47eb428672/m15-publication/c4/public-admission-01/public-source-files.before.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "status": "PASS",
+  "originalCheckout": "clean",
+  "originalHead": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "parent": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "testedContextHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "publishedParent": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+  "incomingPublicationDelta": {
+    "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+    "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954",
+    "previousCommit": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+    "sourceCommit": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+    "sourceTree": "19d92af279985a059bbda7a9be4f5bb95b70f842",
+    "files": 2,
+    "deltaPaths": [
+      "docs/implementation/v3/M15-source-cut.json",
+      "docs/implementation/v3/M15-validation-summary.json"
+    ],
+    "testExecutionCreated": false
+  },
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "archives": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json",
+      "sourceCommit": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+      "files": 16,
+      "sha256": "cbfec9a180b422c158118a71301e02c1b6bf9c7dabaebc49f1cb231a9bbb07a7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-02/archive-manifest.json",
+      "sourceCommit": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+      "files": 17,
+      "sha256": "bbe177e524cbb19a98f563427c7e71f9eaa81307cd212e37ee6856ef787e48a1"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-03/archive-manifest.json",
+      "sourceCommit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+      "files": 18,
+      "sha256": "5b89a48b085ee56548a21ee5844f129dff8fcc4c9f3245b75d111673ce9584f2"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-0f487aa/archive-manifest.json",
+      "sourceCommit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+      "files": 34,
+      "sha256": "7252082ac746d3e29ac9c46e57a1e170b9cfa95804864c7236e114c3f31338db"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-364d3f5/archive-manifest.json",
+      "sourceCommit": "364d3f552c23668c3894d04f4a6443808cc2b17a",
+      "files": 20,
+      "sha256": "04702cfe543ae77e6b796d423c3b9259a64beea5683ced5301c37f7a87fb7531"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/archive-manifest.json",
+      "sourceCommit": "082264877e3bb61e8c87f257ccd831b5c1438472",
+      "files": 22,
+      "sha256": "d5105e5f03a2ed111ddde60746070c97b3ce9423d4afb8cc6fd1740168ab26e6"
+    }
+  ],
+  "publishedEvidenceFilesUnchanged": 898,
+  "lockfileSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+  "ordinaryCiSha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+  "testedCutSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+  "testedNonManifestSourceFilesUnchanged": 2390,
+  "publicSourceEntries": 4174,
+  "publicRuntimeEntries": 228,
+  "allCurrentChangesAdmitted": true,
+  "authoredWhitespace": "PASS",
+  "sourceContinuityLimit": "Only the explicit public source manifest may change after this tested cut; documentation is separately hashed by the evidence controller."
+}

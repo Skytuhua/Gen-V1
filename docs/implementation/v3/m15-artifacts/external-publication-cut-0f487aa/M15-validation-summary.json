@@ -1,0 +1,12 @@
+{
+  "validatedAt": "2026-11-16T03:32:12.462Z",
+  "integrityStatus": "PASS",
+  "bundleStatus": "FAIL",
+  "commandRecords": 224,
+  "artifactHashes": 908,
+  "implementationFiles": 73,
+  "changedFiles": 2186,
+  "sourceLockDigest": "23e52f6a6453b21658491e4019ae4fdea0217620e53f561029394eb270b73ac2",
+  "reviewerApproval": false,
+  "issues": []
+}

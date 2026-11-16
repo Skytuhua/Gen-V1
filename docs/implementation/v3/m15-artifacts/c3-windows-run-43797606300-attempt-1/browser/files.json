@@ -1,0 +1,2852 @@
+[
+  {
+    "path": "test-results/m15/agents-actual-app/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      54
+    ],
+    "compressedBytes": 47447,
+    "bytes": 53530,
+    "crc32": "86bcb94b",
+    "sha256": "68268eb5b201a17cef81bbaa55dfd27ddcc5a4423128bf0aa4cd0edc31e2195c",
+    "gitBlob": "f6f266b55e74d8ef15cf0339482b596b17125efb"
+  },
+  {
+    "path": "test-results/m15/agents-actual-app/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      56
+    ],
+    "compressedBytes": 24114,
+    "bytes": 26268,
+    "crc32": "46331096",
+    "sha256": "1fc36455ba11243fc45279d1679d642e95ff3a1bf795b7bf299bfcd668499926",
+    "gitBlob": "a8cf0492b862f30ebbaa2ecd4294f152900d7a36"
+  },
+  {
+    "path": "test-results/m15/agents-actual-app/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      56
+    ],
+    "compressedBytes": 45475,
+    "bytes": 48722,
+    "crc32": "5707440b",
+    "sha256": "c8df4851edb804fe9d4866262b510f3ab342b6aed192cd87217f0d98ca5748b2",
+    "gitBlob": "35e75850b38ad96025f91bd3a84caa87c5412417"
+  },
+  {
+    "path": "test-results/m15/agents-actual-app/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      58
+    ],
+    "compressedBytes": 19934,
+    "bytes": 21663,
+    "crc32": "ae0259d4",
+    "sha256": "4607846e4cd60bf04e22b5a19283434d70b4c8968cd30398062e56544ec28dd3",
+    "gitBlob": "7c6b8098d696c52944dd23f792bf3984991067a8"
+  },
+  {
+    "path": "test-results/m15/agents-actual-app/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      39,
+      2
+    ],
+    "compressedBytes": 2888,
+    "bytes": 25634,
+    "crc32": "48e9cf67",
+    "sha256": "714d895ab64b7d10afac41996baa2ba13c5a2af69aae1a7a6b37ed62ef6832f4",
+    "gitBlob": "989fb443274477254678f7364e69a058a1addcb8"
+  },
+  {
+    "path": "test-results/m15/agents-candidate/grid-after-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      36
+    ],
+    "compressedBytes": 36665,
+    "bytes": 42981,
+    "crc32": "f91665b3",
+    "sha256": "40a5aa727aeaa3df9fa248872550b0b46bdb7c40eb3a0b69146bf6ef5bf610e3",
+    "gitBlob": "19d4ff6a89ab3250e8d22621fccd00436d437cf8"
+  },
+  {
+    "path": "test-results/m15/agents-candidate/grid-after-768.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      36
+    ],
+    "compressedBytes": 21847,
+    "bytes": 27856,
+    "crc32": "bb32f27f",
+    "sha256": "f1d0a6fb3c4f9ef0c8384ae908d1a20f569ed8ec0be9da581392dd8ba481769b",
+    "gitBlob": "37fbda8055f9af1241f0e0ffee6f4cf2fd4bb7cf"
+  },
+  {
+    "path": "test-results/m15/agents-candidate/metrics-after-1440.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      36
+    ],
+    "compressedBytes": 283,
+    "bytes": 839,
+    "crc32": "806ce1a9",
+    "sha256": "199a868c0f98cc1e57f4a72de20041097c801219c714df66eb677015beaf44eb",
+    "gitBlob": "f9f739504b7ba03a86bb891aa5679e790ee9f2ae"
+  },
+  {
+    "path": "test-results/m15/agents-candidate/metrics-after-768.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      36
+    ],
+    "compressedBytes": 284,
+    "bytes": 844,
+    "crc32": "557074c3",
+    "sha256": "eb20296aa963d28f66195a376db897c437eb30560c277d2535d2dc378176a03e",
+    "gitBlob": "cca256387d7eaf9b4e565eff157b221406b2d3f1"
+  },
+  {
+    "path": "test-results/m15/artifact-acknowledgment/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      0
+    ],
+    "compressedBytes": 1586,
+    "bytes": 5814,
+    "crc32": "8b8f8c99",
+    "sha256": "6d58a0b8a148404e6f2adcd3874b8cba5eaefc9a7078fb127c34737d0c72b311",
+    "gitBlob": "fbd19ede736dc25416c7bea9b6e9da226142b677"
+  },
+  {
+    "path": "test-results/m15/browser-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      31,
+      8
+    ],
+    "compressedBytes": 339,
+    "bytes": 518,
+    "crc32": "ed8a2917",
+    "sha256": "bf0a18c45f522254a8283210ed48f9aef438dc67c27ad70ae200e7d498540a3b",
+    "gitBlob": "0775c1f27c74c253b87f5ef2b3d6ee7e26d81814"
+  },
+  {
+    "path": "test-results/m15/checkout-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      30,
+      8
+    ],
+    "compressedBytes": 303,
+    "bytes": 476,
+    "crc32": "c8fbcbdf",
+    "sha256": "e99feece28e4b5ba1556f1c9bad264d87a7ea5cafc4eab23db3103103bb76434",
+    "gitBlob": "aa5c5c0a115cca979cfbf385e5d55a83fc7f6913"
+  },
+  {
+    "path": "test-results/m15/split-browser-results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      50,
+      40
+    ],
+    "compressedBytes": 2553,
+    "bytes": 14325,
+    "crc32": "d77b27a2",
+    "sha256": "e00cf4a7c475b40586b6efd61f3aa20fa368ca7c6ffdd1badd9579fa8ba346a7",
+    "gitBlob": "36b478aca1f7c5cd9eac098739213df1fbaeb324"
+  },
+  {
+    "path": "test-results/m15/split-browser-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      8
+    ],
+    "compressedBytes": 476,
+    "bytes": 790,
+    "crc32": "65fb6c2f",
+    "sha256": "bd5f1e540918fca9821d9d79a8fc88ff049d7bea7126b7d33be0aca78f622773",
+    "gitBlob": "138083445c20ef9e03f2816093c5d35384a58d0e"
+  },
+  {
+    "path": "test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      16
+    ],
+    "compressedBytes": 1924,
+    "bytes": 9538,
+    "crc32": "fdc69dc3",
+    "sha256": "ca87290749fbeb8aed8c4627f088dd09995f2388c89d3bb4d3bc989130a1ca63",
+    "gitBlob": "ab86daa259df3a87e52008f2de35dbf0c57b178b"
+  },
+  {
+    "path": "test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/artifacts/workbench-M15-full-copy-an-9fc09--fixture-beyond-mounted-DOM/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      31,
+      34
+    ],
+    "compressedBytes": 946,
+    "bytes": 3672,
+    "crc32": "85436c21",
+    "sha256": "88e1f6fd91a851dca67dcc69966ef2ac85a565646a958670060028b950116a85",
+    "gitBlob": "a40a0f91f8d2c74dc817daf242439aded0f7d23f"
+  },
+  {
+    "path": "test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1280x800-zoom200.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      31,
+      40
+    ],
+    "compressedBytes": 50207,
+    "bytes": 63806,
+    "crc32": "abdc4c6d",
+    "sha256": "f6145129dd5eb991795260e0c4ca86d6383d8fe916f41edf3dc50bcd6088faa6",
+    "gitBlob": "93fb84ca7bbd6038c92c9a13dd4b922262fd5411"
+  },
+  {
+    "path": "test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1920x1080-zoom200.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      31,
+      42
+    ],
+    "compressedBytes": 70092,
+    "bytes": 89919,
+    "crc32": "40ff8ed5",
+    "sha256": "3852baa5e804e5ee1c6c356a9259b8c8acca06fa8e99f92b90ae4c8de8cd6ab9",
+    "gitBlob": "bf578fc7ca0a1471f7a84472178b1e14cc8c5956"
+  },
+  {
+    "path": "test-results/browser/run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67/workbench/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      16
+    ],
+    "compressedBytes": 7095,
+    "bytes": 41276,
+    "crc32": "41412cc5",
+    "sha256": "14bf87104eeec605d24e449c7c32605a51b0e25b3a14746af57d80212b98525e",
+    "gitBlob": "5cdd29c9f5caad60390ef27655b7686e6a5e42ef"
+  },
+  {
+    "path": "test-results/browser/run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991/workbench-app/artifacts/workbench-app-evidence-pre-63717-nd-unsupported-module-state/evidence-drawer.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      48
+    ],
+    "compressedBytes": 80717,
+    "bytes": 87090,
+    "crc32": "7f54420f",
+    "sha256": "35f409c5d62594819714cb90b20bd9ce60ce1801d12cc8a95c16802a5a5301f3",
+    "gitBlob": "c59f0609ad2d595b1d7709eba2271e5047caae86"
+  },
+  {
+    "path": "test-results/browser/run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991/workbench-app/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/retained-source.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      38
+    ],
+    "compressedBytes": 72277,
+    "bytes": 76329,
+    "crc32": "b18051a7",
+    "sha256": "8e65d6c5ca9cfb87dc7a894da9769b4f842a1e8eb94ab1647ffd1f7ff0a53117",
+    "gitBlob": "5efac8dd4e0c70b24c524a7753cf21a9f36e513a"
+  },
+  {
+    "path": "test-results/browser/run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991/workbench-app/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      33,
+      48
+    ],
+    "compressedBytes": 8093,
+    "bytes": 46934,
+    "crc32": "1424231b",
+    "sha256": "7bb9e7dd0c9df1c171472d2b072edda7342f2a38e39edf9648028fa0b56e7f42",
+    "gitBlob": "0bde9dd23f4eea04d646758552b000d52621d481"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1024.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      32
+    ],
+    "compressedBytes": 38893,
+    "bytes": 43356,
+    "crc32": "6d52028a",
+    "sha256": "964f5df6779177585ee98306ee51eff5dbbe0c3cefeaf6b34b5be4540baf4367",
+    "gitBlob": "1090cb102369a1e5db23c0660b916e2bf1e49cec"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      32
+    ],
+    "compressedBytes": 69687,
+    "bytes": 74512,
+    "crc32": "dea223ff",
+    "sha256": "ad45b5b571d117ac766db6c55cd4f6b8e4d35f76abdc5f3add6de193fc94db60",
+    "gitBlob": "81cf818bd9eca4e0df236a06e7399bdb07bd5e88"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-768.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      32
+    ],
+    "compressedBytes": 52023,
+    "bytes": 56183,
+    "crc32": "a50d4de8",
+    "sha256": "2ef97a0dad22be4f970dfb749da9b7afc0b064b8a22666fdadfee67448161380",
+    "gitBlob": "7d75dc687314ee268e153a36f463a61fab2adfe0"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/save-error.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      32
+    ],
+    "compressedBytes": 79109,
+    "bytes": 81623,
+    "crc32": "c8943fe1",
+    "sha256": "92d42ea9eb7d93d57e3de22b30c2cdff9480a71e03bd7cc62824094b9a0539e0",
+    "gitBlob": "085d983587ebb9a16f29e5a4af9af4379fa19ff0"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/stress-list.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      32
+    ],
+    "compressedBytes": 56824,
+    "bytes": 60395,
+    "crc32": "57797fc6",
+    "sha256": "019260d1c7685e7787687b56bdbb4c175fe9c7392bb8b07142f55c744185cdea",
+    "gitBlob": "ee806e4a416db4d8a84908286eab4c7b85b939a8"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/restore-conflict-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      44
+    ],
+    "compressedBytes": 54012,
+    "bytes": 58934,
+    "crc32": "9693e3ec",
+    "sha256": "f4ff113b310eb9f683dc39adb5a490a0f213fbb8410a3a8c9a8b2c1a7f2a55ff",
+    "gitBlob": "3f8098b46323a47bcd1ecc712e6d92232dc1ba5a"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/restore-abort-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      40
+    ],
+    "compressedBytes": 52345,
+    "bytes": 58318,
+    "crc32": "6ee29c34",
+    "sha256": "5a1da42eddb2d8e3964ee0a4f1d95e033a5b9be792fe696db05a0aaad441dc6a",
+    "gitBlob": "5ca07d1d6a99ac9a099b21d2e66db7141fd1ab22"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1024.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      36
+    ],
+    "compressedBytes": 52457,
+    "bytes": 56027,
+    "crc32": "9c9dd3e3",
+    "sha256": "b4d7f212bc58b4f432e5903385a9dceabe951d855adabead18e69a28f97066be",
+    "gitBlob": "f6ba111771cf4b7edc82f0150a52d978d83cc93b"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      36
+    ],
+    "compressedBytes": 59111,
+    "bytes": 64129,
+    "crc32": "80a0fae2",
+    "sha256": "98e204b553065dc34e7ac472f485662acd4f0b097399973696e7432befb74b51",
+    "gitBlob": "4f0abf161c8271b7c583e4495edc7b4e76e1d847"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-768.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      36
+    ],
+    "compressedBytes": 50916,
+    "bytes": 54080,
+    "crc32": "901a8b96",
+    "sha256": "0a8520c40b209d3ef34133461ff8c0b67e86219aca3fd46a22a1e5861f8374c3",
+    "gitBlob": "2b26d9789c05f65e4fe1d5b7bc851cff32d075eb"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1440.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      58
+    ],
+    "compressedBytes": 91535,
+    "bytes": 96275,
+    "crc32": "1f38c20e",
+    "sha256": "29119536f1b847401e1377faabc4d642d3c7890f94437ddc577ba915961b213f",
+    "gitBlob": "4e834ca508a5c53caf2ee47e8903119410106abd"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1024.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      58
+    ],
+    "compressedBytes": 89642,
+    "bytes": 93449,
+    "crc32": "640806e2",
+    "sha256": "4168927ea86ce2f97a069f03267d3d30e5d108606d20bb5f473961c78b7b2f94",
+    "gitBlob": "a645a7c3170e52c09cecdb503cadc79df527e622"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-768.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      34,
+      58
+    ],
+    "compressedBytes": 86545,
+    "bytes": 89155,
+    "crc32": "fc707e75",
+    "sha256": "40355758a9e6f22021a49b895dd5d54b660c71995b07bd29e68e584ef8def754",
+    "gitBlob": "febdb7949527d5538af2b7a26fc8077116278606"
+  },
+  {
+    "path": "test-results/browser/run-1794800030506-4309f17a-2d58-4a61-b0a2-0221a164d0fe/saved-drafts/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      28
+    ],
+    "compressedBytes": 3339,
+    "bytes": 33261,
+    "crc32": "6da2da5e",
+    "sha256": "1aa8ac0342f7510444d627a4a301758c663220d1c9346e9941514e8679c0ff10",
+    "gitBlob": "eccff8d46a837bed5bd67f898896e2f0707ed11f"
+  },
+  {
+    "path": "test-results/browser/run-1794800130611-14ef0216-5095-47d8-86ce-dbb3680c62ce/chat-view-modes/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      48
+    ],
+    "compressedBytes": 1972,
+    "bytes": 10936,
+    "crc32": "fcd6cb0d",
+    "sha256": "d937e4be19037956ed106e34de8fbbdb15076c9e072b814bcf62fafc8ba9708c",
+    "gitBlob": "1b2d8dcee05618a3d2c5a217e8c8c46166b4a73a"
+  },
+  {
+    "path": "test-results/browser/run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d/scoped-conversation/artifacts/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/01-dark-transcript.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      10
+    ],
+    "compressedBytes": 15715,
+    "bytes": 21555,
+    "crc32": "5457335f",
+    "sha256": "459ac4c5e81da16f135e92246bd83bf04a50e9fb7e8475c65a63652e326fe13b",
+    "gitBlob": "8a7ec769841bff532a13819c4e0619a41cd45a3f"
+  },
+  {
+    "path": "test-results/browser/run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d/scoped-conversation/artifacts/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/02-light-short-zoom.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      10
+    ],
+    "compressedBytes": 20450,
+    "bytes": 24044,
+    "crc32": "e29737bb",
+    "sha256": "cce21a97a591870d37160715b0fe488b44f6ab782057784a9a3e0a470774e394",
+    "gitBlob": "94392a71a6bb84a7c3a655bffc4488775030a498"
+  },
+  {
+    "path": "test-results/browser/run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d/scoped-conversation/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      20
+    ],
+    "compressedBytes": 2637,
+    "bytes": 20507,
+    "crc32": "7f0abbd0",
+    "sha256": "8a6baae45a60ab5c9ea9e934bc6a60e091647babfba8ee693f832720067d71a5",
+    "gitBlob": "b9f702facd0cb523dd0fdf7a17d8542f13cd345f"
+  },
+  {
+    "path": "test-results/browser/run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d/scoped-conversation/artifacts/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/03-dark-short-zoom.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      10
+    ],
+    "compressedBytes": 19926,
+    "bytes": 23359,
+    "crc32": "5c0e01e0",
+    "sha256": "af0d6030da82e0cf86afe943ea107b153626b7fade95949984beb4ac2320d8ef",
+    "gitBlob": "a2ecbc3193705ebbab8d3f8b3a8eb477c95672ea"
+  },
+  {
+    "path": "test-results/browser/run-1794800181030-57114942-c007-445a-9139-456bbddf0020/ui-shell-overlays/artifacts/ui-shell-overlays-narrow-l-c674b-low-native-caption-controls/modal-popup.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      34
+    ],
+    "compressedBytes": 14466,
+    "bytes": 15273,
+    "crc32": "2360ee76",
+    "sha256": "aa32fca2447f91cc8ae19b6c5ce3c869db0129424c7dd7a5a41a4011fbde44ed",
+    "gitBlob": "1692eeffa6998fc9b70d133730df830fb8524b48"
+  },
+  {
+    "path": "test-results/browser/run-1794800181030-57114942-c007-445a-9139-456bbddf0020/ui-shell-overlays/artifacts/ui-shell-overlays-short-da-edc50-low-native-caption-controls/modal-popup.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      34
+    ],
+    "compressedBytes": 8906,
+    "bytes": 9178,
+    "crc32": "237e7b1e",
+    "sha256": "0621d94636dd223152d553878b366a74aa56fbde8b56270db9b769eab600ac2a",
+    "gitBlob": "332bd48f2374fe5af0c606b5b1badc1e65d083cd"
+  },
+  {
+    "path": "test-results/browser/run-1794800181030-57114942-c007-445a-9139-456bbddf0020/ui-shell-overlays/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      36
+    ],
+    "compressedBytes": 2649,
+    "bytes": 20914,
+    "crc32": "e844d5d5",
+    "sha256": "388f67dc8fff95120e8d4a0f4afe942456eb93110e683e22bfa51b55e6fb5ea8",
+    "gitBlob": "baf943a8939a1b8c8bb6399aa3ddb56c73342242"
+  },
+  {
+    "path": "test-results/browser/run-1794800198332-eddf80fd-82c4-4d58-8206-b379caabaa47/ui-shell-controls/artifacts/ui-shell-controls-a-large--765a0-pup-frame-in-a-short-window/modal-select-short.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      58
+    ],
+    "compressedBytes": 9700,
+    "bytes": 10109,
+    "crc32": "93a4d91b",
+    "sha256": "8bc9d4db833bcda291c0e476e5df272264d3fa9af70c54818185261233300720",
+    "gitBlob": "1d16e8206168949efdabee7e70442db525b52f41"
+  },
+  {
+    "path": "test-results/browser/run-1794800198332-eddf80fd-82c4-4d58-8206-b379caabaa47/ui-shell-controls/artifacts/ui-shell-controls-selected-312cb-th-spaced-32px-rows-in-dark/select-dark.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      56
+    ],
+    "compressedBytes": 8445,
+    "bytes": 10500,
+    "crc32": "4c74ec91",
+    "sha256": "6266c6ad130452661589c7a503bc8be09cebf84f54c13d3d2748bdf75b8a5b5c",
+    "gitBlob": "bb40fe1c78e55406c76982c9d4eb1192b7be97f2"
+  },
+  {
+    "path": "test-results/browser/run-1794800198332-eddf80fd-82c4-4d58-8206-b379caabaa47/ui-shell-controls/artifacts/ui-shell-controls-selected-90f64-h-spaced-32px-rows-in-light/select-light.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      56
+    ],
+    "compressedBytes": 8367,
+    "bytes": 10447,
+    "crc32": "e0989d74",
+    "sha256": "edfe95bd92a8305806e47b0baaf0ba4e851451de4964fb3cce7b065d9354be8e",
+    "gitBlob": "1150860e353ec520bd4b778ced80589e1c1680e8"
+  },
+  {
+    "path": "test-results/browser/run-1794800198332-eddf80fd-82c4-4d58-8206-b379caabaa47/ui-shell-controls/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      0
+    ],
+    "compressedBytes": 2850,
+    "bytes": 23653,
+    "crc32": "16f3d09e",
+    "sha256": "0e4d9f6853477f2efaaf45a54dbf6942fedda7c973096c86b1c303a0387caa35",
+    "gitBlob": "eacc27f816bb7fc98293b6cce36f87350e4191c9"
+  },
+  {
+    "path": "test-results/browser/run-1794800222451-c45517cf-c380-4cfb-9775-f7df0d611718/usage-context/artifacts/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/context-light-short.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      24
+    ],
+    "compressedBytes": 15621,
+    "bytes": 15866,
+    "crc32": "b4e956c5",
+    "sha256": "cc6a77974e64a9dd0e43ff8643976bed81401f953a1a34a1b610b3317248b515",
+    "gitBlob": "1bfe174f277215bbefd8d177d1fbf23d33f89d76"
+  },
+  {
+    "path": "test-results/browser/run-1794800222451-c45517cf-c380-4cfb-9775-f7df0d611718/usage-context/artifacts/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/context-dark-short.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      22
+    ],
+    "compressedBytes": 14499,
+    "bytes": 14959,
+    "crc32": "c71aad7f",
+    "sha256": "9f618cacaa9a81abe222883b25508a0647ebf0909286fbe3f99058c78e83ca80",
+    "gitBlob": "61a599ed94317349996fa9c01d6a2299b16306ed"
+  },
+  {
+    "path": "test-results/browser/run-1794800222451-c45517cf-c380-4cfb-9775-f7df0d611718/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/usage-light-short.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      22
+    ],
+    "compressedBytes": 13247,
+    "bytes": 13711,
+    "crc32": "c1163033",
+    "sha256": "19bf66d74f6accbe2d411c4a394f22d22e100ef7cc47b9afc3b711120f4b6014",
+    "gitBlob": "78ac5468ff2428e0e9df13cd373d4aa40edcf96f"
+  },
+  {
+    "path": "test-results/browser/run-1794800222451-c45517cf-c380-4cfb-9775-f7df0d611718/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/usage-dark-short.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      20
+    ],
+    "compressedBytes": 13891,
+    "bytes": 14381,
+    "crc32": "bc2ae186",
+    "sha256": "05f0ee8ecdc760bc2e0c87e9e1cadf7818637d69be73aa8ff4b479a6371bdf51",
+    "gitBlob": "cedf13560d04cec545497ec3bba5f0ed433c194b"
+  },
+  {
+    "path": "test-results/browser/run-1794800222451-c45517cf-c380-4cfb-9775-f7df0d611718/usage-context/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      28
+    ],
+    "compressedBytes": 3350,
+    "bytes": 30037,
+    "crc32": "bf0c94f8",
+    "sha256": "82e43ca72dbaea97c96c48eb1158d749d98700920d2a91aededa37743aac1fec",
+    "gitBlob": "0d36d3af87302da51f25f3ddc6ca28ea0df86f63"
+  },
+  {
+    "path": "test-results/browser/run-1794800249695-3dc5e927-5cf6-45dc-a8a2-e35382937b4b/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      8
+    ],
+    "compressedBytes": 47403,
+    "bytes": 53455,
+    "crc32": "726460a4",
+    "sha256": "1664f2e664249e7fb721b6fe135392ab0b0d87226ca3c038b499a771acda1796",
+    "gitBlob": "dbc0b46035c4091b0fafd339fe48abb02e6c835e"
+  },
+  {
+    "path": "test-results/browser/run-1794800249695-3dc5e927-5cf6-45dc-a8a2-e35382937b4b/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      10
+    ],
+    "compressedBytes": 24114,
+    "bytes": 26268,
+    "crc32": "46331096",
+    "sha256": "1fc36455ba11243fc45279d1679d642e95ff3a1bf795b7bf299bfcd668499926",
+    "gitBlob": "a8cf0492b862f30ebbaa2ecd4294f152900d7a36"
+  },
+  {
+    "path": "test-results/browser/run-1794800249695-3dc5e927-5cf6-45dc-a8a2-e35382937b4b/agents-workspace/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      10
+    ],
+    "compressedBytes": 45475,
+    "bytes": 48722,
+    "crc32": "5707440b",
+    "sha256": "c8df4851edb804fe9d4866262b510f3ab342b6aed192cd87217f0d98ca5748b2",
+    "gitBlob": "35e75850b38ad96025f91bd3a84caa87c5412417"
+  },
+  {
+    "path": "test-results/browser/run-1794800249695-3dc5e927-5cf6-45dc-a8a2-e35382937b4b/agents-workspace/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      12
+    ],
+    "compressedBytes": 19934,
+    "bytes": 21663,
+    "crc32": "ae0259d4",
+    "sha256": "4607846e4cd60bf04e22b5a19283434d70b4c8968cd30398062e56544ec28dd3",
+    "gitBlob": "7c6b8098d696c52944dd23f792bf3984991067a8"
+  },
+  {
+    "path": "test-results/browser/run-1794800249695-3dc5e927-5cf6-45dc-a8a2-e35382937b4b/agents-workspace/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      16
+    ],
+    "compressedBytes": 3085,
+    "bytes": 27953,
+    "crc32": "e53363c8",
+    "sha256": "52521bf40dd48147c5b49a55f4076e2e431cb735028cf2f85ab7dac82b6f4c67",
+    "gitBlob": "5dd29f240280251ef478dfc85d85c7fd0e4ad676"
+  },
+  {
+    "path": "test-results/browser/run-1794800344258-9ffe44c4-4749-48ae-afe5-634f5bb7e08d/workspace-host/artifacts/workspace-host-review-retu-4efea-test-conversation-selection/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      40,
+      10
+    ],
+    "compressedBytes": 1427,
+    "bytes": 6297,
+    "crc32": "27b349db",
+    "sha256": "720ab3d1fb43beb326817ebbbdd22cb61942d1814616ac0fe2b6525f368f8421",
+    "gitBlob": "191c52310b24911c6bdd48d4333ac31f08901a68"
+  },
+  {
+    "path": "test-results/browser/run-1794800344258-9ffe44c4-4749-48ae-afe5-634f5bb7e08d/workspace-host/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      6
+    ],
+    "compressedBytes": 6085,
+    "bytes": 62125,
+    "crc32": "0b057571",
+    "sha256": "1e0f847ee5ea498b022b0709c912446b262f5a870e330a26909b48c058db3c91",
+    "gitBlob": "4f1816ac0602cbb189775a48c6dd8e2d92daa954"
+  },
+  {
+    "path": "test-results/browser/run-1794800344258-9ffe44c4-4749-48ae-afe5-634f5bb7e08d/workspace-host/artifacts/workspace-host-review-retu-4efea-test-conversation-selection/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      40,
+      10
+    ],
+    "compressedBytes": 971410,
+    "bytes": 1030216,
+    "crc32": "2a8ec4cd",
+    "sha256": "3aee0b241d8c14130a9ef1808102d68dfebe9befe7c097e75e4d5f1c643d4161",
+    "gitBlob": "1b811abc641a4640ccfffb632b3b0d6db9c528f2"
+  },
+  {
+    "path": "test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      34
+    ],
+    "compressedBytes": 1746,
+    "bytes": 14380,
+    "crc32": "c5eaf691",
+    "sha256": "94a9b7b0f46c6f48f13f56bb00fb88b2d1ce52a76205001400dc2584fb8ac319",
+    "gitBlob": "acc2a99ac47d47224305e6d544eb8b5af0bef8e7"
+  },
+  {
+    "path": "test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      34
+    ],
+    "compressedBytes": 164818,
+    "bytes": 181531,
+    "crc32": "f508a6b1",
+    "sha256": "5f4c3e82ede7bb98669d4006a5fe54e32de71229046d4fe158936bc62d2df951",
+    "gitBlob": "1aeefce58cc9b8c9663f42ca5dbe92c9dbfd7bfe"
+  },
+  {
+    "path": "test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      30
+    ],
+    "compressedBytes": 1746,
+    "bytes": 14380,
+    "crc32": "c5eaf691",
+    "sha256": "94a9b7b0f46c6f48f13f56bb00fb88b2d1ce52a76205001400dc2584fb8ac319",
+    "gitBlob": "acc2a99ac47d47224305e6d544eb8b5af0bef8e7"
+  },
+  {
+    "path": "test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      30
+    ],
+    "compressedBytes": 144836,
+    "bytes": 162214,
+    "crc32": "47a8dab3",
+    "sha256": "955e2101d4044548b685db817d93f03b45b625e454732e75fa8f6e67eb9e4c4f",
+    "gitBlob": "b07acaf690cc72b32e4d9fa45201b356ab9ae3d8"
+  },
+  {
+    "path": "test-results/browser/run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61/saved-layout-chooser/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      34
+    ],
+    "compressedBytes": 4711,
+    "bytes": 48467,
+    "crc32": "ee224ab3",
+    "sha256": "53459576f07499477b6c5be0e170a9b18b040284b6a01119759e982046e845a5",
+    "gitBlob": "e96bd8582eafb081c315c7ab27a3fae8dbf454d1"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      52
+    ],
+    "compressedBytes": 1457,
+    "bytes": 5742,
+    "crc32": "8673f0bb",
+    "sha256": "4191d41911ca7d3f82124fc2961e00e8fded8abc87c018547cdcf1b28dfde7d5",
+    "gitBlob": "487649d24976b7032e541da23beabd856d20f2e7"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      52
+    ],
+    "compressedBytes": 655010,
+    "bytes": 661187,
+    "crc32": "e1befed6",
+    "sha256": "d983ae0d7b280bda5519462f51962a34cd7ffdcc20a8af17e68c4317fd7c1113",
+    "gitBlob": "095993f3cbd97d90ace837fc843d27fb88132278"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      2
+    ],
+    "compressedBytes": 770,
+    "bytes": 2650,
+    "crc32": "95a68f1d",
+    "sha256": "3df0c39f808a5df98b6368ae4b4340f028973e07832b5225227fd5f37c520ab6",
+    "gitBlob": "9477aa334ff50bfcae21f2702758a746d631abe3"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      2
+    ],
+    "compressedBytes": 393395,
+    "bytes": 400428,
+    "crc32": "73786a06",
+    "sha256": "8d4b0ab95d756741bdc7a7b091853744085132e1c692a8192d8973660bfe2bf1",
+    "gitBlob": "714271d417ea299c0e4ca0b4472098c3e014f4d7"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      14
+    ],
+    "compressedBytes": 1471,
+    "bytes": 6120,
+    "crc32": "f37df72a",
+    "sha256": "ca9ab875347cc5a2dbf2f56e7457c361ac7e4e6d5832f140a77fa71a1bf770e5",
+    "gitBlob": "2d654b1cf81f2f851b6360a0b15a54ef1aed8a24"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      14
+    ],
+    "compressedBytes": 435820,
+    "bytes": 439847,
+    "crc32": "1602cc82",
+    "sha256": "7f5e79227fb9ad66ece23df0da8abe1eafd27ea6076566af6a61675b7a4eba8e",
+    "gitBlob": "a6a6d4b5276ae7de5c082eb862440ef5c948c714"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-3f659-another-thread-on-snapshots/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      6
+    ],
+    "compressedBytes": 1800,
+    "bytes": 7444,
+    "crc32": "0d545547",
+    "sha256": "c2ad9fa19c1d6fce7d2f4a81df9c920b8022c049eec97e67b1700209292ef7f3",
+    "gitBlob": "9ca54db4d245b6f127df12df2915451d7a6983f7"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-3f659-another-thread-on-snapshots/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      6
+    ],
+    "compressedBytes": 521011,
+    "bytes": 555358,
+    "crc32": "d69356fe",
+    "sha256": "4d8b68dfcca52e2381bbef736fcf095d7e240b0f0488395033f48b22c3850abb",
+    "gitBlob": "831f6a62165d4fbd5b65e5bc0c848305341b3bbc"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-6c7a6--and-never-infers-a-receipt/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      54
+    ],
+    "compressedBytes": 1532,
+    "bytes": 6151,
+    "crc32": "5755b7cf",
+    "sha256": "6d1cafb761550352f48d994aa0884ea72300cc991b520210551ba831951fc709",
+    "gitBlob": "f8f6f07dda7cd2b4d3d3043a1ff167d284ed6e15"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-6c7a6--and-never-infers-a-receipt/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      56
+    ],
+    "compressedBytes": 672462,
+    "bytes": 678739,
+    "crc32": "183a5c2a",
+    "sha256": "df038f58deaae5bc928805f83fc9e2e555a9b675c393671cf92d88af0e0c9f4d",
+    "gitBlob": "e97a24761585b04db654e15992c062cfeed1841f"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-7abb1-ains-the-conversation-draft/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      12
+    ],
+    "compressedBytes": 1797,
+    "bytes": 7484,
+    "crc32": "383217d8",
+    "sha256": "b9ce30a4ab53fbf7b5c7280539477e96795c7876898658eded40bd3accc59846",
+    "gitBlob": "5cfc0fc907d733ebc22875406acffe1db0107660"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-actu-7abb1-ains-the-conversation-draft/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      12
+    ],
+    "compressedBytes": 612782,
+    "bytes": 630933,
+    "crc32": "161ab50c",
+    "sha256": "f185095ea4d912e240fadbb2d52cadcf6dc2a462a9a82531a09351f4bbcd2a7a",
+    "gitBlob": "25f9ec21a318e40df64e12371c3261e983cc3293"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      24
+    ],
+    "compressedBytes": 1390,
+    "bytes": 5590,
+    "crc32": "f3edecce",
+    "sha256": "0236da1781a3c1cdb08e9aba0de3b19d3105784763099708840ebc4a096de543",
+    "gitBlob": "d336c92e0fd9de57c2c29f1870c65a19bb58c276"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      24
+    ],
+    "compressedBytes": 498637,
+    "bytes": 503093,
+    "crc32": "ec7845d0",
+    "sha256": "859c64a11e6f42624f44d5addd25a9b3eb51cf3fc17f3381b118737c68fbf4bd",
+    "gitBlob": "dc3df48b597d6f5cd02b041d12996a3d76779dd0"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      36
+    ],
+    "compressedBytes": 1986,
+    "bytes": 10490,
+    "crc32": "724324bd",
+    "sha256": "6f4d12d49a19ad04c8bd33fb37245831ac3ed98922896e6f49cd5acbc8a76018",
+    "gitBlob": "d60bc53def5e13a2be68ec75d81b97e67e351d7f"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      42,
+      36
+    ],
+    "compressedBytes": 2029297,
+    "bytes": 2279085,
+    "crc32": "2dfff5e2",
+    "sha256": "b323d080fc17e1def60a4055ede2bd9caf45c5c8acd03d556368aeddca4bf5de",
+    "gitBlob": "86c2d49cbb62cb556e9ae4642a6c596206965b0c"
+  },
+  {
+    "path": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      24
+    ],
+    "compressedBytes": 8300,
+    "bytes": 81574,
+    "crc32": "460950b1",
+    "sha256": "9250da748b1b90e1042c736cd8bc6be38445be16a9f7f26c9863f6bf9c861710",
+    "gitBlob": "247b984a3aff34a03bab1ea07c2e9bf53e252e9e"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-an-artifa-c9d9f-ith-no-new-detachment-entry/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      6
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-an-artifa-c9d9f-ith-no-new-detachment-entry/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      6
+    ],
+    "compressedBytes": 347336,
+    "bytes": 351749,
+    "crc32": "2350236f",
+    "sha256": "2a621455ebcde18d788657c63ffcb58c9ed02c9501c71a54b4e5d245b520f363",
+    "gitBlob": "8cf01ab93efdd31384fb94aa845835a4dfb6da95"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-close-ack-8d081-tion-resumes-the-same-draft/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      44
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-close-ack-8d081-tion-resumes-the-same-draft/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      44
+    ],
+    "compressedBytes": 351299,
+    "bytes": 355812,
+    "crc32": "e19eddc6",
+    "sha256": "40a11955f515aa0ba2706371435433ba06a76f86763a8d70b900ac768c7698c6",
+    "gitBlob": "937e3c287cc28d0d3bba9388f30d8e37a1c4a127"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-compatibl-1c18c-omposer-and-survives-reload/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      56
+    ],
+    "compressedBytes": 1434,
+    "bytes": 5929,
+    "crc32": "9a9dc4b4",
+    "sha256": "d88c46b8ec0c35288f27cf813083bf291c8773ab897ceff9fe76472a38fe7386",
+    "gitBlob": "25133cbc0be732de88aae88fa6e3897c4ab9ab46"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-compatibl-1c18c-omposer-and-survives-reload/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      56
+    ],
+    "compressedBytes": 612150,
+    "bytes": 634408,
+    "crc32": "44efe72d",
+    "sha256": "1ced0e63127f7c4dc2cffb3668e9e4224ff084a2b66d46991fb14633a8e0151e",
+    "gitBlob": "e9ead0e55b94292a2863ae2cc734651f431146a3"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-desktop-d-824fe-ks-stale-artifact-revisions/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      52
+    ],
+    "compressedBytes": 2185,
+    "bytes": 8459,
+    "crc32": "44830ef5",
+    "sha256": "3ef56ffd74548fe6d1e9df2daa3fe692d563424e2ce2d81517d69de9166832ed",
+    "gitBlob": "8c11d44b28e8e34cce07dcbd4aeb92b7035f2589"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-desktop-d-824fe-ks-stale-artifact-revisions/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      52
+    ],
+    "compressedBytes": 767296,
+    "bytes": 791183,
+    "crc32": "2d28d16c",
+    "sha256": "5af502ef5fdc2bcae1fe17303e0096a36a0a59063c77147750048b563e61d2a8",
+    "gitBlob": "99a2c9ebff2b81d915652f2af4af533575a4a325"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      8
+    ],
+    "compressedBytes": 584,
+    "bytes": 1906,
+    "crc32": "a40c2d58",
+    "sha256": "10e3aea007f672134ad8159cf67e60e9dc338c129fecbdb4a9e44942c5c8789f",
+    "gitBlob": "e0f9126a58b5140ebc9c94e0426f51fb1f19a8fa"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      8
+    ],
+    "compressedBytes": 319773,
+    "bytes": 342175,
+    "crc32": "88c0ec4f",
+    "sha256": "5c5244e90be61b6e9eaf7b7f8f02611521c29f0cf19c42cd38d68901465130dd",
+    "gitBlob": "037b6a93ac85266fd47f7c4292a39bb73e19de2c"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      34
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      34
+    ],
+    "compressedBytes": 343138,
+    "bytes": 347613,
+    "crc32": "134d9e54",
+    "sha256": "06b31eca74d65c4099fc0ccc61360e41afd4e5a209d841ee9019e132d7ff233e",
+    "gitBlob": "976f4fbc5a4ca7c293731790effba0e1e92c63b4"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-imported--15775--editor-before-another-edit/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      2
+    ],
+    "compressedBytes": 1425,
+    "bytes": 5920,
+    "crc32": "ee5a0189",
+    "sha256": "6e173d2d7cb67d48adf2e3320e3ebc5ea379c455214e18bea0fa2faeed1aee88",
+    "gitBlob": "094d757ee1ef1c8050a1bb0923a1099644c1479c"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-imported--15775--editor-before-another-edit/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      2
+    ],
+    "compressedBytes": 337239,
+    "bytes": 341171,
+    "crc32": "bd7efe59",
+    "sha256": "6e9dcc846accdee43d527c6f5caad258dd76ba14683bd9661f290c176b591ec8",
+    "gitBlob": "bc1240da205d7eb6de45316d00dbb83506fcdd61"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-36d65-dgment-retaining-source-DOM/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      45,
+      26
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-36d65-dgment-retaining-source-DOM/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      45,
+      26
+    ],
+    "compressedBytes": 357161,
+    "bytes": 361653,
+    "crc32": "b51e3712",
+    "sha256": "1176af38611d05240dfb8cfaec0c122b56fdac653e0c6960679b92bdc1f59cc3",
+    "gitBlob": "c47ee6fb3eb3a573e31ae71e6a39331f113ea8a7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      16
+    ],
+    "compressedBytes": 1554,
+    "bytes": 6396,
+    "crc32": "760cf55e",
+    "sha256": "198db86b4968a9cecc77c1107827aab5892a6d6833c6f3cee6016cd0b771b561",
+    "gitBlob": "320f2aae01948729a30ef6effe2a44aa9bd88884"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      16
+    ],
+    "compressedBytes": 350212,
+    "bytes": 354022,
+    "crc32": "29905a23",
+    "sha256": "d1c52e2a76549e2d4bc2062062fa199cf856a601a209e427a42b9ec35513c2a6",
+    "gitBlob": "06958d3eaa60cfa6f69a9cc53c92171f3fda382b"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-cad65-s-after-acknowledged-saving/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      45,
+      58
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-cl-cad65-s-after-acknowledged-saving/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      45,
+      58
+    ],
+    "compressedBytes": 343767,
+    "bytes": 348226,
+    "crc32": "92a3ea54",
+    "sha256": "1a69eb8e1f884b962af7893b7b555b9920534110d3d79225fd36afa41269146a",
+    "gitBlob": "b656d3c26a189f783207dda272d28574e5cc9f9f"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-wo-66948-ning-renderer-event-streams/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      12
+    ],
+    "compressedBytes": 1425,
+    "bytes": 5920,
+    "crc32": "ee5a0189",
+    "sha256": "6e173d2d7cb67d48adf2e3320e3ebc5ea379c455214e18bea0fa2faeed1aee88",
+    "gitBlob": "094d757ee1ef1c8050a1bb0923a1099644c1479c"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-native-wo-66948-ning-renderer-event-streams/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      44,
+      12
+    ],
+    "compressedBytes": 338555,
+    "bytes": 342335,
+    "crc32": "8fac6229",
+    "sha256": "924ad75f7304444f1dfefba002e2d4e9576e24f7c984a69375bbf93d9c9cfcce",
+    "gitBlob": "facebbac5d6ceea44a3ed7ab8ce13cd3e76aa6a3"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      2
+    ],
+    "compressedBytes": 559,
+    "bytes": 1862,
+    "crc32": "ffa33727",
+    "sha256": "1337a4464d99d55bd588b26a9b0e45d3f0f1fa003a11f6ed1cef1241bab063bf",
+    "gitBlob": "098a116d47497b29018dd570a1ac59a38e6b91d0"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      2
+    ],
+    "compressedBytes": 256691,
+    "bytes": 269830,
+    "crc32": "479119a0",
+    "sha256": "058d463a6059d7e931c75175fed81a4ea3dc597444e573d890c0ebc296f68697",
+    "gitBlob": "f767d1ccda7f58ada3b2ce1336296be9b29bb45b"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-cl-10fd5-omits-the-optional-response/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      48,
+      22
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-cl-10fd5-omits-the-optional-response/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      48,
+      22
+    ],
+    "compressedBytes": 350765,
+    "bytes": 355327,
+    "crc32": "3f96b908",
+    "sha256": "00900f0116a52123a63ce350fa27f38450e90171124c348925b6207c00c0b361",
+    "gitBlob": "107161e63b642c6500c8c049d78f71a08610923f"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-cl-50f91-retains-required-validation/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      48,
+      54
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-cl-50f91-retains-required-validation/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      48,
+      54
+    ],
+    "compressedBytes": 352031,
+    "bytes": 356531,
+    "crc32": "638215bd",
+    "sha256": "b5c0434fd9eb35451f8481468f4b4e9f161a973afe5008a783775e054f822ee3",
+    "gitBlob": "db358d495cdce5822c2e81797000690e8b9a9917"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-st-e46a0-before-the-initial-snapshot/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      52
+    ],
+    "compressedBytes": 779,
+    "bytes": 2811,
+    "crc32": "eb2c7258",
+    "sha256": "36de7c3c82b1f1e47781ac1b14f1085f313bed9cf0b3da15b6c0665f08e2d7ce",
+    "gitBlob": "a42a1b4e4e3f048b7a715b2ebad0fcc026c2778e"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-st-e46a0-before-the-initial-snapshot/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      52
+    ],
+    "compressedBytes": 332336,
+    "bytes": 337132,
+    "crc32": "6e29be47",
+    "sha256": "f02048627884c16fd8090ad562c69da84ce579c91405dbcafb245755a7c5f7c7",
+    "gitBlob": "4b70ff5244a95c3271bc005d269e5da921cea495"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-source-ed-c69b8-n-editing-ownership-returns/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      40
+    ],
+    "compressedBytes": 1425,
+    "bytes": 5920,
+    "crc32": "ee5a0189",
+    "sha256": "6e173d2d7cb67d48adf2e3320e3ebc5ea379c455214e18bea0fa2faeed1aee88",
+    "gitBlob": "094d757ee1ef1c8050a1bb0923a1099644c1479c"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-source-ed-c69b8-n-editing-ownership-returns/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      47,
+      40
+    ],
+    "compressedBytes": 337344,
+    "bytes": 341364,
+    "crc32": "464a19fb",
+    "sha256": "35839f6086b03ca518a95805d700d1837919a35bc975abb8a41e50c2d92d97a3",
+    "gitBlob": "6e0011678861d7b7f4d86c5eca1ee8bd28abbbce"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-upload-pr-aa4ed--canonical-PNG-is-journaled/error-context.md",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      48
+    ],
+    "compressedBytes": 1358,
+    "bytes": 5444,
+    "crc32": "4ad04352",
+    "sha256": "f74c8d10a68716fecf1c5ab91e73729e0449e45fe2439fd5269abf5736a17637",
+    "gitBlob": "7188d07b56f5d963f2328f0e7a6cc6da73438da7"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-upload-pr-aa4ed--canonical-PNG-is-journaled/trace.zip",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      46,
+      48
+    ],
+    "compressedBytes": 351642,
+    "bytes": 356152,
+    "crc32": "5776fc27",
+    "sha256": "ce08d3fb2ad787550366d3a23d9a200a99529cd3a9b288098dfea18298569f1f",
+    "gitBlob": "9b353f6dde4863862e801f78b4611dbf7bbf6df4"
+  },
+  {
+    "path": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      6
+    ],
+    "compressedBytes": 16067,
+    "bytes": 214113,
+    "crc32": "a954b3ce",
+    "sha256": "fe36018ed95a59fda1c81a70d99ec078610bfe650fb198b5c5b7f58511428456",
+    "gitBlob": "4aabfc7d8b4e9f5454f54430c1816d2ce04fb5ef"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      39,
+      2
+    ],
+    "compressedBytes": 442,
+    "bytes": 808,
+    "crc32": "20901d79",
+    "sha256": "cf34788ea7cb4c76d4415337380ebd483bc068b91d5778286e21c325745314c1",
+    "gitBlob": "04652cc8d3fd28788af31ae1654e94740ea6db39"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      39,
+      2
+    ],
+    "compressedBytes": 1124,
+    "bytes": 3033,
+    "crc32": "37571603",
+    "sha256": "b5c0a3db853cf893eb405136ed2302f2c95c8258dd0be897f176e72c28ca31b1",
+    "gitBlob": "1f4b5ed6d4190f91e1b12703a859fa2e52acd808"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      16
+    ],
+    "compressedBytes": 372,
+    "bytes": 639,
+    "crc32": "8ffa3d92",
+    "sha256": "718b1b19cb1b05071ef0852ed5133f0391b47d20c4d227d5ffd20dbaf6d529b0",
+    "gitBlob": "5887625eafd2cb863302057fcf23853fe90ced35"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      38,
+      16
+    ],
+    "compressedBytes": 1188,
+    "bytes": 3259,
+    "crc32": "f61e6270",
+    "sha256": "299d3b91f1930f5ba22740c1ab3fd7b3cfd128f76d3c895fe45e66dc0884d146",
+    "gitBlob": "bdcb178d5a909b82c7ed0726f826ce25c38ba767"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      0
+    ],
+    "compressedBytes": 453,
+    "bytes": 840,
+    "crc32": "0341d501",
+    "sha256": "454fa1c9437913ebf529b8a631eafe96a0ab25f59e1801c5326df5f031b0afcc",
+    "gitBlob": "e600d61f20bf750646b372b0bd548aa30ecd6b46"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      0
+    ],
+    "compressedBytes": 341,
+    "bytes": 543,
+    "crc32": "bfb7194a",
+    "sha256": "54eb8ec9e8e2eba20056000f68ae6c9a486fff032d39a2dbfe981e144a918a2e",
+    "gitBlob": "4c58a00827ba56e64a974ef8e4d0e15443a5e8ad"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      48
+    ],
+    "compressedBytes": 369,
+    "bytes": 637,
+    "crc32": "af629d38",
+    "sha256": "60f57a55fd8bb1c7b8b08c53284bc5dc3f44e864c8edf9d2cf780c31bef36537",
+    "gitBlob": "3be9d71d132279adce5af0a5774e32a3420e5ae0"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      48
+    ],
+    "compressedBytes": 586,
+    "bytes": 1176,
+    "crc32": "db2f22dc",
+    "sha256": "ff1fe6f1e2364c603a51dce3d9d468433819067a2fe1c302d1062bb38fbcae30",
+    "gitBlob": "375beab31d7d0c45c444ea1a88da7cdbeb751781"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      6
+    ],
+    "compressedBytes": 370,
+    "bytes": 639,
+    "crc32": "a52a5084",
+    "sha256": "4f65ae13e98f13dfd6ef929a9e93e3bfb581c7a67cddd20be45b5ff60ba14f97",
+    "gitBlob": "3614f23339dca318cd41d5358ad09b5c1179e7e8"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      49,
+      6
+    ],
+    "compressedBytes": 8756,
+    "bytes": 86041,
+    "crc32": "64df37d5",
+    "sha256": "183f36af908182cb76ac84fe8dfc11d29a3eef40c0b3a15905c2fa479dd5711c",
+    "gitBlob": "fc696d984b3b7aace3c2244fc042b56e67818c93"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      30
+    ],
+    "compressedBytes": 365,
+    "bytes": 631,
+    "crc32": "b698508f",
+    "sha256": "92f5dfd9e4d21eebb521ab63bf4ba70c379168ba9099ef7aa3d428aa9486aa14",
+    "gitBlob": "5a9b512e18f8799691e4bc2f7da92936d5a7dfab"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      30
+    ],
+    "compressedBytes": 1345,
+    "bytes": 4131,
+    "crc32": "3d83c026",
+    "sha256": "c0bd7d5158f7606f6351751cf09965cafed6c1cedf6c6ce50e8566b5e47fa75a",
+    "gitBlob": "8f9edf9577f727e770bfbcf08596274f697d161f"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      34
+    ],
+    "compressedBytes": 373,
+    "bytes": 647,
+    "crc32": "01968054",
+    "sha256": "af5cad995dc090b73e51968812fed61727b1ab2236b2ff956c2ea75793e0c12a",
+    "gitBlob": "e6af3144cca1d2c2b2b843ce04d896232ea07dab"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      34
+    ],
+    "compressedBytes": 2127,
+    "bytes": 12745,
+    "crc32": "4937d132",
+    "sha256": "825a8d3cc7c5a8f4d4b181744a909aeca2ca74736cea233d96afb6501ccea66c",
+    "gitBlob": "4beab1693e0a588897504a466fb4dd0d6f2f57e7"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      20
+    ],
+    "compressedBytes": 369,
+    "bytes": 645,
+    "crc32": "1d334d18",
+    "sha256": "eb36e306d8a17b891eb14d45e520d93463ec0a3fd0ee0d8d1cf92116146fa44f",
+    "gitBlob": "eb71c764d6d36a3ef472adfa85e9c73b8d84f7e2"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      20
+    ],
+    "compressedBytes": 1019,
+    "bytes": 2532,
+    "crc32": "ce71cdef",
+    "sha256": "edc251ef9d5282e18fef7eb2ca40853274a5fad11d033494bb2fb8a479a16e94",
+    "gitBlob": "1d4d2a4d542e01fd59ef67bfdd2d40bc117078b0"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-split-browser-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      50,
+      40
+    ],
+    "compressedBytes": 1024,
+    "bytes": 2118,
+    "crc32": "b72b14ab",
+    "sha256": "f24624d2ac4168f26e328486013c0ce6a391b80063cbc06ba8d8eebbb207d8b2",
+    "gitBlob": "dbc98b0dcf3748b9197e388bdae3ec347c74ca0e"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      0
+    ],
+    "compressedBytes": 372,
+    "bytes": 641,
+    "crc32": "e8370f07",
+    "sha256": "0f2c7291604386feb0fe9db0178e994dfc79bb750e26294d609ceea9d9b0780a",
+    "gitBlob": "ae555a8d410ddac44bdfbab11ad696813389da7e"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-split-browser-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      50,
+      40
+    ],
+    "compressedBytes": 2687,
+    "bytes": 7580,
+    "crc32": "a7c5b2b1",
+    "sha256": "5b98a98bbae25b09f193717f5e5c52e166a38a6780e4315e645c9bea8681f834",
+    "gitBlob": "64e87febb4973d25577142ab67afad8f6140d248"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      0
+    ],
+    "compressedBytes": 1144,
+    "bytes": 2959,
+    "crc32": "6d71700f",
+    "sha256": "ee93eb85e5bf453f32b096e6ee66b8f113996c8da7041ea24e1a2924705bc7fe",
+    "gitBlob": "e9d84a3838c808749baf2e2566928f2d4f93e0cc"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      36
+    ],
+    "compressedBytes": 373,
+    "bytes": 641,
+    "crc32": "a823f681",
+    "sha256": "4340c9950321f0115341e7a1eac5b77a5c7fdee6bd35d9635830039ce4be8b89",
+    "gitBlob": "0a224e8c2a1a0e0410d106e1f117046909e08578"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      36
+    ],
+    "compressedBytes": 931,
+    "bytes": 2401,
+    "crc32": "bc06af11",
+    "sha256": "ee099fcc9662c753fa214ad90f9c3f48abd6bd0f2f6491f504a78253ccdf57af",
+    "gitBlob": "3b9e17ef2623567e9cc281becf28b604e3bdd8e3"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      26
+    ],
+    "compressedBytes": 375,
+    "bytes": 649,
+    "crc32": "0be67063",
+    "sha256": "bb6c46adf25a7ee95bdaccbf76dd6fe623ca8d01a572c924c2ee6bb508799d5c",
+    "gitBlob": "6d2f2dbc741644cef8702943691361285dfc49a7"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      43,
+      26
+    ],
+    "compressedBytes": 4276,
+    "bytes": 28260,
+    "crc32": "fd9ee35e",
+    "sha256": "cf8c900d349f7fad5bf5320d8b6f7d070a5926778ac75d6d8b593de1c2d79372",
+    "gitBlob": "9944ce9032ac93042c971d878a56321afaede7fb"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-usage-context-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      28
+    ],
+    "compressedBytes": 367,
+    "bytes": 633,
+    "crc32": "6744c38f",
+    "sha256": "d3bbc81077d249c51d580a46b23f2c41eabf73ac05e806d2914b0696e298dbb2",
+    "gitBlob": "cfd01d3564d8fc59166b93b8ee49a4633c7659f4"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-usage-context-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      28
+    ],
+    "compressedBytes": 1447,
+    "bytes": 3773,
+    "crc32": "cc5b8a36",
+    "sha256": "a1bd5a5ac24bed3577fd9afdc3a411a5d50e3752efe1905068464eb0cc9222db",
+    "gitBlob": "814ececc0a96268bc1990bd7e95a84695ebfa689"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      16
+    ],
+    "compressedBytes": 365,
+    "bytes": 625,
+    "crc32": "4a50d38c",
+    "sha256": "56704f1d4fe0884defa90483455f05df13e99fb69d25355c641c4125e1beea3f",
+    "gitBlob": "6164f82f3d28b2d3f46259386a6fcfa88543d4c2"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      32,
+      16
+    ],
+    "compressedBytes": 1614,
+    "bytes": 4136,
+    "crc32": "32edfc3c",
+    "sha256": "26c7c1b3ef4eb9b7936bdab4005501c50a39a9965d25a7afd0239da3b497ec5d",
+    "gitBlob": "952658576603b328c03c1355fae4efce40198d5d"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      33,
+      48
+    ],
+    "compressedBytes": 371,
+    "bytes": 633,
+    "crc32": "8eedef96",
+    "sha256": "fe18dd275bddf74d75db11bcaff735e9fb2d88deb7f4a825cfddfa5d5bf96e07",
+    "gitBlob": "57423686e839de09dc9807743b72bee800ac1fdd"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      33,
+      48
+    ],
+    "compressedBytes": 1427,
+    "bytes": 3512,
+    "crc32": "791129be",
+    "sha256": "7ef5ff78d3dfc95477363b6d1edf7204606c076be3daa875039fd15f6d4b7f95",
+    "gitBlob": "dc6824a666960874089b967c3083f83304347a30"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      6
+    ],
+    "compressedBytes": 370,
+    "bytes": 635,
+    "crc32": "68a6ec58",
+    "sha256": "62ab788a547a04b9f7bd620ab9ae0d907740531d85fcba9a7855fad05229680c",
+    "gitBlob": "fd173ecba6a3ba33997df9eb1a57147d47d80a0c"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      6
+    ],
+    "compressedBytes": 2969,
+    "bytes": 9955,
+    "crc32": "9fb87f57",
+    "sha256": "24c404d2c7a0dc057d863baf5426fa2bb43c848d76b4965c16c5511413d49ba5",
+    "gitBlob": "81b2167992d0f179f015e55f3bd262e16b05efc9"
+  }
+]

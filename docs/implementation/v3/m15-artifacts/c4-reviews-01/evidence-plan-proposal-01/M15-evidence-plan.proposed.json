@@ -1,0 +1,604 @@
+{
+  "executionBaseSha": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "f331cf16b268282da888a41da42fc776ea7befd5",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "34d8dd1e0e68af44265cea69b082ce4088366017"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-effects.ts",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/effect-recovery.ts",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-authority.ts",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/storage/store.ts",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/index.ts",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/request-context.ts",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/request-custody.ts",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/project-memory.ts",
+      "testIds": [
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory.ts",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-storage-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/project-memory-host.ts",
+      "testIds": [
+        "tests/memory-host-lifecycle-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts",
+        "tests/source-workbench-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "apps/server/project-memory-routes.ts",
+      "testIds": [
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/runtime/memory-checkpoint.ts",
+      "testIds": [
+        "tests/memory-native-checkpoint-v3.test.ts",
+        "tests/memory-checkpoint-worker-ownership-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/file-access.ts",
+      "testIds": [
+        "tests/memory-native-file-capture-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/security.ts",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    }
+  ],
+  "inspectedPaths": [
+    ".github/actions/setup/action.yml",
+    ".github/workflows/ci.yml",
+    "apps/server/project-memory-routes.ts",
+    "apps/server/server.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/ContextInspector.tsx",
+    "apps/web/src/DraftTransfer.tsx",
+    "apps/web/src/FileCheckpoints.tsx",
+    "apps/web/src/Markdown.tsx",
+    "apps/web/src/ProjectMemoryReview.tsx",
+    "apps/web/src/SurfaceBoundary.tsx",
+    "apps/web/src/UsageDialog.tsx",
+    "apps/web/src/UsageFooter.tsx",
+    "apps/web/src/WorkspaceHost.tsx",
+    "apps/web/src/WorkspaceSplitLayout.tsx",
+    "apps/web/src/agents-workspace/composer.ts",
+    "apps/web/src/conversation-placement.ts",
+    "apps/web/src/conversation-workspace/reader.ts",
+    "apps/web/src/desktop-context.tsx",
+    "apps/web/src/draft-transfer.ts",
+    "apps/web/src/editor-handoff.ts",
+    "apps/web/src/journal.ts",
+    "apps/web/src/project-api.ts",
+    "apps/web/src/project-memory-api.ts",
+    "apps/web/src/project-memory-preparation.ts",
+    "packages/contracts/implementation-evidence.ts",
+    "packages/contracts/index.ts",
+    "packages/contracts/project-memory.ts",
+    "packages/contracts/request-context.ts",
+    "packages/contracts/tool-effects.ts",
+    "packages/contracts/workspace.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/effect-recovery.ts",
+    "packages/core/file-access.ts",
+    "packages/core/memory-retrieval.ts",
+    "packages/core/project-memory-host.ts",
+    "packages/core/project-memory.ts",
+    "packages/core/request-custody.ts",
+    "packages/core/security.ts",
+    "packages/core/service.ts",
+    "packages/core/tool-authority.ts",
+    "packages/core/tool-effects.ts",
+    "packages/core/ui-admission.ts",
+    "packages/core/workspace-layout.ts",
+    "packages/runtime-hermes/acp-server.ts",
+    "packages/runtime-hermes/client.ts",
+    "packages/runtime-hermes/index.ts",
+    "packages/runtime-hermes/worker.py",
+    "packages/runtime/memory-checkpoint.ts",
+    "packages/storage/store.ts",
+    "packages/ui-shell/ChatView.tsx",
+    "packages/ui-shell/Modal.tsx",
+    "packages/ui-shell/Popover.tsx",
+    "packages/ui-shell/Select.tsx",
+    "packages/ui-shell/controls.css",
+    "packages/ui-shell/overlay-position.ts",
+    "scripts/browser-suites.ts",
+    "tests/e2e/chat-view-modes.spec.ts"
+  ],
+  "remainingGates": [
+    "This is a preserved C4 5f source-cut proposal, not an applied or final acceptance plan. Accepted base is b4aa; incoming/publication parent is eeda. The 2391-file tested source cut is 5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a. New source corrections require a new cut and new current receipts; this snapshot must remain unchanged.",
+    "Current 5f evidence is FAIL: the complete App run is 22/4, desktop bridge browser run 26/5, and the bounded asynchronous empty-owner module schedule fails with no READY guard. Final host 404/0/2, selection 3/0, typecheck, build and UI policy passes retain their narrower scope. No broad baseline label or blanket browser cause is assigned.",
+    "ATTEMPT_HISTORY is appended by the controller, not declared here. Every unassigned receipt retains its actual status, exit, argv, times and log. Its PASS status means retention only; setup failures, nonzero red reproductions, older source passes, external full failures and C3 platform failures are not relabeled.",
+    "The last fully collected C3 Windows run 43797606300 attempt 1 failed at commit 3f68a8f1bc1ca5a588862571d905163861e94492/tree be7e206431f13b654b6aecd7c12c23d0e4b2dfdb against accepted49. Its full shards passed 3604/0/46, native 326/0/1, browser failed 302/29, paired root failed 30/82/1 and 31/81/1. These are historical C3 outcomes, not C4 target coverage or cause-equivalence evidence.",
+    "Actual C4 Windows native, configured Edge/Chromium browser suites, all four complete repository shards and the accepted-b4aa/candidate root comparison are NOT_RUN. Workflow v4 declares seven runtime jobs and 25 required receipts: native 1, browser 18, root 2 and full shards 4. Receipt names require the actual future run/attempt.",
+    "Windows browser selection preserves each configured channel. Both split suites require GEN_SPLIT_RENDERER_BROWSER=1, GEN_SPLIT_APP_BROWSER=1 and the explicit GEN_TEST_BROWSER_CHANNEL=msedge override. Ordinary full shards do not execute guarded browser bodies without those flags. A 45-minute job limit can leave incomplete evidence and is not a completion guarantee.",
+    "The public-source manifest and final packaging/custody/controller gates remain pending. The proposed future IDs exist only in the companion schedule. After their receipts exist, the parent must refresh phase membership and perform the final unrecorded assemble/check to avoid a self-referential stale receipt index.",
+    "M05 now has integrated owner-bound host/UI work and local tests; it is no longer listed as lacking an owning integration. Its actual Windows native combined fixture and future complete target suites remain unrun for C4.",
+    "Latest observed main 5f5276816deacdf896369f608045f993b00f2827 is unaccepted. PR390 remains draft and unmerged with head eeda; API base snapshot b4aa. Later-main compatibility is not claimed. In particular, future integration must reconcile incoming status-role assertions with the three C4 alert paths and preserve incoming no-download coverage.",
+    "Ordinary PR CI remains unchanged and has separate merge-tree provenance. A successful exact-head push run would not establish compatibility with a later main tree.",
+    "The renderer benchmark is a controlled browser fixture and excludes paint; it does not establish whole-App startup, task-tree scaling, installed-desktop DPI or universal-device performance. Installed desktop, Pi and live-provider operation remain separate limits.",
+    "Feature-flag rollback with current code retains durable source references. Downgrading to the first-cut binary lacks the account-admission witness and can fail closed; no legacy authority is migrated. ui.sourceWorkbenchV1 remains false; reviewerApproval remains false. No merge, release or production activation is granted."
+  ],
+  "phases": [
+    {
+      "id": "HOST_SOURCE_MEMORY_AND_JOURNAL_LOCAL",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "real-store-source-account-and-m04-admission",
+          "status": "PASS",
+          "evidence": "Final 28-file command: existing source ownership, first-account admission, explicit request custody and rollback assertions passed; two Windows leaf-guard bodies remained skipped."
+        },
+        {
+          "id": "m05-owning-module-and-service-boundaries",
+          "status": "PASS",
+          "evidence": "Current source/memory, option/default, access recheck, retry/acceptance and owning ProjectMemory caller assertions passed with their recorded runtime fixtures."
+        },
+        {
+          "id": "controlled-journal-handoff-and-composer-callers",
+          "status": "PASS",
+          "evidence": "Controlled storage schedules and journal/import/composer callers passed. This does not override the separately failed asynchronous empty-owner handoff diagnostic or full App/desktop failures."
+        }
+      ],
+      "commandIds": [
+        "c4-final-host-regression-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-final-host-regression-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json"
+      ]
+    },
+    {
+      "id": "SELECTION_COMPLETION_LOCAL",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "deferred-selection-three-real-browser-cases",
+          "status": "PASS",
+          "evidence": "c4-selection-completion-green-01: all three deferred selection completion cases passed, including preserving a later range and its subsequent action. Earlier setup and red attempts retain their actual FAIL status in automatic attempt history."
+        }
+      ],
+      "commandIds": [
+        "c4-selection-completion-green-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-selection-completion-green-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-validation-01/review.json"
+      ]
+    },
+    {
+      "id": "BUILD_TYPECHECK_AND_UI_POLICY",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "typescript-final02",
+          "status": "PASS",
+          "evidence": "pnpm typecheck completed with exit 0 on the recorded 5f cut."
+        },
+        {
+          "id": "production-build-final02",
+          "status": "PASS",
+          "evidence": "pnpm build completed with exit 0 on the recorded 5f cut."
+        },
+        {
+          "id": "ui-policy-final01",
+          "status": "PASS",
+          "evidence": "545 sources, zero violations, 39 inventoried legacy/geometry occurrences and zero retired entries; inventory is not primitive approval."
+        }
+      ],
+      "commandIds": [
+        "c4-typecheck-final-02",
+        "c4-build-final-02",
+        "c4-ui-policy-final-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json"
+      ]
+    },
+    {
+      "id": "EMPTY_OWNER_HANDOFF_ASYNC_SCHEDULE",
+      "status": "FAIL",
+      "cases": [
+        {
+          "id": "two-empty-owner-guards-settle-under-asynchronous-reads",
+          "status": "FAIL",
+          "evidence": "c4-empty-owner-diagnostic-01: both guards started, neither reached READY, and 66 source reads exceeded the 64-read sentinel. Exit 1 is a failure, not EXPECTED_NEGATIVE. This bounded module reproduction does not assign a cause to every browser failure."
+        }
+      ],
+      "commandIds": [
+        "c4-empty-owner-diagnostic-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-logs/c4-empty-owner-diagnostic-01.json",
+        "docs/implementation/v3/m15-logs/c4-empty-owner-diagnostic-01.log"
+      ]
+    },
+    {
+      "id": "APP_INTEGRATION_LOCAL",
+      "status": "FAIL",
+      "cases": [
+        {
+          "id": "complete-app-26-case-gate",
+          "status": "FAIL",
+          "evidence": "c4-workbench-app-final-01: 22 passed, 4 failed, zero skipped/flaky/report errors. Failed cases cover stale-source recovery, activity canonical navigation, source-aware draft return and rollback-case startup. All original assertions and deadlines remain authoritative."
+        }
+      ],
+      "commandIds": [
+        "c4-workbench-app-final-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json"
+      ]
+    },
+    {
+      "id": "DESKTOP_BRIDGE_BROWSER_LOCAL",
+      "status": "FAIL",
+      "cases": [
+        {
+          "id": "complete-desktop-31-case-gate",
+          "status": "FAIL",
+          "evidence": "c4-desktop-final-01: 26 passed, 5 failed, zero skipped/flaky/report errors. Four cases timed out and the detach assertion observed no command. This is the configured Chromium browser fixture with a scripted native bridge, not installed desktop execution."
+        }
+      ],
+      "commandIds": [
+        "c4-desktop-final-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-desktop-final-01/results.json",
+        "docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json"
+      ]
+    },
+    {
+      "id": "OUTPUT_BROWSER_AND_RENDERER_LOCAL",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "complete-output-browser-21-case-gate",
+          "status": "PASS",
+          "evidence": "Complete recorded run: 21 passed, 0 failed, 0 skipped, 0 flaky, 0 report errors. Controlled renderer timing is not whole-App or installed-desktop performance."
+        }
+      ],
+      "commandIds": [
+        "c4-workbench-final-01"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/c4-workbench-final-01/results.json"
+      ]
+    },
+    {
+      "id": "WINDOWS_NATIVE_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "windows-native-37-file-selection",
+          "status": "NOT_RUN",
+          "evidence": "Execute the exact v4 native command against the future published C4 head/tree/run/attempt. Declaration and Linux skips are not actual-target execution."
+        },
+        {
+          "id": "windows-leaf-guard-and-first-account-capture",
+          "status": "NOT_RUN",
+          "evidence": "Both locally skipped Windows source-host bodies must actually execute and be reviewed."
+        },
+        {
+          "id": "hermes-source-memory-and-history-continuity",
+          "status": "NOT_RUN",
+          "evidence": "The combined real Hermes/Store/M04/M05 fixture requires actual Windows execution; scripted transport does not establish live-provider operation."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/ingest-ci-artifact.py"
+      ]
+    },
+    {
+      "id": "WINDOWS_BROWSER_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "actual-windows-browser-workbench",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-workbench-app",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-project-memory",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-frontend-refinement",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-saved-drafts",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-chat-view-modes",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-artifact-acknowledgment",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-scoped-conversation",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-ui-shell-overlays",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-ui-shell-controls",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-usage-context",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-agents-workspace",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-agents-actual-app",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-workspace-host",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-saved-layout-chooser",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-usage-app-integration",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-desktop-surfaces",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        },
+        {
+          "id": "actual-windows-browser-split-browser",
+          "status": "NOT_RUN",
+          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/workflow-contract.json"
+      ]
+    },
+    {
+      "id": "FULL_REPOSITORY_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "actual-windows-full-shard-1-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-2-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-3-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        },
+        {
+          "id": "actual-windows-full-shard-4-of-4",
+          "status": "NOT_RUN",
+          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml"
+      ]
+    },
+    {
+      "id": "ROOT_BROWSER_COMPARISON_ACTUAL",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "accepted-b4aa-root-suite",
+          "status": "NOT_RUN",
+          "evidence": "Complete root suite at accepted b4aa with independent source metadata and command outcome."
+        },
+        {
+          "id": "candidate-c4-root-suite",
+          "status": "NOT_RUN",
+          "evidence": "Complete root suite at the actual future published C4 commit; comparison retains every failure and does not turn matching failures into PASS."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        ".github/workflows/m15-evidence.yml",
+        "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser-comparison-01.json"
+      ]
+    },
+    {
+      "id": "PUBLIC_SOURCE_PACKAGING",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "all-changed-paths-explicitly-admitted",
+          "status": "NOT_RUN",
+          "evidence": "The current public manifest remains the tested preimage. Reviewed source-only additions and final evidence membership must be applied and verified by the parent before packaging."
+        },
+        {
+          "id": "public-source-contract-final-command",
+          "status": "NOT_RUN",
+          "evidence": "c4-public-package-final-01 is only a declared future ID in the companion schedule until its actual receipt exists."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        "scripts/public-source-files.json",
+        "tests/public-source.test.ts"
+      ]
+    },
+    {
+      "id": "FINAL_SOURCE_AND_EVIDENCE_CUSTODY",
+      "status": "NOT_RUN",
+      "cases": [
+        {
+          "id": "published-parent-and-historical-custody",
+          "status": "NOT_RUN",
+          "evidence": "Final custody must retain exact incoming eeda evidence, all archives and prior failed attempts, preserve the original checkout, and bind the final tested source cut."
+        },
+        {
+          "id": "complete-receipts-artifact-hashes-and-source-lock",
+          "status": "NOT_RUN",
+          "evidence": "Actual assemble/check receipts plus the final unrecorded refresh must bind every current command and artifact. Static proposal checks are not evidence-controller execution."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": [
+        "scripts/m15-evidence.mts",
+        "packages/contracts/implementation-evidence.ts",
+        "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody.py"
+      ]
+    },
+    {
+      "id": "UNAVAILABLE_OPTIONAL_SOURCE_CAPABILITIES",
+      "status": "BLOCKED",
+      "cases": [
+        {
+          "id": "atomic-complete-diff-witness",
+          "status": "NOT_RUN",
+          "evidence": "DIFF_HUNK remains unavailable without an owning atomic complete-comparison witness."
+        },
+        {
+          "id": "authenticated-retained-artifact-navigation",
+          "status": "NOT_RUN",
+          "evidence": "Historical log/screenshot navigation still requires an authenticated retained-artifact reader."
+        },
+        {
+          "id": "formatted-inline-trusted-offsets",
+          "status": "NOT_RUN",
+          "evidence": "Formatted inline selection requires trusted source offsets; canonical exact message selection is the supported path."
+        },
+        {
+          "id": "optional-m10-and-m14-owners",
+          "status": "NOT_RUN",
+          "evidence": "No tested owning M10 background-work or M14 branch integration is supplied."
+        },
+        {
+          "id": "installed-desktop-pi-and-live-provider-continuity",
+          "status": "NOT_RUN",
+          "evidence": "Browser bridges, scripted models and Linux unit passes do not prove these separate targets."
+        }
+      ],
+      "commandIds": [],
+      "artifactRefs": []
+    }
+  ]
+}
