@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-16T02:48:38.425Z",
+  "repository": "skytuhua-org/Gen-V1",
+  "pr": 347,
+  "url": "https://github.com/skytuhua-org/Gen-V1/pull/347",
+  "state": "closed",
+  "merged": true,
+  "mergedAt": "2026-11-16T02:36:37Z",
+  "mergeSha": "34d8dd1e0e68af44265cea69b082ce4088366017",
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "parentShas": [
+    "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+  ],
+  "matchesTestedTree": true,
+  "observationScope": "The already-authorized implementation PR was observed merged while this continuation was preparing its final evidence. This observation does not claim that this agent executed the merge.",
+  "followupScope": "Publish and merge only the reviewed final documentation/evidence on a new branch from the observed merged source; keep the original tested source and accepted bundle base identities unchanged.",
+  "sourceBranch": "agent/m05-v3",
+  "documentationBranch": "agent/m05-evidence-finalization-20261116",
+  "documentationBaseSha": "34d8dd1e0e68af44265cea69b082ce4088366017",
+  "acceptedBundleExecutionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "productionActivation": {
+    "projectMemory": false,
+    "externalRecall": false
+  },
+  "sourceProvenanceInterpretation": "M05-provenance.branch and sourceParentHeadSha identify the exact tested implementation branch and source. This receipt identifies the separate documentation publication branch and base; it does not rewrite the accepted pre-M05 dependency base or promote a test result to different code.",
+  "implementationPullRequestApi": {
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/pulls/347",
+    "sha256": "582354b5005a6b3dbcb169b24eb976628a83ced4798d8fa6cc7dd1b6db11cd9a"
+  },
+  "mergeCommitApi": {
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/commits/34d8dd1e0e68af44265cea69b082ce4088366017",
+    "sha256": "c04a4a7c38f40842d624ce4d8d6699284b815ac7a8d1aec2f044d6f1f381e518"
+  },
+  "finalDocumentationPublication": "Pending separately verified documentation commit and follow-up PR. No future commit SHA, merge result or verifier success is invented."
+}

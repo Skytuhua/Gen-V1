@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "status": "DIAGNOSED_GUARD_ERROR_BYTES_INTERNAL_CAUSE_UNMEASURED",
+  "source": {
+    "headSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "treeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a"
+  },
+  "workflowRunId": 43783430726,
+  "artifact": {
+    "id": 14190373160,
+    "bytes": 398174,
+    "sha256": "c818274f1f2f7db52c5b561cba8ba16f4a5d4db4951477fbaa79f8cde7216dc6"
+  },
+  "mainReceipt": {
+    "member": ".harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/verification.json",
+    "bytes": 20176,
+    "sha256": "5902100a6262211a50d17fe12e3a01edeb180d3b96e63d9fcbdde69bb892e35a"
+  },
+  "method": "Compare retained complete-stream byte counts and SHA256 against exact fixed public source messages. No private output or variable error body was reconstructed.",
+  "exactPublicMatches": [
+    {
+      "stream": "backend.stderr",
+      "utf8": "File access check failed — the folder could not be opened safely for this action\n",
+      "bytes": 83,
+      "sha256": "d8c18bf0aa319b788a2fb0390fb8a7be4ed54a1ed8c05ecf9f1b6aab4fcd070a",
+      "producer": "apps/server/main.ts catch: process.stderr.write(detail+LF)",
+      "sourceCandidates": [
+        "packages/core/file-access.ts denied()",
+        "packages/core/file-access.ts RPC failed()"
+      ],
+      "limit": "The same text is used for deadline, process, protocol, and native guard failures. It does not identify one failure branch or native code."
+    },
+    {
+      "stream": "backend.stdout",
+      "utf8": "HARNESS_STARTUP_V1 {\"stage\":\"backend-error\",\"elapsedMs\":17374,\"error\":{\"category\":\"error\",\"code\":null}}\n",
+      "bytes": 104,
+      "sha256": "582b72e5de54c110b09b5fe3853124277eaa3d6db7a6689f7717d1a55ad7898d",
+      "producer": "apps/server/main.ts fixed HARNESS_STARTUP_V1 marker in catch",
+      "elapsedMs": 17374,
+      "clock": "since server module initialized startupStarted, after imports"
+    }
+  ],
+  "observedDesktopEvents": [
+    {
+      "stage": "app-ready",
+      "elapsedMs": 30,
+      "error": null,
+      "stream": "stderr",
+      "observedElapsedMs": 190
+    },
+    {
+      "stage": "layout-ready",
+      "elapsedMs": 37,
+      "error": null,
+      "stream": "stderr",
+      "observedElapsedMs": 196
+    },
+    {
+      "stage": "shell-ready",
+      "elapsedMs": 49,
+      "error": null,
+      "stream": "stderr",
+      "observedElapsedMs": 208
+    },
+    {
+      "stage": "backend-starting",
+      "elapsedMs": 50,
+      "error": null,
+      "stream": "stderr",
+      "observedElapsedMs": 209
+    },
+    {
+      "stage": "backend-stream-error",
+      "elapsedMs": 20042,
+      "error": {
+        "category": "error",
+        "code": null
+      },
+      "stream": "stderr",
+      "observedElapsedMs": 20202
+    },
+    {
+      "stage": "backend-error",
+      "elapsedMs": 20044,
+      "error": {
+        "category": "error",
+        "code": null
+      },
+      "stream": "stderr",
+      "observedElapsedMs": 20203
+    },
+    {
+      "stage": "backend-output",
+      "elapsedMs": 20044,
+      "error": null,
+      "output": {
+        "stdout": {
+          "bytes": 104,
+          "hashedBytes": 104,
+          "sha256": "582b72e5de54c110b09b5fe3853124277eaa3d6db7a6689f7717d1a55ad7898d",
+          "truncated": false
+        },
+        "stderr": {
+          "bytes": 83,
+          "hashedBytes": 83,
+          "sha256": "d8c18bf0aa319b788a2fb0390fb8a7be4ed54a1ed8c05ecf9f1b6aab4fcd070a",
+          "truncated": false
+        }
+      },
+      "stream": "stderr",
+      "observedElapsedMs": 20204
+    },
+    {
+      "stage": "startup-failed",
+      "elapsedMs": 20045,
+      "error": {
+        "category": "error",
+        "code": null
+      },
+      "stream": "stderr",
+      "observedElapsedMs": 20204
+    }
+  ],
+  "observedProcessLifecycle": {
+    "clock": "since-launch-observer-attached",
+    "exit": {
+      "elapsedMs": 20447,
+      "code": 1,
+      "signal": null
+    },
+    "close": {
+      "elapsedMs": 20447,
+      "code": 1,
+      "signal": null
+    }
+  },
+  "sourceFindings": [
+    "backend-stream-error is the desktop parser observing the server fixed stdout marker; backend-error is then received through the token-authenticated IPC branch.",
+    "Ordinary Windows guard RPC starts a15000ms deadline immediately after spawn. The fixed PS1 executes Add-Type before entering its stdin ReadLine loop. It has no separate readiness handshake.",
+    "The guard finally block closes stdin and waits for close, requesting kill after2000ms. The17,374ms server interval is consistent with first-request timeout plus teardown but does not prove that branch.",
+    "The host recovery path initializes the Hermes source library. HermesClient ensures its withHermesHome namespace lease before it spawns Python.",
+    "CI setup and desktop packaging both pin Node24.22.2; actual installed provider receipt reports the same version and node executable SHA1c331340fa6cac5e4294725959070a143fa0507195a78ad77eed7943f719aac9.",
+    "Runtime staging copies the allowed Windows guard script without transformation. Full installed payload comparison passed. The diagnostic artifact does not include the individual installed PS1 bytes, so the listed script SHA is a source binding, not a separately retrieved installed member.",
+    "The actual tests and installed host use the same system Windows PowerShell argv and pipe protocol. Installed host CWD/profile topology and first-run workload differ from the workspace tests."
+  ],
+  "notMeasured": [
+    "specific guard request",
+    "native failure code",
+    "whether deadline fired",
+    "Add-Type duration",
+    "first input or first reply timestamp",
+    "Windows process or filesystem cause"
+  ],
+  "sourceBindings": [
+    {
+      "path": "apps/server/main.ts",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "apps/server/host.ts",
+      "bytes": 9118,
+      "sha256": "0b329f19f270baad6d4471ea795659552b567e12194050b9f9b2464744e02b3b",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "bytes": 4153,
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "bytes": 57407,
+      "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "bytes": 11810,
+      "sha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "bytes": 15955,
+      "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "bytes": 2006,
+      "sha256": "f0e725e5a1771760cbf5adbf393c56d723027e4f24ae7fe5d3595c43c5c415a7",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "bytes": 9192,
+      "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "bytes": 31421,
+      "sha256": "33249415a437d8ca1ed4107f081801d6e5202a671a3aaf48a9ef99db2d6692d9",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "bytes": 7629,
+      "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022",
+      "matchesExecutedSource": true
+    },
+    {
+      "path": ".github/actions/setup/action.yml",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "matchesExecutedSource": true
+    }
+  ],
+  "mutations": {
+    "source": false,
+    "ledger": false,
+    "refs": false,
+    "productionBudgets": false
+  },
+  "downstreamProof": {
+    "completedLaunches": 0,
+    "memoryObservations": 0,
+    "screenshots": 0,
+    "nativeSave": "NOT_RUN",
+    "retention": "NOT_RUN"
+  }
+}

@@ -41,8 +41,8 @@ const checks = {
   verified_failed: "Verified failed",
 };
 interface RowProps {
-  open(kind: string, id: string): boolean;
-  toggle(kind: string, id: string): void;
+  open(kind: string, id: string, status?: string): boolean;
+  toggle(kind: string, id: string, status?: string): void;
   snapshot: Snapshot;
   threadId: string;
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
@@ -50,7 +50,7 @@ interface RowProps {
 
 export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }) {
   const job = lane.job,
-    expanded = props.open("agent", job.id),
+    expanded = props.open("agent", job.id, job.status),
     id = useId();
   const [transcript, setTranscript] = useState(false);
   const progress = agentProgress(job);
@@ -66,7 +66,7 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
           className="plan-agent-summary"
           aria-expanded={expanded}
           aria-controls={id}
-          onClick={() => props.toggle("agent", job.id)}
+          onClick={() => props.toggle("agent", job.id, job.status)}
         >
           <Bot size={16} aria-hidden="true" />
           <span className="plan-agent-copy">
@@ -152,6 +152,13 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
             )}
           </dl>
         )}
+        {lane.children.length > 0 && (
+          <ul className="plan-agents plan-agent-children" aria-label={`${job.name} child agents`}>
+            {lane.children.map((child) => (
+              <AgentLane key={child.job.id} lane={child} {...props} />
+            ))}
+          </ul>
+        )}
       </MotionRegion>
       {transcript && (
         <div className="plan-agent-transcript" role="log" aria-label={`${job.name} transcript`}>
@@ -167,13 +174,6 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
             <p>No transcript messages loaded.</p>
           )}
         </div>
-      )}
-      {lane.children.length > 0 && (
-        <ul className="plan-agents plan-agent-children" aria-label={`${job.name} child agents`}>
-          {lane.children.map((child) => (
-            <AgentLane key={child.job.id} lane={child} {...props} />
-          ))}
-        </ul>
       )}
     </li>
   );
@@ -193,7 +193,7 @@ export function TimelineStep({
   domId: string;
   stepDomId(id: string): string;
 }) {
-  const expanded = props.open("step", step.id),
+  const expanded = props.open("step", step.id, step.status),
     id = useId();
   const dependents = steps.filter((next) => next.dependsOn.includes(step.id));
   return (
@@ -214,7 +214,7 @@ export function TimelineStep({
         type="button"
         aria-expanded={expanded}
         aria-controls={id}
-        onClick={() => props.toggle("step", step.id)}
+        onClick={() => props.toggle("step", step.id, step.status)}
       >
         <span className="plan-step-node" aria-hidden="true">
           {step.status === "accepted" || step.status === "completed" ? (

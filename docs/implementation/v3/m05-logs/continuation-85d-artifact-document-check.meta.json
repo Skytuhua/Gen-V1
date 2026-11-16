@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/frontend-refinement.playwright.config.ts",
+      "tests/e2e/artifact-style.spec.ts",
+      "tests/e2e/document-smoothness.spec.ts",
+      "--reporter=line",
+      "--output",
+      "/workspace/scratch/36f66011d961/m05-local-checks/continuation-85d-artifact-document-check-artifacts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:12:19.326325+00:00",
+    "endedAt": "2026-11-15T23:14:50.952550+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d-artifact-document-check.log",
+    "logDigest": "ddeeede129db614a124edac95c0fdb560324877b2c30f61da4b737a159dbe53f"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 151593,
+  "rawOutputBytes": 4957,
+  "rawOutputSha256": "0bcc24c3abde0c1f170d465c32160cbb3ca51562429020887664bf7e24642445",
+  "excerptInputBytes": 4957,
+  "excerptInputSha256": "0bcc24c3abde0c1f170d465c32160cbb3ca51562429020887664bf7e24642445",
+  "transformations": [
+    "ANSI_CONTROL_SEQUENCES_REMOVED"
+  ],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ],
+  "sourceCapture": {
+    "metadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-artifact-document-check.meta.json",
+    "bytes": 2124,
+    "sha256": "a04a76fbf5770b88d7218fe9fb15f8f4cf34f0ad6b37c096d7922283603d00f4",
+    "blobSha": "9178c5f780b6a4bf24272e1147c3d0d9f7a126da",
+    "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-artifact-document-check.raw.log",
+    "rawLogBytes": 4957,
+    "rawLogSha256": "0bcc24c3abde0c1f170d465c32160cbb3ca51562429020887664bf7e24642445",
+    "captureScript": {
+      "path": "docs/implementation/v3/m05-review-inputs/m05-capture-local-check-094fba22.py",
+      "bytes": 2657,
+      "sha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "blobSha": "b99a0600fc25a3ef3175f39d55fcece501bd9f32"
+    }
+  },
+  "normalizationScope": "The exact original log and original metadata are separately preserved before ANSI/LF normalization. No command argument, outcome, timestamp, working-diff hash or phase was rewritten.",
+  "reviewedOutputPrivacy": "The bounded output was read in full. No credential or private-user-content redaction was required; it contains disposable authored fixtures and tool paths.",
+  "evidenceScope": "Actual local Linux child process capture, with the recorded committed tree and working-diff digest. It is not a GitHub step envelope, an immutable final-source test assertion, or Windows/native installed proof.",
+  "testSummary": {
+    "passed": 27,
+    "failed": 0,
+    "skipped": 1
+  },
+  "reviewedOutcome": "Actual artifact-style and document-smoothness run completed27passed and1skipped. The skipped visual-capture case remains skipped."
+}

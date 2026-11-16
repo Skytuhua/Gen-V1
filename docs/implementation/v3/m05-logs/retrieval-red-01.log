@@ -1,0 +1,354 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-retrieval-v3.test.ts (19 tests | 19 failed) 32ms
+     × never recalls another profile, account, project, unaccepted state or unavailable source 11ms
+     × does not resurrect old accepted revisions beneath a newer proposal or conflict 1ms
+     × ranks exact project overlap and exact symbols ahead of recency with stable ID ties 1ms
+     × checks item and content-digest tombstones synchronously before resolving sources 1ms
+     × fits all serialized source references and UTF-8 evidence inside the byte cap 2ms
+     × caps the number of recalled items even when every small item fits 1ms
+     × returns empty TIMEOUT results instead of publishing a cut completed after the deadline 1ms
+     × fails closed for malformed or secret-bearing items and finite input limits 1ms
+     × freezes a captured generation and rejects a different query or generation 1ms
+     × allows exclusion only while preparing and never edits stored memory 1ms
+     × refuses new snapshots at capacity until the host releases one 1ms
+     × does no egress without enable, explicit consent and an approved provider 1ms
+     × returns validated proposals separately and never treats them as accepted recall 1ms
+     × rejects metadata mismatches rather than accepting another owner or stale generation 1ms
+     × rejects accepted, unsupported, secret or deleted provider proposals before publication 1ms
+     × times out at 750 ms while holding orphan capacity until the provider actually settles 1ms
+     × cancellation cannot release a hung call or permit a second pending recall for the request 1ms
+     × bounds circuit keys instead of opening an unbounded owner map 1ms
+     × rechecks current authorization before releasing a provider response 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > never recalls another profile, account, project, unaccepted state or unavailable source
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:36:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > does not resurrect old accepted revisions beneath a newer proposal or conflict
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:53:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > ranks exact project overlap and exact symbols ahead of recency with stable ID ties
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:64:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > checks item and content-digest tombstones synchronously before resolving sources
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:77:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > fits all serialized source references and UTF-8 evidence inside the byte cap
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:90:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > caps the number of recalled items even when every small item fits
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:106:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > returns empty TIMEOUT results instead of publishing a cut completed after the deadline
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:113:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded lexical recall > fails closed for malformed or secret-bearing items and finite input limits
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:123:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > freezes a captured generation and rejects a different query or generation
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:136:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > allows exclusion only while preparing and never edits stored memory
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:152:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > immutable request snapshots > refuses new snapshots at capacity until the host releases one
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:165:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > does no egress without enable, explicit consent and an approved provider
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:177:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > returns validated proposals separately and never treats them as accepted recall
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:187:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rejects metadata mismatches rather than accepting another owner or stale generation
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:198:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rejects accepted, unsupported, secret or deleted provider proposals before publication
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:212:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > times out at 750 ms while holding orphan capacity until the provider actually settles
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:227:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > cancellation cannot release a hung call or permit a second pending recall for the request
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:252:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > bounds circuit keys instead of opening an unbounded owner map
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:271:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/19]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > rechecks current authorization before releasing a provider response
+AssertionError: M05 needs the bounded lexical retrieval implementation: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/memory-retrieval-v3.test.ts:23:90
+     21|   const path = new URL('../packages/core/memory-retrieval.ts', import.…
+     22|   const loaded = existsSync(path) ? await import('../packages/core/mem…
+     23|   expect(loaded.lexicalRecall, 'M05 needs the bounded lexical retrieva…
+       |                                                                                          ^
+     24|   return loaded;
+     25| }
+ ❯ tests/memory-retrieval-v3.test.ts:281:51
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/19]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  19 failed (19)
+   Start at  18:28:13
+   Duration  535ms (transform 92ms, setup 0ms, import 171ms, tests 32ms, environment 0ms)

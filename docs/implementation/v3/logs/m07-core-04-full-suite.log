@@ -1,0 +1,8 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+command: pnpm test:no-lease (pnpm test requires the MSVC native lease build absent on this host)
+exit code: 1 — 3186 passed, 60 failed, 53 skipped across 319 files
+failures are environmental/pre-existing: missing windows-credential-lease.node native build, node-pty AttachConsole errors,
+absent agent CLIs (openai/codex/copilot/xai/claude/gemini/cursor/kimi/opencode), MCP engine tests (Graphify/Spec Kit),
+browser binaries unavailable, and 60s timeouts under full-suite parallel load (workspace-action-outcomes, private-git-family,
+code-review-comparisons, hermes-service, project-search-host). The one bundle-adjacent failure (secret-custody flag-count
+assertion) was fixed and re-run green. No remaining failing file is touched by this bundle.

@@ -1,0 +1,159 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-ui.test.ts (12 tests | 12 failed) 473ms
+   × makes project memory reachable from an owning main project context without making a request 451ms
+   × rejects a view returned for a different projectId 7ms
+   × rejects a view returned for a different threadId 2ms
+   × rejects a view returned for a different accountId 2ms
+   × rejects an item from a different physical project inside a valid response envelope 2ms
+   × refuses a replacement physical binding during an open review 1ms
+   × requests the exact item revision and source digest and rejects another source revision 1ms
+   × does not accept a forget preview for another revision 1ms
+   × sends a revision-bound user action with CSRF and a stable command ID on a transport retry 2ms
+   × does not dispatch a mutation after the owning view changes 1ms
+   × rejects another command receipt instead of acknowledging the reviewed revision 1ms
+   × rejects an export whose owner differs or whose redaction claim is absent 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-ui.test.ts > makes project memory reachable from an owning main project context without making a request
+AssertionError: expected '<div class="project-context-card" ari…' to contain 'Project memory'
+
+Expected: "Project memory"
+Received: "<div class="project-context-card" aria-label="Project context"><div class="tool-loading-state "><div aria-busy="true"><div class="loading-state-skeleton" data-visible="false"><div class="loading-state-rows" aria-hidden="true"><div class="loading-state-row"><span class="loading-skeleton loading-skeleton-icon"></span><span class="loading-skeleton loading-skeleton-line"></span></div><div class="loading-state-row"><span class="loading-skeleton loading-skeleton-icon"></span><span class="loading-skeleton loading-skeleton-line"></span></div><div class="loading-state-row"><span class="loading-skeleton loading-skeleton-icon"></span><span class="loading-skeleton loading-skeleton-line"></span></div></div></div></div><p class="loading-state-status loading-state-status-slot" aria-hidden="true" data-visible="false">Loading project…</p></div></div>"
+
+ ❯ tests/project-memory-ui.test.ts:27:90
+     25|   const thread = {id: 'thread-a', projectId: 'project-a', kind: 'main'…
+     26|   const snapshot = {threads: [thread], data: [], messages: [], artifac…
+     27|   expect(renderToStaticMarkup(createElement(ProjectContextSurface, {th…
+       |                                                                                          ^
+     28|   expect(fetch).not.toHaveBeenCalled();
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > rejects a view returned for a different projectId
+ FAIL  tests/project-memory-ui.test.ts > rejects a view returned for a different threadId
+ FAIL  tests/project-memory-ui.test.ts > rejects a view returned for a different accountId
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:33:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > rejects an item from a different physical project inside a valid response envelope
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:38:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > refuses a replacement physical binding during an open review
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:43:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > requests the exact item revision and source digest and rejects another source revision
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:48:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > does not accept a forget preview for another revision
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:55:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > sends a revision-bound user action with CSRF and a stable command ID on a transport retry
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:66:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > does not dispatch a mutation after the owning view changes
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:73:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > rejects another command receipt instead of acknowledging the reviewed revision
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:79:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/project-memory-ui.test.ts > rejects an export whose owner differs or whose redaction claim is absent
+AssertionError: The bounded project memory client must be implemented.: expected null not to be null
+ ❯ api tests/project-memory-ui.test.ts:13:80
+     11| const api = async () => {
+     12|   const module = await import('../apps/web/src/project-memory-api').ca…
+     13|   expect(module, 'The bounded project memory client must be implemente…
+       |                                                                                ^
+     14|   return module!;
+     15| };
+ ❯ tests/project-memory-ui.test.ts:84:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed (12)
+   Start at  18:24:29
+   Duration  667ms (transform 310ms, setup 0ms, import 53ms, tests 473ms, environment 0ms)

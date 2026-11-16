@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T23:04:21.470279+00:00",
+  "status": "SOURCE_REVIEW_COMPLETE_NATIVE_EXECUTION_PENDING",
+  "baselineHelper": {
+    "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/installed-native-save.before.ts",
+    "bytes": 25009,
+    "sha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+    "gitBlobSha": "6a36d93c3f527028594c953636d2b7f4d7673cb8"
+  },
+  "candidateHelper": {
+    "path": "scripts/installed-native-save.ts",
+    "bytes": 25411,
+    "sha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2",
+    "gitBlobSha": "1034f0983884a0e66cc6a639f9abf5fa99ec3e84"
+  },
+  "unchangedPolicy": {
+    "path": "apps/desktop/memory-export.ts",
+    "bytes": 8627,
+    "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+    "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+  },
+  "unchangedPortableTests": {
+    "path": "tests/installed-native-save.test.ts",
+    "bytes": 6874,
+    "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+    "gitBlobSha": "50eb06e7769eec94c875654eee1e2661c2334b0f"
+  },
+  "semanticPatch": {
+    "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/parent-combo-semantic.patch",
+    "bytes": 3690,
+    "sha256": "91ce64cfa785de61ec500fff62638f32f910d4d0d1261d325ad0eb96d4fd33b3",
+    "gitBlobSha": "cf00df37c6f2e110231e3b9560b4e3c38cda6cd2"
+  },
+  "fullPatch": {
+    "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/parent-combo-full.patch",
+    "bytes": 14858,
+    "sha256": "906e764a64396a49c2411e2f9269e6d86af15b8155ce22606eee56096451bc75",
+    "gitBlobSha": "38f1d51b10eba20315a50f1929a657aafe6825a7"
+  },
+  "fixedRenames": {
+    "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/fixed-script-renames.json",
+    "bytes": 439,
+    "sha256": "8adb45d93f8e1b3a0d9b3ccd7ce84ef691a629e4ed562b9fafa3228b8c4c759b",
+    "gitBlobSha": "7429aba72b92539a04ee9bf6da8c7d3cbea9f132"
+  },
+  "previousExecutedBoundary": {
+    "runId": 43771029999,
+    "checkout": "9e2d8261754c15f549e8b594c12e4fdc66e63dd6",
+    "tree": "78abe64dfb5124b966fb512c80acced98f4a5a0e",
+    "receipts": [
+      {
+        "lane": "direct",
+        "receipt": {
+          "path": "/workspace/scratch/36f66011d961/m05-native-save-diag-43771029999/direct-receipt.json",
+          "bytes": 16690,
+          "sha256": "c768c2e621cfaaab771453b6b634f4f638a5d6f24be522708b08e96e8e30699f",
+          "gitBlobSha": "07eedfd9afd111079d16de7edc5e95bf598bdb21"
+        },
+        "helperSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+        "passed": false,
+        "nativePhases": [
+          "ready",
+          "dialog-found",
+          "file-name-set",
+          "save-invoked",
+          "dialog-closed"
+        ],
+        "fixtureStatus": "failed",
+        "outcome": null
+      },
+      {
+        "lane": "policy",
+        "receipt": {
+          "path": "/workspace/scratch/36f66011d961/m05-native-save-diag-43771029999/policy-receipt.json",
+          "bytes": 17336,
+          "sha256": "c3d2da65f2bebdba691236609515b99f9964ecb20ea2a3d317361e6caa3d0506",
+          "gitBlobSha": "e3e77c760284f1b6ec89d6ae6cecb1a294b598a0"
+        },
+        "helperSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+        "passed": false,
+        "nativePhases": [
+          "ready",
+          "dialog-found",
+          "file-name-set",
+          "save-invoked",
+          "dialog-closed"
+        ],
+        "fixtureStatus": "saved",
+        "outcome": {
+          "admitted": true,
+          "filename": "project-memory-diagnostic_project.json",
+          "bytes": 634,
+          "sha256": "905d70a960f8c2703222f1b4d10a9a64a0ddd82c36115220957f1d26dd94b387",
+          "status": "saved"
+        }
+      }
+    ],
+    "finding": "Both old-helper lanes reached dialog-closed, but neither completed the helper destination/readback protocol. A policy saved outcome alone is not fixed-destination proof.",
+    "laterReportedDiagnostic": "Parent reported that run43771745051 measured wrong-parent/original-basename relations, distinct from a mere string-normalization difference. This review did not independently retrieve that later receipt."
+  },
+  "primarySource": {
+    "files": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/primary-source/WindowsComboBox.cs",
+        "bytes": 35995,
+        "sha256": "29ba3eed166feebcd4ee69b70fd5f589b25e352350dfcbcd86889da77ba001d5",
+        "gitBlobSha": "d245952d755d9ee51f4b7b448ee8bf69ece80a6a",
+        "url": "https://raw.githubusercontent.com/dotnet/wpf/2dcaee7951ffd752dc11306e972297b35294a932/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/WindowsComboBox.cs"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/primary-source/WindowsEditBox.cs",
+        "bytes": 38378,
+        "sha256": "f9e4a7ba0c722f52aa7ff521fa0c6e744b60cbf921ea3f05ca66bc828e74715d",
+        "gitBlobSha": "08cb4dec8fe578ff6823bf8e09f9c97c15c55f82",
+        "url": "https://raw.githubusercontent.com/dotnet/wpf/2dcaee7951ffd752dc11306e972297b35294a932/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/WindowsEditBox.cs"
+      }
+    ],
+    "observation": "The inspected fixed WPF source has WindowsComboBox IValueProvider.SetValue delegate to WindowsEditBox.SetValue and then send CBN_EDITUPDATE through WM_COMMAND to the native parent. The corresponding WindowsEditBox setter writes text through WM_SETTEXT without that ComboBox notification.",
+    "qualification": "This fixed upstream source explains the candidate action. It is not an assertion that the source file is byte-identical to the runner framework binary or that the candidate completed a native Save."
+  },
+  "checks": {
+    "nodePrefixByteIdentical": true,
+    "nodeLifecycleTailByteIdentical": true,
+    "rootLeaseIdenticalAfterInternalClassConstructorRename": true,
+    "commandCharactersIncludingNul": 32469,
+    "exclusiveLimit": 32767,
+    "headroomCharacters": 298,
+    "findings": []
+  },
+  "invariants": [
+    "The exact existing Edit1001/File name: and Save Button1 selectors, uniqueness, owned PID, enabled state and required Value/Invoke patterns are retained.",
+    "The additional ComboBox comes only from native GetParent of that admitted edit HWND. It must have the exact returned HWND, the same owned native and UIA PID, ComboBox type and class, File name: name, enabled state and writable ValuePattern.",
+    "The operation uses the parent ComboBox ValuePattern. Both the parent and child values must equal the fixed target immediately afterward and after live control rediscovery before invoking the unchanged Save button.",
+    "The process executable/start-time checks, stable dialog title/HWND, existing-dialog refusal, bounded enumeration, native root/ancestor/owner-file lease, absent fixed destination, deadline and bounded metadata protocol remain.",
+    "The held directory lease persists through actual production completion and exact file readback. Worker release acknowledgement and exit zero remain necessary.",
+    "No direct window-message action, SendKeys, setSavePath, production download-guard bypass, arbitrary destination or CDP allowAndName mode is introduced.",
+    "All fixed-script renames are internal identifiers; external JSON event keys, event order, failure vocabulary and TypeScript API remain unchanged."
+  ],
+  "portableVerification": {
+    "source": "Read and rehashed the peer-executed source-bound log and metadata; this reviewer ran no additional helper tests.",
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "log": {
+      "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/continuation-native-save-parent-combo-custody.log",
+      "bytes": 1477,
+      "sha256": "33e782ad20707c41b1402c5c489bdeaaa27070a133c3ab27bec1266ab2080aac",
+      "gitBlobSha": "fcf647735bc999607ddb6f25ce6a1aa2de8dfe5a"
+    },
+    "metadata": {
+      "path": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/continuation-native-save-parent-combo-custody.meta.json",
+      "bytes": 1057,
+      "sha256": "17ce21a1f3ade97bf9f66806742af9927c53bc85386a0987a3d58fa32e0a4fb2",
+      "gitBlobSha": "9b42534d29df85712717b094c7b75a8a54664e3b"
+    },
+    "command": {
+      "argv": [
+        "node",
+        "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/installed-native-save.test.ts",
+        "--reporter=verbose",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair",
+      "startedAt": "2026-11-15T23:00:04.079040+00:00",
+      "endedAt": "2026-11-15T23:00:05.401221+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "logPath": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair/continuation-native-save-parent-combo-custody.log",
+      "logBytes": 1477,
+      "logDigest": "33e782ad20707c41b1402c5c489bdeaaa27070a133c3ab27bec1266ab2080aac",
+      "sourceSha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2",
+      "testSha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+      "scope": "Existing seven portable custody regressions, including the actual complete Windows command-length bound. Native parent ComboBox behavior requires the unchanged two real Windows lanes."
+    }
+  },
+  "limits": [
+    "This review approves the source invariants only. The candidate still requires the two real Windows diagnostic lanes and full installed retention/native Save/Forget/restart/cleanup verification.",
+    "The original failed native and installed receipts remain failures. No passing portable test is promoted to native or installed proof.",
+    "No source, ledger, branch or ref was changed by this native review. The separate Plan fixture patch is independently documented."
+  ]
+}

@@ -162,6 +162,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .resource-chip { display:flex; gap:5px; align-items:center; border:1px solid var(--border); padding:4px 7px; font-size:10px; border-radius:6px; max-width:220px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .composer-error,.workspace-error { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:10px 13px; color:var(--danger); background:var(--subtle); border-radius:9px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
 .composer-error { margin-bottom:8px; }
+.composer-hint { font-size:11px; color:var(--muted); margin:0 0 8px; padding:0 3px; line-height:1.4; }
 .workspace-error { margin:0 26px 8px; }
 .retained-widget-notice { color:var(--muted); }
 .artifact { border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden; margin:16px auto 22px; width:100%; min-width:0; }
@@ -179,7 +180,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 @media(hover:none) { .artifact-secondary-tools,.save-state.is-saved,.artifact-state:not(.is-dirty) { opacity:1; } }
 .artifact-state { font-size:10px; color:var(--muted); margin-right:6px; max-width:145px; }
 .artifact-state.is-dirty { color:var(--pending); }
-.artifact-body { padding:16px; min-height:80px; }
+.artifact-body { padding:16px; }
 .artifact-content { width:100%; max-width:1040px; margin:0 auto; container:artifact / inline-size; }
 .artifact :is(h2,h3) { font-size:14px; font-weight:550; letter-spacing:0; }
 .artifact .markdown { font-size:13px; line-height:1.65; }
@@ -369,7 +370,8 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
   :where(details:not([open]))::details-content { display:none; }
 }
 
-.message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { float:right; margin:2px 0 4px 8px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.message,.message-content,.side-message,.activity li { position:relative; }
+.message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { position:absolute; top:2px; right:2px; margin:0; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
 .message:hover>.copy-button,.message:focus-within>.copy-button,.message:hover .message-content>.copy-button,.message:focus-within .message-content>.copy-button,.side-message:hover>.copy-button,.side-message:focus-within>.copy-button,.activity li:hover>.copy-button,.activity li:focus-within>.copy-button { opacity:1; }
 @media (hover:none) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { transition:none; } }

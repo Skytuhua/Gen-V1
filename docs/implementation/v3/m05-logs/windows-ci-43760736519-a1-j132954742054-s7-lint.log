@@ -1,0 +1,11 @@
+2026-11-15T20:57:22.0772722Z ##[group]Run pnpm lint
+2026-11-15T20:57:22.0773036Z pnpm lint
+2026-11-15T20:57:22.0842622Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:57:22.0842979Z env:
+2026-11-15T20:57:22.0843249Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:57:22.0843583Z ##[endgroup]
+2026-11-15T20:57:22.6948172Z 
+2026-11-15T20:57:22.6948760Z > gen-v1@0.6.5 lint D:\a\Gen-V1\Gen-V1
+2026-11-15T20:57:22.6949361Z > tsx scripts/lint-ui.ts --check
+2026-11-15T20:57:22.6949588Z 
+2026-11-15T20:57:49.5030601Z UI guard: 542 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

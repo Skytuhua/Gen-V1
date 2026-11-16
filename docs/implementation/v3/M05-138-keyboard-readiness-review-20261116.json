@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "review": "New agent virtual-card keyboard test initial readiness repair",
+  "status": "LOCAL_FOCUSED_PASS_WINDOWS_REVALIDATION_PENDING",
+  "sourceBefore": {
+    "head": "bd0cb368af79e45fec4ceca54e147d8c6cd6e8bb",
+    "tree": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+    "spec": {
+      "path": "tests/e2e/agents-workspace.spec.ts",
+      "bytes": 27339,
+      "sha256": "c6799f240d1aea7610c1c0ca06740a4cc07fafd92fba71aeaaa9c223ea0c084c",
+      "blobSha": "da94515fbc25f68500522558b672155f87a25137"
+    }
+  },
+  "sourceAfter": {
+    "path": "tests/e2e/agents-workspace.spec.ts",
+    "bytes": 27431,
+    "sha256": "a2f6244f17cd664e35636dadda6de77ae539df5ca0f57a8b06fa2aa17e5f7f2e",
+    "blobSha": "4b6d614b3014b6d49e70c9e3ece2fb16e5e40470"
+  },
+  "fixture": {
+    "path": "tests/e2e/agents-workspace-fixture.tsx",
+    "bytes": 2206,
+    "sha256": "8bb7f29f89495696a04feec35265e0575729552c14c7aeb52ec27ef947fa8770",
+    "blobSha": "e677ee81818981f13977ad211cd78941faa04f2e"
+  },
+  "browserConfig": {
+    "path": "tests/e2e/agents-workspace.playwright.config.ts",
+    "bytes": 679,
+    "sha256": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac",
+    "blobSha": "556e8733f1d396411297f6c3d9f6ea348f444ebb"
+  },
+  "scratchConfig": {
+    "path": "docs/implementation/v3/m05-review-inputs/m05-138-agents-workspace.playwright.config.mts.txt",
+    "bytes": 367,
+    "sha256": "1fa6fbcd2e85b888a4f48353313a626ff1fe5de46f64a377d70bbdc6d4375981",
+    "blobSha": "c34ce8f252d065c4c992e392fb4c62a3c800c22f"
+  },
+  "failedCommandRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.meta.json",
+  "failedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.log",
+  "failedLogSha256": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+  "traceObservation": {
+    "clock": "Playwright trace-relative milliseconds, not wall-clock durations",
+    "readMethod": "Actual local ZIP members parsed with Python zipfile before the next test run.",
+    "initialAssertionStart": 6046.209,
+    "initialAssertionEnd": 11050.414,
+    "initialAssertionTimeoutMs": 5000,
+    "firstAgentsRequestStart": 10532.362,
+    "firstAgentsResponseDurationMs": 8.429,
+    "secondPageRequestStart": 10551.358,
+    "secondPageResponseDurationMs": 7.781,
+    "thirdPageRequestStart": 10556.187,
+    "thirdPageResponseDurationMs": 5.006,
+    "afterAssertionSnapshot": 11093.249,
+    "afterSnapshotContains": [
+      "region Alpha agents",
+      "group Agent parent-00"
+    ],
+    "keyboardActionsBeforeFailure": 0,
+    "archiveCustody": "The later passing run reused the scratch config output directory and Playwright removed the red trace/error-context files. The actual original command log and metadata remain unchanged. These precise trace observations were read into the tool transcript before removal; no persistent ZIP/hash or reconstructed trace is claimed.",
+    "diagnosticLimit": "The trace proves late fixture publication relative to the five-second initial assertion. It does not isolate the elapsed time among compilation, module loading and rendering."
+  },
+  "sourceExplanation": "setup serves HTML whose script dynamically imports the fixture after document load. The initial page.goto(load) therefore does not establish that the agent component has mounted.",
+  "repair": "Only the new keyboard case initial exact-card toBeVisible assertion now allows 15,000 ms, with an explanatory comment. The case remains bounded by 20,000 ms; grid focus, absent offscreen destination, ArrowLeft and exact destination-focus assertions remain unchanged.",
+  "unchanged": [
+    "Production agent focus-transfer implementation",
+    "Every keyboard and virtualization assertion",
+    "Default five-second interaction/assertion behavior elsewhere",
+    "Optional agent-work fixture routes",
+    "Suite case timeout and retry policy"
+  ],
+  "greenCommand": {
+    "schemaVersion": 1,
+    "command": {
+      "argv": [
+        "env",
+        "AGENTSUI_APP_CANDIDATE=1",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/36f66011d961/m05-138-agents-workspace.playwright.config.mts",
+        "tests/e2e/agents-workspace.spec.ts",
+        "--grep",
+        "keyboard entry into a virtual agent",
+        "--workers=1",
+        "--reporter=line"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T00:21:29.863526+00:00",
+      "endedAt": "2026-11-16T00:21:40.403473+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-readiness-green.log",
+      "logDigest": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0"
+    },
+    "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+    "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+    "workingDiffSha256": "c8c8d3040035e0dc2a3e828be6d48b81ae1402dedaf6d7d44357443f9a31c271",
+    "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+    "elapsedMs": 10525,
+    "rawOutputBytes": 945,
+    "rawOutputSha256": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0",
+    "excerptInputBytes": 945,
+    "excerptInputSha256": "4e306370ba12cff541cab0e6ef21bd31b065d673e98eae890c606f99666c1ca0",
+    "transformations": [],
+    "phaseIds": [
+      "PLATFORM_BROWSER"
+    ]
+  },
+  "result": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "limits": [
+    "Local actual Chromium proof only; a future exact-source Windows run remains required.",
+    "Full typecheck passed on the preceding clean committed tree; this later change is only a test timeout option/comment. No newer full typecheck is claimed here.",
+    "No installed application, provider, native Save or complete M05 admission is implied."
+  ]
+}

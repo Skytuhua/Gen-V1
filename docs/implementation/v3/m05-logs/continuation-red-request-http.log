@@ -1,0 +1,162 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-request-http-v3.test.ts (10 tests | 10 failed) 444ms
+   × requires the Personal host session and CSRF before preparing or excluding memory 153ms
+   × rejects unknown preparation, latest and exclusion keys without accepting caller account selection 51ms
+   × returns only captured requests from latest and does not start a runtime during preview 56ms
+   × fences exclusion by exact route project, owner scope, context generation and selected revision 31ms
+   × dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable 20ms
+   × rejects a prepared token with a changed prompt before command admission 31ms
+   × rejects a prepared token with a changed model before command admission 19ms
+   × rejects a prepared token with a changed thinking before command admission 19ms
+   × rejects a prepared token with a changed thread before command admission 41ms
+   × returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request 21ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > requires the Personal host session and CSRF before preparing or excluding memory
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ Object.prepare tests/project-memory-request-http-v3.test.ts:56:33
+     54|   const prepare = async () => {
+     55|     const response = await post(prefix + '/prepare', body);
+     56|     expect(response.statusCode).toBe(200);
+       |                                 ^
+     57|     expect(response.headers['cache-control']).toBe('no-store');
+     58|     return memoryPreparedRequestSchema.parse(response.json());
+ ❯ tests/project-memory-request-http-v3.test.ts:72:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > rejects unknown preparation, latest and exclusion keys without accepting caller account selection
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/project-memory-request-http-v3.test.ts:82:33
+     80|   const f = await fixture();
+     81|   const badPrepare = await f.post(f.prefix + '/prepare', { ...f.body, …
+     82|   expect(badPrepare.statusCode).toBe(400); expect(badPrepare.headers['…
+       |                                 ^
+     83|   expect((await f.app.inject({ url: f.prefix + '/latest?threadId=threa…
+     84|   const prepared = await f.prepare();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > returns only captured requests from latest and does not start a runtime during preview
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/project-memory-request-http-v3.test.ts:92:30
+     90| it('returns only captured requests from latest and does not start a ru…
+     91|   const f = await fixture(), initial = await f.latest();
+     92|   expect(initial.statusCode).toBe(200); expect(initial.headers['cache-…
+       |                              ^
+     93|   const before = f.service.thread('thread'), prepared = await f.prepar…
+     94|   expect(prepared).toMatchObject({ phase: 'PREPARING', scope: { projec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > fences exclusion by exact route project, owner scope, context generation and selected revision
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ Object.prepare tests/project-memory-request-http-v3.test.ts:56:33
+     54|   const prepare = async () => {
+     55|     const response = await post(prefix + '/prepare', body);
+     56|     expect(response.statusCode).toBe(200);
+       |                                 ^
+     57|     expect(response.headers['cache-control']).toBe('no-store');
+     58|     return memoryPreparedRequestSchema.parse(response.json());
+ ❯ tests/project-memory-request-http-v3.test.ts:104:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ Object.prepare tests/project-memory-request-http-v3.test.ts:56:33
+     54|   const prepare = async () => {
+     55|     const response = await post(prefix + '/prepare', body);
+     56|     expect(response.statusCode).toBe(200);
+       |                                 ^
+     57|     expect(response.headers['cache-control']).toBe('no-store');
+     58|     return memoryPreparedRequestSchema.parse(response.json());
+ ❯ tests/project-memory-request-http-v3.test.ts:121:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > rejects a prepared token with a changed prompt before command admission
+ FAIL  tests/project-memory-request-http-v3.test.ts > rejects a prepared token with a changed model before command admission
+ FAIL  tests/project-memory-request-http-v3.test.ts > rejects a prepared token with a changed thinking before command admission
+ FAIL  tests/project-memory-request-http-v3.test.ts > rejects a prepared token with a changed thread before command admission
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ Object.prepare tests/project-memory-request-http-v3.test.ts:56:33
+     54|   const prepare = async () => {
+     55|     const response = await post(prefix + '/prepare', body);
+     56|     expect(response.statusCode).toBe(200);
+       |                                 ^
+     57|     expect(response.headers['cache-control']).toBe('no-store');
+     58|     return memoryPreparedRequestSchema.parse(response.json());
+ ❯ tests/project-memory-request-http-v3.test.ts:142:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/project-memory-request-http-v3.test.ts:157:31
+    155|   __setCapabilityFlagForTests('memory.projectV1', false);
+    156|   const disabled = await f.post(f.prefix + '/prepare', f.body);
+    157|   expect(disabled.statusCode).toBe(200); expect(disabled.json()).toBeN…
+       |                               ^
+    158|   __setCapabilityFlagForTests('memory.projectV1', true);
+    159|   const created = await f.command('thread.create', { projectId: 'proje…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed (10)
+   Start at  19:58:26
+   Duration  3.02s (transform 1.69s, setup 0ms, import 2.35s, tests 444ms, environment 0ms)

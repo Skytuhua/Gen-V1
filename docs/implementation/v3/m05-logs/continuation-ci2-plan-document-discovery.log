@@ -1,0 +1,32 @@
+Listing tests:
+  document-window.spec.ts:5:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately
+  document-window.spec.ts:64:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload
+  document-window.spec.ts:117:1 › new source never overwrites edited text and the document can explicitly adopt the update
+  document-window.spec.ts:145:1 › granted text clears immediately on revocation and retry rereads the authorized source
+  document-window.spec.ts:213:1 › narrow document window has no page overflow and keyboard undocking retains its editor
+  document-window.spec.ts:251:1 › large edited source fits the real host state limit without duplicating the source text
+  document-window.spec.ts:271:1 › closing and reloading the handoff preserves its reading position
+  document-window.spec.ts:309:1 › oversized UTF-8 edits are rejected without replacing the last durable draft
+  document-window.spec.ts:333:1 › retargeting a document cannot overwrite a draft belonging to its previous source
+  document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px
+  document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px
+  document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px
+  document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px
+  plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread
+  plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step
+  plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions
+  plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication
+  plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed
+  plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow
+  plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it
+  plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details
+  plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity
+  plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion
+  plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion
+  plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion
+  plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion
+  plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion
+  plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion
+  plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join
+  plan-timeline.spec.ts:240:40 › light desktop parallel branches and join
+Total: 30 tests in 2 files

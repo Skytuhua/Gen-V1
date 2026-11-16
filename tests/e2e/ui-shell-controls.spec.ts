@@ -23,6 +23,24 @@ test('required validation retains visible focus and blocks submission until corr
   await page.getByRole('button',{name:'Submit choice'}).click();await expect(page.getByLabel('Result')).toContainText('"a"');
 });
 
+test('a stale required Select never submits a hidden fallback choice', async ({page}) => {
+  await page.goto('/ui-shell-controls?primitives=1&required=1&stale-choice=1');
+  const trigger = page.getByRole('combobox', {name: 'Choice', exact: true});
+  const result = page.getByLabel('Result');
+  await page.getByRole('button', {name: 'Submit choice'}).click();
+  await expect(result).toHaveText('');
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute('aria-invalid', 'true');
+  await trigger.click();
+  await page.getByRole('option', {name: 'Delta', exact: true}).click();
+  await page.getByRole('button', {name: 'Submit choice'}).click();
+  await expect(result).toHaveText('[["choice","d"]]');
+  await page.getByRole('button', {name: 'Reset choice'}).click();
+  await page.getByRole('button', {name: 'Submit choice'}).click();
+  await expect(result).toHaveText('[["choice","d"]]');
+  await expect(trigger).toHaveAttribute('aria-invalid', 'true');
+});
+
 test('shared Select preserves caller-owned invalid feedback for an otherwise valid choice',async({page})=>{
  await page.goto('/ui-shell-controls?primitives=1&controlled-invalid=1');await expect(page.getByRole('combobox',{name:'Choice',exact:true})).toHaveAttribute('aria-invalid','true');await expect(page.getByText('Choose an option.',{exact:true})).toHaveCount(0);
  await page.goto('/ui-shell-controls?primitives=1');await expect(page.getByRole('combobox',{name:'Choice',exact:true})).not.toHaveAttribute('aria-invalid','true');
@@ -84,6 +102,8 @@ test('Select skips disabled choices, preserves form name/disabled semantics and 
   await expect(page.getByRole('status', { name: 'Result' })).toHaveText('[["choice","d"]]');
   await page.getByRole('button', { name: 'Reset choice' }).click();
   await expect(trigger).toContainText('Charlie');
+  await page.getByRole('button', { name: 'Submit choice' }).click();
+  await expect(page.getByRole('status', { name: 'Result' })).toHaveText('[["choice","c"]]');
   await page.getByRole('button', { name: 'Toggle disabled' }).click();
   await expect(trigger).toBeDisabled();
   await page.getByRole('button', { name: 'Submit choice' }).click();
@@ -130,6 +150,34 @@ test('IME keys leave menu selection and modal ownership unchanged, then Escape u
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(opener).toBeFocused();
+});
+
+test('modal Shift+Tab wraps past rendered but unavailable controls', async ({ page }) => {
+  await page.goto('/ui-shell-controls?primitives=1&modal=1');
+  await page.getByRole('button', { name: 'Open controls dialog' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Controls dialog' });
+  await dialog.evaluate(root => {
+    const confirm = document.createElement('button');
+    confirm.textContent = 'Last available action';
+    root.append(confirm);
+    const hidden = document.createElement('button');
+    hidden.textContent = 'Unavailable action';
+    hidden.style.visibility = 'hidden';
+    root.append(hidden);
+    const slot = document.createElement('div');
+    slot.inert = true;
+    const inactive = document.createElement('button');
+    inactive.textContent = 'Inactive action';
+    slot.append(inactive);
+    root.append(slot);
+  });
+  const close = dialog.getByRole('button', { name: 'Close dialog' });
+  const last = dialog.getByRole('button', { name: 'Last available action' });
+  await close.focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(last).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
 });
 
 test('Tab leaves a popup for the next field and outside focus does not get stolen', async ({ page }) => {

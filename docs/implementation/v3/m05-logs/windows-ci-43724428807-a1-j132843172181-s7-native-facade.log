@@ -1,0 +1,24 @@
+2026-11-15T14:29:41.7409125Z ##[group]Run python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T14:29:41.7409582Z python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T14:29:41.7410112Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T14:29:41.7410456Z python -B tests/memory_native_checkpoint_worker_v3.py -v
+2026-11-15T14:29:41.7466458Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T14:29:41.7466743Z env:
+2026-11-15T14:29:41.7466961Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:29:41.7467291Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:41.7467640Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:29:41.7468172Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:41.7468493Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:41.7468857Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:29:41.7469208Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:29:41.7469506Z ##[endgroup]
+2026-11-15T14:29:42.2077129Z test_capability_probes_the_actual_pinned_facade_and_api (__main__.NativeCheckpoint.test_capability_probes_the_actual_pinned_facade_and_api) ... ok
+2026-11-15T14:29:42.2079208Z test_receipt_failure_blocks_the_actual_native_facade_before_it_can_run (__main__.NativeCheckpoint.test_receipt_failure_blocks_the_actual_native_facade_before_it_can_run) ... ok
+2026-11-15T14:29:42.2081325Z test_success_preserves_original_native_arguments_result_and_order (__main__.NativeCheckpoint.test_success_preserves_original_native_arguments_result_and_order) ... ok
+2026-11-15T14:29:42.2082304Z test_unopted_source_uses_the_unchanged_native_method (__main__.NativeCheckpoint.test_unopted_source_uses_the_unchanged_native_method) ... ok
+2026-11-15T14:29:42.2086240Z test_unsupported_missing_malformed_or_stale_receipts_never_call_native (__main__.NativeCheckpoint.test_unsupported_missing_malformed_or_stale_receipts_never_call_native) ... ok
+2026-11-15T14:29:42.2086882Z 
+2026-11-15T14:29:42.2087070Z ----------------------------------------------------------------------
+2026-11-15T14:29:42.2087350Z Ran 5 tests in 0.002s
+2026-11-15T14:29:42.2087468Z 
+2026-11-15T14:29:42.2087543Z OK

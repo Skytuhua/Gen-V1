@@ -1,11 +1,8 @@
 import {useEffect,useLayoutEffect,useRef,useState,type KeyboardEvent,type PointerEvent,type ReactNode} from 'react';
-import {AppWindow,GripVertical,Maximize2,PanelRight,PanelsTopLeft,Unplug} from 'lucide-react';
-import {ActionMenu} from './ActionMenu';
-import {CHAT_EDGES,CHAT_TRANSITION_MS,chatBounds,chatPanelRect,clampChatRect,isChatDockTarget,readChatLayout,resizeChatRect,writeChatLayout,type ChatEdge,type ChatLayout,type ChatMode,type ChatRect,type ChatViewport} from './chat-layout';
+import {GripVertical,Maximize2,PanelRight,Unplug} from 'lucide-react';
+import {CHAT_EDGES,CHAT_TRANSITION_MS,chatBounds,chatPanelRect,clampChatRect,isChatDockTarget,readChatLayout,resizeChatRect,writeChatLayout,type ChatEdge,type ChatLayout,type ChatRect,type ChatViewport} from './chat-layout';
 import './chat-view.css';
 
-const names:Record<ChatMode,string>={full:'Full page',drawer:'Side drawer',popup:'Pop-up'};
-const icons={full:<Maximize2 size={15}/>,drawer:<PanelRight size={15}/>,popup:<AppWindow size={15}/>};
 const edgeNames:Record<ChatEdge,string>={n:'top',e:'right',s:'bottom',w:'left',ne:'top right',nw:'top left',se:'bottom right',sw:'bottom left'};
 const rectOf=(element:HTMLElement):ChatRect=>{const r=element.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};};
 function viewport():ChatViewport{
@@ -14,13 +11,12 @@ function viewport():ChatViewport{
 function storage(){try{return localStorage;}catch{return undefined;}}
 const motionAllowed=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches&&!['off','reduced'].includes(document.documentElement.dataset.motion??'');
 
-/** A single live subtree moves between in-flow and floating geometry. Menus use
- * the shared ActionMenu; this non-modal panel never traps workspace focus. */
+/** Keeps saved conversation-window geometry while preserving one live subtree. */
 export function ChatView({header,actions,children,enabled=true}:{header:ReactNode;actions?:ReactNode;children:ReactNode;enabled?:boolean}){
  const [layout,setLayout]=useState<ChatLayout>(()=>enabled?readChatLayout(storage()):{mode:'full',detached:false});
  const current=useRef(layout),slot=useRef<HTMLDivElement>(null),panel=useRef<HTMLElement>(null),animation=useRef<Animation|null>(null);
  const pending=useRef<ChatRect|null>(null),instant=useRef(false),stop=useRef<((cancel?:boolean)=>void)|null>(null);
- const [menu,setMenu]=useState(false),[tracking,setTracking]=useState(false),[dockTarget,setDockTarget]=useState(false),[announcement,setAnnouncement]=useState('');
+ const [tracking,setTracking]=useState(false),[dockTarget,setDockTarget]=useState(false),[announcement,setAnnouncement]=useState('');
  const snap=useRef<HTMLDivElement>(null),rememberedFocus=useRef<HTMLElement|null>(null);
  const floating=layout.mode!=='full';
  const apply=(rect:ChatRect,fixed:boolean)=>{
@@ -36,10 +32,6 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   stop.current?.();pending.current=panel.current?rectOf(panel.current):null;instant.current=immediate;
   current.current={...next};setLayout(current.current);writeChatLayout(next,storage());
   if(focus)focusChat();
- };
- const switchMode=(mode:ChatMode,immediate=false)=>{
-  if(mode==='drawer')dock(immediate);else commit({...current.current,mode,detached:mode==='popup'},immediate);
-  setMenu(false);setAnnouncement(`Chat layout: ${names[mode]}`);
  };
  const dock=(immediate=false)=>{
   const saved=current.current,area=chatBounds(viewport()),rect=chatPanelRect({...saved,mode:'drawer'},viewport());
@@ -79,16 +71,6 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   media.addEventListener('change',reduce);const policy=new MutationObserver(reduce);policy.observe(document.documentElement,{attributes:true,attributeFilter:['data-motion']});
   return()=>{stop.current?.(true);animation.current?.cancel();observer.disconnect();policy.disconnect();window.removeEventListener('resize',resize);media.removeEventListener('change',reduce);};
  },[]);
- useEffect(()=>{
-  if(!enabled)return;
-  const shortcut=(event:globalThis.KeyboardEvent)=>{
-   if(event.defaultPrevented||event.isComposing||event.repeat||!(event.ctrlKey||event.metaKey)||!event.shiftKey||event.altKey||event.code!=='KeyL')return;
-   // Embedded conversations share the document; only the focused chat handles it.
-   if(!panel.current?.contains(document.activeElement))return;
-   event.preventDefault();const modes:ChatMode[]=['full','drawer','popup'];switchMode(modes[(modes.indexOf(current.current.mode)+1)%3],true);
-  };
-  window.addEventListener('keydown',shortcut);return()=>window.removeEventListener('keydown',shortcut);
- });
  const saveRect=(rect:ChatRect,detached=current.current.detached)=>{
   const saved=current.current,mode=saved.mode==='full'?'popup':saved.mode;
   commit({...saved,mode,detached,[mode]:rect},true,false);
@@ -113,7 +95,7 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
    if(!frame)frame=requestAnimationFrame(draw);
   };
   const finish=(cancel=false)=>{
-   cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cancelled);target.removeEventListener('lostpointercapture',cancelled);window.removeEventListener('keydown',escape);
+   cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cancelled);target.removeEventListener('lostpointercapture',cancelled);window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);
    stop.current=null;if(target.hasPointerCapture(pointerId))target.releasePointerCapture(pointerId);
    setTracking(false);setDockTarget(false);draw();
    if(cancel){commit(saved,true,false);return;}
@@ -122,8 +104,9 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   };
   const end=(e:globalThis.PointerEvent)=>{if(e.pointerId===pointerId){move(e);finish();}};
   const cancelled=(e:globalThis.PointerEvent)=>{if(e.pointerId===pointerId)finish(true);};
+  const blur=()=>finish(true);
   const escape=(e:globalThis.KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();finish(true);}};
-  stop.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',end);window.addEventListener('pointercancel',cancelled);target.addEventListener('lostpointercapture',cancelled);window.addEventListener('keydown',escape);
+  stop.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',end);window.addEventListener('pointercancel',cancelled);target.addEventListener('lostpointercapture',cancelled);window.addEventListener('keydown',escape);window.addEventListener('blur',blur);
  };
  const adjust=(event:KeyboardEvent<HTMLElement>,edge?:ChatEdge)=>{
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||event.altKey||event.ctrlKey||event.metaKey||event.nativeEvent.isComposing||!panel.current)return;
@@ -138,7 +121,6 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
    <header className="workspace-header chat-view-header" onPointerDown={event=>begin(event)}>
     {header}<div className="header-actions">{actions}{enabled&&<div className="chat-layout-actions">
      {floating&&<button type="button" className="icon-button chat-move-handle" aria-label="Move chat panel" title="Move chat panel (arrow keys; Shift for larger steps)" onPointerDown={event=>{event.stopPropagation();begin(event);}} onKeyDown={event=>adjust(event)}><GripVertical size={15}/></button>}
-     <span title="Switch layout (Ctrl/⌘+Shift+L)" onPointerDownCapture={()=>{instant.current=false;}} onKeyDownCapture={event=>{instant.current=event.key==='Enter'||event.key===' ';}}><ActionMenu label="Switch layout" icon={<PanelsTopLeft size={16}/>} iconOnly open={menu} onOpenChange={setMenu} items={(['drawer','full','popup'] as ChatMode[]).map(mode=>({id:mode,label:names[mode],icon:icons[mode],checked:layout.mode===mode,onSelect:()=>switchMode(mode,instant.current)}))}/></span>
      {layout.mode==='full'||layout.mode==='drawer'&&!layout.detached?<button type="button" className="icon-button" aria-label="Detach chat" title="Detach chat" onClick={event=>detach(event.detail===0)}><Unplug size={15}/></button>:<button type="button" className="icon-button" aria-label="Dock chat to side drawer" title="Expand to side drawer" onClick={event=>dock(event.detail===0)}><Maximize2 size={15}/></button>}
     </div>}</div>
    </header>

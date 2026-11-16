@@ -1,0 +1,8 @@
+Downloading the pnpm 12.21.0 binary for linux-x64...
+Packages: -1148
+--------------------------------------------------------------------------------
+Done in 283ms using pnpm v12.21.0
+Error: ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL
+
+  × Command "vitest" not found
+

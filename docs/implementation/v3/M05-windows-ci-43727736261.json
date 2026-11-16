@@ -1,0 +1,1213 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "pullRequest": 347,
+  "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+  "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+  "observedAt": "2026-11-15T15:17:46.514Z",
+  "complete": true,
+  "workflow": {
+    "id": 43727736261,
+    "name": "CI",
+    "path": ".github/workflows/ci.yml",
+    "display_title": "M05: integrate source-linked project memory, review and native checkpoints",
+    "run_number": 1065,
+    "run_attempt": 1,
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "failure",
+    "workflow_id": 404175795,
+    "check_suite_id": 118387394421,
+    "head_branch": "agent/m05-v3",
+    "created_at": "2026-11-15T15:03:38Z",
+    "updated_at": "2026-11-15T15:16:53Z",
+    "run_started_at": "2026-11-15T15:03:38Z",
+    "html_url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261",
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43727736261",
+    "referenced_workflows": [],
+    "pull_requests": [
+      {
+        "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/pulls/347",
+        "id": 5322062026,
+        "number": 347,
+        "head": {
+          "ref": "agent/m05-v3",
+          "sha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+          "repo": {
+            "id": 1442565952,
+            "url": "https://api.github.com/repos/skytuhua-org/Gen-V1",
+            "name": "Gen-V1"
+          }
+        },
+        "base": {
+          "ref": "main",
+          "sha": "399cde39ff4ee82272c7a7700944325c44b36070",
+          "repo": {
+            "id": 1442565952,
+            "url": "https://api.github.com/repos/skytuhua-org/Gen-V1",
+            "name": "Gen-V1"
+          }
+        }
+      }
+    ],
+    "definitionSha256": "8ce6ff5a5cf9d93edefa90814d15559d8c70413a69b9754529184242c5305cb6",
+    "definitionRawRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/ci.yml",
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/workflow-run-final.json",
+    "jobsRawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/jobs-api-final.json",
+    "jobsRawResponseSha256": "c9cd078e67a781269cd8db456af559328de101d191c31330d4bb3fb35accfca5"
+  },
+  "jobs": [
+    {
+      "id": 132853239765,
+      "name": "Browser tests",
+      "status": "completed",
+      "conclusion": "failure",
+      "startedAt": "2026-11-15T15:03:41Z",
+      "completedAt": "2026-11-15T15:16:52Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239765",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001096,
+        "name": "GitHub Actions 1000001096",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:42Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:53Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:53Z",
+          "completed_at": "2026-11-15T15:04:57Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:57Z",
+          "completed_at": "2026-11-15T15:05:10Z"
+        },
+        {
+          "name": "Exercise split workspace in the browser",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:05:10Z",
+          "completed_at": "2026-11-15T15:06:25Z"
+        },
+        {
+          "name": "Exercise project memory and affected context browser flows",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6,
+          "started_at": "2026-11-15T15:06:25Z",
+          "completed_at": "2026-11-15T15:16:46Z"
+        },
+        {
+          "name": "Preserve browser reports and failure traces",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-15T15:16:46Z",
+          "completed_at": "2026-11-15T15:16:48Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-15T15:16:48Z",
+          "completed_at": "2026-11-15T15:16:48Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-15T15:16:48Z",
+          "completed_at": "2026-11-15T15:16:50Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-15T15:16:50Z",
+          "completed_at": "2026-11-15T15:16:50Z"
+        }
+      ],
+      "failedSteps": [
+        "Exercise project memory and affected context browser flows"
+      ],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239765.log",
+      "logDigest": "024b9b3769ef21f52d631705dd7b443d7efcaa5bdbcc509b2bc7282fd1ec8e27",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239765.log",
+      "rawLogDigest": "e3b845eeff45195607784117d61d8800fa6158ec022b68676ca20a8de1fae45a",
+      "rawLogBytes": 115622,
+      "logBytes": 65528,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "vitest",
+            "line": 586,
+            "commandGroup": "pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1",
+            "text": "Tests  29 passed (29)",
+            "passed": 29
+          },
+          {
+            "framework": "playwright",
+            "line": 635,
+            "commandGroup": "$failedSuites = @()",
+            "text": "15 passed (23.2s)",
+            "passed": 15
+          },
+          {
+            "framework": "playwright",
+            "line": 668,
+            "commandGroup": "$failedSuites = @()",
+            "text": "21 passed (28.0s)",
+            "passed": 21
+          },
+          {
+            "framework": "playwright",
+            "line": 771,
+            "commandGroup": "$failedSuites = @()",
+            "text": "1 skipped",
+            "skipped": 1
+          },
+          {
+            "framework": "playwright",
+            "line": 772,
+            "commandGroup": "$failedSuites = @()",
+            "text": "90 passed (3.9m)",
+            "passed": 90
+          },
+          {
+            "framework": "playwright",
+            "line": 936,
+            "commandGroup": "$failedSuites = @()",
+            "text": "1 failed",
+            "failed": 1
+          },
+          {
+            "framework": "playwright",
+            "line": 938,
+            "commandGroup": "$failedSuites = @()",
+            "text": "1 skipped",
+            "skipped": 1
+          },
+          {
+            "framework": "playwright",
+            "line": 939,
+            "commandGroup": "$failedSuites = @()",
+            "text": "111 passed (5.4m)",
+            "passed": 111
+          }
+        ],
+        "totals": {
+          "passed": 266,
+          "failed": 1,
+          "skipped": 2,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [
+        {
+          "line": 898,
+          "text": "1) tests\\e2e\\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects"
+        }
+      ],
+      "cwdEvidence": [
+        "2026-11-15T15:03:43.3033086Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853239918,
+      "name": "Tests (shard 3/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:40Z",
+      "completedAt": "2026-11-15T15:08:20Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239918",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001097,
+        "name": "GitHub Actions 1000001097",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:42Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:52Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:52Z",
+          "completed_at": "2026-11-15T15:04:48Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:48Z",
+          "completed_at": "2026-11-15T15:04:59Z"
+        },
+        {
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:59Z",
+          "completed_at": "2026-11-15T15:08:16Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:08:16Z",
+          "completed_at": "2026-11-15T15:08:17Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T15:08:17Z",
+          "completed_at": "2026-11-15T15:08:19Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T15:08:19Z",
+          "completed_at": "2026-11-15T15:08:19Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239918.log",
+      "logDigest": "8d067553a8129deb467d12c8b38223bc390c0499fd636d8116eeb6357953be87",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239918.log",
+      "rawLogDigest": "f3d8c7a9ae56f7a2a06c85c2b2c3d78961f3df6206b83181fdd0154e86b80d5c",
+      "rawLogBytes": 107345,
+      "logBytes": 65528,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "vitest",
+            "line": 879,
+            "commandGroup": "pnpm test --maxWorkers=2 --shard=3/4",
+            "text": "Tests  842 passed | 2 skipped (844)",
+            "passed": 842,
+            "skipped": 2
+          }
+        ],
+        "totals": {
+          "passed": 842,
+          "failed": 0,
+          "skipped": 2,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:42.2500589Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853239939,
+      "name": "Tests (shard 1/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:41Z",
+      "completedAt": "2026-11-15T15:08:12Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239939",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001099,
+        "name": "GitHub Actions 1000001099",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:42Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:51Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:51Z",
+          "completed_at": "2026-11-15T15:04:39Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:39Z",
+          "completed_at": "2026-11-15T15:04:49Z"
+        },
+        {
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:49Z",
+          "completed_at": "2026-11-15T15:08:07Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:08:07Z",
+          "completed_at": "2026-11-15T15:08:08Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T15:08:08Z",
+          "completed_at": "2026-11-15T15:08:10Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T15:08:10Z",
+          "completed_at": "2026-11-15T15:08:10Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239939.log",
+      "logDigest": "32b335f7c83736df63cee3fb87c8f2ac8d53a67386ae605532350b8f9671cab8",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239939.log",
+      "rawLogDigest": "6d70365d099989a634c2fb4db0ac4c7748c865c8b411f0c9012f5b9972205665",
+      "rawLogBytes": 105053,
+      "logBytes": 65528,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "vitest",
+            "line": 872,
+            "commandGroup": "pnpm test --maxWorkers=2 --shard=1/4",
+            "text": "Tests  1073 passed (1073)",
+            "passed": 1073
+          }
+        ],
+        "totals": {
+          "passed": 1073,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:42.6449281Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853239961,
+      "name": "Tests (shard 2/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:40Z",
+      "completedAt": "2026-11-15T15:07:17Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239961",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001098,
+        "name": "GitHub Actions 1000001098",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:41Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:50Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:50Z",
+          "completed_at": "2026-11-15T15:04:33Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:33Z",
+          "completed_at": "2026-11-15T15:04:43Z"
+        },
+        {
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:43Z",
+          "completed_at": "2026-11-15T15:07:14Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:07:14Z",
+          "completed_at": "2026-11-15T15:07:15Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T15:07:15Z",
+          "completed_at": "2026-11-15T15:07:16Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T15:07:16Z",
+          "completed_at": "2026-11-15T15:07:16Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239961.log",
+      "logDigest": "3e672c783bfd5100ded9795692e4d59b8c571ccffa5328763e3be7f45e99fd6a",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239961.log",
+      "rawLogDigest": "3f062223887eb5fff93b912be53c15ce44b2f24e772304fbdc4a5114bd20934f",
+      "rawLogBytes": 85454,
+      "logBytes": 65528,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "vitest",
+            "line": 727,
+            "commandGroup": "pnpm test --maxWorkers=2 --shard=2/4",
+            "text": "Tests  927 passed | 7 skipped (934)",
+            "passed": 927,
+            "skipped": 7
+          }
+        ],
+        "totals": {
+          "passed": 927,
+          "failed": 0,
+          "skipped": 7,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:41.7581614Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853239972,
+      "name": "Windows checks",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:40Z",
+      "completedAt": "2026-11-15T15:05:32Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853239972",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001100,
+        "name": "GitHub Actions 1000001100",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:42Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:51Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:51Z",
+          "completed_at": "2026-11-15T15:04:27Z"
+        },
+        {
+          "name": "Build and verify the public plug-in API package",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:27Z",
+          "completed_at": "2026-11-15T15:04:54Z"
+        },
+        {
+          "name": "Install optional visuals plug-in dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:54Z",
+          "completed_at": "2026-11-15T15:04:55Z"
+        },
+        {
+          "name": "Exercise UI guard negative and positive fixtures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-15T15:04:55Z",
+          "completed_at": "2026-11-15T15:05:02Z"
+        },
+        {
+          "name": "Check TypeScript and enforce UI architecture policy",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-15T15:05:02Z",
+          "completed_at": "2026-11-15T15:05:18Z"
+        },
+        {
+          "name": "Check and build the optional visuals plug-in",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-15T15:05:18Z",
+          "completed_at": "2026-11-15T15:05:20Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:05:20Z",
+          "completed_at": "2026-11-15T15:05:28Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-15T15:05:28Z",
+          "completed_at": "2026-11-15T15:05:29Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-11-15T15:05:29Z",
+          "completed_at": "2026-11-15T15:05:30Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-11-15T15:05:30Z",
+          "completed_at": "2026-11-15T15:05:30Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239972.log",
+      "logDigest": "50c8e9f4f70464ae0c9d32402b91241df957e2e574a0c90d1468f38abb1f77dc",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239972.log",
+      "rawLogDigest": "abc3ebf98c21038e03030ac81d6f8a0993593cad522e5822216f944386ac239c",
+      "rawLogBytes": 55729,
+      "logBytes": 52187,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "node-test",
+            "line": 354,
+            "commandGroup": "pnpm build:plugin-api",
+            "text": "ℹ tests 6",
+            "total": 6,
+            "passed": 6,
+            "failed": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          {
+            "framework": "vitest",
+            "line": 413,
+            "commandGroup": "pnpm test:ui-guard",
+            "text": "Tests  31 passed (31)",
+            "passed": 31
+          }
+        ],
+        "totals": {
+          "passed": 37,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:42.2505916Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853240025,
+      "name": "Desktop build",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:40Z",
+      "completedAt": "2026-11-15T15:04:36Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853240025",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001103,
+        "name": "GitHub Actions 1000001103",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:41Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:51Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:51Z",
+          "completed_at": "2026-11-15T15:04:24Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:24Z",
+          "completed_at": "2026-11-15T15:04:32Z"
+        },
+        {
+          "name": "Build desktop shell",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:32Z",
+          "completed_at": "2026-11-15T15:04:33Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:04:33Z",
+          "completed_at": "2026-11-15T15:04:33Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T15:04:33Z",
+          "completed_at": "2026-11-15T15:04:35Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T15:04:35Z",
+          "completed_at": "2026-11-15T15:04:35Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240025.log",
+      "logDigest": "3f8b0a36041909a59fbdd026824becd4ad015ceb77ef064e21e1360437ecab41",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853240025.log",
+      "rawLogDigest": "d13ef91527407472cd3817c391ac8795efeb3f6f44065d50cc008f3c26ab1fc3",
+      "rawLogBytes": 45691,
+      "logBytes": 42661,
+      "testCounts": {
+        "summaries": [],
+        "totals": {
+          "passed": 0,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:41.9781474Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853240047,
+      "name": "Tests (shard 4/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:40Z",
+      "completedAt": "2026-11-15T15:07:21Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853240047",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001102,
+        "name": "GitHub Actions 1000001102",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:41Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:41Z",
+          "completed_at": "2026-11-15T15:03:50Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:50Z",
+          "completed_at": "2026-11-15T15:04:34Z"
+        },
+        {
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:34Z",
+          "completed_at": "2026-11-15T15:04:42Z"
+        },
+        {
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:42Z",
+          "completed_at": "2026-11-15T15:07:18Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T15:07:18Z",
+          "completed_at": "2026-11-15T15:07:18Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T15:07:18Z",
+          "completed_at": "2026-11-15T15:07:20Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T15:07:20Z",
+          "completed_at": "2026-11-15T15:07:20Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240047.log",
+      "logDigest": "d99c077e82cecd74ab5678375c8cec0a9de6c089196214169a7cafb1b4424d74",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853240047.log",
+      "rawLogDigest": "fffd3e6919cab223dd718a1c1d1401ffdf39cf5c119d8fde1ba8d72c41efa919",
+      "rawLogBytes": 97087,
+      "logBytes": 65528,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "vitest",
+            "line": 805,
+            "commandGroup": "pnpm test --maxWorkers=2 --shard=4/4",
+            "text": "Tests  904 passed | 30 skipped (934)",
+            "passed": 904,
+            "skipped": 30
+          }
+        ],
+        "totals": {
+          "passed": 904,
+          "failed": 0,
+          "skipped": 30,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:41.7709930Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'",
+        "2026-11-15T15:04:58.6512936Z    ✓ launches the actual ACP server with an absolute loader from an isolated working directory  451ms"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    },
+    {
+      "id": 132853240058,
+      "name": "Hermes contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T15:03:41Z",
+      "completedAt": "2026-11-15T15:06:44Z",
+      "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853240058",
+      "runId": 43727736261,
+      "runAttempt": 1,
+      "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+      "runner": {
+        "id": 1000001101,
+        "name": "GitHub Actions 1000001101",
+        "groupId": 0,
+        "groupName": "GitHub Actions",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:42Z"
+        },
+        {
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T15:03:42Z",
+          "completed_at": "2026-11-15T15:03:52Z"
+        },
+        {
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T15:03:52Z",
+          "completed_at": "2026-11-15T15:04:52Z"
+        },
+        {
+          "name": "Verify original source custody",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T15:04:52Z",
+          "completed_at": "2026-11-15T15:04:55Z"
+        },
+        {
+          "name": "Verify atomic learning controls",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T15:04:55Z",
+          "completed_at": "2026-11-15T15:04:59Z"
+        },
+        {
+          "name": "Verify original Hermes worker behavior",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-15T15:04:59Z",
+          "completed_at": "2026-11-15T15:06:22Z"
+        },
+        {
+          "name": "Verify native memory checkpoint ordering and failure isolation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-15T15:06:22Z",
+          "completed_at": "2026-11-15T15:06:39Z"
+        },
+        {
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-15T15:06:39Z",
+          "completed_at": "2026-11-15T15:06:40Z"
+        },
+        {
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-15T15:06:40Z",
+          "completed_at": "2026-11-15T15:06:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-15T15:06:43Z",
+          "completed_at": "2026-11-15T15:06:43Z"
+        }
+      ],
+      "failedSteps": [],
+      "logRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240058.log",
+      "logDigest": "cc26b9574cce970f3b15cd41c8cb52e92c0fb0e280a0453cf8ed992fb8632d22",
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853240058.log",
+      "rawLogDigest": "f46526e430b9efe3e31b38b9683de62a714ad79471df4e8b6fe7f06ac154ed30",
+      "rawLogBytes": 51087,
+      "logBytes": 50659,
+      "testCounts": {
+        "summaries": [
+          {
+            "framework": "python-unittest",
+            "line": 421,
+            "commandGroup": "python -I -S -B tests/hermes_source_contract.py -v",
+            "text": "Ran 5 tests in 1.493s",
+            "result": "OK",
+            "total": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "framework": "python-unittest",
+            "line": 442,
+            "commandGroup": "python -I -S -B tests/hermes_atomic_controls.py -v",
+            "text": "Ran 4 tests in 3.765s",
+            "result": "OK",
+            "total": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "framework": "python-unittest",
+            "line": 475,
+            "commandGroup": "python -I -S -B tests/hermes_source_worker.py -v",
+            "text": "Ran 16 tests in 82.161s",
+            "result": "OK",
+            "total": 16,
+            "passed": 16,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "framework": "python-unittest",
+            "line": 499,
+            "commandGroup": "python -B tests/memory_native_checkpoint_v3.py -v",
+            "text": "Ran 5 tests in 0.002s",
+            "result": "OK",
+            "total": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "framework": "python-unittest",
+            "line": 507,
+            "commandGroup": "python -B tests/memory_native_checkpoint_v3.py -v",
+            "text": "Ran 3 tests in 16.396s",
+            "result": "OK",
+            "total": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0
+          }
+        ],
+        "totals": {
+          "passed": 33,
+          "failed": 0,
+          "skipped": 0,
+          "todo": 0,
+          "flaky": 0
+        }
+      },
+      "failedTests": [],
+      "cwdEvidence": [
+        "2026-11-15T15:03:42.8214286Z Working directory is 'D:\\a\\Gen-V1\\Gen-V1'"
+      ],
+      "checkedOutCommit": "a8629917231acf1950145684a38d2c0ff937e3eb"
+    }
+  ],
+  "failures": [
+    {
+      "jobId": 132853239765,
+      "jobName": "Browser tests",
+      "steps": [
+        "Exercise project memory and affected context browser flows"
+      ],
+      "tests": [
+        {
+          "line": 898,
+          "text": "1) tests\\e2e\\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects"
+        }
+      ]
+    }
+  ],
+  "logPolicy": {
+    "raw": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+    "boundedBytesPerJob": 65536,
+    "bounded": "ANSI stripped, CRLF normalized, credential-like tokens and sensitive URL query values redacted; when needed retain beginning and end with an explicit omission marker.",
+    "timestamps": "Raw jobs API started_at/completed_at are retained for every execution step. No inferred step duration or command ledger has been added."
+  },
+  "testedCheckout": {
+    "commitSha": "a8629917231acf1950145684a38d2c0ff937e3eb",
+    "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "5e835ff71ad02298ce3a7c6c080d92f5f04deb47"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/checkout-commit.json",
+    "rawResponseSha256": "3c94c1b8174ab56d1562433c391700a1145b37733bca6d7abae38f64c0a08f11"
+  },
+  "applicationTestCounts": {
+    "passed": 3746,
+    "failed": 0,
+    "skipped": 39,
+    "todo": 0,
+    "flaky": 0
+  },
+  "applicationShardLogsCollected": 4
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "composer-app-refinement-at-036ba-s-input-under-no-preference/error-context.md",
+    "bytes": 5624,
+    "sha256": "5ef9cfe06b4c32353b71c2775e29c7b009f559cc6f1f8dbf462ea4511834de6e"
+  },
+  {
+    "path": "composer-app-refinement-at-036ba-s-input-under-no-preference/trace.zip",
+    "bytes": 842966,
+    "sha256": "263816c7605d6c1d870150c8a6e40fb49ccb7a2c2d87e4579c034d429219cbc1"
+  },
+  {
+    "path": "reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/error-context.md",
+    "bytes": 12117,
+    "sha256": "cb05845b55ddd36b7200444e4cbed4208ceeebbe6e43d2067cd4989dd6efea78"
+  },
+  {
+    "path": "reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/trace.zip",
+    "bytes": 1432042,
+    "sha256": "901fe302068a5345d54568fea860bbb4456dd8cf578dc54ea8bbb9efbe5f9888"
+  },
+  {
+    "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md",
+    "bytes": 12199,
+    "sha256": "09998412bbb9167ea0e28f23d8f27fc3d37426065ec1ecb708187e4eb7556fa2"
+  },
+  {
+    "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip",
+    "bytes": 1227120,
+    "sha256": "2babe29b2f3914423452dd9cac2651a4260fbf976a836ca2dafd7dc96d62da4c"
+  }
+]

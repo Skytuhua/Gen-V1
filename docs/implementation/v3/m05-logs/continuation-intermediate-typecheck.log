@@ -1,0 +1,17 @@
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/36f66011d961/m05-continuation
+> tsc --noEmit
+
+packages/runtime-pi/memory-checkpoint.ts(34,116): error TS2322: Type 'Map<string, ((event: SessionBeforeCompactEvent) => Promise<SessionBeforeCompactResult | undefined>)[]>' is not assignable to type 'Map<string, HandlerFn[]>'.
+  Type '((event: SessionBeforeCompactEvent) => Promise<SessionBeforeCompactResult | undefined>)[]' is not assignable to type 'HandlerFn[]'.
+    Type '(event: SessionBeforeCompactEvent) => Promise<SessionBeforeCompactResult | undefined>' is not assignable to type 'HandlerFn'.
+      Types of parameters 'event' and 'args' are incompatible.
+        Type 'unknown' is not assignable to type 'SessionBeforeCompactEvent'.
+tests/memory-extraction-runtime-v3.test.ts(45,36): error TS2353: Object literal may only specify known properties, and 'id' does not exist in type 'ToolCall'.
+tests/memory-native-checkpoint-v3.test.ts(38,32): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+tests/memory-native-checkpoint-v3.test.ts(39,20): error TS2345: Argument of type 'undefined' is not assignable to parameter of type '{ requestId: string; }'.
+tests/memory-native-checkpoint-v3.test.ts(39,42): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+tests/memory-native-checkpoint-v3.test.ts(53,95): error TS2345: Argument of type 'undefined' is not assignable to parameter of type '{ requestId: string; }'.
+tests/memory-native-checkpoint-v3.test.ts(53,117): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+tests/memory-native-checkpoint-v3.test.ts(54,47): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+ ELIFECYCLE  Command failed with exit code 2.

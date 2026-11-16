@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "lint"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-16T00:59:47Z",
+    "endedAt": "2026-11-16T01:00:14Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43783430726-a1-j133025636927-s7-lint.log",
+    "logDigest": "15b59427ba21d1d66b99ed713b6f5248a359124e1d804f3c5651e26efabd24a0"
+  },
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ],
+  "runId": 43783430726,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "de8700651e6eb97c5a60bf849802b51086244857",
+  "testedCheckout": {
+    "commitSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "treeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+    "parents": [
+      "c12965df7e90550dac0606752cb9f980387c2d3b",
+      "bfd4247994674c5a60ed14b12ff2dda223b07879"
+    ],
+    "matchesPublishedTree": true,
+    "matchesPublishedCommit": true,
+    "event": "push",
+    "expectedBranch": "agent/m05-v3",
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/de8700651e6eb97c5a60bf849802b51086244857",
+    "rawResponseSha256": "cd13c3ed326f43139d5d5c8581804c3bae4ccc391201c5b5c1c549c9ee3c1de9"
+  },
+  "job": {
+    "id": 133025636927,
+    "name": "Windows checks",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43783430726/job/133025636927",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001881,
+      "name": "GitHub Actions 1000001881",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Check TypeScript and enforce UI architecture policy",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 7,
+    "started_at": "2026-11-16T00:59:47Z",
+    "completed_at": "2026-11-16T01:00:14Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-windows-ci-43783430726.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133025636927/logs",
+  "rawJobLogDigest": "766b31683800551523681415463619492e04b382c89a536a81ba7d7d2dc2b023",
+  "rawJobLogBytes": 58045,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8, preserving original BOM and line endings. Original HTTP archive bytes are not provided by this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      445,
+      455
+    ]
+  ],
+  "excerptInputSha256": "8d5d875645a1d1751c3fde7d6a8ff8f549b2a93e8596aade64d3f6bc0b734c4a",
+  "excerptInputBytes": 720,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 698,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Jobs-API step timestamps only. Subcommands sharing a step share its envelope; no subprocess start, end or duration is inferred.",
+  "exitBasis": "Jobs API success for the exact observed command step; no separate process timing is claimed.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Observed command name, not a resolved executable path.",
+  "cwdBasis": "The exact checkout working-directory line in this job; reviewed selected script contains no directory change.",
+  "observedScript": "pnpm lint",
+  "receiptSha256": "0d7cd441fe7a88de7ad0bf3c5b7e938cdfecd1baa730f3947859ae75b1aba117"
+}

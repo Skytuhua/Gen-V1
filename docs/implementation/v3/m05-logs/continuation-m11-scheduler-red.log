@@ -1,0 +1,127 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts (13 tests | 13 failed) 1316ms
+   × queues behind the same account limit as background work without source bytes or provider calls 28ms
+   × aborts queued acquisition on cancel with no factory, calls or source bytes 13ms
+   × aborts queued acquisition on timeout with no factory, calls or source bytes 10ms
+   × revalidates forget after queued admission and before creating a runtime 16ms
+   × revalidates consent after queued admission and before creating a runtime 13ms
+   × revalidates source after queued admission and before creating a runtime 12ms
+   × revalidates model after queued admission and before creating a runtime 12ms
+   × revalidates account after queued admission and before creating a runtime 11ms
+   × releases a late grant after cancellation without creating a runtime 12ms
+   × retains its permit until both startup and native cleanup settle after cancellation 58ms
+   × retains the shared permit when native cancel fails 56ms
+   × retains the shared permit when native dispose fails 57ms
+   × production Service composition forwards the shared per-account background admission through its memory host 1016ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > queues behind the same account limit as background work without source bytes or provider calls
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:52:33
+     50|   const pending = owner.extract(job(f)); let urgent: Awaited<ReturnTyp…
+     51|   try {
+     52|     await turn(); expect(admit).toHaveBeenCalledOnce(); expect(factory…
+       |                                 ^
+     53|     expect(f.memory.usage(f.access).extraction).toMatchObject({modelCa…
+     54|     expect(f.store.all<{usage: {inputBytes: number}}>('projectMemoryAu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > aborts queued acquisition on cancel with no factory, calls or source bytes
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > aborts queued acquisition on timeout with no factory, calls or source bytes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:68:33
+     66|   const pending = owner.extract(job(f, control.signal));
+     67|   try {
+     68|     await turn(); expect(admit).toHaveBeenCalledOnce(); expect(factory…
+       |                                 ^
+     69|     const queueSignal = admit.mock.calls[0][1]; expect(queueSignal).no…
+     70|     if (reason === 'cancel') control.abort();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > revalidates forget after queued admission and before creating a runtime
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > revalidates consent after queued admission and before creating a runtime
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > revalidates source after queued admission and before creating a runtime
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > revalidates model after queued admission and before creating a runtime
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > revalidates account after queued admission and before creating a runtime
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:84:33
+     82|   const pending = owner.extract(job(f));
+     83|   try {
+     84|     await turn(); expect(admit).toHaveBeenCalledOnce(); expect(factory…
+       |                                 ^
+     85|     if (change === 'forget') f.act({action: 'forget', itemId: accepted…
+     86|     if (change === 'consent') f.act({action: 'configure', enabled: fal…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > releases a late grant after cancellation without creating a runtime
+AssertionError: expected undefined to be defined
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:102:39
+    100|   const owner = coordinator(f, {factory, admit}), pending = owner.extr…
+    101|   try {
+    102|     await turn(); expect(queueSignal).toBeDefined(); expect(factory).n…
+       |                                       ^
+    103|     await expect(pending).resolves.toMatchObject({status: 'CANCELLED',…
+    104|     expect(queueSignal!.aborted).toBe(true); expect(owner.busy).toBe(t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > retains its permit until both startup and native cleanup settle after cancellation
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:119:92
+    117|     waiting = scheduler.acquire('provider', 'account', waitingControl.…
+    118|     control.abort(); await expect(pending).resolves.toMatchObject({sta…
+    119|     await vi.waitFor(() => expect(native.dispose).toHaveBeenCalledOnce…
+       |                                                                                            ^
+    120|     cleanup.resolve(); await turn(); expect(granted).toBe(false); expe…
+    121|     startup.resolve(); await owner.cancel(); const next = await waitin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > retains the shared permit when native cancel fails
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > retains the shared permit when native dispose fails
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:136:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > production Service composition forwards the shared per-account background admission through its memory host
+AssertionError: expected "acquire" to be called with arguments: [ 'openai', 'account', …(2) ]
+
+Number of calls: 0
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:150:44
+    148|   const host = Reflect.get(service, 'memoryHostInstance') as ProjectMe…
+    149|   try {
+    150|     await vi.waitFor(() => expect(acquire).toHaveBeenCalledWith('opena…
+       |                                            ^
+    151|     expect(factory).not.toHaveBeenCalled();
+    152|     expect(service.projectMemory.usage(await service.projectMemory.acc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed (13)
+   Start at  21:42:28
+   Duration  3.55s (transform 1.53s, setup 0ms, import 2.01s, tests 1.32s, environment 0ms)

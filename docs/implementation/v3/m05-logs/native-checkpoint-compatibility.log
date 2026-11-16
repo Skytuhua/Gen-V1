@@ -1,0 +1,64 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/runtime-router.test.ts (18 tests | 4 failed) 90ms
+   × routes compaction and history without passing official manifests to Pi or allowing outside sessions 6ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 9ms
+   × scopes named-account model discovery to its provider and blocks a profile being signed in 2ms
+   × rejects a resolver that changes the provider of an already acquired account profile 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime-router.test.ts > routes compaction and history without passing official manifests to Pi or allowing outside sessions
+AssertionError: expected "vi.fn()" to be called with arguments: [ { threadId: 'thread', …(7) }, …(2) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -9,6 +9,8 @@
+      "sessionPath": null,
+      "threadId": "thread",
+    },
+    "/workspace/scratch/36f66011d961/m05-continuation/.harness-runtime-router-fixture/official/gemini-cli/tasks/thread/session.json",
+    "gemini-cli/pro",
++   null,
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/runtime-router.test.ts:66:95
+     64| it('routes compaction and history without passing official manifests t…
+     65|  const f=fixture(),session=join(root,'official','gemini-cli','tasks','…
+     66|  await f.runtime.compact(input(),session,'gemini-cli/pro');expect(f.of…
+       |                                                                                               ^
+     67|  await f.runtime.history(session);expect(f.official.runtime.history).t…
+     68|  await expect(f.runtime.history(resolve(root,'..','outside.json'))).re…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+ FAIL  tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+ FAIL  tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.start packages/runtime/index.ts:115:291
+ ❯ tests/runtime-router.test.ts:134:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  4 failed | 109 passed (113)
+   Start at  19:28:57
+   Duration  3.88s (transform 1000ms, setup 0ms, import 2.11s, tests 6.04s, environment 0ms)

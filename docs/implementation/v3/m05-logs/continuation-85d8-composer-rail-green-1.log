@@ -1,0 +1,241 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/composer-app-refinement.spec.ts:176:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (6.4s)
+  ✓   2 tests/e2e/composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under no-preference (3.7s)
+  ✓   3 tests/e2e/composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under reduce (3.2s)
+  ✓   4 tests/e2e/composer-app-refinement.spec.ts:269:1 › attachment band reverses an interrupted exit without removing the live row (2.9s)
+  ✓   5 tests/e2e/composer-app-refinement.spec.ts:304:1 › composer removes repeated captions and toggles Build Plan without changing its draft (4.7s)
+[2m[WebServer] [22m7:17:08 AM [vite] http proxy error: /api/split-workspace/commands
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+  ✘   6 tests/e2e/composer-app-refinement.spec.ts:355:1 › project selection uses the explicit local host binding and leaves attachments on plus (3.8s)
+(node:270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:270) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/e2e/composer-app-refinement.spec.ts:396:1 › started chat opens an explicitly new project chat and retains its original binding and draft (4.0s)
+  ✘   8 tests/e2e/composer-app-refinement.spec.ts:432:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only (7.7s)
+(node:369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/e2e/composer-app-refinement.spec.ts:468:1 › a ready plan opens automatically and right-side tools can only be minimized (4.5s)
+  ✘  10 tests/e2e/composer-app-refinement.spec.ts:537:38 › /btw still sends a side question without a header button (2.6s)
+(node:467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/composer-app-refinement.spec.ts:537:38 › /side still sends a side question without a header button (2.9s)
+(node:548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (8.1s)
+(node:628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/e2e/reserved-rail.spec.ts:156:1 › expanded usage stays compact and readable instead of reserving an oversized tool (3.7s)
+  ✓  14 tests/e2e/reserved-rail.spec.ts:179:1 › both protected tools minimize to a compact flow region on narrow screens (2.7s)
+  ✓  15 tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over (3.3s)
+  ✓  16 tests/e2e/reserved-rail.spec.ts:238:1 › expanded context keeps the header and composer across the full available chat frame (2.9s)
+  ✓  17 tests/e2e/reserved-rail.spec.ts:262:1 › protected context has only minimize controls while keeping the composer draft (3.9s)
+  ✓  18 tests/e2e/reserved-rail.spec.ts:291:1 › minimizing context releases the chat frame and preserves the artifact renderer (3.2s)
+  ✓  19 tests/e2e/reserved-rail.spec.ts:316:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop (3.2s)
+
+
+  1) tests/e2e/composer-app-refinement.spec.ts:355:1 › project selection uses the explicit local host binding and leaves attachments on plus 
+
+    HarnessError: Unknown split workspace command.
+
+       at ../../packages/core/split-workspace-layout.ts:6
+
+      4 | import {splitWorkspaceIdSchema,splitWorkspaceLayoutSchema,type SplitDropEdge,type SplitWorkspaceLayout,type SplitWorkspaceNode} from '../contracts/split-workspace.ts';
+      5 |
+    > 6 | const invalid=(message:string):never=>{throw new HarnessError('INVALID_LAYOUT',message);};
+        |                                              ^
+      7 | const id=splitWorkspaceIdSchema;
+      8 | export function createSplitWorkspaceLayout(workspaceId='workspace'):SplitWorkspaceLayout{return{version:2,id:id.parse(workspaceId),revision:0,root:{kind:'pane',paneId:'pane-main'},panes:{'pane-main':{id:'pane-main',viewIds:[],collapsed:false}},views:{},parkedViewIds:[],focusedPaneId:'pane-main',undoDepth:0,redoDepth:0};}
+      9 | const canonical=(value:unknown):unknown=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([key,value])=>[key,canonical(value)])):value;
+        at invalid (/workspace/scratch/36f66011d961/m05-restored/packages/core/split-workspace-layout.ts:6:46)
+        at applySplitWorkspaceCommand (/workspace/scratch/36f66011d961/m05-restored/packages/core/split-workspace-layout.ts:62:8)
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/task-interface-fixture.ts:54:21
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Select project', exact: true })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Select project', exact: true })[22m
+    [2m    3 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      90 |  const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Unsent draft');
+      91 |  await page.getByRole('button',{name:'Select project',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();await expect(dialog.getByText('Other authority',{exact:true})).toHaveCount(0);
+    > 92 |  await dialog.getByRole('option',{name:'Second project',exact:true}).click();await expect(dialog).toHaveCount(0);
+         |                                                                                                   ^
+      93 |  expect(host.workspaceCommands.find(value=>value.type==='workspace.project.connect')?.payload).toMatchObject({threadId:'task-thread',name:'Second project',path:'C:/fixture/second'});await expect(draft).toHaveValue('Unsent draft');expect(host.snapshot.threads[0].projectId).toBe('second');
+      94 |  const choosing=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Attach files',exact:true}).click();expect((await choosing).isMultiple()).toBe(true);
+      95 | });
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/composer-app-refinement.spec.ts:92:99
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/composer-app-refinement-pr-5b673--leaves-attachments-on-plus/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/composer-app-refinement-pr-5b673--leaves-attachments-on-plus/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/composer-app-refinement-pr-5b673--leaves-attachments-on-plus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/composer-app-refinement.spec.ts:432:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.workspace-header').getByRole('button', { name: 'Open workspace panel', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.workspace-header').getByRole('button', { name: 'Open workspace panel', exact: true })[22m
+
+
+      106 |  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
+      107 |  await expect(header.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)|side conversation|project context|thread options/i})).toHaveCount(0);
+    > 108 |  await expect(header.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
+          |                                                                                    ^
+      109 |  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
+      110 |  await expect(page.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)/i})).toHaveCount(0);
+      111 |  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/composer-app-refinement.spec.ts:108:84
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/composer-app-refinement-ch-8cd16-d-detach-stays-desktop-only/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/composer-app-refinement.spec.ts:537:38 › /btw still sends a side question without a header button 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: locator('.side-chat-composer textarea')
+    Expected: enabled
+    Error: strict mode violation: locator('.side-chat-composer textarea') resolved to 2 elements:
+        1) <textarea rows="2" aria-label="Side question" placeholder="Ask a side question…"></textarea> aka locator('[id="_r_s_"]').getByPlaceholder('Ask a side question…')
+        2) <textarea rows="2" aria-label="Side question" placeholder="Ask a side question…"></textarea> aka locator('[id="_r_o_"]').getByPlaceholder('Ask a side question…')
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for locator('.side-chat-composer textarea')[22m
+
+
+      130 | for(const alias of ['btw','side'])test(`/${alias} still sends a side question without a header button`,async({page})=>{
+      131 |  const host=await fixture(page);
+    > 132 |  await expect(page.locator('.side-chat-composer textarea')).toBeEnabled();
+          |                                                             ^
+      133 |  await page.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
+      134 |  await page.getByRole('button',{name:'Send message',exact:true}).click();
+      135 |  await expect.poll(()=>host.commands.filter(command=>command.type==='message.send').map(command=>({threadId:command.threadId,content:command.payload.content}))).toEqual([{threadId:'side-thread',content:'Explain the next step'}]);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/composer-app-refinement.spec.ts:132:61
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/composer-app-refinement--b-1b87b-ion-without-a-header-button/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/composer-app-refinement--b-1b87b-ion-without-a-header-button/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/composer-app-refinement--b-1b87b-ion-without-a-header-button/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/composer-app-refinement.spec.ts:537:38 › /side still sends a side question without a header button 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: locator('.side-chat-composer textarea')
+    Expected: enabled
+    Error: strict mode violation: locator('.side-chat-composer textarea') resolved to 2 elements:
+        1) <textarea rows="2" aria-label="Side question" placeholder="Ask a side question…"></textarea> aka locator('[id="_r_s_"]').getByPlaceholder('Ask a side question…')
+        2) <textarea rows="2" aria-label="Side question" placeholder="Ask a side question…"></textarea> aka locator('[id="_r_o_"]').getByPlaceholder('Ask a side question…')
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for locator('.side-chat-composer textarea')[22m
+
+
+      130 | for(const alias of ['btw','side'])test(`/${alias} still sends a side question without a header button`,async({page})=>{
+      131 |  const host=await fixture(page);
+    > 132 |  await expect(page.locator('.side-chat-composer textarea')).toBeEnabled();
+          |                                                             ^
+      133 |  await page.getByRole('textbox',{name:'Message',exact:true}).fill(`/${alias} Explain the next step`);
+      134 |  await page.getByRole('button',{name:'Send message',exact:true}).click();
+      135 |  await expect.poll(()=>host.commands.filter(command=>command.type==='message.send').map(command=>({threadId:command.threadId,content:command.payload.content}))).toEqual([{threadId:'side-thread',content:'Explain the next step'}]);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/composer-app-refinement.spec.ts:132:61
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/composer-app-refinement--s-062f4-ion-without-a-header-button/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/composer-app-refinement--s-062f4-ion-without-a-header-button/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/composer-app-refinement--s-062f4-ion-without-a-header-button/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      24 |  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true}),artifact=page.locator('.artifact-in-workspace');await expect(panel).toBeVisible();await expect(artifact).toBeVisible();
+      25 |  await expect(page.getByRole('region',{name:'Project overview window',exact:true})).toBeHidden();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
+    > 26 |  await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1920)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
+         |  ^
+      27 |  expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,text)).toBe(true);
+      28 | });
+      29 | test('expanded usage stays compact and readable instead of reserving an oversized tool',async({page})=>{
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/reserved-rail.spec.ts:26:2
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/e2e/composer-app-refinement.spec.ts:355:1 › project selection uses the explicit local host binding and leaves attachments on plus 
+    tests/e2e/composer-app-refinement.spec.ts:432:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only 
+    tests/e2e/composer-app-refinement.spec.ts:537:38 › /btw still sends a side question without a header button 
+    tests/e2e/composer-app-refinement.spec.ts:537:38 › /side still sends a side question without a header button 
+    tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+  14 passed (1.5m)

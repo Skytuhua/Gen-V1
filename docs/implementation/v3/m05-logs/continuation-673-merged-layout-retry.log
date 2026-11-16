@@ -1,0 +1,34 @@
+[1A[2K[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+[1A[2K(node:104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:104) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/e2e/workspace-host.spec.ts:3022:1 › an unavailable main layout gives the user a retry without reloading the page
+[1A[2K  1) tests/e2e/workspace-host.spec.ts:3022:1 › an unavailable main layout gives the user a retry without reloading the page 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-ui-shell/workspace-host/workspace-host-an-unavaila-29e3b--without-reloading-the-page/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-ui-shell/workspace-host/workspace-host-an-unavaila-29e3b--without-reloading-the-page/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    tests/e2e/workspace-host.spec.ts:3022:1 › an unavailable main layout gives the user a retry without reloading the page 

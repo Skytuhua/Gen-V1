@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-native-memory-save-review-20261115",
+  "reviewedAt": "2026-11-15T19:55:13.000590+00:00",
+  "status": "LOCAL_CHECKS_PASS_WINDOWS_NATIVE_SAVE_NOT_RUN",
+  "scope": "Installed verifier for the ordinary production redacted-memory export Save dialog. Local tests validate target custody, transcript admission and command construction; they do not execute Windows UIAutomation, native handles, Electron downloads or an installed application.",
+  "sourceParentPublishedHead": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+  "sourceParentTree": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+  "localParentCommit": "d63f5cab7269c0517744cde067705e887fb2292a",
+  "sourceFiles": [
+    {
+      "ref": "scripts/installed-native-save.ts",
+      "bytes": 25004,
+      "sha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d"
+    },
+    {
+      "ref": "tests/installed-native-save.test.ts",
+      "bytes": 6874,
+      "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c"
+    },
+    {
+      "ref": "scripts/installed-memory-retention.ts",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb"
+    },
+    {
+      "ref": "scripts/verify-installed-desktop.ts",
+      "bytes": 39012,
+      "sha256": "3bd899aa1196d484a76f420a354ead6398270d9005b2b0ab7e4a8af43d39e8bf"
+    },
+    {
+      "ref": "tests/installed-desktop-verification.test.ts",
+      "bytes": 18352,
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+    },
+    {
+      "ref": "scripts/public-source-files.json",
+      "bytes": 137549,
+      "sha256": "6e8a3d5d77449b7d4048738c200cdf1755cf002258ae46d2000168cb852f74ab"
+    }
+  ],
+  "priorInstalledEvidence": {
+    "phaseReview": {
+      "ref": "docs/implementation/v3/M05-installed-phase-review-43748168614.json",
+      "bytes": 20015,
+      "sha256": "1d66e95edeae50ec0a456513bc8a56bdb565ce13345bb80c0ed0adc3a2892363"
+    },
+    "navigationRepairReview": {
+      "ref": "docs/implementation/v3/M05-installed-navigation-repair-review-20261115.json",
+      "bytes": 6114,
+      "sha256": "9ef8a25a2add46d20a8ab48de15937bc4249eb383643ea40c4c205f09300891e"
+    },
+    "actualResult": "The prior installed run passed installation, exact full payload, registry/provider custody and owned uninstall, but retained-memory verification failed before Project memory review because the Project overview was collapsed. No export or native Save action was reached. Those historical receipts do not execute this new verifier.",
+    "productionExportReview": {
+      "ref": "docs/implementation/v3/M05-native-memory-export-repair-review-20261115.json",
+      "bytes": 23454,
+      "sha256": "539a966b15c43902b1ab666e3daa481b5927b582a55f91b63dcc307b99974f25"
+    }
+  },
+  "pinnedSemantics": {
+    "electron": {
+      "version": "45.2.0",
+      "package": {
+        "localPackageFile": "node_modules/electron/package.json",
+        "bytes": 744,
+        "sha256": "adb33c4db5afb21a81dbe06dba529dc8747b1f137bed6c22ddbc3e62b76fc466"
+      },
+      "types": {
+        "localPackageFile": "node_modules/electron/electron.d.ts",
+        "bytes": 1195690,
+        "sha256": "52559b7f36459ff249dc985d32c7efad34c35a2f22ddf713a7109e2970d44cb1"
+      },
+      "findings": [
+        "will-download supplies the originating WebContents and a WebFrameMain or null; getInitiatorOrigin supplies the initiating origin. The product checks all of these against its one-use main-created grant.",
+        "setSaveDialogOptions is available in will-download. No setSavePath is used by the production export, so the ordinary native Save dialog remains the destination chooser.",
+        "DownloadItem done distinguishes completed, cancelled and interrupted. The product resolves saved only after completed with matching received bytes.",
+        "executeJavaScriptInIsolatedWorld provides an isolated execution context. Local types do not prove the runtime initiator origin of this exact anchor; the actual installed run must satisfy the fail-closed policy."
+      ]
+    },
+    "playwright": {
+      "version": "1.56.1",
+      "package": {
+        "localPackageFile": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/package.json",
+        "bytes": 1454,
+        "sha256": "428ba2490bb4eec3a9bf62838207d35318ecfb6677801ae770445bfa52007c27"
+      },
+      "sources": [
+        {
+          "localPackageFile": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/chromium/chromium.js",
+          "bytes": 17714,
+          "sha256": "2b4bcee4cf38013a4d44c6ea16adaf219716096d4b7e45944abb09f3e3c1117f"
+        },
+        {
+          "localPackageFile": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/chromium/crBrowser.js",
+          "bytes": 19825,
+          "sha256": "d048a5d592e4991547bbc276726bcc735f7c1dfbec5f7287f568d9e5893746fc"
+        },
+        {
+          "localPackageFile": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/browserContext.js",
+          "bytes": 26753,
+          "sha256": "923145a9873b29fac9b4c8d8adee95a5bcb7b80e1e446c227ccdafb1583f6054"
+        }
+      ],
+      "finding": "Chromium connectOverCDP creates a Chromium browser context whose default acceptDownloads setting causes Browser.setDownloadBehavior allowAndName. The installed verifier explicitly awaits Browser.setDownloadBehavior default before invoking the export, then detaches that CDP session. It does not use Playwright download.saveAs or restore allowAndName."
+    },
+    "researchLimit": "These statements bind the actual installed pinned package files. Remote source retrieval was unavailable; no alternate network route was used. The Windows native event and dialog behavior remains an execution gate."
+  },
+  "ordinarySaveProof": {
+    "productionPath": "Authenticated/CSRF renderer export, strict redacted MemoryExport validation, existing trusted desktop IPC wrapper, one-use main-created download grant, ordinary native Save dialog, completed DownloadItem result, renderer digest acknowledgement, then actual destination bytes.",
+    "dialogTitle": "Export project memory",
+    "filenameControl": {
+      "controlType": "Edit",
+      "automationId": "1001",
+      "name": "File name:",
+      "requiredPatterns": [
+        "ValuePattern"
+      ],
+      "unique": true,
+      "enabled": true
+    },
+    "saveControl": {
+      "controlType": "Button",
+      "automationId": "1",
+      "name": "Save",
+      "requiredPatterns": [
+        "InvokePattern"
+      ],
+      "unique": true,
+      "enabled": true
+    },
+    "owner": "The actual launched child.pid and exact installed executable are passed only after existing CDP nonce/executable ownership checks. UIAutomation checks process image, start ticks, exact dialog ownership and native HWND PID before and after actions; successful launch receipts now contain that same PID.",
+    "preexistingDialog": "Reject an already present matching dialog before the trigger. Unknown or ambiguous layouts fail closed with fixed bounded control identity metadata, never edit values or unrelated window text.",
+    "action": "Only ValuePattern.SetValue on the unique file-name control and InvokePattern.Invoke on the unique Save control are used. No force click, broad SendKeys, app-name lookup, arbitrary script input or renderer-selected destination.",
+    "destination": {
+      "fixedFile": "installed-memory-redacted-export.json",
+      "directory": "Existing identity-verified evidence root, pinned by canonical path and dev/ino. Output must be absent before dispatch and native Save.",
+      "lease": "Fixed C# Win32 handles pin ordinary local ancestors, exact root volume/file index/final path and existing owner.json. Ancestors deny write/delete sharing; the leaf permits child creation while denying replacement. The lease remains held through production completion acknowledgement and descriptor-based file readback, and releases only on the explicit parent acknowledgement.",
+      "readback": "Regular non-symlink file, 1 byte through 1 MiB; opened descriptor dev/ino/size must equal pre-open metadata, and path identity, size and root identity are checked again after read. The existing export schema, exact scope, sensitive-item redaction and absence of source bodies remain asserted."
+    },
+    "completion": "Wait for saved status, exact Redacted export downloaded. notice, admitted=true, canonical filename, byte count and SHA256. The byte count and digest must match the actual saved file. The parent releases the held directory only after these checks, then requires target-released and helper close with exit 0 and null signal.",
+    "orderedPhases": [
+      "ready",
+      "dialog-found",
+      "file-name-set",
+      "save-invoked",
+      "dialog-closed",
+      "target-released"
+    ],
+    "limits": {
+      "nodeWorkerMs": 75000,
+      "transcriptUtf8Bytes": 32768,
+      "stderrUtf8Bytes": 16384,
+      "maximumTranscriptLines": 7,
+      "maximumControlIdentities": 24,
+      "fixtureExportBytes": 1048576,
+      "dialogPollingDeadlineMs": 60000
+    },
+    "commandTransport": {
+      "mechanism": "Fixed indentation-stripped UTF-16LE EncodedCommand; validated owner/path data only on stdin, followed by fixed release acknowledgement. No ExecutionPolicy override.",
+      "encodedArgumentCharacters": 32120,
+      "completeCommandCharactersForCWindowsIncludingNull": 32237,
+      "windowsLimitCharacters": 32767,
+      "validation": "The actual complete executable and argv length is computed at runtime and rejected if it reaches the Windows bound; C:\\Windows is independently covered by the focused regression."
+    },
+    "limitsNote": "The 60,000 ms bound applies to dialog polling. The parent enforces the 75,000 ms worker deadline across startup, native calls, completion/readback and release acknowledgement."
+  },
+  "observationContract": {
+    "existingSequence": "The original 13 ordered memory observations remain. Native Save evidence is nested in iteration 1 explicit-redacted-export.",
+    "nativeSave": {
+      "downloadBehavior": "default",
+      "downloadBehaviorResetAcknowledged": true,
+      "owner": [
+        "pid",
+        "executable"
+      ],
+      "destination": [
+        "file",
+        "evidenceRoot.path",
+        "evidenceRoot.dev",
+        "evidenceRoot.ino",
+        "absentBeforeDispatch",
+        "regularFileReadBack",
+        "identityLeaseHeldThroughReadback"
+      ],
+      "dialog": [
+        "status",
+        "pid",
+        "processStartTicks",
+        "dialogHandle",
+        "dialogTitle",
+        "six ordered events"
+      ],
+      "completion": [
+        "status=saved",
+        "admitted=true",
+        "filename",
+        "bytes",
+        "sha256"
+      ]
+    },
+    "futureAdmission": "An actual passing receipt must bind the nested owner to launch 1 PID/executable, the destination to the existing evidence-root identity, and completion bytes/hash to the retained export. Authored fields are not evidence until the real installed run produces them."
+  },
+  "localVerification": {
+    "commands": [
+      {
+        "label": "continuation-installed-native-save-red",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-native-save.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:30:04.221160+00:00",
+          "endedAt": "2026-11-15T19:30:05.369281+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-native-save-red.log",
+          "logDigest": "5b5984b3e0c1a38378d1b7ab8e046c25297f3da311928c0e3e5d30acfc12da11"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-installed-native-save-red.log",
+          "bytes": 949,
+          "sha256": "5b5984b3e0c1a38378d1b7ab8e046c25297f3da311928c0e3e5d30acfc12da11"
+        }
+      },
+      {
+        "label": "continuation-installed-native-save-green-1",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/installed-native-save.test.ts",
+            "tests/installed-desktop-verification.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:44:55.707838+00:00",
+          "endedAt": "2026-11-15T19:44:57.692337+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-native-save-green-1.log",
+          "logDigest": "be6fdb7d490d4d30328f33731d2f9cfc81d3e7369fcf4c30161de8de98f3f10c"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-installed-native-save-green-1.log",
+          "bytes": 235,
+          "sha256": "be6fdb7d490d4d30328f33731d2f9cfc81d3e7369fcf4c30161de8de98f3f10c"
+        }
+      },
+      {
+        "label": "continuation-native-save-combined-typecheck",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:48:43.275058+00:00",
+          "endedAt": "2026-11-15T19:49:10.161634+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-combined-typecheck.log",
+          "logDigest": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-combined-typecheck.log",
+          "bytes": 91,
+          "sha256": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6"
+        }
+      },
+      {
+        "label": "continuation-native-save-combined-web-build",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:49:26.566158+00:00",
+          "endedAt": "2026-11-15T19:49:34.597068+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-combined-web-build.log",
+          "logDigest": "18f40745ce90fd98ca5ce38fcf88c920d2ce725ee83b2069cd1e806f2c569470"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-combined-web-build.log",
+          "bytes": 8400,
+          "sha256": "18f40745ce90fd98ca5ce38fcf88c920d2ce725ee83b2069cd1e806f2c569470"
+        }
+      },
+      {
+        "label": "continuation-native-save-combined-desktop-build",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "desktop:build"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:53:16.813465+00:00",
+          "endedAt": "2026-11-15T19:53:17.267142+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build.log",
+          "logDigest": "3e493ad7b8a57e74d9ade1a3b7063c4bfe5abd7e23ca92b77edaa8ed02575629"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-combined-desktop-build.log",
+          "bytes": 1062,
+          "sha256": "3e493ad7b8a57e74d9ade1a3b7063c4bfe5abd7e23ca92b77edaa8ed02575629"
+        }
+      },
+      {
+        "label": "continuation-native-save-combined-desktop-build-import",
+        "record": {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/build-desktop.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T19:53:21.021641+00:00",
+          "endedAt": "2026-11-15T19:53:21.354246+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build-import.log",
+          "logDigest": "6d27a3852a26c61936f629a8356a63582763d73e0c8ee4095a2aa8477309a2a2"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-combined-desktop-build-import.log",
+          "bytes": 87,
+          "sha256": "6d27a3852a26c61936f629a8356a63582763d73e0c8ee4095a2aa8477309a2a2"
+        }
+      },
+      {
+        "label": "continuation-native-save-public-source-closure",
+        "record": {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T19:53:25.711286+00:00",
+          "endedAt": "2026-11-15T19:53:28.495939+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-public-source-closure.log",
+          "logDigest": "5bda5037116ec2ca769fea49351021aec1be67ae88d3e37770d080467348c4b1"
+        },
+        "preservedRecorderInput": {
+          "ref": "docs/implementation/v3/m05-review-inputs/continuation-native-save-public-source-closure.log",
+          "bytes": 235,
+          "sha256": "5bda5037116ec2ca769fea49351021aec1be67ae88d3e37770d080467348c4b1"
+        }
+      }
+    ],
+    "failFirst": "The new helper did not exist at the recorded red run. Vitest failed importing the module before executing the six then-authored cases; this is not six observed behavioral failures.",
+    "focusedGreen": {
+      "tests": 26,
+      "files": 2,
+      "newHelperTests": 7,
+      "existingVerifierCustodyTests": 19,
+      "coverage": [
+        "fixed command length and no policy override",
+        "fixed absent destination and exact regular-file readback",
+        "redirected/replaced directory and output refusal",
+        "empty and oversized saved file refusal",
+        "ordered PID/start-time/dialog transcript admission",
+        "wrong owner/reused PID/replaced dialog/missing or forged phase rejection",
+        "bounded fixed failure metadata and unrelated control-text refusal"
+      ]
+    },
+    "combinedTypecheck": "PASS",
+    "webBuild": "PASS",
+    "desktopPackageScript": "FAIL before build execution because the tsx CLI could not open its Unix IPC pipe in this Linux environment. The original failure is preserved.",
+    "desktopExactBuildScript": "PASS using node --import tsx scripts/build-desktop.ts. This runs the same production main/preload bundling entry without the failing tsx CLI IPC server; it is a build proof, not installation proof.",
+    "publicSourceClosure": {
+      "status": "PASS",
+      "tests": 11,
+      "files": 1
+    },
+    "rawLogCustody": "Every listed recorder input is copied byte-for-byte under m05-review-inputs before the evidence builder can normalize bounded logs. The immutable preserved input digest remains distinct from later generated log identities."
+  },
+  "independentReview": {
+    "parent": "Reviewed exact helper, integration and typed receipt, then aligned strict future installed admission. No unresolved concrete finding at the frozen cut.",
+    "dependencyAudit": "Reviewed the frozen f7a8f9b9 helper, process/dialog identity, directory lease through readback/release, completion acknowledgement and command length. No unresolved concrete finding; no Windows execution or extra tests claimed.",
+    "productAuthor": "Reviewed production export and its separately owned 108-case focused aggregate. Its linked repair review binds those results independently."
+  },
+  "proofLimits": {
+    "windowsUIAutomation": "NOT_RUN",
+    "actualNativeSaveDialog": "NOT_RUN",
+    "actualIsolatedWorldInitiatorAdmission": "NOT_RUN",
+    "installedRetentionReviewExportForgetRestartAtThisCut": "NOT_RUN",
+    "fullEnabledInstalledMemoryLifecycle": "NOT_PROVEN",
+    "liveRepeatedTaskControlledStudy": "NOT_RUN",
+    "productionFlags": "Remain false; disposable seed uses production Store/ProjectMemory APIs with test-local enablement, then the actual installed host remains default-off.",
+    "providerNetworkCalls": null,
+    "providerSpend": null,
+    "paidInference": "No inference action is requested by this verifier. That statement is not a measured global provider-call or network-count claim."
+  }
+}

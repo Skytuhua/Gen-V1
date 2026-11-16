@@ -1,0 +1,533 @@
+{
+  "schemaVersion": 1,
+  "kind": "Independent bounded Windows Hermes guard startup repair review",
+  "status": "SOURCE_SCOPED_TESTS_AND_ISOLATED_WINDOWS_GUARD_PASS_INSTALLED_VALIDATION_PENDING",
+  "recordedAt": "2026-11-16T02:10:39.561411+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "source": {
+    "commitSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "parentShas": [
+      "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+    ],
+    "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "localEquivalentCommitSha": "215bca258ce7541647f5a9f37d8211cfaa9bcacd",
+    "bindingMethod": "Read immutable Git objects locally, verify both parents and exact local tree equality. No source, ref or ledger mutation and no new test execution by this reviewer."
+  },
+  "problemEvidence": {
+    "installedRunId": 43783430726,
+    "installedSource": "de8700651e6eb97c5a60bf849802b51086244857",
+    "publicFailureWitness": {
+      "bytes": 83,
+      "sha256": "d8c18bf0aa319b788a2fb0390fb8a7be4ed54a1ed8c05ecf9f1b6aab4fcd070a",
+      "finding": "Exact static file-access denial plus trailing LF; this identifies a public failure boundary, not the internal request or cost component."
+    },
+    "fixedMarkerWitness": {
+      "bytes": 104,
+      "sha256": "582b72e5de54c110b09b5fe3853124277eaa3d6db7a6689f7717d1a55ad7898d",
+      "elapsedMs": 17374,
+      "error": {
+        "category": "error",
+        "code": null
+      }
+    },
+    "callchainReview": {
+      "ref": "/workspace/scratch/36f66011d961/M05-startup-guard-callchain-review-43783430726-v2.json",
+      "bytes": 15912,
+      "sha256": "568dad3333e1cc6216a5319a4c886188457eb00c715d78697055c908354182bd",
+      "gitBlobSha": "b9954057a1d21f8f0954fc13649aba92d0a1a8a6"
+    },
+    "actualEarlierUiReachingCheckout": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+    "requestedEarlierSource": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "causalLimit": "The original startup guard failure is preserved. The exact earlier runner checkout is distinguished from its requested PR source; no compilation-only or package-corruption cause is inferred."
+  },
+  "actualWindowsProbe": {
+    "runId": 43788430810,
+    "headSha": "90a6fb729d57e7ec15ae2f2eea96e0790dd4f931",
+    "treeSha": "55608c03588fdfe8d473008c20cc80082d58cf5b",
+    "basisSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "production": {
+      "jobId": 133041185760,
+      "status": "FAIL",
+      "receipt": {
+        "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-diag-43788430810/attempt-1/production-receipt-original.json",
+        "bytes": 1925,
+        "sha256": "cdceebb97cf7e6904e3c2a78cbf64abad6a3c4e41aae11da29d5319c22b09b92",
+        "gitBlobSha": "983daf49c47a44a6fb0f7f480ecb74d9dc956457"
+      },
+      "elapsedMs": 17022,
+      "actionEntered": false,
+      "failure": {
+        "category": "error",
+        "code": "CAPABILITY_DENIED",
+        "nativeCode": null,
+        "kind": null
+      },
+      "cleanup": {
+        "storeClosed": true,
+        "profileLeaseClosed": true,
+        "ownedGuardClosed": null
+      }
+    },
+    "protocol": {
+      "jobId": 133041185462,
+      "status": "PASS",
+      "receipt": {
+        "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-diag-43788430810/attempt-1/protocol-receipt-original.json",
+        "bytes": 3280,
+        "sha256": "2e35da09a9c6fae5920c0b4693ee9a4805897cc4c7573c85d511421b7662028d",
+        "gitBlobSha": "7a59fe34addeea88db6570bd1e670831f981924b"
+      },
+      "outerAcquireMs": 31944,
+      "nestedAcquireMs": 8,
+      "nestedReleaseMs": 2,
+      "exit": {
+        "elapsedMs": 32055,
+        "code": 0,
+        "signal": null
+      },
+      "close": {
+        "elapsedMs": 32055,
+        "code": 0,
+        "signal": null
+      },
+      "terminationRequested": false,
+      "stderrBytes": 0,
+      "cleanup": {
+        "storeClosed": true,
+        "profileLeaseClosed": true,
+        "ownedGuardClosed": true
+      }
+    },
+    "interpretation": "A valid first request to the unchanged native guard can take31944ms on the observed Windows runner. Later requests were8ms/2ms. The production helper failed before action under its15s deadline. These separate job observations justify an explicit bounded first-acquisition allowance; they do not isolate PowerShell startup, compilation or native acquisition as the individual cost.",
+    "environmentBoundary": "The probe uses the pinned packaged Node24.22.2, staged runtime source, production seed, live profile lease and Store, and identical parent/home request topology. The actual backend additionally supplies authenticated host fields, HARNESS_PACKAGED and a bundled-Git PATH prefix; the fixed absolute PowerShell/script path does not read those fields. The probe invokes no Python, provider or installed UI."
+  },
+  "sourceBindings": [
+    {
+      "path": "packages/core/file-access.ts",
+      "bytes": 12366,
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "gitBlobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "bytes": 2032,
+      "sha256": "9366285b50f98bde66076d3496aedcf74037672b4a8a7b6823c331cf9f09453a",
+      "gitBlobSha": "7179d1d8fd7151413e367c0acc772bf1a508a73b"
+    },
+    {
+      "path": "tests/path-access.test.ts",
+      "bytes": 27648,
+      "sha256": "e8fa6cbf0d67be5463811f891c7bd80b698b7a002a27ae714e3712ba7ccafff2",
+      "gitBlobSha": "b823cebc4e5f58cadf1f042a744a0c49bc750956"
+    },
+    {
+      "path": "tests/file-access-startup.test.ts",
+      "bytes": 7489,
+      "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+      "gitBlobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 136421,
+      "sha256": "d79a2a2d34917a9298ac5c89b6308596087f1f87c08ebd27a4eb75cac5607f2f",
+      "gitBlobSha": "c189a34e04057e1548e7c399173abb3acfc53e47"
+    }
+  ],
+  "unchangedGuardAndNativeBindings": [
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "bytes": 15955,
+      "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb",
+      "gitBlobSha": "4ee3427f44cf547d44aa5f5d01da3fc395241bfa"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "bytes": 5344,
+      "sha256": "286df9991313997e0edc13fb1478ad095339ff93f8efe5448a28f71a500d7946",
+      "gitBlobSha": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+    },
+    {
+      "path": "packages/core/linux-path-guard.ts",
+      "bytes": 11384,
+      "sha256": "3462fa20bb06fb00fcb5944dde71c20a6e95a5e0dfde4d11b59e6b9bad38db54",
+      "gitBlobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686"
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "bytes": 9192,
+      "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb",
+      "gitBlobSha": "c83ab13d1347c592df98ddf258788415bb971873"
+    },
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "gitBlobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+      "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25381,
+      "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+      "gitBlobSha": "a709a77a4fb926e21402d790ec516ddcf572fe75"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+      "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+    }
+  ],
+  "externalCommitPreservation": {
+    "commitSha": "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+    "scope": "Keep the dedicated outer Hermes startup opt-in and pure deadline helper. Correct only the existing-session branch so its nested acquire never receives the startup option."
+  },
+  "finalBehavior": [
+    "A new Windows guard process may use45000ms only for its explicitly opted-in first acquire. Production withHermesHome is the opted-in caller.",
+    "An existing AsyncLocalStorage guard session ignores nested startup options. Later ordinary acquire/release requests and unrelated first acquisitions retain15000ms.",
+    "Metadata-import requests retain120000ms, including their existing larger bounded manifest limits.",
+    "The PowerShell script, path identity/grant predicates, response schema/ID validation, onLoss behavior, namespace pins and release/owned process cleanup are unchanged. Linux behavior is unchanged.",
+    "Cancellation during initial acquisition still waits for the reply or bounded failure, then active(signal) rejects before invoking the action. The dedicated allowance can lengthen this wait; immediate cancellation is not claimed.",
+    "The existing desktop backend startup deadline remains60000ms. The change does not guarantee every future cold start fits; failure remains closed and requires actual Windows validation."
+  ],
+  "meaningfulBehavioralFixtures": [
+    "Valid first reply at the measured31944ms admits the action only after response and closes the guard naturally.",
+    "Silent opted-in first acquisition fails at45000ms before action.",
+    "Nested explicit opt-in still fails at15000ms, with an explicit settled assertion.",
+    "Nested release fails at15000ms; metadata import retains120000ms.",
+    "Mismatched reply and native failure deny immediately; numeric native error32 remains observable.",
+    "Aborted initial acquisition never enters the action after its valid reply.",
+    "Unrelated first acquisition retains15000ms."
+  ],
+  "observedLocalEvidence": [
+    {
+      "purpose": "Original15s implementation: four actual failures and four passes in the initial eight-case fixture.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-red-20261116.meta.json",
+        "bytes": 1403,
+        "sha256": "9c6e6d7ebf639d7cf642be1859776a1069c940edccdb7549171aa7a56204cd97",
+        "gitBlobSha": "0dc4d3fa6257d34182f58df2cc2675fbe595f6d4"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-red-20261116.log",
+        "bytes": 3737,
+        "sha256": "1405d6c495ae6b0e0d389d1c3795bf872024e2d048391419758074e160a2475c",
+        "gitBlobSha": "ce66665850d8518a48a9b2b113d7437c191cf22e"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:53:34.135747+00:00",
+        "endedAt": "2026-11-16T01:53:36.113402+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-red-20261116.log",
+        "logDigest": "1405d6c495ae6b0e0d389d1c3795bf872024e2d048391419758074e160a2475c"
+      },
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiffSha256": "940e7c54cacb3248473e9fc082be0d40468ee0279bd73b24bbd633ec5595a767",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Historical broader first-process allowance, later superseded by the dedicated Hermes option:19 passed across initial guard/public-source files.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-green-20261116.meta.json",
+        "bytes": 1440,
+        "sha256": "9d6d533be32bc722c5b39e62eab44e1432d414ba2c3504a5da7e7c30c9881b54",
+        "gitBlobSha": "c59dfae726101d5308c74347d75c1c1c21693b39"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-green-20261116.log",
+        "bytes": 231,
+        "sha256": "420de34f222191ae5a0c75cc1c4196713010a3a0aeda3852695e774fa141e6b0",
+        "gitBlobSha": "0e349334cc5f2cd072019667ad27180b14fbd67e"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "tests/public-source.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:54:12.798012+00:00",
+        "endedAt": "2026-11-16T01:54:17.442504+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-green-20261116.log",
+        "logDigest": "420de34f222191ae5a0c75cc1c4196713010a3a0aeda3852695e774fa141e6b0"
+      },
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiffSha256": "a13ecbfe9f6fd744e25ed5f8cb666ef2906fa82814296ee6a419a99b250d683e",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Historical broader repair typecheck, exit0; preserved without relabeling as final-source execution.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-typecheck-20261116.meta.json",
+        "bytes": 1311,
+        "sha256": "7f8b52b007414ef85b112ce401cd79b1276c3978d04273f5f3f44f0aa4c153b5",
+        "gitBlobSha": "4dc6a301e2e21d084cf5585044d53c6005d6648c"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-startup-typecheck-20261116.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+        "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:54:12.795849+00:00",
+        "endedAt": "2026-11-16T01:55:05.588809+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-typecheck-20261116.log",
+        "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+      "workingDiffSha256": "a13ecbfe9f6fd744e25ed5f8cb666ef2906fa82814296ee6a419a99b250d683e",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Preserved first nine-case e0 regression run: nested opt-in timed out, one failed/eight passed.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.meta.json",
+        "bytes": 1409,
+        "sha256": "153b09b644f04ef4b3f787a06e26b6d5efdadc5969ca91a3a2bb290a7166af43",
+        "gitBlobSha": "e451763748d5cc273557076b970047550c0be0be"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.log",
+        "bytes": 1148,
+        "sha256": "1e5b21cd33a7b9cbb0d2cea86f8a6481985a250150d1cb755452787a14ce18d6",
+        "gitBlobSha": "10af2ea878c281616b59bef25dc6c04bf3f9c566"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:56:40.232434+00:00",
+        "endedAt": "2026-11-16T01:57:42.977419+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-optin-red-20261116.log",
+        "logDigest": "1e5b21cd33a7b9cbb0d2cea86f8a6481985a250150d1cb755452787a14ce18d6"
+      },
+      "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+      "workingDiffSha256": "67ffcd7548d6410a1413661ff084f2fa30e8b7c4e0d40097456a39faaa6af0c7",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Meaningful explicit15s settled assertion fails on e0 forwarding, one failed/eight passed.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.meta.json",
+        "bytes": 1411,
+        "sha256": "dcddfa0c6f4c243c8b8ac26a09a767e0667ee536bef0ea6f86ec25585b48abc3",
+        "gitBlobSha": "28df9bbdc23917786e84dcc5c1c20dd6fedb4565"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.log",
+        "bytes": 1145,
+        "sha256": "a6c40e97cca7b913e94d300f82b62cf5b07c3bbd803b8575ec91235c6e9c5e3a",
+        "gitBlobSha": "d41b6b38a79e2822be28aaf144570b080e018997"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:58:17.738835+00:00",
+        "endedAt": "2026-11-16T01:58:19.217080+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.log",
+        "logDigest": "a6c40e97cca7b913e94d300f82b62cf5b07c3bbd803b8575ec91235c6e9c5e3a"
+      },
+      "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+      "workingDiffSha256": "5ce5df7bd4af83b77104891f82987025363b0c7be026579a9475c6cabcb21f8e",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Actual final combined scoped regression: six files, 45 passed, including all nine guard behavior cases.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.meta.json",
+        "bytes": 1616,
+        "sha256": "43a1bc8d7fd6238c6ac74bfa492e029aee6064c3d43f011e4aab15dc895aa9cc",
+        "gitBlobSha": "91ce5fe9e8eb76279ce2214788c8305c51eb35c4"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+        "bytes": 233,
+        "sha256": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22",
+        "gitBlobSha": "5a277089c062208e91274ff8e59c3e4e9b799bd4"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "tests/public-source.test.ts",
+          "tests/workspace-layout.test.ts",
+          "tests/plugin-visuals-retirement.test.ts",
+          "tests/view-loading-state.test.ts",
+          "tests/project-context-owner.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:58:54.220746+00:00",
+        "endedAt": "2026-11-16T01:59:09.442013+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+        "logDigest": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22"
+      },
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiffSha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Actual full typecheck of the same combined working diff, exit 0.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.meta.json",
+        "bytes": 1310,
+        "sha256": "65bc36319bcc4c529ad07ad7852a58a171e5d3341909b514b696311c311556c4",
+        "gitBlobSha": "d8c9051a23e38a4ebb99103d56df2f467dbe178f"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+        "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:58:54.181844+00:00",
+        "endedAt": "2026-11-16T01:59:43.646800+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.log",
+        "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiffSha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    }
+  ],
+  "fixtureCaptureLimit": "The initial eight-case red recorder did not include its then-untracked test bytes in the working diff. Its actual log and metadata remain unchanged. The final nine-case test is separately bound by immutable299 Git blob and SHA256; no earlier test-byte identity is invented.",
+  "repairedWindowsProbe": {
+    "status": "PASS",
+    "runId": 43789812079,
+    "jobId": 133045434425,
+    "headSha": "1604e464658f1641e5a803b28fff367e4dce9abd",
+    "treeSha": "0ee55ae865f82baec347b7d017b87bb3790c9469",
+    "basisSha": "299aa79fce281bacc370bd76373f760082046941",
+    "reviewedHarnessSha256": "50951e433c3e40489b1c98f04c47f916d59fd49a1b8b74f729424a904f24f806",
+    "reviewedWorkflowSha256": "16e9a1b89623d0824ebc9a1af073206187055cd7cbd676c6b7f8e434e5936384",
+    "receipt": {
+      "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/production-receipt-original.json",
+      "bytes": 1911,
+      "sha256": "ec846fffd74d64783fc7be210e880c9b71246114c1d5e545eed87e97a4dfda19",
+      "gitBlobSha": "16bca831b3e8344e27bb9803356633686975283d"
+    },
+    "rawLog": {
+      "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/job-133045434425.log",
+      "bytes": 40945,
+      "sha256": "967bfa340a71b0909eba85aba6b116f7e40f686614ee829cec70c7168f807d51",
+      "gitBlobSha": "29092ebe414027d962cbc88bb76987f7fc72e5cd"
+    },
+    "jobsApi": {
+      "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/jobs-api-final.json",
+      "bytes": 3587,
+      "sha256": "918f49e2c132dec641b5733661b2b291d046adbb417eff789896e52f9eec7c5b",
+      "gitBlobSha": "fd737cfa0b39d4af45e758fbaca962d14b19d1b3"
+    },
+    "runApi": {
+      "ref": "/workspace/scratch/36f66011d961/m05-guard-startup-repair-diag-43789812079/attempt-1/run-api-final.json",
+      "bytes": 13807,
+      "sha256": "85ae2be404955603da319349416face2a26b0bb067ba4605742f3980c500e83e",
+      "gitBlobSha": "7b6eae2a7d5ff5100a65192a0bf87e9616c81b67"
+    },
+    "operationStatus": "passed",
+    "captureCompleted": true,
+    "events": [
+      {
+        "stage": "profile-ready",
+        "elapsedMs": 354
+      },
+      {
+        "stage": "guard-action-entered",
+        "elapsedMs": 34642,
+        "guardElapsedMs": 34288
+      }
+    ],
+    "production": {
+      "sourceHelperUnmodifiedByProbe": true,
+      "initialRpcDeadlineMs": 45000,
+      "ordinaryRpcDeadlineMs": 15000,
+      "elapsedMs": 34409
+    },
+    "cleanup": {
+      "storeClosed": true,
+      "profileLeaseClosed": true,
+      "ownedGuardClosed": true
+    },
+    "interpretation": "Actual production withHermesHome admitted the guarded action34288ms after the helper call, completed34409ms after that call, and closed the guard, Store and profile lease. These values include the helper acquisition sequence and are not individual RPC timings. The exact artifact JSON equals the one actual log marker; all9 source pins match299; saved job API and guarded shell step establish success.",
+    "scope": "Fresh isolated Windows production guard proof only. No Python worker, model/provider action, installed UI, native memory export, Forget or restart is invoked. Complete installed retention remains pending."
+  },
+  "newCommandsExecutedByReviewer": [],
+  "sourceRefOrLedgerMutationsByReviewer": false,
+  "concreteRemainingFindings": [],
+  "verdict": "No concrete scope, authority, cancellation-before-action or cleanup regression found. The minimal dedicated startup repair and nested-option correction pass the actual isolated Windows production guard probe at exact299 source. Full exact-source Windows and complete installed-memory validation remain required; the observation-only protocol PASS and prior installed failures retain their separate identities."
+}

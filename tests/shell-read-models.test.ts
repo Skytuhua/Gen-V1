@@ -178,3 +178,33 @@ it('filters granted resources by owner thread and binds cursors to that scope', 
   expect((await f.app.inject({url: '/api/shell/resources?threadId=empty&authority=company', headers: f.headers})).statusCode).toBe(400);
   expect(f.snapshot).not.toHaveBeenCalled();
 });
+
+it('reads only the selected thread grants and avoids projecting owners twice for Settings', async () => {
+ const f = await fixture();
+ f.store.internal('fixture', null, () => {
+  for (let i=0;i<30;i++) {
+   const id='unrelated-'+i;
+   f.store.put('resource',id,'second',{id,threadId:'second',kind:'file',path:'C:/granted/other-'+i+'.txt',label:id,writable:false});
+  }
+ });
+ const prepare = f.store.db.prepare.bind(f.store.db), batches: number[] = [];
+ let ownerReads = 0;
+ const spy = vi.spyOn(f.store.db, 'prepare').mockImplementation(sql => {
+  const statement = prepare(sql);
+  if (sql.includes("json_extract(body,'$.sideParentId')")) ownerReads++;
+  if (sql.includes("json_extract(body,'$.writable')")) {
+   const all = statement.all.bind(statement);
+   vi.spyOn(statement,'all').mockImplementation((...args: Parameters<typeof all>) => {const rows=all(...args); batches.push(rows.length); return rows;});
+  }
+  return statement;
+ });
+ try {
+  const scoped = await f.app.inject({url:'/api/shell/resources?threadId=empty',headers:f.headers});
+  expect(scoped.json()).toMatchObject({total:1,items:[{id:'grant'}]});
+  expect(batches).toEqual([1]);
+  ownerReads=0;
+  const settings=await f.app.inject({url:'/api/shell/settings',headers:f.headers});
+  expect(settings.json()).toMatchObject({resourcePage:{total:31},counts:{resources:31}});
+  expect(ownerReads).toBe(1);
+ } finally {spy.mockRestore();}
+});

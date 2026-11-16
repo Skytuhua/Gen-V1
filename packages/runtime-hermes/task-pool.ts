@@ -6,7 +6,7 @@ import type {HermesEngine,HermesEngineOptions,HermesRuntime,HermesRuntimeDepende
 export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:HermesRuntimeDependencies,createEngine:(options:HermesEngineOptions,dependencies:HermesRuntimeDependencies)=>HermesEngine):HermesRuntime{
  const nativeFactory=dependencies.createNativeRuntime??createRuntime;
  const catalog=options.nativeCatalog??nativeFactory({dataDir:options.dataDir,accounts:options.accounts,modelOnly:true});
- const borrowed:RuntimeAdapter={configure(){},models:query=>catalog.models(query),start:async()=>{throw new HarnessError('HERMES_INTERNAL','The catalog cannot execute tasks.');},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:(path,account)=>catalog.history(path,account),dispose:async()=>{}};
+ const borrowed:RuntimeAdapter={configure(){},models:query=>catalog.models(query),async invalidateModels(query){await catalog.invalidateModels?.(query);},start:async()=>{throw new HarnessError('HERMES_INTERNAL','The catalog cannot execute tasks.');},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:(path,account)=>catalog.history(path,account),dispose:async()=>{}};
  const canonical=createEngine({...options,nativeCatalog:borrowed},dependencies),engines=new Set<HermesEngine>([canonical]),main=new Map<string,HermesEngine>();
  let callbacks:RuntimeCallbacks|undefined,primaryThread:string|undefined,disposed=false,disposing:Promise<void>|undefined;
  const check=()=>{if(disposed)throw new HarnessError('HERMES_DISPOSED','The Hermes runtime has closed.');};
@@ -18,10 +18,11 @@ export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:H
  return{
   configure(value){check();callbacks=value;for(const engine of main.values())engine.configure(value);canonical.configure(value);},
   models(query){check();return catalog.models(query);},
+  async invalidateModels(query){check();await catalog.invalidateModels?.(query);},
   get sourceBusy(){return [...engines].some(engine=>engine.sourceBusy);},get reviewBusy(){return [...engines].some(engine=>engine.reviewBusy);},
   async start(input){return task(input.threadId).start(input);},async followUp(input){check();const engine=main.get(input.threadId);if(!engine)throw new HarnessError('HERMES_STALE_RUN','This thread has no source owner.');return engine.followUp(input);},
   cancel(ctx){return main.get(ctx.threadId)?.cancel(ctx)??Promise.resolve();},
-  async compact(ctx,path,modelId,accountId){check();const engine=main.get(ctx.threadId);if(!engine)throw new HarnessError('HERMES_SESSION_INVALID','Compaction requires the retained source task.');return engine.compact(ctx,path,modelId,accountId);},
+  async compact(ctx,path,modelId,accountId,memoryCheckpoint){check();const engine=main.get(ctx.threadId);if(!engine)throw new HarnessError('HERMES_SESSION_INVALID','Compaction requires the retained source task.');return engine.compact(ctx,path,modelId,accountId,memoryCheckpoint);},
   history(path,account){check();return canonical.history(path,account);},
   sourceRequest(method,params){check();return canonical.sourceRequest(method,params);},sourceTool(params,authority){check();return canonical.sourceTool(params,authority);},
   async cancelBackground(){await Promise.all([...engines].map(engine=>engine.cancelBackground()));},

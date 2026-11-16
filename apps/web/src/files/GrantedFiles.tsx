@@ -137,10 +137,12 @@ function GrantedReader({
 			if (image)
 				return { kind: "image", blob: new Blob([bytes], { type: mime }) };
 			if (bytes.subarray(0, 4096).includes(0)) return { kind: "unsupported" };
-			return {
-				kind: "text",
-				text: new TextDecoder("utf-8", { fatal: true }).decode(bytes),
-			};
+			try {
+				return { kind: "text", text: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
+			} catch (error) {
+				if (!(error instanceof TypeError)) throw error;
+				throw new Error("Text preview requires UTF-8. Download this file to open it in another app.");
+			}
 		},
 		[active, selected?.path, selected?.name],
 	);

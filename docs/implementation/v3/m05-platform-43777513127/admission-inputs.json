@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "scope": "NEW_OFFLINE_INSTALLED_ADMISSION_INPUTS",
+  "headSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+  "treeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+  "checkoutSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+  "runId": 43777513127,
+  "jobId": 133007063329,
+  "artifactId": 14188460877,
+  "runAttempt": 1,
+  "expectedEvent": "push",
+  "expectedBranch": "agent/m05-v3",
+  "inputs": {
+    "ciReceipt": {
+      "path": "../M05-windows-ci-43777513127.json",
+      "bytes": 57976,
+      "sha256": "6c2c7b76c22eba4896b5734e6f44d7abffd5b1f8d6eff490fe0683d0de122f78",
+      "gitBlobSha": "4469766c26ae1fee69ae173d8f88bebf4dcba424"
+    },
+    "commandMeta": {
+      "path": "../m05-logs/windows-ci-43777513127-a1-j133007063329-s7-installed-retention.meta.json",
+      "bytes": 7278,
+      "sha256": "38fa69dab519576dc3fbaa6b9219fea62641f7e6a1fff48affc38319e6815f7d",
+      "gitBlobSha": "8606510b96a913cf64e4d64e313704d00db3ad39"
+    },
+    "commandLog": {
+      "path": "../m05-logs/windows-ci-43777513127-a1-j133007063329-s7-installed-retention.log",
+      "bytes": 3906,
+      "sha256": "c3e3064bc5ad4a93b6dabee8fe8fe62018e05dc19f7e89106c3b58e4e75f9fd7",
+      "gitBlobSha": "f49322edaeb31c93c3cd0dc411ecea2db5ddc84e"
+    },
+    "sourceBindings": {
+      "path": "source-bindings.json",
+      "bytes": 8326,
+      "sha256": "291b174f073c4257549f356d9cee30b1767490f5e03d91337f87426d9aca0872",
+      "gitBlobSha": "48954efa6c8ca3a66a7d606c1a616e99e79e79b9"
+    },
+    "reviewedSourceProfile": {
+      "path": "reviewed-source-profile.json",
+      "bytes": 10418,
+      "sha256": "6b775d20019a096ffe81267e355f20382978f1844c4c09d131bf95ce822d00f3",
+      "gitBlobSha": "1beaeda59d18dc90ce74068e4f2f24a1186d3b94"
+    },
+    "artifactMetadata": {
+      "path": "artifact-api.json",
+      "bytes": 1433,
+      "sha256": "011805a2898237b8df5364eb21ae20d019a665190c78a82bbd67c8ebf8db7c62",
+      "gitBlobSha": "b7a9762946d0c2984be26ed31fd02fd2a354366a"
+    },
+    "visualReview": {
+      "path": "visual-review.json",
+      "bytes": 658,
+      "sha256": "9587933fd3d4297e88aee996564e72d92ba7390222f76b36699044d4a3857682",
+      "gitBlobSha": "357bf4899353d0ae3678e537ea8d7d9d81577616"
+    },
+    "archive": {
+      "path": "original-artifact.zip",
+      "bytes": 397526,
+      "sha256": "78a5cfa8a79d249efb482d801bc10b4dfcf1e04915c2f9495384f3d665cbe265",
+      "gitBlobSha": "cd2b9215417acd549788423c4af84884c1e0ac94"
+    }
+  }
+}

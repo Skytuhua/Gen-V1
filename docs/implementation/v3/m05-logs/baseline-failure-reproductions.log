@@ -1,0 +1,120 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-baseline
+
+ ❯ tests/skills-http.test.ts (0 test)
+ ❯ tests/account-profile.test.ts (10 tests | 4 failed) 18ms
+   × rejects an accounts junction and holds the acquired namespace against replacement 9ms
+   × pins native directories while allowing legitimate atomic credential replacement 0ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 1ms
+   × keeps official home namespaces pinned while native credential files remain atomically replaceable 0ms
+ ❯ tests/cursor-sdk-mcp-metadata.test.ts (4 tests | 2 failed) 28ms
+   × self-tests child transport denial and parent broker rejection without importing the SDK 7ms
+   × observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport 2ms
+ ❯ tests/git-metadata-guard.test.ts (1 test | 1 failed) 10ms
+   × pins a read-only Git config while allowing index creation in the same pinned metadata directory 9ms
+ ❯ tests/integration-host.test.ts (8 tests | 1 failed) 1410ms
+   × keeps Biome write proposals and Spec Kit initialization unavailable in plan mode 67ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/skills-http.test.ts [ tests/skills-http.test.ts ]
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Require stack:
+- /workspace/scratch/36f66011d961/m05-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /workspace/scratch/36f66011d961/m05-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+ ❯ Object.loadNativeModule ../m05-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:8
+ ❯ Object.<anonymous> ../m05-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:15
+ ❯ Object.<anonymous> ../m05-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-profile.test.ts > rejects an accounts junction and holds the acquired namespace against replacement
+ FAIL  tests/account-profile.test.ts > pins native directories while allowing legitimate atomic credential replacement
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/account-profile.test.ts > keeps official home namespaces pinned while native credential files remain atomically replaceable
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/account-profile.test.ts:30:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/cursor-sdk-mcp-metadata.test.ts > self-tests child transport denial and parent broker rejection without importing the SDK
+Error: Cannot find module '@cursor/sdk-win32-x64/package.json'
+Require stack:
+- /workspace/scratch/36f66011d961/m05-v3/node_modules/.pnpm/@cursor+sdk@1.0.38_zod@4.6.6/node_modules/@cursor/sdk/dist/cjs/index.js
+ ❯ runCursorMcpMetadataProbe scripts/cursor-mcp-metadata-probe.mjs:51:41
+     49|   const sdkRoot = dirname(dirname(dirname(require.resolve('@cursor/sdk…
+     50|   const sdkRequire = createRequire(require.resolve('@cursor/sdk'));
+     51|   const nativeRoot = dirname(sdkRequire.resolve('@cursor/sdk-win32-x64…
+       |                                         ^
+     52|   for (const [root, name] of [[sdkRoot, '@cursor/sdk'], [nativeRoot, '…
+     53|     const manifest = JSON.parse(await readFile(join(root, 'package.jso…
+ ❯ tests/cursor-sdk-mcp-metadata.test.ts:32:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/cursor-sdk-mcp-metadata.test.ts > observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport
+Error: Cannot find module '@cursor/sdk-win32-x64/package.json'
+Require stack:
+- /workspace/scratch/36f66011d961/m05-v3/node_modules/.pnpm/@cursor+sdk@1.0.38_zod@4.6.6/node_modules/@cursor/sdk/dist/cjs/index.js
+ ❯ runCursorMcpMetadataProbe scripts/cursor-mcp-metadata-probe.mjs:51:41
+     49|   const sdkRoot = dirname(dirname(dirname(require.resolve('@cursor/sdk…
+     50|   const sdkRequire = createRequire(require.resolve('@cursor/sdk'));
+     51|   const nativeRoot = dirname(sdkRequire.resolve('@cursor/sdk-win32-x64…
+       |                                         ^
+     52|   for (const [root, name] of [[sdkRoot, '@cursor/sdk'], [nativeRoot, '…
+     53|     const manifest = JSON.parse(await readFile(join(root, 'package.jso…
+ ❯ tests/cursor-sdk-mcp-metadata.test.ts:48:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/git-metadata-guard.test.ts > pins a read-only Git config while allowing index creation in the same pinned metadata directory
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/git-metadata-guard.test.ts:8:6
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/integration-host.test.ts > keeps Biome write proposals and Spec Kit initialization unavailable in plan mode
+AssertionError: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/plan mode/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/36f66011d961/m05-baseline/.harness-integrations-python-deps/specify_cli'"
+
+ ❯ tests/integration-host.test.ts:67:63
+     65|  const scope={authority:{kind:'local'} as const,threadId:thread.id};
+     66|  await expect(host.manager.command('biome','format',{paths:['.'],write…
+     67|  await expect(host.manager.command('spec-kit','init',{},scope)).reject…
+       |                                                               ^
+     68| });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+
+ Test Files  5 failed (5)
+      Tests  8 failed | 15 passed (23)
+   Start at  18:37:25
+   Duration  2.13s (transform 828ms, setup 0ms, import 741ms, tests 1.47s, environment 0ms)

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/file-access-startup.test.ts",
+      "tests/public-source.test.ts",
+      "tests/workspace-layout.test.ts",
+      "tests/plugin-visuals-retirement.test.ts",
+      "tests/view-loading-state.test.ts",
+      "tests/project-context-owner.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T01:58:54.220746+00:00",
+    "endedAt": "2026-11-16T01:59:09.442013+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+    "logDigest": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+  "workingDiffSha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 15193,
+  "rawOutputBytes": 233,
+  "rawOutputSha256": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22",
+  "excerptInputBytes": 233,
+  "excerptInputSha256": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

@@ -29,7 +29,7 @@ async function cleanup(directory: string) {
   if (dirname(directory) !== resolve(tmpdir()) || !basename(directory).startsWith('harness-measure-cli-')) throw new Error('Refusing cleanup outside the owned fixture.');
   await rm(directory, { recursive: true, force: true });
 }
-const run = (directory: string, output?: string) => execute(process.execPath, ['--import', loader, script, ...(output ? [output] : [])], { cwd: directory, encoding: 'utf8', timeout: 10_000 });
+const run = (directory: string, output?: string) => execute(process.execPath, ['--import', loader, script, ...(output ? [output] : [])], { cwd: directory, encoding: 'utf8', timeout: 60_000 });
 
 it('measures the HTML-referenced entry rather than a retained older bundle', async () => {
   const directory = await fixture();

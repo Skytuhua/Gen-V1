@@ -13,7 +13,7 @@ const model=(value:unknown):value is string=>typeof value==='string'&&/^[^\s\u00
 const invalid=()=>new RpcError(-32602,'Invalid model transport parameters.');
 function measuredUsage(value:unknown){
  if(!object(value))return;
- const result:Record<string,number|null>={};for(const key of ['inputTokens','outputTokens','contextTokens','contextWindow','cost','sessionPercent','weeklyPercent']){const item=value[key];if(item===null||typeof item==='number'&&Number.isFinite(item)&&item>=0)result[key]=item;}
+ const result:Record<string,number|null>={};for(const key of ['inputTokens','outputTokens','cacheReadTokens','cacheWriteTokens','contextTokens','contextWindow','cost','sessionPercent','weeklyPercent']){const item=value[key];if(item===null||typeof item==='number'&&Number.isFinite(item)&&item>=0)result[key]=item;}
  return Object.keys(result).length?result:undefined;
 }
 

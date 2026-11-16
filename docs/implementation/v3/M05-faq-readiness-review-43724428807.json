@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "runId": 43724428807,
+  "browserJobId": 132843172407,
+  "headSha": "2e210878eaef60c63e0d02ac2737f9fe6188a96d",
+  "treeSha": "236d62b5ead175670ddfe258848492fae366a835",
+  "testedCheckout": "af91fb4993bbb05f6429c681073a00c5bd335440",
+  "browserJobConclusion": "failure",
+  "finding": "The FAQ test sent Escape before the requested expanded artifact was published. Its intervening draft-value assertion already passed in the inline view and provided no expansion readiness barrier.",
+  "artifact": {
+    "id": 14166187603,
+    "name": "browser-43724428807-1",
+    "zipBytes": 3459123,
+    "zipSha256": "da778017323b00d134232be3e1db503f0df809ed2319cc9b14231b6c24a9f1cc",
+    "entries": 44,
+    "githubSizeAndDigestVerified": true,
+    "downloadCount": 1
+  },
+  "trace": {
+    "entry": "run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d/frontend-refinement/artifacts/artifact-style-connected-F-76c48-ft-retain-independent-state/trace.zip",
+    "zipSha256": "0091e813c878ef737527ea1f90f83d62213eb92f8cd2a988acc6e81ea38cc5d4",
+    "browserEvents": "0-trace.trace",
+    "networkEvents": "0-trace.network",
+    "timeUnit": "Milliseconds relative to the Playwright trace clock, not wall-clock time or a latency benchmark."
+  },
+  "rawBrowserLog": {
+    "sha256": "aa65ea6f1a35e8f0c597aa6e2d384fa03297401913f57342165dd9365cb3c7d1",
+    "bytes": 113499,
+    "ref": "/workspace/scratch/36f66011d961/m05-ci-43724428807/job-132843172407.log",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43724428807-132843172407.log"
+  },
+  "results": {
+    "splitBaseline": {
+      "passed": 29,
+      "failed": 0
+    },
+    "archivedPlaywright": [
+      {
+        "suite": "project-memory",
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0,
+        "resultsEntry": "run-1794752952655-3bb8aa1b-4721-49ce-ab60-11357a919d3e/project-memory/results.json"
+      },
+      {
+        "suite": "usage-context",
+        "passed": 21,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0,
+        "resultsEntry": "run-1794752968779-06661115-bc80-4323-b6e1-fd0c5ee5babd/usage-context/results.json"
+      },
+      {
+        "suite": "frontend-refinement",
+        "passed": 89,
+        "failed": 1,
+        "skipped": 1,
+        "flaky": 0,
+        "resultsEntry": "run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d/frontend-refinement/results.json"
+      },
+      {
+        "suite": "root",
+        "passed": 112,
+        "failed": 0,
+        "skipped": 1,
+        "flaky": 0,
+        "resultsEntry": "run-1794753147960-0c27a11b-eb19-428a-b779-2ed251b528e1/root/results.json"
+      }
+    ],
+    "wholeBrowserJob": {
+      "passed": 266,
+      "failed": 1,
+      "skipped": 2,
+      "flaky": 0
+    },
+    "failedCase": "tests/e2e/artifact-style.spec.ts: connected FAQ branches and follow-up draft retain independent state"
+  },
+  "chronology": [
+    {
+      "traceMs": 37719.262,
+      "event": "POST artifact.expand with expanded=true begins."
+    },
+    {
+      "traceMs": 37721.125,
+      "event": "Expand click action completes; client modal has not yet been published."
+    },
+    {
+      "traceMs": 37721.455,
+      "event": "Expand command route fulfillment completes."
+    },
+    {
+      "traceMs": 37726.755,
+      "event": "Existing draft-value assertion succeeds while the artifact is still inline."
+    },
+    {
+      "traceMs": 37730.573,
+      "event": "Escape keyboard action starts."
+    },
+    {
+      "traceMs": 37730.883,
+      "event": "GET /api/snapshot begins for the expanded placement."
+    },
+    {
+      "traceMs": 37732.134,
+      "event": "Expanded snapshot route fulfillment starts."
+    },
+    {
+      "traceMs": 37732.286,
+      "event": "Before-Escape DOM snapshot still has the inline artifact, Expand button and no open tooltip."
+    },
+    {
+      "traceMs": 37733.218,
+      "event": "Expanded snapshot route fulfillment completes."
+    },
+    {
+      "traceMs": 37762.642,
+      "event": "After-Escape DOM snapshot now has the expanded modal and Collapse button."
+    },
+    {
+      "traceMs": 42770.162,
+      "event": "At the final failed assertion, the artifact remains expanded."
+    }
+  ],
+  "decodedDomSnapshots": [
+    {
+      "snapshot": "after@call@630",
+      "traceMs": 37722.918,
+      "inline": "true",
+      "role": null,
+      "control": "Expand artifact",
+      "openTooltipCount": 0
+    },
+    {
+      "snapshot": "after@call@634",
+      "traceMs": 37729.634,
+      "inline": "true",
+      "role": null,
+      "control": "Expand artifact",
+      "openTooltipCount": 0
+    },
+    {
+      "snapshot": "before@call@636",
+      "traceMs": 37732.286,
+      "inline": "true",
+      "role": null,
+      "control": "Expand artifact",
+      "openTooltipCount": 0
+    },
+    {
+      "snapshot": "after@call@636",
+      "traceMs": 37762.642,
+      "inline": "false",
+      "role": "dialog",
+      "control": "Collapse artifact",
+      "openTooltipCount": 0
+    },
+    {
+      "snapshot": "after@call@640",
+      "traceMs": 42770.162,
+      "inline": "false",
+      "role": "dialog",
+      "control": "Collapse artifact",
+      "openTooltipCount": 0
+    }
+  ],
+  "snapshotDecoding": "Resolved Playwright snapshot distance/ordinal references using the post-order node numbering implemented by the installed Playwright 1.56.1 snapshotter. Inspected element attributes, not strings inside stylesheet text.",
+  "artifactExpansionCommands": [
+    {
+      "traceMs": 37719.262,
+      "type": "artifact.expand",
+      "threadId": "one",
+      "payload": {
+        "artifactId": "task-object",
+        "expanded": true
+      }
+    }
+  ],
+  "collapseCommandObserved": false,
+  "screenshotReview": {
+    "traceMs": 38190.677,
+    "resource": "page@6f19c56004e9a2acb77a08d32415450f-1794753030985.jpeg",
+    "sha256": "c6f8abbbc9c3f93c27ea769976f28d45098ab9284b475ee098c344a718be813b",
+    "observation": "The recorded frame shows the expanded FAQ, retained follow-up text and a focus outline on the collapse control. No tooltip is visible."
+  },
+  "sourceReview": {
+    "originalSpecGitBlobAtGreenAndFailedHeads": "2625ff4af7eaf466d2cf228d5d973148306db39d",
+    "reviewedPatchedSpecSha256": "5a55da8033e1092070c47eb4bf6b8fe8054d20185854159cbe62df5276c96dda",
+    "files": [
+      {
+        "path": "apps/web/src/Artifact.tsx",
+        "sha256": "bb8a987f26a04187c9a942e9d98feb76e19a81d765d124aecf174fc4038e8d62"
+      },
+      {
+        "path": "apps/web/src/focus.ts",
+        "sha256": "8ca47390b2047777f6539a8c14cd397c2fe37aa75685ad9929d0cdd255be13c1"
+      },
+      {
+        "path": "packages/ui-shell/Tooltip.tsx",
+        "sha256": "92ddceaa7cac44309a1638cf290ded5c7ad8efff7a7c854c19b957144df2ee64"
+      }
+    ],
+    "reasoning": "Artifact.act awaits the expansion command and snapshot refresh. useModalRegion becomes active on expanded placement, focuses Collapse artifact and installs Escape handling in its layout effect. The pre-Escape DOM had not reached that state. There is no trace evidence of an open tooltip consuming this Escape."
+  },
+  "patchReview": {
+    "owner": "root",
+    "file": "tests/e2e/artifact-style.spec.ts",
+    "addedAssertion": "await expect(page.getByRole('button', { name: 'Collapse artifact', exact: true })).toBeFocused();",
+    "placement": "Immediately after the existing Expand click, before the retained draft-value assertion and Escape.",
+    "outcome": "Accepted. This adds an observable modal readiness assertion and preserves every existing branch, draft and focus-return assertion.",
+    "productionChanges": false,
+    "assertionsRemovedOrWeakened": false
+  },
+  "validation": {
+    "typecheck": {
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log"
+    },
+    "newWindowsBrowserRun": "PENDING; this repaired assertion has not yet been executed in Windows CI."
+  },
+  "limits": [
+    "This is synthetic browser fixture evidence, not installed-desktop or live-provider proof.",
+    "The failed run and its sole failure remain preserved; the prior green run does not validate the added readiness assertion.",
+    "The separate split startup fix passed its 29-case baseline here. Its first case took 6281 ms for the whole test; navigation duration was not separately measured."
+  ]
+}

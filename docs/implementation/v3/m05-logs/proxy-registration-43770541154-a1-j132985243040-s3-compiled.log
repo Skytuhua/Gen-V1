@@ -1,0 +1,34 @@
+2026-11-15T22:40:50.9837197Z ##[group]Run git rev-parse HEAD
+
+2026-11-15T22:40:50.9837620Z git rev-parse HEAD
+
+2026-11-15T22:40:50.9837877Z git rev-parse 'HEAD^{tree}'
+
+2026-11-15T22:40:50.9838359Z $worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+
+2026-11-15T22:40:50.9838979Z $script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'
+
+2026-11-15T22:40:50.9839621Z $probeArgs = @('-NoLogo','-NoProfile','-NonInteractive','-MTA','-File',$script,'-Mode','compiled')
+
+2026-11-15T22:40:50.9840384Z Write-Output ('M05_PROXY_REGISTRATION_ARGV=' + (@{executable=$worker;args=$probeArgs}|ConvertTo-Json -Depth 4 -Compress))
+
+2026-11-15T22:40:50.9840942Z & $worker @probeArgs
+
+2026-11-15T22:40:50.9841163Z exit $LASTEXITCODE
+
+2026-11-15T22:40:51.0482153Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+
+2026-11-15T22:40:51.0482596Z ##[endgroup]
+
+2026-11-15T22:40:51.4527609Z 400553e4c2c5c86aae621f2c7245a8248e873066
+
+2026-11-15T22:40:51.4930502Z 7edfa30ee1b0f0e7ef15f1d2c159cf63b424c2eb
+
+2026-11-15T22:40:51.6286186Z M05_PROXY_REGISTRATION_ARGV={"args":["-NoLogo","-NoProfile","-NonInteractive","-MTA","-File","D:\\a\\Gen-V1\\Gen-V1\\diagnostics\\native-save\\proxy-registration.ps1","-Mode","compiled"],"executable":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"}
+
+2026-11-15T22:40:56.6158875Z M05_PROXY_REGISTRATION_HEADER={"sha256":"8319853e77b0319983ba316c41966e07d494117ce0c48942afd2b160a9ee8e77","schema":1,"bytes":1097,"mode":"compiled"}
+
+2026-11-15T22:40:56.6215067Z M05_PROXY_REGISTRATION_BODY=eyJ2ZXJzaW9uIjoxLCJtb2RlIjoiY29tcGlsZWQiLCJjcmVhdGVkQXQiOiIyMDI2LTExLTE1VDIyOjQwOjUzLjc0OTc0MTRaIiwicGFzc2VkIjp0cnVlLCJzY29wZSI6IlJlYWQtb25seSBVSSBBdXRvbWF0aW9uIGFzc2VtYmx5IHJlZ2lzdHJhdGlvbjsgbm8gbmF0aXZlIGRpYWxvZywgYWNjb3VudCwgcHJvdmlkZXIgcmVxdWVzdCBvciBjb250cm9sIGFjdGlvbi4iLCJzdGFnZSI6ImNvbXBsZXRlZCIsInNvdXJjZVNoYTI1NiI6ImQ2M2ZmMTg4YWY4MjE5OGJjZDAxZjliYjJmMmU0N2EyMTczY2M1MzFmZjJlYmZlMTFlYTVjMjliZTRhYmVhMTYiLCJwb3dlcnNoZWxsVmVyc2lvbiI6IjUuMS4yNjEwMC4zMzY0OCIsImNsclZlcnNpb24iOiI0LjAuMzAzMTkuNDIwMDAiLCJwcm9jZXNzQml0cyI6NjQsImNsaWVudCI6eyJuYW1lIjoiVUlBdXRvbWF0aW9uQ2xpZW50IiwidmVyc2lvbiI6IjQuMC4wLjAiLCJjdWx0dXJlIjoiIiwicHVibGljS2V5VG9rZW4iOiIzMWJmMzg1NmFkMzY0ZTM1IiwiY29kZUJhc2VQcmVzZW50Ijp0cnVlfSwicmVxdWVzdGVkIjp7Im5hbWUiOiJVSUF1dG9tYXRpb25DbGllbnRzaWRlUHJvdmlkZXJzIiwidmVyc2lvbiI6IjQuMC4wLjAiLCJjdWx0dXJlIjoiIiwicHVibGljS2V5VG9rZW4iOiIzMWJmMzg1NmFkMzY0ZTM1IiwiY29kZUJhc2VQcmVzZW50IjpmYWxzZX0sInJlZ2lzdGVyZWQiOnsibmFtZSI6IlVJQXV0b21hdGlvbkNsaWVudHNpZGVQcm92aWRlcnMiLCJ2ZXJzaW9uIjoiNC4wLjAuMCIsImN1bHR1cmUiOiIiLCJwdWJsaWNLZXlUb2tlbiI6IjMxYmYzODU2YWQzNjRlMzUiLCJjb2RlQmFzZVByZXNlbnQiOnRydWV9LCJwcm92aWRlclRhYmxlQ291bnQiOjQwLCJmb3JjZWREZWZhdWx0UHJvdmlkZXJzIjpmYWxzZSwib3duZWRUaHJlYWRKb2luQm91bmRNcyI6NTAwMCwibG9hZGVkUHJvdmlkZXJzIjpbeyJuYW1lIjoiVUlBdXRvbWF0aW9uQ2xpZW50c2lkZVByb3ZpZGVycyIsInZlcnNpb24iOiI0LjAuMC4wIiwiY3VsdHVyZSI6IiIsInB1YmxpY0tleVRva2VuIjoiMzFiZjM4NTZhZDM2NGUzNSIsImNvZGVCYXNlUHJlc2VudCI6dHJ1ZX1dLCJleGNlcHRpb25zIjpbXSwiZWxhcHNlZE1zIjoyMDI4fQo=
+
+2026-11-15T22:40:56.6242135Z M05_PROXY_REGISTRATION_END=8319853e77b0319983ba316c41966e07d494117ce0c48942afd2b160a9ee8e77
+

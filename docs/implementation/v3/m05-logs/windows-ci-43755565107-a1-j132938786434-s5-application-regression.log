@@ -1,0 +1,209 @@
+2026-11-15T20:01:40.0214112Z ##[group]Run pnpm test --maxWorkers=2 --shard=2/4
+2026-11-15T20:01:40.0214547Z pnpm test --maxWorkers=2 --shard=2/4
+2026-11-15T20:01:40.0264755Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:01:40.0264977Z env:
+2026-11-15T20:01:40.0265170Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:01:40.0265427Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:40.0265700Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:01:40.0265975Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:40.0266222Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:40.0266457Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:01:40.0266724Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:01:40.0266972Z ##[endgroup]
+2026-11-15T20:01:40.4677984Z 
+2026-11-15T20:01:40.4678702Z > gen-v1@0.6.5 test D:\a\Gen-V1\Gen-V1
+2026-11-15T20:01:40.4679201Z > pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=2/4"
+2026-11-15T20:01:40.4679462Z 
+2026-11-15T20:01:40.7054426Z 
+2026-11-15T20:01:40.7055045Z > gen-v1@0.6.5 build:credential-lease D:\a\Gen-V1\Gen-V1
+2026-11-15T20:01:40.7055388Z > tsx scripts/build-windows-credential-lease.ts
+2026-11-15T20:01:40.7055531Z 
+2026-11-15T20:01:44.4851794Z windows-credential-lease.cc
+2026-11-15T20:01:52.8191233Z    Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+2026-11-15T20:01:52.9148169Z Windows credential lease built.
+2026-11-15T20:01:53.1648803Z 
+2026-11-15T20:01:53.1649478Z > gen-v1@0.6.5 build:widgets D:\a\Gen-V1\Gen-V1
+2026-11-15T20:01:53.1649906Z > node scripts/build-widgets.mjs
+2026-11-15T20:01:53.1650080Z 
+2026-11-15T20:01:53.5791299Z 
+2026-11-15T20:01:53.5792974Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T20:01:53.5793280Z 
+2026-11-15T20:01:54.0090847Z  ✓ tests/memory-retrieval-v3.test.ts (23 tests) 85ms
+2026-11-15T20:01:54.3598606Z  ✓ tests/scoped-conversation-reader.test.ts (29 tests) 82ms
+2026-11-15T20:01:59.8713286Z  ✓ tests/agent-follow-up.test.ts (18 tests) 3880ms
+2026-11-15T20:01:59.8714370Z    ✓ commits one queued ticket and child message before invoking the existing pinned child runtime  372ms
+2026-11-15T20:01:59.8721036Z    ✓ replays the original receipt after Stop without another delivery and rejects changed content under its ID  319ms
+2026-11-15T20:01:59.8722739Z    ✓ rejects a binding revoked after queuing before any inference call, with an honest rejected ticket  322ms
+2026-11-15T20:02:02.7704877Z fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+2026-11-15T20:02:02.8112892Z fatal: Not a valid commit name a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+2026-11-15T20:02:02.8501605Z fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+2026-11-15T20:02:02.8520975Z  ✓ tests/research-baseline.test.ts (26 tests) 2720ms
+2026-11-15T20:02:02.8521760Z      ✓ times out a hung child and kills its process tree  1581ms
+2026-11-15T20:02:02.8522528Z      ✓ reproduce identical control actions and effect counts per fixed seed  401ms
+2026-11-15T20:02:10.2815951Z  ✓ tests/plan-key-connections.test.ts (43 tests) 6371ms
+2026-11-15T20:02:10.2818645Z      ✓ resolves only the matching stored marked key, including against synthesized SDK overrides  302ms
+2026-11-15T20:02:10.2819739Z      ✓ captures openai-completions Go SDK transport through the fixed plan boundary  617ms
+2026-11-15T20:02:10.2820761Z      ✓ captures openai-responses Go SDK transport through the fixed plan boundary  506ms
+2026-11-15T20:02:10.2821553Z      ✓ requires a stable Go session before any inference transport  315ms
+2026-11-15T20:02:10.2822389Z      ✓ never resolves a foreign command credential during native provider background refresh  750ms
+2026-11-15T20:02:12.9358131Z  ✓ tests/review-regressions.test.ts (18 tests) 2001ms
+2026-11-15T20:02:12.9358756Z    ✓ queues input during compaction for a fresh task run after maintenance settles  310ms
+2026-11-15T20:02:13.2360123Z  ✓ tests/capture-ui/helpers.test.ts (45 tests | 6 skipped) 40ms
+2026-11-15T20:02:16.3900227Z  ✓ tests/service.test.ts (19 tests) 2659ms
+2026-11-15T20:02:16.3901318Z      ✓ records a completed effect arriving after Stop without reviving its run  875ms
+2026-11-15T20:02:16.3902785Z      ✓ a generated operation button leads to native approval and cannot approve by its label  422ms
+2026-11-15T20:02:16.9900327Z  ✓ tests/agents-workspace.test.ts (18 tests) 354ms
+2026-11-15T20:02:20.3495831Z  ✓ tests/memory-extraction-scheduler-v3.test.ts (16 tests) 2565ms
+2026-11-15T20:02:22.4812159Z  ✓ tests/workspace-action-outcome-authority.test.ts (24 tests) 1863ms
+2026-11-15T20:02:25.4902445Z  ✓ tests/runtime-router.test.ts (18 tests) 2595ms
+2026-11-15T20:02:25.4903433Z    ✓ lazily isolates account adapters, pins routing and denies cross-account sessions  755ms
+2026-11-15T20:02:25.4904395Z    ✓ scopes named-account model discovery to its provider and blocks a profile being signed in  364ms
+2026-11-15T20:02:25.4905318Z    ✓ rejects redirected named-account directories before any auth or session adapter call  678ms
+2026-11-15T20:02:25.4906209Z    ✓ rejects a resolver that changes the provider of an already acquired account profile  378ms
+2026-11-15T20:02:25.4907195Z    ✓ denies a descendant Pi junction before actual session validation can resolve another account history  351ms
+2026-11-15T20:02:27.8992682Z  ✓ tests/accounts.test.ts (16 tests) 1871ms
+2026-11-15T20:02:30.4439886Z  ✓ tests/task-memory-recovery.test.ts (3 tests) 2057ms
+2026-11-15T20:02:30.4441402Z    ✓ keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery  970ms
+2026-11-15T20:02:30.4442300Z    ✓ injects restored notes once into an installed Pi SDK session and refreshes them after disk restoration and reload  863ms
+2026-11-15T20:02:33.7440764Z  ✓ tests/project-memory-request-http-v3.test.ts (12 tests) 2663ms
+2026-11-15T20:02:33.7441820Z    ✓ blocks native dispatch when HTTP forget revokes a selection during asynchronous finalization  338ms
+2026-11-15T20:02:33.7445901Z    ✓ keeps plaintext matched terms ephemeral before and after forgotten memory reaches purge completion  356ms
+2026-11-15T20:02:35.2399517Z  ✓ tests/tool-effects-v3.test.ts (13 tests) 1004ms
+2026-11-15T20:02:37.1213503Z  ✓ tests/memory-extraction-runtime-v3.test.ts (11 tests) 1615ms
+2026-11-15T20:02:38.1915723Z  ✓ tests/browser-verification-v3.test.ts (12 tests) 801ms
+2026-11-15T20:02:39.8843515Z  ✓ tests/cursor-driver.test.ts (12 tests) 1460ms
+2026-11-15T20:02:39.8844113Z      ✓ starts the actual fixed worker and exits it on startup cancellation without SDK login  472ms
+2026-11-15T20:02:39.8844754Z      ✓ starts and closes the actual discovery worker without accepting an unproven private credential file  456ms
+2026-11-15T20:02:40.5844614Z  ✓ tests/model-transport-v3.test.ts (8 tests) 444ms
+2026-11-15T20:02:41.8128603Z  ✓ tests/credential-store.test.ts (34 tests | 1 skipped) 255ms
+2026-11-15T20:02:43.3979181Z  ✓ tests/research-workspace.test.ts (9 tests) 960ms
+2026-11-15T20:02:43.3979852Z    ✓ imports text through authenticated host commands and reloads full durable findings with an exact citation  955ms
+2026-11-15T20:02:43.5888297Z  ✓ tests/workspace-canvas-layout.test.ts (17 tests) 21ms
+2026-11-15T20:02:44.9081637Z  ✓ tests/packaged-providers.test.ts (9 tests) 1095ms
+2026-11-15T20:02:44.9082671Z      ✓ imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper  922ms
+2026-11-15T20:02:46.1888268Z  ✓ tests/official-runtime-cursor-integration.test.ts (8 tests) 951ms
+2026-11-15T20:02:46.1888932Z    ✓ owns discovery children before awaiting SDK results and waits for their cancellation on dispose  368ms
+2026-11-15T20:02:47.5002255Z  ✓ tests/memory-host-lifecycle-v3.test.ts (7 tests) 1062ms
+2026-11-15T20:02:50.9463685Z  ✓ tests/public-source.test.ts (11 tests) 2994ms
+2026-11-15T20:02:50.9469053Z      ✓ resolves the staged host and worker entries using only admitted runtime sources  841ms
+2026-11-15T20:02:50.9474891Z      ✓ resolves the staged browser entry using only admitted public sources  897ms
+2026-11-15T20:02:50.9476223Z      ✓ resolves the staged desktop entries using only admitted public sources  475ms
+2026-11-15T20:02:50.9477293Z      ✓ admits the local import closure of exported TypeScript and JavaScript inputs  533ms
+2026-11-15T20:03:00.7403208Z  ✓ tests/managed-git-family.test.ts (15 tests) 9311ms
+2026-11-15T20:03:00.7403831Z    ✓ requires host attestation for linked worktrees and retains ordinary repositories  1135ms
+2026-11-15T20:03:00.7404627Z    ✓ snapshots the attested worktree HEAD, index and source, without other worktrees or hooks  1114ms
+2026-11-15T20:03:00.7405465Z    ✓ passes only the host-resolved family for the granted domain repository root  1171ms
+2026-11-15T20:03:00.7406648Z    ✓ rejects unsupported common config even when the worktree provides a config override  609ms
+2026-11-15T20:03:00.7407594Z    ✓ refuses an unrelated linked worktree even with another trusted binding  336ms
+2026-11-15T20:03:00.7408364Z    ✓ refuses changed managed identity  605ms
+2026-11-15T20:03:00.7409263Z    ✓ refuses changed managed common identity  593ms
+2026-11-15T20:03:00.7410196Z    ✓ refuses changed managed git identity  587ms
+2026-11-15T20:03:00.7410790Z    ✓ refuses changed managed pointer  622ms
+2026-11-15T20:03:00.7411548Z    ✓ refuses changed managed backref  646ms
+2026-11-15T20:03:00.7412132Z    ✓ refuses changed managed commondir  620ms
+2026-11-15T20:03:00.7412683Z    ✓ refuses changed managed config  641ms
+2026-11-15T20:03:00.7413235Z    ✓ refuses changed managed alternates  622ms
+2026-11-15T20:03:01.0443015Z  ✓ tests/project-memory-preparation-ui.test.ts (14 tests) 63ms
+2026-11-15T20:03:01.2307189Z  ✓ tests/capture-ui/outputs.test.ts (57 tests) 11ms
+2026-11-15T20:03:01.8699100Z  ✓ tests/context-efficiency.test.ts (11 tests) 336ms
+2026-11-15T20:03:02.8127111Z  ✓ tests/windows-credential-lease.test.ts (8 tests) 695ms
+2026-11-15T20:03:07.4799688Z  ✓ tests/account-profile.test.ts (10 tests) 4437ms
+2026-11-15T20:03:07.4804930Z    ✓ rejects an accounts junction and holds the acquired namespace against replacement  731ms
+2026-11-15T20:03:07.4806580Z    ✓ rejects native descendant directory redirects and hardlinked credential files before entry  707ms
+2026-11-15T20:03:07.4807637Z    ✓ pins native directories while allowing legitimate atomic credential replacement  344ms
+2026-11-15T20:03:07.4808581Z    ✓ keeps each writable account directory nonempty with a pinned ordinary marker  1095ms
+2026-11-15T20:03:07.4809486Z    ✓ rejects a missing writable account directory before entering native work  375ms
+2026-11-15T20:03:07.4810428Z    ✓ rejects missing and file-valued writable directories without an explicit ancestor scope  713ms
+2026-11-15T20:03:07.4811453Z    ✓ keeps official home namespaces pinned while native credential files remain atomically replaceable  468ms
+2026-11-15T20:03:07.7604272Z  ✓ tests/code-review-workspace.test.ts (7 tests) 42ms
+2026-11-15T20:03:09.6343267Z  ✓ tests/account-login.test.ts (6 tests) 1639ms
+2026-11-15T20:03:09.6344136Z    ✓ does not admit a successor sign-in when an expired lease still has a live owner  473ms
+2026-11-15T20:03:09.6345357Z    ✓ reserves the exact named profile for sign-in and releases it after a failed native login  428ms
+2026-11-15T20:03:09.6346218Z    ✓ retains a durable account hold when native login shutdown is unconfirmed  469ms
+2026-11-15T20:03:10.0341897Z  ✓ tests/usage-context.test.ts (14 tests) 6ms
+2026-11-15T20:03:10.3539455Z  ✓ tests/agents-workspace-follow-up.test.ts (7 tests) 78ms
+2026-11-15T20:03:18.9892634Z  ✓ tests/hermes-original-integration.test.ts (1 test) 8095ms
+2026-11-15T20:03:18.9893871Z    ✓ runs original Python and ACP through the native broker, persists a skill and finishes through the real Service  8093ms
+2026-11-15T20:03:19.2364847Z  ✓ tests/docked-browser-open.test.ts (9 tests) 7ms
+2026-11-15T20:03:20.3577191Z  ✓ tests/research-service-integration.test.ts (4 tests) 514ms
+2026-11-15T20:03:21.9503630Z  ✓ tests/hermes-acp-server.test.ts (6 tests) 1341ms
+2026-11-15T20:03:21.9504241Z    ✓ rejects native MCP/client filesystem surfaces and refuses a substituted model  331ms
+2026-11-15T20:03:21.9504880Z    ✓ rejects a broker response whose ACP wrapper would exceed the wire bound without truncating content  316ms
+2026-11-15T20:03:22.2796498Z  ✓ tests/tool-authority-v3.test.ts (6 tests) 18ms
+2026-11-15T20:03:23.5352435Z  ✓ tests/project-memory-http-v3.test.ts (3 tests) 643ms
+2026-11-15T20:03:23.8367857Z  ✓ tests/memory-export-client-v3.test.ts (12 tests) 147ms
+2026-11-15T20:03:24.3888615Z  ✓ tests/usage-accounting-v3.test.ts (5 tests) 276ms
+2026-11-15T20:03:24.5758881Z  ✓ tests/compact-draft-transfer.test.ts (6 tests) 10ms
+2026-11-15T20:03:24.7528772Z  ✓ tests/thread-messages-owner.test.ts (4 tests) 13ms
+2026-11-15T20:03:26.0110792Z  ✓ tests/runtime-model-only.test.ts (12 tests) 837ms
+2026-11-15T20:03:26.0111820Z    ✓ configures the installed Pi SDK as a text model with no ambient or host tools  728ms
+2026-11-15T20:03:26.5825035Z  ✓ tests/compact-settings.test.ts (5 tests) 45ms
+2026-11-15T20:03:27.3274269Z  ✓ tests/copy-clarity.test.ts (4 tests) 36ms
+2026-11-15T20:03:28.0670254Z  ✓ tests/cursor-mcp.test.ts (3 tests) 538ms
+2026-11-15T20:03:28.0670936Z    ✓ preserves supported host-operation lifetime without a shorter proxy deadline or late header writes  311ms
+2026-11-15T20:03:28.7746410Z  ✓ tests/plan-timeline-review-regressions.test.ts (8 tests) 436ms
+2026-11-15T20:03:29.0106075Z  ✓ tests/workspace-native-panels.test.ts (6 tests) 10ms
+2026-11-15T20:03:29.1792217Z  ✓ tests/github-device-policy.test.ts (51 tests) 8ms
+2026-11-15T20:03:29.3749661Z  ✓ tests/tooltip-escape.test.ts (5 tests) 8ms
+2026-11-15T20:03:36.2697125Z  ✓ tests/hermes-multi-original.test.ts (1 test) 6456ms
+2026-11-15T20:03:36.2699270Z    ✓ runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls  6455ms
+2026-11-15T20:03:37.9640691Z  ✓ tests/account-auth-http.test.ts (2 tests) 1051ms
+2026-11-15T20:03:37.9641671Z    ✓ awaits prediction teardown before exclusive local signout and never accepts credentials  891ms
+2026-11-15T20:03:38.7767923Z  ✓ tests/thinking-level.test.ts (5 tests) 324ms
+2026-11-15T20:03:39.2654260Z  ✓ tests/official-runtime-mcp.test.ts (2 tests) 171ms
+2026-11-15T20:03:39.5487095Z  ✓ tests/terminal-excerpts.test.ts (5 tests) 46ms
+2026-11-15T20:03:39.8747409Z  ✓ tests/task-composition.test.ts (4 tests) 17ms
+2026-11-15T20:03:40.0994596Z  ✓ tests/copy-button-ownership.test.ts (2 tests) 5ms
+2026-11-15T20:03:41.5659802Z  ✓ tests/resource-tree.test.ts (1 test) 857ms
+2026-11-15T20:03:41.5660396Z    ✓ lists one granted directory lazily, omits unsafe leaves and denies traversal  856ms
+2026-11-15T20:03:42.4322336Z  ✓ tests/bootstrap-launch-token.test.ts (2 tests) 240ms
+2026-11-15T20:03:42.6745513Z  ✓ tests/layout-profile.test.ts (3 tests) 9ms
+2026-11-15T20:03:42.9035922Z  ✓ tests/preferences-appearance.test.ts (10 tests) 17ms
+2026-11-15T20:03:43.1669978Z  ✓ tests/split-tool-placement.test.ts (3 tests) 22ms
+2026-11-15T20:03:43.4729778Z  ✓ tests/workspace-host-agents.test.ts (1 test) 60ms
+2026-11-15T20:03:43.6382725Z  ✓ tests/capture-ui/review-coverage.test.ts (41 tests) 12ms
+2026-11-15T20:03:43.8968477Z  ✓ tests/composer-prediction-client.test.ts (3 tests) 43ms
+2026-11-15T20:03:44.1127836Z  ✓ tests/summary-collapse-state.test.ts (5 tests) 4ms
+2026-11-15T20:03:44.3372604Z  ✓ tests/plugin-frame.test.ts (3 tests) 5ms
+2026-11-15T20:03:44.5832906Z  ✓ tests/desktop-preload-accounts.test.ts (4 tests) 14ms
+2026-11-15T20:03:44.9549095Z  ✓ tests/proactive-presentation.test.ts (3 tests) 26ms
+2026-11-15T20:03:45.1941695Z  ✓ tests/composer-commands.test.ts (3 tests) 9ms
+2026-11-15T20:03:45.3525534Z  ✓ tests/ui-focus-retention.test.ts (3 tests) 5ms
+2026-11-15T20:03:45.6680333Z  ✓ tests/browser-action.test.ts (3 tests) 11ms
+2026-11-15T20:03:46.0032738Z  ✓ tests/settings-search-filter.test.ts (4 tests) 19ms
+2026-11-15T20:03:46.1846132Z  ✓ tests/desktop-host-ipc.test.ts (2 tests) 7ms
+2026-11-15T20:03:46.3545390Z  ✓ tests/desktop-host-controls.test.ts (2 tests) 5ms
+2026-11-15T20:03:46.5231655Z  ✓ tests/desktop-backend-handoff.test.ts (3 tests) 5ms
+2026-11-15T20:03:46.9400743Z  ✓ tests/process.test.ts (2 tests) 202ms
+2026-11-15T20:03:47.2518127Z  ✓ tests/granted-resource-api.test.ts (1 test) 142ms
+2026-11-15T20:03:47.4260043Z  ✓ tests/shell-shortcut-roundtrip.test.ts (2 tests) 2ms
+2026-11-15T20:03:47.7022540Z  ✓ tests/document-window.test.ts (2 tests) 8ms
+2026-11-15T20:03:48.1471542Z  ✓ tests/ui-numeric-children.test.ts (2 tests) 10ms
+2026-11-15T20:03:48.3067296Z  ✓ tests/composer-evidence.test.ts (1 test) 3ms
+2026-11-15T20:03:48.5306261Z  ✓ tests/task-status.test.ts (3 tests) 4ms
+2026-11-15T20:04:16.0423063Z  ✓ tests/workspace-action-outcomes.test.ts (20 tests) 141907ms
+2026-11-15T20:04:16.0424355Z    ✓ commits intent before local write and private result before event, then replays after Store restart  8909ms
+2026-11-15T20:04:16.0425746Z    ✓ retains interrupted remote write as uncertain across restart without submitting it again  8474ms
+2026-11-15T20:04:16.0426760Z    ✓ serializes same-ID attempts across separate Store connections without a double write  10812ms
+2026-11-15T20:04:16.0427474Z    ✓ denies reuse of an ID with a changed payload  5230ms
+2026-11-15T20:04:16.0428103Z    ✓ denies reuse of an ID with a changed type  5385ms
+2026-11-15T20:04:16.0428679Z    ✓ denies reuse of an ID with a changed threadId  5335ms
+2026-11-15T20:04:16.0429235Z    ✓ denies reuse of an ID with a changed projectId  5379ms
+2026-11-15T20:04:16.0430242Z    ✓ inspects original payload/revision without current diff, review reads, or any write  6818ms
+2026-11-15T20:04:16.0431148Z    ✓ returns revoked after working copy or account access changes, including confirmed receipts  10514ms
+2026-11-15T20:04:16.0432112Z    ✓ keeps private intent, result, credentials and errors out of events, receipts and snapshots  5217ms
+2026-11-15T20:04:16.0432787Z    ✓ keeps missing and legacy records uncertain without adopting unbound receipts  5361ms
+2026-11-15T20:04:16.0433375Z    ✓ records not-applied only after host rejection before starting and never restarts that ID  7576ms
+2026-11-15T20:04:16.0433911Z    ✓ keeps failures after started uncertain even when there is no receipt  4373ms
+2026-11-15T20:04:16.0434472Z    ✓ keeps completed external write uncertain if durable result commit fails  9134ms
+2026-11-15T20:04:16.0435029Z    ✓ recovers a confirmed review when the remote branch name differs from the managed local branch  7210ms
+2026-11-15T20:04:16.0435625Z    ✓ keeps an active prepared reservation uncertain until its owner durably proves no execution began  8921ms
+2026-11-15T20:04:16.0436162Z    ✓ pins profile access while GitHubTools is awaiting remote validation  4653ms
+2026-11-15T20:04:16.0436687Z    ✓ rejects a profile replaced between inspection identity capture and credential read  5632ms
+2026-11-15T20:04:16.0437319Z    ✓ supports local unstage and commit through the original revision and replays a commit without a second write  16968ms
+2026-11-15T20:04:16.0474451Z 
+2026-11-15T20:04:16.0479179Z  Test Files  89 passed (89)
+2026-11-15T20:04:16.0486453Z       Tests  924 passed | 7 skipped (931)
+2026-11-15T20:04:16.0486904Z    Start at  20:01:53
+2026-11-15T20:04:16.0488676Z    Duration  142.45s (transform 3.62s, setup 0ms, import 19.02s, tests 225.79s, environment 6ms)
+2026-11-15T20:04:16.0490023Z 

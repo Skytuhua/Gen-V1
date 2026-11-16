@@ -1,0 +1,458 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "runId": 43760736519,
+  "headSha": "013c044d66f40136752df4f1903132d601d57851",
+  "treeSha": "f33ce0eac447d79520a0a98f120dac69c095a6be",
+  "testedCheckout": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+  "job": {
+    "id": 132954741853,
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-11-15T20:55:14Z",
+    "completedAt": "2026-11-15T21:08:47Z",
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760736519/job/132954741853"
+  },
+  "rawLog": {
+    "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132954741853/logs",
+    "bytes": 113701,
+    "sha256": "9aeeb4898d85fbcd127c9a85a1443103fa1f33e48289a24a94eb0feeee92d296"
+  },
+  "testCounts": {
+    "summaries": [
+      {
+        "framework": "vitest",
+        "line": 610,
+        "commandGroup": "pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1",
+        "text": "Tests  29 passed (29)",
+        "passed": 29
+      },
+      {
+        "framework": "playwright",
+        "line": 659,
+        "commandGroup": "$failedSuites = @()",
+        "text": "15 passed (22.5s)",
+        "passed": 15
+      },
+      {
+        "framework": "playwright",
+        "line": 692,
+        "commandGroup": "$failedSuites = @()",
+        "text": "21 passed (27.5s)",
+        "passed": 21
+      },
+      {
+        "framework": "playwright",
+        "line": 795,
+        "commandGroup": "$failedSuites = @()",
+        "text": "1 skipped",
+        "skipped": 1
+      },
+      {
+        "framework": "playwright",
+        "line": 796,
+        "commandGroup": "$failedSuites = @()",
+        "text": "90 passed (4.1m)",
+        "passed": 90
+      },
+      {
+        "framework": "playwright",
+        "line": 921,
+        "commandGroup": "$failedSuites = @()",
+        "text": "1 skipped",
+        "skipped": 1
+      },
+      {
+        "framework": "playwright",
+        "line": 922,
+        "commandGroup": "$failedSuites = @()",
+        "text": "112 passed (5.5m)",
+        "passed": 112
+      }
+    ],
+    "totals": {
+      "passed": 267,
+      "failed": 0,
+      "skipped": 2,
+      "todo": 0,
+      "flaky": 0
+    }
+  },
+  "baselineSummaries": [
+    {
+      "framework": "vitest",
+      "line": 610,
+      "commandGroup": "pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1",
+      "text": "Tests  29 passed (29)",
+      "passed": 29
+    }
+  ],
+  "playwrightCaseTotals": {
+    "passed": 238,
+    "skipped": 2,
+    "failed": 0
+  },
+  "groups": {
+    "projectMemory": [
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 358,
+        "column": 1,
+        "title": "opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport",
+        "wholeCaseDuration": "3.8s",
+        "rawLogLine1Based": 643
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 401,
+        "column": 1,
+        "title": "requires an explicit source selection before enabling the project",
+        "wholeCaseDuration": "1.3s",
+        "rawLogLine1Based": 644
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 428,
+        "column": 1,
+        "title": "disabled host prevents new opt-in and preserves correction of retained records",
+        "wholeCaseDuration": "1.2s",
+        "rawLogLine1Based": 645
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 460,
+        "column": 1,
+        "title": "opens an exact source as inert text and accepts a proposal by its reviewed revision",
+        "wholeCaseDuration": "1.4s",
+        "rawLogLine1Based": 646
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 493,
+        "column": 1,
+        "title": "retains the exact correction draft when the reviewed revision is stale",
+        "wholeCaseDuration": "1.3s",
+        "rawLogLine1Based": 647
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 517,
+        "column": 1,
+        "title": "conflict resolution requires explicit revisions and a note before preserving both",
+        "wholeCaseDuration": "1.4s",
+        "rawLogLine1Based": 648
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 555,
+        "column": 1,
+        "title": "forget names invalidated artifacts before committing and shows pending purge afterward",
+        "wholeCaseDuration": "1.4s",
+        "rawLogLine1Based": 649
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 588,
+        "column": 1,
+        "title": "owner change closes the old review without retaining the previous project text",
+        "wholeCaseDuration": "1.1s",
+        "rawLogLine1Based": 650
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 602,
+        "column": 1,
+        "title": "explicit export produces only the host redacted export envelope",
+        "wholeCaseDuration": "1.2s",
+        "rawLogLine1Based": 651
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 615,
+        "column": 1,
+        "title": "recall explains exact source and disables exclusion without a request preparation adapter",
+        "wholeCaseDuration": "622ms",
+        "rawLogLine1Based": 652
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 637,
+        "column": 1,
+        "title": "confirms a reusable preference only after explicit project-only confirmation",
+        "wholeCaseDuration": "1.3s",
+        "rawLogLine1Based": 653
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 671,
+        "column": 1,
+        "title": "prepares the exact draft with terminal excerpts, excludes a revision, and sends its host token",
+        "wholeCaseDuration": "753ms",
+        "rawLogLine1Based": 654
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 713,
+        "column": 1,
+        "title": "invalidates exclusions when the draft changes and does not reuse its previous token",
+        "wholeCaseDuration": "686ms",
+        "rawLogLine1Based": 655
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 745,
+        "column": 1,
+        "title": "blocks send during exclusion and after failure until explicit refresh",
+        "wholeCaseDuration": "776ms",
+        "rawLogLine1Based": 656
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/project-memory.spec.ts",
+        "line": 806,
+        "column": 1,
+        "title": "an empty draft shows the last captured request with exclusion disabled",
+        "wholeCaseDuration": "723ms",
+        "rawLogLine1Based": 657
+      }
+    ],
+    "planTimeline": [
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 12,
+        "column": 1,
+        "title": "does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+        "wholeCaseDuration": "505ms",
+        "rawLogLine1Based": 862
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 26,
+        "column": 1,
+        "title": "all details are expanded and assigned branches nest and rejoin before the dependent step",
+        "wholeCaseDuration": "527ms",
+        "rawLogLine1Based": 863
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 46,
+        "column": 1,
+        "title": "retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+        "wholeCaseDuration": "619ms",
+        "rawLogLine1Based": 864
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 66,
+        "column": 1,
+        "title": "resets the snapshot fence on thread switch and retains the old plan during restart publication",
+        "wholeCaseDuration": "594ms",
+        "rawLogLine1Based": 865
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 94,
+        "column": 1,
+        "title": "retains a valid plan when the latest canonical graph is malformed",
+        "wholeCaseDuration": "490ms",
+        "rawLogLine1Based": 866
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 112,
+        "column": 1,
+        "title": "host replan preserves assignment, collapse and reading anchor when earlier details grow",
+        "wholeCaseDuration": "1.3s",
+        "rawLogLine1Based": 867
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 145,
+        "column": 1,
+        "title": "collapsed step identity survives returning from another thread and stale epochs never regress it",
+        "wholeCaseDuration": "627ms",
+        "rawLogLine1Based": 868
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 169,
+        "column": 1,
+        "title": "deep nested agents and long output labels fit a 280px panel without hiding details",
+        "wholeCaseDuration": "576ms",
+        "rawLogLine1Based": 869
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 192,
+        "column": 1,
+        "title": "manual collapse survives reopening the plan with the same exact thread and step identity",
+        "wholeCaseDuration": "740ms",
+        "rawLogLine1Based": 870
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "dark narrow/short 100% geometry and reduced motion",
+        "wholeCaseDuration": "554ms",
+        "rawLogLine1Based": 871
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "dark narrow/short 125% geometry and reduced motion",
+        "wholeCaseDuration": "585ms",
+        "rawLogLine1Based": 872
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "dark narrow/short 150% geometry and reduced motion",
+        "wholeCaseDuration": "574ms",
+        "rawLogLine1Based": 873
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "light narrow/short 100% geometry and reduced motion",
+        "wholeCaseDuration": "517ms",
+        "rawLogLine1Based": 874
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "light narrow/short 125% geometry and reduced motion",
+        "wholeCaseDuration": "572ms",
+        "rawLogLine1Based": 875
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 201,
+        "column": 3,
+        "title": "light narrow/short 150% geometry and reduced motion",
+        "wholeCaseDuration": "571ms",
+        "rawLogLine1Based": 876
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 240,
+        "column": 40,
+        "title": "dark desktop parallel branches and join",
+        "wholeCaseDuration": "678ms",
+        "rawLogLine1Based": 877
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/plan-timeline.spec.ts",
+        "line": 240,
+        "column": 40,
+        "title": "light desktop parallel branches and join",
+        "wholeCaseDuration": "634ms",
+        "rawLogLine1Based": 878
+      }
+    ],
+    "planDocumentWidths": [
+      {
+        "status": "PASS",
+        "file": "tests/e2e/document-window.spec.ts",
+        "line": 374,
+        "column": 46,
+        "title": "Plan summary and a docked handoff remain reachable together at 1920px",
+        "wholeCaseDuration": "2.7s",
+        "rawLogLine1Based": 829
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/document-window.spec.ts",
+        "line": 374,
+        "column": 46,
+        "title": "Plan summary and a docked handoff remain reachable together at 1440px",
+        "wholeCaseDuration": "2.9s",
+        "rawLogLine1Based": 830
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/document-window.spec.ts",
+        "line": 374,
+        "column": 46,
+        "title": "Plan summary and a docked handoff remain reachable together at 1280px",
+        "wholeCaseDuration": "2.9s",
+        "rawLogLine1Based": 831
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/document-window.spec.ts",
+        "line": 374,
+        "column": 46,
+        "title": "Plan summary and a docked handoff remain reachable together at 390px",
+        "wholeCaseDuration": "2.8s",
+        "rawLogLine1Based": 832
+      }
+    ],
+    "repairedCases": [
+      {
+        "status": "PASS",
+        "file": "tests/e2e/artifact-style.spec.ts",
+        "line": 900,
+        "column": 1,
+        "title": "connected FAQ branches and follow-up draft retain independent state",
+        "wholeCaseDuration": "2.6s",
+        "rawLogLine1Based": 710
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/artifact-acknowledgment.spec.ts",
+        "line": 4,
+        "column": 1,
+        "title": "an older snapshot cannot replace a newer acknowledged selection",
+        "wholeCaseDuration": "6.4s",
+        "rawLogLine1Based": 807
+      },
+      {
+        "status": "PASS",
+        "file": "tests/e2e/host-loop.spec.ts",
+        "line": 252,
+        "column": 1,
+        "title": "generated operation button requires native approval; restart restores without repeating effects",
+        "wholeCaseDuration": "9.3s",
+        "rawLogLine1Based": 835
+      }
+    ]
+  },
+  "durationPolicy": "Durations are whole test-case formatter values from the actual Playwright reporter. They do not measure navigation, publication, approval, native cleanup, or any other individual operation.",
+  "scope": "Log-based case execution verification only. No screenshot inspection, artifact download, native installer execution or live-provider proof is claimed."
+}

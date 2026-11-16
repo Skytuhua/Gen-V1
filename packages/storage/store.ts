@@ -158,12 +158,26 @@ export class Store {
     return rows.map(row => ({ seq: row.seq, id: row.id, type: row.type, threadId: row.thread_id, payload: JSON.parse(row.payload), occurredAt: row.occurred_at }));
   }
   get sequence(): number { return Number((this.statements.sequence.get() as { seq: number }).seq); }
-  snapshot(): Snapshot {
-    const allThreads = this.all<Snapshot["threads"][number]>("thread");
+  private visibleEntities() {
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
-    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid"),archivedIds=JSON.stringify([...archived]);
-    const visible=<T>(kind:string):T[] => (visibleRows.all(kind,archivedIds) as {body:string}[]).map(row=>JSON.parse(row.body) as T);
+    const archivedIds = JSON.stringify([...archived]);
+    const rows = this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid");
+    const visible = <T>(kind: string): T[] => (rows.all(kind, archivedIds) as {body: string}[]).map(row => JSON.parse(row.body) as T);
+    return {archived, archivedIds, visible};
+  }
+  /** Inbox and desktop notification polling need no transcripts or artifact history. */
+  attentionProjection(): Pick<Snapshot, "threads" | "requests" | "operations"> {
+    const {archived, visible} = this.visibleEntities();
+    return {
+      threads: this.all<Snapshot["threads"][number]>("thread").filter(thread => !archived.has(thread.id)),
+      requests: visible("request"),
+      operations: visible("operation"),
+    };
+  }
+  snapshot(): Snapshot {
+    const allThreads = this.all<Snapshot["threads"][number]>("thread");
+    const {archived, archivedIds, visible} = this.visibleEntities();
     const threads = allThreads.filter(thread => !archived.has(thread.id));
     const artifacts = visible<Snapshot["artifacts"][number]>("artifact"), requests = visible<Snapshot["requests"][number]>("request");
     const data = visible<Snapshot["data"][number]>("data"), seen = new Set(data.map(d => d.id + "@" + d.revision));
@@ -183,6 +197,7 @@ export class Store {
       seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages, messagesTruncated, artifacts, userStates: visible("userState"),
       data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: visible("operation"), resources: visible("resource"), memory: visible('taskMemory'),
       usage: Object.fromEntries(visible<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
+      modelRequests: visible<{ id: string; value: import('../contracts/model-request.ts').ModelRequestObservationV1 }>("modelRequest").reduce((grouped, item) => { const owner = item.value?.owner?.threadId; if (owner) (grouped[owner] ??= []).push(item.value); return grouped; }, {} as Record<string, import('../contracts/model-request.ts').ModelRequestObservationV1[]>),
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null
     };

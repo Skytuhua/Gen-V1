@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS_LOCAL_REPAIR_CURRENT_WINDOWS_REVALIDATION_PENDING",
+  "scope": "One browser-test readiness correction; original Windows failure remains FAIL. No scrollbar product code or assertion tolerance changed.",
+  "source": {
+    "failedHeadSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "failedTreeSha": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+    "actualCheckoutSha": "de8700651e6eb97c5a60bf849802b51086244857",
+    "localGreenCommittedTreeBefore": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+    "localGreenWorkingDiffSha256": "acbc345d2382116f1a337d9e879c4c5ce3792591621531e0d69a783fd5a4267b",
+    "localGreenTreeCaveat": "Captured working diff also includes the parent-owned accepted-main ec36 merge; these exact six owned/read dependency bindings are explicit. No complete immutable local tree claim.",
+    "files": [
+      {
+        "path": "tests/e2e/frontend-refinement.spec.ts",
+        "testedWindows": {
+          "bytes": 3996,
+          "sha256": "25319e736d674efbe3864b634f2f5e4d69d294f58eff2b2e1e2cd34328990713",
+          "gitBlobSha": "cf5baf5d6dcbad9e04403154a0e4fecc2fc112f8"
+        },
+        "localGreen": {
+          "bytes": 4078,
+          "sha256": "84f710eb09e5c0ff091d7a29482fd80c9b21dd5cb7145ca072b46f02ddc0513f",
+          "gitBlobSha": "7151cb870dbb7758e9c3934a2b0c11ec14e2c2c9"
+        },
+        "changed": true
+      },
+      {
+        "path": "tests/e2e/frontend-refinement-fixture.tsx",
+        "testedWindows": {
+          "bytes": 2664,
+          "sha256": "cf7f0b709ba5c647c8331e61f5bd555aabb208be434c6135640e5b8af5ba7f91",
+          "gitBlobSha": "fa5703ca9b6e4613100d7418e1ee12f6a1a510bb"
+        },
+        "localGreen": {
+          "bytes": 2664,
+          "sha256": "cf7f0b709ba5c647c8331e61f5bd555aabb208be434c6135640e5b8af5ba7f91",
+          "gitBlobSha": "fa5703ca9b6e4613100d7418e1ee12f6a1a510bb"
+        },
+        "changed": false
+      },
+      {
+        "path": "tests/e2e/frontend-refinement.playwright.config.ts",
+        "testedWindows": {
+          "bytes": 998,
+          "sha256": "7e548b378b42e178d8080df57bc48d1289a3a8decdd301de397ef34936ec0acf",
+          "gitBlobSha": "1eeb8bcf183fe7b58662dbed429a3a7af2ae792b"
+        },
+        "localGreen": {
+          "bytes": 998,
+          "sha256": "7e548b378b42e178d8080df57bc48d1289a3a8decdd301de397ef34936ec0acf",
+          "gitBlobSha": "1eeb8bcf183fe7b58662dbed429a3a7af2ae792b"
+        },
+        "changed": false
+      },
+      {
+        "path": "apps/web/src/ChatScrollIndicator.tsx",
+        "testedWindows": {
+          "bytes": 4377,
+          "sha256": "5de9f5669fa670db7c17233b2a6c19c5cea3fbd6f49a0db883418faf14dadf77",
+          "gitBlobSha": "3742a47e288382c05a0ddb1546fd2ab6698dccee"
+        },
+        "localGreen": {
+          "bytes": 4377,
+          "sha256": "5de9f5669fa670db7c17233b2a6c19c5cea3fbd6f49a0db883418faf14dadf77",
+          "gitBlobSha": "3742a47e288382c05a0ddb1546fd2ab6698dccee"
+        },
+        "changed": false
+      },
+      {
+        "path": "apps/web/src/chat-scroll-indicator.css",
+        "testedWindows": {
+          "bytes": 1335,
+          "sha256": "4db2cbbeafd1493b1a6eb312b4900882b3d304241013c804e3860b12dce72fdd",
+          "gitBlobSha": "cce3d3fef49bf41faf03fa4f1afe1082c260a1bf"
+        },
+        "localGreen": {
+          "bytes": 1335,
+          "sha256": "4db2cbbeafd1493b1a6eb312b4900882b3d304241013c804e3860b12dce72fdd",
+          "gitBlobSha": "cce3d3fef49bf41faf03fa4f1afe1082c260a1bf"
+        },
+        "changed": false
+      },
+      {
+        "path": "apps/web/src/conversation-scroll.ts",
+        "testedWindows": {
+          "bytes": 6950,
+          "sha256": "4c40fd8da941538c62df35087199ec5b62f693d3468b5ba910d54e618402c01a",
+          "gitBlobSha": "48aeb39f9e0520ccde73517bfc331b8521d3db7b"
+        },
+        "localGreen": {
+          "bytes": 6950,
+          "sha256": "4c40fd8da941538c62df35087199ec5b62f693d3468b5ba910d54e618402c01a",
+          "gitBlobSha": "48aeb39f9e0520ccde73517bfc331b8521d3db7b"
+        },
+        "changed": false
+      }
+    ]
+  },
+  "failedWindows": {
+    "runId": 43783430726,
+    "jobId": 133025636881,
+    "runUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43783430726",
+    "jobUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43783430726/job/133025636881",
+    "overallBrowser": {
+      "passed": 276,
+      "failed": 1,
+      "skipped": 2
+    },
+    "test": "left ticked scrollbar supports keys, track clicks, dragging, and history during updates",
+    "failure": "Immediate pointer-down no-jump assertion expected scrollTop1360 but received309.",
+    "rawLog": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43783430726/job-133025636881.log",
+      "bytes": 115261,
+      "sha256": "77ccf2160c4a0f915b9896f1c5c992517d11c65c046519e9f2bdaa2b098d88ab"
+    }
+  },
+  "artifact": {
+    "id": 14189846310,
+    "name": "browser-43783430726-1",
+    "bytes": 2761054,
+    "sha256": "9cef2db272a00bb8861d9543bd1841bd6dd64806c35f7b8f4c5d9c3609e801e1",
+    "singleDownload": true,
+    "allZipMemberCrcsVerified": true,
+    "originalZipPath": "/workspace/scratch/36f66011d961/m05-browser-triage-43783430726/browser-43783430726-1.zip",
+    "traceMember": "run-1794790843339-4709b08f-e902-452e-9537-4f1cf6165855/frontend-refinement/artifacts/frontend-refinement-left-t-d143d--and-history-during-updates/trace.zip",
+    "trace": {
+      "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/trace.zip",
+      "bytes": 439540,
+      "sha256": "d1088f876faa54b57390fd016f39d8201f480eb53621562e3f079b871c60e8d6",
+      "blobSha": "dba66d8357947bf64d386b1957d582172a2ba4f8"
+    },
+    "resolvedSnapshots": {
+      "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/resolved-scrollbar-snapshots.json",
+      "bytes": 10356,
+      "sha256": "2dde0cee86cf428f97e5dd0687ca3031eedd45ed774f360aef42ccb48ec6d533",
+      "blobSha": "bd2cc859e07493afebe3d1421b6ef0b00d1f20ba"
+    }
+  },
+  "observedChronology": {
+    "timeUnit": "milliseconds relative to Playwright trace clock, not UTC or startup duration",
+    "afterTrackClick": {
+      "timestampMs": 139435.74,
+      "conversationScrollTop": 1360,
+      "displayedAriaValueNow": 729,
+      "thumbTranslateY": 240.148
+    },
+    "thumbBoundingBoxAction": {
+      "startMs": 139441.55,
+      "endMs": 139445.496,
+      "derivedViewportThumbTop": 316.14788818359375
+    },
+    "nextRenderedState": {
+      "timestampMs": 139447.492,
+      "conversationScrollTop": 1360,
+      "displayedAriaValueNow": 1360,
+      "thumbTranslateY": 448.013,
+      "derivedViewportThumbTop": 524.013
+    },
+    "pointerDown": {
+      "startMs": 139463.808,
+      "x": 25,
+      "y": 319.14788818359375,
+      "actualThumbHit": false
+    },
+    "afterPointerDown": {
+      "timestampMs": 139465.822,
+      "conversationScrollTop": 309
+    },
+    "trackCalculation": {
+      "trackTop": 76,
+      "trackHeight": 842,
+      "displayedThumbHeight": 282.643,
+      "maximum": 1698,
+      "formula": "round((319.14788818359375-76-282.643/2)/(842-282.643)*1698)",
+      "calculatedRoundedScrollTop": 309
+    }
+  },
+  "cause": "The test polled the immediately updated native scrollTop, then measured the old rendered thumb before the animation-frame metrics update. Between measuring and mouse-down the thumb moved, so the old coordinate was a track press. The product track behavior matches the observed309.",
+  "repair": "Read beforeDrag, await the existing scrollbar aria-valuenow to equal rounded beforeDrag, then measure the thumb. The aria value and thumb transform are derived from the same rendered metrics state.",
+  "retainedAssertions": [
+    "20px hit target,1px track,3px thumb,ticked background and hidden native scrollbar",
+    "Home and PageDown behavior",
+    "History position retained while transcript grows",
+    "Track click moves forward",
+    "Immediate thumb pointer-down changes scrollTop by less than0.5",
+    "Drag moves conversation near top",
+    "End moves within2px of tail",
+    "Outside draft survives transcript growth",
+    "Second project-context case unchanged"
+  ],
+  "budgets": "Existing45s case and default expect/action budgets unchanged; no retry or fixed delay added.",
+  "visualInspection": {
+    "images": [
+      {
+        "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/page@53f3fd0421a588fd285f2269a5b1bbdf-1794790982789.jpeg",
+        "bytes": 37014,
+        "sha256": "5b5f6fc4ebfa2f227d49ffd2b3c3ee1bbcfda427776bd1b5e0f898235a994625",
+        "blobSha": "cd5ea3630e5bec9e8ff8dc4479cc4fbd9e8c8138"
+      },
+      {
+        "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/page@53f3fd0421a588fd285f2269a5b1bbdf-1794790982807.jpeg",
+        "bytes": 37001,
+        "sha256": "4743026cf56730bca06d06b341362df415196bf4f56cadc4cb48ae77bb490c6f",
+        "blobSha": "b8118edc0bebfed09767d8d15e2f6439bc081507"
+      },
+      {
+        "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/page@53f3fd0421a588fd285f2269a5b1bbdf-1794790982825.jpeg",
+        "bytes": 41154,
+        "sha256": "c8c487d20eef956729574a91b996eb56ddd28a9b22e553db13890e74ae8ceb7c",
+        "blobSha": "f059e9dd66496b3c8ae6b027d60e2ef843bf2b24"
+      }
+    ],
+    "observations": [
+      "Three recorded1440x1000 viewport screencast frames were viewed. They show the same synthetic conversation fixture with ticked left rail, transcript, draft input and project-context card.",
+      "DOM snapshots and action coordinates establish the exact timing and hit target. Screencast frame scheduling alone is not used to infer the precise pointer-down state."
+    ],
+    "scope": "Synthetic component browser fixture; no installed-desktop or live-provider claim."
+  },
+  "localGreen": {
+    "command": {
+      "argv": [
+        "env",
+        "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config=tests/e2e/frontend-refinement.playwright.config.ts",
+        "tests/e2e/frontend-refinement.spec.ts",
+        "--reporter=line"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+      "executableIdentity": "/usr/bin/env",
+      "startedAt": "2026-11-16T01:11:44.062478+00:00",
+      "endedAt": "2026-11-16T01:11:52.463462+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-scrollbar-thumb-readiness-green.log",
+      "logDigest": "c0e8f8d02de7bdad18b0417a702f953ce991e9c96a29e849f51b2b69c26bbbc2"
+    },
+    "elapsedMs": 8388,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "playwrightReportedSeconds": 6.3,
+    "metaRef": "docs/implementation/v3/m05-logs/continuation-scrollbar-thumb-readiness-green.meta.json"
+  },
+  "patch": {
+    "path": "docs/implementation/v3/m05-review-inputs/scrollbar-43783430726/repair.patch",
+    "bytes": 1936,
+    "sha256": "ab5918581cb6cfe345dbc8753204c6903d0a2f38c5d80bec83cf31ab5adf4260",
+    "blobSha": "00e6bab3a13dd0969f5bf95af58f8d91801e5f06"
+  },
+  "limits": [
+    "Original Windows run remains failed.",
+    "The next exact published full Windows tree still requires execution.",
+    "No installed retention, native Save, model generation or live study claim follows from this test."
+  ]
+}

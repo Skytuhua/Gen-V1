@@ -1,0 +1,39 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-retrieval-v3.test.ts (23 tests | 2 failed | 21 skipped) 50ms
+     × does not start a provider if host admission cancelled the request 46ms
+     × counts host admission time inside the foreground budget before starting egress 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > does not start a provider if host admission cancelled the request
+AssertionError: expected 'COMPLETE' to be 'CANCELLED' // Object.is equality
+
+Expected: "CANCELLED"
+Received: "COMPLETE"
+
+ ❯ tests/memory-retrieval-v3.test.ts:307:27
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/memory-retrieval-v3.test.ts > bounded external recall admission > counts host admission time inside the foreground budget before starting egress
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/memory-retrieval-v3.test.ts:319:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 21 skipped (23)
+   Start at  18:34:10
+   Duration  257ms (transform 80ms, setup 0ms, import 96ms, tests 50ms, environment 0ms)

@@ -1,0 +1,37 @@
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/36f66011d961/m05-v3
+> tsc --noEmit
+
+apps/web/src/ProjectMemoryReview.tsx(32,17): error TS2554: Expected 1 arguments, but got 0.
+apps/web/src/ProjectMemoryReview.tsx(32,54): error TS2554: Expected 1 arguments, but got 0.
+apps/web/src/ProjectMemoryReview.tsx(32,97): error TS2554: Expected 1 arguments, but got 0.
+apps/web/src/ProjectMemoryReview.tsx(33,46): error TS2554: Expected 1 arguments, but got 0.
+apps/web/src/ProjectMemoryReview.tsx(60,7): error TS2322: Type 'undefined' is not assignable to type '{ signature: string; commandId: string; }'.
+packages/core/memory-consolidation.ts(129,147): error TS2352: Conversion of type 'MemoryDerivedIndex' to type 'MemoryAccess' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'MemoryDerivedIndex' is missing the following properties from type 'MemoryAccess': threadId, bindingDigest
+tests/memory-retrieval-v3.test.ts(5,35): error TS2305: Module '"../packages/core/memory-retrieval.ts"' has no exported member 'MemoryProviderRequest'.
+tests/memory-retrieval-v3.test.ts(5,58): error TS2305: Module '"../packages/core/memory-retrieval.ts"' has no exported member 'ProviderRecallInput'.
+tests/memory-retrieval-v3.test.ts(23,10): error TS7053: Element implicitly has an 'any' type because expression of type '"lexicalRecall" | "MemoryRequestSnapshots" | "BoundedMemoryRecallProvider"' can't be used to index type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+  Property 'MemoryRequestSnapshots' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(30,21): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(149,13): error TS2339: Property 'MemoryRequestSnapshots' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(165,13): error TS2339: Property 'MemoryRequestSnapshots' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(170,30): error TS7006: Parameter 'item' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(178,13): error TS2339: Property 'MemoryRequestSnapshots' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(190,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(192,53): error TS7006: Parameter 'value' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(200,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(204,33): error TS7006: Parameter 'item' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(211,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(219,75): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(225,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(227,39): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(229,39): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(240,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(246,62): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(265,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(271,89): error TS7006: Parameter 'request' implicitly has an 'any' type.
+tests/memory-retrieval-v3.test.ts(284,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(294,13): error TS2339: Property 'BoundedMemoryRecallProvider' does not exist on type 'typeof import("/workspace/scratch/36f66011d961/m05-v3/packages/core/memory-retrieval")'.
+tests/memory-retrieval-v3.test.ts(297,99): error TS7006: Parameter 'request' implicitly has an 'any' type.
+ ELIFECYCLE  Command failed with exit code 2.

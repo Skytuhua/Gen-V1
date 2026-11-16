@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "node",
+      "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--reporter=verbose",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-combo-repair",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T23:00:04.079040+00:00",
+    "endedAt": "2026-11-15T23:00:05.401221+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-parent-combo-custody.log",
+    "logDigest": "33e782ad20707c41b1402c5c489bdeaaa27070a133c3ab27bec1266ab2080aac"
+  },
+  "capturedMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-native-save-parent-combo-custody.meta.json",
+  "capturedMetadataSha256": "17ce21a1f3ade97bf9f66806742af9927c53bc85386a0987a3d58fa32e0a4fb2",
+  "sourceSha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2",
+  "testSha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+  "scope": "Existing seven portable custody regressions, including the actual complete Windows command-length bound. Native parent ComboBox behavior requires the unchanged two real Windows lanes.",
+  "timingBasis": "OBSERVED_LOCAL_PROCESS",
+  "boundedBytes": 1477,
+  "transformations": []
+}

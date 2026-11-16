@@ -5,6 +5,7 @@ import {EXPLORATION_SCHEMAS,EXPLORATION_DATA_SCHEMAS,boundedExplorationData,read
 import {ArtifactInline,ArtifactTitle,inputPath,statePath,useTaskAction} from './task-context';
 import {useDocumentEvidence} from './document-evidence';
 import {animateTask} from './task-motion';
+import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import './exploration-tools.css';
 
 const object=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
@@ -76,7 +77,7 @@ export function SchedulePicker({element:{props}}:ComponentRenderProps){
  if(!data)return <p className="exploration-empty" role="status">Time slots are unavailable from the connected source.</p>;
  const save=(patch:Record<string,unknown>)=>{setSelectionError('');store.set(statePath(p.stateKey),{...object(store.get(statePath(p.stateKey))),...patch});};
  const choose=(slot:ScheduleData['slots'][number])=>{if(slot.availability!=='unavailable')save({selectedId:slot.id,visibleDate:datesById.get(slot.id)});};
- const slotKeyboard=(event:KeyboardEvent<HTMLButtonElement>,index:number)=>{if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const available=slots.filter(slot=>slot.availability!=='unavailable');if(!available.length)return;const current=available.findIndex(slot=>slot.id===slots[index].id),next=event.key==='Home'?0:event.key==='End'?available.length-1:(current+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+available.length)%available.length;choose(available[next]);event.currentTarget.closest('.schedule-slots')?.querySelector<HTMLButtonElement>(`[data-slot-index="${slots.indexOf(available[next])}"]`)?.focus();};
+ const slotKeyboard=(event:KeyboardEvent<HTMLButtonElement>,index:number)=>{if(isComposing(event)||!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const available=slots.filter(slot=>slot.availability!=='unavailable');if(!available.length)return;const current=available.findIndex(slot=>slot.id===slots[index].id),next=event.key==='Home'?0:event.key==='End'?available.length-1:(current+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+available.length)%available.length;choose(available[next]);event.currentTarget.closest('.schedule-slots')?.querySelector<HTMLButtonElement>(`[data-slot-index="${slots.indexOf(available[next])}"]`)?.focus();};
  const {date:dateFormat,time:timeFormat,range:rangeDateFormat}=formatsFor(data.timeZone);
  const submit=()=>{const raw=store.get(inputPath(p.dataBinding)),latest=boundedExplorationData('SchedulePicker',raw)?EXPLORATION_DATA_SCHEMAS.SchedulePicker.safeParse(raw):null,current=latest?.success?latest.data.slots.find(slot=>slot.id===object(store.get(statePath(p.stateKey))).selectedId):null;if(!latest?.success||!current||current.availability==='unavailable'){setSelectionError('This window changed. Choose an available time before submitting.');return;}if(p.actionId)void action.run(p.actionId,{slotId:current.id,start:current.start,end:current.end,timeZone:latest.data.timeZone});};
  return <section className="exploration-tools schedule-picker" aria-label={data.title??'Choose a time'}><Heading title={data.title} detail={data.timeZone}/>

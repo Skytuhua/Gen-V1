@@ -1,0 +1,64 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-host-lifecycle-v3.test.ts (5 tests | 5 failed) 41ms
+   × builds a bounded exact settled-run cut, strips private grant metadata, and publishes only proposals once 15ms
+   × rejects publication when its source changes, a new input waits, or the original task restarts 3ms
+   × excludes secret-bearing messages and cannot publish fabricated, executable or preference candidates 3ms
+   × registers durable compaction checkpoints for immediate Forget invalidation and eventual purge 11ms
+   × records use only for exact dispatched revisions, without extending expiry or restoring forgotten memory 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > builds a bounded exact settled-run cut, strips private grant metadata, and publishes only proposals once
+TypeError: f.memory.extractionCut is not a function
+ ❯ tests/memory-host-lifecycle-v3.test.ts:21:45
+     19|
+     20| it('builds a bounded exact settled-run cut, strips private grant metad…
+     21|   const f = await fixture(), cut = f.memory.extractionCut(f.access, so…
+       |                                             ^
+     22|   expect(cut.sources.map(value => value.ref.sourceId).sort()).toEqual(…
+     23|   expect(JSON.stringify(cut)).not.toContain('Unrelated previous discus…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > rejects publication when its source changes, a new input waits, or the original task restarts
+TypeError: f.memory.extractionCut is not a function
+ ❯ tests/memory-host-lifecycle-v3.test.ts:36:45
+     34|
+     35| it('rejects publication when its source changes, a new input waits, or…
+     36|   const f = await fixture(), cut = f.memory.extractionCut(f.access, so…
+       |                                             ^
+     37|   const candidates = [{kind: 'FACT', text: 'Uses SQLite.', sourceRefs:…
+     38|   f.store.internal('fixture-new-input', 'thread', () => f.store.put('o…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > excludes secret-bearing messages and cannot publish fabricated, executable or preference candidates
+TypeError: f.memory.extractionCut is not a function
+ ❯ tests/memory-host-lifecycle-v3.test.ts:51:24
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > registers durable compaction checkpoints for immediate Forget invalidation and eventual purge
+TypeError: f.memory.consolidationSnapshot is not a function
+ ❯ Object.snapshot tests/memory-host-lifecycle-v3.test.ts:61:100
+
+ ❯ checkpointBeforeCompaction packages/core/memory-consolidation.ts:354:42
+ ❯ tests/memory-host-lifecycle-v3.test.ts:61:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > records use only for exact dispatched revisions, without extending expiry or restoring forgotten memory
+TypeError: f.memory.markUsed is not a function
+ ❯ tests/memory-host-lifecycle-v3.test.ts:75:12
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  19:17:19
+   Duration  604ms (transform 299ms, setup 0ms, import 391ms, tests 41ms, environment 0ms)

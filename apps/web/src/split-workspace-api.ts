@@ -15,10 +15,14 @@ export async function sendSplitWorkspaceCommand(type:string,payload:Record<strin
 /** Semantic operations keep their captured revision and are never silently retargeted. */
 export function useSplitWorkspaceState(enabled=true,workspaceId='workspace'){
  const[layout,setLayout]=useState<SplitWorkspaceLayout|null>(null),[error,setError]=useState('');
- const current=useRef<SplitWorkspaceLayout|null>(null),alive=useRef(true),generation=useRef(0),queue=useRef<Promise<unknown>>(Promise.resolve()),owner=useRef(workspaceId);owner.current=workspaceId;
+ const current=useRef<SplitWorkspaceLayout|null>(null),alive=useRef(true),generation=useRef(0),request=useRef(0),queue=useRef<Promise<unknown>>(Promise.resolve()),owner=useRef(workspaceId);owner.current=workspaceId;
  const accept=useCallback((value:SplitWorkspaceLayout)=>{if(alive.current&&owner.current===workspaceId&&value.id===workspaceId&&(!current.current||value.revision>=current.current.revision)){current.current=value;setLayout(value);setError('');}},[workspaceId]);
- const refresh=useCallback(async()=>{const expected=generation.current,value=await getSplitWorkspace(workspaceId);if(expected===generation.current)accept(value);return value;},[workspaceId,accept]);
- useEffect(()=>{alive.current=true;generation.current++;current.current=null;setLayout(null);if(!enabled)return;void refresh().catch(cause=>{if(alive.current)setError(cause instanceof Error?cause.message:'The split workspace could not load.');});const change=()=>{void refresh().catch(()=>{});};window.addEventListener('focus',change);window.addEventListener('harness:workspace-changed',change);return()=>{alive.current=false;generation.current++;window.removeEventListener('focus',change);window.removeEventListener('harness:workspace-changed',change);};},[enabled,refresh]);
+ const refresh=useCallback(async()=>{
+  const expected=generation.current,readId=++request.current;
+  try{const value=await getSplitWorkspace(workspaceId);if(expected===generation.current)accept(value);return value;}
+  catch(cause){if(alive.current&&owner.current===workspaceId&&expected===generation.current&&readId===request.current&&!current.current)setError(cause instanceof Error?cause.message:'The workspace layout could not load.');throw cause;}
+ },[workspaceId,accept]);
+ useEffect(()=>{alive.current=enabled;generation.current++;current.current=null;setLayout(null);setError('');if(!enabled)return;const change=()=>{void refresh().catch(()=>{});};change();window.addEventListener('focus',change);window.addEventListener('harness:workspace-changed',change);return()=>{alive.current=false;generation.current++;window.removeEventListener('focus',change);window.removeEventListener('harness:workspace-changed',change);};},[enabled,refresh]);
  const sendResult=useCallback((type:string,payload:Record<string,unknown>={}):Promise<{layout:SplitWorkspaceLayout;profile?:{id:string;updatedAt:string}}>=>{
   const basis=current.current,expected=generation.current;if(!basis||basis.id!==workspaceId||owner.current!==workspaceId)return Promise.reject(Error('Wait for the workspace to load.'));
   const command={id:crypto.randomUUID(),type:type.startsWith('split-workspace.')?type:'split-workspace.'+type,payload:{...payload,workspaceId,baseRevision:payload.baseRevision??basis.revision}};

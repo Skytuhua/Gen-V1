@@ -1,0 +1,54 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts (16 tests | 3 failed) 635ms
+   × joins the original cancellation promise when it settles instead of releasing through a second cancel call 61ms
+   × joins the original cancellation promise when it rejects instead of releasing through a second cancel call 57ms
+   × retains the permit when cancellation begins during successful disposal 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > joins the original cancellation promise when it settles instead of releasing through a second cancel call
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > joins the original cancellation promise when it rejects instead of releasing through a second cancel call
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:150:35
+    148|     waiting = scheduler.acquire('provider', 'account', waitingControl.…
+    149|     control.abort(); await expect(pending).resolves.toMatchObject({sta…
+    150|     await turn(); expect(granted).toBe(false); expect(owner.busy).toBe…
+       |                                   ^
+    151|     if (result === 'settles') {
+    152|       cancellation.resolve(); await owner.cancel(); const next = await…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > retains the permit when cancellation begins during successful disposal
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:172:55
+    170|     waiting = scheduler.acquire('provider', 'account', waitingControl.…
+    171|     control.abort(); await expect(pending).resolves.toMatchObject({sta…
+    172|     disposal.resolve(); await turn(); expect(granted).toBe(false); exp…
+       |                                                       ^
+    173|     cancellation.resolve(); await owner.cancel(); const next = await w…
+    174|   } finally {control.abort(); disposal.resolve(); cancellation.resolve…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 13 passed (16)
+   Start at  21:47:11
+   Duration  2.44s (transform 1.16s, setup 0ms, import 1.61s, tests 635ms, environment 0ms)

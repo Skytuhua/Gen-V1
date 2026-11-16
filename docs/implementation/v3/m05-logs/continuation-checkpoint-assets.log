@@ -1,0 +1,48 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/public-source.test.ts (11 tests | 1 failed) 785ms
+     × resolves the staged host and worker entries using only admitted runtime sources 117ms
+ ❯ tests/hermes-desktop-assets.test.ts (9 tests | 1 failed) 148ms
+   × admits only the exact Hermes Python worker and checkpoint bridge and requires their packaged runtime 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-desktop-assets.test.ts > admits only the exact Hermes Python worker and checkpoint bridge and requires their packaged runtime
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/hermes-desktop-assets.test.ts:32:79
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged host and worker entries using only admitted runtime sources
+Error: Build failed with 7 errors:
+packages/runtime-hermes/index.ts:1:125: ERROR: Could not resolve "../runtime/memory-checkpoint.ts"
+packages/runtime-official/index.ts:1:39: ERROR: Could not resolve "../runtime/memory-checkpoint.ts"
+packages/runtime-pi/index.ts:14:93: ERROR: Could not resolve "../runtime/memory-checkpoint.ts"
+packages/runtime-pi/ipc.ts:4:71: ERROR: Could not resolve "../runtime/memory-checkpoint.ts"
+packages/runtime-pi/tool-definitions.ts:1:67: ERROR: Could not resolve "./memory-checkpoint.ts"
+...
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 18 passed (20)
+   Start at  19:33:53
+   Duration  1.52s (transform 138ms, setup 0ms, import 332ms, tests 933ms, environment 0ms)

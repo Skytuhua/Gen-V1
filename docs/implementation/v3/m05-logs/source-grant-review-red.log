@@ -1,0 +1,33 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-review-extra-v3.test.ts (3 tests | 3 failed) 54ms
+   × excludes retained file memory when its source grant is removed 36ms
+   × excludes retained file memory when its source grant is owner-changed 12ms
+   × excludes retained file memory when its source grant is replaced 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-review-extra-v3.test.ts > excludes retained file memory when its source grant is removed
+ FAIL  tests/memory-review-extra-v3.test.ts > excludes retained file memory when its source grant is owner-changed
+ FAIL  tests/memory-review-extra-v3.test.ts > excludes retained file memory when its source grant is replaced
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ ProjectMemory.captureFile packages/core/project-memory.ts:132:19
+ ❯ tests/memory-review-extra-v3.test.ts:25:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:43:08
+   Duration  1.30s (transform 884ms, setup 0ms, import 1.05s, tests 54ms, environment 0ms)

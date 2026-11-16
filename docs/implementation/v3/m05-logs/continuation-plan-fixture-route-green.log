@@ -1,0 +1,7 @@
+{"root":"/workspace/scratch/36f66011d961/m05-continuation/apps/web","fixturePath":"/plan-timeline.html","title":"Plan timeline renderer fixture","containsRenderer":true,"containsMain":false}
+{"fixtureEntry":"/@fs/workspace/scratch/36f66011d961/m05-continuation/tests/e2e/plan-timeline-renderer.tsx","rendererTransform":true,"productionPlanTransform":true,"timelineCssImport":true,"rootApplicationPreserved":true,"browserExecuted":false}
+✘ [ERROR] The build was canceled
+
+Warning: Detected unsettled top-level await at file:///workspace/scratch/36f66011d961/m05-plan-fixture-http-probe.mjs:35
+  await server.close();
+  ^

@@ -1,0 +1,124 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-consolidation-v3.test.ts (51 tests | 2 failed) 608ms
+     × does not start paid work when cancellation wins before provider dispatch 9ms
+     × detaches deadline listeners while preserving an orphan hold and avoids writes after Store close 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not start paid work when cancellation wins before provider dispatch
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "acceptedRefs": Array [
+          Object {
+            "itemId": "utc",
+            "revision": 1,
+          },
+        ],
+        "access": Object {
+          "accountId": "account-one",
+          "bindingDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "profileId": "profile-one",
+          "projectId": "project-one",
+          "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "threadId": "thread-one",
+        },
+        "authority": "QUOTED_EVIDENCE_ONLY",
+        "changedItems": Array [
+          Object {
+            "assertedBy": Object {
+              "id": "local-user",
+              "kind": "USER",
+            },
+            "expiresAt": null,
+            "id": "utc",
+            "kind": "CONSTRAINT",
+            "observedAt": "2026-11-15T12:00:00.000Z",
+            "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "reviewDecision": Object {
+              "action": "ACCEPT",
+              "at": "2026-11-15T12:00:00.000Z",
+              "userId": "local-user",
+            },
+            "revision": 1,
+            "scope": "PROJECT",
+            "sensitivity": "NORMAL",
+            "sourceRefs": Array [
+              Object {
+                "capturedSeq": 3,
+                "digest": "b37d8b70e22ab95225ebb854917b6fb5e0bb0f9c134b43081eedddeaca2a60a7",
+                "observedStatus": "REPORTED",
+                "ownerThreadId": "thread-one",
+                "sourceId": "message-one",
+                "sourceKind": "MESSAGE",
+                "sourceRevision": "message-revision-one",
+              },
+            ],
+            "state": "ACCEPTED",
+            "supersedes": Array [],
+            "text": "Use UTC for exported timestamps.",
+          },
+        ],
+        "inputDigest": "f457f30f5b84d48688f039e58aa7b8f46cd80c27ce90cf69428aafde10f74568",
+        "watermark": 4,
+      },
+      AbortSignal {
+        Symbol(kEvents): undefined,
+        Symbol(events.maxEventTargetListeners): 0,
+        Symbol(events.maxEventTargetListenersWarned): false,
+        Symbol(kHandlers): undefined,
+        Symbol(kAborted): true,
+        Symbol(kReason): [AbortError: This operation was aborted],
+        Symbol(kComposite): false,
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-consolidation-v3.test.ts:154:21
+    152|     control.abort(); expect(await pending).toMatchObject({ status: 'CA…
+    153|     await new Promise<void>(done => setImmediate(done));
+    154|     expect(run).not.toHaveBeenCalled(); expect(x.store.all('projectMem…
+       |                     ^
+    155|   });
+    156|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > detaches deadline listeners while preserving an orphan hold and avoids writes after Store close
+AssertionError: expected "exec" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st exec call:
+
+    Array [
+      "BEGIN IMMEDIATE",
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-consolidation-v3.test.ts:167:33
+    165|       gate.resolve({ refs: [{ itemId: 'utc', revision: 1 }] });
+    166|       await new Promise<void>(done => setImmediate(done));
+    167|       try { expect(execute).not.toHaveBeenCalled(); } finally { execut…
+       |                                 ^
+    168|     }
+    169|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 49 passed (51)
+   Start at  18:32:30
+   Duration  1.01s (transform 137ms, setup 0ms, import 224ms, tests 608ms, environment 0ms)

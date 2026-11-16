@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T23:03:10.438229+00:00",
+  "status": "LOCAL_BROWSER_REPAIR_VERIFIED_WINDOWS_REVALIDATION_PENDING",
+  "source": {
+    "publishedBeforeRepair": {
+      "head": "94b99a8132ed3703b5c253376af9be5b45039815",
+      "tree": "74d4f82742ba875ed38ef9bc4f52f5660537db96"
+    },
+    "actualCurrentCiCheckout": {
+      "runId": 43771171183,
+      "head": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "tree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+      "acceptedMain": "85d8c26738d9c55e477e713dbe4d87f03d2d7baf",
+      "previousAcceptedMain": "02a50eca13c2deb720738a89ec0abc126e6fb3e6"
+    },
+    "changedTest": {
+      "path": "tests/e2e/plan-timeline.spec.ts",
+      "bytes": 12270,
+      "sha256": "7d1e57f3ed470b1edaaa110eb9a70a12a9d6e023b6d7e222e8250f9b16e154e5",
+      "gitBlobSha": "da1d1962629dd7d1d047746c8a401aba8ac28c03"
+    },
+    "beforeTest": {
+      "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/tests/e2e/plan-timeline.spec.ts",
+      "bytes": 11689,
+      "sha256": "2deae4ae556f83251ad326a7ab1ff3dd5880ae52d95e25072ec093ddcaa1bc06",
+      "gitBlobSha": "50441c35828cb3348b88b555463cd94122611e1e"
+    },
+    "ciTrigger": {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 12556,
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "gitBlobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    }
+  },
+  "acceptedMainReview": {
+    "pathsReviewed": 17,
+    "productionAndTestScope": "Read the immutable accepted-main diff, complete PlanStatus source, affected Plan browser spec, new Agents grid fixture/tests/evidence, browser registration, source inventory and scoped workflow.",
+    "findings": [
+      "The completed child and cloned completed descendants now default closed inside their ancestors. The deep-nested browser case expected visible descendants without disclosing them.",
+      "The replan browser case changed details inside the now-closed completed scope. This did not exercise real height growth, and its later Collapse all lookup was unavailable while not all rows were expanded."
+    ],
+    "remainingActionableFindings": [],
+    "agentsReview": "Accepted vertical-grid navigation retains submit/stop ownership, transcript subscriptions, virtualization and draft retention assertions. New geometry tests use actual components with synthetic transports. No M05 memory entry, request or runtime flag path is changed.",
+    "planReview": "The accepted v2 default/explicit-override contract is preserved, including nested subtree hiding and existing revision/owner fences. The fixture now performs deliberate disclosure before its prior assertions.",
+    "evidenceScope": "The accepted Agents UI evidence workflow is conditional on PR311 and supplies no M05 acceptance. Added source/test coverage does not imply installed or live-provider proof."
+  },
+  "repair": {
+    "changedByThisAgent": [
+      "tests/e2e/plan-timeline.spec.ts"
+    ],
+    "insertions": 10,
+    "deletions": 0,
+    "actions": [
+      "Before replan geometry is measured, use the real Plan actions > Expand all menu and assert completed scope aria-expanded=true.",
+      "After creating deep completed descendants, use the real Plan actions > Expand all menu before the existing deepest-descendant visibility and 280px overflow assertions."
+    ],
+    "retainedAssertions": "Every previous assertion remains byte-identical. No timeout, retry, page script disclosure bypass, conditional pass, geometry tolerance, ownership, focus, revision, collapse, screenshot or visibility assertion was removed or relaxed.",
+    "productionBehaviorChanged": false
+  },
+  "verification": [
+    {
+      "label": "continuation-85d8-plan-timeline-red",
+      "counts": {
+        "passed": 15,
+        "failed": 2,
+        "skipped": 0
+      },
+      "metadata": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-85d8-plan-timeline-red.meta.json",
+        "bytes": 1913,
+        "sha256": "eb5d2e6a9e9b3ab709cced07202d1c31cfb1441d261565a64e7fbd5a4de31621",
+        "gitBlobSha": "3c069bfe6f184abf420d78c852f26ee3f5f64dfe"
+      },
+      "log": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-85d8-plan-timeline-red.log",
+        "bytes": 8041,
+        "sha256": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c",
+        "gitBlobSha": "4c16a3f96307bc42ac3b5fc1b76a7b6a9fd76162"
+      },
+      "capturedCommand": {
+        "schemaVersion": 1,
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "playwright.config.ts",
+            "tests/e2e/plan-timeline.spec.ts",
+            "--reporter=list"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-15T22:59:29.316527+00:00",
+          "endedAt": "2026-11-15T23:00:26.783812+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-plan-timeline-red.log",
+          "logDigest": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c"
+        },
+        "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+        "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+        "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+        "elapsedMs": 57459,
+        "rawOutputBytes": 8041,
+        "rawOutputSha256": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c",
+        "excerptInputBytes": 8041,
+        "excerptInputSha256": "3c29d51f048fba0ff9cfac328875c56a56dd823f5df1e18b71471523bc6ef40c",
+        "transformations": [],
+        "phaseIds": [
+          "PLATFORM_BROWSER"
+        ]
+      }
+    },
+    {
+      "label": "continuation-85d8-plan-timeline-green",
+      "counts": {
+        "passed": 17,
+        "failed": 0,
+        "skipped": 0
+      },
+      "metadata": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-85d8-plan-timeline-green.meta.json",
+        "bytes": 1915,
+        "sha256": "e1c2360a3197f8b39da1278e1e061a406cc9fe495e5877d064e2d95608297769",
+        "gitBlobSha": "19c5bab162bdbd1cf1de369cf61851fdb04935f3"
+      },
+      "log": {
+        "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-85d8-plan-timeline-green.log",
+        "bytes": 2998,
+        "sha256": "72aec7ca363c68959ba3c5886aa04c1623f955af0fa2cc51518bee0013e6c494",
+        "gitBlobSha": "dc6301c344cc959ab0c9e8a102f1ddc52707d989"
+      },
+      "capturedCommand": {
+        "schemaVersion": 1,
+        "command": {
+          "argv": [
+            "env",
+            "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "playwright.config.ts",
+            "tests/e2e/plan-timeline.spec.ts",
+            "--reporter=list"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+          "executableIdentity": "/usr/bin/env",
+          "startedAt": "2026-11-15T23:01:35.625811+00:00",
+          "endedAt": "2026-11-15T23:01:57.440586+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d8-plan-timeline-green.log",
+          "logDigest": "72aec7ca363c68959ba3c5886aa04c1623f955af0fa2cc51518bee0013e6c494"
+        },
+        "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+        "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+        "workingDiffSha256": "b474cbd4930a74710ac8a01a0e99741520efa6a06da0755a19bc3dd89831b387",
+        "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+        "elapsedMs": 21804,
+        "rawOutputBytes": 2998,
+        "rawOutputSha256": "72aec7ca363c68959ba3c5886aa04c1623f955af0fa2cc51518bee0013e6c494",
+        "excerptInputBytes": 2998,
+        "excerptInputSha256": "72aec7ca363c68959ba3c5886aa04c1623f955af0fa2cc51518bee0013e6c494",
+        "transformations": [],
+        "phaseIds": [
+          "PLATFORM_BROWSER"
+        ]
+      }
+    }
+  ],
+  "redArtifacts": {
+    "manifest": {
+      "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/manifest.json",
+      "bytes": 1554,
+      "sha256": "c1458b303c4aefb4ec094c01c27d04d6d63273e694ec14f472df8f5ae2918a05",
+      "gitBlobSha": "66a47e8579bf191fd1d67059b58e4d1e22302571"
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/test-results/plan-timeline-host-replan--d8016-r-when-earlier-details-grow/trace.zip",
+        "bytes": 366833,
+        "sha256": "e186302c3ae65c36b8dd275275398336a411af34975b770f6b642c9c3346da16"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/test-results/plan-timeline-host-replan--d8016-r-when-earlier-details-grow/error-context.md",
+        "bytes": 7925,
+        "sha256": "05df30dd407e630eb1224c9c9e35f2e761be7de72850f9eb41f933ea604b03fa"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/test-results/plan-timeline-deep-nested--71516-anel-without-hiding-details/trace.zip",
+        "bytes": 123585,
+        "sha256": "81d7e17cfa63ee971a6f8a059816a5c5fe1e045ea2371a95587351a32ba26585"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/test-results/plan-timeline-deep-nested--71516-anel-without-hiding-details/error-context.md",
+        "bytes": 7495,
+        "sha256": "fb0d064fe7dd1bb06912e035b2ec0c35b8064703910ff4d4a29fdd5bfe4f7f84"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-plan-disclosure-red-85d8/tests/e2e/plan-timeline.spec.ts",
+        "bytes": 11689,
+        "sha256": "2deae4ae556f83251ad326a7ab1ff3dd5880ae52d95e25072ec093ddcaa1bc06"
+      }
+    ],
+    "scope": "Original red trace ZIPs, error contexts and unchanged test source copied before the green run overwrote the test-results directory."
+  },
+  "ciTriggerReview": {
+    "author": "Parent",
+    "delta": "Only push.branches changes from [main] to [main, agent/m05-v3].",
+    "purpose": "Run the existing complete workflow on the actual branch source tree, while retaining pull_request merge testing and all existing jobs/steps.",
+    "finding": null,
+    "result": "Source review only. No new Windows pass is inferred."
+  },
+  "limits": [
+    "Both commands are actual local Chromium Playwright executions under the existing root configuration and pinned Corepack pnpm launcher. They do not establish Windows browser or installed application acceptance.",
+    "The recorder preserves the committed tree and actual working-diff hash. The green result belongs to that captured working cut; it is not represented as an immutable published commit.",
+    "This agent changed only the identified Plan test and scratch review/evidence files, with no branch/ref/ledger mutation.",
+    "The final native Save and full installed retained-memory flows remain unproven; default-off flags and live-study limits remain."
+  ]
+}

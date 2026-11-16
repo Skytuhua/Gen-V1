@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-installed-phase-review-43748168614",
+  "reviewedAt": "2026-11-15T19:17:00.749886+00:00",
+  "status": "NATIVE_INSTALL_PAYLOAD_PROVIDER_AND_CLEANUP_PASS_RETAINED_MEMORY_UI_ENTRY_FAILED",
+  "reviewMode": "Read-only inspection of the sole downloaded installed artifact, exact receipts, source at the tested tree and all four actual PNGs. No native process, account connection or live provider was executed locally.",
+  "ci": {
+    "repository": "skytuhua-org/Gen-V1",
+    "runId": 43748168614,
+    "runAttempt": 1,
+    "headSha": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+    "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+    "checkoutSha": "2428711e2f135d869605c52b53e48c9f3350be63",
+    "jobId": 132915985168,
+    "jobName": "Installed desktop memory retention",
+    "jobConclusion": "failure",
+    "packageStep": {
+      "status": "PASS",
+      "startedAt": "2026-11-15T18:42:43Z",
+      "completedAt": "2026-11-15T18:56:36Z"
+    },
+    "verifierStep": {
+      "status": "FAIL",
+      "startedAt": "2026-11-15T18:56:36Z",
+      "completedAt": "2026-11-15T19:06:17Z"
+    },
+    "rawLog": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43748168614/job-132915985168.log",
+      "bytes": 124583,
+      "sha256": "154bbe053162bb4ad0512740a96906c8614f2a9309119288b39a4fc4472d1ca7"
+    },
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43748168614-132915985168.log"
+  },
+  "artifact": {
+    "id": 14176435300,
+    "name": "installed-memory-43748168614-1",
+    "downloads": 1,
+    "downloadOwner": "ui_audit",
+    "archive": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43748168614/installed-artifact-14176435300.zip",
+      "bytes": 673654,
+      "sha256": "367e7879638a37bc2bba402c9ab035462af6ceda7415060357d3fe75e6930fd0"
+    },
+    "metadata": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43748168614/installed-artifact-14176435300-metadata.json",
+      "bytes": 2579,
+      "sha256": "e85b6cfb617590431f053feece3dc4c2dafc025b42c2bcd3840db62e03f59e0b"
+    },
+    "memberCount": 9,
+    "promotedMembers": [
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/verification.json",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/verification.json",
+        "bytes": 16082,
+        "sha256": "c66e48d677ae35ed422ce35c2fdecc7fd280cb708ffcdd4666db67191dc21251"
+      },
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/owner.json",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/owner.json",
+        "bytes": 330,
+        "sha256": "4ce371d616efc68b799d0f6c0b61f5cd925c03eefa0fd64c88d9eac1b37923a5"
+      },
+      {
+        "archiveMember": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/build-manifest.json",
+        "bytes": 15611,
+        "sha256": "cbae7ea6305490a4e2c1edca2762ca9c706e5c6ecc7fb7b4d78cecf1630d223a"
+      },
+      {
+        "archiveMember": ".harness-packaged-providers/run-1794769510832-da5a7ead-c349-44c0-855a-c4cb80c2367d/verification.json",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/provider-verification.json",
+        "bytes": 168090,
+        "sha256": "b12a0d676aef9510a104035dd77876e06a0ee920ecb7c40188b277049d697eb7"
+      },
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/installed-main.png",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/installed-main.png",
+        "bytes": 53613,
+        "sha256": "06d05f1374a9327dd73a5a3e4c86311ebe0d8fc7a3498278092cc2af4bd93490"
+      },
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/installed-settings.png",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/installed-settings.png",
+        "bytes": 84334,
+        "sha256": "22b76e15b764793abccd17e6b292bd144ff22462778ce5265c44ef65b933d1bb"
+      },
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/installed-official-connections.png",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/installed-official-connections.png",
+        "bytes": 89088,
+        "sha256": "dbdee5bbc01966308c663fe138d5c599154ebe868e8bc4a8471eaf77551cb5ed"
+      },
+      {
+        "archiveMember": ".harness-desktop-installed/run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5/installed-memory-launch-1-failure.png",
+        "ref": "docs/implementation/v3/m05-platform-43748168614/installed-memory-launch-1-failure.png",
+        "bytes": 62658,
+        "sha256": "6e8b19871e1920bc24278249f472c31514da07edee9c56f5f8c53c26e75beca3"
+      },
+      {
+        "archiveMember": ".harness-installed-package/desktop-stage-1794768173985/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+        "reusedIdenticalReceipt": true,
+        "ref": "docs/implementation/v3/m05-platform-43736761161/PYTHON_INSTALLATION_V2.json",
+        "bytes": 1511066,
+        "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+      }
+    ],
+    "bytePreservingPromotion": true,
+    "signedDownloadUrlRetained": false
+  },
+  "sourceBindings": [
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "e992788b1718409b66e8fc6251e8133eeb39f3b4",
+      "bytes": 19526,
+      "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "bef4ae1b4f7d557695e866955b337ef8021d094e",
+      "bytes": 38841,
+      "sha256": "d19e7c8cfaa656a15a0a7af2193e33e6a4d644de969d5f95770df0ba95c015cd"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "89f4f0b6eea01303c0cb951585c9f19035e85da8",
+      "bytes": 142912,
+      "sha256": "7745d88c5da4f26e01d1882d28c7e5802522f10a737abb8bc0a3c8eb79aeb7f2"
+    },
+    {
+      "path": "packages/ui-shell/SummaryDock.tsx",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "ff2e7c720953a0d5d692b28c7ef66a72e4a0b952",
+      "bytes": 5602,
+      "sha256": "d5da9ec97faf486826dad49ee0e35d87e2051dbc3252e587ab5224701a153594"
+    },
+    {
+      "path": "apps/web/src/ProjectContextSurface.tsx",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "9f1674e6ed50072662668286a0204629e5801719",
+      "bytes": 2824,
+      "sha256": "7cbb9068f912d51e604cbda4c9fe4b010f47dbe89023432ccf8bc02015343c53"
+    },
+    {
+      "path": "apps/web/src/api.ts",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "65d567ae8e591fa59ffa6fd72a1ffe775cac3abd",
+      "bytes": 17806,
+      "sha256": "6351790dc044ca3f56ae193c7c316e0f678929fa16522de9f039b23f1689cce3"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+      "gitBlobSha": "93056e029d2d55a86124a4345ff19f38d4501c30",
+      "bytes": 18352,
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
+    }
+  ],
+  "phases": {
+    "readOnlyPreflight": {
+      "status": "PASS",
+      "observations": [
+        {
+          "stage": "before-install",
+          "status": "completed",
+          "elapsedMs": 19061,
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "pre-install-recheck",
+          "status": "completed",
+          "elapsedMs": 11619,
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-install",
+          "status": "completed",
+          "elapsedMs": 12504,
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "before-uninstall",
+          "status": "completed",
+          "elapsedMs": 296,
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-uninstall-poll",
+          "status": "completed",
+          "elapsedMs": 257,
+          "timeoutMs": 60000
+        },
+        {
+          "stage": "after-uninstall",
+          "status": "completed",
+          "elapsedMs": 256,
+          "timeoutMs": 60000
+        }
+      ]
+    },
+    "installation": {
+      "status": "PASS",
+      "setupSha256": "f41cc743d289fa4d5214896599199fc54635bbd7944a1669fe89e2b135f0e4ce",
+      "version": "0.6.5",
+      "nsisGuid": "f973205b-ac9b-56c0-baad-730abd2ca4b3",
+      "installDirectory": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-96819ef8a5bc",
+      "observation": {
+        "phase": "installer",
+        "startedAt": "2026-11-15T18:57:39.515Z",
+        "timeoutMs": 1200000,
+        "elapsedMs": 404900,
+        "status": "completed",
+        "pid": 8772,
+        "spawnElapsedMs": 13,
+        "exit": {
+          "elapsedMs": 404900,
+          "code": 0,
+          "signal": null
+        },
+        "close": {
+          "elapsedMs": 404900,
+          "code": 0,
+          "signal": null
+        },
+        "stdoutBytes": 0,
+        "stderrBytes": 0,
+        "failure": null,
+        "terminationRequested": false,
+        "pathProgress": [
+          {
+            "elapsedMs": 30015,
+            "durationMs": 2,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 16,
+            "sizeMatched": 0,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          },
+          {
+            "elapsedMs": 120015,
+            "durationMs": 2,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 16,
+            "sizeMatched": 0,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          },
+          {
+            "elapsedMs": 300018,
+            "durationMs": 5,
+            "status": "completed",
+            "root": "ordinary",
+            "sampledFiles": 16,
+            "absent": 6,
+            "sizeMatched": 10,
+            "sizeMismatched": 0,
+            "refused": 0,
+            "uninstaller": "absent"
+          }
+        ]
+      },
+      "registry": [
+        {
+          "hive": "HKCU",
+          "view": 64,
+          "values": {
+            "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-96819ef8a5bc"
+          },
+          "kind": "install"
+        },
+        {
+          "hive": "HKCU",
+          "view": 64,
+          "values": {
+            "DisplayVersion": "0.6.5",
+            "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-96819ef8a5bc\\Uninstall Gen V1.exe\" /currentuser"
+          },
+          "kind": "uninstall"
+        },
+        {
+          "hive": "HKCU",
+          "view": 32,
+          "values": {
+            "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-96819ef8a5bc"
+          },
+          "kind": "install"
+        },
+        {
+          "hive": "HKCU",
+          "view": 32,
+          "values": {
+            "DisplayVersion": "0.6.5",
+            "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-96819ef8a5bc\\Uninstall Gen V1.exe\" /currentuser"
+          },
+          "kind": "uninstall"
+        }
+      ],
+      "durationInterpretation": "This attempt completed naturally below both the former 600000 ms and current 1200000 ms bounds. This result does not prove that the larger allowance caused completion."
+    },
+    "completeInstalledPayload": {
+      "status": "PASS",
+      "matches": true,
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "1d8215b597f794421d35f76fe725ece36adefe64fba9a87bab74aea4f37d8a08",
+      "maxInstalledPathLength": 240
+    },
+    "packagedProviders": {
+      "status": "PASS",
+      "receipt": {
+        "ref": "docs/implementation/v3/m05-platform-43748168614/provider-verification.json",
+        "bytes": 168090,
+        "sha256": "b12a0d676aef9510a104035dd77876e06a0ee920ecb7c40188b277049d697eb7"
+      },
+      "scope": "Actual packaged Node and resolver, published CLI version startup, and Cursor empty-store SDK import plus stock rg version when declared by the target. Full declared distribution custody. Empty isolated homes; no sign-in, model request, inference, sandbox acceptance, or live-account acceptance.",
+      "auth": false,
+      "inference": false,
+      "providerChecks": [
+        {
+          "provider": "claude-code",
+          "versionOutput": "2.1.316 (Claude Code)",
+          "elapsedMs": 50,
+          "arguments": [
+            "--version"
+          ],
+          "auth": false,
+          "inference": false
+        },
+        {
+          "provider": "gemini-cli",
+          "versionOutput": "0.66.0",
+          "elapsedMs": 742,
+          "arguments": [
+            "--version"
+          ],
+          "auth": false,
+          "inference": false
+        },
+        {
+          "provider": "cursor-sdk",
+          "versionOutput": "1.0.38",
+          "elapsedMs": 505,
+          "arguments": [],
+          "auth": false,
+          "inference": false
+        }
+      ],
+      "declaredDistributionCustodyCount": 5,
+      "allDeclaredDistributionsMatch": true
+    },
+    "firstNativeWindow": {
+      "status": "REACHED_UI_ENTRY_FAILED",
+      "baselineScreenshotsPresent": 3,
+      "seededTaskVisible": true,
+      "completedLaunchReceipts": 0,
+      "launches": [],
+      "failure": "Project memory locator timed out after 30000 ms inside the collapsed Project overview."
+    },
+    "retainedMemoryActions": {
+      "status": "NOT_RUN",
+      "hostDefaultOff": true,
+      "seedEnablement": "Constructor-local fixture creation only; project disabled before installed launch.",
+      "profileId": "661de085c6430eca90c1762ecccef4e49e63e644d6012768df56462dc2daf2de",
+      "projectIdentity": "617952e1291debea167f66956b7cc12f2ed786ab88b033ea30e6bf412e1d0f16",
+      "observedSteps": [
+        "failed",
+        "review-command-observation"
+      ],
+      "reviewCommandTypes": [],
+      "providerNetworkCalls": null,
+      "providerNetworkMeasurement": "No global provider network-call count was measured. The receipt reports null. No model-generation or sign-in action was executed by this review flow."
+    },
+    "secondLaunchAndRestartRetention": {
+      "status": "NOT_RUN"
+    },
+    "postExitRetainedMemoryStorage": {
+      "status": "NOT_RUN"
+    },
+    "ownedCleanup": {
+      "status": "uninstalled-owned-installation",
+      "command": {
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "elapsedMs": 9898
+      },
+      "cache": {
+        "status": "removed-owned-exact-file",
+        "sha256": "f41cc743d289fa4d5214896599199fc54635bbd7944a1669fe89e2b135f0e4ce"
+      },
+      "shortcuts": "absent",
+      "installationKeys": "absent",
+      "nativeProcesses": "absent"
+    },
+    "overallInstalledRetention": {
+      "status": "FAIL",
+      "passed": false
+    }
+  },
+  "navigationDiagnosis": {
+    "observedFailure": "The old helper selected the seeded completed task and directly located Project memory without expanding its owning Project overview.",
+    "sourceEvidence": [
+      "Both App.tsx root layout variants pass defaultCollapsed to the Project overview DockedSummary.",
+      "SummaryDock.tsx marks the collapsed content hidden, inert and aria-hidden. Its normal disclosure is named Expand Project overview.",
+      "ProjectContextSurface.tsx nests Project memory inside that dock content and disables it until exact local project/thread context is loaded without an error."
+    ],
+    "conclusion": "The verifier omitted a required visible disclosure action. The failure screenshot and tested source support correcting that navigation without changing production behavior.",
+    "reconnectingBadge": {
+      "observed": true,
+      "cause": "UNMEASURED",
+      "assessment": "The installed renderer uses the native onWorkspaceChanged bridge when present. api.ts sets connectivity false on a disconnected bridge notification or failed snapshot resynchronization. This artifact has no bridge or backend error trace that identifies which occurred. The badge is not treated as harmless or as a measured network failure; it is independent of the proven collapsed/inert disclosure. The repaired verifier must still wait for the exact local project control to become enabled."
+    }
+  },
+  "visualReview": [
+    {
+      "ref": "docs/implementation/v3/m05-platform-43748168614/installed-main.png",
+      "bytes": 53613,
+      "sha256": "06d05f1374a9327dd73a5a3e4c86311ebe0d8fc7a3498278092cc2af4bd93490",
+      "imagePixels": {
+        "width": 1024,
+        "height": 720
+      },
+      "recordedViewport": null,
+      "observedTheme": "dark",
+      "visuallyInspected": true,
+      "observation": "Native application main window is visible with the seeded completed task in the sidebar, no selected model, Connect a model to get started, a Reconnecting header and a collapsed Project overview disclosure."
+    },
+    {
+      "ref": "docs/implementation/v3/m05-platform-43748168614/installed-settings.png",
+      "bytes": 84334,
+      "sha256": "22b76e15b764793abccd17e6b292bd144ff22462778ce5265c44ef65b933d1bb",
+      "imagePixels": {
+        "width": 1024,
+        "height": 720
+      },
+      "recordedViewport": null,
+      "observedTheme": "dark",
+      "visuallyInspected": true,
+      "observation": "The native Settings dialog displays Models & Accounts, zero models reported by connected runtimes, Local host, and no configured environment variables. No sign-in or credential action is shown."
+    },
+    {
+      "ref": "docs/implementation/v3/m05-platform-43748168614/installed-official-connections.png",
+      "bytes": 89088,
+      "sha256": "dbdee5bbc01966308c663fe138d5c599154ebe868e8bc4a8471eaf77551cb5ed",
+      "imagePixels": {
+        "width": 1024,
+        "height": 720
+      },
+      "recordedViewport": null,
+      "observedTheme": "dark",
+      "visuallyInspected": true,
+      "observation": "The native Settings dialog displays the Claude, Gemini and Cursor connection controls. Gemini and Cursor show Ready to connect; connection status is not checked and identity is unavailable. No connection or model invocation is evidenced."
+    },
+    {
+      "ref": "docs/implementation/v3/m05-platform-43748168614/installed-memory-launch-1-failure.png",
+      "bytes": 62658,
+      "sha256": "6e8b19871e1920bc24278249f472c31514da07edee9c56f5f8c53c26e75beca3",
+      "imagePixels": {
+        "width": 1024,
+        "height": 720
+      },
+      "recordedViewport": {
+        "width": 1024,
+        "height": 720
+      },
+      "observedTheme": "dark",
+      "visuallyInspected": true,
+      "observation": "The seeded completed Installed memory review task is selected under Installed retention proof. Its four fixture messages are visible. Project overview is visibly collapsed at the lower right, and no Project memory button or review dialog is visible. The header reads Reconnecting."
+    }
+  ],
+  "limits": [
+    "The installed verifier remains failed. An installed memory source read, review, export, Forget, clean first-launch completion, second launch and restart persistence are not established.",
+    "The four baseline/failure images are actual installed application images, but none is a successful M05 source or review screenshot.",
+    "The seeded disposable profile uses constructor-local enablement only for setup. The installed host and both production memory flags remain off.",
+    "The packaged provider checks cover custody/version/import startup under isolated empty profiles. They do not prove provider sign-in, paid inference, enabled memory lifecycle or a live repeated-task study.",
+    "No network or provider-call count for the complete installed run is inferred as zero. The observed Reconnecting badge remains unexplained by the retained evidence."
+  ]
+}

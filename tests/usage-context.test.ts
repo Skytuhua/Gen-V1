@@ -78,3 +78,10 @@ describe('reported usage presentation', () => {
     expect(runtimeUsageReport(undefined, EMPTY_USAGE)).toBeUndefined();
   });
 });
+
+it('does not invent a reset time or timezone for incomplete provider dates', () => {
+  for (const label of ['2030-01-01', '2030-01-01T12:34:56', 'January 2030']) {
+    expect(usageReset(label)).toBe(label);
+  }
+  expect(usageReset('2030-01-01T12:34:56+02:00')).not.toContain('T12:34');
+});

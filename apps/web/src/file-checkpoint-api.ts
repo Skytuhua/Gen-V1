@@ -80,7 +80,7 @@ export interface FileCheckpointAdapter {
 }
 const unavailable=async():Promise<never>=>{throw Error('File checkpoints are unavailable. No checkpoint service is connected.');};
 export const disabledCheckpointAdapter:FileCheckpointAdapter={available:false,list:unavailable,detail:unavailable,review:unavailable,
-  restore:{enabled:false,reason:'Restore is unavailable until checkpoint recovery is connected and its conflict, confirmation and receipt designs are approved.'},
+  restore:{enabled:false,reason:'Restoring files isn’t set up for this workspace.'},
 };
 
 /** Plan payload the restore confirmation screen shows back to the user. */
@@ -97,7 +97,7 @@ const restoreResultPayloadSchema=restorePlanPayloadSchema;
 export function readRestoreResult(value:unknown):{planId:string;state:string;conflicts:string[];restored:string[];preRestoreCheckpointId:string|null}{
   const result=restoreResultPayloadSchema.parse(value);
   // On CONFLICT the service rolls every written path back — nothing was restored.
-  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.state==='CONFLICT'?[]:result.selectedPaths.filter(path=>!result.conflicts.includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
+  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.state==='APPLIED'?result.selectedPaths.filter(path=>!result.conflicts.includes(path)):[],preRestoreCheckpointId:result.preRestoreCheckpointId};
 }
 /** Live host adapter: speaks to the flag-gated /checkpoints/* routes. `base` is
  *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query).
@@ -115,7 +115,7 @@ export function createHttpCheckpointAdapter(base:string,threadId:string|undefine
     detail:(owner,checkpoint,options)=>post('/detail',{owner,checkpointId:checkpoint.id,threadId},options.signal),
     review:(owner,checkpoint,options)=>post('/review',{owner,checkpointId:checkpoint.id,paths:options.paths,threadId},options.signal),
     restore:{
-      enabled:restoreEnabled,reason:restoreEnabled?'':'Checkpoint restore is disabled.',
+      enabled:restoreEnabled,reason:restoreEnabled?'':'Restoring files is turned off for this workspace.',
       ...(restoreEnabled?{
       plan:(owner,checkpoint,paths,approvalId)=>post('/restore/plan',{owner,checkpointId:checkpoint.id,selectedPaths:paths,approvalId,threadId}),
       apply:(owner,_checkpoint,planId,approvalId)=>post('/restore/apply',{owner,planId,approvalId,threadId}),

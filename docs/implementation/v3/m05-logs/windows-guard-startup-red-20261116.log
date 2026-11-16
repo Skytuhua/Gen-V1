@@ -1,0 +1,99 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/file-access-startup.test.ts (8 tests | 4 failed) 66ms
+   × admits a valid first acquisition after the observed cold-start delay and closes its guard 35ms
+   × denies a silent first acquisition at its bounded startup deadline without entering the action 3ms
+   × keeps the later acquisition deadline at fifteen seconds after a slow successful startup 7ms
+   × does not enter the action if cancelled while waiting for a valid startup reply 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/file-access-startup.test.ts > admits a valid first acquisition after the observed cold-start delay and closes its guard
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/file-access-startup.test.ts:48:30
+     46|   await vi.advanceTimersByTimeAsync(31_944);
+     47|   expect(action).not.toHaveBeenCalled();
+     48|   expect(observed.settled()).toBe(false);
+       |                              ^
+     49|   g.reply(0);
+     50|   expect(await observed.result).toEqual({ value: 'guarded', error: und…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/file-access-startup.test.ts > denies a silent first acquisition at its bounded startup deadline without entering the action
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/file-access-startup.test.ts:60:30
+     58|   const observed = observe(withPathGuard([path], signal(), action));
+     59|   await vi.advanceTimersByTimeAsync(44_999);
+     60|   expect(observed.settled()).toBe(false);
+       |                              ^
+     61|   await vi.advanceTimersByTimeAsync(1);
+     62|   expect((await observed.result).error).toMatchObject({ code: 'CAPABIL…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/file-access-startup.test.ts > keeps the later acquisition deadline at fifteen seconds after a slow successful startup
+AssertionError: expected [ 'acquire' ] to deeply equal [ 'acquire', 'acquire' ]
+
+- Expected
++ Received
+
+  [
+    "acquire",
+-   "acquire",
+  ]
+
+ ❯ tests/file-access-startup.test.ts:73:54
+     71|   g.reply(0);
+     72|   await vi.advanceTimersByTimeAsync(0);
+     73|   expect(g.requests.map(request => request.command)).toEqual(['acquire…
+       |                                                      ^
+     74|   await vi.advanceTimersByTimeAsync(14_999);
+     75|   expect(observed.settled()).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/file-access-startup.test.ts > does not enter the action if cancelled while waiting for a valid startup reply
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'CANCELLED' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "CANCELLED",
++ HarnessError {
++   "code": "CAPABILITY_DENIED",
+  }
+
+ ❯ tests/file-access-startup.test.ts:133:41
+    131|   await vi.advanceTimersByTimeAsync(31_944);
+    132|   controller.abort(); g.reply(0);
+    133|   expect((await observed.result).error).toMatchObject({ code: 'CANCELL…
+       |                                         ^
+    134|   expect(action).not.toHaveBeenCalled();
+    135|   expect(g.child.stdin.writableEnded).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  09:53:35
+   Duration  672ms (transform 150ms, setup 0ms, import 330ms, tests 66ms, environment 0ms)
+

@@ -1,0 +1,57 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-v3.test.ts (7 tests | 1 failed) 75ms
+   × supersedes a correction and retains both concurrent edits as an explicit conflict 14ms
+ ❯ tests/memory-forget-v3.test.ts (5 tests | 1 failed) 50ms
+   × does not report physical purge complete while a reader retains old WAL pages 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > does not report physical purge complete while a reader retains old WAL pages
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/memory-forget-v3.test.ts:33:59
+     31|   f.act({ action: 'forget', itemId: item.id, baseRevision: item.revisi…
+     32|   f.store.db.exec('PRAGMA busy_timeout=0');
+     33|   try { expect(f.memory.purge(Date.now() + 8 * 86400000)).toBe(0); exp…
+       |                                                           ^
+     34|   finally { reader.exec('ROLLBACK'); reader.close(); }
+     35|   expect(f.memory.purge(Date.now() + 8 * 86400000)).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/project-memory-v3.test.ts > supersedes a correction and retains both concurrent edits as an explicit conflict
+AssertionError: expected { kind: 'AGENT', id: 'agent' } to deeply equal { kind: 'USER', id: 'local-user' }
+
+- Expected
++ Received
+
+  {
+-   "id": "local-user",
+-   "kind": "USER",
++   "id": "agent",
++   "kind": "AGENT",
+  }
+
+ ❯ tests/project-memory-v3.test.ts:64:58
+     62|   f.act({ action: 'edit', itemId: original.id, baseRevision: original.…
+     63|   expect(f.memory.accepted(f.access)[0].item.text).toContain('PostgreS…
+     64|   expect(f.memory.accepted(f.access)[0].item.assertedBy).toEqual({ kin…
+       |                                                          ^
+     65|   f.act({ action: 'edit', itemId: original.id, baseRevision: original.…
+     66|   expect(f.memory.accepted(f.access)).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 10 passed (12)
+   Start at  18:32:39
+   Duration  856ms (transform 241ms, setup 0ms, import 393ms, tests 125ms, environment 0ms)

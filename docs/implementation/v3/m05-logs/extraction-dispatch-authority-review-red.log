@@ -1,0 +1,22 @@
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error: Transform failed with 3 errors:
+/workspace/scratch/36f66011d961/m05-extraction-review-repro.ts:7:8: ERROR: Top-level await is currently not supported with the "cjs" output format
+/workspace/scratch/36f66011d961/m05-extraction-review-repro.ts:18:15: ERROR: Top-level await is currently not supported with the "cjs" output format
+/workspace/scratch/36f66011d961/m05-extraction-review-repro.ts:21:9: ERROR: Top-level await is currently not supported with the "cjs" output format
+    at failureErrorWithLog (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:736:50
+    at responseCallbacks.<computed> (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:514:28)
+    at addChunk (node:internal/streams/readable:569:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:520:3)
+    at Readable.push (node:internal/streams/readable:400:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:194:23) {
+  name: 'TransformError'
+}
+
+Node.js v24.22.1

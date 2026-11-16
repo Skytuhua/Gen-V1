@@ -1,0 +1,24 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-consolidation-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts [ tests/memory-consolidation-v3.test.ts ]
+Error: Cannot find module '../packages/core/memory-consolidation.ts' imported from /workspace/scratch/36f66011d961/m05-v3/tests/memory-consolidation-v3.test.ts
+ ❯ tests/memory-consolidation-v3.test.ts:8:1
+      6| import { Store } from '../packages/storage/store.ts';
+      7| import type { MemoryAccess, MemoryItemV1, MemorySourceSnapshot, Memory…
+      8| import { MemoryConsolidator, type MemoryConsolidationSnapshot, type Me…
+       | ^
+      9|
+     10| const cleanups: (() => void)[] = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:26:27
+   Duration  258ms (transform 57ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

@@ -1,0 +1,3 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+command: pnpm exec vitest run tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts
+exit code: 0 — 4 files, 25 tests passed (duration 39.64s)

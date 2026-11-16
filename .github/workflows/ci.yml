@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, agent/m05-v3]
   pull_request:
   workflow_dispatch:
 
@@ -80,7 +80,7 @@ jobs:
         run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
+        run: pnpm test --maxWorkers=1 --shard=${{ matrix.shard }}/4
 
   browser:
     name: Browser tests
@@ -110,6 +110,30 @@ jobs:
           GEN_SPLIT_APP_BROWSER: '1'
         run: pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
 
+      - name: Exercise project memory and affected context browser flows
+        run: |
+          $failedSuites = @()
+          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+            pnpm test:browser --suite $suite
+            if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+          }
+          if ($failedSuites.Count -gt 0) {
+            throw "Failed browser suites: $($failedSuites -join ', ')"
+          }
+
+      - name: Preserve browser reports and failure traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            test-results/browser/**/results.json
+            test-results/browser/**/artifacts/**/*.png
+            test-results/browser/**/artifacts/**/trace.zip
+            test-results/browser/**/artifacts/**/host-observations.json
+
   hermes:
     name: Hermes contracts
     runs-on: windows-latest
@@ -137,6 +161,12 @@ jobs:
       - name: Verify original Hermes worker behavior
         run: python -I -S -B tests/hermes_source_worker.py -v
 
+      - name: Verify native memory checkpoint ordering and failure isolation
+        run: |
+          python -B tests/memory_native_checkpoint_v3.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tests/memory_native_checkpoint_worker_v3.py -v
+
   desktop:
     name: Desktop build
     runs-on: windows-latest
@@ -158,3 +188,110 @@ jobs:
 
       - name: Build desktop shell
         run: pnpm desktop:build
+
+  installed-memory:
+    name: Installed desktop memory retention
+    runs-on: windows-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+
+      - name: Stage pinned integration wheels for canonical packaging
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
+          $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $wheels | Out-Null
+          $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+          foreach ($distribution in $lock.distributions) {
+            if ($distribution.sourceUrl -notmatch '^https://files\.pythonhosted\.org/[^?#\s]+\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }
+            $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)
+            if ($name -notmatch '^[A-Za-z0-9_.+-]+\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }
+            $archive = Join-Path $wheels $name
+            Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }
+          }
+          "HARNESS_INTEGRATION_WHEELS=$wheels" >> $env:GITHUB_ENV
+          Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))
+
+      - name: Stage declared Git and GitHub CLI packaging inputs
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Get-Content -Raw -LiteralPath third-party/git-tools/manifest.json | ConvertFrom-Json
+          $scratch = Join-Path $env:RUNNER_TEMP ('gen-installed-inputs-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $scratch | Out-Null
+          foreach ($tool in @(@{name='git'; pin=$manifest.git}, @{name='gh'; pin=$manifest.github})) {
+            $pin = $tool.pin
+            if ($pin.url -notmatch '^https://github\.com/(git-for-windows/git|cli/cli)/releases/download/[^?#\s]+\.zip$' -or $pin.archiveSha256 -notmatch '^[0-9a-f]{64}$') {
+              throw 'Invalid declared Git packaging archive identity'
+            }
+            $archive = Join-Path $scratch ($tool.name + '.zip')
+            Invoke-WebRequest -Uri $pin.url -OutFile $archive -TimeoutSec 180
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.archiveSha256) {
+              throw 'Declared Git packaging archive checksum mismatch'
+            }
+            $expanded = Join-Path $scratch $tool.name
+            Expand-Archive -LiteralPath $archive -DestinationPath $expanded
+            $source = $expanded
+            if ($tool.name -eq 'gh' -and -not (Test-Path -LiteralPath (Join-Path $source 'bin/gh.exe'))) {
+              $source = Join-Path $expanded ('gh_' + $pin.version + '_windows_amd64')
+            }
+            $prefix = '.harness-tool-bundles/' + $tool.name + '/'
+            $destination = Join-Path $PWD ('.harness-tool-bundles/' + $tool.name)
+            if (Test-Path -LiteralPath $destination) { throw 'Packaging input destination already exists' }
+            New-Item -ItemType Directory -Path $destination | Out-Null
+            foreach ($file in @($manifest.files | Where-Object { $_.path.StartsWith($prefix) })) {
+              $relative = $file.path.Substring($prefix.Length)
+              if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '(^|/)\.\.?(/|$)|[\\:]|^/|//|/$' -or $file.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid declared Git payload path' }
+              $payloadInput = Join-Path $source $relative
+              $payloadOutput = Join-Path $destination $relative
+              if ((Get-Item -LiteralPath $payloadInput).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $payloadInput -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw 'Declared Git payload checksum mismatch' }
+              New-Item -ItemType Directory -Path (Split-Path -Parent $payloadOutput) -Force | Out-Null
+              Copy-Item -LiteralPath $payloadInput -Destination $payloadOutput
+            }
+          }
+          node --import tsx --input-type=module -e "import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package the production Windows installer
+        run: pnpm desktop:package --output-root .harness-installed-package
+
+      - name: Verify installed default-off memory retention and restart
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+          $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+          $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+          $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+          Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+          & pnpm @verifyArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Preserve installed verification receipts and screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: installed-memory-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          include-hidden-files: true
+          path: |
+            .harness-installed-package/desktop-release-*/build-manifest.json
+            .harness-installed-package/desktop-stage-*/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json
+            .harness-desktop-installed/run-*/owner.json
+            .harness-desktop-installed/run-*/verification.json
+            .harness-desktop-installed/run-*/*.png
+            .harness-desktop-installed/run-*/installed-memory-redacted-export.json
+            .harness-packaged-providers/run-*/verification.json

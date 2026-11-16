@@ -1,0 +1,265 @@
+{
+  "version": 1,
+  "kind": "installed-artifact-independent-phase-review",
+  "reviewedAt": "2026-11-15T18:35:59.195436+00:00",
+  "identity": {
+    "runId": 43744480609,
+    "jobId": 132904644508,
+    "head": "60f030a2a6a764b858da110586c666353705a5fd",
+    "tree": "b133507695a2130ba4c80cf738e70d4553378864",
+    "actualCheckout": "a7ab39080e2d8a27449774a40d55282cd132f828"
+  },
+  "artifact": {
+    "id": 14174947305,
+    "name": "installed-memory-43744480609-1",
+    "bytes": 356644,
+    "sha256": "b8d2a59321b58ba20d0799b05d91458240e585eb87c362ddca783b7784e9b41b",
+    "downloads": 1,
+    "fileCount": 4,
+    "screenshots": []
+  },
+  "rawLog": {
+    "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/job-132904644508.log",
+    "bytes": 126900,
+    "sha256": "40dd0d32afb8319222190334e90c894c575f09f3babcb8888cebf118c0d87992"
+  },
+  "members": {
+    "verification": {
+      "path": ".harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/verification.json",
+      "bytes": 6165,
+      "sha256": "58b54ce2ab2ee2f523624072613d508368592fc898ccd4c8bd2703e6f5361547"
+    },
+    "owner": {
+      "path": ".harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/owner.json",
+      "bytes": 330,
+      "sha256": "b55761c8feb1257d6a9120d00849721d4a9c9f659d5565d13202006c55e45527"
+    },
+    "buildManifest": {
+      "path": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "sha256": "45ad932ce30eea8e4cc341481eb11bc364acd6c27c27b8ff198552608009be61"
+    },
+    "canonicalPython": {
+      "path": ".harness-installed-package/desktop-stage-1794765876010/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+    }
+  },
+  "inputCustody": {
+    "setupSha256": "e5ef67ec621974fbda248b42a157ccefe35753a1ca0a4dee2295a2c73cb622be",
+    "ownerSetupAndDestinationMatchReceipt": true,
+    "builtInstallerHashMatchesReceipt": true,
+    "canonicalReceiptHashUnchangedFromPreviousWindowsPackage": true
+  },
+  "observations": {
+    "preflight": [
+      {
+        "stage": "before-install",
+        "startedAt": "2026-11-15T18:20:53.445Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 29997,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 6,
+            "observedElapsedMs": 239
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 28,
+            "observedElapsedMs": 256
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 119,
+            "observedElapsedMs": 347
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 124,
+            "observedElapsedMs": 353
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 131,
+            "observedElapsedMs": 359
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 29724,
+            "observedElapsedMs": 29952
+          }
+        ]
+      },
+      {
+        "stage": "pre-install-recheck",
+        "startedAt": "2026-11-15T18:22:22.261Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 22749,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 5,
+            "observedElapsedMs": 216
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 25,
+            "observedElapsedMs": 231
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 48,
+            "observedElapsedMs": 254
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 53,
+            "observedElapsedMs": 259
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 59,
+            "observedElapsedMs": 265
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 22503,
+            "observedElapsedMs": 22710
+          }
+        ]
+      }
+    ],
+    "expectedPayload": {
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "4e10d6a58d410ffbaab748b459bc44298a924d8cfc883ee8865632f2d18191ce",
+      "maxInstalledPathLength": 240
+    },
+    "installerProgressSetup": "ready",
+    "installer": {
+      "phase": "installer",
+      "startedAt": "2026-11-15T18:22:46.286Z",
+      "timeoutMs": 600000,
+      "elapsedMs": 600211,
+      "status": "failed",
+      "pid": 5628,
+      "spawnElapsedMs": 18,
+      "exit": {
+        "elapsedMs": 600211,
+        "code": 1,
+        "signal": null
+      },
+      "close": {
+        "elapsedMs": 600211,
+        "code": 1,
+        "signal": null
+      },
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "failure": "deadline",
+      "terminationRequested": true,
+      "pathProgress": [
+        {
+          "elapsedMs": 30024,
+          "durationMs": 4,
+          "status": "completed",
+          "root": "ordinary",
+          "sampledFiles": 16,
+          "absent": 16,
+          "sizeMatched": 0,
+          "sizeMismatched": 0,
+          "refused": 0,
+          "uninstaller": "absent"
+        },
+        {
+          "elapsedMs": 120021,
+          "durationMs": 2,
+          "status": "completed",
+          "root": "ordinary",
+          "sampledFiles": 16,
+          "absent": 16,
+          "sizeMatched": 0,
+          "sizeMismatched": 0,
+          "refused": 0,
+          "uninstaller": "absent"
+        },
+        {
+          "elapsedMs": 300033,
+          "durationMs": 2,
+          "status": "completed",
+          "root": "ordinary",
+          "sampledFiles": 16,
+          "absent": 16,
+          "sizeMatched": 0,
+          "sizeMismatched": 0,
+          "refused": 0,
+          "uninstaller": "absent"
+        },
+        {
+          "elapsedMs": 540022,
+          "durationMs": 13,
+          "status": "completed",
+          "root": "ordinary",
+          "sampledFiles": 16,
+          "absent": 4,
+          "sizeMatched": 12,
+          "sizeMismatched": 0,
+          "refused": 0,
+          "uninstaller": "absent"
+        }
+      ]
+    },
+    "error": "Owned installer process exceeded its 600000 ms deadline.",
+    "cleanup": {
+      "status": "preserved-unconfirmed-installation"
+    },
+    "launches": [],
+    "absentFields": [
+      "installCommand",
+      "installedRegistry",
+      "payloadCustody",
+      "providerVerification",
+      "memoryRetention"
+    ]
+  },
+  "phaseResults": {
+    "package": "PASS",
+    "initialPreflight": "PASS",
+    "preInstallRecheck": "PASS",
+    "installerCompletion": "TIMEOUT_600000_MS",
+    "installedPayloadComparison": "NOT_RUN",
+    "installedMemorySourceAndReview": "NOT_RUN",
+    "installedExportAndForget": "NOT_RUN",
+    "secondLaunchPersistence": "NOT_RUN",
+    "ownedUninstall": "NOT_RUN",
+    "screenshots": "NOT_RUN"
+  },
+  "assessment": {
+    "directlyObserved": [
+      "Installer spawned in 18 ms and no exit or close was recorded before the 600000 ms deadline.",
+      "Path samples completed under the same ordinary destination: all 16 absent at 30, 120 and 300 seconds; 12 expected-size matches and 4 absent at 540 seconds; uninstaller absent throughout.",
+      "Termination was requested because of the deadline. Exit and close code 1 were then recorded at 600211 ms; this is not evidence of an earlier natural installer failure."
+    ],
+    "supportedNextAttempt": {
+      "installerDeadlineMs": 1200000,
+      "additionalProgressCheckpointsMs": [
+        900000,
+        1140000
+      ],
+      "uninstallerDeadlineMs": 180000,
+      "allPayloadAndRegistryChecksRetained": true,
+      "closeAndZeroExitStillRequired": true,
+      "completionPredicted": false
+    },
+    "limits": [
+      "Sampled file sizes are progress metadata, not verified content or percentage completion.",
+      "The report does not measure temporary extraction, disk scanning, copying, or other installer work separately.",
+      "No installed launch, retained-memory UI, source display, export, Forget, restart or uninstall proof exists in this run.",
+      "No screenshot inspection was possible because the artifact contains no images.",
+      "Full enabled M05 installed lifecycle and live-provider evaluation remain unproven. Provider network calls are unmeasured."
+    ]
+  }
+}

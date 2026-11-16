@@ -102,7 +102,7 @@ for (const mode of ['reject', 'throw', 'source-error'] as const) {
     const {errors} = await fixture(page);
     await page.evaluate(mode => {window.inboxControls.refreshMode = mode;}, mode);
     await choose(page, 'Unread'); await page.getByRole('button', {name: 'Refresh inbox', exact: true}).click();
-    await expect(page.getByRole('alert')).toContainText(mode === 'source-error' ? 'Inbox could not load.' : 'Refresh failed.');
+    await expect(page.getByRole('status').filter({hasText:mode === 'source-error' ? 'Inbox could not load.' : 'Refresh failed.'})).toBeVisible();
     await expect(filter(page)).toHaveText('Unread'); await expect(rows(page)).toHaveCount(3);
     expect(await calls(page)).toEqual([{type: 'refresh'}]); expect(errors).toEqual([]);
   });
@@ -115,7 +115,7 @@ test('reading and failed canonical navigation never approve or falsely mark an u
   await page.getByRole('button', {name: 'Mark unread'}).click();
   await page.evaluate(() => {window.inboxControls.openMode = 'reject';});
   await page.getByRole('button', {name: 'Open conversation'}).click();
-  await expect(page.getByRole('alert')).toContainText('Navigation failed.');
+  await expect(page.getByRole('status').filter({hasText:'Navigation failed.'})).toBeVisible();
   await expect(page.getByRole('button', {name: 'Question, Needs your input, unread', exact: true})).toHaveAttribute('aria-current', 'page');
   expect(await calls(page)).toEqual([{type: 'read', id: 'question'}, {type: 'unread', id: 'question'}, {type: 'open', id: 'thread-question'}]);
   expect(await page.evaluate(() => window.inboxControls.items.find(item => item.id === 'question'))).toMatchObject({read: false, state: 'needs-input', actionable: true});
@@ -125,7 +125,7 @@ test('reading and failed canonical navigation never approve or falsely mark an u
 test('read-state rejection remains visible without changing read state or invoking navigation', async ({page}) => {
   await fixture(page); await page.evaluate(() => {window.inboxControls.readMode = 'reject';});
   await rows(page).filter({hasText: 'Question'}).first().click();
-  await expect(page.getByRole('alert')).toHaveText('Read state could not save.');
+  await expect(page.getByRole('status').filter({hasText:'Read state could not save.'})).toBeVisible();
   expect(await calls(page)).toEqual([{type: 'read', id: 'question'}]);
   expect(await page.evaluate(() => window.inboxControls.items[0])).toMatchObject({read: false, state: 'needs-input', actionable: true});
 });

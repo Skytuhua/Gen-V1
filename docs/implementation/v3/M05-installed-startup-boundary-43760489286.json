@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "workflow": {
+    "id": 419474335,
+    "name": "M05 installed startup boundary",
+    "path": ".github/workflows/m05-startup-repair-43755565107.yml",
+    "runId": 43760489286,
+    "runNumber": 2,
+    "attempt": 1,
+    "event": "push",
+    "branch": "agent/m05-startup-repair-43755565107",
+    "status": "completed",
+    "conclusion": "success",
+    "createdAt": "2026-11-15T20:52:27Z",
+    "startedAt": "2026-11-15T20:52:27Z",
+    "updatedAt": "2026-11-15T20:54:11Z",
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760489286",
+    "source": {
+      "bytes": 1224,
+      "sha256": "ec78bce9ab195f5789c45e8e05ab2435408f2624340a7e93470c7a37abaf3859"
+    }
+  },
+  "headSha": "9d6e0ac976ea0a594baf9a4866da1bbb0e14952d",
+  "treeSha": "5d1308b45b392365b7ae288f1d76a549b174911e",
+  "testedCheckout": {
+    "commitSha": "9d6e0ac976ea0a594baf9a4866da1bbb0e14952d",
+    "treeSha": "5d1308b45b392365b7ae288f1d76a549b174911e",
+    "parents": [
+      "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291"
+    ],
+    "matchesSourceHeadTree": true,
+    "scope": "Isolated push workflow, not a PR merge checkout."
+  },
+  "sourceFiles": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "blobSha": "047e04ae94b0da4a74ea8e98b92322d67e21ada7",
+      "bytes": 44330,
+      "sha256": "e827ae2b674a4b70fe8204c65bf9b0fd6afb86c3d167e96ea90679ba98e4e9a2"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "blobSha": "c0795d20ec91e7b37780a7a56f0c7dca0329be74",
+      "bytes": 25212,
+      "sha256": "f82de49b1c9dba1e195df4e6fcf755ea33fec6955f84b5c295a1e90496b971a2"
+    }
+  ],
+  "sourceApis": [
+    {
+      "kind": "run",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43760489286",
+      "bytes": 12456,
+      "sha256": "a7013f5c6bba11b6f90448c2d570ec0d0f1bda66267ed8d4397a9de059a57081"
+    },
+    {
+      "kind": "jobs",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43760489286/jobs",
+      "bytes": 2349,
+      "sha256": "259a8c568639944b8aa57079cb7e6dcab25e785bcb99e445c43cff0d8674af14"
+    },
+    {
+      "kind": "commit",
+      "ref": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/9d6e0ac976ea0a594baf9a4866da1bbb0e14952d",
+      "bytes": 1189,
+      "sha256": "d07109f9b0cb622a43d8f01e15482ea91f90109a9f56d4b64f541c2d73c340e8"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 132953964852,
+      "name": "Installed startup boundary validation",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-15T20:52:29Z",
+      "completedAt": "2026-11-15T20:54:10Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-15T20:52:30Z",
+          "completed_at": "2026-11-15T20:52:31Z"
+        },
+        {
+          "name": "Check out exact repair source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-15T20:52:31Z",
+          "completed_at": "2026-11-15T20:52:44Z"
+        },
+        {
+          "name": "Install pinned toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-15T20:52:44Z",
+          "completed_at": "2026-11-15T20:53:37Z"
+        },
+        {
+          "name": "Verify installed custody and native Save helper boundaries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-15T20:53:37Z",
+          "completed_at": "2026-11-15T20:53:41Z"
+        },
+        {
+          "name": "Check full TypeScript contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-15T20:53:41Z",
+          "completed_at": "2026-11-15T20:54:06Z"
+        },
+        {
+          "name": "Post Install pinned toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-15T20:54:06Z",
+          "completed_at": "2026-11-15T20:54:07Z"
+        },
+        {
+          "name": "Post Check out exact repair source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-15T20:54:07Z",
+          "completed_at": "2026-11-15T20:54:08Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-15T20:54:09Z",
+          "completed_at": "2026-11-15T20:54:09Z"
+        }
+      ],
+      "runner": {
+        "id": 1000001434,
+        "name": "GitHub Actions 1000001434",
+        "labels": [
+          "windows-latest"
+        ]
+      },
+      "rawLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132953964852/logs",
+      "rawLogDigest": "503c4462ea2fd05804a8784df487c53c1eed7bf19a2d98f5716f352724213cf8",
+      "rawLogBytes": 40872,
+      "logRef": "docs/implementation/v3/m05-logs/windows-startup-43760489286-j132953964852.log",
+      "logDigest": "fba4add8ce639827678e98044a9990fb3793c888fec912f91d27602394158b22",
+      "logBytes": 38734
+    }
+  ],
+  "actualTests": {
+    "passed": 33,
+    "failed": 0,
+    "skipped": 0,
+    "total": 33,
+    "passedFiles": 2,
+    "files": [
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "passed": 26
+      },
+      {
+        "path": "tests/installed-native-save.test.ts",
+        "passed": 7
+      }
+    ],
+    "delayedPageCase": {
+      "title": "installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff",
+      "status": "PASS",
+      "wholeCaseDurationMs": 6,
+      "clock": "Vitest fake timers"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/installed-desktop-verification.test.ts",
+        "tests/installed-native-save.test.ts",
+        "--reporter=verbose",
+        "--maxWorkers=1"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T20:53:37Z",
+      "endedAt": "2026-11-15T20:53:41Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s4-custody-native-save-green.log",
+      "logDigest": "9b33fa9b3bd70fee01a2c0720d709cf10002e81e74aabc85c94e70f7bd6524f1"
+    },
+    {
+      "argv": [
+        "pnpm",
+        "typecheck"
+      ],
+      "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+      "executableIdentity": "pnpm",
+      "startedAt": "2026-11-15T20:53:41Z",
+      "endedAt": "2026-11-15T20:54:06Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760489286-a1-j132953964852-s5-full-typecheck.log",
+      "logDigest": "6169339a7ce77da718450573c94ee9c85da30335eec9591d069a9caaf3dc9f50"
+    }
+  ],
+  "scope": {
+    "actualResult": "PASS",
+    "intent": "Whole installed-custody and native Save helper regression plus full TypeScript check after extending only the verifier main-page readiness bound to 80,000 ms.",
+    "redRunId": 43760214518,
+    "notExecuted": [
+      "Production installer",
+      "Installed native main page",
+      "Native Save dialog",
+      "Installed memory retention",
+      "Installed restart"
+    ],
+    "causeLimit": "Passing fake-timer and helper tests does not establish the earlier installed-page failure's cause or claim actual installed launch success."
+  },
+  "logPolicy": {
+    "raw": "Exact connector-decoded strings encoded as UTF-8, with original BOM and line endings retained in agent memory. No raw job-log blob is published.",
+    "jobTransformations": [
+      "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+      "UTF8_BOM_REMOVED_IF_PRESENT",
+      "ANSI_REMOVED_IF_PRESENT",
+      "LINE_ENDINGS_NORMALIZED_TO_LF"
+    ],
+    "timing": "Command times are observed GitHub step envelopes, not per-process durations.",
+    "files": "Immutable blob preparation only while workspace is unavailable. No local command execution or local file creation is claimed."
+  }
+}
