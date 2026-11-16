@@ -127,7 +127,7 @@ export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], 
     const finish = (commit: boolean) => {
       if (active.current !== current) return;
       active.current = null; cancelAnimationFrame(frame);
-      target.removeEventListener('pointermove', track); target.removeEventListener('pointerup', release); target.removeEventListener('pointercancel', cancel); target.removeEventListener('lostpointercapture', cancel); window.removeEventListener('keydown', cancelOnEscape, true);
+      target.removeEventListener('pointermove', track); target.removeEventListener('pointerup', release); target.removeEventListener('pointercancel', cancel); target.removeEventListener('lostpointercapture', cancel); window.removeEventListener('keydown', cancelOnEscape, true); window.removeEventListener('blur', cancelOnBlur);
       if (target.hasPointerCapture(pointer)) target.releasePointerCapture(pointer);
       setGesture(null); cleanup.current = () => {};
       if (!commit) announce(kind === 'resize' ? 'Resize cancelled.' : 'Move cancelled.');
@@ -138,6 +138,7 @@ export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], 
     const release = (next: PointerEvent) => { if (next.pointerId === pointer) { track(next); finish(true); } };
     const cancel = (next?: PointerEvent) => { if (!next || next.pointerId === pointer) finish(false); };
     const cancelOnEscape = (next: KeyboardEvent) => { if (next.key === 'Escape') { next.preventDefault(); next.stopPropagation(); finish(false); } };
+    const cancelOnBlur = () => finish(false);
     const autoScroll = () => {
       if (active.current !== current) return;
       if (kind === 'move' && current.moved) {
@@ -150,7 +151,7 @@ export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], 
       frame = requestAnimationFrame(autoScroll);
     };
     cleanup.current = () => cancel();
-    target.addEventListener('pointermove', track); target.addEventListener('pointerup', release); target.addEventListener('pointercancel', cancel); target.addEventListener('lostpointercapture', cancel); window.addEventListener('keydown', cancelOnEscape, true);
+    target.addEventListener('pointermove', track); target.addEventListener('pointerup', release); target.addEventListener('pointercancel', cancel); target.addEventListener('lostpointercapture', cancel); window.addEventListener('keydown', cancelOnEscape, true); window.addEventListener('blur', cancelOnBlur);
     place(); frame = requestAnimationFrame(autoScroll);
   };
   const clear = () => { takeOver(); setQuery(''); setSettledQuery(''); input.current?.focus(); announce(`${rows.length} of ${rows.length} ${rows.length === 1 ? 'row' : 'rows'} shown.`); };
