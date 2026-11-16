@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "Synthetic offline archives only. No actual CI artifact, connector transfer, repository edit, staging or network mutation.",
+  "checks": [
+    "Raw ZIP, binary members, CRLF logs, metadata and SHA-256 seals preserve exact bytes; failed run/job/command statuses stay failed.",
+    "Missing source metadata and missing command receipts remain explicit incomplete evidence.",
+    "Mismatched source, run, attempt, archive digest and nonzero PASS reject before installing output.",
+    "Push event is mandatory and artifact names bind the exact head, run ID and selected attempt; old C2 names and other-attempt artifacts reject.",
+    "All four full-shard identities bind artifact/job/source/command; counts and failures remain reported, filtered or wrong-shard commands reject, and a missing JSON result remains INCOMPLETE.",
+    "Root comparison validates accepted49 and its exact tree; the prior accepted138 baseline rejects.",
+    "The extended browser artifact requires sixteen receipts, including all four added full suites and both split files under one recorded command; each new missing receipt stays explicit and failures remain failed.",
+    "Actual recorded argv and source both bind the two enabled flags, explicit msedge override and complete split file selection; disabled flags, another channel, filtered commands and wrong named suites reject. CRLF command text remains supported.",
+    "Missing split metadata/results, a missing selected test file and skipped guarded bodies remain INCOMPLETE; byte verification still grants no test PASS.",
+    "Traversal, absolute/drive/backslash paths, symlinks, duplicate names, case collisions, file/directory collisions and Windows reserved names reject before extraction."
+  ],
+  "ingestionHelperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8"
+}

@@ -8,6 +8,14 @@
       "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
     },
     {
+      "path": ".github/workflows/ci.yml",
+      "blobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "c4151c1eeb491eaca0d395d744077084e645fcbc"
+    },
+    {
       "path": "apps/web/src/App.tsx",
       "blobSha": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e"
     },
@@ -24,8 +32,16 @@
       "blobSha": "87c2fd9228f3e3bf53564adfffd687d6aecb730c"
     },
     {
+      "path": "apps/web/src/SurfaceBoundary.tsx",
+      "blobSha": "6f3cb0c2a589ca9c6d7397372ed0979aaf812dd0"
+    },
+    {
       "path": "apps/web/src/UsageDialog.tsx",
       "blobSha": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f"
+    },
+    {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "blobSha": "13032a7b12ceae0a2de39366e38e0d022da93196"
     },
     {
       "path": "apps/web/src/WorkspaceSplitLayout.tsx",
@@ -48,6 +64,10 @@
       "blobSha": "9ba410e9ce0d510f00fe2227aba19d7a721eafa1"
     },
     {
+      "path": "apps/web/src/project-api.ts",
+      "blobSha": "73d17a1661e87173a238d07042e2a1945137234b"
+    },
+    {
       "path": "packages/contracts/implementation-evidence.ts",
       "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
     },
@@ -62,6 +82,10 @@
     {
       "path": "packages/contracts/tool-effects.ts",
       "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/contracts/workspace.ts",
+      "blobSha": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427"
     },
     {
       "path": "packages/core/capability-flags.ts",
@@ -90,6 +114,10 @@
     {
       "path": "packages/core/ui-admission.ts",
       "blobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920"
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "blobSha": "09c95164b7065a5bb255f802a67f978f24d74a3e"
     },
     {
       "path": "packages/runtime-hermes/acp-server.ts",
@@ -229,6 +257,18 @@
   ],
   "approvedDrift": [
     {
+      "path": ".github/workflows/ci.yml",
+      "fromBlob": "40a16ef4a302732d5e846966d59bde35cebfb149",
+      "toBlob": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "fromBlob": "460872b318c3a2b6e9510c3a6d436eafcce89091",
+      "toBlob": "c4151c1eeb491eaca0d395d744077084e645fcbc",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
       "path": "apps/web/src/App.tsx",
       "fromBlob": "75d67d9c68cb6619caabbe3623ec67f85156b34f",
       "toBlob": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e",
@@ -253,6 +293,12 @@
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "fromBlob": "ac996c547e8a3aeb4727c4ea26261f63261bf7a6",
+      "toBlob": "13032a7b12ceae0a2de39366e38e0d022da93196",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
       "path": "apps/web/src/WorkspaceSplitLayout.tsx",
       "fromBlob": "5d17e2634387996267ef74d87239a5a85e82ec42",
       "toBlob": "ab46274986562b7b51ebae5e6aaa3452059f7c7f",
@@ -265,15 +311,33 @@
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {
+      "path": "apps/web/src/project-api.ts",
+      "fromBlob": "a2d0d12b550f7d53379549e98bb7fd4cad802c38",
+      "toBlob": "73d17a1661e87173a238d07042e2a1945137234b",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
       "path": "packages/contracts/index.ts",
       "fromBlob": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
       "toBlob": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {
+      "path": "packages/contracts/workspace.ts",
+      "fromBlob": "88e08fbaee575c8ab5414ad055ec5639c812fdc2",
+      "toBlob": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
       "path": "packages/core/service.ts",
       "fromBlob": "eab452b47b375d23961989fc07da7815cbebda78",
       "toBlob": "d15a6bfb9bbdf81018cf7756851cd3c233525cae",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "fromBlob": "3d8a899ec3a69ac53fbed128299e09c117d2dd82",
+      "toBlob": "09c95164b7065a5bb255f802a67f978f24d74a3e",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {

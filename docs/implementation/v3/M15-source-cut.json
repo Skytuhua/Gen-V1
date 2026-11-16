@@ -3,9 +3,9 @@
   "files": [
     {
       "path": ".github/workflows/m15-evidence.yml",
-      "bytes": 16391,
-      "sha256": "dfc1581e089e05659338d3f4bdb1f22215ccd2deb5005eaf11c0a5f26deb0748",
-      "gitBlob": "477c72a3a02f38b879104dedb70a2dc6855ffe26"
+      "bytes": 27719,
+      "sha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+      "gitBlob": "36754a4da7f36ee85044ae41a269e5ea877bf123"
     },
     {
       "path": "apps/server/server.ts",
@@ -21,9 +21,9 @@
     },
     {
       "path": "apps/web/src/App.tsx",
-      "bytes": 160225,
-      "sha256": "62a8a39dcfdce885a05a747e22f66fbafec17ec5f5c0b3d7185f4a2930a56833",
-      "gitBlob": "dca65e247e267116ab69368bf6e8c3c2f5341dc9"
+      "bytes": 160299,
+      "sha256": "146d9f75d92209eb6b6a39ac09adc6e65888e0ec4fe9dfa76cb8af24c6a9dec4",
+      "gitBlob": "96cebe901b6dab963c3edec6f2cc834e906d1496"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -224,12 +224,6 @@
       "gitBlob": "2ae33b51287a053faa3b2c669f9eb2d78fd59675"
     },
     {
-      "path": "scripts/fix-reconcile-receipts.py",
-      "bytes": 1862,
-      "sha256": "95051046f1ba510803dbfa6662f5eb8099e4f8c55ad7cfd19c869aeed9f33075",
-      "gitBlob": "8c4cb3659569c2e3547a0fdc4a91a3665914e83a"
-    },
-    {
       "path": "scripts/m15-evidence-probe.mjs",
       "bytes": 4135,
       "sha256": "ff4eb8cfaf110fa5fd50d34d0486c1d92955a98bed8a7e6a7a7e455f87a26249",
@@ -345,15 +339,21 @@
     },
     {
       "path": "tests/e2e/workbench-app.spec.ts",
-      "bytes": 30734,
-      "sha256": "f7d8151795a3ee1706f65d381aa1f6c5df9d5e3f1993229ada00ee0065e73912",
-      "gitBlob": "b7a539f0955d69f310facf28ab4ef4239cff415a"
+      "bytes": 38469,
+      "sha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449",
+      "gitBlob": "ff72896758d339ccdfcfb79549932e8136479b84"
     },
     {
       "path": "tests/e2e/workbench-fixture.tsx",
       "bytes": 12840,
       "sha256": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71",
       "gitBlob": "3f582bde1c2172ea09342e1b7a1e324ed6645da7"
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "bytes": 10123,
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "gitBlob": "193c2bedae2b63f1aa8e47b546a29ed0cdf02a25"
     },
     {
       "path": "tests/e2e/workbench.playwright.config.ts",
@@ -417,9 +417,9 @@
     },
     {
       "path": "tests/source-workbench-host-v3.test.ts",
-      "bytes": 55691,
-      "sha256": "ecbe0e1ec4810cbd31812944416c0140a55594efe1e91c334486673b1f0104c8",
-      "gitBlob": "22a1d935752602295d35ef90fca41e560dc200ae"
+      "bytes": 64040,
+      "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281",
+      "gitBlob": "52413588df950d9ca7ce9878ac99a61d5e1a72b9"
     },
     {
       "path": "tests/workbench-input-recovery-v3.test.ts",

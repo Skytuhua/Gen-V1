@@ -1,0 +1,787 @@
+{
+  "recordedAt": "2026-11-16T03:06:22.122618+00:00",
+  "scope": "Byte-preserving relocation of ignored reproducible Vite dependency prebundles from three new C3 test-output directories. No authored source, test result, receipt, log, trace, screenshot, source snapshot or published evidence file was moved.",
+  "reason": "The initial integrity walk included generated node_modules caches that Git and the reviewed public export exclude. Relocation retains those bytes without changing controller coverage or shipping dependency caches.",
+  "initialIntegrityReceipt": "docs/implementation/v3/m15-logs/c3-final-integrity-01.json",
+  "initialControllerSnapshot": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-source-lock.json",
+      "bytes": 14815,
+      "sha256": "f4bb271eda17b4d47e005d44944f75f02c906cc5947bb4acac48bff8b524fa4a"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-source-cut.json",
+      "bytes": 16616,
+      "sha256": "2cc62ee6459411739f0d7ac9edb63a4710815d530067db91e1a78fcaaab6c648"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-artifacts.json",
+      "bytes": 222788,
+      "sha256": "ffdc36689f6f6fc5dba1d2984568c5f570c80abccbc099db8e3491808fa28f14"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-command-index.json",
+      "bytes": 60482,
+      "sha256": "15b00d247fccc5c87c1951e3837c6cfe54147170246440cc4667e110912ac47b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-verification.json",
+      "bytes": 305706,
+      "sha256": "0b81dc52e90f749d42ff3ef7e624534b46701a32c3db56e8fecd6a5c9e1e0005"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/initial-controller-snapshot/M15-validation-summary.json",
+      "bytes": 344,
+      "sha256": "1772f5f3dda45cfedcc80db9f07adfb5c16aee82e81e68d9bb76d91f617a5c62"
+    }
+  ],
+  "publishedEvidenceFilesUntouched": 709,
+  "cacheFiles": 120,
+  "cacheBytes": 45563811,
+  "files": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@json-render_react.js",
+      "bytes": 147316,
+      "sha256": "c0d1515ed684f54a3ccfa170153411655d8a26f4289a2b4d02f23458382cd884",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@json-render_react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@json-render_react.js.map",
+      "bytes": 446034,
+      "sha256": "c0ee928ee10e03e7536d04fb1192062bcbc4a6b435fa5fbf86778f97d3a58604",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@json-render_react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js",
+      "bytes": 1598,
+      "sha256": "217fb814d2461204698f3a5ae1f30ae6e3f5bc89df2faae424a2c761bbfd2723",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@xterm_addon-fit.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js.map",
+      "bytes": 4981,
+      "sha256": "3dbdd2ff320685327c34fc3304647d57480fed66e451e5a37a6c94473b6eec7e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@xterm_addon-fit.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js",
+      "bytes": 431291,
+      "sha256": "1593d7c619e4b087b3d4a3582abb651fd0de3c74dcbef2a5f022d92e654afd49",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@xterm_xterm.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js.map",
+      "bytes": 1698024,
+      "sha256": "df78d3a620dee427ce423d69e65380ec5aed448d6c5e7e128bba664adf32770a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/@xterm_xterm.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/_metadata.json",
+      "bytes": 3720,
+      "sha256": "09df1e6b722b149ff446d08a5422debeaaf87ee8b286cfe7d97e21bbbeabe16c",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/_metadata.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/ajv-formats.js",
+      "bytes": 17434,
+      "sha256": "8e0b858cefe601106f863f7b6eb22d2f6a1a5eac2868dce3856c68336794b3f8",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/ajv-formats.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/ajv-formats.js.map",
+      "bytes": 25524,
+      "sha256": "a8322f507ea12c721d8b1f084b4b2c28c150eeb6b2317fd42a875126836df843",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/ajv-formats.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/ajv.js",
+      "bytes": 113,
+      "sha256": "a2a1012facfe5e528779a4f5efd3a853929953b6bd0e21dd35e2192625318a53",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/ajv.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/ajv.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/ajv.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js",
+      "bytes": 685449,
+      "sha256": "1720c1a46fac0571c99b56d05fbbbee5294efa738df279a406f3656781f095b0",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-FBYJKSUC.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js.map",
+      "bytes": 1337024,
+      "sha256": "eb2f1fa54078e17bd058bdd591fbe41a2ae8d9ace1a0c0fd11df1b6ad928868f",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-FBYJKSUC.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js",
+      "bytes": 12791,
+      "sha256": "1977fafba10d0bb6cff145a9ad0892e6c1645fb15fa5af141f79e9fe1639405c",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map",
+      "bytes": 19377,
+      "sha256": "18c9aa24a07e3e256ddd390c7ac9c22ec075ebed2251b26c3de3761c9dec8e3a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js",
+      "bytes": 2603,
+      "sha256": "5e8e2fd0f66f9dbd26a3a57e086222099d46cb284bc4a720e32fae120a002eed",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-LULX7KXM.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-LULX7KXM.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js",
+      "bytes": 267694,
+      "sha256": "c7881efcfd88960b213285887f794795f34ef83a1626dedc83ff5fd3178c9cd5",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-MJLGRKYR.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js.map",
+      "bytes": 439653,
+      "sha256": "3968bb4440792f6df80627476de931d9091e70d0970f4782022d292958e76896",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-MJLGRKYR.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js",
+      "bytes": 16342,
+      "sha256": "0ca89ab5661e9df97e5571c238fd70601b9e4d51ead7892dfce99f72afbac95b",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-XRHLVSXB.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js.map",
+      "bytes": 26534,
+      "sha256": "7461e69d470e530bea4ff46792788070882953b28dc2cb2cf2b186c60a4ca418",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-XRHLVSXB.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js",
+      "bytes": 45658,
+      "sha256": "6a9747fbef8c337c934f40b9c0a486ba1dfb4848a9115264bf229b6d76cc2617",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map",
+      "bytes": 71182,
+      "sha256": "bfdcf20d199b8c09ab8ac90c801860517f55331039f6254de7e70765ced8942e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/lucide-react.js",
+      "bytes": 887692,
+      "sha256": "95494fcd4ebe4c60a913d52aae07e8944f200bf0f1c7de1a5fb61e97e0fe29f4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/lucide-react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/lucide-react.js.map",
+      "bytes": 2882319,
+      "sha256": "9ce9b9feac50c2696c45bc3bfda4aee51a66a832b8fba7cee3ac07e6507557c4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/lucide-react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/package.json",
+      "bytes": 23,
+      "sha256": "3ca9d4afd21425087cf31893b8f9f63c81b0b8408db5e343ca76e5f8aa26ab9a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/package.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js",
+      "bytes": 1028801,
+      "sha256": "24c2ab33dbae7cd38b227285eb54416bcb63bb837044c099476aebbe4474ebe2",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map",
+      "bytes": 2084470,
+      "sha256": "40967a1b3f122d39482dc1e64e87e234705101f93513ac157c0fa1079f99bc6d",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react-dom.js",
+      "bytes": 155,
+      "sha256": "36ebd57bf037ce05a29e6e36e063d1d9d4d5f5f913ee0f80f8ab4b113027cafb",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react-dom.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react-dom.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react-dom.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react-dom_client.js",
+      "bytes": 1005517,
+      "sha256": "de3e2a45263535d5d7a5b53a2abdcdab3f21b327d8e0faa9cb03f37e67e4c144",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react-dom_client.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react-dom_client.js.map",
+      "bytes": 1559454,
+      "sha256": "abfa8c1b43af55d62d932490a9ca0b31c7e188a568a247cd7d2e7d8aa00763c6",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react-dom_client.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react.js",
+      "bytes": 117,
+      "sha256": "8da328251dbe53a535e9b981205c6d52d4c7ae58af042ab5b6dc48d0b9b96dff",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+      "bytes": 12435,
+      "sha256": "24b27306fd7b99ab6f62f7af0703c944b1945f918e47012229ce47ab0a263c12",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react_jsx-dev-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js.map",
+      "bytes": 18776,
+      "sha256": "bd6bc1c58597069b9bda8cd208b203fe7d2af9ec47459dc311253e2b1770f4de",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react_jsx-dev-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js",
+      "bytes": 159,
+      "sha256": "34784fe316b9f0784c0c829de5193dbc89982440cf9df03fde26fcbb38b1fb08",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react_jsx-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/react_jsx-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/zod.js",
+      "bytes": 7119,
+      "sha256": "e50c5aefa45677f5ecf3c88ef2a0eafc5b5f9523691155f2f25b7cec3e537421",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/zod.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts/node_modules/.vite/deps/zod.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-activity-sync-full-01/node_modules/.vite/deps/zod.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@json-render_react.js",
+      "bytes": 147316,
+      "sha256": "c0d1515ed684f54a3ccfa170153411655d8a26f4289a2b4d02f23458382cd884",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@json-render_react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@json-render_react.js.map",
+      "bytes": 446034,
+      "sha256": "c0ee928ee10e03e7536d04fb1192062bcbc4a6b435fa5fbf86778f97d3a58604",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@json-render_react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js",
+      "bytes": 1598,
+      "sha256": "217fb814d2461204698f3a5ae1f30ae6e3f5bc89df2faae424a2c761bbfd2723",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@xterm_addon-fit.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js.map",
+      "bytes": 4981,
+      "sha256": "3dbdd2ff320685327c34fc3304647d57480fed66e451e5a37a6c94473b6eec7e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@xterm_addon-fit.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js",
+      "bytes": 431291,
+      "sha256": "1593d7c619e4b087b3d4a3582abb651fd0de3c74dcbef2a5f022d92e654afd49",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@xterm_xterm.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js.map",
+      "bytes": 1698024,
+      "sha256": "df78d3a620dee427ce423d69e65380ec5aed448d6c5e7e128bba664adf32770a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/@xterm_xterm.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/_metadata.json",
+      "bytes": 3720,
+      "sha256": "5f2dd754b55e4962699580c4b45ba0d60a52fc7cfe0f6e231a7e35dcddbf44ad",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/_metadata.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/ajv-formats.js",
+      "bytes": 17434,
+      "sha256": "8e0b858cefe601106f863f7b6eb22d2f6a1a5eac2868dce3856c68336794b3f8",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/ajv-formats.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/ajv-formats.js.map",
+      "bytes": 25524,
+      "sha256": "a8322f507ea12c721d8b1f084b4b2c28c150eeb6b2317fd42a875126836df843",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/ajv-formats.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/ajv.js",
+      "bytes": 113,
+      "sha256": "a2a1012facfe5e528779a4f5efd3a853929953b6bd0e21dd35e2192625318a53",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/ajv.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/ajv.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/ajv.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js",
+      "bytes": 685449,
+      "sha256": "1720c1a46fac0571c99b56d05fbbbee5294efa738df279a406f3656781f095b0",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-FBYJKSUC.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js.map",
+      "bytes": 1337024,
+      "sha256": "eb2f1fa54078e17bd058bdd591fbe41a2ae8d9ace1a0c0fd11df1b6ad928868f",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-FBYJKSUC.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js",
+      "bytes": 12791,
+      "sha256": "1977fafba10d0bb6cff145a9ad0892e6c1645fb15fa5af141f79e9fe1639405c",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map",
+      "bytes": 19377,
+      "sha256": "18c9aa24a07e3e256ddd390c7ac9c22ec075ebed2251b26c3de3761c9dec8e3a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js",
+      "bytes": 2603,
+      "sha256": "5e8e2fd0f66f9dbd26a3a57e086222099d46cb284bc4a720e32fae120a002eed",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-LULX7KXM.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-LULX7KXM.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js",
+      "bytes": 267694,
+      "sha256": "c7881efcfd88960b213285887f794795f34ef83a1626dedc83ff5fd3178c9cd5",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-MJLGRKYR.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js.map",
+      "bytes": 439653,
+      "sha256": "3968bb4440792f6df80627476de931d9091e70d0970f4782022d292958e76896",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-MJLGRKYR.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js",
+      "bytes": 16342,
+      "sha256": "0ca89ab5661e9df97e5571c238fd70601b9e4d51ead7892dfce99f72afbac95b",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-XRHLVSXB.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js.map",
+      "bytes": 26534,
+      "sha256": "7461e69d470e530bea4ff46792788070882953b28dc2cb2cf2b186c60a4ca418",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-XRHLVSXB.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js",
+      "bytes": 45658,
+      "sha256": "6a9747fbef8c337c934f40b9c0a486ba1dfb4848a9115264bf229b6d76cc2617",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map",
+      "bytes": 71182,
+      "sha256": "bfdcf20d199b8c09ab8ac90c801860517f55331039f6254de7e70765ced8942e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/lucide-react.js",
+      "bytes": 887692,
+      "sha256": "95494fcd4ebe4c60a913d52aae07e8944f200bf0f1c7de1a5fb61e97e0fe29f4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/lucide-react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/lucide-react.js.map",
+      "bytes": 2882319,
+      "sha256": "9ce9b9feac50c2696c45bc3bfda4aee51a66a832b8fba7cee3ac07e6507557c4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/lucide-react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/package.json",
+      "bytes": 23,
+      "sha256": "3ca9d4afd21425087cf31893b8f9f63c81b0b8408db5e343ca76e5f8aa26ab9a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/package.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js",
+      "bytes": 1028801,
+      "sha256": "24c2ab33dbae7cd38b227285eb54416bcb63bb837044c099476aebbe4474ebe2",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map",
+      "bytes": 2084470,
+      "sha256": "40967a1b3f122d39482dc1e64e87e234705101f93513ac157c0fa1079f99bc6d",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react-dom.js",
+      "bytes": 155,
+      "sha256": "36ebd57bf037ce05a29e6e36e063d1d9d4d5f5f913ee0f80f8ab4b113027cafb",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react-dom.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react-dom.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react-dom.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react-dom_client.js",
+      "bytes": 1005517,
+      "sha256": "de3e2a45263535d5d7a5b53a2abdcdab3f21b327d8e0faa9cb03f37e67e4c144",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react-dom_client.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react-dom_client.js.map",
+      "bytes": 1559454,
+      "sha256": "abfa8c1b43af55d62d932490a9ca0b31c7e188a568a247cd7d2e7d8aa00763c6",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react-dom_client.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react.js",
+      "bytes": 117,
+      "sha256": "8da328251dbe53a535e9b981205c6d52d4c7ae58af042ab5b6dc48d0b9b96dff",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+      "bytes": 12435,
+      "sha256": "24b27306fd7b99ab6f62f7af0703c944b1945f918e47012229ce47ab0a263c12",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react_jsx-dev-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js.map",
+      "bytes": 18776,
+      "sha256": "bd6bc1c58597069b9bda8cd208b203fe7d2af9ec47459dc311253e2b1770f4de",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react_jsx-dev-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js",
+      "bytes": 159,
+      "sha256": "34784fe316b9f0784c0c829de5193dbc89982440cf9df03fde26fcbb38b1fb08",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react_jsx-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/react_jsx-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/zod.js",
+      "bytes": 7119,
+      "sha256": "e50c5aefa45677f5ecf3c88ef2a0eafc5b5f9523691155f2f25b7cec3e537421",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/zod.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/artifacts/node_modules/.vite/deps/zod.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-01/node_modules/.vite/deps/zod.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@json-render_react.js",
+      "bytes": 147316,
+      "sha256": "c0d1515ed684f54a3ccfa170153411655d8a26f4289a2b4d02f23458382cd884",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@json-render_react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@json-render_react.js.map",
+      "bytes": 446034,
+      "sha256": "c0ee928ee10e03e7536d04fb1192062bcbc4a6b435fa5fbf86778f97d3a58604",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@json-render_react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js",
+      "bytes": 1598,
+      "sha256": "217fb814d2461204698f3a5ae1f30ae6e3f5bc89df2faae424a2c761bbfd2723",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@xterm_addon-fit.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@xterm_addon-fit.js.map",
+      "bytes": 4981,
+      "sha256": "3dbdd2ff320685327c34fc3304647d57480fed66e451e5a37a6c94473b6eec7e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@xterm_addon-fit.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js",
+      "bytes": 431291,
+      "sha256": "1593d7c619e4b087b3d4a3582abb651fd0de3c74dcbef2a5f022d92e654afd49",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@xterm_xterm.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/@xterm_xterm.js.map",
+      "bytes": 1698024,
+      "sha256": "df78d3a620dee427ce423d69e65380ec5aed448d6c5e7e128bba664adf32770a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/@xterm_xterm.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/_metadata.json",
+      "bytes": 3720,
+      "sha256": "8a3a16206cb786d31c2bbd077806069a19ba1dbeb26e9f67811a54079651486e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/_metadata.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/ajv-formats.js",
+      "bytes": 17434,
+      "sha256": "8e0b858cefe601106f863f7b6eb22d2f6a1a5eac2868dce3856c68336794b3f8",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/ajv-formats.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/ajv-formats.js.map",
+      "bytes": 25524,
+      "sha256": "a8322f507ea12c721d8b1f084b4b2c28c150eeb6b2317fd42a875126836df843",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/ajv-formats.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/ajv.js",
+      "bytes": 113,
+      "sha256": "a2a1012facfe5e528779a4f5efd3a853929953b6bd0e21dd35e2192625318a53",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/ajv.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/ajv.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/ajv.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js",
+      "bytes": 685449,
+      "sha256": "1720c1a46fac0571c99b56d05fbbbee5294efa738df279a406f3656781f095b0",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-FBYJKSUC.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-FBYJKSUC.js.map",
+      "bytes": 1337024,
+      "sha256": "eb2f1fa54078e17bd058bdd591fbe41a2ae8d9ace1a0c0fd11df1b6ad928868f",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-FBYJKSUC.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js",
+      "bytes": 12791,
+      "sha256": "1977fafba10d0bb6cff145a9ad0892e6c1645fb15fa5af141f79e9fe1639405c",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map",
+      "bytes": 19377,
+      "sha256": "18c9aa24a07e3e256ddd390c7ac9c22ec075ebed2251b26c3de3761c9dec8e3a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-FKV3BLZ7.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js",
+      "bytes": 2603,
+      "sha256": "5e8e2fd0f66f9dbd26a3a57e086222099d46cb284bc4a720e32fae120a002eed",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-LULX7KXM.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-LULX7KXM.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-LULX7KXM.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js",
+      "bytes": 267694,
+      "sha256": "c7881efcfd88960b213285887f794795f34ef83a1626dedc83ff5fd3178c9cd5",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-MJLGRKYR.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-MJLGRKYR.js.map",
+      "bytes": 439653,
+      "sha256": "3968bb4440792f6df80627476de931d9091e70d0970f4782022d292958e76896",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-MJLGRKYR.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js",
+      "bytes": 16342,
+      "sha256": "0ca89ab5661e9df97e5571c238fd70601b9e4d51ead7892dfce99f72afbac95b",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-XRHLVSXB.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-XRHLVSXB.js.map",
+      "bytes": 26534,
+      "sha256": "7461e69d470e530bea4ff46792788070882953b28dc2cb2cf2b186c60a4ca418",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-XRHLVSXB.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js",
+      "bytes": 45658,
+      "sha256": "6a9747fbef8c337c934f40b9c0a486ba1dfb4848a9115264bf229b6d76cc2617",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map",
+      "bytes": 71182,
+      "sha256": "bfdcf20d199b8c09ab8ac90c801860517f55331039f6254de7e70765ced8942e",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/chunk-YLFPKYDJ.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/lucide-react.js",
+      "bytes": 887692,
+      "sha256": "95494fcd4ebe4c60a913d52aae07e8944f200bf0f1c7de1a5fb61e97e0fe29f4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/lucide-react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/lucide-react.js.map",
+      "bytes": 2882319,
+      "sha256": "9ce9b9feac50c2696c45bc3bfda4aee51a66a832b8fba7cee3ac07e6507557c4",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/lucide-react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/package.json",
+      "bytes": 23,
+      "sha256": "3ca9d4afd21425087cf31893b8f9f63c81b0b8408db5e343ca76e5f8aa26ab9a",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/package.json"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js",
+      "bytes": 1028801,
+      "sha256": "24c2ab33dbae7cd38b227285eb54416bcb63bb837044c099476aebbe4474ebe2",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map",
+      "bytes": 2084470,
+      "sha256": "40967a1b3f122d39482dc1e64e87e234705101f93513ac157c0fa1079f99bc6d",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/pdfjs-dist_legacy_build_pdf__mjs.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react-dom.js",
+      "bytes": 155,
+      "sha256": "36ebd57bf037ce05a29e6e36e063d1d9d4d5f5f913ee0f80f8ab4b113027cafb",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react-dom.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react-dom.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react-dom.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react-dom_client.js",
+      "bytes": 1005517,
+      "sha256": "de3e2a45263535d5d7a5b53a2abdcdab3f21b327d8e0faa9cb03f37e67e4c144",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react-dom_client.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react-dom_client.js.map",
+      "bytes": 1559454,
+      "sha256": "abfa8c1b43af55d62d932490a9ca0b31c7e188a568a247cd7d2e7d8aa00763c6",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react-dom_client.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react.js",
+      "bytes": 117,
+      "sha256": "8da328251dbe53a535e9b981205c6d52d4c7ae58af042ab5b6dc48d0b9b96dff",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+      "bytes": 12435,
+      "sha256": "24b27306fd7b99ab6f62f7af0703c944b1945f918e47012229ce47ab0a263c12",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react_jsx-dev-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react_jsx-dev-runtime.js.map",
+      "bytes": 18776,
+      "sha256": "bd6bc1c58597069b9bda8cd208b203fe7d2af9ec47459dc311253e2b1770f4de",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react_jsx-dev-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js",
+      "bytes": 159,
+      "sha256": "34784fe316b9f0784c0c829de5193dbc89982440cf9df03fde26fcbb38b1fb08",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react_jsx-runtime.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/react_jsx-runtime.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/react_jsx-runtime.js.map"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/zod.js",
+      "bytes": 7119,
+      "sha256": "e50c5aefa45677f5ecf3c88ef2a0eafc5b5f9523691155f2f25b7cec3e537421",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/zod.js"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/node_modules/.vite/deps/zod.js.map",
+      "bytes": 93,
+      "sha256": "ed562b0bba7ee7214e56ac7f728054b3496bec4597c94a4eb7b4179e6f5cb1c9",
+      "retainedAt": "/workspace/scratch/1b47eb428672/m15-publication/c3/cache-intermediates-01/c3-native-return-diagnostic-01/node_modules/.vite/deps/zod.js.map"
+    }
+  ],
+  "manifestBeforeSha256": "f8602accf02655ebeca9a2c28484d63b252994c8ea10733a0d11c54e885b47a1",
+  "manifestAfterSha256": "f6eefd6cec1cdcb0201c508d2fb4df6f0fe6187c56989cadc1fae989d137c5aa",
+  "sourceEntries": 3214,
+  "runtimeEntries": 216,
+  "additionalAdmittedMetadataPaths": [
+    "docs/implementation/v3/m15-artifacts/c3-artifact-intermediates-01.json",
+    "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-package-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-package-02.log"
+  ],
+  "pendingExecutionOutputs": [
+    "docs/implementation/v3/m15-logs/c3-final-package-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-package-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-custody-02.log",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.json",
+    "docs/implementation/v3/m15-logs/c3-final-integrity-02.log",
+    "docs/implementation/v3/m15-artifacts/c3-final-package-02-results.json"
+  ],
+  "targetExecutionClaimed": false
+}

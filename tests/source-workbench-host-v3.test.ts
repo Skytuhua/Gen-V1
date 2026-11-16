@@ -1,6 +1,6 @@
 import {afterEach, expect, it, vi} from 'vitest';
 import {createHash} from 'node:crypto';
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {Store} from '../packages/storage/store.ts';
@@ -11,6 +11,9 @@ import {sourceDigestSync} from '../packages/core/project-verification.ts';
 import {computeAssessment} from '../packages/core/verification-gate.ts';
 import type {CheckObservationV1} from '../packages/contracts/verification.ts';
 import type {ConnectionAccount} from '../packages/contracts/accounts.ts';
+import {createWorkspaceCanvas, WorkspaceRepository} from '../packages/core/workspace-layout.ts';
+import type {WorkspaceProfile} from '../packages/contracts/workspace.ts';
+import type {WorkspaceBinding} from '../packages/workspace/tools.ts';
 
 const cleanup: (() => Promise<void>)[] = [];
 const sha = (text: string) => createHash('sha256').update(text).digest('hex');
@@ -210,6 +213,77 @@ it('reads artifact rows only through a declared same-owner structured binding', 
   await expect(workbench.describe({logicalOwner: f.owner, locator: {kind: 'ARTIFACT_REGION', sourceId: artifact.id, binding: 'undeclared'}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
   f.store.internal('fixture.foreign', f.thread.id, () => f.store.put('data', data.id, 'other', {...data, threadId: 'other'}));
   await expect(workbench.open({logicalOwner: f.owner, ref: {...captured.ref, keepCaptured: true}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+});
+
+it('preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture]', async () => {
+  const f = await emptyTaskAccountFixture(true), layouts = new WorkspaceRepository(f.store);
+  const owner = {threadId: f.thread.id, projectId: 'layout-project', workspaceId: 'layout-working-copy'};
+  const projectPath = join(f.root, 'project'), workingPath = join(f.root, 'working-copy'), commonDirectory = join(f.root, 'git-metadata'), gitDirectory = join(commonDirectory, 'worktrees', owner.workspaceId);
+  for (const path of [projectPath, workingPath, gitDirectory]) mkdirSync(path, {recursive: true});
+  const identity = (path: string) => {const value = statSync(path, {bigint: true}); return {dev: String(value.dev), ino: String(value.ino)};};
+  // These measured directories exercise owner custody, not native Git or file access.
+  const workingCopy: WorkspaceBinding = {id: owner.workspaceId, threadId: owner.threadId, projectId: owner.projectId, path: workingPath, branch: 'gen/layout-source', gitDirectory, commonDirectory, identity: identity(workingPath), gitDirectoryIdentity: identity(gitDirectory), commonDirectoryIdentity: identity(commonDirectory)};
+  const data: DataRecord = {id: 'layout-source-data', threadId: owner.threadId, revision: 1, value: [{name: 'Retained layout source', count: 7}], provenance: 'executor', createdAt: f.thread.createdAt};
+  const artifact: ArtifactRecord = {id: 'layout-source-artifact', threadId: owner.threadId, messageId: 'declared-layout-source', title: 'Layout source', purpose: 'Retained layout custody fixture', kind: 'structured', revision: 1, spec: {root: 'rows', elements: {rows: {type: 'Table', props: {rowsBinding: 'rows'}}}}, widget: null, bindings: {rows: {mode: 'live', id: data.id}}, actions: {}, stateId: 'layout-source-state', lifecycle: 'active', placement: 'inline', pinned: false, catalogVersion: '1', createdAt: f.thread.createdAt, updatedAt: f.thread.createdAt};
+  const initial = layouts.read().state;
+  const legacy = createWorkspaceCanvas('research', 'Retained Research', 'retained-research', {authority: {kind: 'local'}, threadId: owner.threadId, projectId: owner.projectId});
+  const profile: WorkspaceProfile = {version: 1, id: 'retained-layout-profile', name: 'Saved before retirement', canvases: [...initial.canvases, legacy], activeCanvasId: legacy.id, disabledKinds: [], integrations: initial.integrations, createdAt: f.thread.createdAt, updatedAt: f.thread.createdAt};
+  f.store.internal('fixture.layout-source-owner', owner.threadId, () => {
+    f.store.put('thread', owner.threadId, owner.threadId, {...f.thread, kind: 'main', projectId: owner.projectId, workspaceId: owner.workspaceId, projectName: 'Layout project'});
+    f.store.put('workspaceProject', owner.projectId, null, {id: owner.projectId, name: 'Layout project', authority: {kind: 'local'}, rootPath: projectPath, createdAt: f.thread.createdAt});
+    f.store.put('workspaceProjectRoot', owner.projectId, null, {path: projectPath, identity: identity(projectPath)});
+    f.store.put('workspaceBinding', workingCopy.id, owner.threadId, workingCopy);
+    f.store.put('data', data.id, owner.threadId, data); f.store.put('artifact', artifact.id, owner.threadId, artifact);
+    // Seed a historical saved record. New retired-preset creation remains forbidden.
+    f.store.put('workspaceState', 'personal', null, {...initial, profiles: [profile]});
+  });
+  const descriptor = await f.workbench.describe({logicalOwner: owner, locator: {kind: 'ARTIFACT_REGION', sourceId: artifact.id, binding: 'rows'}});
+  const captured = await f.workbench.capture({commandId: 'layout-source-capture', source: {...descriptor.locator, logicalOwner: owner, sourceRevision: descriptor.sourceRevision, contentDigest: descriptor.contentDigest, capturedAt: f.thread.createdAt, range: {encoding: 'JSON_POINTER', pointer: '/0'}}});
+  const originalCapture = f.store.get('sourceCapture', captured.ref.captureId);
+  expect(originalCapture).toMatchObject({accountUnbound: true});
+  const custody = () => ({thread: f.store.get('thread', owner.threadId), account: f.store.get('account', f.account.id), settings: f.store.get('settings', 'global'), project: f.store.get('workspaceProject', owner.projectId), projectRoot: f.store.get('workspaceProjectRoot', owner.projectId), workingCopy: f.store.get('workspaceBinding', owner.workspaceId), captures: f.store.all('sourceCapture'), admission: f.store.get('sourceAccountAdmission', owner.threadId), outbox: f.store.all('outbox'), messages: f.store.all('message'), artifacts: f.store.all('artifact'), data: f.store.all('data'), resources: f.store.all('resource')});
+  const assertCustody = async (before: ReturnType<typeof custody>, starts: number) => {
+    expect(custody()).toEqual(before); expect(f.workbench.owner(owner.threadId)).toEqual(owner);
+    expect(await f.workbench.open({logicalOwner: owner, ref: captured.ref})).toMatchObject({ref: captured.ref, state: 'CURRENT', text: '{"name":"Retained layout source","count":7}'});
+    expect(f.starts).toHaveLength(starts); expect(f.followUps).toEqual([]);
+  };
+  const applyAndSelect = async (phase: string) => {
+    const before = custody(), starts = f.starts.length;
+    const apply = {id: phase + '-layout-apply', type: 'workspace.profile.apply', payload: {profileId: profile.id, baseRevision: layouts.read().state.revision}};
+    const receipt = layouts.command(apply);
+    expect(layouts.command(apply)).toEqual(receipt);
+    expect(layouts.read().state.activeCanvasId).toBe(legacy.id);
+    expect(layouts.read().state.canvases.find(canvas => canvas.id === legacy.id)).toEqual(legacy);
+    await assertCustody(before, starts);
+    for (const canvasId of [initial.activeCanvasId, legacy.id]) {
+      layouts.command({id: phase + '-select-' + canvasId, type: 'workspace.canvas.select', payload: {canvasId, baseRevision: layouts.read().state.revision}});
+      expect(layouts.read().state.activeCanvasId).toBe(canvasId);
+      await assertCustody(before, starts);
+    }
+  };
+  expect(f.store.all('message')).toEqual([]); expect(f.store.all('outbox')).toEqual([]);
+  await applyAndSelect('unsent');
+  const receipt = await f.send('layout-source-send', [captured.ref]);
+  await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0]).toMatchObject({threadId: owner.threadId, inputId: 'layout-source-send', accountId: f.account.id, sourceRefs: [captured.ref], resources: []});
+  const deliveredSources = f.starts[0].prompt.split('\n').filter(line => line.startsWith('{"captureId":'));
+  expect(deliveredSources).toHaveLength(1);
+  expect(JSON.parse(deliveredSources[0])).toEqual({captureId: captured.ref.captureId, source: captured.ref.source, version: 'current captured version', text: '{"name":"Retained layout source","count":7}'});
+  expect(f.starts[0].requestContext).toBeDefined();
+  expect(f.store.get('sourceCapture', captured.ref.captureId)).toEqual(originalCapture);
+  expect(f.store.get('sourceAccountAdmission', owner.threadId)).toMatchObject({inputId: 'layout-source-send', logicalOwner: owner, accountId: f.account.id});
+  expect(f.store.get('outbox', 'layout-source-send')).toMatchObject({threadId: owner.threadId, sourceRefs: [captured.ref], status: 'processing'});
+  await applyAndSelect('accepted');
+  const admitted = custody();
+  for (const preset of ['research', 'code-review', 'custom']) {
+    const before = layouts.read().state, rejected = {id: 'create-retired-' + preset, type: 'workspace.canvas.create', payload: {name: preset, preset, threadId: owner.threadId, baseRevision: before.revision}};
+    expect(() => layouts.command(rejected)).toThrowError(expect.objectContaining({code: 'PRESET_RETIRED'}));
+    expect(f.store.receipt(rejected)).toBeNull(); expect(layouts.read().state).toEqual(before);
+    await assertCustody(admitted, 1);
+  }
+  expect(await f.send('layout-source-send', [captured.ref])).toEqual(receipt);
+  await assertCustody(admitted, 1);
+  expect(f.store.all('sourceCapture')).toEqual([originalCapture]); expect(f.store.all('outbox')).toHaveLength(1);
 });
 
 it('rejects mutation during model discovery and preserves the accepted command identity on retries', async () => {

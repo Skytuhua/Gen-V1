@@ -1,0 +1,31 @@
+$ErrorActionPreference = 'Stop'
+$env:GEN_SPLIT_RENDERER_BROWSER = '1'
+$env:GEN_SPLIT_APP_BROWSER = '1'
+$env:GEN_TEST_BROWSER_CHANNEL = 'msedge'
+$node = (Get-Command node).Source
+$head = git rev-parse HEAD
+if ($head -ne $env:GITHUB_SHA) { throw 'The split browser source does not match the pushed head.' }
+New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+[ordered]@{
+  head = $head
+  tree = (git rev-parse 'HEAD^{tree}')
+  event = $env:GITHUB_EVENT_NAME
+  ref = $env:GITHUB_REF
+  runId = $env:GITHUB_RUN_ID
+  runAttempt = $env:GITHUB_RUN_ATTEMPT
+  runner = "$($env:RUNNER_OS)-$($env:RUNNER_ARCH)"
+  nodeExecutable = $node
+  node = (& $node --version)
+  edgePath = $env:M15_EDGE_PATH
+  edgeVersion = $env:M15_EDGE_VERSION
+  flags = [ordered]@{
+    GEN_SPLIT_RENDERER_BROWSER = $env:GEN_SPLIT_RENDERER_BROWSER
+    GEN_SPLIT_APP_BROWSER = $env:GEN_SPLIT_APP_BROWSER
+    GEN_TEST_BROWSER_CHANNEL = $env:GEN_TEST_BROWSER_CHANNEL
+  }
+  testFiles = @('tests/split-workspace-renderer.test.ts', 'tests/split-app-browser.test.ts')
+  maxWorkers = 1
+  recordedAt = [DateTime]::UtcNow.ToString('o')
+} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 test-results/m15/split-browser-source.json
+& $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json
+exit $LASTEXITCODE

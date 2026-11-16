@@ -5,8 +5,8 @@ termination: NONE
 
  RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15
 
- ❯ tests/source-workbench-host-v3.test.ts (47 tests | 1 failed | 1 skipped) 25514ms
-   × admits the first captured file under its selected account [Windows native guard, runtime fixture] 13843ms
+ ❯ tests/source-workbench-host-v3.test.ts (48 tests | 1 failed | 1 skipped) 25104ms
+   × admits the first captured file under its selected account [Windows native guard, runtime fixture] 12228ms
 
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
 
@@ -19,14 +19,14 @@ AssertionError: expected [] to have a length of 1 but got +0
 - 1
 + 0
 
- ❯ tests/source-workbench-host-v3.test.ts:193:92
+ ❯ tests/source-workbench-host-v3.test.ts:196:92
 
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
 
 
  Test Files  1 failed | 7 passed (8)
-      Tests  1 failed | 110 passed | 1 skipped (112)
-   Start at  02:48:16
-   Duration  27.54s (transform 3.47s, setup 0ms, import 3.39s, tests 27.28s, environment 1ms)
+      Tests  1 failed | 111 passed | 1 skipped (113)
+   Start at  03:30:32
+   Duration  27.13s (transform 3.54s, setup 0ms, import 3.48s, tests 26.71s, environment 1ms)
 

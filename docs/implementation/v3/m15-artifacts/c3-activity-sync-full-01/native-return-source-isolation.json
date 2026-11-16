@@ -1,0 +1,409 @@
+{
+  "scope": "Real App with scripted browser desktop bridge and owner-bound source HTTP; no installed desktop execution",
+  "delayedDescriptionOutcome": "fulfilled",
+  "beforeReturn": [
+    {
+      "draftId": "17973b19-bdf0-4b32-92ef-f74f702dd11b",
+      "logicalOwner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "revision": 1794797289992,
+      "text": "Authored draft owned by A",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-1",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-a"
+            },
+            "contentDigest": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "capturedAt": "2026-11-16T02:48:10.371Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "40e1eafbdc66f0e29a8d7cf4456279069384b0c811595f9141285efbfd61e45e"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    },
+    {
+      "draftId": "194cc0fc-916a-459f-84a6-07ba30bdc746",
+      "logicalOwner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      },
+      "revision": 1794797292197,
+      "text": "Different authored draft owned by B",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-2",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply-b",
+            "sourceRevision": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "logicalOwner": {
+              "threadId": "second-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-b"
+            },
+            "contentDigest": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "capturedAt": "2026-11-16T02:48:12.585Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "223c35a89ea30fba7df945e00df1b9d54dab602bd621bbfdcf41078d16455bf8"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    }
+  ],
+  "afterReturn": [
+    {
+      "draftId": "17973b19-bdf0-4b32-92ef-f74f702dd11b",
+      "logicalOwner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "revision": 1794797289992,
+      "text": "Authored draft owned by A",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-1",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-a"
+            },
+            "contentDigest": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "capturedAt": "2026-11-16T02:48:10.371Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "40e1eafbdc66f0e29a8d7cf4456279069384b0c811595f9141285efbfd61e45e"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    },
+    {
+      "draftId": "194cc0fc-916a-459f-84a6-07ba30bdc746",
+      "logicalOwner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      },
+      "revision": 1794797292197,
+      "text": "Different authored draft owned by B",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-2",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply-b",
+            "sourceRevision": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "logicalOwner": {
+              "threadId": "second-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-b"
+            },
+            "contentDigest": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "capturedAt": "2026-11-16T02:48:12.585Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "223c35a89ea30fba7df945e00df1b9d54dab602bd621bbfdcf41078d16455bf8"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    }
+  ],
+  "finalDrafts": [
+    {
+      "draftId": "17973b19-bdf0-4b32-92ef-f74f702dd11b",
+      "logicalOwner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "revision": 1794797289992,
+      "text": "Authored draft owned by A",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-1",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-a"
+            },
+            "contentDigest": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+            "capturedAt": "2026-11-16T02:48:10.371Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "40e1eafbdc66f0e29a8d7cf4456279069384b0c811595f9141285efbfd61e45e"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    },
+    {
+      "draftId": "194cc0fc-916a-459f-84a6-07ba30bdc746",
+      "logicalOwner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      },
+      "revision": 1794797292197,
+      "text": "Different authored draft owned by B",
+      "sourceRefs": [
+        {
+          "captureId": "native-capture-2",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply-b",
+            "sourceRevision": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "logicalOwner": {
+              "threadId": "second-thread",
+              "projectId": null,
+              "workspaceId": "source-copy-b"
+            },
+            "contentDigest": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+            "capturedAt": "2026-11-16T02:48:12.585Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "223c35a89ea30fba7df945e00df1b9d54dab602bd621bbfdcf41078d16455bf8"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "NOW",
+      "conflictState": "NONE"
+    }
+  ],
+  "captures": [
+    {
+      "ref": {
+        "captureId": "native-capture-1",
+        "source": {
+          "kind": "MESSAGE",
+          "sourceId": "reply",
+          "sourceRevision": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": "source-copy-a"
+          },
+          "contentDigest": "04fd1826669398f4bb8245a5a32dad69ba5d7c1ae42049fceef3b6d2daff980e",
+          "capturedAt": "2026-11-16T02:48:10.371Z",
+          "range": {
+            "encoding": "UTF16",
+            "start": 0,
+            "end": 20,
+            "selectedTextDigest": "40e1eafbdc66f0e29a8d7cf4456279069384b0c811595f9141285efbfd61e45e"
+          }
+        },
+        "keepCaptured": false
+      },
+      "label": "Owner A message",
+      "preview": "Owner A keeps this r",
+      "previewTruncated": false,
+      "selectedBytes": 20,
+      "retained": true,
+      "state": "CURRENT"
+    },
+    {
+      "ref": {
+        "captureId": "native-capture-2",
+        "source": {
+          "kind": "MESSAGE",
+          "sourceId": "reply-b",
+          "sourceRevision": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+          "logicalOwner": {
+            "threadId": "second-thread",
+            "projectId": null,
+            "workspaceId": "source-copy-b"
+          },
+          "contentDigest": "bd5865973ccbeeb42433b1f71a73d7f373804776a45c6f86a90ff19e0faa8589",
+          "capturedAt": "2026-11-16T02:48:12.585Z",
+          "range": {
+            "encoding": "UTF16",
+            "start": 0,
+            "end": 20,
+            "selectedTextDigest": "223c35a89ea30fba7df945e00df1b9d54dab602bd621bbfdcf41078d16455bf8"
+          }
+        },
+        "keepCaptured": false
+      },
+      "label": "Owner B message",
+      "preview": "Owner B has a differ",
+      "previewTruncated": false,
+      "selectedBytes": 20,
+      "retained": true,
+      "state": "CURRENT"
+    }
+  ],
+  "events": [
+    {
+      "kind": "captured",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "captureId": "native-capture-1"
+    },
+    {
+      "kind": "description-held",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      }
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "cdccc5c7-25a7-4e7b-988f-d53d515cfd70",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 1,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:second-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "second-thread"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "captured",
+      "owner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      },
+      "captureId": "native-capture-2"
+    },
+    {
+      "kind": "description-released"
+    },
+    {
+      "kind": "description-completed",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "outcome": "fulfilled",
+      "requestFailure": {
+        "errorText": "net::ERR_ABORTED"
+      }
+    },
+    {
+      "kind": "layout-read-held"
+    },
+    {
+      "kind": "native-return-intent",
+      "threadId": "task-thread"
+    },
+    {
+      "kind": "layout-reads-released",
+      "reads": 1
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "5cb91a9c-05b1-4ea6-9766-4f23810dec5b",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 2,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:task-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "task-thread"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "9c1969e1-a1b3-4b46-b455-1d7c73144bd7",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 3,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:second-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "second-thread"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "commands": []
+}
