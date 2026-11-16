@@ -525,6 +525,11 @@
           "id": "reconcile-e2e-browser",
           "status": "PASS",
           "evidence": "workbench 16, workbench-app 19, chat-view-modes 6, saved-drafts 27 pass on Chromium via playwright fixtures (receipts reconcile-e2e-*)."
+        },
+        {
+          "id": "reconcile-linux-parity",
+          "status": "PASS",
+          "evidence": "Exact head 364d3f55 executed under WSL Ubuntu (node v24.22.2, pnpm 10.30.3): 3644 passed / 306 failed / 196 skipped in 181.91s. Every M15-owned file passes on Linux (source-workbench-host-v3 46/48 with 2 win32-only skips, source-selection-v3/-dom-v3, draft-transfer, composer-*, task-interface-* all green). All 40 failing files are non-M15 host/platform surfaces dominated by the deliberately-unsupported Linux path-guard leaf-read denials (58 CAPABILITY_DENIED) plus absent bundled-integration python deps - the same platform-scope limits the C3 gates document. node-pty linux-x64 prebuild supplied via the installed @lydell/node-pty-linux-x64 binary. See docs/implementation/v3/m15-logs/reconcile-linux-vitest.log"
         }
       ],
       "commandIds": [
@@ -535,7 +540,8 @@
         "reconcile-e2e-workbench-app",
         "reconcile-e2e-chat-view-modes",
         "reconcile-e2e-saved-drafts",
-        "reconcile-full-vitest"
+        "reconcile-full-vitest",
+        "reconcile-linux-vitest"
       ],
       "artifactRefs": []
     }

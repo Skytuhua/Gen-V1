@@ -1665,6 +1665,15 @@
     "endedAt": "2026-11-16T03:30:00.504Z"
   },
   {
+    "id": "reconcile-linux-vitest",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.json",
+    "phase": "RECONCILIATION",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T04:09:14.000Z",
+    "endedAt": "2026-11-16T04:12:16.000Z"
+  },
+  {
     "id": "reconcile-typecheck",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
     "phase": "RECONCILIATION",

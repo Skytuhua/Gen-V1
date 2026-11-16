@@ -651,6 +651,11 @@
           "id": "reconcile-e2e-browser",
           "status": "PASS",
           "evidence": "workbench 16, workbench-app 19, chat-view-modes 6, saved-drafts 27 pass on Chromium via playwright fixtures (receipts reconcile-e2e-*)."
+        },
+        {
+          "id": "reconcile-linux-parity",
+          "status": "PASS",
+          "evidence": "Exact head 364d3f55 executed under WSL Ubuntu (node v24.22.2, pnpm 10.30.3): 3644 passed / 306 failed / 196 skipped in 181.91s. Every M15-owned file passes on Linux (source-workbench-host-v3 46/48 with 2 win32-only skips, source-selection-v3/-dom-v3, draft-transfer, composer-*, task-interface-* all green). All 40 failing files are non-M15 host/platform surfaces dominated by the deliberately-unsupported Linux path-guard leaf-read denials (58 CAPABILITY_DENIED) plus absent bundled-integration python deps - the same platform-scope limits the C3 gates document. node-pty linux-x64 prebuild supplied via the installed @lydell/node-pty-linux-x64 binary. See docs/implementation/v3/m15-logs/reconcile-linux-vitest.log"
         }
       ],
       "commands": [
@@ -799,6 +804,21 @@
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
           "logDigest": "07f395d16e9d73b0f43a134b8d67bc02a74eb2b920a4404e28e708f2a983e940"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:no-lease"
+          ],
+          "cwdIdentity": "/root/gen-v1-linux",
+          "executableIdentity": "/root/node24/bin/pnpm",
+          "startedAt": "2026-11-16T04:09:14.000Z",
+          "endedAt": "2026-11-16T04:12:16.000Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.log",
+          "logDigest": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd"
         }
       ],
       "artifactRefs": []
@@ -7130,6 +7150,8 @@
     "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
     "docs/implementation/v3/m15-logs/reconcile-lint.json",
     "docs/implementation/v3/m15-logs/reconcile-lint.log",
+    "docs/implementation/v3/m15-logs/reconcile-linux-vitest.json",
+    "docs/implementation/v3/m15-logs/reconcile-linux-vitest.log",
     "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
     "docs/implementation/v3/m15-logs/reconcile-typecheck.log",
     "docs/implementation/v3/m15-logs/recovery-import-race-green-01.json",

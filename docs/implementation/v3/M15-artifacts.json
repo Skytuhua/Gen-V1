@@ -32,8 +32,8 @@
     },
     {
       "path": "docs/implementation/v3/M15-evidence-plan.json",
-      "bytes": 27472,
-      "sha256": "869c59087faa1526904c0dad6cd92899bb3018075f0bf0cec57a2f8460ba4c05"
+      "bytes": 27796,
+      "sha256": "95f29e78c792870857dfd7ad5a81a735eaa38b4e3d442fa4a3dff51c7d290e5a"
     },
     {
       "path": "docs/implementation/v3/M15-feature-comparison.md",
@@ -4144,6 +4144,16 @@
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-lint.log",
       "bytes": 318,
       "sha256": "fb37a8b8e8ebcf4c3e2259abfbea836dabae8dbd862461d941a9462efeb82eb5"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\reconcile-linux-vitest.json",
+      "bytes": 450,
+      "sha256": "34ecebc2743f49c96a6e1c25579f07856b1552e98929bd6f3106c0bfca8a8c1a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\reconcile-linux-vitest.log",
+      "bytes": 303310,
+      "sha256": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd"
     },
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-typecheck.json",
