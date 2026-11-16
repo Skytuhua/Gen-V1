@@ -135,6 +135,7 @@ test('browser task-notification preference saves without permission requests and
   });
   await nav.getByRole('button', { name: 'Notifications & Usage', exact: true }).click();
   await expect(dialog.getByText(/System popups and sound are unavailable in this browser build/)).toBeVisible();
+  await expect(dialog.getByText('System popups and sound deliver in the Windows app. These options apply there; in-app notices stay active in this browser.')).toBeVisible();
   await dialog.getByRole('combobox', { name: 'Task notifications', exact: true }).click();
   await dialog.getByRole('option', { name: 'Popups and sound', exact: true }).click();
   await expect.poll(() => commands.filter(command => command.type === 'settings.update').length).toBeGreaterThan(0);

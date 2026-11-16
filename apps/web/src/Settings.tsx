@@ -160,7 +160,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {error && <p role="status" className="notice error-text">{error}</p>}
       {showAppearance && <AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} query={searching ? query : ''} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/>}
       {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id} data-availability="working"><div className="settings-row-copy"><h2>{item.title}</h2>{searching && <span className="settings-result-section">{SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
-      {matches('harness-notification-controls') && <NotificationSettings preferences={preferences} busy={busy} update={update}/>}
+      {matches('harness-notification-controls') && <NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/>}
       {matches('harness-runtime') && environmentSettings}
       {matches('harness-skills') && <SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
       {matches('harness-integrations') && <IntegrationSettings/>}
