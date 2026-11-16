@@ -16,7 +16,8 @@ function SavedDraftsOwner({owner,input,disabled=false,resourceRefs=[]}:SavedDraf
  useLayoutEffect(measure,[open,library,loading,error]);
  useLayoutEffect(()=>{composerAnchor.current=input.current?.closest('form')??anchor.current;},[input]);
  useLayoutEffect(()=>{if(dialog?.kind==='save')nameInput.current?.focus();},[dialog?.kind]);
- const key=savedDraftOwnerKey(owner);const latest=useRef({key,disabled});latest.current={key,disabled};
+ const key=savedDraftOwnerKey(owner);const latest=useRef({key,disabled});
+ useLayoutEffect(()=>{latest.current={key,disabled};},[key,disabled]);
  useEffect(()=>{alive.current=true;let version=0,timer:ReturnType<typeof setTimeout>|undefined;const refresh=async()=>{clearTimeout(timer);const request=++version;setLoading(true);try{const next=await loadSavedDrafts(owner);if(alive.current&&request===version){setLibrary(next.library);setGeneration(next.generation);setError('');const expiry=next.nextExpiry;if(expiry!==null)timer=setTimeout(()=>void refresh(),Math.min(2147483647,Math.max(1,expiry-Date.now())));}}catch{if(alive.current&&request===version)setError('Saved drafts could not load. Retry; your current draft is kept.');}finally{if(alive.current&&request===version)setLoading(false);}};void refresh();const stop=subscribeSavedDrafts(owner,()=>void refresh());return()=>{alive.current=false;version++;clearTimeout(timer);stop();};},[key,open]);
  useEffect(()=>{const element=input.current;if(!element)return;const start=()=>{composing.current=true;setIme(true);},end=()=>{composing.current=false;setIme(false);};element.addEventListener('compositionstart',start);element.addEventListener('compositionend',end);return()=>{element.removeEventListener('compositionstart',start);element.removeEventListener('compositionend',end);};},[input]);
  const current=()=>alive.current&&latest.current.key===key&&!latest.current.disabled&&!composing.current;
