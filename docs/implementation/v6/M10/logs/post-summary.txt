@@ -1,0 +1,5 @@
+EXIT 0 :: pnpm test:browser --suite background-work
+EXIT 0 :: build-evidence
+EXIT 0 :: evidence-validate
+EXIT 0 :: compare
+POST_DONE

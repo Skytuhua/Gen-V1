@@ -79,7 +79,18 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey;
+// M10 flag set: durable background work and human handoffs. Each risky
+// sub-capability keeps its own key and proof; contracts and ordinary RUN jobs
+// never unlock service lifetime, idle review forks or external intake.
+export const M10_FLAG_KEYS = [
+  "jobs.backgroundV1",
+  "jobs.serviceLifetimeV1",
+  "jobs.idleReviewV1",
+  "integrations.intakeV1",
+] as const;
+export type M10FlagKey = (typeof M10_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M10FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
@@ -96,6 +107,10 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
   { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
   { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
+  { key: "jobs.backgroundV1", owner: "m10", description: "Durable background work records, one Store scheduler and owned RUN-lifetime commands." },
+  { key: "jobs.serviceLifetimeV1", owner: "m10", description: "APPROVED_SERVICE lifetime; off until an installed supervisor has target-platform PASS evidence." },
+  { key: "jobs.idleReviewV1", owner: "m10", description: "Opt-in idle verification/review work; off until the pinned fork API and auxiliary budget are proven." },
+  { key: "integrations.intakeV1", owner: "m10", description: "Authenticated read-only GitHub polling intake; proposals only until explicit user approval." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {

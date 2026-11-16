@@ -51,6 +51,10 @@ import type { RequestPreparationV1 } from '../contracts/request-context.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
+import {BackgroundWorkCoordinator,type BackgroundWorkOptions} from './background-work.ts';
+import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
+import type {ModelRequestGate} from '../runtime/model-capacity.ts';
+import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; requestContextId?:string; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -80,6 +84,14 @@ export interface ServiceOptions {
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  /** Trusted host injection for M10 background work; absent gates stay off. */
+  background?:{
+    gate?:ModelRequestGate;
+    executionGate?:BackgroundWorkOptions['executionGate'];
+    idleExecutor?:BackgroundWorkOptions['idleExecutor'];
+    intakeAuth?:IntakeAuth;
+    intakeFetch?:typeof fetch;
+  };
 }
 export class Service {
   readonly research:PersonalResearchRepository;
@@ -87,6 +99,8 @@ export class Service {
   readonly agentWork: AgentWorkCoordinator;
   readonly planExtensions: PlanExtensionStore;
   readonly learning:LearningCoordinator;
+  readonly backgroundWork:BackgroundWorkCoordinator;
+  readonly intake:ExternalIntakeCoordinator;
   private aborts = new Map<string, AbortController>();
   private controllerWork = new WeakMap<AbortController, number>();
   private pending = new Set<Promise<unknown>>();
@@ -143,6 +157,19 @@ export class Service {
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
+    this.backgroundWork=new BackgroundWorkCoordinator({store,isEnabled:key=>capabilityEnabled(key),currentThread:id=>this.store.get<Thread>('thread',id)??null,
+      enqueueFollowUp:input=>{this.enqueueInput({id:input.id,threadId:input.threadId,content:input.content,status:'persisted',runId:null});queueMicrotask(()=>this.background(this.deliverOutbox(input.threadId)));},
+      gate:options.background?.gate,executionGate:options.background?.executionGate,idleExecutor:options.background?.idleExecutor,
+      onPaused:()=>{this.intake.stop();}});
+    this.intake=new ExternalIntakeCoordinator({store,auth:options.background?.intakeAuth,fetchImpl:options.background?.intakeFetch,
+      createTask:async request=>{
+        // S10: the approved external task enters the same project, role and
+        // execution gates as a manual task; external text carries no authority.
+        const created=await this.command({id:randomUUID(),type:'thread.create',payload:{title:request.title.slice(0,140),...(request.projectId?{projectId:request.projectId}:{})}});
+        const thread=created.result as Thread;
+        await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
+        return {threadId:thread.id};
+      }});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   private memoryHost():ProjectMemoryHost {
@@ -204,7 +231,7 @@ export class Service {
   /** Host-owned evidence; cancelling work during shutdown never turns a busy
    * close into permission to install an update. */
   isUpdateIdle():boolean {
-    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.source?.runtime.sourceBusy
+    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.backgroundWork.busy&&!this.intake.busy&&!this.source?.runtime.sourceBusy
       &&!this.store.all<Thread>('thread').some(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id))
       &&!this.store.all<Operation>('operation').some(operation=>['prepared','running','unknown'].includes(operation.status))
       &&!this.store.all<Outbox>('outbox').some(input=>input.status!=='handled')
@@ -628,6 +655,7 @@ export class Service {
     if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
     if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));
     if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));
+    if(command.type.startsWith('background.')||command.type.startsWith('intake.'))return this.backgroundCommand(command);
     if (command.type === "thread.create") return this.store.command(command, () => {
       const parent=p.sideParentId===undefined?undefined:this.thread(text(p,'sideParentId',200));
       if(parent?.sideParentId||parent?.kind==='delegate')throw new HarnessError('INVALID_INPUT','Open side questions from the main conversation.');
@@ -724,6 +752,76 @@ export class Service {
       for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.approved && o.status === "prepared")) this.background(this.dispatchOperation(op.id));
     }
     return receipt;
+  }
+  private async backgroundCommand(command: HostCommand): Promise<CommandReceipt> {
+    const p = command.payload;
+    const ownerFor = (thread: Thread) => ({ threadId: thread.id, runId: thread.runId, epoch: thread.epoch, projectId: thread.projectId ?? null, workspaceId: thread.workspaceId ?? null, accountBinding: thread.accountId ?? null });
+    const sync = (result: unknown): CommandReceipt => this.store.receipt(command) ?? this.store.command(command, () => result);
+    switch (command.type) {
+      case 'background.work.admit': {
+        const thread = this.thread(command.threadId);
+        const kind = String(p.kind) as BackgroundWorkKind;
+        if (!['COMMAND', 'REVIEW', 'MAINTENANCE', 'EXTERNAL_TASK'].includes(kind)) throw new HarnessError('INVALID_INPUT', 'Unknown background work kind.');
+        const record = this.backgroundWork.admit(command, {
+          owner: ownerFor(thread), kind, title: text(p, 'title', 200),
+          ...(p.lifetime === 'APPROVED_SERVICE' ? { lifetime: 'APPROVED_SERVICE' as const } : {}),
+          ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}),
+          ...(typeof p.effectId === 'string' ? { effectId: p.effectId } : {}),
+          ...(p.command && typeof p.command === 'object' ? { command: p.command as { executable: string; argv: string[]; cwd: string; profileId: string } } : {}),
+          ...(p.idle && typeof p.idle === 'object' ? { idle: p.idle as { projectId: string; profileId: string; intervalMs: number } } : {}),
+          ...(typeof p.parentThreadId === 'string' ? { parentThreadId: p.parentThreadId } : {}),
+          ...(p.advisory === true ? { advisory: true } : {}),
+          ...(typeof p.intakeId === 'string' ? { intakeId: p.intakeId } : {}),
+        });
+        return sync(record);
+      }
+      case 'background.work.cancel': return sync(this.backgroundWork.cancel(command, text(p, 'workId', 200)));
+      case 'background.work.stop': {
+        const result = await this.backgroundWork.stopCommand(text(p, 'workId', 200));
+        return this.store.command(command, () => result);
+      }
+      case 'background.work.reconcile': {
+        const receipt = p.receipt as { pid: number; creationToken: string | null; exitCode: number | null; signal: string | null; observedAt: string };
+        return sync(this.backgroundWork.resolveProcessExit(text(p, 'workId', 200), receipt));
+      }
+      case 'background.command.start': {
+        const result = await this.backgroundWork.startCommand(text(p, 'workId', 200));
+        return this.store.command(command, () => result);
+      }
+      case 'background.wakeup.register': {
+        const thread = this.thread(command.threadId);
+        const taskId = text(p, 'taskId', 200);
+        const work = this.backgroundWork.work(taskId);
+        if (work.owner.threadId !== thread.id) throw new HarnessError('CAPABILITY_DENIED', 'The wakeup belongs to another task.');
+        return sync(this.backgroundWork.scheduler.register(command, { taskId, trigger: p.trigger, ...(typeof p.scheduleTimezone === 'string' ? { scheduleTimezone: p.scheduleTimezone } : {}), ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}) }));
+      }
+      case 'background.wakeup.pause': return sync(this.backgroundWork.scheduler.pause(command, text(p, 'wakeupId', 200)));
+      case 'background.wakeup.resume': return sync(this.backgroundWork.scheduler.resume(command, text(p, 'wakeupId', 200)));
+      case 'background.wakeup.cancel': return sync(this.backgroundWork.scheduler.cancel(command, text(p, 'wakeupId', 200)));
+      case 'background.occurrence.reconcile': return sync(this.backgroundWork.scheduler.reconcile(command, text(p, 'occurrenceKey', 600), p.receipt as { observed: 'DELIVERED' | 'NOT_DISPATCHED'; receiptRef?: string }));
+      case 'background.human.request': {
+        const thread = this.thread(command.threadId);
+        return sync(this.backgroundWork.requestHumanStep(command, {
+          requestId: text(p, 'requestId', 200), owner: ownerFor(thread), questionRevision: Number(p.questionRevision),
+          responseSchema: object(p.responseSchema), requiredAction: p.requiredAction as 'answer' | 'approval' | 'credential', workId: text(p, 'workId', 200),
+        }));
+      }
+      case 'background.human.respond': return sync(this.backgroundWork.respondHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision), response: p.response }));
+      case 'background.human.decline': return sync(this.backgroundWork.declineHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision) }));
+      case 'background.idle.configure': return sync(this.backgroundWork.configureIdle(command, { projectId: text(p, 'projectId', 160), profileId: text(p, 'profileId', 160), enabled: p.enabled === true, intervalMs: Number(p.intervalMs) }));
+      case 'background.pauseAll': return sync(this.backgroundWork.pauseAll(command));
+      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) }));
+      case 'intake.poll': {
+        const result = await this.intake.pollOnce();
+        return this.store.command(command, () => result);
+      }
+      case 'intake.approve': {
+        const result = await this.intake.approve(command, { intakeId: text(p, 'intakeId', 200), modelId: text(p, 'modelId', 300), ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) });
+        return this.store.command(command, () => result);
+      }
+      case 'intake.reject': return sync(this.intake.reject(command, { intakeId: text(p, 'intakeId', 200), ...(typeof p.reason === 'string' ? { reason: p.reason } : {}) }));
+      default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+    }
   }
   private applyCommand(command: HostCommand, thread: Thread): unknown {
     const p = command.payload;
@@ -928,6 +1026,7 @@ export class Service {
       if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
       return { messageId: message.id, inputId: input.id };
     });
+    this.backgroundWork.noteForegroundAdmission(thread.id);
     this.background(this.deliverOutbox(thread.id)); return receipt;
   }
   private async resume(command: HostCommand, thread: Thread) {
@@ -954,7 +1053,7 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
       if (!this.store.all<Outbox>("outbox", thread.id).some(i => i.status === "persisted")) this.store.put("outbox", command.id, thread.id, { id: command.id, threadId: thread.id, content: "Resume this task from saved state and evidence.", status: "persisted", runId: null });
       this.store.put("thread", thread.id, thread.id, { ...thread,accountId:binding.accountId, modelId,thinkingLevel,status: this.hasGate(thread.id) ? "awaiting_input" : "ready", updatedAt: now(), error: null }); return { resumed: true };
-    }); this.background(this.deliverOutbox(thread.id)); return receipt;
+    }); this.backgroundWork.noteForegroundAdmission(thread.id); this.background(this.deliverOutbox(thread.id)); return receipt;
   }
   async deliverOutbox(threadId: string): Promise<void> {
     const previous=this.deliveries.get(threadId),work=previous?previous.catch(()=>{}).then(()=>this.deliverInputs(threadId)):this.deliverInputs(threadId);
@@ -1503,6 +1602,9 @@ export class Service {
       return { inferenceCalls: 0 };
     });
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    this.backgroundWork.recover();
+    this.backgroundWork.start();
+    this.intake.start();
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();
@@ -1510,7 +1612,8 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }

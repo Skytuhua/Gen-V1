@@ -19,6 +19,7 @@ import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
+import {registerBackgroundRoutes} from './background-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
@@ -195,6 +196,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
   registerAttentionRoutes(app,service);
+  registerBackgroundRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
