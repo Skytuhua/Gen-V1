@@ -36,6 +36,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const stateDirty = useRef<{ current: boolean } | null>(null);
   const [widgetDirty, setWidgetDirty] = useState(false);
   const [widgetGeneration, setWidgetGeneration] = useState(0);
+  const widgetEdits = useRef(0);
   const holding = widgetDirty || stateDirty.current?.current;
   if (!holding) heldArtifact.current = incoming;
   const artifact = holding ? heldArtifact.current : incoming;
@@ -123,8 +124,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if (result?.approvalRequired && expanded) await command('artifact.expand', { artifactId: artifact.id, expanded: false }, artifact.threadId);
     await refresh();
   };
-  const discardWidget = artifact.kind === 'widget' ? async () => { if (!widget.current) throw new Error('Keep the owning widget open until its edit lease can be released.'); await widget.current.releaseLease(); setWidgetGeneration(value => value + 1); dirtyChanged(false); } : undefined;
-  const dirtyChanged = (value: boolean) => { setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value, discardWidget); };
+  const discardWidget = artifact.kind === 'widget' ? async () => { if (!widget.current) throw new Error('Keep the owning widget open until its edit lease can be released.'); const owner = widget.current, generation = widgetEdits.current; await owner.releaseLease(); if (widget.current !== owner || widgetEdits.current !== generation) throw new Error('The widget changed while discarding. Your newer edits are retained.'); setWidgetGeneration(value => value + 1); dirtyChanged(false); } : undefined;
+  const dirtyChanged = (value: boolean) => { widgetEdits.current++; setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value, discardWidget); };
   const discardAndArchive = async () => {
     if (archiving) return;
     setArchiving(true); setError('');
