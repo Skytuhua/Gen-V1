@@ -156,3 +156,28 @@ test('QA #130 displays escaped control paths and reviews their exact original by
  const paths=await page.evaluate(()=>(window as unknown as {checkpointCalls:{kind:string;paths?:string[]}[]}).checkpointCalls.find(call=>call.kind==='review')?.paths);
  expect(paths).toEqual(['src/notes\t2026.txt','src/notes\n2026.txt']);await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();await page.screenshot({path:testInfo.outputPath('control-paths.png'),fullPage:true});
 });
+
+test('recorded comparison preferences have real renderer effects with explicit scope (T07)',async({page})=>{
+ const recorded=async(query:string)=>{await page.goto('/file-checkpoints'+query);await page.getByRole('tab',{name:'Recorded',exact:true}).click();};
+ await recorded('?ws=1');
+ await expect(page.getByText('Layout, whitespace and color preferences apply to recorded before/after comparisons. Unified source patches are shown verbatim.')).toBeVisible();
+ const wsPair=page.locator('.workspace-diff').filter({hasText:'whitespace.ts'});
+ expect(await wsPair.locator('section').first().locator('pre').evaluate(node=>node.textContent)).toBe('alpha\n \nbeta');
+ const unifiedText=await page.locator('.workspace-diff').filter({hasText:'Repository diff'}).locator('.unified-diff').evaluate(node=>node.textContent);
+ expect(unifiedText).toContain('@@ -1 +1 @@');
+ const defaultTint=await page.locator('.workspace-diff-pair section').first().evaluate(node=>getComputedStyle(node).backgroundColor);
+ await recorded('?ws=1&prefs=ws');
+ const wsHidden=page.locator('.workspace-diff').filter({hasText:'whitespace.ts'});
+ expect(await wsHidden.locator('section').first().locator('pre').evaluate(node=>node.textContent)).toBe('beta');
+ expect(await wsHidden.locator('section').nth(1).locator('pre').evaluate(node=>node.textContent)).toBe('beta changed');
+ expect(await page.locator('.workspace-diff').filter({hasText:'Repository diff'}).locator('.unified-diff').evaluate(node=>node.textContent)).toBe(unifiedText);
+ const splitColumns=await page.locator('.workspace-diff-pair').first().evaluate(node=>getComputedStyle(node).gridTemplateColumns);
+ expect(splitColumns.split(' ').length).toBe(2);
+ await recorded('?ws=1&prefs=stacked');
+ const stackedColumns=await page.locator('.workspace-diff-pair').first().evaluate(node=>getComputedStyle(node).gridTemplateColumns);
+ expect(stackedColumns.split(' ').length).toBe(1);
+ expect(stackedColumns).not.toBe(splitColumns);
+ await recorded('?ws=1&prefs=colors');
+ const altTint=await page.locator('.workspace-diff-pair section').first().evaluate(node=>getComputedStyle(node).backgroundColor);
+ expect(altTint).not.toBe(defaultTint);
+});

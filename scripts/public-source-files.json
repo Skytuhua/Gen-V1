@@ -1289,6 +1289,7 @@
     "tests/project-trust-v3.test.ts",
     "tests/public-source.test.ts",
     "tests/qa-delegation-v3.test.ts",
+    "tests/recorded-diffs.test.ts",
     "tests/redundant-ui.test.ts",
     "tests/request-preparation-service-v3.test.ts",
     "tests/research-fixture.ts",
