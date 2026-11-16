@@ -130,6 +130,7 @@ test('search results navigate to the real target with reveal and focus; Escape c
   await expect(scheme).toBeVisible();
   await expect(scheme).toBeFocused();
   await expect(dialog.locator('[data-setting-id="appearance-theme"]')).toHaveClass(/settings-row-revealed/);
+  await expect(dialog.locator('[data-setting-id="appearance-theme"]')).not.toHaveClass(/settings-row-revealed/,{timeout:3000});
   // The whole appearance panel renders — no independent child query filter remains.
   await expect(dialog.getByRole('combobox', { name: 'Density', exact: true })).toBeVisible();
   await expect(dialog.getByRole('heading', { name: 'Project colors', exact: true })).toBeVisible();
@@ -140,6 +141,19 @@ test('search results navigate to the real target with reveal and focus; Escape c
   await expect(dialog).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
+});
+
+for(const provider of [{query:'OpenCode runtime',id:'opencode',name:/^OpenCode runtime/},{query:'Meta / Muse',id:'meta',name:/^Meta \/ Muse/}])test(`unavailable-provider search keeps keyboard focus on an enabled target (${provider.id})`,async({page})=>{
+  const {dialog,search}=await openSettings(page);await search.fill(provider.query);await dialog.getByRole('button',{name:provider.name}).click();
+  const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
+  await expect(target.getByRole('link',{name:'Connection details',exact:true})).toBeFocused();
+});
+
+test('runtime search reveals one environment controls target and keeps focus in its section',async({page})=>{
+  const {dialog,search}=await openSettings(page);await search.fill('environment variables');await dialog.getByRole('button',{name:/^Local runtime & environments/}).click();
+  await expect(dialog.locator('[data-setting-id="harness-runtime"]')).toHaveCount(1);
+  const target=dialog.locator('[data-setting-id="harness-runtime"]');await expect(target.locator('.environment-settings')).toBeVisible();
+  await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
 });
 
 test('dropdown popovers anchor to their trigger inside the settings dialog with default motion', async ({ page }) => {

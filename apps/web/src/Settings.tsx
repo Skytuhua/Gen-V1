@@ -97,6 +97,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const [section, setSection] = useState(SETTINGS_SECTIONS.some(([id]) => id === target) ? target : 'general');
   const [query, setQuery] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
   const [pendingTarget, setPendingTarget] = useState<string | null>(null);
+  const [revealedTarget,setRevealedTarget]=useState<HTMLElement|null>(null);
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]), [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
   const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
@@ -120,12 +121,16 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     setPendingTarget(null);
     if (!node) { if (content.current) { content.current.tabIndex = -1; content.current.focus(); } return; }
     node.scrollIntoView({ block: 'center' });
-    node.classList.add('settings-row-revealed');
-    const focusable = node.querySelector<HTMLElement>('button, input, select, a, [tabindex]');
+    setRevealedTarget(node);
+    const focusable = [...node.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, [tabindex]')].find(element=>!element.matches(':disabled')&&element.tabIndex>=0&&element.getClientRects().length&&!element.closest('[inert], [hidden]')&&getComputedStyle(element).visibility!=='hidden');
     if (focusable) focusable.focus(); else { node.tabIndex = -1; node.focus(); }
-    const timer = setTimeout(() => node.classList.remove('settings-row-revealed'), 1600);
-    return () => clearTimeout(timer);
   }, [pendingTarget, section]);
+  useLayoutEffect(()=>{
+    if(!revealedTarget)return;
+    revealedTarget.classList.add('settings-row-revealed');
+    const timer=setTimeout(()=>setRevealedTarget(null),1600);
+    return()=>{clearTimeout(timer);revealedTarget.classList.remove('settings-row-revealed');};
+  },[revealedTarget]);
   const persist = async (payload: Record<string, unknown>) => {
     if (busy) return false;
     setBusy(true); setSaved(false); setError('');
@@ -181,7 +186,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
         {rows.length === 0 && <p className="settings-empty">No matching settings.</p>}
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
-      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id}><div className="settings-row-copy"><h2>{item.title}</h2><p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
+      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2><p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
       {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update}/></div>}
       {matches('harness-runtime') && <div data-setting-id="harness-runtime">{environmentSettings}</div>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
