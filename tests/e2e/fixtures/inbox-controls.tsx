@@ -6,7 +6,7 @@ import '../../../apps/web/src/styles.css';
 
 type Mode = 'success' | 'reject' | 'throw' | 'source-error';
 type Call = {type: 'refresh' | 'read' | 'unread' | 'open'; id?: string};
-declare global {interface Window {inboxControls: {calls: Call[]; items: AttentionItem[]; refreshMode: Mode; readMode: Mode; openMode: Mode}}}
+declare global {interface Window {inboxControls: {calls: Call[]; items: AttentionItem[]; refreshMode: Mode; readMode: Mode; openMode: Mode; holdRead?: Promise<void>}}}
 window.inboxControls = {calls: [], items: [], refreshMode: 'success', readMode: 'success', openMode: 'success'};
 const initial: AttentionItem[] = [
   {id: 'question', threadId: 'thread-question', kind: 'request', title: 'Question', summary: 'Choose the destination in the canonical conversation.', state: 'needs-input', read: false, actionable: true},
@@ -26,7 +26,8 @@ function Fixture() {
   };
   const change = (id: string, read: boolean) => {
     window.inboxControls.calls.push({type: read ? 'read' : 'unread', id});
-    return result(read ? window.inboxControls.readMode : 'success', 'Read state could not save.', () => setItems(current => current.map(item => item.id === id ? {...item, read} : item)));
+    const apply = () => result(read ? window.inboxControls.readMode : 'success', 'Read state could not save.', () => setItems(current => current.map(item => item.id === id ? {...item, read} : item)));
+    return read && window.inboxControls.holdRead ? window.inboxControls.holdRead.then(apply) : apply();
   };
   return <main><p>Synthetic source fixture · no live host or approval authority</p><div className="fixture-inbox"><InboxView projectColorFor={() => undefined}
     attention={{items, unread: items.filter(item => !item.read).length, error,

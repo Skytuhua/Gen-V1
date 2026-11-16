@@ -147,3 +147,31 @@ test('narrow themed controls and popup fit without overflow and retain list/read
   await rows(page).first().click(); await expect(page.locator('.agent-inbox')).toHaveAttribute('data-columns', 'item');
   await page.keyboard.press('Escape'); await expect(page.locator('.agent-inbox')).toHaveAttribute('data-columns', 'list'); await expect(rows(page).first()).toBeFocused();
 });
+
+
+test('Mark unread cancels the selected Inbox item’s delayed automatic read', async ({page}) => {
+  await fixture(page);
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 100));
+  await rows(page).filter({hasText: 'Question'}).first().click();
+  expect(await calls(page)).toEqual([]);
+  await page.getByRole('button', {name: 'Mark unread', exact: true}).click();
+  await page.clock.runFor(600);
+  expect(await calls(page)).toEqual([{type: 'unread', id: 'question'}]);
+  await expect(page.getByRole('button', {name: 'Question, Needs your input, unread', exact: true})).toBeVisible();
+});
+
+test('Mark unread wins over an automatic read already in flight for that Inbox item', async ({page}) => {
+  await fixture(page);
+  await page.evaluate(() => {
+    window.inboxControls.holdRead = new Promise(resolve => window.addEventListener('fixture-release-read', () => resolve(), {once:true}));
+  });
+  await rows(page).filter({hasText: 'Question'}).first().click();
+  await expect.poll(() => calls(page)).toEqual([{type: 'read', id: 'question'}]);
+  await page.getByRole('button', {name: 'Mark unread', exact: true}).click();
+  const beforeRelease=await calls(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('fixture-release-read')));
+  expect(beforeRelease).toEqual([{type: 'read', id: 'question'}]);
+  await expect.poll(() => calls(page)).toEqual([{type: 'read', id: 'question'}, {type: 'unread', id: 'question'}]);
+  await expect(page.getByRole('button', {name: 'Question, Needs your input, unread', exact: true})).toBeVisible();
+});
