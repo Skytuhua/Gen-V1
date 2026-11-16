@@ -48,7 +48,7 @@ try{
  for(const zoom of [1,1.25,1.5]){
   await app.evaluate(({BrowserWindow},value)=>BrowserWindow.fromId(value.id)!.webContents.setZoomFactor(value.zoom),{id:mainId,zoom});await main.bringToFront();await main.evaluate(()=>new Promise<void>(accept=>requestAnimationFrame(()=>requestAnimationFrame(()=>accept()))));
   const width=await main.evaluate(()=>innerWidth),compact=width<=700;zoomGeometry.push({zoom,width,compact});if(compact)await main.getByRole('button',{name:'Open navigation',exact:true}).click();
-  const collapse=main.getByRole('button',{name:compact?'Close navigation':'Collapse sidebar',exact:true});await collapse.click();
+  const collapse=main.getByRole('complementary',{name:'Thread navigation',exact:true}).getByRole('button',{name:compact?'Close navigation':'Collapse sidebar',exact:true});await collapse.click();
   const expand=main.getByRole('button',{name:compact?'Open navigation':'Open sidebar',exact:true});await expect(expand).toBeVisible();
   expect(await expand.evaluate(node=>{const r=node.getBoundingClientRect();return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})).toBe(true);
   await expand.click();await expect(collapse).toBeVisible();await collapse.click();await expand.focus();await expand.press('Enter');await expect(collapse).toBeVisible();
@@ -57,7 +57,7 @@ try{
   await main.screenshot({path:join(directory,`repair-native-zoom-${Math.round(zoom*100)}.png`)});
  }
  await app.evaluate(({BrowserWindow},id)=>BrowserWindow.fromId(id)!.webContents.setZoomFactor(1),mainId);await main.evaluate(()=>new Promise<void>(accept=>requestAnimationFrame(()=>requestAnimationFrame(()=>accept()))));
- checks.push({name:'Native sidebar pointer hit testing and draft retention at 100/125/150 percent app zoom',passed:true,details:{zoom:[1,1.25,1.5],actualViewportCases:zoomGeometry,actualDisplays:displayGeometry,physicalDpiChange:false,originalR15Reproduced:false}});
+ checks.push({name:'Native sidebar pointer and keyboard expansion with draft retention at 100/125/150 percent app zoom',passed:true,details:{zoom:[1,1.25,1.5],actualViewportCases:zoomGeometry,actualDisplays:displayGeometry,physicalDpiChange:false,originalR15Reproduced:false}});
  const composer=main.getByRole('textbox',{name:'Message',exact:true}),composerIdentity=await composer.elementHandle(),nativeCount=app.windows().length;
  await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
  await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Area actions',exact:true}).click();await main.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
