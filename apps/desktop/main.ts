@@ -265,6 +265,7 @@ function registerIpc(){
  handle(channels.minimize,record=>record.window.minimize());
  handle(channels.signIn,(_record,value)=>{const target=parseDesktopSignInTarget(value);return beginSignIn(target.provider,target.accountId);});
  handle(channels.signInStatus,(_record,value)=>{if(!desktopId(value))throw Error('Invalid sign-in flow.');return signInFlows.status(value);});
+ handle(channels.activeSignIn,()=>signInFlows.current());
  handle(channels.cancelSignIn,(_record,value)=>{if(!desktopId(value))throw Error('Invalid sign-in flow.');return signInFlows.cancel(value);});
  handle(channels.reset,record=>resetWindowPosition(record));
  handle(channels.focus,async(_record,value)=>{

@@ -16,6 +16,17 @@ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:
 snapshot.artifacts=[];
 snapshot.data=[{id:'recorded',threadId:'task-thread',revision:1,createdAt:'2026-11-10T18:42:00Z',provenance:'Synthetic recorded executor comparison',value:{title:'src/workspace-layout.ts',before:'const panelWidth = 360;',after:'const panelWidth = 420;'}}];
 const query=new URLSearchParams(location.search),state=query.get('state');
+// T07: controlled display-preference variants for the recorded comparison renderer.
+const prefs=query.get('prefs');
+const recordedPreferences={...DEFAULT_PREFERENCES,diffDefaultExpanded:true,
+ ...(prefs==='split'?{diffLayout:'split' as const}:{}),
+ ...(prefs==='stacked'?{diffLayout:'stacked' as const}:{}),
+ ...(prefs==='colors'?{diffColors:'blue-orange' as const}:{}),
+ ...(prefs==='ws'?{hideWhitespace:true}:{})};
+if(query.get('ws')){
+ snapshot.data.push({id:'ws-record',threadId:'task-thread',revision:1,createdAt:'2026-11-10T18:42:00Z',provenance:'Synthetic whitespace comparison',value:{title:'whitespace.ts',before:'alpha\n \nbeta',after:'alpha\n\t\nbeta changed'}});
+ snapshot.data.push({id:'unified-record',threadId:'task-thread',revision:1,createdAt:'2026-11-10T18:42:00Z',provenance:'executor; git diff; synthetic',value:{stdout:'@@ -1 +1 @@\n-alpha\n+beta'}});
+}
 const hash='a'.repeat(64),otherHash='b'.repeat(64);
 const checkpoints:FileCheckpoint[]=[{id:'layout',label:'Before updating workspace layout',createdAt:'2026-11-10T18:42:00Z',provenance:{kind:'guarded_write',operationId:'layout-edit'},revision:hash,fileCount:(state==='full-100'||state?.startsWith('long-'))?100:2,expiresAt:null},{id:'guide',label:'Before editing the project guide',createdAt:'2026-11-09T23:18:00Z',provenance:{kind:'guarded_write',operationId:'guide-edit'},revision:otherHash,fileCount:1,expiresAt:null}];
 const pathsById:Record<string,string[]>={layout:state?.startsWith('long-')?Array.from({length:100},(_,i)=>`src/${i}/${'a'.repeat(200)}/${'b'.repeat(200)}/file.ts`):state==='full-100'?Array.from({length:100},(_,i)=>`src/file-${i}.ts`):state==='controls'?['src/notes\t2026.txt','src/notes\n2026.txt']:state==='leading-space'?[' src/a','src/a']:['src/workspace-layout.ts','src/workspace-layout.test.ts'],guide:['docs/project-guide.md']};
@@ -58,7 +69,7 @@ function Fixture(){
   </section><section className="wo5-checkpoints-tool" aria-label="Changes">
    <FileCheckpoints owner={currentOwner} preferences={{...DEFAULT_PREFERENCES,diffDefaultExpanded:true}} initialSource="History" adapter={state==='unavailable'?undefined:adapter}
     current={<div className="panel-empty"><strong>Live working-copy changes</strong><p>Synthetic current Git source · work-one</p></div>}
-    recorded={<RecordedDiffPanel snapshot={snapshot} threadId="task-thread" preferences={DEFAULT_PREFERENCES}/>}/>
+    recorded={<RecordedDiffPanel snapshot={snapshot} threadId="task-thread" preferences={recordedPreferences}/>}/>
   </section></div>
  </main>;
 }

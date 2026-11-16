@@ -10,7 +10,7 @@ export interface SupportedSettingRow extends SettingsInventoryRow {
 }
 
 // Purpose groups for the supported categories (kept independent of the raw section ids).
-const GROUPS: Record<string, string> = {
+export const GROUPS: Record<string, string> = {
  general: 'Basics', appearance: 'Look & feel', chat: 'Conversation', providers: 'Models & accounts',
  projects: 'Projects & working copies', diffs: 'Source control', skills: 'Skills & integrations',
  notifications: 'Notifications & usage', browser: 'Browser', keybindings: 'Keyboard', maintenance: 'Data & recovery', about: 'About & licenses',

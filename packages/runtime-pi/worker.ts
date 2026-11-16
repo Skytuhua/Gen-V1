@@ -7,11 +7,12 @@ import { CheckpointBridge, sameContext, ToolBridge, type ToolReply, type Checkpo
 import {sameMemoryCheckpointRequirement} from '../runtime/memory-checkpoint.ts';
 import { selectSubscriptionModel, subscriptionModels,thinkingForModel } from "./models.ts";
 import { safeError } from "./sdk.ts";
+import {isSubscriptionProviderId} from '../contracts/connections.ts';
 import { openTaskSession, taskPaths } from "./session.ts";
 import { createHostResourceLoader, createHostTools, loadDomainTools } from "./tool-definitions.ts";
 import {assertModelOnlyInput,PREDICTION_MAX_OUTPUT_BYTES,PREDICTION_MAX_TOKENS,MEMORY_EXTRACTION_MAX_OUTPUT_BYTES,MEMORY_EXTRACTION_MAX_TOKENS,type ModelPurpose} from '../runtime/model-only.ts';
 
-interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext;modelOnly?:boolean;purpose?:ModelPurpose }
+interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext;modelOnly?:boolean;purpose?:ModelPurpose;providerId?:unknown }
 let session: AgentSession | undefined;
 let bridge: ToolBridge | undefined;
 let checkpointBridge:CheckpointBridge|undefined;
@@ -88,7 +89,10 @@ async function initialize(command: Command) {
 }
 
 async function handle(command: Command) {
-  if (command.command === "models") return subscriptionModels(taskPaths(command.dataDir, "models").authPath);
+  if (command.command === "models") {
+    if(command.providerId!==undefined&&!isSubscriptionProviderId(command.providerId))throw new HarnessError('INVALID_INPUT','Choose a subscription provider for model discovery.');
+    return subscriptionModels(taskPaths(command.dataDir, "models").authPath,command.providerId);
+  }
   if(command.purpose==='prediction'&&(command.command==='followUp'||command.command==='compact'))throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions require a fresh conversation.');
   if(command.purpose==='memory-extraction'&&(command.command==='followUp'||command.command==='compact'))throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction requires a fresh ephemeral conversation.');
   if(command.purpose==='memory-extraction'&&!command.modelOnly)throw new HarnessError('MEMORY_EXTRACTION_INPUT_INVALID','Memory extraction requires a tool-free ephemeral transport.');
