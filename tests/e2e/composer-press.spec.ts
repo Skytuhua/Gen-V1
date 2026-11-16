@@ -49,6 +49,14 @@ async function pointerPress(page: Page, control: Locator) {
   await expect(control).not.toHaveAttribute('data-pointer-pressed');
 }
 
+test('a foreign pointer leaving does not clear the active composer press', async ({ page }) => {
+  await fixture(page, true); const control = page.getByRole('button', { name: 'Select project', exact: true });
+  await control.hover(); await page.mouse.down(); await expect(control).toHaveAttribute('data-pointer-pressed');
+  await control.dispatchEvent('pointerout', { pointerId: 77, pointerType: 'touch', bubbles: true, relatedTarget: null });
+  await expect(control).toHaveAttribute('data-pointer-pressed');
+  await page.mouse.up(); await expect(control).not.toHaveAttribute('data-pointer-pressed');
+});
+
 for (const width of [1024, 1440]) {
   test(`pointer presses use 80ms, .97 and immediate release at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
