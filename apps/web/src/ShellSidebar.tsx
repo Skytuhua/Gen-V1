@@ -150,7 +150,7 @@ export function ShellSidebar({
   select: (id: string) => void;
   create: () => void;
   settings: () => void;
-  presentation: (thread: Thread, value: NonNullable<Thread['presentation']>) => void;
+  presentation: (thread: Thread, value: NonNullable<Thread['presentation']>) => Promise<boolean>;
   rename: (thread: Thread) => void;
   archive: (id: string) => void;
 }) {
@@ -198,7 +198,7 @@ export function ShellSidebar({
           {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
-            onSelect: () => { const next = !item.presentation?.settled; presentation(item, {settled: next}); toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); }},
+            onSelect: async () => { const next = !item.presentation?.settled; try { if (await presentation(item, {settled: next})) toast(next ? `"${item.title}" settled ? find it under Settled` : `"${item.title}" returned to your threads`); } catch (cause) { toast(cause instanceof Error ? cause.message : 'Thread presentation could not save.', {tone: 'error'}); } }},
           {id: 'top', label: 'Move to top', icon: <ArrowUp size={13} />, onSelect: () => {
             const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
             threadMove.prepare(item.id, min - 1);

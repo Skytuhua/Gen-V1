@@ -248,14 +248,16 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     await check(); await desktop.bridge.browser({type: 'open'}); await check();
     if (url) await desktop.bridge.browser({type: 'navigate', url});
   } : undefined;
-  const mutate = (action: () => Promise<void>) => {
-    if (mutationPending.current) return;
+  const mutate = async (action: () => Promise<void>) => {
+    if (mutationPending.current) return false;
     mutationPending.current = true; setMutationBusy(true);
-    fail(async () => {try {await prepare(); await action();} finally {mutationPending.current = false; setMutationBusy(false);}});
+    try {await prepare(); await action(); return true;}
+    catch (cause) {if (alive.current) setError(message(cause)); return false;}
+    finally {mutationPending.current = false; if (alive.current) setMutationBusy(false);}
   };
-  const present = (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
-    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return;}
-    mutate(async () => {await command('thread.presentation', patch, row.id); await navigation.refresh();});
+  const present = async (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
+    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return false;}
+    return mutate(async () => {await command('thread.presentation', patch, row.id); void navigation.refresh().catch(cause => {if (alive.current) setError(message(cause));});});
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
   return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} data-panel-animations={preferences.panelAnimations} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
