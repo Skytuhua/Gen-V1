@@ -324,13 +324,20 @@ it.skipIf(process.platform === 'win32')('rejects malformed UTF-8 names and dupli
   expect(result.issues).toContainEqual({ path: null, reason: 'excluded' });
 });
 
-it('uses the real platform guard: Windows ordinary reads succeed; unsupported platforms fail closed', async () => {
+it('uses an acquired real Windows guard for ordinary reads; unsupported platforms fail closed', async () => {
   const f = await fixture(); await f.write('a.txt', 'needle');
   const actual = await vi.importActual<typeof import('../packages/core/file-access.ts')>('../packages/core/file-access.ts');
   vi.mocked(withPathGuard).mockImplementation(actual.withPathGuard);
-  const result = await f.search.search(f.projectId, { q: 'needle' });
-  if (process.platform === 'win32') expect(result).toMatchObject({ complete: true, matches: [{ path: 'a.txt', kind: 'text' }] });
-  else expect(result).toMatchObject({ complete: false, matches: [], issues: [{ path: null, reason: 'changed' }] });
+  if (process.platform === 'win32') {
+    // Keep cold PowerShell startup outside the scan budget; nested acquisitions still use the real guard.
+    await actual.withPathGuard([{ path: await fs.realpath(f.path), leaf: false }], new AbortController().signal, async () => {
+      const result = await f.search.search(f.projectId, { q: 'needle' });
+      expect(result).toMatchObject({ complete: true, matches: [{ path: 'a.txt', kind: 'text' }] });
+    });
+  } else {
+    const result = await f.search.search(f.projectId, { q: 'needle' });
+    expect(result).toMatchObject({ complete: false, matches: [], issues: [{ path: null, reason: 'changed' }] });
+  }
 });
 
 it('sizes multibyte search pages without repeatedly serializing the growing response', async () => {
