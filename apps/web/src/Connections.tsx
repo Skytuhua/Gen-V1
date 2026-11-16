@@ -31,8 +31,12 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
     catch { if (!controller.signal.aborted&&version === generation.current) setError('Connection status is unavailable. Retry the check.'); }
     finally { if (!controller.signal.aborted&&version === generation.current) setChecking(false); }
   },[target.providerId,target.accountId]);
-  useEffect(() => { void check(); return () => { generation.current++;read.current?.abort(); }; }, [check, flow?.state]);
   const active = flow && ['opening', 'waiting', 'cancelling'].includes(flow.state);
+  useEffect(() => {
+    if(active||flow?.state==='blocked'){setChecking(false);setError('');}
+    else void check();
+    return () => { generation.current++;read.current?.abort(); };
+  }, [check, flow?.state,flow?.id]);
   const signout = async () => {
     if (pending.current) return; pending.current = true;const version=++generation.current;read.current?.abort();setChecking(true); setError('');
     try { const next=await signOutAccount(target);if(version===generation.current)setAuth(next);await onAuthChanged(target,'signed-out'); }
@@ -41,7 +45,7 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
   };
   const identityBound=target.providerId==='claude-code'&&(auth?.state==='authenticated'||auth?.state==='blocked');
   const blocked=auth?.state==='blocked'||flow?.state==='blocked'||auth?.state==='signing-in';
-  return <div className="connection-account-auth" aria-busy={checking || !!active} data-state={error?'error':checking?'checking':blocked?'blocked':auth?.state??'unknown'}>
+  return <div className="connection-account-auth" aria-busy={checking || !!active} data-state={error?'error':checking?'checking':blocked?'blocked':active?'signing-in':auth?.state??'unknown'}>
     {checking&&<p role="status">Checking connection…</p>}
     <p aria-live="polite">{auth ? `${auth.state === 'configured' ? 'Credential configured' : auth.state.replaceAll('-', ' ')}. ${auth.message}` : 'Connection status not checked. Identity unavailable.'}</p>
     {auth?.identity.availability !== 'unavailable' && auth?.identity && <p>{auth.identity.availability === 'verified' ? `Verified provider user ${auth.identity.subject}` : 'Authenticated account metadata (immutable identity unavailable)'}{auth.identity.email ? ` | ${auth.identity.email}` : ''}{auth.identity.organization ? ` | ${auth.identity.organization}` : ''}{auth.identity.subscription ? ` | ${auth.identity.subscription}` : ''}</p>}
@@ -50,9 +54,9 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
     {flow && <p aria-live="polite">{flow.message}</p>}
     {error && <p className="error-text" role="status">{error}</p>}
     {target.providerId==='claude-code'&&<p>Claude connections stay bound to their authenticated identity. To change users, add a new named account. Reconnect and local sign-out are unavailable for an authenticated connection.</p>}
-    <div className="connection-account-actions">{desktop?<button className="secondary" disabled={busy||checking||!!active||blocked||identityBound} onClick={login}><LogIn size={14}/>{flow&&['failed','cancelled'].includes(flow.state)?'Retry sign-in':`Connect ${label}`}</button>:<code>pnpm agent:login --provider {target.providerId}{target.accountId?` --account-id ${target.accountId}`:''}</code>}<button className="quiet" disabled={checking || !!active} onClick={() => void check()}>Check connection</button>
+    <div className="connection-account-actions">{desktop?<button className="secondary" disabled={busy||checking||!!active||blocked||identityBound} onClick={login}><LogIn size={14}/>{flow&&['failed','cancelled'].includes(flow.state)?'Retry sign-in':`Connect ${label}`}</button>:<code>pnpm agent:login --provider {target.providerId}{target.accountId?` --account-id ${target.accountId}`:''}</code>}<button className="quiet" disabled={checking || !!active || flow?.state==='blocked'} onClick={() => void check()}>Check connection</button>
     {active && desktop?.bridge.cancelSignIn && <button className="quiet" disabled={flow.state === 'cancelling'} onClick={() => {const version=generation.current;void desktop.cancelSignIn(flow.id).catch(() => {if(version===generation.current)setError('Native shutdown could not be confirmed. Check connection status.');}); }}>Cancel sign-in</button>}
-    {auth?.localSignout && <button className="quiet" disabled={checking || !!active || auth.state === 'blocked' || auth.state === 'signing-in' || auth.state === 'signed-out'} onClick={() => void signout()}>Sign out locally</button>}</div>
+    {auth?.localSignout && <button className="quiet" disabled={checking || !!active || blocked || auth.state === 'signed-out'} onClick={() => void signout()}>Sign out locally</button>}</div>
   </div>;
 }
 

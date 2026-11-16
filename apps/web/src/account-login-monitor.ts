@@ -37,7 +37,8 @@ export function createAccountLoginMonitor(bridge:DesktopBridge,changed:(flows:Re
   };
   timer=setTimeout(()=>void tick(),750);
   return {
-    async recover(){const version=sequence,next=await bridge.activeSignIn?.();if(!disposed&&version===sequence&&next)accept(next,true);return next??null;},
+    // Only null confirms absence; a discarded getter cannot authorize catalog reconciliation.
+    async recover(){const version=sequence,next=await bridge.activeSignIn?.();if(disposed||version!==sequence)return undefined;if(next)accept(next,true);return next??null;},
     async start(providerId:ConnectionProviderId,accountId?:string){const version=++sequence,next=await bridge.signIn(providerId,accountId);if(!disposed&&version===sequence&&next)accept(next,true);return next;},
     async cancel(id:string){if(!bridge.cancelSignIn)throw Error('Native cancellation is unavailable.');sequence++;versions.set(id,(versions.get(id)??0)+1);const next=await bridge.cancelSignIn(id);if(!disposed)accept(next);return next;},
     close(){disposed=true;control.abort();clearTimeout(timer);},

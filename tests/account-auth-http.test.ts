@@ -40,7 +40,7 @@ it('sign-out invalidates the signed-out account model catalog while leaving the 
   vi.spyOn(service,'cancelComposerPredictions').mockResolvedValue(undefined);
   const response=await app.inject({method:'POST',url:'/api/account-auth/signout',headers,payload:{providerId:'openai',accountId:null}});
   expect(response.statusCode).toBe(200);expect(response.json()).toMatchObject({state:'signed-out'});
-  expect(runtime.invalidateModels).toHaveBeenCalledWith({accountId:null});
+  expect(runtime.invalidateModels).toHaveBeenCalledWith({accountId:null,providerId:'openai'});
 });
 it('aborts a disconnected readiness response while leaving normally completed responses alone',async()=>{
   const {app,headers}=await fixture();

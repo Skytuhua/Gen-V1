@@ -1,4 +1,5 @@
 import { randomUUID, createHash } from "node:crypto";
+import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { lstatSync, realpathSync } from 'node:fs';
@@ -404,8 +405,22 @@ export class Service {
     if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');
     return this.requestCustody.getReady(threadId,requestId,preparation=>this.requestBasis(this.thread(threadId),preparation.modelId,preparation.thinkingLevel));
   }
-  async models(options:{refresh?:boolean;threadId?:string}={}) {
+  async models(options:{refresh?:boolean;threadId?:string;target?:AccountAuthTarget}={}) {
     const thread=options.threadId===undefined?undefined:this.thread(options.threadId);
+    if(options.target){
+      const target={...options.target},bound=thread&&this.isAccountBound(thread);
+      if(!isConnectionProviderId(target.providerId))throw new HarnessError('INVALID_INPUT','Choose an available subscription provider.');
+      const matches=()=>{
+        if(thread){const current=this.thread(thread.id);if(current.accountId!==thread.accountId||current.modelId!==thread.modelId)return false;}
+        return thread&&bound?((thread.accountId??null)===target.accountId&&(!thread.modelId||modelProvider(thread.modelId)===target.providerId)):(this.store.get<Snapshot['settings']>('settings','global')?.selectedAccounts?.[target.providerId]??null)===target.accountId;
+      };
+      if(!matches())throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The catalog account changed. Refresh the current selection.');
+      assertAccountAvailable(this.store,target.providerId,target.accountId,Boolean(bound));
+      const models=await this.runtime.models({refresh:options.refresh,providerId:target.providerId,accountId:target.accountId});
+      if(!matches())throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The catalog account changed during discovery.');
+      assertAccountAvailable(this.store,target.providerId,target.accountId,Boolean(bound));
+      return models.filter(model=>model.provider===target.providerId&&modelProvider(model.id)===target.providerId);
+    }
     if(thread&&this.isAccountBound(thread)){
       const accountId=thread.accountId??null,providerId=thread.modelId?modelProvider(thread.modelId):undefined;
       if(providerId)assertAccountAvailable(this.store,providerId,accountId);

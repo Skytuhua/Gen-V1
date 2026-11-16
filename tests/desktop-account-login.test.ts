@@ -83,3 +83,11 @@ it('keeps cancellation custody if native completion resolves before cleanup is c
   await expect(cancelling).resolves.toMatchObject({id:run.id,state:'cancelled'});
   expect(flows.isBusy()).toBe(false);
 });
+it('shares native cancellation between a renderer request and concurrent application close',async()=>{
+  const completion=deferred(),cleanup=deferred(),cancel=vi.fn(()=>cleanup.promise),flows=createAccountLoginFlows(async()=>({completion:completion.promise,cancel}));
+  const flow=await flows.start('openai',null);await vi.waitFor(()=>expect(flows.current()?.state).toBe('waiting'));
+  const first=flows.cancel(flow.id),closing=flows.close();
+  await vi.waitFor(()=>expect(cancel).toHaveBeenCalled());
+  const calls=cancel.mock.calls.length;cleanup.resolve();await Promise.all([first,closing]);
+  expect(calls).toBe(1);expect(flows.current()).toBeNull();
+});

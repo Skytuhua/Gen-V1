@@ -2,7 +2,8 @@ import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMem
 import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, getToolEffectObservation, searchThreadMessages, subscribe, type ToolEffectObservation } from './api';
-import {onAccountCatalogChanged,notifyAccountCatalogChanged} from './account-api';
+import {onAccountCatalogChanged,notifyAccountCatalogChanged,mergeAccountModels} from './account-api';
+import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
 import {isConnectionProviderId} from '../../../packages/contracts/connections';
 import { applyRuntimeEvent } from './snapshot-events';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
@@ -434,11 +435,11 @@ function CanvasThread({sharedComposers,thread,snapshot,visible,blocked,refresh,s
  const owner=`${thread.id}:${thread.accountId??'legacy'}:${thread.modelId??''}`;
  useEffect(()=>{
   if(readOnly||!visible)return;let controller:AbortController|undefined;
-  const load=async(force=false)=>{const generation=++request.current;controller?.abort();const control=new AbortController();controller=control;if(!force)setModels([]);
-   try{const value=await getModels(force,thread.id,control.signal);if(generation!==request.current||control.signal.aborted)return;setModels(value.models);setModelId(current=>value.models.some(model=>model.id===current)?current:thread.modelId??value.models[0]?.id??'');setError(value.error??'');}
-   catch(cause){if(generation===request.current&&!control.signal.aborted)setError(messageOf(cause));}
+  const load=async(force=false,target?:AccountAuthTarget)=>{const generation=++request.current;controller?.abort();const control=new AbortController();controller=control;if(!force)setModels([]);
+   try{const value=await getModels(force,thread.id,control.signal,target);if(generation!==request.current||control.signal.aborted)return;setModels(current=>mergeAccountModels(current,value.models,target));setModelId(current=>target?current:value.models.some(model=>model.id===current)?current:thread.modelId??value.models[0]?.id??'');setError(value.error??'');}
+   catch(cause){if(generation===request.current&&!control.signal.aborted){if(target)setModels(current=>mergeAccountModels(current,[],target));setError(messageOf(cause));}}
   };
-  void load();const unsubscribe=onAccountCatalogChanged(async target=>{if((thread.accountId??null)===target.accountId&&thread.modelId?.split('/')[0]===target.providerId)await load(true);});
+  void load();const unsubscribe=onAccountCatalogChanged(async target=>{if((thread.accountId??null)===target.accountId&&thread.modelId?.split('/')[0]===target.providerId)await load(true,target);});
   return()=>{unsubscribe();request.current++;controller?.abort();};
  },[owner,readOnly,visible]);
  const messages=snapshot.messages.filter(message=>message.threadId===thread.id),working=Boolean(thread.runId)||thread.status==='working';
@@ -621,14 +622,15 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const loadedModelOwner = useRef('');
   const modelRequest = useRef(0);
   const modelRead = useRef<AbortController|null>(null);
-  const loadModels = useCallback(async (refresh = false) => {
+  const loadModels = useCallback(async (refresh = false,target?:AccountAuthTarget) => {
     const owner = modelThreadRef.current, ownerId = owner?.id, context = modelContextRef.current, request = ++modelRequest.current;
     modelRead.current?.abort();const controller=new AbortController();modelRead.current=controller;
     try {
-      const result = await getModels(refresh, ownerId, controller.signal);
+      const result = await getModels(refresh, ownerId, controller.signal,target);
       if (request !== modelRequest.current || modelContextRef.current !== context) return;
-      setModels(result.models); setModelError(result.error ?? '');
+      setModels(current=>mergeAccountModels(current,result.models,target)); setModelError(result.error ?? '');
       setModelId(previous => {
+        if(target)return previous;
         if (previous && result.models.some(item => item.id === previous)) return previous;
         // Bound tasks never silently move to another account or model when its
         // pinned connection is unavailable. Setup and model changes are explicit.
@@ -636,7 +638,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         const preferred = owner?.modelId ?? snapshotRef.current.settings.modelId;
         return result.models.some(item => item.id === preferred) ? preferred! : result.models[0]?.id ?? preferred ?? '';
       });
-    } catch (error) { if (!controller.signal.aborted && request === modelRequest.current && modelContextRef.current === context) { setModels([]); setModelError(messageOf(error)); } }
+    } catch (error) { if (!controller.signal.aborted && request === modelRequest.current && modelContextRef.current === context) { setModels(current=>mergeAccountModels(current,[],target)); setModelError(messageOf(error)); } }
     finally { if(modelRead.current===controller)modelRead.current=null; }
   }, []);
   const acceptedModel = useRef<string | null | undefined>(undefined);
@@ -648,10 +650,10 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
       const provider=current?.modelId?.split('/')[0]??state.accounts?.find(account=>account.id===current?.accountId)?.providerId;
       if((current?.accountId??null)!==target.accountId||provider!==target.providerId)return;
     }else if((state.settings.selectedAccounts?.[target.providerId]??null)!==target.accountId)return;
-    await loadModels(true);
+    await loadModels(true,target);
   }),[loadModels,navigationOnly,pinnedThreadId,splitEnabled,canvasActive]);
   useEffect(()=>{if(!settingsOpen||!desktop)return;let active=true;void desktop.recoverSignIn().then(flow=>{
-    if(!active||flow)return;
+    if(!active||flow!==null)return;
     const current=modelThreadRef.current,provider=current?.modelId?.split('/')[0];
     return isConnectionProviderId(provider)?notifyAccountCatalogChanged({providerId:provider,accountId:current?.accountId??null},'reconciled'):loadModels(true);
   }).catch(()=>{});return()=>{active=false;};},[settingsOpen,desktop?.recoverSignIn,loadModels]);

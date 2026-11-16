@@ -789,6 +789,7 @@
     "tests/account-auth.test.ts",
     "tests/account-login-monitor.test.ts",
     "tests/account-login.test.ts",
+    "tests/account-model-refresh.test.ts",
     "tests/account-parity.test.ts",
     "tests/account-profile.test.ts",
     "tests/account-readiness-cancellation.test.ts",

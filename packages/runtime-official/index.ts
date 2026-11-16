@@ -44,6 +44,7 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
   let callbacks: RuntimeCallbacks | undefined;
   let disposed = false;
   let modelCache:ModelInfo[]|undefined,modelDiscovery:Promise<ModelInfo[]>|undefined;
+  let modelCacheEpoch=0,modelDiscoveryEpoch=0,modelDiscoveryProvider:string|undefined;
   const current = (authority: Authority) => !disposed && !authority.revoked && runs.get(authority.ctx.threadId) === authority;
   const assert = (authority: Authority) => { if (!current(authority)) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   function serial<T>(key: string, action: () => Promise<T>): Promise<T> {
@@ -197,13 +198,15 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
   }
   return {
     configure(value) { callbacks = value; },
-    async models(options) {
+    models:async function models(options):Promise<ModelInfo[]> {
       if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
+      if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if(!modelDiscovery){
-       if(modelCache&&!options?.refresh)return structuredClone(modelCache);
-       modelCache=undefined;
+       if(modelCache&&!options?.refresh)return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+       modelCache=options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
+       const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
        modelDiscovery=(async()=>{
-        const providers = OFFICIAL_RUNTIME_PROVIDER_IDS.filter(isConnectionProviderId);
+        const providers = OFFICIAL_RUNTIME_PROVIDER_IDS.filter(provider=>(!options?.providerId||provider===options.providerId)&&isConnectionProviderId(provider));
         const values: PromiseSettledResult<ModelInfo[]>[] = [];
         // Bound native startup work without adding another cache or scheduler.
         for (let index = 0; index < providers.length; index += 2) {
@@ -223,13 +226,15 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
         if(disposed)throw new HarnessError('OFFICIAL_DISPOSED','Official runtime is disposed.');
         const teardown=values.find(result=>result.status==='rejected'&&result.reason instanceof HarnessError&&result.reason.code==='RUNTIME_TEARDOWN_FAILED');
         if(teardown?.status==='rejected')throw teardown.reason;
-        modelCache=values.flatMap(result=>result.status==='fulfilled'?result.value:[]);return modelCache;
+        const result=values.flatMap(result=>result.status==='fulfilled'?result.value:[]);
+        if(epoch===modelCacheEpoch)modelCache=options?.providerId?(modelCache?[...modelCache,...result]:undefined):result;
+        return result;
        })().finally(()=>{modelDiscovery=undefined;});
       }
       return structuredClone(await modelDiscovery);
     },
-    async invalidateModels() {
-      modelCache = undefined;
+    async invalidateModels(options) {
+      modelCacheEpoch++;modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
     },
     start(input) { return queue(input, false); },
     followUp(input) {

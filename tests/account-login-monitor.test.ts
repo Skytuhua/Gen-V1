@@ -6,6 +6,12 @@ import {getAccountAuth} from '../apps/web/src/account-api.ts';
 vi.mock('../apps/web/src/account-api.ts',()=>({getAccountAuth:vi.fn(async()=>({state:'configured'}))}));
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 const flow=(id:string,state:AccountLoginFlow['state']='waiting'):AccountLoginFlow=>({id,providerId:'openai',accountId:null,state,startedAt:'2026-11-15T00:00:00Z',updatedAt:'2026-11-15T00:00:00Z',message:state});
+it('does not report confirmed absence from a getter that raced a newer sign-in',async()=>{
+  let release!:(value:null)=>void;
+  const monitor=createAccountLoginMonitor({activeSignIn:()=>new Promise(resolve=>{release=resolve;}),signIn:async()=>flow('newer')} as unknown as DesktopBridge,vi.fn(),vi.fn(async()=>{}));
+  try{const recovering=monitor.recover();await monitor.start('openai');release(null);expect(await recovering).toBeUndefined();}
+  finally{monitor.close();}
+});
 it('serializes polls and fences a cancelled flow after retry replaces its ID',async()=>{
   vi.useFakeTimers();let release!:(value:AccountLoginFlow)=>void,count=0;
   const status=vi.fn(()=>new Promise<AccountLoginFlow>(resolve=>{release=resolve;})),changed=vi.fn(),authenticated=vi.fn(async()=>{});

@@ -59,23 +59,27 @@ test('opening provider settings checks only the selected account detail',async({
 
 test('an owned flow completes while Settings is closed and refreshes its bound catalog once',async({page})=>{
   await page.addInitScript(()=>{
-    const w=window as any;w.__signIns=[];w.__flow=null;
+    const w=window as any;w.__signIns=[];w.__flow=null;w.__flowPolls=0;
     w.harnessDesktop={getContext:async()=>({windowId:'main',surface:{kind:'main'},windows:[]}),ready:async()=>({}),onState:()=>()=>{},onCloseRequested:()=>()=>{},list:async()=>[],browser:async()=>({}),
       activeSignIn:async()=>w.__flow?.state==='waiting'?w.__flow:null,
       signIn:async(providerId:string,accountId:string)=>{w.__signIns.push([providerId,accountId]);return w.__flow={id:'flow-hidden',providerId,accountId,state:'waiting',startedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),message:'Complete native sign-in.'};},
-      signInStatus:async()=>w.__flow,
+      signInStatus:async()=>{w.__flowPolls++;return w.__flow;},
       cancelSignIn:async()=>w.__flow={...w.__flow,state:'cancelled',message:'Cancelled.'},
     };
   });
-  const h=await host(page);await page.goto('/');const provider=await openAccounts(page);
+  const h=await host(page);let authReads=0;page.on('request',request=>{if(request.url().includes('/api/account-auth?'))authReads++;});await page.goto('/');const provider=await openAccounts(page);
+  await expect(provider.locator('.connection-account-auth')).toHaveAttribute('aria-busy','false');const beforeAuth=authReads;
   await provider.getByRole('button',{name:'Connect Personal',exact:true}).click();
   await expect(provider.getByRole('button',{name:'Cancel sign-in',exact:true})).toBeVisible();
+  await page.waitForFunction(()=>(window as any).__flowPolls>0);expect(authReads).toBe(beforeAuth);
   await page.getByRole('dialog',{name:'Settings',exact:true}).press('Escape');
   await expect(page.getByRole('dialog',{name:'Settings',exact:true})).not.toBeVisible();
   const before=h.discoveries.length;
   await page.evaluate(()=>{const w=window as any;w.__flow={...w.__flow,state:'completed',message:'Console completed.'};});
   await expect.poll(()=>h.discoveries.length).toBe(before+1);
   expect(new URLSearchParams(h.discoveries.at(-1)).get('threadId')).toBe('task-thread');
+  expect(new URLSearchParams(h.discoveries.at(-1)).get('providerId')).toBe('openai');
+  expect(new URLSearchParams(h.discoveries.at(-1)).get('accountId')).toBe(personal);
   expect(await page.evaluate(()=>(window as any).__signIns)).toEqual([['openai',personal]]);
 });
 
@@ -318,14 +322,32 @@ test('signing out a non-default account preserves unrelated pinned and default c
   expect(h.discoveries).toHaveLength(reads);await expect(page.getByRole('combobox',{name:'Default model',exact:true})).toContainText('Personal model');
 });
 
-test('auth invalidation reaches the saved retained-canvas conversation catalog',async({page})=>{
+for(const failedRefresh of [false,true])test(`auth invalidation reaches the saved retained-canvas conversation catalog (failure=${failedRefresh})`,async({page})=>{
   await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));
   await host(page);let signedOut=false;
-  await page.route('**/api/models*',route=>route.fulfill({json:{models:[model(signedOut?'Refreshed Personal model':'Personal model')]}}));
+  await page.route('**/api/models*',route=>signedOut&&failedRefresh?route.fulfill({status:500,json:{error:{message:'Targeted catalog unavailable'}}}):route.fulfill({json:{models:[model(signedOut?'Refreshed Personal model':'Personal model')]}}));
   await page.route('**/api/account-auth/signout',route=>{signedOut=true;return route.fulfill({json:{providerId:'openai',accountId:personal,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'Local credentials removed.'}});});
   await page.route('**/api/workspace',route=>route.fulfill({json:{projects:[],state:{version:1,revision:0,activeCanvasId:'saved-canvas',canvases:[{version:1,id:'saved-canvas',name:'Saved canvas',preset:'custom',viewport:{x:0,y:0,zoom:1},panels:[{id:'saved-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'},canvasId:'saved-canvas',placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:560},order:0,alwaysOnTop:false}],filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}}}));
   await page.goto('/');await expect(page.getByRole('combobox',{name:'Model',exact:true})).toContainText('Personal model',{timeout:15000});
   const provider=await openAccounts(page);await provider.getByRole('button',{name:'Sign out locally',exact:true}).click();await expect(provider).toContainText('Local credentials removed.');
   await page.getByRole('button',{name:'Close dialog',exact:true}).click();
-  await expect(page.getByRole('combobox',{name:'Model',exact:true})).toContainText('Refreshed Personal model');
+  await expect(page.getByRole('combobox',{name:'Model',exact:true})).toContainText(failedRefresh?'openai/shared':'Refreshed Personal model');
+  if(failedRefresh)await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeDisabled();
+});
+
+test('auth refresh retains an unavailable explicit model and unsent draft until a new selection',async({page})=>{
+  const snapshot=fixture();snapshot.threads=[];snapshot.activeThreadId=null;
+  await host(page,snapshot);let signedOut=false;
+  const otherModel={id:'cursor-sdk/other',provider:'cursor-sdk',name:'Other provider model'};
+  await page.route('**/api/models*',route=>route.fulfill({json:{models:new URL(route.request().url()).searchParams.has('providerId')?(signedOut?[]:[model('Personal model')]):[...(signedOut?[]:[model('Personal model')]),otherModel]}}));
+  await page.route('**/api/account-auth/signout',route=>{signedOut=true;return route.fulfill({json:{providerId:'openai',accountId:personal,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'Local Personal credentials removed.'}});});
+  await page.goto('/');const picker=page.getByRole('combobox',{name:'Model',exact:true});await expect(picker).toContainText('Personal model',{timeout:15000});
+  await picker.click();await page.getByRole('option',{name:'Personal model',exact:true}).click();await page.keyboard.press('Escape');
+  const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep this unsent draft and my explicit model.');
+  const provider=await openAccounts(page);await provider.getByRole('button',{name:'Sign out locally',exact:true}).click();await expect(provider.locator('.connection-account-auth')).toHaveAttribute('aria-busy','false');
+  await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+  await expect(picker).toContainText('openai/shared');await expect(picker).not.toContainText('Other provider model');
+  await expect(draft).toHaveValue('Keep this unsent draft and my explicit model.');await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeDisabled();
+  await picker.click();await page.getByRole('option',{name:'Other provider model',exact:true}).click();await page.keyboard.press('Escape');
+  await expect(picker).toContainText('Other provider model');await expect(draft).toHaveValue('Keep this unsent draft and my explicit model.');
 });

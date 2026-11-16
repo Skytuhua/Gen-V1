@@ -1,7 +1,8 @@
 import {settingsOperation, settleSettingsOperations} from './settings-operations';
 import {registerEditorHandoff} from './editor-handoff';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import {notifyAccountAuthChanged,onAccountCatalogChanged} from './account-api';
+import {notifyAccountAuthChanged,onAccountCatalogChanged,mergeAccountModels} from './account-api';
+import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
 import { Check, ExternalLink, Search } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
@@ -98,15 +99,15 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
   const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
   const selectedAccounts=useRef(data.settings.selectedAccounts);selectedAccounts.current=data.settings.selectedAccounts;
-  const loadNewTaskModels = useCallback(async (force = false) => {
+  const loadNewTaskModels = useCallback(async (force = false,target?:AccountAuthTarget) => {
     const request = ++catalogRequest.current, selection = catalogSelection.current;
     catalogRead.current?.abort(); const controller = new AbortController(); catalogRead.current = controller;
-    try { const result = await getModels(force, undefined, controller.signal); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(result.models); setNewTaskModelError(result.error ?? ''); } }
-    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+    try { const result = await getModels(force, undefined, controller.signal,target); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,result.models,target)); setNewTaskModelError(result.error ?? ''); } }
+    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,[],target)); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
     finally { if (catalogRead.current === controller) catalogRead.current = null; }
   }, []);
   useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(true); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
-  useEffect(()=>onAccountCatalogChanged(async (target,reason)=>{if(reason!=='reconciled'&&(selectedAccounts.current?.[target.providerId]??null)===target.accountId)await loadNewTaskModels(true);}),[loadNewTaskModels]);
+  useEffect(()=>onAccountCatalogChanged(async (target,reason)=>{if(reason!=='reconciled'&&(selectedAccounts.current?.[target.providerId]??null)===target.accountId)await loadNewTaskModels(true,target);}),[loadNewTaskModels]);
   const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
   const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
