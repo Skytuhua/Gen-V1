@@ -85,8 +85,6 @@ test('sidebar detaches a thread into its own window and the main workspace stays
  await expect(page.locator('.breadcrumb:visible').filter({hasText:'Second conversation'})).toHaveCount(1);
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));
- // Canonical split selection follows the workspace layout, not a snapshot activeThreadId.
- await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Sidebar edit');
  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();
 });
