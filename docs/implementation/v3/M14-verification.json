@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M14",
-  "baseSha": "5de9d4a64649ea35f828d1d7d99082791c066104",
-  "sourceLockDigest": "5fdb898ba0703a970a53c93f3f65ef1b253073d4919084e601317ec1e1fadd1b",
+  "baseSha": "aca5f0612e52a494040d7a78585ac1cf8de06c08",
+  "sourceLockDigest": "d017c6e3b295d2b9b34f3602142dfe0ba89eb048ae90d60efe7c44506e9cd671",
   "platform": "linux-arm64",
   "nodeVersion": "v24.11.1",
   "packageManagerVersion": "10.30.3",
@@ -311,7 +311,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
-          "logDigest": "4ea83c793ea3ab1789327bfeeeb5be933acb9cd58768091eef2f6aee574a75bf"
+          "logDigest": "d67e3d3dcb297ac0d9b18efe830d1ce4c428c96bb416943c7b50e2822b5f1958"
         },
         {
           "argv": [
