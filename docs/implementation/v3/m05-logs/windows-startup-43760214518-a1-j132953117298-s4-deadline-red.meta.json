@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/installed-desktop-verification.test.ts",
+      "-t",
+      "waits for a correctly owned main page beyond the old 30-second cutoff",
+      "--reporter=verbose"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T20:50:49Z",
+    "endedAt": "2026-11-15T20:50:52Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-startup-43760214518-a1-j132953117298-s4-deadline-red.log",
+    "logDigest": "1da1352e90284b5dcf9182b428aa40bec0932336cb5a1a2a2754c3e18cc6700d"
+  },
+  "runId": 43760214518,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+  "testedCheckout": {
+    "commitSha": "7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291",
+    "treeSha": "ae69c78c890b3de36ca8bab7985614af74f90351",
+    "parents": [
+      "0e072230965d15e0bcad8bb7579653a1332085e4"
+    ],
+    "matchesSourceHeadTree": true,
+    "scope": "Isolated push workflow, not a PR merge checkout."
+  },
+  "job": {
+    "id": 132953117298,
+    "name": "Installed startup boundary reproduction",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43760214518/job/132953117298",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001433,
+      "name": "GitHub Actions 1000001433",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Reproduce premature installed page deadline",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 4,
+    "started_at": "2026-11-15T20:50:49Z",
+    "completed_at": "2026-11-15T20:50:52Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-installed-startup-boundary-43760214518.json",
+  "receiptSha256": "483b99f9bc85a96126cd608f38de5ab31c475ed1f84b8d5cea78f475c032be9c",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132953117298/logs",
+  "rawJobLogDigest": "251d43596e762b7416b7ef9db9f8bda9ac9a0a28341847a7ee648a15ba4b3a1e",
+  "rawJobLogBytes": 42063,
+  "rawPolicy": "Exact connector-decoded strings encoded as UTF-8, with original BOM and line endings retained in agent memory. No raw job-log blob is published.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      331,
+      398
+    ]
+  ],
+  "excerptInputSha256": "8d81f5e055270738496d26f30d4b902d0bb5f95f373f2cf2566e0d2f6531037c",
+  "excerptInputBytes": 9847,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 8255,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Command times are observed GitHub step envelopes, not per-process durations.",
+  "exitBasis": "The runner explicitly logged this failing process exit code.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact observed invoked command name; a resolved pnpm executable path is not claimed.",
+  "cwdBasis": "Exact working directory observed in the checkout log; command has no directory change.",
+  "observedScript": "pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose"
+}

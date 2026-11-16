@@ -1,0 +1,30 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 17 tests using 1 worker
+
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:93) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (1.3s)
+  ✓   2 tests/e2e/plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (718ms)
+  ✓   3 tests/e2e/plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (933ms)
+  ✓   4 tests/e2e/plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (961ms)
+  ✓   5 tests/e2e/plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed (703ms)
+  ✓   6 tests/e2e/plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (1.7s)
+  ✓   7 tests/e2e/plan-timeline.spec.ts:153:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (675ms)
+  ✓   8 tests/e2e/plan-timeline.spec.ts:177:1 › deep nested agents and long output labels fit a 280px panel without hiding details (1.0s)
+  ✓   9 tests/e2e/plan-timeline.spec.ts:207:1 › manual collapse survives reopening the plan with the same exact thread and step identity (820ms)
+  ✓  10 tests/e2e/plan-timeline.spec.ts:216:3 › dark narrow/short 100% geometry and reduced motion (778ms)
+  ✓  11 tests/e2e/plan-timeline.spec.ts:216:3 › dark narrow/short 125% geometry and reduced motion (649ms)
+  ✓  12 tests/e2e/plan-timeline.spec.ts:216:3 › dark narrow/short 150% geometry and reduced motion (591ms)
+  ✓  13 tests/e2e/plan-timeline.spec.ts:216:3 › light narrow/short 100% geometry and reduced motion (643ms)
+  ✓  14 tests/e2e/plan-timeline.spec.ts:216:3 › light narrow/short 125% geometry and reduced motion (695ms)
+  ✓  15 tests/e2e/plan-timeline.spec.ts:216:3 › light narrow/short 150% geometry and reduced motion (659ms)
+  ✓  16 tests/e2e/plan-timeline.spec.ts:255:40 › dark desktop parallel branches and join (848ms)
+  ✓  17 tests/e2e/plan-timeline.spec.ts:255:40 › light desktop parallel branches and join (660ms)
+
+  17 passed (19.4s)

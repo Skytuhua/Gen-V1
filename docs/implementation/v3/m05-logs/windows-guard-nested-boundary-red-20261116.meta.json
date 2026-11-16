@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/file-access-startup.test.ts",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T01:58:17.738835+00:00",
+    "endedAt": "2026-11-16T01:58:19.217080+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-nested-boundary-red-20261116.log",
+    "logDigest": "a6c40e97cca7b913e94d300f82b62cf5b07c3bbd803b8575ec91235c6e9c5e3a"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "40f84a45c557e7e31ab48952e5c6e52490abc6e0",
+  "workingDiffSha256": "5ce5df7bd4af83b77104891f82987025363b0c7be026579a9475c6cabcb21f8e",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 1421,
+  "rawOutputBytes": 1145,
+  "rawOutputSha256": "a6c40e97cca7b913e94d300f82b62cf5b07c3bbd803b8575ec91235c6e9c5e3a",
+  "excerptInputBytes": 1145,
+  "excerptInputSha256": "a6c40e97cca7b913e94d300f82b62cf5b07c3bbd803b8575ec91235c6e9c5e3a",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

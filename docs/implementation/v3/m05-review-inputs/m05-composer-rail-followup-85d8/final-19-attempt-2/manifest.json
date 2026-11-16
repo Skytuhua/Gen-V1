@@ -1,0 +1,25 @@
+{
+  "capture": "continuation-85d8-composer-rail-green-2",
+  "files": [
+    {
+      "path": "reserved-rail-both-protect-b74e1-ow-region-on-narrow-screens/trace.zip",
+      "bytes": 550937,
+      "sha256": "f08cbef671ebb2630f92b6a51eee98afd0f57b9fb8fe3a61fe7dbf0d474d5e04"
+    },
+    {
+      "path": "reserved-rail-both-protect-b74e1-ow-region-on-narrow-screens/error-context.md",
+      "bytes": 7922,
+      "sha256": "acb54909a816116611a76d28a2f7903d50b7d1f24195001eba32c92827aad425"
+    },
+    {
+      "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip",
+      "bytes": 1209813,
+      "sha256": "1a046859003fcbb79b05824bf24cc5e66ff359c26de9dddb3c5fe8fc077f379e"
+    },
+    {
+      "path": "reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md",
+      "bytes": 11480,
+      "sha256": "52e02ac5e8704fea4b85050b44beb1666f7b87797b872cf2628957816453efdf"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "-NoLogo",
+      "-NoProfile",
+      "-NonInteractive",
+      "-MTA",
+      "-File",
+      "D:\\a\\Gen-V1\\Gen-V1\\diagnostics\\native-save\\proxy-registration.ps1",
+      "-Mode",
+      "thread"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "startedAt": "2026-11-15T22:41:06Z",
+    "endedAt": "2026-11-15T22:41:12Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/proxy-registration-43770541154-a1-j132985243094-s3-thread.log",
+    "logDigest": "7da5176db5f22a6eaf2843f14c4a668b5d37de82b2daa79189cc7b4f2a0bb412"
+  },
+  "argvBasis": "OBSERVED_RESOLVED_ARGV_MARKER",
+  "ledgerEligible": true,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43770541154,
+  "runAttempt": 1,
+  "headSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+  "testedCheckout": {
+    "commitSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+    "treeSha": "7edfa30ee1b0f0e7ef15f1d2c159cf63b424c2eb",
+    "parents": [
+      "5a3b4eb95eeb354336919ef76264df0dac3d4cf0"
+    ]
+  },
+  "job": {
+    "id": 132985243094,
+    "run_id": 43770541154,
+    "workflow_name": "M05 native Save proxy registration",
+    "head_branch": "agent/m05-native-save-proxy-registration-43769197860",
+    "run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/runs/43770541154",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVfvPQM8AAAAe9onF1g",
+    "head_sha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132985243094",
+    "html_url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43770541154/job/132985243094",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-11-15T22:39:56Z",
+    "started_at": "2026-11-15T22:40:48Z",
+    "completed_at": "2026-11-15T22:41:16Z",
+    "name": "UI Automation registration (thread)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-11-15T22:40:50Z",
+        "completed_at": "2026-11-15T22:40:51Z"
+      },
+      {
+        "name": "Check out the isolated diagnostic source",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-11-15T22:40:51Z",
+        "completed_at": "2026-11-15T22:41:06Z"
+      },
+      {
+        "name": "Measure actual Windows PowerShell provider registration",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-11-15T22:41:06Z",
+        "completed_at": "2026-11-15T22:41:12Z"
+      },
+      {
+        "name": "Preserve bounded registration observations",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-11-15T22:41:12Z",
+        "completed_at": "2026-11-15T22:41:13Z"
+      },
+      {
+        "name": "Post Check out the isolated diagnostic source",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-11-15T22:41:13Z",
+        "completed_at": "2026-11-15T22:41:15Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-11-15T22:41:15Z",
+        "completed_at": "2026-11-15T22:41:15Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/check-runs/132985243094",
+    "labels": [
+      "windows-latest"
+    ],
+    "runner_id": 1000001701,
+    "runner_name": "GitHub Actions 1000001701",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "step": {
+    "name": "Measure actual Windows PowerShell provider registration",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 3,
+    "started_at": "2026-11-15T22:41:06Z",
+    "completed_at": "2026-11-15T22:41:12Z"
+  },
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "observedScript": "git rev-parse HEAD\ngit rev-parse 'HEAD^{tree}'\n$worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'\n$script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'\n$probeArgs = @('-NoLogo','-NoProfile','-NonInteractive','-MTA','-File',$script,'-Mode','thread')\nWrite-Output ('M05_PROXY_REGISTRATION_ARGV=' + (@{executable=$worker;args=$probeArgs}|ConvertTo-Json -Depth 4 -Compress))\n& $worker @probeArgs\nexit $LASTEXITCODE",
+  "sourceSha256": "d63ff188af82198bcd01f9bb2f2e47a2173cc531ff2ebfe11ea5c29be4abea16",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132985243094/logs",
+  "rawJobLogDigest": "b056beaec79f76fc7bd081a0bb4b1cca960c7f6e678a30908828b016bc9158c5",
+  "rawJobLogBytes": 24102,
+  "rawPolicy": "Exact connector-decoded log string encoded as UTF-8; no original HTTP archive-byte claim.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      164,
+      180
+    ]
+  ],
+  "excerptInputSha256": "4ab4facbf584bbcac5686d13fd59a66f96d463710a221f8754b3d775d47ab10e",
+  "excerptInputBytes": 3270,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 3165,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "exitBasis": "The single exact command step completed successfully and its hash-verified receipt reports completed registration with 40 provider descriptors.",
+  "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770541154/thread-receipt.json",
+  "receiptBytes": 1095,
+  "receiptSha256": "c6c21b2d0dcbcd6aaab0c1df3264e482721407d16e1a62ba0cf22142594e11da",
+  "scope": "Read-only UI Automation assembly registration; no native dialog, account, provider request or control action.",
+  "limitations": []
+}

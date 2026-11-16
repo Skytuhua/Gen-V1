@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "typecheck"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T01:54:12.795849+00:00",
+    "endedAt": "2026-11-16T01:55:05.588809+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-startup-typecheck-20261116.log",
+    "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "e54e9e44e5d9061ede2ce893b28bf19e7b105a77",
+  "workingDiffSha256": "a13ecbfe9f6fd744e25ed5f8cb666ef2906fa82814296ee6a419a99b250d683e",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 52786,
+  "rawOutputBytes": 87,
+  "rawOutputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "excerptInputBytes": 87,
+  "excerptInputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

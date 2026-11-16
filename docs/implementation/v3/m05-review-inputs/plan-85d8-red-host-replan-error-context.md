@@ -1,0 +1,170 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]: Synthetic renderer fixture
+    - 'region "Task plan: Improve the workspace" [ref=e6]':
+      - generic [ref=e7]:
+        - generic "Plan progress and actions" [ref=e8]:
+          - generic [ref=e9]: 1/4 complete
+          - generic [ref=e10]: 4 agents
+          - generic [ref=e11]: Rev 5
+          - generic [ref=e12]:
+            - button "Jump to current" [ref=e13] [cursor=pointer]:
+              - img [ref=e14]
+              - generic [ref=e16]: Jump to current
+            - button "Plan actions" [expanded] [ref=e18] [cursor=pointer]:
+              - img [ref=e19]
+              - text: Plan actions
+        - progressbar "Completed or accepted steps" [ref=e23]
+      - paragraph [ref=e25]:
+        - text: Start
+        - generic [ref=e26]: Proposed plan
+      - list [ref=e27]:
+        - listitem [ref=e28]:
+          - button "Read the approved brief Step 1 Accepted" [ref=e29] [cursor=pointer]:
+            - img [ref=e31]
+            - generic [ref=e33]:
+              - strong [ref=e34]: Read the approved brief
+              - generic [ref=e35]:
+                - text: Step 1
+                - generic [ref=e36]: Accepted
+            - img [ref=e37]
+        - listitem [ref=e39]:
+          - generic [ref=e40]:
+            - img [ref=e41]
+            - generic [ref=e45]: After
+            - link "Read the approved brief" [ref=e46] [cursor=pointer]:
+              - /url: "#_r_0_-step-scope"
+          - button "Updated timeline objective Step 2 Running" [expanded] [ref=e47] [cursor=pointer]:
+            - img [ref=e49]
+            - generic [ref=e51]:
+              - strong [ref=e52]: Updated timeline objective
+              - generic [ref=e53]:
+                - text: Step 2
+                - generic [ref=e54]: Running
+            - img [ref=e55]
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - strong [ref=e60]: Objective
+              - paragraph [ref=e61]: Keep reading position during updates.
+            - paragraph [ref=e62]: Show canonical assignments, checks and results without moving the reader.
+            - generic [ref=e63]:
+              - strong [ref=e64]: Blockers
+              - list [ref=e65]:
+                - listitem [ref=e66]: Awaiting a source receipt
+            - generic [ref=e67]:
+              - strong [ref=e68]: Checks
+              - list [ref=e69]:
+                - listitem [ref=e70]:
+                  - generic [ref=e71]:
+                    - text: Expanded detail remains readable
+                    - generic [ref=e72]: Renderer checks are reported separately from native acceptance.
+                  - generic [ref=e73]: Reported passed
+            - generic [ref=e74]:
+              - generic [ref=e75]: Assigned agents · Parallel branches
+              - list [ref=e76]:
+                - listitem [ref=e77]:
+                  - generic [ref=e78]:
+                    - button "Timeline UI Working" [expanded] [ref=e79] [cursor=pointer]:
+                      - img [ref=e80]
+                      - generic [ref=e83]:
+                        - strong [ref=e84]: Timeline UI
+                        - generic [ref=e85]: Working
+                      - img [ref=e86]
+                    - button "Open transcript for Timeline UI" [ref=e88] [cursor=pointer]: Open transcript
+                  - generic [ref=e90]:
+                    - paragraph [ref=e91]: Capture renderer evidence
+                    - generic [ref=e92]:
+                      - strong [ref=e93]: Current activity
+                      - paragraph [ref=e94]: Working on the expanded timeline.
+                    - paragraph [ref=e95]: Progress not reported.
+                    - list "Timeline UI child agents" [ref=e96]:
+                      - listitem [ref=e97]:
+                        - button "Evidence helper Completed" [ref=e99] [cursor=pointer]:
+                          - img [ref=e100]
+                          - generic [ref=e103]:
+                            - strong [ref=e104]: Evidence helper
+                            - generic [ref=e105]: Completed
+                          - img [ref=e106]
+                - listitem [ref=e108]:
+                  - button "Plan core Needs review · 100%" [expanded] [ref=e110] [cursor=pointer]:
+                    - img [ref=e111]
+                    - generic [ref=e114]:
+                      - strong [ref=e115]: Plan core
+                      - generic [ref=e116]: Needs review · 100%
+                    - img [ref=e117]
+                  - generic [ref=e120]:
+                    - paragraph [ref=e121]: Capture renderer evidence
+                    - generic [ref=e122]:
+                      - strong [ref=e123]: Result
+                      - paragraph [ref=e124]: Ready for independent review.
+              - paragraph [ref=e125]:
+                - img [ref=e126]
+                - text: Rejoin before Verify the joined work
+            - generic [ref=e130]:
+              - strong [ref=e131]: Outputs
+              - list [ref=e132]:
+                - listitem [ref=e133]:
+                  - text: Renderer evidence
+                  - generic [ref=e134]: evidence:timeline · revision 2
+        - listitem [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e141]: After
+            - link "Read the approved brief" [ref=e142] [cursor=pointer]:
+              - /url: "#_r_0_-step-scope"
+          - button "Audit independent failures Step 3 Failed" [expanded] [ref=e143] [cursor=pointer]:
+            - img [ref=e145]
+            - generic [ref=e147]:
+              - strong [ref=e148]: Audit independent failures
+              - generic [ref=e149]:
+                - text: Step 3
+                - generic [ref=e150]: Failed
+            - img [ref=e151]
+          - generic [ref=e155]:
+            - strong [ref=e156]: Checks
+            - list [ref=e157]:
+              - listitem [ref=e158]:
+                - generic [ref=e159]:
+                  - text: Native acceptance
+                  - generic [ref=e160]: Native acceptance still needs a separate run.
+                - generic [ref=e161]: Verified failed
+        - listitem [ref=e162]:
+          - generic [ref=e163]:
+            - img [ref=e164]
+            - generic [ref=e168]: After
+            - link "Updated timeline objective" [ref=e169] [cursor=pointer]:
+              - /url: "#_r_0_-step-build"
+            - link "Audit independent failures" [ref=e170] [cursor=pointer]:
+              - /url: "#_r_0_-step-audit"
+          - button "Verify the joined work Step 4 Review required" [expanded] [ref=e171] [cursor=pointer]:
+            - img [ref=e173]
+            - generic [ref=e175]:
+              - strong [ref=e176]: Verify the joined work
+              - generic [ref=e177]:
+                - text: Step 4
+                - generic [ref=e178]: Review required
+            - img [ref=e179]
+          - generic [ref=e183]:
+            - strong [ref=e184]: Objective
+            - paragraph [ref=e185]: Review both branches before accepting.
+      - paragraph [ref=e186]: End of published plan
+      - region "Available agents" [ref=e187]:
+        - heading "Available agents No assigned step" [level=4] [ref=e188]
+        - list [ref=e189]:
+          - listitem [ref=e190]:
+            - button "Available reviewer Queued" [expanded] [ref=e192] [cursor=pointer]:
+              - img [ref=e193]
+              - generic [ref=e196]:
+                - strong [ref=e197]: Available reviewer
+                - generic [ref=e198]: Queued
+              - img [ref=e199]
+            - generic [ref=e202]:
+              - paragraph [ref=e203]: Capture renderer evidence
+              - paragraph [ref=e204]: Progress not reported.
+  - menu "Plan actions" [ref=e205]:
+    - menuitem "Expand all" [active] [ref=e206] [cursor=pointer]:
+      - generic [ref=e207]: Expand all
+```

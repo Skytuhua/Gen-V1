@@ -1,0 +1,22 @@
+2026-11-15T23:59:20.5084504Z ##[group]Run python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T23:59:20.5084970Z python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T23:59:20.5085307Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T23:59:20.5085633Z python -B tests/memory_native_checkpoint_worker_v3.py -v
+2026-11-15T23:59:20.5142272Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T23:59:20.5142557Z env:
+2026-11-15T23:59:20.5142780Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T23:59:20.5143117Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:59:20.5143491Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T23:59:20.5144044Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:59:20.5144378Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:59:20.5144740Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T23:59:20.5145096Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T23:59:20.5145396Z ##[endgroup]
+2026-11-15T23:59:25.8129612Z test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt) ... ok
+2026-11-15T23:59:30.5639111Z test_cancellation_while_persistence_is_pending_blocks_native_compaction (__main__.NativeCheckpointWorker.test_cancellation_while_persistence_is_pending_blocks_native_compaction) ... ok
+2026-11-15T23:59:34.9927128Z test_persistence_failure_prevents_native_inference_and_preserves_exact_history (__main__.NativeCheckpointWorker.test_persistence_failure_prevents_native_inference_and_preserves_exact_history) ... ok
+2026-11-15T23:59:34.9928122Z 
+2026-11-15T23:59:34.9928505Z ----------------------------------------------------------------------
+2026-11-15T23:59:34.9928952Z Ran 3 tests in 13.854s
+2026-11-15T23:59:34.9929127Z 
+2026-11-15T23:59:34.9929219Z OK

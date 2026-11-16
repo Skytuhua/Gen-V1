@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "typecheck"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:16:58.483460+00:00",
+    "endedAt": "2026-11-15T23:17:50.509079+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-85d-ui-source-typecheck.log",
+    "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiffSha256": "09247b6a801ea7e8e1889ed6abdf5d65e195fbcebbbb084d1f2d3bfbb90fbd6c",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 52013,
+  "rawOutputBytes": 87,
+  "rawOutputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "excerptInputBytes": 87,
+  "excerptInputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

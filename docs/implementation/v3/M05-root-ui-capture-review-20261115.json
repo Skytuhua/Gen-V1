@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "status": "ACTUAL_LOCAL_CAPTURE_PACKAGE_REVIEWED",
+  "recordedAt": "2026-11-15T23:32:43.986670+00:00",
+  "sourceBaseCheckout": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+  "sourceBaseTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "ownership": "Only the five exact root-assigned capture labels are included. No UI-agent-owned command is included.",
+  "cases": [
+    {
+      "label": "continuation-85d-document-geometry-red",
+      "status": "FAIL",
+      "exitCode": 1,
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "testSummary": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "outcome": "Actual single-case geometry assertion failed: expected horizontal inset under2px, observed12px. The log includes measured DOM bounds and computed padding.",
+      "originalMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-document-geometry-red.meta.json",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-85d-document-geometry-red.meta.json",
+      "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-document-geometry-red.raw.log",
+      "logRef": "docs/implementation/v3/m05-logs/continuation-85d-document-geometry-red.log",
+      "workingDiffSha256": "b778b26d504c240624e32844c79c202ef4c032dee459d92f83ca96df4548f8b6",
+      "startedAt": "2026-11-15T23:09:22.695022+00:00",
+      "endedAt": "2026-11-15T23:09:44.641926+00:00"
+    },
+    {
+      "label": "continuation-85d-artifact-document-check",
+      "status": "PASS",
+      "exitCode": 0,
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "testSummary": {
+        "passed": 27,
+        "failed": 0,
+        "skipped": 1
+      },
+      "outcome": "Actual artifact-style and document-smoothness run completed27passed and1skipped. The skipped visual-capture case remains skipped.",
+      "originalMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-artifact-document-check.meta.json",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-85d-artifact-document-check.meta.json",
+      "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-artifact-document-check.raw.log",
+      "logRef": "docs/implementation/v3/m05-logs/continuation-85d-artifact-document-check.log",
+      "workingDiffSha256": "c8fca702c39fcc307ac301c819adcdf8e323e0a039412f2ecde898a6f46fdf28",
+      "startedAt": "2026-11-15T23:12:19.326325+00:00",
+      "endedAt": "2026-11-15T23:14:50.952550+00:00"
+    },
+    {
+      "label": "continuation-85d-ui-source-typecheck",
+      "status": "PASS",
+      "exitCode": 0,
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ],
+      "testSummary": null,
+      "outcome": "Actual pnpm typecheck completed with exit0. This is a TypeScript command result, not a test count.",
+      "originalMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-ui-source-typecheck.meta.json",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-85d-ui-source-typecheck.meta.json",
+      "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-ui-source-typecheck.raw.log",
+      "logRef": "docs/implementation/v3/m05-logs/continuation-85d-ui-source-typecheck.log",
+      "workingDiffSha256": "09247b6a801ea7e8e1889ed6abdf5d65e195fbcebbbb084d1f2d3bfbb90fbd6c",
+      "startedAt": "2026-11-15T23:16:58.483460+00:00",
+      "endedAt": "2026-11-15T23:17:50.509079+00:00"
+    },
+    {
+      "label": "continuation-85d-cold-pdf-check",
+      "status": "FAIL",
+      "exitCode": 1,
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "testSummary": null,
+      "outcome": "Actual .ts scratch configuration failed during ESM loading before test discovery with ReferenceError: exports is not defined in ES module scope. No PDF behavior test is counted as executed or passed.",
+      "originalMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-cold-pdf-check.meta.json",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check.meta.json",
+      "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-cold-pdf-check.raw.log",
+      "logRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check.log",
+      "workingDiffSha256": "09247b6a801ea7e8e1889ed6abdf5d65e195fbcebbbb084d1f2d3bfbb90fbd6c",
+      "startedAt": "2026-11-15T23:20:15.402223+00:00",
+      "endedAt": "2026-11-15T23:20:17.650884+00:00"
+    },
+    {
+      "label": "continuation-85d-cold-pdf-check-2",
+      "status": "PASS",
+      "exitCode": 0,
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ],
+      "testSummary": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "outcome": "Actual .mts scratch configuration ran the selected768px PDF case against Vite --force and completed1passed. This is one authored local browser case, not installed native proof.",
+      "originalMetadataRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-cold-pdf-check-2.meta.json",
+      "metadataRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check-2.meta.json",
+      "rawLogRef": "docs/implementation/v3/m05-review-inputs/continuation-85d-cold-pdf-check-2.raw.log",
+      "logRef": "docs/implementation/v3/m05-logs/continuation-85d-cold-pdf-check-2.log",
+      "workingDiffSha256": "d147a9e8c287e2708cd1a15c6d94c20a68df9ab6f9658f15401cbba5a7328367",
+      "startedAt": "2026-11-15T23:27:09.439665+00:00",
+      "endedAt": "2026-11-15T23:27:24.539322+00:00"
+    }
+  ],
+  "captureScript": {
+    "path": "docs/implementation/v3/m05-review-inputs/m05-capture-local-check-094fba22.py",
+    "bytes": 2657,
+    "sha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+    "blobSha": "b99a0600fc25a3ef3175f39d55fcece501bd9f32"
+  },
+  "scratchConfigurations": [
+    {
+      "originalAbsolutePath": "/workspace/scratch/36f66011d961/m05-cold-pdf.playwright.config.ts",
+      "preserved": {
+        "path": "docs/implementation/v3/m05-review-inputs/m05-cold-pdf.playwright.config.ts",
+        "bytes": 636,
+        "sha256": "a31779198b17388b743707c4dbdcf32435c2632cdbf6ca27b56ac0455468229e",
+        "blobSha": "4dfa24cbd8025d0e04586f30cea00e3164b5c707"
+      },
+      "bindingBasis": "Retained scratch configuration read at packaging. The actual command metadata names this exact absolute path. The original capture did not record a separate configuration hash."
+    },
+    {
+      "originalAbsolutePath": "/workspace/scratch/36f66011d961/m05-cold-pdf.playwright.config.mts",
+      "preserved": {
+        "path": "docs/implementation/v3/m05-review-inputs/m05-cold-pdf.playwright.config.mts",
+        "bytes": 636,
+        "sha256": "a31779198b17388b743707c4dbdcf32435c2632cdbf6ca27b56ac0455468229e",
+        "blobSha": "4dfa24cbd8025d0e04586f30cea00e3164b5c707"
+      },
+      "bindingBasis": "Retained scratch configuration read at packaging. The actual command metadata names this exact absolute path. The original capture did not record a separate configuration hash."
+    }
+  ],
+  "sourceCustodyLimit": "The recorder retains committed-tree identity and SHA256 of git diff HEAD --binary at command start. It does not preserve that entire diff or independently hash each test input. This package does not substitute current working bytes for historical captured bytes.",
+  "coldConfigurationLimit": "The .ts and .mts retained configuration files have identical bytes, but different module-loading suffixes. The first attempt failed before discovery; the later attempt actually ran1case. Neither is inferred from compilation alone.",
+  "scope": "Historical local browser/typecheck evidence and two real failed attempts. No current full CI, installed native Save, enabled memory, or live-provider admission is created."
+}

@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "review": "Accepted main 138b integration checks before the focused readiness repair",
+  "status": "LOCAL_INTEGRATION_HAS_SUPPLEMENTAL_BROWSER_FAILURE",
+  "source": {
+    "head": "bd0cb368af79e45fec4ceca54e147d8c6cd6e8bb",
+    "tree": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+    "acceptedMain": "138b1356495bb3a2c9b35020240513f8faa84964",
+    "priorM05LocalHead": "2412b250052fbe137a8564afbf1d7234b77f0c5f",
+    "priorM05PublishedHead": "0aacdacdf835ec95710ae3674b260d654060f446",
+    "priorPublishedTree": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d"
+  },
+  "scope": [
+    "Accepted main merged without conflicts.",
+    "The shared fixture browser-compatibility repair and its nineteen guard tests are committed.",
+    "The new test is registered only in the public source list; runtime list and dependency lock are unchanged."
+  ],
+  "bindings": [
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13385,
+      "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+      "blobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+    },
+    {
+      "path": "tests/task-interface-fixture.test.ts",
+      "bytes": 5388,
+      "sha256": "20d23e655cf2a6848e10a210505dd9681c28e6ceb8637392734a98c69bd4eba0",
+      "blobSha": "0aad350c8cbb357fabfd7bad9cd24f4117695bca"
+    },
+    {
+      "path": "tests/e2e/agents-workspace.spec.ts",
+      "bytes": 27339,
+      "sha256": "c6799f240d1aea7610c1c0ca06740a4cc07fafd92fba71aeaaa9c223ea0c084c",
+      "blobSha": "da94515fbc25f68500522558b672155f87a25137"
+    },
+    {
+      "path": "tests/e2e/agents-workspace-fixture.tsx",
+      "bytes": 2206,
+      "sha256": "8bb7f29f89495696a04feec35265e0575729552c14c7aeb52ec27ef947fa8770",
+      "blobSha": "e677ee81818981f13977ad211cd78941faa04f2e"
+    },
+    {
+      "path": "tests/e2e/agents-workspace.playwright.config.ts",
+      "bytes": 679,
+      "sha256": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac",
+      "blobSha": "556e8733f1d396411297f6c3d9f6ea348f444ebb"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 137861,
+      "sha256": "80e515a7806772aafc84cac6f1b59a91930a1d2b6ffcd20c6aee6766e3ec3401",
+      "blobSha": "98d45a0401be3fe868d8296b83fdc88ce35e0816"
+    }
+  ],
+  "scratchConfig": {
+    "path": "docs/implementation/v3/m05-review-inputs/m05-138-agents-workspace.playwright.config.mts.txt",
+    "bytes": 367,
+    "sha256": "1fa6fbcd2e85b888a4f48353313a626ff1fe5de46f64a377d70bbdc6d4375981",
+    "blobSha": "c34ce8f252d065c4c992e392fb4c62a3c800c22f"
+  },
+  "actualCommands": [
+    {
+      "schemaVersion": 1,
+      "command": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T00:17:09.445471+00:00",
+        "endedAt": "2026-11-16T00:18:05.799025+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-merged-typecheck.log",
+        "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+      "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "elapsedMs": 56346,
+      "rawOutputBytes": 87,
+      "rawOutputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+      "excerptInputBytes": 87,
+      "excerptInputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+      "transformations": [],
+      "phaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/plan-timeline-ui.test.ts",
+          "tests/public-source.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T00:17:09.409431+00:00",
+        "endedAt": "2026-11-16T00:17:15.133304+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-plan-public-source.log",
+        "logDigest": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7"
+      },
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+      "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "elapsedMs": 5720,
+      "rawOutputBytes": 231,
+      "rawOutputSha256": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7",
+      "excerptInputBytes": 231,
+      "excerptInputSha256": "b2de7562ab84461e701d64bcf3fbacba70160b87555e586647ec12b29031d9d7",
+      "transformations": [],
+      "phaseIds": [
+        "REGRESSION_REQUIRED"
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "tests/e2e/agents-workspace.spec.ts",
+          "--grep",
+          "keyboard entry into a virtual agent",
+          "--workers=1",
+          "--reporter=line"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T00:17:09.436680+00:00",
+        "endedAt": "2026-11-16T00:17:13.734279+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus.log",
+        "logDigest": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d"
+      },
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+      "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "elapsedMs": 4289,
+      "rawOutputBytes": 598,
+      "rawOutputSha256": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d",
+      "excerptInputBytes": 598,
+      "excerptInputSha256": "6730ec032f85518b3d94a724ff8c4193c4e2471107e6b34cf8a7e5682654f88d",
+      "transformations": [],
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "command": {
+        "argv": [
+          "env",
+          "AGENTSUI_APP_CANDIDATE=1",
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "/workspace/scratch/36f66011d961/m05-138-agents-workspace.playwright.config.mts",
+          "tests/e2e/agents-workspace.spec.ts",
+          "--grep",
+          "keyboard entry into a virtual agent",
+          "--workers=1",
+          "--reporter=line"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/usr/bin/env",
+        "startedAt": "2026-11-16T00:19:30.895673+00:00",
+        "endedAt": "2026-11-16T00:19:43.076822+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-138-keyboard-focus-chromium.log",
+        "logDigest": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060"
+      },
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+      "committedTreeBefore": "3475d8c0e11c704b5ee55dcbc77834746e5beead",
+      "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "elapsedMs": 12167,
+      "rawOutputBytes": 3368,
+      "rawOutputSha256": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+      "excerptInputBytes": 3368,
+      "excerptInputSha256": "27e29f8a7e8207d54cc29ed2ce1990ef2bfc7760af8af436bac484b940b39060",
+      "transformations": [],
+      "phaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "label": "continuation-138-merged-typecheck",
+      "status": "PASS",
+      "meaning": "Full pnpm typecheck on the exact clean committed tree."
+    },
+    {
+      "label": "continuation-138-plan-public-source",
+      "status": "PASS",
+      "passed": 35,
+      "meaning": "Existing plan-timeline UI and public-source suites."
+    },
+    {
+      "label": "continuation-138-keyboard-focus",
+      "status": "FAIL",
+      "meaning": "The default root browser configuration excludes this spec. No tests found; no test body ran."
+    },
+    {
+      "label": "continuation-138-keyboard-focus-chromium",
+      "status": "FAIL",
+      "failed": 1,
+      "meaning": "The explicit existing agents configuration with Chromium discovered the actual new keyboard case. Its initial parent card visibility failed before any keyboard action."
+    }
+  ],
+  "limits": [
+    "The scratch config changes only local Chromium selection plus absolute test/output paths and inherits the existing agents configuration. AGENTSUI_APP_CANDIDATE=1 is explicit in the actual argv.",
+    "All four captures bind the clean committed tree with an empty tracked diff. The external scratch config is separately hashed above.",
+    "The supplemental initial-readiness failure is not a product keyboard-focus failure and remains preserved. Its subsequent narrow repair is documented separately.",
+    "The current Windows run 43777513127 remains failed at the old shared-fixture browser bundle. Its installed job was still active when this package was prepared.",
+    "These checks do not prove installed retention, native Save or live model behavior."
+  ]
+}

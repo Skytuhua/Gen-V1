@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T22:48:54.317901+00:00",
+  "status": "SOURCE_REVIEW_COMPLETE_NO_ACTIONABLE_FINDING",
+  "source": {
+    "publishedHead": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "publishedTree": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "publishedHeadProvenance": "Parent supplied the exact published ref; this review independently binds the byte-identical local committed tree.",
+    "localHead": "94b99a8132ed3703b5c253376af9be5b45039815",
+    "localTree": "74d4f82742ba875ed38ef9bc4f52f5660537db96",
+    "acceptedMain": "02a50eca13c2deb720738a89ec0abc126e6fb3e6",
+    "previousAcceptedMain": "f5e0af4e1e81c0e9fdd71e2fc56575b33bca9fca",
+    "reviewedFiles": [
+      {
+        "path": "scripts/installed-native-save.ts",
+        "bytes": 25009,
+        "sha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+        "gitBlobSha": "6a36d93c3f527028594c953636d2b7f4d7673cb8",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "apps/desktop/memory-export.ts",
+        "bytes": 8627,
+        "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+        "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "tests/installed-native-save.test.ts",
+        "bytes": 6874,
+        "sha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+        "gitBlobSha": "50eb06e7769eec94c875654eee1e2661c2334b0f",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "bytes": 10966,
+        "sha256": "2b2947b181000d9aaf1af1ea4b5ad6fffcaaa10543b0561e318a048d046d9379",
+        "gitBlobSha": "2fc60c907d2a8a4e0165d39c43a909d56f20a9ea",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "tests/e2e/settings-loading.spec.ts",
+        "bytes": 10323,
+        "sha256": "3ea8e132060e39b21dbe76f85e4b46bca1380c691844981215cdffd37e641538",
+        "gitBlobSha": "a4e38f6b9888c004df02a14c90196aaf76e60c5b",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "tests/e2e/project-app-integration.spec.mjs",
+        "bytes": 11060,
+        "sha256": "55b26b044b4ec842dc83f8708d04f2baf1f8c63dd0063fa5d763e5460933cc1e",
+        "gitBlobSha": "8e5fa738300eee6be3b777a41f0a852824c63bec",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "docs/public/getting-started.md",
+        "bytes": 6562,
+        "sha256": "800a6472a409de03a29530df0d3027439bf1706e9e1cfa7c5433e8ed662b9761",
+        "gitBlobSha": "42aef5426ca5beb0a18fc6ee7539c38e6f0700bb",
+        "matchesLocalCommittedBlob": true
+      },
+      {
+        "path": "docs/public/release-notes.md",
+        "bytes": 4176,
+        "sha256": "e831afc6d603bca108d15e38ce481c100efb1ee565fb6fc2822589fd55b16f3d",
+        "gitBlobSha": "d371f9e968ffddf6c917ecf6d554741be5615c88",
+        "matchesLocalCommittedBlob": true
+      }
+    ]
+  },
+  "nativeHelper": {
+    "baselineSha256": "588e9388eea40761686d59bc165d65b7607f5bf12cb79375a45922e6edf86f96",
+    "finalSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+    "change": "Register the declared UI Automation client-side provider assembly through a compiled NoInlining and NoOptimization managed caller. Use the same UI Automation namespace through fixed type-name abbreviations to remain within the existing Windows command-line limit. No additional worker thread is introduced.",
+    "nodeCodeOutsideFixedScriptUnchangedExceptExplanatoryComment": true,
+    "nativeRootLeaseByteUnchanged": true,
+    "ownerTargetControlActionTailUnchangedAfterDeclaredNamespaceNormalization": true,
+    "preservedInvariants": [
+      "Actual spawned child PID, executable and process start ticks bind the owner; liveness is checked throughout.",
+      "Exact owned top-level window enumeration, Export project memory title, UIA Window type and stable HWND are required.",
+      "Exactly one enabled writable File name: Edit with AutomationId 1001 and exactly one enabled Save Button with AutomationId 1 are required; Value and Invoke patterns remain mandatory.",
+      "Existing or ambiguous dialogs fail closed; no SendKeys, setSavePath, force click, arbitrary destination, CDP allowAndName or production download-guard bypass is introduced.",
+      "The fixed absent output stays inside the identity-bound evidence root; ordinary ancestors, volume/index and owner.json are pinned by the unchanged held lease through native completion and exact readback.",
+      "Six ordered fixed observation stages, bounded metadata-only failure diagnostics and worker exit zero remain required.",
+      "The 75-second outer worker bound, 60-second native polling bound, existing discovery limit, output limits and exact release acknowledgement remain unchanged.",
+      "The production export policy remains byte-identical, with strict redacted schema and size, exact main-frame ownership, one-use admission and saved byte/hash completion checks."
+    ],
+    "commandLine": {
+      "method": "Exact existing installedNativeSaveCommand formula, including its indentation-only normalization, declared C:\\Windows runtime path, flags and terminating NUL.",
+      "normalizedScriptCharacters": 11755,
+      "encodedCommandCharacters": 31348,
+      "completeCommandCharacters": 31465,
+      "exclusiveMaximumCharacters": 32767,
+      "headroomCharacters": 1302
+    },
+    "portableVerification": {
+      "source": "Existing peer-executed immutable log and metadata were read and rehashed; this review ran no tests.",
+      "testsPassed": 7,
+      "testsFailed": 0,
+      "testsSkipped": 0,
+      "log": {
+        "path": "/workspace/scratch/36f66011d961/m05-native-save-retained-boundary/continuation-native-save-retained-boundary-custody.log",
+        "bytes": 1483,
+        "sha256": "56c6a1b4f3b336c4f8b59d215377947ed70c8e811789098cb6440abb12ca654d",
+        "gitBlobSha": "95973a2ac2ed5b5b03a7d4563ef7c316cba83cb6"
+      },
+      "metadata": {
+        "path": "/workspace/scratch/36f66011d961/m05-native-save-retained-boundary/continuation-native-save-retained-boundary-custody.meta.json",
+        "bytes": 1006,
+        "sha256": "7a2ef79559aae3c12ecef04efb94eaf2f12bf373f7f47fdbddc1de60e81814fc",
+        "gitBlobSha": "b4ea808b09c3dd37affb95d61bfdabc90ddad3bc"
+      },
+      "argv": [
+        "node",
+        "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/installed-native-save.test.ts",
+        "--reporter=verbose",
+        "--maxWorkers=1"
+      ],
+      "startedAt": "2026-11-15T22:43:19.052173+00:00",
+      "endedAt": "2026-11-15T22:43:20.982089+00:00",
+      "scope": "Portable path, transcript and command-bound custody tests. These do not execute Windows UI Automation, the native Save chooser or installed retention."
+    },
+    "nativeExecutionStatus": "The provider-only probe was reported successful for the retained compiled caller. The exact two-lane native Save diagnostic and full installed verification were pending at this review. This is not native Save or installed-flow acceptance."
+  },
+  "acceptedMainFixtureReview": {
+    "scope": "The complete five-file f5e0af4e to 02a50eca diff, merged task fixture, full Settings and project integration tests, and current split-workspace client were read. No production source changed in the accepted-main delta.",
+    "sharedFixture": "The common serveTaskFixture retains its seeded canonical split reducer. The new serveTaskSplitLayout opt-in is registered afterward only by its explicit callers and intentionally replaces the exact split GET/profile/command routes with an initially empty canonical layout. Those tests then select the real conversation. The same production reducer owns mutations in both fixtures.",
+    "receiptCompatibility": "The current split-workspace client parses receipt.result; the opt-in helper seq and common helper eventSeq fields do not create a client receipt conflict.",
+    "settingsAssertions": "Lazy loading, request reuse, focus restoration, draft retention, failure reload, failed-persistence reload blocking, pending-signature blocking and same-element identity assertions remain. The visible signature selector chooses the interactive instance and captures its handle after pending decode is established.",
+    "projectAssertions": "Exact selected conversation and project ownership are established before the started-draft case. Existing no-orphan, cancellation, canonical project command, source ownership, color merge, retry and dialog geometry assertions remain.",
+    "documentation": "Public release/getting-started edits distinguish historical 0.6.4 gallery/source evidence from current source and installed acceptance. They do not promote an installed M05 result.",
+    "m05Boundary": "This accepted-main delta does not alter ProjectContextSurface, ProjectMemoryReview, ContextInspector, runtime memory flags or the production memory API. Existing default-off and proof limits remain.",
+    "testExecution": "No additional browser test was run for this review. The forthcoming full Windows run must validate the published combined tree."
+  },
+  "findings": [],
+  "limits": [
+    "No source, test, ledger, branch or ref was changed by this review. This scratch review file is the only written artifact.",
+    "Earlier failed receipts and the 588e source-invariant review remain historical evidence and are not superseded as execution outcomes.",
+    "Full enabled installed memory lifecycle and the authorized live repeated-task study remain unproven. Runtime feature flags stay false.",
+    "No provider network-call count is measured or inferred from portable or synthetic checks."
+  ]
+}

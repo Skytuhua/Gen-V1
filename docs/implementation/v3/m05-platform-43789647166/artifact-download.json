@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "artifactId": 14193350904,
+  "workflowRunId": 43789647166,
+  "downloadedAt": "2026-11-16T02:37:44.577830+00:00",
+  "originalZip": {
+    "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/original-artifact.zip",
+    "bytes": 1047038,
+    "sha256": "c7c9432e99b2ec9934e2f597f87ad5118eb3bf582ce64b5bdaf49171bcc6ca8b"
+  },
+  "crcVerified": true,
+  "files": [
+    {
+      "member": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "sha256": "537552a104ab37362b88f71778105be1a1ee0469c9b70e072e9ffe69f85da2ba",
+      "crc32": "2dbf0798",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-installed-package/desktop-release-0.6.5/build-manifest.json"
+    },
+    {
+      "member": ".harness-installed-package/desktop-stage-1794794623460/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "crc32": "3dc6a1af",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-installed-package/desktop-stage-1794794623460/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-main.png",
+      "bytes": 49552,
+      "sha256": "2dec60501011eddaf7c1265ef3483be52bbf760e474ca294a7ff8a09241c33f4",
+      "crc32": "6f6f00f2",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-main.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-forgotten.png",
+      "bytes": 81618,
+      "sha256": "01f77838d1ec46f7d7f06d96ae3a87d6a843646625e9585ede026a90717239b1",
+      "crc32": "560613ca",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-forgotten.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-redacted-export.json",
+      "bytes": 1618,
+      "sha256": "931328342cb4386670bfb187cec4b89c56aade8ef7d7cb8993cfc2baf35f5f1e",
+      "crc32": "d7407679",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-redacted-export.json"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-rejected.png",
+      "bytes": 74203,
+      "sha256": "7635d9549215f4a8819585427af8807d432ded1e5015f8262789b3e596f12b5f",
+      "crc32": "9fe276dd",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-rejected.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-reviewed.png",
+      "bytes": 73173,
+      "sha256": "343a00a00c21b0b0beed545fcb27631a200a1faefa914dce92c44f409ba598fc",
+      "crc32": "645dd760",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-reviewed.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-tombstone.png",
+      "bytes": 77138,
+      "sha256": "19702a7e4fa27d3a6524a7cb5b087b95f3b2decfe3df34d6f6f878ea9a7be226",
+      "crc32": "20147615",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-restart-tombstone.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-reviewed.png",
+      "bytes": 73169,
+      "sha256": "b3470708075c1b6c612ea18977040ddfef5a6d318ac508a0be98ca09aaf97468",
+      "crc32": "604c6d5b",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-reviewed.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-source.png",
+      "bytes": 79129,
+      "sha256": "a860d619eae20c40eb1001cb41f86927d07d12d056ab091cba76d004ceb28520",
+      "crc32": "ed82dbe6",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-memory-source.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-official-connections.png",
+      "bytes": 85704,
+      "sha256": "ab850ac45e1942a24b1b7469b596424e9016743ee85daeaf02b102092a0e6e78",
+      "crc32": "cfda462a",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-official-connections.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-settings.png",
+      "bytes": 80732,
+      "sha256": "da8f7b2efb51df502c53e583d52cac19c5acdc2afbb5ee846c94bb4d1ce5a8c2",
+      "crc32": "481f83cb",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/installed-settings.png"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/owner.json",
+      "bytes": 330,
+      "sha256": "c2e3a32d3750ec71aec491254508c42930c9bc13c11341fb9bffb672af852eab",
+      "crc32": "9c9e782b",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/owner.json"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/verification.json",
+      "bytes": 34592,
+      "sha256": "2798c411ca211a64652bb16438013bd4042c0c8ddc6f4fbfcfea1cbc48098d3f",
+      "crc32": "1c86e515",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-desktop-installed/run-1794795565188-776eb8a0-1a47-4ea3-8ee8-a6c25711b3cb/verification.json"
+    },
+    {
+      "member": ".harness-packaged-providers/run-1794796397277-a7822493-36c1-4e53-aa05-5899e90c78ec/verification.json",
+      "bytes": 168091,
+      "sha256": "44ea1af3588a2b7da9a4c9a95888c3f9b284b495aab5b348f684c4d82e86a4c4",
+      "crc32": "1cc90f22",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43789647166/extracted/.harness-packaged-providers/run-1794796397277-a7822493-36c1-4e53-aa05-5899e90c78ec/verification.json"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.config.ts",
+      "tests/e2e/artifact-acknowledgment.spec.ts",
+      "--reporter=line",
+      "--output",
+      "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-task-fixture-red-artifacts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback/pnpm",
+    "startedAt": "2026-11-15T21:44:20.775333+00:00",
+    "endedAt": "2026-11-15T21:44:22.687150+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-main-task-fixture-red.log",
+    "logDigest": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "indexTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+  "elapsedMs": 1899,
+  "rawOutputBytes": 2295,
+  "rawOutputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "excerptInputBytes": 2295,
+  "excerptInputSha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ],
+  "phaseAssignmentReview": {
+    "originalPhaseIds": [
+      "BUILD_AND_SETUP"
+    ],
+    "correctedPhaseIds": [
+      "PLATFORM_BROWSER"
+    ],
+    "originalCaptureRef": "docs/implementation/v3/m05-logs/continuation-main-task-fixture-red.capture-original.json",
+    "originalCaptureSha256": "671d034cb86a44a736d742234ab457a7ee74ad3cb97889b627f252ed44638198",
+    "reason": "Assign the actual attempted browser command to its browser verification phase. Command argv, times, output, exit code and failure status are unchanged; setup failures do not become executed browser assertions."
+  }
+}

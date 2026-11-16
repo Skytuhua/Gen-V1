@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/workspace-ui.spec.ts",
+      "tests/e2e/workspace-components.spec.ts",
+      "--workers=2"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-15T22:30:51.137552+00:00",
+    "endedAt": "2026-11-15T22:30:57.001980+00:00",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-f5e-main-workspace-check.log",
+    "logDigest": "b6603536d11d1fcc6f5adbfd0f9b4d20d3df1d6424e1f4d6a81b5349d3773090"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "c1055beb3527a567ab3fc2c6b9539680f62b5139",
+  "workingDiffSha256": "2aae6f392d134d580f2ddb51eba9c476fc8e795776ae4cc8515493d6ffa87764",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 5741,
+  "rawOutputBytes": 572,
+  "rawOutputSha256": "b6603536d11d1fcc6f5adbfd0f9b4d20d3df1d6424e1f4d6a81b5349d3773090",
+  "excerptInputBytes": 572,
+  "excerptInputSha256": "b6603536d11d1fcc6f5adbfd0f9b4d20d3df1d6424e1f4d6a81b5349d3773090",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

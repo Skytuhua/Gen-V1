@@ -1,0 +1,8 @@
+import base from './m05-restored/tests/e2e/agents-workspace.playwright.config.ts';
+
+export default {
+  ...base,
+  testDir: '/workspace/scratch/36f66011d961/m05-restored/tests/e2e',
+  outputDir: '/workspace/scratch/36f66011d961/m05-local-checks/continuation-138-keyboard-focus-chromium-artifacts',
+  use: {...base.use, browserName: 'chromium', channel: undefined},
+};

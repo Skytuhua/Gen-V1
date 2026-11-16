@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "artifactId": 14190373160,
+  "workflowRunId": 43783430726,
+  "downloadedAt": "2026-11-16T01:34:17.525358+00:00",
+  "originalZip": {
+    "path": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/original-artifact.zip",
+    "bytes": 398174,
+    "sha256": "c818274f1f2f7db52c5b561cba8ba16f4a5d4db4951477fbaa79f8cde7216dc6"
+  },
+  "crcVerified": true,
+  "files": [
+    {
+      "member": ".harness-installed-package/desktop-stage-1794790776104/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "crc32": "3dc6a1af",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-installed-package/desktop-stage-1794790776104/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json"
+    },
+    {
+      "member": ".harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "sha256": "0a355a0373d2e33e3a7c09a278f132ba82e995c6b0bf2cb5485ce3ea2a6f1abf",
+      "crc32": "69255bdf",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-installed-package/desktop-release-0.6.5/build-manifest.json"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/owner.json",
+      "bytes": 330,
+      "sha256": "7b683cd9712dfc672c64eee5f0c3673956a1549b004087edb663627b9cb929b1",
+      "crc32": "8e75836e",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/owner.json"
+    },
+    {
+      "member": ".harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/verification.json",
+      "bytes": 20176,
+      "sha256": "5902100a6262211a50d17fe12e3a01edeb180d3b96e63d9fcbdde69bb892e35a",
+      "crc32": "7c5c2465",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-desktop-installed/run-1794791662583-fd2553e3-0c92-475a-9f74-c968b05ecff7/verification.json"
+    },
+    {
+      "member": ".harness-packaged-providers/run-1794792488486-f22916c0-744f-4ec1-8988-a373accbc2f1/verification.json",
+      "bytes": 168091,
+      "sha256": "62e3eb49f56b1819235f8c950b7f2bca4f69004058d38f666b12983a5dfdcef4",
+      "crc32": "1d8230cf",
+      "localPath": "/workspace/scratch/36f66011d961/m05-installed-artifact-43783430726/extracted/.harness-packaged-providers/run-1794792488486-f22916c0-744f-4ec1-8988-a373accbc2f1/verification.json"
+    }
+  ]
+}

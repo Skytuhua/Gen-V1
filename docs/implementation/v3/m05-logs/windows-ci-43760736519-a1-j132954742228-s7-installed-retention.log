@@ -1,0 +1,38 @@
+2026-11-15T21:08:57.1488848Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T21:08:57.1489250Z $ErrorActionPreference = 'Stop'
+2026-11-15T21:08:57.1489571Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T21:08:57.1490002Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T21:08:57.1490488Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T21:08:57.1490946Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T21:08:57.1491413Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T21:08:57.1491911Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T21:08:57.1492434Z & pnpm @verifyArgs
+2026-11-15T21:08:57.1492670Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T21:08:57.1547036Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T21:08:57.1547305Z env:
+2026-11-15T21:08:57.1547518Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T21:08:57.1547836Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T21:08:57.1548152Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T21:08:57.1548485Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T21:08:57.1548767Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T21:08:57.1549056Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T21:08:57.1549364Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T21:08:57.1549767Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-532612dbd43243c7bccd4b7cb7eeea3d
+2026-11-15T21:08:57.1550091Z ##[endgroup]
+2026-11-15T21:08:57.4757530Z HARNESS_INSTALLED_VERIFY_ARGV={"executable":"pnpm","args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"]}
+2026-11-15T21:17:34.9466497Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794777450653-60bb33f9-37c5-4d86-bee0-f36a49a961f8","passed":true}
+2026-11-15T21:18:53.3315641Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794776938920-2650a9db-c844-42fd-92e5-2527492c77e1","passed":false}
+2026-11-15T21:18:53.3366209Z D:\a\Gen-V1\Gen-V1\scripts\installed-native-save.ts:289
+2026-11-15T21:18:53.3366766Z         if (observation.status === 'failed') {fail(Error('Native Save refused: ' + observation.failure + '.')); return;}
+2026-11-15T21:18:53.3367348Z                                                    ^
+2026-11-15T21:18:53.3367506Z 
+2026-11-15T21:18:53.3367647Z Error: Native Save refused: dialog-timeout.
+2026-11-15T21:18:53.3381810Z     at Socket.<anonymous> (D:\a\Gen-V1\Gen-V1\scripts\installed-native-save.ts:289:52)
+2026-11-15T21:18:53.3382472Z     at Socket.emit (node:events:514:28)
+2026-11-15T21:18:53.3382870Z     at addChunk (node:internal/streams/readable:569:12)
+2026-11-15T21:18:53.3384134Z     at readableAddChunkPushByteMode (node:internal/streams/readable:520:3)
+2026-11-15T21:18:53.3384622Z     at Readable.push (node:internal/streams/readable:400:5)
+2026-11-15T21:18:53.3385112Z     at Pipe.onStreamRead (node:internal/stream_base_commons:194:23)
+2026-11-15T21:18:53.3385379Z 
+2026-11-15T21:18:53.3385475Z Node.js v24.22.2
+2026-11-15T21:18:53.4622646Z ##[error]Process completed with exit code 1.

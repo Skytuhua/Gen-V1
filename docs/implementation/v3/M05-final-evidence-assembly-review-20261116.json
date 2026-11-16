@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "status": "REVIEWED_GENERATOR_CORRECTIONS_NOT_PLATFORM_EXECUTION",
+  "recordedAt": "2026-11-16 02:30:10 UTC",
+  "sourceHead": "299aa79fce281bacc370bd76373f760082046941",
+  "sourceTree": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "scope": "Final evidence-generation logic only. No production source, assertion predicate, feature flag, repository gate or historical command record was changed.",
+  "findings": [
+    {
+      "issue": "Baseline build/native PASS cases survived a current failure or absence.",
+      "resolution": "Select each current case explicitly as PASS, FAIL or NOT_RUN from actual matching commands; required job failures make the phase FAIL and unavailable execution blocks it."
+    },
+    {
+      "issue": "Historical native FILE text asserted current byte equivalence after the guard changed.",
+      "resolution": "Current native FILE starts NOT_RUN and requires its exact Windows observation, source, suite, checkout and raw-log identity. The historical review remains preserved separately."
+    },
+    {
+      "issue": "The public-source inventory description contained historical counts.",
+      "resolution": "Validate the immutable current manifest bytes, uniqueness, sorting and runtime subset, then derive its counts. Current299 has2334 source and225 runtime entries."
+    },
+    {
+      "issue": "Current command selection accumulated older successful runs.",
+      "resolution": "Keep the former selection in a historical field and rebuild current references from the exact current run, including actual failure records."
+    },
+    {
+      "issue": "The old readiness-only repair was stamped with the current source head/tree.",
+      "resolution": "Keep the original013c publication identities from its retained review. Record present applicability and per-file hash comparisons separately."
+    }
+  ],
+  "generatorSources": [
+    {
+      "path": "docs/implementation/v3/m05-review-inputs/m05-evidence-assembler-77f1d59b.js",
+      "bytes": 33499,
+      "sha256": "77f1d59b47c29942046a6adb5ba990ee97822d5746b156f65f0581879fa9a3eb",
+      "blobSha": "db1314af5f60bd56a423e610ef67945549062a8c"
+    },
+    {
+      "path": "docs/implementation/v3/m05-review-inputs/m05-evidence-finalizer-20261116.js",
+      "bytes": 12638,
+      "sha256": "c16003fdfaace9f589456e45e4a643913d5441b378faa5330ca8327018c4991a",
+      "blobSha": "b293260a2814b32c592f5265b9c70d04b2287d0b"
+    }
+  ],
+  "independentReview": {
+    "scope": "Full patched assembler and finalizer reviewed by the independent dependency audit.",
+    "remainingConcreteFindings": []
+  },
+  "validation": {
+    "assemblerSha256": "77f1d59b47c29942046a6adb5ba990ee97822d5746b156f65f0581879fa9a3eb",
+    "results": [
+      {
+        "fixture": "actual preserved failed437834 execution",
+        "bundle": "FAIL",
+        "currentSelection": 27,
+        "nativeFile": "NOT_RUN",
+        "readinessHead": "013c044d66f40136752df4f1903132d601d57851"
+      },
+      {
+        "fixture": "current source with historical receipt",
+        "currentSelection": 0,
+        "build": "BLOCKED",
+        "native": "BLOCKED",
+        "inventory": "Exact current manifest contains 2334 source entries and 225 runtime entries; both lists are unique and sorted, with runtime a source subset."
+      },
+      {
+        "fixture": "controlled failed-job selector input",
+        "jobName": "Windows checks",
+        "phaseStatus": "FAIL",
+        "scope": "Synthetic status-selection check only; not an actual CI outcome and not added to command evidence."
+      },
+      {
+        "fixture": "controlled failed-job selector input",
+        "jobName": "Hermes contracts",
+        "phaseStatus": "FAIL",
+        "scope": "Synthetic status-selection check only; not an actual CI outcome and not added to command evidence."
+      }
+    ],
+    "actualOutputsPublished": false,
+    "canonicalLedgerUnchanged": true,
+    "scope": "Actual in-session pure-data generator checks, including the preserved failed437834 input, a mismatched source/receipt, and explicitly controlled failed-job inputs. The controlled inputs are not CI observations and were not written into command evidence."
+  },
+  "currentNativeFileObservationRef": "docs/implementation/v3/M05-native-file-observation-43789647166.json",
+  "unchangedVerifier": {
+    "path": "scripts/verify-m05-evidence.ts",
+    "bytes": 4034,
+    "sha256": "e7b21bf7bda64fca76c1347f8e77e830c3a17f47ce6bba2a2c2cf3459b6add3e",
+    "actualFinalExecution": "NOT_RUN_AT_THIS_REVIEW"
+  },
+  "finalPublication": "Requires the actual current Windows receipt, independent installed admission, final materialization and execution of the unchanged verifier. This review does not itself supply those outcomes."
+}

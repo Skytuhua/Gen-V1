@@ -1,0 +1,41 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > preserves pinned integration bytes when Windows enables automatic CRLF checkout
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > normalizes Windows separators while rejecting traversal, aliases and absolute paths
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > preserves the current personal runtime and guarded host inputs by exact name
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > excludes private implementation, fixtures, plans, state, credentials and unknown additions
+ × tests/public-source.test.ts > reviewed public source allowlist > resolves the staged host and worker entries using only admitted runtime sources 322ms
+   → Build failed with 1 error:
+apps/server/main.ts:3:60: ERROR: Could not resolve "../desktop/backend-policy.ts"
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > resolves the staged browser entry using only admitted public sources
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > resolves the staged desktop entries using only admitted public sources
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > admits every browser suite spec and configuration with complete spec coverage
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > admits the local import closure of exported TypeScript and JavaScript inputs
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > admits only enumerated inputs and rejects an unexpected payload source
+ ↓ tests/public-source.test.ts > reviewed public source allowlist > keeps a unique, sorted manifest and a runtime subset rather than source globs
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged host and worker entries using only admitted runtime sources
+Error: Build failed with 1 error:
+apps/server/main.ts:3:60: ERROR: Could not resolve "../desktop/backend-policy.ts"
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { detail: undefined, id: '', location: { column: 60, file: 'apps/server/main.ts', length: 30, line: 3, lineText: 'import {startupErrorDiagnostic,writeStartupDiagnostic} from \'../desktop/backend-policy.ts\';', namespace: '', suggestion: '' }, notes: [], pluginName: '', text: 'Could not resolve "../desktop/backend-policy.ts"' } ], warnings: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 skipped (11)
+   Start at  08:50:23
+   Duration  1.40s (transform 290ms, setup 0ms, import 808ms, tests 326ms, environment 0ms)
+

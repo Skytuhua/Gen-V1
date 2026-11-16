@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "env",
+      "PATH=/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "/workspace/scratch/36f66011d961/m05-merged-workspace-retry.playwright.config.mts",
+      "--grep",
+      "an unavailable main layout gives the user a retry without reloading the page",
+      "--reporter=line"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/usr/bin/env",
+    "startedAt": "2026-11-15T23:39:20.404820+00:00",
+    "endedAt": "2026-11-15T23:39:51.951288+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-673-merged-layout-retry-chromium.log",
+    "logDigest": "bbbac2b492f8e637a59fbbad694fc1d2c41de830fbbea1e5c5e14879b78d4e29"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "c6f9c397e25019ba7f83dc2e5eb080a672dea229",
+  "workingDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 31507,
+  "rawOutputBytes": 960,
+  "rawOutputSha256": "bbbac2b492f8e637a59fbbad694fc1d2c41de830fbbea1e5c5e14879b78d4e29",
+  "excerptInputBytes": 960,
+  "excerptInputSha256": "bbbac2b492f8e637a59fbbad694fc1d2c41de830fbbea1e5c5e14879b78d4e29",
+  "transformations": [],
+  "phaseIds": [
+    "PLATFORM_BROWSER"
+  ]
+}

@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "status": "REVIEWED_SOURCE_AND_CONTRACT_REFRESH_PROPOSAL_NO_EXECUTION_ADMISSION",
+  "recordedAt": "2026-11-15T21:43:51.092873+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "scope": "Read-only accepted-base and dependency-contract audit. Proposed files are scratch artifacts. No checkout, index, branch, tag, repository file or ledger was modified by this review.",
+  "sourceHead": "013c044d66f40136752df4f1903132d601d57851",
+  "priorAcceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "newAcceptedBaseSha": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+  "newAcceptedBaseTreeSha": "493f8f5a552cb8962db1000d9437a628c803e860",
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "historicalLock": {
+    "originalRepositoryPath": "docs/implementation/v3/M05-source-lock.json",
+    "sourceCommit": "013c044d66f40136752df4f1903132d601d57851",
+    "existingGitBlobSha": "b24bd393519b01e1c0f954204343a684250ff723",
+    "file": "M05-source-lock-399cde39.json",
+    "bytes": 25543,
+    "sha256": "1e67d0ebc890aff8ef923f79f8f6600c88e7176fe8fcaa04e9327dc7bf674cdb",
+    "gitBlobSha": "b24bd393519b01e1c0f954204343a684250ff723",
+    "preservedExactBytes": true
+  },
+  "proposedLock": {
+    "file": "M05-source-lock.proposed.json",
+    "bytes": 17337,
+    "sha256": "fff1e291c437920c15c79b1626b2837a0781f86faa21606a6bf7cf137f7ffd66",
+    "gitBlobSha": "6def72f6a1df18260d9376bc5a21011d52f66bb1"
+  },
+  "proposedDependencyContracts": {
+    "file": "M05-dependency-contracts.proposed.json",
+    "bytes": 3408,
+    "sha256": "0fca7bd7c84059735466879e8f5170fde126ed580233439db88470ffa09bc6c9",
+    "gitBlobSha": "f7b56c47ed4732e4a1e918bf3b54b09f29441338"
+  },
+  "proposedEvidenceContractUpdate": {
+    "file": "M05-evidence-contract-update.proposed.json",
+    "bytes": 3838,
+    "sha256": "fe29ecf2a96ccd964e0830e6d5cac2998baa5961fb1f9f4fddec4aee617e71b8",
+    "gitBlobSha": "cc744f89d93c8a569d76f1737cf1130fb0815d0d"
+  },
+  "deduplication": {
+    "beforeRows": 51,
+    "afterRows": 16,
+    "removedExactDuplicateRows": 35,
+    "sameNameVersionCollisions": [],
+    "sameNameEntryCollisions": [],
+    "duplicateNameCounts": {
+      "M04.RequestContextV1": 6,
+      "M04.RequestCustody": 6,
+      "M04.ContextCompiler": 6,
+      "M04.HostRequestPreparation": 6,
+      "M11.ModelRequestObservationV1": 6,
+      "M11.RequestScheduler": 6,
+      "M11.RequestCapabilities": 6
+    },
+    "lockAndPublishedEvidenceContractsWereIdentical": true,
+    "allUniqueTestIdsPreserved": true,
+    "firstOccurrenceOrderingPreserved": true
+  },
+  "inspectedSource": {
+    "beforeCount": 63,
+    "afterCount": 63,
+    "allPriorRowsVerifiedAgainstPriorBase": true,
+    "allNewRowsRecomputedFromExactAcceptedBase": true,
+    "changes": [
+      {
+        "path": "packages/runtime/request-capabilities.ts",
+        "fromBlob": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+        "toBlob": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43"
+      }
+    ],
+    "additionalReadOnlyReviewedPaths": [
+      {
+        "path": "packages/runtime/request-metrics.ts",
+        "fromBlob": "7d1d62b2b20fce64bf031f620f7598ed6da0a103",
+        "toBlob": "93f173f553cfc184849fe23c6ca86d0941868ab0"
+      },
+      {
+        "path": "tests/model-transport-v3.test.ts",
+        "fromBlob": "5483e613661a9df295d3f12dce078becdc402041",
+        "toBlob": "9bb33927449a2b4c348f6a36eb4ec883c846fce3"
+      }
+    ]
+  },
+  "contracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "path": "packages/contracts/implementation-evidence.ts",
+      "priorVersion": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testReferences": [
+        {
+          "path": "tests/research-baseline.test.ts",
+          "publishedM05SourceBlob": "a44a20573b4feee888f4709011658a6d50635893",
+          "acceptedBaseBlob": "a44a20573b4feee888f4709011658a6d50635893",
+          "observedStagedMergeBlob": "a44a20573b4feee888f4709011658a6d50635893"
+        },
+        {
+          "path": "tests/m01-m02-compatibility.test.ts",
+          "publishedM05SourceBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+          "acceptedBaseBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+          "observedStagedMergeBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+        }
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "path": "packages/core/capability-flags.ts",
+      "priorVersion": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "testReferences": [
+        {
+          "path": "tests/project-memory-v3.test.ts",
+          "publishedM05SourceBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46"
+        },
+        {
+          "path": "tests/m01-m02-compatibility.test.ts",
+          "publishedM05SourceBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+          "acceptedBaseBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+          "observedStagedMergeBlob": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+        }
+      ]
+    },
+    {
+      "name": "M02.ToolEffectsV3",
+      "path": "packages/contracts/tool-effects.ts",
+      "priorVersion": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testReferences": [
+        {
+          "path": "tests/tool-effects-v3.test.ts",
+          "publishedM05SourceBlob": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+          "acceptedBaseBlob": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+          "observedStagedMergeBlob": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+        }
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "path": "packages/core/tool-authority.ts",
+      "priorVersion": "1d654522d9842838276d162a33dac6141f731c26",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testReferences": [
+        {
+          "path": "tests/tool-authority-v3.test.ts",
+          "publishedM05SourceBlob": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+          "acceptedBaseBlob": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+          "observedStagedMergeBlob": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+        }
+      ]
+    },
+    {
+      "name": "M02.EffectRecovery",
+      "path": "packages/core/effect-recovery.ts",
+      "priorVersion": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testReferences": [
+        {
+          "path": "tests/effect-recovery-v3.test.ts",
+          "publishedM05SourceBlob": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+          "acceptedBaseBlob": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+          "observedStagedMergeBlob": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+        }
+      ]
+    },
+    {
+      "name": "Store.SynchronousCommand",
+      "path": "packages/storage/store.ts",
+      "priorVersion": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "testReferences": [
+        {
+          "path": "tests/project-memory-v3.test.ts",
+          "publishedM05SourceBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46"
+        },
+        {
+          "path": "tests/memory-forget-v3.test.ts",
+          "publishedM05SourceBlob": "0ad7f99460947f22fc2ab2013948c7b17e090afd",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "0ad7f99460947f22fc2ab2013948c7b17e090afd"
+        },
+        {
+          "path": "tests/project-memory-http-v3.test.ts",
+          "publishedM05SourceBlob": "f455cbb6d24c5e5ef440ca80a278c6942929770e",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "f455cbb6d24c5e5ef440ca80a278c6942929770e"
+        }
+      ]
+    },
+    {
+      "name": "Workspace.PhysicalBinding",
+      "path": "packages/workspace/tools.ts",
+      "priorVersion": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "testReferences": [
+        {
+          "path": "tests/project-memory-v3.test.ts",
+          "publishedM05SourceBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46"
+        }
+      ]
+    },
+    {
+      "name": "ResourceGrant.StorageBoundary",
+      "path": "packages/core/security.ts",
+      "priorVersion": "693f251361bc464caee26df795c57002d120c9a7",
+      "version": "693f251361bc464caee26df795c57002d120c9a7",
+      "testReferences": [
+        {
+          "path": "tests/memory-storage-boundary-v3.test.ts",
+          "publishedM05SourceBlob": "21b823f771d85e8cf0c57e0250350dbe7714e849",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "21b823f771d85e8cf0c57e0250350dbe7714e849"
+        },
+        {
+          "path": "tests/account-storage-boundary.test.ts",
+          "publishedM05SourceBlob": "97afc9cc366c6d01ce0c32ddf9db1dcb9018939e",
+          "acceptedBaseBlob": "97afc9cc366c6d01ce0c32ddf9db1dcb9018939e",
+          "observedStagedMergeBlob": "97afc9cc366c6d01ce0c32ddf9db1dcb9018939e"
+        }
+      ]
+    },
+    {
+      "name": "Existing.TaskMemory",
+      "path": "packages/core/task-memory.ts",
+      "priorVersion": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "testReferences": [
+        {
+          "path": "tests/task-memory.test.ts",
+          "publishedM05SourceBlob": "2ada92f323eda1d39131c3a5a17835392f857cac",
+          "acceptedBaseBlob": "2ada92f323eda1d39131c3a5a17835392f857cac",
+          "observedStagedMergeBlob": "2ada92f323eda1d39131c3a5a17835392f857cac"
+        }
+      ]
+    },
+    {
+      "name": "M04.RequestContextV1",
+      "path": "packages/contracts/request-context.ts",
+      "priorVersion": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "testReferences": [
+        {
+          "path": "tests/context-compiler-v3.test.ts",
+          "publishedM05SourceBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+          "acceptedBaseBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+          "observedStagedMergeBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10"
+        },
+        {
+          "path": "tests/request-preparation-service-v3.test.ts",
+          "publishedM05SourceBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "acceptedBaseBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "observedStagedMergeBlob": "aa26bcf8997e450de648ac26006770d745a0434c"
+        },
+        {
+          "path": "tests/project-memory-service-v3.test.ts",
+          "publishedM05SourceBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f"
+        }
+      ]
+    },
+    {
+      "name": "M04.RequestCustody",
+      "path": "packages/core/request-custody.ts",
+      "priorVersion": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "testReferences": [
+        {
+          "path": "tests/request-preparation-service-v3.test.ts",
+          "publishedM05SourceBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "acceptedBaseBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "observedStagedMergeBlob": "aa26bcf8997e450de648ac26006770d745a0434c"
+        },
+        {
+          "path": "tests/project-memory-service-v3.test.ts",
+          "publishedM05SourceBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f"
+        }
+      ]
+    },
+    {
+      "name": "M04.ContextCompiler",
+      "path": "packages/core/context-compiler.ts",
+      "priorVersion": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "testReferences": [
+        {
+          "path": "tests/context-compiler-v3.test.ts",
+          "publishedM05SourceBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+          "acceptedBaseBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+          "observedStagedMergeBlob": "8c1d31c29d55cae269d42861f506bb769ea82d10"
+        }
+      ]
+    },
+    {
+      "name": "M04.HostRequestPreparation",
+      "path": "packages/core/service.ts",
+      "priorVersion": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "testReferences": [
+        {
+          "path": "tests/request-preparation-service-v3.test.ts",
+          "publishedM05SourceBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "acceptedBaseBlob": "aa26bcf8997e450de648ac26006770d745a0434c",
+          "observedStagedMergeBlob": "aa26bcf8997e450de648ac26006770d745a0434c"
+        },
+        {
+          "path": "tests/project-memory-request-http-v3.test.ts",
+          "publishedM05SourceBlob": "79001856745cbf81071abebe10743274c7846c26",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "79001856745cbf81071abebe10743274c7846c26"
+        },
+        {
+          "path": "tests/project-memory-service-v3.test.ts",
+          "publishedM05SourceBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "22f01ffc044f64ec1eb43df9d8467969a53c259f"
+        }
+      ]
+    },
+    {
+      "name": "M11.ModelRequestObservationV1",
+      "path": "packages/contracts/model-request.ts",
+      "priorVersion": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "testReferences": [
+        {
+          "path": "tests/model-transport-v3.test.ts",
+          "publishedM05SourceBlob": "0c45c877df3b4259bda03b8137739a154e5d3622",
+          "acceptedBaseBlob": "9bb33927449a2b4c348f6a36eb4ec883c846fce3",
+          "observedStagedMergeBlob": "2a5661220dc62c3550addb7ecc780fd3ad26f320"
+        },
+        {
+          "path": "tests/usage-accounting-v3.test.ts",
+          "publishedM05SourceBlob": "ad1e909535320d76aaf11ad1c895b6148f437e4c",
+          "acceptedBaseBlob": "ad1e909535320d76aaf11ad1c895b6148f437e4c",
+          "observedStagedMergeBlob": "ad1e909535320d76aaf11ad1c895b6148f437e4c"
+        },
+        {
+          "path": "tests/hermes-runtime.test.ts",
+          "publishedM05SourceBlob": "5e8af67b2ef9e34fa3042d125c357dd05c3a3bb6",
+          "acceptedBaseBlob": "fef5ffa4b7acdc9933914d7e11778708700404f8",
+          "observedStagedMergeBlob": "5e8af67b2ef9e34fa3042d125c357dd05c3a3bb6"
+        }
+      ]
+    },
+    {
+      "name": "M11.RequestScheduler",
+      "path": "packages/runtime/request-scheduler.ts",
+      "priorVersion": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "testReferences": [
+        {
+          "path": "tests/model-scheduling-v3.test.ts",
+          "publishedM05SourceBlob": "11aa1139ddface55a6a50061999d77ea076d8453",
+          "acceptedBaseBlob": "11aa1139ddface55a6a50061999d77ea076d8453",
+          "observedStagedMergeBlob": "11aa1139ddface55a6a50061999d77ea076d8453"
+        },
+        {
+          "path": "tests/memory-extraction-runtime-v3.test.ts",
+          "publishedM05SourceBlob": "d88c161dc718d551807349147023917a28b861d8",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "d88c161dc718d551807349147023917a28b861d8"
+        },
+        {
+          "path": "tests/memory-extraction-scheduler-v3.test.ts",
+          "publishedM05SourceBlob": "7797be3ab599c8623a0110445086976bccf8d6ad",
+          "acceptedBaseBlob": null,
+          "observedStagedMergeBlob": "7797be3ab599c8623a0110445086976bccf8d6ad"
+        }
+      ]
+    },
+    {
+      "name": "M11.RequestCapabilities",
+      "path": "packages/runtime/request-capabilities.ts",
+      "priorVersion": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "version": "84a27dba3703ceee60d0d2b347ddff3a4ee14a43",
+      "testReferences": [
+        {
+          "path": "tests/model-transport-v3.test.ts",
+          "publishedM05SourceBlob": "0c45c877df3b4259bda03b8137739a154e5d3622",
+          "acceptedBaseBlob": "9bb33927449a2b4c348f6a36eb4ec883c846fce3",
+          "observedStagedMergeBlob": "2a5661220dc62c3550addb7ecc780fd3ad26f320"
+        }
+      ]
+    }
+  ],
+  "dependencyAncestry": {
+    "allPriorAcceptedDependencyCommitsAreAncestorsOfNewBase": true,
+    "priorBaseIsAncestorOfNewBase": true,
+    "auditAncestorIsAncestorOfNewBase": true,
+    "acceptedDependencyCommits": [
+      "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+      "f331cf16b268282da888a41da42fc776ea7befd5",
+      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+      "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "bc5aad3c3adbc559cc7a02279affecc86bec758f"
+    ],
+    "newBaseAddedAsExplicitAcceptedDependency": true
+  },
+  "runtimeBehaviorReview": [
+    {
+      "path": "packages/runtime/request-capabilities.ts",
+      "change": "A shallow copy replaces the cast of the caller reasons object; default reasons and deletion for true capabilities now affect only the local copy.",
+      "compatibility": "Signature, capability keys, schema parsing and proofRef semantics are unchanged. Source review finds no M05 account/grant/checkpoint authority expansion.",
+      "upstreamCommit": "ef6919803f8c6993efb836ac084221b6c8c6e0ed",
+      "upstreamPR": 360,
+      "newTests": "Frozen reasons remain unchanged after normalization; true-capability reason omitted only from the result."
+    },
+    {
+      "path": "packages/runtime/request-metrics.ts",
+      "change": "After finish, marks other than firstPublicDelta return null. The first actual public delta still stamps once and updates the existing result.",
+      "compatibility": "The current Hermes broker emits an onStage callback only when mark returns non-null. This avoids unrelated post-completion callbacks; public late publication and the observation schema remain intact.",
+      "upstreamCommit": "67a73f931470531533acb2fc12d79e900a5cdc50",
+      "upstreamPR": 361,
+      "newTests": "Late settled remains null; late firstPublicDelta records once and cannot be backdated."
+    }
+  ],
+  "promptComparison": {
+    "uploadedFile": "/workspace/scratch/36f66011d961/upload/Pasted markdown(5).md",
+    "bytes": 32849,
+    "sha256": "1a2ddf83497f6e454c0982aa71c1a99df39df3cb4c0a4987da50c46f86bb8bbd",
+    "gitBlobSha": "63cd0a2b87fbff9c7455721553d06e77bcf3cf5f",
+    "bothM04AndM05PromptsRead": true,
+    "storedM05SpecPath": "docs/implementation/v3/M05-spec.md",
+    "storedM05Spec": {
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee",
+      "gitBlobSha": "7eb69de5bd24057e4841d0418fba05c929e086ba"
+    },
+    "extractedM05Section": {
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee",
+      "gitBlobSha": "7eb69de5bd24057e4841d0418fba05c929e086ba"
+    },
+    "byteForByteEqual": true,
+    "newM05Requirements": [],
+    "interpretation": "The re-uploaded M05 contains the same twelve implementation steps and four UI requirements. It requires the accepted M04 core request/source-cut/model-binding boundary, not completion of unrelated M04 progressive-tool, repository-map or precompute features. The separate M04 prompt is not silently represented as a completed M04 bundle.",
+    "knownRemainingM05Boundaries": [
+      "Actual installed native Save failed in run43760736519; completed export, Forget and same-profile restart are not admitted.",
+      "Full enabled installed recall/extraction/checkpoint flow remains NOT_RUN.",
+      "Authorized live repeated-task quality and complete auxiliary cost remain unmeasured; study is MANIFEST_ONLY."
+    ],
+    "noNewSubstantiveM05RequirementDifference": true
+  },
+  "executionLimits": [
+    "No application, browser, native or live-model test ran during this accepted-base review.",
+    "Old 399cde39/013c Windows outcomes remain tied to their original source cuts; they do not automatically prove the newly merged base.",
+    "The source lock and evidence-contract fragment must be applied together; changing the lock digest does not authorize relabeling prior command outcomes.",
+    "The current staged merge includes accepted-main changes owned by root. It is observed only and is not claimed as a new committed source or tested tree.",
+    "No runtime status or production flag is changed by these proposals. Independent final verifier execution remains required."
+  ],
+  "observedWorkingState": {
+    "head": "013c044d66f40136752df4f1903132d601d57851",
+    "originMain": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "statusShort": [
+      "M  apps/web/src/App.tsx",
+      "M  apps/web/src/UsageDialog.tsx",
+      "M  apps/web/src/WorkspaceControls.tsx",
+      "M  apps/web/src/WorkspacePanel.tsx",
+      "M  apps/web/src/WorkspaceSplitLayout.tsx",
+      "M  apps/web/src/agents-workspace/AgentWorkPanel.tsx",
+      "M  apps/web/src/shell-layout.ts",
+      "M  apps/web/src/usage-dialog.css",
+      "M  apps/web/src/workspace-context.tsx",
+      "M  apps/web/src/workspace-integration.css",
+      "M  apps/web/src/workspace-split.css",
+      "M  packages/runtime/request-capabilities.ts",
+      "M  packages/runtime/request-metrics.ts",
+      "M  tests/e2e/agents-workspace.spec.ts",
+      "M  tests/e2e/chat-view-modes-fixture.ts",
+      "M  tests/e2e/chat-view-modes.spec.ts",
+      "M  tests/e2e/frontend.spec.ts",
+      "M  tests/e2e/planning-ui.spec.ts",
+      "M  tests/e2e/reserved-rail.spec.ts",
+      "M  tests/e2e/shared-panels-fixture.tsx",
+      "M  tests/e2e/shared-panels.spec.ts",
+      "M  tests/e2e/short-tool-overflow.spec.ts",
+      "M  tests/e2e/sidebar-compact-fixture.tsx",
+      "M  tests/e2e/sidebar-shared-menu-fixture.tsx",
+      "M  tests/e2e/t3-centered.spec.ts",
+      "M  tests/e2e/thread-move-fixture.tsx",
+      "M  tests/e2e/usage-context-fixture.tsx",
+      "M  tests/e2e/usage-context.spec.ts",
+      "M  tests/e2e/workspace-host.spec.ts",
+      "M  tests/e2e/workspace-ui.spec.ts",
+      "M  tests/model-transport-v3.test.ts",
+      "M  tests/split-app-browser.test.ts",
+      "M  tests/wo8-color-pairing.test.ts"
+    ],
+    "note": "Captured after read-only analysis; shared integration changes belong to root."
+  },
+  "reviewerApproval": false
+}

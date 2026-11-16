@@ -1,0 +1,431 @@
+2026-11-15T20:49:32.8376579Z Current runner version: '2.338.2'
+2026-11-15T20:49:32.8402019Z ##[group]Runner Image Provisioner
+2026-11-15T20:49:32.8402875Z Hosted Compute Agent
+2026-11-15T20:49:32.8403470Z Version: 20261103.629
+2026-11-15T20:49:32.8404070Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T20:49:32.8404797Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T20:49:32.8405456Z Worker ID: {aed7cd90-9d60-4111-bf9c-af4c3d86e7e8}
+2026-11-15T20:49:32.8406131Z Region: westus2
+2026-11-15T20:49:32.8406720Z Cloud: Azure
+2026-11-15T20:49:32.8407212Z ##[endgroup]
+2026-11-15T20:49:32.8408522Z ##[group]Operating System
+2026-11-15T20:49:32.8409147Z Microsoft Windows Server 2025
+2026-11-15T20:49:32.8409734Z 10.0.26100
+2026-11-15T20:49:32.8410564Z Datacenter
+2026-11-15T20:49:32.8411077Z ##[endgroup]
+2026-11-15T20:49:32.8411637Z ##[group]Runner Image
+2026-11-15T20:49:32.8412213Z Image: windows-2025-vs2026
+2026-11-15T20:49:32.8412819Z Version: 20261103.298.1
+2026-11-15T20:49:32.8414469Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T20:49:32.8416155Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T20:49:32.8417131Z ##[endgroup]
+2026-11-15T20:49:32.8418360Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T20:49:32.8420196Z Contents: read
+2026-11-15T20:49:32.8420783Z Metadata: read
+2026-11-15T20:49:32.8421321Z ##[endgroup]
+2026-11-15T20:49:32.8423301Z Secret source: Actions
+2026-11-15T20:49:32.8424183Z Cache mode: write
+2026-11-15T20:49:32.8424978Z Prepare workflow directory
+2026-11-15T20:49:33.0027435Z Prepare all required actions
+2026-11-15T20:49:33.0094401Z Getting action download info
+2026-11-15T20:49:33.3500093Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T20:49:33.6116493Z Complete job name: Installed startup boundary reproduction
+2026-11-15T20:49:33.9268064Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T20:49:33.9270043Z with:
+2026-11-15T20:49:33.9270524Z   persist-credentials: false
+2026-11-15T20:49:33.9271108Z   repository: skytuhua-org/Gen-V1
+2026-11-15T20:49:33.9275454Z   token: ***
+2026-11-15T20:49:33.9275903Z   ssh-strict: true
+2026-11-15T20:49:33.9276344Z   ssh-user: git
+2026-11-15T20:49:33.9276780Z   clean: true
+2026-11-15T20:49:33.9277239Z   sparse-checkout-cone-mode: true
+2026-11-15T20:49:33.9277782Z   fetch-depth: 1
+2026-11-15T20:49:33.9278212Z   fetch-tags: false
+2026-11-15T20:49:33.9278721Z   show-progress: true
+2026-11-15T20:49:33.9279187Z   lfs: false
+2026-11-15T20:49:33.9279625Z   submodules: false
+2026-11-15T20:49:33.9280081Z   set-safe-directory: true
+2026-11-15T20:49:33.9281031Z   allow-unsafe-pr-checkout: false
+2026-11-15T20:49:33.9281905Z ##[endgroup]
+2026-11-15T20:49:34.0757032Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T20:49:34.0760088Z ##[group]Getting Git version info
+2026-11-15T20:49:34.0761165Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T20:49:34.1851062Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T20:49:34.4923184Z git version 2.56.0.windows.4
+2026-11-15T20:49:34.4988440Z ##[endgroup]
+2026-11-15T20:49:34.5013161Z Temporarily overriding HOME='D:\a\_temp\a61aab1a-0436-4b9b-aac8-db685dfc2f56' before making global git config changes
+2026-11-15T20:49:34.5016297Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T20:49:34.5024617Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T20:49:34.5644599Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T20:49:34.5650914Z ##[group]Determining repository object format
+2026-11-15T20:49:34.5653996Z ##[endgroup]
+2026-11-15T20:49:34.5655945Z ##[group]Initializing the repository
+2026-11-15T20:49:34.5664395Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T20:49:34.6449805Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T20:49:34.6506711Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T20:49:34.7200419Z ##[endgroup]
+2026-11-15T20:49:34.7201898Z ##[group]Disabling automatic garbage collection
+2026-11-15T20:49:34.7208929Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T20:49:34.7584427Z ##[endgroup]
+2026-11-15T20:49:34.7585888Z ##[group]Setting up auth
+2026-11-15T20:49:34.7586936Z Removing SSH command configuration
+2026-11-15T20:49:34.7594630Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:49:34.7970991Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:49:36.2153175Z Removing HTTP extra header
+2026-11-15T20:49:36.2163395Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:49:36.2556878Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:49:36.8051511Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:49:36.8063865Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:49:36.8471232Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:49:37.4115468Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T20:49:37.4561024Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:37.4953871Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:37.5375823Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:37.5764317Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:37.6159089Z ##[endgroup]
+2026-11-15T20:49:37.6160036Z ##[group]Fetching the repository
+2026-11-15T20:49:37.6174650Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291:refs/remotes/origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:49.4514997Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T20:49:49.4516199Z  * [new ref]         7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291 -> origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:49.4580352Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:49.5127010Z   origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:49.5183280Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse refs/remotes/origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:49.5630186Z 7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291
+2026-11-15T20:49:49.5667759Z ##[endgroup]
+2026-11-15T20:49:49.5668465Z ##[group]Determining the checkout info
+2026-11-15T20:49:49.5670199Z ##[endgroup]
+2026-11-15T20:49:49.5680737Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T20:49:49.6161903Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T20:49:49.6546809Z ##[group]Checking out the ref
+2026-11-15T20:49:49.6562576Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B agent/m05-startup-repair-43755565107 refs/remotes/origin/agent/m05-startup-repair-43755565107
+2026-11-15T20:49:50.7132946Z Updating files:  73% (2885/3930)
+2026-11-15T20:49:50.7235088Z Updating files:  74% (2909/3930)
+2026-11-15T20:49:50.7387589Z Updating files:  75% (2948/3930)
+2026-11-15T20:49:50.7543514Z Updating files:  76% (2987/3930)
+2026-11-15T20:49:50.7685353Z Updating files:  77% (3027/3930)
+2026-11-15T20:49:50.7809654Z Updating files:  78% (3066/3930)
+2026-11-15T20:49:50.7931827Z Updating files:  79% (3105/3930)
+2026-11-15T20:49:50.8052475Z Updating files:  80% (3144/3930)
+2026-11-15T20:49:50.8180510Z Updating files:  81% (3184/3930)
+2026-11-15T20:49:50.8312341Z Updating files:  82% (3223/3930)
+2026-11-15T20:49:50.8464799Z Updating files:  83% (3262/3930)
+2026-11-15T20:49:50.8621462Z Updating files:  84% (3302/3930)
+2026-11-15T20:49:50.8762105Z Updating files:  85% (3341/3930)
+2026-11-15T20:49:50.8902178Z Updating files:  86% (3380/3930)
+2026-11-15T20:49:50.9035696Z Updating files:  87% (3420/3930)
+2026-11-15T20:49:50.9171100Z Updating files:  88% (3459/3930)
+2026-11-15T20:49:50.9324160Z Updating files:  89% (3498/3930)
+2026-11-15T20:49:50.9465718Z Updating files:  90% (3537/3930)
+2026-11-15T20:49:50.9589458Z Updating files:  91% (3577/3930)
+2026-11-15T20:49:50.9724123Z Updating files:  92% (3616/3930)
+2026-11-15T20:49:50.9856832Z Updating files:  93% (3655/3930)
+2026-11-15T20:49:51.0008560Z Updating files:  94% (3695/3930)
+2026-11-15T20:49:51.1155203Z Updating files:  95% (3734/3930)
+2026-11-15T20:49:51.1325038Z Updating files:  96% (3773/3930)
+2026-11-15T20:49:51.1491731Z Updating files:  97% (3813/3930)
+2026-11-15T20:49:51.1611886Z Updating files:  98% (3852/3930)
+2026-11-15T20:49:51.1742970Z Updating files:  99% (3891/3930)
+2026-11-15T20:49:51.1743477Z Updating files: 100% (3930/3930)
+2026-11-15T20:49:51.1744446Z Updating files: 100% (3930/3930), done.
+2026-11-15T20:49:51.1932678Z Switched to a new branch 'agent/m05-startup-repair-43755565107'
+2026-11-15T20:49:51.2035553Z branch 'agent/m05-startup-repair-43755565107' set up to track 'origin/agent/m05-startup-repair-43755565107'.
+2026-11-15T20:49:51.2152894Z ##[endgroup]
+2026-11-15T20:49:51.2684193Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T20:49:51.3387095Z 7a5acd4d378b20e8e8a9ba669d05fd4a70c7c291
+2026-11-15T20:49:51.3513298Z ##[group]Removing auth
+2026-11-15T20:49:51.3514336Z Removing SSH command configuration
+2026-11-15T20:49:51.3539102Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:49:51.4214539Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:49:52.0031408Z Removing HTTP extra header
+2026-11-15T20:49:52.0040374Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:49:52.0424003Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:49:52.6004370Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:49:52.6012153Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:49:52.6350170Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:49:52.6350793Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:49:52.6351514Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T20:49:52.6352056Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T20:49:52.6395665Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:49:52.6733515Z D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.6779407Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.7171179Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:49:52.7530597Z D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.7577476Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.7976087Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T20:49:52.8332410Z /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.8378995Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.8762621Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T20:49:52.9096585Z /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.9140272Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:49:52.9520471Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:49:53.5204319Z Removing credentials config 'D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config'
+2026-11-15T20:49:53.5215827Z ##[endgroup]
+2026-11-15T20:49:53.6344005Z Prepare all required actions
+2026-11-15T20:49:53.6344708Z Getting action download info
+2026-11-15T20:49:53.8028179Z Download action repository 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-15T20:49:54.0444270Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-15T20:49:54.2073968Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-11-15T20:49:54.3494437Z Download action repository 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-15T20:49:54.5769043Z ##[group]Run ./.github/actions/setup
+2026-11-15T20:49:54.5769317Z with:
+2026-11-15T20:49:54.5769501Z   python: false
+2026-11-15T20:49:54.5769705Z   playwright: false
+2026-11-15T20:49:54.5769897Z ##[endgroup]
+2026-11-15T20:49:54.5905598Z ##[start-action display=Install pnpm;id=__self.__pnpm_action-setup]
+2026-11-15T20:49:54.6272049Z ##[group]Run pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+2026-11-15T20:49:54.6272554Z with:
+2026-11-15T20:49:54.6272812Z   version: 10.30.3
+2026-11-15T20:49:54.6273091Z   dest: ~/setup-pnpm
+2026-11-15T20:49:54.6273393Z   run_install: null
+2026-11-15T20:49:54.6273708Z   cache: false
+2026-11-15T20:49:54.6273998Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-15T20:49:54.6274383Z   package_json_file: package.json
+2026-11-15T20:49:54.6275028Z   standalone: false
+2026-11-15T20:49:54.6275323Z ##[endgroup]
+2026-11-15T20:49:54.8168376Z ##[group]Running self-installer...
+2026-11-15T20:49:55.3031611Z (node:928) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T20:49:55.3033799Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T20:49:55.4733041Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T20:49:55.4864210Z Packages: +1
+2026-11-15T20:49:55.4864853Z +
+2026-11-15T20:49:57.6393680Z Progress: resolved 1, reused 0, downloaded 1, added 0
+2026-11-15T20:49:58.2376721Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-11-15T20:49:58.3197406Z 
+2026-11-15T20:49:58.3197986Z dependencies:
+2026-11-15T20:49:58.3198607Z + pnpm 10.30.3 (12.21.0 is available)
+2026-11-15T20:49:58.3199038Z 
+2026-11-15T20:49:58.3300665Z Done in 3.3s
+2026-11-15T20:49:58.3542462Z ##[endgroup]
+2026-11-15T20:49:58.3543170Z Installation Completed!
+2026-11-15T20:49:58.3692622Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=3778]
+2026-11-15T20:49:58.3747450Z ##[start-action display=Install Node.js;id=__self.__actions_setup-node]
+2026-11-15T20:49:58.4347106Z ##[group]Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+2026-11-15T20:49:58.4347713Z with:
+2026-11-15T20:49:58.4347999Z   node-version: 24.22.2
+2026-11-15T20:49:58.4348355Z   cache: pnpm
+2026-11-15T20:49:58.4348658Z   check-latest: false
+2026-11-15T20:49:58.4353648Z   token: ***
+2026-11-15T20:49:58.4353982Z   package-manager-cache: true
+2026-11-15T20:49:58.4354358Z env:
+2026-11-15T20:49:58.4354775Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:49:58.4355310Z ##[endgroup]
+2026-11-15T20:49:58.6397643Z Found in cache @ C:\hostedtoolcache\windows\node\24.22.2\x64
+2026-11-15T20:49:58.6406202Z ##[group]Environment details
+2026-11-15T20:50:03.1211254Z node: v24.22.2
+2026-11-15T20:50:03.1211621Z npm: 11.19.1
+2026-11-15T20:50:03.1212075Z yarn: 1.22.22
+2026-11-15T20:50:03.1212908Z ##[endgroup]
+2026-11-15T20:50:03.2076481Z [command]C:\Windows\system32\cmd.exe /D /S /C "C:\Users\runneradmin\setup-pnpm\node_modules\.bin\pnpm.CMD store path --silent"
+2026-11-15T20:50:03.9461319Z D:\.pnpm-store\v10
+2026-11-15T20:50:04.3390938Z Cache hit for: node-cache-Windows-x64-pnpm-31896e7095fc3be2e8a21c30ce28e80a8c9387ee0c672b3f6f01b40a5d21cb44
+2026-11-15T20:50:05.6504256Z Received 29360128 of 471429367 (6.2%), 27.8 MBs/sec
+2026-11-15T20:50:06.6614829Z Received 134217728 of 471429367 (28.5%), 63.5 MBs/sec
+2026-11-15T20:50:07.6656302Z Received 301989888 of 471429367 (64.1%), 95.3 MBs/sec
+2026-11-15T20:50:08.6954424Z Received 471429367 of 471429367 (100.0%), 111.1 MBs/sec
+2026-11-15T20:50:08.6955026Z Cache Size: ~450 MB (471429367 B)
+2026-11-15T20:50:08.7018434Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/d79c7ef0-1deb-40a7-902e-b488466b0052/cache.tzst -P -C D:/a/Gen-V1/Gen-V1 --force-local --use-compress-program "zstd -d"
+2026-11-15T20:50:29.4469316Z Cache restored successfully
+2026-11-15T20:50:29.4723688Z Cache restored from key: node-cache-Windows-x64-pnpm-31896e7095fc3be2e8a21c30ce28e80a8c9387ee0c672b3f6f01b40a5d21cb44
+2026-11-15T20:50:29.4879361Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=31112]
+2026-11-15T20:50:29.4910874Z ##[start-action display=Install locked dependencies;id=__self.__run]
+2026-11-15T20:50:29.5090138Z ##[group]Run pnpm install --frozen-lockfile
+2026-11-15T20:50:29.5090527Z pnpm install --frozen-lockfile
+2026-11-15T20:50:29.5887830Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:50:29.5888298Z env:
+2026-11-15T20:50:29.5888641Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:50:29.5889084Z ##[endgroup]
+2026-11-15T20:50:30.3864741Z Lockfile is up to date, resolution step is skipped
+2026-11-15T20:50:30.5114610Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T20:50:30.6365888Z Packages: +997
+2026-11-15T20:50:30.6367641Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-15T20:50:31.5225727Z Progress: resolved 997, reused 208, downloaded 0, added 0
+2026-11-15T20:50:32.5221380Z Progress: resolved 997, reused 946, downloaded 0, added 0
+2026-11-15T20:50:33.5233312Z Progress: resolved 997, reused 994, downloaded 0, added 21
+2026-11-15T20:50:34.5266604Z Progress: resolved 997, reused 994, downloaded 0, added 113
+2026-11-15T20:50:35.5360861Z Progress: resolved 997, reused 994, downloaded 0, added 154
+2026-11-15T20:50:36.5368829Z Progress: resolved 997, reused 994, downloaded 0, added 238
+2026-11-15T20:50:37.5387574Z Progress: resolved 997, reused 994, downloaded 0, added 252
+2026-11-15T20:50:38.5416780Z Progress: resolved 997, reused 994, downloaded 0, added 341
+2026-11-15T20:50:39.5401602Z Progress: resolved 997, reused 994, downloaded 0, added 351
+2026-11-15T20:50:40.5462946Z Progress: resolved 997, reused 994, downloaded 0, added 489
+2026-11-15T20:50:41.5592068Z Progress: resolved 997, reused 994, downloaded 0, added 514
+2026-11-15T20:50:42.5601933Z Progress: resolved 997, reused 994, downloaded 0, added 598
+2026-11-15T20:50:43.5595290Z Progress: resolved 997, reused 994, downloaded 0, added 607
+2026-11-15T20:50:44.5620245Z Progress: resolved 997, reused 994, downloaded 0, added 637
+2026-11-15T20:50:45.5730906Z Progress: resolved 997, reused 994, downloaded 0, added 697
+2026-11-15T20:50:46.5731992Z Progress: resolved 997, reused 994, downloaded 0, added 889
+2026-11-15T20:50:47.5739028Z Progress: resolved 997, reused 994, downloaded 0, added 957
+2026-11-15T20:50:47.9061954Z Progress: resolved 997, reused 994, downloaded 0, added 997, done
+2026-11-15T20:50:49.1765381Z 
+2026-11-15T20:50:49.1766175Z dependencies:
+2026-11-15T20:50:49.1766740Z + @anthropic-ai/claude-agent-sdk 0.3.316
+2026-11-15T20:50:49.1767107Z + @biomejs/biome 2.6.4
+2026-11-15T20:50:49.1767394Z + @biomejs/cli-win32-x64 2.6.4
+2026-11-15T20:50:49.1767664Z + @cursor/sdk 1.0.38
+2026-11-15T20:50:49.1767950Z + @earendil-works/pi-coding-agent 1.4.0
+2026-11-15T20:50:49.1768293Z + @fontsource-variable/inter 5.3.0
+2026-11-15T20:50:49.1768595Z + @fontsource/caveat 5.3.0
+2026-11-15T20:50:49.1768887Z + @fontsource/dancing-script 5.3.0
+2026-11-15T20:50:49.1770188Z + @google/gemini-cli 0.66.0
+2026-11-15T20:50:49.1770530Z + @json-render/core 0.21.3
+2026-11-15T20:50:49.1770800Z + @json-render/react 0.21.3
+2026-11-15T20:50:49.1771107Z + @modelcontextprotocol/sdk 1.32.2
+2026-11-15T20:50:49.1771433Z + @remote-dom/polyfill 1.6.0
+2026-11-15T20:50:49.1771713Z + @sinclair/typebox 0.34.41
+2026-11-15T20:50:49.1771991Z + @upstash/context7-mcp 4.4.4
+2026-11-15T20:50:49.1772270Z + @xterm/addon-fit 0.11.0
+2026-11-15T20:50:49.1772532Z + @xterm/xterm 6.0.0
+2026-11-15T20:50:49.1772764Z + ajv 8.18.0
+2026-11-15T20:50:49.1772989Z + ajv-formats 3.0.1
+2026-11-15T20:50:49.1773252Z + electron-updater 6.8.11
+2026-11-15T20:50:49.1773498Z + fastify 5.12.7
+2026-11-15T20:50:49.1773728Z + lucide-react 0.468.0
+2026-11-15T20:50:49.1773966Z + node-pty 1.1.0
+2026-11-15T20:50:49.1774202Z + pdf-lib 1.17.1
+2026-11-15T20:50:49.1774430Z + pdfjs-dist 6.4.299
+2026-11-15T20:50:49.1774673Z + promptfoo 0.125.1
+2026-11-15T20:50:49.1774899Z + react 19.2.3
+2026-11-15T20:50:49.1775131Z + react-dom 19.2.3
+2026-11-15T20:50:49.1775354Z + semver 7.8.5
+2026-11-15T20:50:49.1775557Z + tsx 4.20.6
+2026-11-15T20:50:49.1775937Z + zod 4.6.6
+2026-11-15T20:50:49.1776419Z 
+2026-11-15T20:50:49.1776849Z devDependencies:
+2026-11-15T20:50:49.1777342Z + @playwright/test 1.56.1
+2026-11-15T20:50:49.1777915Z + @types/node 24.10.0
+2026-11-15T20:50:49.1778823Z + @types/react 19.2.2
+2026-11-15T20:50:49.1779284Z + @types/react-dom 19.2.2
+2026-11-15T20:50:49.1779772Z + @vitejs/plugin-react 5.1.1
+2026-11-15T20:50:49.1780491Z + electron 45.2.0
+2026-11-15T20:50:49.1780932Z + electron-builder 26.18.0
+2026-11-15T20:50:49.1782214Z + esbuild 0.25.12
+2026-11-15T20:50:49.1783449Z + typescript 5.9.3
+2026-11-15T20:50:49.1783708Z + vite 7.3.7
+2026-11-15T20:50:49.1783906Z + vitest 4.1.12
+2026-11-15T20:50:49.1784036Z 
+2026-11-15T20:50:49.2216266Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+2026-11-15T20:50:49.2216919Z │                                                                              │
+2026-11-15T20:50:49.2217537Z │   Ignored build scripts: @github/keytar@7.10.6, @google/genai@2.21.0,        │
+2026-11-15T20:50:49.2218238Z │   electron-winstaller@5.4.0, node-pty@1.0.0, node-pty@1.1.0,                 │
+2026-11-15T20:50:49.2218945Z │   protobufjs@7.6.6.                                                          │
+2026-11-15T20:50:49.2219598Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+2026-11-15T20:50:49.2220231Z │   to run scripts.                                                            │
+2026-11-15T20:50:49.2220757Z │                                                                              │
+2026-11-15T20:50:49.2221304Z ╰──────────────────────────────────────────────────────────────────────────────╯
+2026-11-15T20:50:49.2296950Z Done in 19.2s using pnpm v10.30.3
+2026-11-15T20:50:49.3665004Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=19874]
+2026-11-15T20:50:49.3714979Z ##[start-action display=Install Python;id=__self.__actions_setup-python]
+2026-11-15T20:50:49.3737859Z ##[end-action id=__self.__actions_setup-python;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.3767317Z ##[start-action display=Cache pinned Python test dependencies;id=__self.python-deps]
+2026-11-15T20:50:49.3789335Z ##[end-action id=__self.python-deps;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.3819465Z ##[start-action display=Install pinned Python test dependencies;id=__self.__run_2]
+2026-11-15T20:50:49.3843375Z ##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.3873386Z ##[start-action display=Read the pinned browser version;id=__self.playwright-version]
+2026-11-15T20:50:49.3904520Z ##[end-action id=__self.playwright-version;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.3941641Z ##[start-action display=Cache the test browser;id=__self.playwright-cache]
+2026-11-15T20:50:49.3971068Z ##[end-action id=__self.playwright-cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.4002530Z ##[start-action display=Install test browser;id=__self.__run_3]
+2026-11-15T20:50:49.4021806Z ##[end-action id=__self.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.4053191Z ##[start-action display=Select the isolated worker interpreter;id=__self.__run_4]
+2026-11-15T20:50:49.4071828Z ##[end-action id=__self.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:49.4323735Z ##[group]Run pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
+2026-11-15T20:50:49.4325083Z pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
+2026-11-15T20:50:49.4396256Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:50:49.4396893Z env:
+2026-11-15T20:50:49.4397326Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:50:49.4397847Z ##[endgroup]
+2026-11-15T20:50:50.7624573Z 
+2026-11-15T20:50:50.7627185Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T20:50:50.7628298Z 
+2026-11-15T20:50:52.1087899Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > records installer exit separately from close and never copies child text into lifecycle evidence
+2026-11-15T20:50:52.1091376Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > preserves the first installer failure through later termination error, exit and close events
+2026-11-15T20:50:52.1094263Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination
+2026-11-15T20:50:52.1096037Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses unsafe sample paths and redirected parents without following them
+2026-11-15T20:50:52.1098118Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands
+2026-11-15T20:50:52.1099792Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output
+2026-11-15T20:50:52.1101355Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > rejects a destination that exceeds the conservative Windows path budget
+2026-11-15T20:50:52.1103986Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires an observed clean process exit before accepting an installed launch
+2026-11-15T20:50:52.1105715Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > derives the same fixed NSIS identity as the pinned builder
+2026-11-15T20:50:52.1107250Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses existing registry state, native processes, shortcuts and updater caches
+2026-11-15T20:50:52.1109429Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > keeps NSIS directory-tail arguments literal and rejects command-line syntax in paths
+2026-11-15T20:50:52.1111359Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > accepts only a quoted exact owned uninstaller and known per-user flag
+2026-11-15T20:50:52.1113171Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > requires matching per-user installation and uninstall entries before cleanup
+2026-11-15T20:50:52.1117809Z  ↓ tests/installed-desktop-verification.test.ts > installed desktop verification custody > compares all installed payload files while allowing only the fixed added uninstaller
+2026-11-15T20:50:52.1119970Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options
+2026-11-15T20:50:52.1123054Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner
+2026-11-15T20:50:52.1127084Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents
+2026-11-15T20:50:52.1129963Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile
+2026-11-15T20:50:52.1134700Z  ↓ tests/installed-desktop-verification.test.ts > installed project memory retention fixture > rejects a replaced backend directory before an installed launch can adopt it
+2026-11-15T20:50:52.1137522Z  × tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff 15ms
+2026-11-15T20:50:52.1140271Z    → expected Error: The installed main page exceeded i… to be undefined
+2026-11-15T20:50:52.1142157Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > requires the exact owned origin and an open current page
+2026-11-15T20:50:52.1144874Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > bounds missing-page waiting and records only bounded metadata
+2026-11-15T20:50:52.1147379Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > rejects child exit, termination or launch failure during a pending owner recheck
+2026-11-15T20:50:52.1149918Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > fails immediately when exact executable or nonce ownership cannot be revalidated
+2026-11-15T20:50:52.1152428Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > does not admit a candidate that navigates during its ownership recheck
+2026-11-15T20:50:52.1154974Z  ↓ tests/installed-desktop-verification.test.ts > installed main-page readiness > applies the same deadline to an unresolved owner recheck and ignores late completion
+2026-11-15T20:50:52.1156385Z 
+2026-11-15T20:50:52.1156977Z ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+2026-11-15T20:50:52.1157426Z 
+2026-11-15T20:50:52.1159930Z  FAIL  tests/installed-desktop-verification.test.ts > installed main-page readiness > waits for a correctly owned main page beyond the old 30-second cutoff
+2026-11-15T20:50:52.1167990Z AssertionError: expected Error: The installed main page exceeded i… to be undefined
+2026-11-15T20:50:52.1168682Z 
+2026-11-15T20:50:52.1169251Z - Expected:
+2026-11-15T20:50:52.1169497Z undefined
+2026-11-15T20:50:52.1169609Z 
+2026-11-15T20:50:52.1169758Z + Received:
+2026-11-15T20:50:52.1169964Z Error {
+2026-11-15T20:50:52.1170568Z   "message": "The installed main page exceeded its readiness deadline.",
+2026-11-15T20:50:52.1171244Z }
+2026-11-15T20:50:52.1171419Z 
+2026-11-15T20:50:52.1172000Z  ❯ tests/installed-desktop-verification.test.ts:248:44
+2026-11-15T20:50:52.1287498Z     246|   await vi.advanceTimersByTimeAsync(35000);
+2026-11-15T20:50:52.1290280Z     247|   const actual=await pending.settled;
+2026-11-15T20:50:52.1291692Z     248|   expect(actual.ok?undefined:actual.error).toBeUndefined();if(actual.o…
+2026-11-15T20:50:52.1293925Z        |                                            ^
+2026-11-15T20:50:52.1294375Z 
+2026-11-15T20:50:52.1295182Z     249|   expect(state.events.at(-1)).toMatchObject({phase:'ready',elapsedMs:3…
+2026-11-15T20:50:52.1296529Z     250|   expect(JSON.stringify(state.events)).not.toContain('PRIVATE_FRAGMENT…
+2026-11-15T20:50:52.1298088Z  ❯ withClock tests/installed-desktop-verification.test.ts:232:93
+2026-11-15T20:50:52.1299065Z 
+2026-11-15T20:50:52.1299879Z ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+2026-11-15T20:50:52.1300254Z 
+2026-11-15T20:50:52.1302475Z  Test Files  1 failed (1)
+2026-11-15T20:50:52.1305190Z       Tests  1 failed | 25 skipped (26)
+2026-11-15T20:50:52.1306089Z    Start at  20:50:50
+2026-11-15T20:50:52.1307157Z    Duration  1.33s (transform 446ms, setup 0ms, import 1.12s, tests 17ms, environment 0ms)
+2026-11-15T20:50:52.1309416Z 
+2026-11-15T20:50:52.3126962Z ##[error]Process completed with exit code 1.
+2026-11-15T20:50:52.3579597Z Post job cleanup.
+2026-11-15T20:50:52.3614035Z ##[start-action display=Install Node.js;id=__b120b120-753d-4a68-9ce5-7b6cf67be92e.__actions_setup-node]
+2026-11-15T20:50:52.3631710Z ##[end-action id=__b120b120-753d-4a68-9ce5-7b6cf67be92e.__actions_setup-node;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T20:50:52.3662522Z ##[start-action display=Install pnpm;id=__b120b120-753d-4a68-9ce5-7b6cf67be92e.__pnpm_action-setup]
+2026-11-15T20:50:52.3946970Z Post job cleanup.
+2026-11-15T20:50:52.5941404Z Pruning is unnecessary.
+2026-11-15T20:50:52.6060689Z ##[end-action id=__b120b120-753d-4a68-9ce5-7b6cf67be92e.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=239]
+2026-11-15T20:50:52.6961844Z Post job cleanup.
+2026-11-15T20:50:52.9455965Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T20:50:52.9825674Z git version 2.56.0.windows.4
+2026-11-15T20:50:52.9909621Z Temporarily overriding HOME='D:\a\_temp\212b57c5-c137-419c-a8c4-10db984212f4' before making global git config changes
+2026-11-15T20:50:52.9911062Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T20:50:52.9922053Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T20:50:53.0321060Z Removing SSH command configuration
+2026-11-15T20:50:53.0333544Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T20:50:53.0743618Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T20:50:53.6491833Z Removing HTTP extra header
+2026-11-15T20:50:53.6503730Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T20:50:53.6913054Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T20:50:54.3053475Z Removing includeIf entries pointing to credentials config files
+2026-11-15T20:50:54.3065370Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T20:50:54.3428398Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:50:54.3429552Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:50:54.3471779Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T20:50:54.3834581Z D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:50:54.3883581Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:50:54.4366443Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T20:50:54.4737893Z D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:50:54.4783044Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config
+2026-11-15T20:50:54.5206004Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T20:50:55.1205101Z Removing credentials config 'D:\a\_temp\git-credentials-62663046-99f1-4817-9877-794ef06b1180.config'
+2026-11-15T20:50:55.1414615Z Cleaning up orphan processes
+2026-11-15T20:50:55.1514123Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

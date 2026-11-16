@@ -1,0 +1,54 @@
+[1A[2K[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+[1A[2K(node:96) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:96) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/e2e/agents-workspace.spec.ts:1004:1 › keyboard entry into a virtual agent keeps focus on that card
+[1A[2K  1) tests/e2e/agents-workspace.spec.ts:1004:1 › keyboard entry into a virtual agent keeps focus on that card 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Alpha agents', exact: true }).getByRole('group', { name: 'Agent parent-00', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Alpha agents', exact: true }).getByRole('group', { name: 'Agent parent-00', exact: true })[22m
+
+
+      330 |  await setup(page);
+      331 |  const grid = page.getByRole('region', {name: 'Alpha agents', exact: true});
+    > 332 |  await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible();
+          |                                                                                ^
+      333 |  await grid.focus();
+      334 |  // ArrowLeft from the grid entry targets the last agent, outside the mounted viewport.
+      335 |  const destination = grid.getByRole('group', {name: 'Agent parent-32', exact: true});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/agents-workspace.spec.ts:332:80
+
+    Error Context: ../m05-local-checks/continuation-138-keyboard-focus-chromium-artifacts/agents-workspace-keyboard--08c3a-nt-keeps-focus-on-that-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../m05-local-checks/continuation-138-keyboard-focus-chromium-artifacts/agents-workspace-keyboard--08c3a-nt-keeps-focus-on-that-card/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../m05-local-checks/continuation-138-keyboard-focus-chromium-artifacts/agents-workspace-keyboard--08c3a-nt-keeps-focus-on-that-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    tests/e2e/agents-workspace.spec.ts:1004:1 › keyboard entry into a virtual agent keeps focus on that card 

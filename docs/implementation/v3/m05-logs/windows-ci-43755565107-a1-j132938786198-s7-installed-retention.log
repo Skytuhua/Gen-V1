@@ -1,0 +1,42 @@
+2026-11-15T20:16:48.7864761Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T20:16:48.7865395Z $ErrorActionPreference = 'Stop'
+2026-11-15T20:16:48.7865945Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T20:16:48.7866683Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T20:16:48.7867478Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T20:16:48.7868225Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T20:16:48.7869288Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T20:16:48.7870182Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T20:16:48.7870901Z & pnpm @verifyArgs
+2026-11-15T20:16:48.7871263Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T20:16:48.8066063Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T20:16:48.8066845Z env:
+2026-11-15T20:16:48.8067410Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T20:16:48.8068321Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:16:48.8069263Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T20:16:48.8070253Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:16:48.8071511Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:16:48.8072397Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T20:16:48.8073358Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T20:16:48.8074597Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-e8806a004e2a4afe826dfa27f5162699
+2026-11-15T20:16:48.8075611Z ##[endgroup]
+2026-11-15T20:16:49.3359523Z HARNESS_INSTALLED_VERIFY_ARGV={"args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"],"executable":"pnpm"}
+2026-11-15T20:31:24.9545544Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794774676725-93ac347e-fb4c-46b5-bcb3-a241ad8767b9","passed":true}
+2026-11-15T20:34:58.3713521Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794773811524-c6307da4-7b05-4c04-b4af-b741f5877200","passed":false}
+2026-11-15T20:34:58.3784705Z D:\a\Gen-V1\Gen-V1\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\matchers\expect.js:299
+2026-11-15T20:34:58.3789232Z     throw new Error(message);
+2026-11-15T20:34:58.3789578Z           ^
+2026-11-15T20:34:58.3789844Z 
+2026-11-15T20:34:58.3794140Z Error: expect(received).toBe(expected) // Object.is equality
+2026-11-15T20:34:58.3794752Z 
+2026-11-15T20:34:58.3794966Z Expected: true
+2026-11-15T20:34:58.3798581Z Received: false
+2026-11-15T20:34:58.3799273Z 
+2026-11-15T20:34:58.3799524Z Call Log:
+2026-11-15T20:34:58.3800236Z - Timeout 30000ms exceeded while waiting on the predicate
+2026-11-15T20:34:58.3804874Z     at pollMatcher (D:\a\Gen-V1\Gen-V1\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\matchers\expect.js:299:11)
+2026-11-15T20:34:58.3806431Z     at async launchInstalled (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:296:3)
+2026-11-15T20:34:58.3810498Z     at async verifyInstalledDesktop (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:362:84)
+2026-11-15T20:34:58.3811286Z     at async <anonymous> (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:384:2)
+2026-11-15T20:34:58.3815760Z 
+2026-11-15T20:34:58.3815933Z Node.js v24.22.2
+2026-11-15T20:34:58.5114159Z ##[error]Process completed with exit code 1.

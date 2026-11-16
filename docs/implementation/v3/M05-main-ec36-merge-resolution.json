@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "de8700651e6eb97c5a60bf849802b51086244857",
+  "localParent": "0033451dfd9bb559454527a95f050a350c2fd24f",
+  "acceptedMain": "ec36f4887a0a7d504bf49e18df8f45df1f4a6bc3",
+  "resolution": {
+    "App.tsx": [
+      "Preserved exact workspace-tool callback and incoming non-thread SurfaceBoundary.",
+      "Preserved incoming project-context SurfaceBoundary and existing right-panel usage visibility guard."
+    ],
+    "public-source-files.json": "Preserved complete ours inventory, added only incoming SurfaceBoundary source path, runtime unchanged."
+  },
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 156519,
+      "sha256": "56e64c8886c2f9f0e64043cd520e824995402ec79f9a6c7e88ce8e5771e5e81c"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 137901,
+      "sha256": "32d1510213b3a2a990e6c6135f6d917c833d6da34a4c5b80c8610e378079635b"
+    }
+  ]
+}
