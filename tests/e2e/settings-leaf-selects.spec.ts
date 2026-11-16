@@ -3,7 +3,7 @@ import {resolve} from 'node:path';
 import type {EnvironmentMetadata} from '../../packages/core/environment-settings';
 import type {IntegrationStatus} from '../../packages/contracts/integrations';
 
-async function setup(page: Page, {installed = true, secretStorageAvailable = true} = {}) {
+async function setup(page: Page, {installed = true, secretStorageAvailable = true, projectCatalogAvailable = true} = {}) {
   const unexpected: string[] = [], errors: string[] = [];
   const writes: {method: string; path: string; body: Record<string, unknown>; csrf: string | undefined}[] = [];
   const metadata: EnvironmentMetadata = {revision: 7, appliesTo: 'new-project-terminals', secretStorageAvailable, entries: [{scope: 'device', name: 'SYNTHETIC_STORED_KEY', secret: true, configured: true, updatedAt: '2026-11-07T00:00:00.000Z'}]};
@@ -15,6 +15,7 @@ async function setup(page: Page, {installed = true, secretStorageAvailable = tru
     if (!url.pathname.startsWith('/api/')) return route.continue();
     if (request.method() !== 'GET') writes.push({method: request.method(), path: url.pathname, body: request.postDataJSON(), csrf: request.headers()['x-harness-csrf']});
     if (url.pathname === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'synthetic-settings-csrf'}});
+    if (url.pathname === '/api/workspace' && !projectCatalogAvailable) return route.fulfill({status:503, json: {error: {code:'UNAVAILABLE', message:'Synthetic project catalog unavailable'}}});
     if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [
       {id: 'synthetic-alpha', name: 'Synthetic project Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-07T00:00:00.000Z'},
       {id: 'synthetic-rootless', name: 'Synthetic rootless project', authority: {kind: 'local'}, createdAt: '2026-11-07T00:00:00.000Z'},
@@ -79,6 +80,17 @@ test('Ponytail keyboard listbox selections send exact configure commands for eac
   expect(host.writes).toHaveLength(4);
   await page.screenshot({path: info.outputPath('02-synthetic-ponytail.png')});
   expect(host.unexpected).toEqual([]); expect(host.errors).toEqual([]);
+});
+
+test('device environment editing works when the project catalog fails', async ({page}) => {
+  const host = await setup(page, {projectCatalogAvailable: false});
+  await expect(page.getByText('Project scopes could not load.', {exact: true})).toBeVisible();
+  await expect(page.getByText('SYNTHETIC_STORED_KEY', {exact: true})).toBeVisible();
+  await expect(host.scope).toContainText('This device');
+  await page.getByLabel('Variable name', {exact:true}).fill('DEVICE_VALUE');
+  await page.getByLabel('Secret value', {exact:true}).fill('synthetic-device-value');
+  await page.getByRole('button', {name:'Save variable', exact:true}).click();
+  await expect.poll(() => host.writes).toEqual([{method:'PUT', path:'/api/environment', csrf:'synthetic-settings-csrf', body:{scope:'device', name:'DEVICE_VALUE', value:'synthetic-device-value', secret:true, baseRevision:7}}]);
 });
 
 test('busy environment scope stays disabled and preserves the pending exact save', async ({page}) => {

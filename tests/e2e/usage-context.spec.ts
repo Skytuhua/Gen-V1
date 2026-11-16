@@ -64,6 +64,19 @@ test('Requests lists measured requests with stage timings, and absent fields sta
   // Missing measurements render as '—' chips, never as invented zeros.
   await expect(usage(page)).toContainText('—'); await expect(usage(page)).toContainText('Synthetic request failure.');
 });
+for (const theme of ['dark', 'light']) test(`request outcomes keep fixed semantic colors in ${theme}: completed green, failed red, cancelled neutral (T14/R17)`, async ({ page }) => {
+  await page.goto('/usage-context?requests'); await page.evaluate(value => document.documentElement.dataset.theme = value, theme);
+  await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
+  await usage(page).getByRole('tab', { name: 'Requests', exact: true }).click();
+  const outcomeColor = (outcome: string) => usage(page).locator(`.usage-request-outcome-${outcome}`).evaluate(node => getComputedStyle(node).color);
+  const tokenColor = (name: string) => page.evaluate(token => { const probe = document.createElement('span'); probe.style.color = `var(${token})`; document.body.appendChild(probe); const color = getComputedStyle(probe).color; probe.remove(); return color; }, name);
+  await expect(usage(page).locator('.usage-request-outcome-cancelled')).toContainText('cancelled');
+  expect(await outcomeColor('completed')).toBe(await tokenColor('--success-fg'));
+  expect(await outcomeColor('failed')).toBe(await tokenColor('--danger-fg'));
+  // A cancelled request is a neutral terminal state, never a warning/needs-input amber.
+  expect(await outcomeColor('cancelled')).toBe(await tokenColor('--muted'));
+  expect(await outcomeColor('cancelled')).not.toBe(await tokenColor('--warning-fg'));
+});
 test('Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns', async ({ page }) => {
   await page.goto('/usage-context'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
   await expect(usage(page)).toBeVisible(); await expect(usage(page)).toContainText('0.00123456 USD');
@@ -181,4 +194,21 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   expect(await context(page).locator('.context-measurement-accepted').count()).toBe(0);
   expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
   await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
+});
+
+test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
+  await page.goto('/usage-context?requests'); await update(page, 'empty');
+  await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
+  const modal = usage(page);
+  await modal.getByRole('tab', { name: 'Requests', exact: true }).click();
+  const panel = modal.getByRole('tabpanel');
+  await expect(panel).toContainText('openai/model');
+  await expect(panel).toContainText('gemini-cli/model');
+  await modal.getByRole('combobox', { name: 'Usage provider', exact: true }).click();
+  await modal.getByRole('option', { name: 'provider-b', exact: true }).click();
+  await expect(panel).toContainText('gemini-cli/model');
+  await expect(panel).not.toContainText('openai/model');
+  await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toHaveCount(0);
+  await modal.getByRole('tab', { name: 'Cost', exact: true }).click();
+  await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toBeVisible();
 });

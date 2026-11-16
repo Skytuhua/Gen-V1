@@ -42,7 +42,11 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
   useEffect(() => { generation.current++; return () => { generation.current++; }; }, [open]);
   useEffect(() => { if (!open) { pending.current = false; setRefreshing(false); setRefreshError(''); } }, [open]);
   const scopes = [...new Map(reports.map(report => [report.scopeId, report.scopeLabel])).entries()];
-  const providers = [...new Map(reports.map(report => [report.providerId, report.providerLabel])).entries()];
+  const reportProviders = new Map(reports.map(report => [report.providerId, report.providerLabel]));
+  const isRequests = tab === 'Requests';
+  const providers = [...(isRequests
+    ? new Map(requests.map(({binding}) => [binding.providerId, reportProviders.get(binding.providerId) ?? binding.providerId]))
+    : reportProviders).entries()];
   // A removed scope/provider cannot leave an invisible stale filter behind.
   const selectedScope = scopes.some(([value]) => value === scope) ? scope : '';
   const selectedProvider = providers.some(([value]) => value === provider) ? provider : '';
@@ -70,7 +74,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
         }}>{name}</button>)}</div>
       <div className="usage-dialog-filters">
-        <Select aria-label="Usage scope" value={selectedScope} onValueChange={setScope} options={[{ value: '', label: 'All scopes' }, ...scopes.map(([value, label]) => ({ value, label }))]} />
+        {!isRequests && <Select aria-label="Usage scope" value={selectedScope} onValueChange={setScope} options={[{ value: '', label: 'All scopes' }, ...scopes.map(([value, label]) => ({ value, label }))]} />}
         <Select aria-label="Usage provider" value={selectedProvider} onValueChange={setProvider} options={[{ value: '', label: 'All providers' }, ...providers.map(([value, label]) => ({ value, label }))]} />
         {onRefresh && <button type="button" className="usage-refresh" disabled={loading || refreshing} onClick={() => void refresh()} aria-label="Refresh usage"><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
       </div>
@@ -78,7 +82,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
-      {tab === 'Requests' ? (visibleRequests.length ? visibleRequests.map(request => <section className="usage-request" key={request.requestId}>
+      {isRequests ? (visibleRequests.length ? visibleRequests.map(request => <section className="usage-request" key={request.requestId}>
         <header>
           <strong>{request.binding.modelId}</strong>
           <span className="usage-request-meta">{request.binding.providerId}</span>
@@ -102,7 +106,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
           </li>
         </ul>
         {request.error && <p className="usage-dialog-error">{request.error}</p>}
-      </section>) : <p className="usage-dialog-empty">No measured model requests for this scope yet.</p>) : <>
+      </section>) : <p className="usage-dialog-empty">No measured model requests match this view yet.</p>) : <>
       {!visible.length && !loading && (reports.length
         ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
         : <div className="usage-dialog-empty-state">

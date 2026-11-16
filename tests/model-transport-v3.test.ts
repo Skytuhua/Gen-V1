@@ -88,6 +88,10 @@ it('RequestMetrics finishes exactly once and first mark wins',()=>{
  expect(observation.timings.teardownConfirmed).toBe(12);expect(observation.usageConvention).toBe('provider-reported');
  expect(observation.usage.cacheReadTokens).toBe(0);expect(observation.usage.cacheReadTokens).not.toBeNull();
  expect(metrics.finish('failed',null)).toBe(observation);expect(metrics.mark('settled')).toBeNull();
+ tick=13;expect(metrics.mark('firstPublicDelta')).toBe(13);
+ expect(metrics.mark('settled')).toBeNull();
+ expect(observation.timings.settled).toBeNull();
+ tick=20;expect(metrics.mark('firstPublicDelta')).toBe(13);
  const log=new RequestMetricsLog(2);log.record(observation);log.record(observation);log.record({...observation,requestId:'r2'});
  expect(log.list()).toHaveLength(2);
 });
@@ -101,4 +105,20 @@ it('adapter capabilities are asserted with reasons and proof, never inferred fro
  const asserted=assertCapabilities({supportsSteering:true},{supportsPublicStreaming:'No typed public delta channel exists.'},'proof');
  expect(asserted.supportsSteering).toBe(true);expect(asserted.supportsPublicStreaming).toBe(false);
  expect(asserted.reasons.supportsStatelessReuse).toBeTruthy();
+ const reasons = Object.freeze({supportsSteering:'Supplied note', supportsPublicStreaming:'No public streaming'});
+ const fromFrozen = assertCapabilities({supportsSteering:true}, reasons, 'proof');
+ expect(fromFrozen.reasons.supportsSteering).toBeUndefined();
+ expect(fromFrozen.reasons.supportsPublicStreaming).toBe('No public streaming');
+ expect(reasons).toEqual({supportsSteering:'Supplied note', supportsPublicStreaming:'No public streaming'});
+});
+
+it('leaves teardown unknown when a request never creates a native runtime',async()=>{
+ const stages:string[]=[];
+ const b=await createHermesBroker({input,createRuntime:()=>{throw new Error('adapter unavailable');},onStage:stage=>stages.push(stage)});
+ try{
+  b.expect({sequence:1,inputIds:[],phase:'foreground'});
+  expect((await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'x'})).status).toBe(400);
+  expect(b.observation(1)).toMatchObject({outcome:'failed',timings:{runtimeReady:null,teardownConfirmed:null}});
+  expect(stages).toEqual(['queued','acquired']);
+ }finally{await b.close();}
 });

@@ -32,7 +32,7 @@
 .task-status-receipt pre { margin-top:7px; max-height:240px; overflow:auto; font-size:11px; }
 .status-neutral { color:var(--muted); }
 .status-pending { color:var(--pending); }
-.status-running { color:var(--accent); }
+.status-running { color:var(--accent-fg); }
 .status-success { color:var(--success); }
 .status-error { color:var(--danger); }
 .status-merged { color:#a67af4; }

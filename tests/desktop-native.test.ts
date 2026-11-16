@@ -17,7 +17,7 @@ describe('bounded backend readiness',()=>{
  beforeEach(()=>vi.useFakeTimers());afterEach(()=>vi.useRealTimers());
  const token='a'.repeat(64),origin='http://127.0.0.1:4357';
  const fixture=()=>Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess;
- const clean=(child:ChildProcess)=>{for(const name of ['message','error','exit'])expect(child.listenerCount(name)).toBe(0);expect(vi.getTimerCount()).toBe(0);};
+ const clean=(child:ChildProcess)=>{for(const name of ['message','error','exit','disconnect'])expect(child.listenerCount(name)).toBe(0);expect(vi.getTimerCount()).toBe(0);};
  it('accepts the exact owned ready message after the former 25-second limit',async()=>{
   const child=fixture(),message={type:'harness.ready',token,origin,pid:child.pid,nativeLayout:{version:1}};
   const outcome=waitForBackendReady(child,token,4357,()=>'').then(value=>({value}),error=>({error}));
@@ -44,6 +44,14 @@ describe('bounded backend readiness',()=>{
  it('fails immediately on child exit with the bounded diagnostic tail',async()=>{
   const child=fixture(),stderr='x'.repeat(700)+'source failure',rejected=expect(waitForBackendReady(child,token,4357,()=>stderr)).rejects.toThrow('The local backend stopped during startup (23). '+stderr.slice(-500));
   child.emit('exit',23);await rejected;clean(child);
+ });
+ it('fails immediately when the startup sidecar loses its IPC channel',async()=>{
+  const child=fixture(),outcome=vi.fn();
+  const ready=waitForBackendReady(child,token,4357,()=>'').then(outcome,outcome);
+  child.emit('disconnect');await Promise.resolve();
+  try{expect(outcome).toHaveBeenCalledWith(expect.objectContaining({message:expect.stringMatching(/disconnect.*startup/i)}));}
+  finally{await vi.advanceTimersByTimeAsync(60000);await ready;}
+  clean(child);
  });
  it('fails immediately on an authenticated backend startup error',async()=>{
   const child=fixture(),rejected=expect(waitForBackendReady(child,token,4357,()=>'')).rejects.toThrow('Original source initialization failed');

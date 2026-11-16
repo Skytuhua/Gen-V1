@@ -7,6 +7,7 @@ import { Store } from '../packages/storage/store.ts';
 import { Service } from '../packages/core/service.ts';
 import { buildServer } from '../apps/server/server.ts';
 import type { RuntimeAdapter, Thread } from '../packages/contracts/index.ts';
+import { AgentProjection } from '../packages/agent-projection/index.ts';
 import { PlanRecordSchema } from '../packages/contracts/planning.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
@@ -56,6 +57,7 @@ it('rejects malformed scopes, oversized pages and invented write/Company authori
 it('streams scoped checkpoints and visible transcript invalidations through the actual authenticated HTTP route', async () => {
   const { app, headers, store } = await setup();
   const page = (await app.inject({ url: '/api/agents', headers })).json();
+  const updates = vi.spyOn(AgentProjection.prototype, 'updates');
   const address = await app.listen({ host: '127.0.0.1', port: 0 });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 5000);
@@ -67,13 +69,14 @@ it('streams scoped checkpoints and visible transcript invalidations through the 
   try {
     expect(response.statusCode).toBe(200); expect(response.headers['content-type']).toBe('text/event-stream');
     expect((await reader.next()).value).toContain(': connected');
+    expect(updates).toHaveBeenCalledTimes(1);
     store.internal('runtime.assistant.delta', 'parent', () => store.put('message', 'answer', 'parent', { id: 'answer', threadId: 'parent', role: 'assistant', content: 'Visible', createdAt: '', runId: 'r' }));
     let chunk = '';
     while (!chunk.includes('\n\n')) chunk += (await reader.next()).value;
     const event = JSON.parse(chunk.split('data: ')[1].split('\n')[0]);
     expect(event).toMatchObject({ fromSequence: page.sequence, sequence: store.sequence, resync: false, transcripts: [{ agentId: 'thread:parent', sequence: store.sequence }] });
     expect(event.upserts).toEqual([]); expect(chunk).not.toContain('Visible');
-  } finally { clearTimeout(timer); response.destroy(); controller.abort(); }
+  } finally { updates.mockRestore(); clearTimeout(timer); response.destroy(); controller.abort(); }
 });
 
 it('keeps delegated transcript reads read-only through the existing command and resource authority', async () => {

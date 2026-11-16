@@ -15,14 +15,12 @@ async function fixture(browser?: VerifiedBrowserCaptureProvider) {
   const headers = {host: '127.0.0.1:4317', cookie: String(boot.headers['set-cookie']).split(';')[0], 'x-harness-csrf': boot.json().csrfToken};
   return {...f, service, app, headers};
 }
-it('composes actual Service.command and protected routes without a direct HTTP Store writer', async () => {
+it('composes actual Service.command research ownership without a direct HTTP Store writer (T05: retired research routes removed)', async () => {
   const f = await fixture(), c = textSource(); c.payload.title = '  Exact title  ';
   const saved = await f.app.inject({method: 'POST', url: '/api/commands', headers: f.headers, payload: c});
   expect(saved.statusCode).toBe(200); expect(saved.json().result).toMatchObject({revision: 1, sha256: abcHash});
-  const replay = await f.app.inject({method: 'POST', url: '/api/research/commands', headers: f.headers, payload: c});
-  expect(replay.statusCode).toBe(200); expect(replay.json()).toEqual(saved.json());
-  const source = await f.app.inject({url: '/api/research/sources/source-a?authority=personal&threadId=thread-a&projectId=project-a&revision=1', headers: f.headers});
-  expect(source.statusCode).toBe(200); expect(source.json().sha256).toBe(abcHash);
+  const retired = await f.app.inject({method: 'POST', url: '/api/research/commands', headers: f.headers, payload: c});
+  expect(retired.statusCode).toBe(404);
   f.store.internal('rebind', null, () => f.store.put('thread', context.threadId, context.threadId, {...f.thread, projectId: 'other'}));
   const denied = await f.app.inject({method: 'POST', url: '/api/commands', headers: f.headers, payload: c});
   expect(denied.statusCode).toBe(403);

@@ -76,3 +76,30 @@ it('does not count a streaming append as older history when the cached window re
   expect(update?.messages.map(item => item.content)).toEqual(['visible', 'updated']);
   expect(update?.messagesTruncated).toBe(snapshot.messagesTruncated);
 });
+
+it('keeps the same oldest request as the server after an in-place timing update and eviction', () => {
+  const observation = (index: number): NonNullable<Snapshot['modelRequests']>[string][number] => ({
+    version: 1, requestId: 'request-' + index,
+    owner: { threadId: 'a', runId: 'r', epoch: 1, sequence: index + 1, inputIds: [], phase: 'foreground' },
+    binding: { providerId: 'p', modelId: 'p/m', accountId: null },
+    timings: { queued: index, acquired: 0, runtimeReady: 0, requestSent: 0, firstProviderDelta: null, firstPublicDelta: null, settled: 1, teardownConfirmed: 1 },
+    usage: { inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null },
+    usageConvention: 'unreported', measurementSource: 'test', outcome: 'completed',
+  });
+  const requests = Array.from({ length: 64 }, (_, i) => observation(i));
+  const snapshot = {
+    seq: 10, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [],
+    usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: 'a', modelRequests: { a: requests },
+  } satisfies Snapshot;
+  const event = (request: ReturnType<typeof observation>, seq: number): WorkspaceEvent => ({
+    id: String(seq), seq, threadId: 'a', type: 'runtime.model.observation', occurredAt: '',
+    payload: { result: { modelRequest: request } },
+  });
+  const update = { ...observation(0), timings: { ...observation(0).timings, firstPublicDelta: 2 } };
+  const patched = applyRuntimeEvent(snapshot, event(update, 11))!;
+  expect(patched.modelRequests?.a).toEqual([update, ...requests.slice(1)]);
+  const newest = observation(64);
+  const after = applyRuntimeEvent(patched, event(newest, 12))!;
+  expect(after.modelRequests?.a).toEqual([...requests.slice(1), newest]);
+  expect(snapshot.modelRequests.a).toEqual(requests);
+});

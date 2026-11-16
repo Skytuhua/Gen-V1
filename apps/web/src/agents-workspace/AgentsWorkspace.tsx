@@ -1,4 +1,4 @@
-import {Fragment, createContext, useContext, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
+import {Fragment, createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode} from 'react';
 import {ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
@@ -28,6 +28,8 @@ export interface AgentsWorkspaceProps {
 }
 const Visibility = createContext<(id: string, visible: boolean) => void>(() => {});
 const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
+/** Column count for the agent grid at a given content width: four >= 1080, two 768–1079, one below 768. */
+export const columnsForWidth = (width: number): 1 | 2 | 4 => width >= 1080 ? 4 : width >= 768 ? 2 : 1;
 
 /** Personal-only leaf: the outer host selects compact bootstrap before mounting any legacy App. */
 export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations = false}: AgentsWorkspaceProps) {
@@ -35,6 +37,7 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
  const rows = useMemo(() => groupAgents(state.agents), [state.agents]);
  const catalog = useMemo(() => agentProjectCatalog(projects, state.agents), [projects, state.agents]);
  const viewport = useRef<HTMLDivElement>(null), search = useRef<HTMLInputElement>(null), latestScope = useRef(state.scope); latestScope.current = state.scope;
+ const pushed = useRef(state.scope.text ?? undefined);
  const visible = useMemo(() => {
   const ids = new Set<string>(); let frame = 0;
   return {set: (id: string, value: boolean) => {if (value) ids.add(id); else ids.delete(id); cancelAnimationFrame(frame); frame = requestAnimationFrame(() => controller.setVisible([...ids]));}, dispose: () => {cancelAnimationFrame(frame); controller.setVisible([]);}};
@@ -42,9 +45,16 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
  useEffect(() => () => visible.dispose(), [visible]);
  useEffect(() => {
   if (text === (latestScope.current.text ?? '')) return;
-  const timer = setTimeout(() => {void controller.setScope({...latestScope.current, text: text.trim().slice(0, 200) || undefined});}, 200);
+  const timer = setTimeout(() => {const next = text.trim().slice(0, 200) || undefined; pushed.current = next; void controller.setScope({...latestScope.current, text: next});}, 200);
   return () => clearTimeout(timer);
  }, [text, controller]);
+ // AUD-13: adopt controller-side scope text (external setScope) unless the search box holds an active edit.
+ useEffect(() => {
+  if ((state.scope.text ?? '') === (pushed.current ?? '') || document.activeElement === search.current) return;
+  pushed.current = state.scope.text ?? undefined;
+  setText(state.scope.text ?? '');
+ }, [state.scope.text]);
+ useEffect(() => {const external = controller.getSnapshot().scope.text ?? undefined; pushed.current = external; setText(external ?? '');}, [controller]);
  useLayoutEffect(() => {if (viewport.current) viewport.current.scrollTop = controller.view('$workspace').top;}, [controller]);
  return <Visibility.Provider value={visible.set}><section className="agents-workspace" aria-label="Agent workspace" data-density={preferences?.density ?? 'comfortable'}>
   <div className="agents-toolbar" role="toolbar" aria-label="Agent filters">
@@ -70,28 +80,46 @@ function VirtualSlot({children, className, label}: {children: ReactNode; classNa
   const observer = new IntersectionObserver(([entry]) => setNear(entry.isIntersecting), {rootMargin: '200px'});
   if (ref.current) observer.observe(ref.current); return () => observer.disconnect();
  }, []);
- return <div ref={ref} className={className} onFocusCapture={() => setHeld(true)} onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false);}}>
-  {near || held ? children : <button type="button" className="agents-virtual-reveal" onFocus={() => setHeld(true)} onClick={() => setHeld(true)}>Show {label}</button>}
+ const mounted = near || held;
+ useLayoutEffect(() => {
+  const slot = ref.current;
+  // Arrow navigation and the reveal control can focus the stable slot before its card mounts.
+  if (mounted && slot && slot.ownerDocument.activeElement === slot) {
+   slot.querySelector<HTMLElement>(':scope > .agents-agent')?.focus({preventScroll: true});
+  }
+ }, [mounted]);
+ const reveal = () => {ref.current?.focus(); setHeld(true);};
+ return <div ref={ref} tabIndex={-1} className={className} onFocusCapture={() => setHeld(true)} onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false);}}>
+  {mounted ? children : <button type="button" className="agents-virtual-reveal" onFocus={reveal} onClick={reveal}>Show {label}</button>}
  </div>;
 }
-function ColumnScroll({controller, id, children}: {controller: AgentsWorkspaceController; id: string; children: ReactNode}) {
- const restore = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollTop = controller.view('$column:' + id).top;}, [controller, id]);
- return <div className="agents-column-scroll" ref={restore} onScroll={event => controller.setView('$column:' + id, {top: event.currentTarget.scrollTop})}>{children}</div>;
-}
 function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWorkspaceProps, 'projects'>) {
- const id = '$project:' + (row.id ?? '$none'), color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
- const restoreStrip = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollLeft = controller.view(id).left;}, [controller, id]);
+ const color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
  const count = (nodes: AgentNode[]): number => nodes.reduce((total, node) => total + Number(node.agent.status === 'working') + count(node.children), 0);
+ const navigate = (event: KeyboardEvent<HTMLDivElement>) => {
+  if (isComposing(event) || event.altKey || event.metaKey || event.ctrlKey) return;
+  const key = event.key;
+  if (key !== 'ArrowRight' && key !== 'ArrowLeft' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+  const target = event.target as HTMLElement;
+  if (target.closest('.agents-transcript, textarea, input, select')) return;
+  const slots = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(':scope > .agents-grid-slot'));
+  const current = slots.findIndex(slot => slot === target || slot.contains(target));
+  const columns = columnsForWidth(event.currentTarget.clientWidth);
+  const step = key === 'ArrowRight' ? 1 : key === 'ArrowLeft' ? -1 : key === 'ArrowDown' ? columns : -columns;
+  const next = current < 0 ? (step > 0 ? 0 : slots.length - 1) : current + step;
+  if (next < 0 || next >= slots.length) return;
+  event.preventDefault();
+  const destination = slots[next].querySelector<HTMLElement>('.agents-agent') ?? slots[next];
+  destination.focus();
+  destination.scrollIntoView({block: 'nearest'});
+ };
  return <section className="agents-project" role="region" aria-label={`Project ${row.name}`}>
   <header className="agents-project-header"><span className="agents-project-mark" style={{'--project-color': color} as CSSProperties} aria-hidden="true">{row.name.slice(0, 1).toUpperCase()}</span><h2>{row.name}</h2><span>{count(row.parents)} working</span></header>
-  <VirtualSlot className="agents-project-slot" label={`${row.name} agents`}>
-   <div className="agents-parent-strip" ref={restoreStrip} role="region" aria-label={`${row.name} agents`} tabIndex={0} onScroll={event => controller.setView(id, {left: event.currentTarget.scrollLeft})} onKeyDown={event => {
-    if (event.target !== event.currentTarget || isComposing(event) || event.altKey || event.metaKey || event.ctrlKey) return;
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {event.preventDefault(); event.currentTarget.scrollBy({left: event.key === 'ArrowRight' ? 476 : -476, behavior: 'instant'});}
-   }}>
-    {row.parents.map(node => <VirtualSlot className="agents-column-slot" key={node.agent.agentId} label={node.agent.title}><ColumnScroll controller={controller} id={node.agent.agentId}><Agent node={node} controller={controller} {...props}/></ColumnScroll></VirtualSlot>)}
+  <div className="agents-project-slot">
+   <div className="agents-agent-grid" role="region" aria-label={`${row.name} agents`} tabIndex={0} onKeyDown={navigate}>
+    {row.parents.map(node => <VirtualSlot className="agents-grid-slot" key={node.agent.agentId} label={node.agent.title}><Agent node={node} controller={controller} {...props}/></VirtualSlot>)}
    </div>
-  </VirtualSlot>
+  </div>
  </section>;
 }
 function Agent({node, controller, composers, onOpenConversation, preferences}: {node: AgentNode} & Omit<AgentsWorkspaceProps, 'projects'>) {
@@ -99,7 +127,8 @@ function Agent({node, controller, composers, onOpenConversation, preferences}: {
  useSyncExternalStore(controller.subscribe, controller.getSnapshot);
  const view = controller.view(agent.agentId), child = Boolean(agent.parentId), groupId = useId();
  const toggle = () => controller.setView(agent.agentId, {collapsed: !view.collapsed}, true);
- return <section className={`agents-agent${child ? ' agents-child' : ''}`} role="group" aria-label={`Agent ${agent.title}`}>
+ return <section className={`agents-agent${child ? ' agents-child' : ''}`} tabIndex={-1} role="group" aria-label={`Agent ${agent.title}`} data-agent-id={agent.agentId}>
+
   <header className="agents-agent-header"><div className="agents-agent-title"><h3>{agent.title}</h3><span className="agents-agent-state" data-state={agent.status}>{statusLabel(agent.status)}</span></div>
    {!child && agent.threadId && <button type="button" className="agents-icon" aria-label={`Open conversation ${agent.title}`} onClick={() => onOpenConversation(agent.threadId!)}><ExternalLink size={15}/></button>}
   </header>
@@ -155,7 +184,7 @@ function InlineComposer({agent, composers, controller,onOpenConversation}: {agen
  const skillsBlocked = !agent.parentId && Boolean(state.skills?.length) && !state.retry;
  const send = () => {if (!currentHeld.current && !skillsBlocked) void composers.submit(agent);};
  return <><div inert={held}><ComposerView className="agents-composer" onSubmit={event => {event.preventDefault(); send();}}>
-  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={2} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
+  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={1} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
   {!agent.parentId&&<><ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(agent,id).catch(()=>{});}}/><ComposerCommands ref={commands} input={input} draft={state.draft} threadId={agent.threadId??undefined} projectId={agent.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(agent,text);}} onModel={()=>{if(agent.threadId)onOpenConversation(agent.threadId,'model');}} onMode={async mode=>{if(agent.status==='working')throw Error('Wait for the active run to finish to change mode.');const revision=modeOwner.current.revision,owner=desktop?desktop.ownership(surface):0;if(agent.threadId)await command('thread.mode',{mode},agent.threadId,undefined,()=>modeOwner.current.active&&!currentHeld.current&&modeOwner.current.revision===revision&&owner!==undefined&&(!desktop||desktop.ownership(surface)===owner));}}/></>}
   <div className="agents-composer-actions"><span role="status">{state.ticket ? `${state.ticket.status.replaceAll('_', ' ')}${state.ticket.error ? ': ' + state.ticket.error : ''}` : state.busy ? 'Sending…' : ''}</span>
    {!agent.parentId && agent.status === 'working' && <button type="button" aria-label={`Stop ${agent.title}`} disabled={held || state.stopping} onClick={() => {if (!currentHeld.current) void composers.stop(agent);}}><Square size={13}/>{state.stopping ? 'Stopping…' : 'Stop'}</button>}

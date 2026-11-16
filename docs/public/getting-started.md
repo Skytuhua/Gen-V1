@@ -12,7 +12,7 @@ Open the [v0.6.1 preview release](https://github.com/Skytuhua/Gen-V1/releases/ta
 Get-FileHash -Algorithm SHA256 -LiteralPath .\Gen-V1-Setup-0.6.1-win-x64.exe
 ```
 
-This is a prerelease. There is no published stable 0.6.4 installer yet. The current source and the [gallery](media/README.md) include later changes, including plug-in API v1; they may differ from the published preview. Installed upgrade acceptance remains incomplete.
+This is a prerelease. The published installer does not include the later [source preview changes](release-notes.md#unreleased-065-source). The [gallery](media/README.md) shows a 0.6.4 source snapshot, not the installer or the latest checkout. Installed upgrade acceptance remains incomplete.
 
 ## Develop from a fresh checkout
 
@@ -68,11 +68,12 @@ Only the OpenAI route has recorded live task acceptance. Other routes still need
 - Interactive task cards appear in the conversation. Their controls depend on the task; review consequential actions before accepting them.
 - A validated task plan opens automatically. Project context and usage tools minimize within the workspace.
 - Open **Settings → Skills & learning** to inspect saved procedures and revisions.
-- `/btw` and `/side` remain available for side conversations. New native detachment is unavailable in the current source.
+- In the current Windows desktop source, open a conversation’s sidebar menu and choose **Detach thread** to open it in a pinned window. The main workspace stays available for other conversations. Canvas panels do not detach.
+- Use `/btw` or `/side` for side conversations.
 
 ![Sample conversation and interactive investigation in the dark workspace](media/workspace-dark.png)
 
-*Sample UI from the current source. [Media scope](media/README.md).*
+*Sample UI from the 0.6.4 source preview. [Media scope](media/README.md).*
 
 ## Keep your data recoverable
 

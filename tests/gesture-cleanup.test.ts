@@ -1,0 +1,209 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { build } from 'esbuild';
+import { readFile } from 'node:fs/promises';
+import { createServer, type Server } from 'node:http';
+import { chromium, expect as pw, type Browser, type Page } from '@playwright/test';
+
+// T03 gesture contract (AUD-01/AUD-03): a resize/move gesture must ignore non-primary
+// buttons and foreign pointers, and tear down on blur / lost pointer capture so no
+// stuck root class or follow-on movement survives an interruption.
+
+const fixture = `
+import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ResizeHandle } from './apps/web/src/WorkspacePanel';
+import { FloatingWindow } from './apps/web/src/FloatingWindow';
+import { WorkspaceSplitLayout } from './apps/web/src/WorkspaceSplitLayout';
+import { createSplitWorkspaceLayout, applySplitWorkspaceCommand } from './packages/core/split-workspace-layout';
+import './apps/web/src/styles.css';
+let splitLayout = createSplitWorkspaceLayout();
+splitLayout = applySplitWorkspaceCommand(splitLayout, 'view.open', { view: { id: 'thread:a', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'a' } } });
+splitLayout = applySplitWorkspaceCommand(splitLayout, 'pane.split', { paneId: 'pane-main', newPaneId: 'right', splitId: 'cols', axis: 'horizontal', view: { id: 'thread:b', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'b' } } });
+let singleLayout = createSplitWorkspaceLayout();
+singleLayout = applySplitWorkspaceCommand(singleLayout, 'view.open', { view: { id: 'thread:solo', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'solo' } } });
+function Fixture() {
+  const [width, setWidth] = useState(300);
+  const params = new URLSearchParams(location.search);
+  const showSplit = params.has('split');
+  const cornerWidth = params.has('corner') ? Number(params.get('w') || 500) : 0;
+  return <main style={{ padding: 24 }}>
+    <output data-width>{width}</output>
+    <div style={{ display: 'flex', height: 200, border: '1px solid #888' }}>
+      <div style={{ width, flex: '0 0 auto', background: '#eee' }}>left</div>
+      <ResizeHandle label="Resize test panel" value={width} minimum={200} maximum={500} side="left" change={setWidth} />
+      <div style={{ flex: 1 }}>right</div>
+    </div>
+    {showSplit && <div style={{ height: 300, width: 900 }}>
+      <WorkspaceSplitLayout layout={splitLayout} onCommand={async () => {}} renderView={view => <div style={{ padding: 8 }}>{view.id}</div>} />
+    </div>}
+    {cornerWidth > 0 && <div style={{ height: 300, width: cornerWidth }}>
+      <WorkspaceSplitLayout layout={singleLayout} onCommand={async () => {}} renderView={view => <div style={{ padding: 8 }}>{view.id}</div>} />
+    </div>}
+    {cornerWidth === 0 && <FloatingWindow id="gesture-window" title="Gesture" anchor="top-right" defaultSize={{ width: 300, height: 200 }} focusOnOpen={false}>
+      <p>window body</p>
+    </FloatingWindow>}
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(<Fixture />);
+`;
+
+const width = (page: Page) => page.locator('[data-width]').evaluate(node => Number(node.textContent));
+const movePointer = (page: Page, pointerId: number, clientX: number) => page.evaluate(({ pointerId, clientX }) => {
+  window.dispatchEvent(new PointerEvent('pointermove', { pointerId, clientX, clientY: 100, bubbles: true }));
+}, { pointerId, clientX });
+
+let browser: Browser, server: Server, base: string;
+describe('gesture cleanup', () => {
+  beforeAll(async () => {
+    const script = (await build({ stdin: { contents: fixture, resolveDir: process.cwd(), loader: 'tsx' }, loader: { '.css': 'empty' }, bundle: true, write: false, format: 'iife', platform: 'browser', jsx: 'automatic', define: { 'process.env.NODE_ENV': '"production"' } })).outputFiles[0]!.text;
+    const cssFiles = ['packages/ui-shell/tokens.css', 'apps/web/src/styles.css', 'apps/web/src/floating-window.css', 'apps/web/src/shell.css', 'apps/web/src/workspace-split.css'];
+    const css = (await Promise.all(cssFiles.map(file => readFile(file, 'utf8')))).join('\n');
+    server = createServer((_request, response) => { response.setHeader('content-type', 'text/html; charset=utf-8'); response.end(`<style>${css}</style><div id="root"></div><script>${script}</script>`); });
+    await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+    const address = server.address(); base = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+    browser = await chromium.launch({ headless: true, ...(process.platform === 'win32' ? { channel: 'msedge' } : {}) });
+  }, 120_000);
+  afterAll(async () => { await browser?.close(); server?.close(); });
+
+  async function openPage(query = '') {
+    const page = await browser.newPage();
+    await page.route('**/api/**', route => route.fulfill({ status: 404 }));
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await page.goto(base + query);
+    await page.locator('[data-width]').waitFor();
+    return page;
+  }
+  async function handleCenter(page: Page) {
+    const box = (await page.getByRole('separator', { name: 'Resize test panel' }).boundingBox())!;
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  }
+
+  it('AUD-01: a right-button press never starts a resize', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page);
+    await page.mouse.move(center.x, center.y);
+    await page.mouse.down({ button: 'right' });
+    await page.mouse.move(center.x + 60, center.y, { steps: 3 });
+    expect(await width(page), 'right-button drag must not resize').toBe(300);
+    expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(false);
+    await page.mouse.up({ button: 'right' });
+    await page.close();
+  });
+
+  it('AUD-01: a foreign pointer cannot drive an active resize', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page);
+    await page.mouse.move(center.x, center.y);
+    await page.mouse.down();
+    await movePointer(page, 2, center.x + 80);
+    expect(await width(page), 'a second pointer must be ignored').toBe(300);
+    await page.mouse.move(center.x + 40, center.y);
+    expect(await width(page), 'the owning pointer still resizes').toBe(340);
+    await page.mouse.up();
+    await page.close();
+  });
+
+  it('AUD-01: window blur ends the resize and clears the root class', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page);
+    await page.mouse.move(center.x, center.y);
+    await page.mouse.down();
+    await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+    expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel')), 'blur clears the resizing class').toBe(false);
+    await movePointer(page, 1, center.x + 80);
+    expect(await width(page), 'no resize after blur').toBe(300);
+    await page.mouse.up();
+    await page.close();
+  });
+
+  it('AUD-03: losing pointer capture ends a floating move; later moves do nothing', async () => {
+    const page = await openPage();
+    const move = page.getByRole('button', { name: 'Move Gesture' });
+    const shell = page.locator('[data-floating-id="gesture-window"]');
+    // Let the open entrance finish so it cannot re-render mid-gesture.
+    await expect.poll(() => shell.evaluate(node => node.getAnimations().filter(animation => animation.playState === 'running').length), { timeout: 5000 }).toBe(0);
+    const box = (await move.boundingBox())!;
+    await page.evaluate(() => {
+      (window as any).__ptr = null;
+      window.addEventListener('pointerdown', event => { (window as any).__ptr = event.pointerId; }, true);
+    });
+    const initial = (await shell.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await pw(shell).toHaveAttribute('data-interacting', 'true');
+    // Move until the gesture repositions the window, then let the pending capture
+    // become active on the dispatched pointermove before releasing it.
+    await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2, { steps: 3 });
+    await expect.poll(async () => (await shell.boundingBox())!.x, { timeout: 5000 }).toBeGreaterThan(initial.x + 5);
+    await page.waitForTimeout(60);
+    const before = (await shell.boundingBox())!;
+    await page.evaluate(() => {
+      const element = document.querySelector('[data-floating-id="gesture-window"] .floating-window-move') as HTMLElement;
+      const pointerId = (window as any).__ptr;
+      // Release actual capture when it is active; the dispatched lostpointercapture
+      // exercises the same teardown deterministically (finish is idempotent).
+      if (element.hasPointerCapture(pointerId)) element.releasePointerCapture(pointerId);
+      element.dispatchEvent(new PointerEvent('lostpointercapture', { pointerId, bubbles: true }));
+    });
+    await pw(shell, 'lost capture ends the interaction').toHaveAttribute('data-interacting', 'false');
+    expect(await page.evaluate(() => document.documentElement.classList.contains('floating-window-interaction'))).toBe(false);
+    await movePointer(page, 1, box.x + 200);
+    const after = (await shell.boundingBox())!;
+    expect(Math.abs(after.x - before.x), 'no movement after capture loss').toBeLessThanOrEqual(1);
+    await page.mouse.up();
+    await page.close();
+  });
+
+  it('AUD-02: window blur cancels a split resize, clears the preview and releases capture', async () => {
+    const page = await openPage('?split');
+    const divider = page.getByRole('separator', { name: 'Resize columns' });
+    await divider.waitFor();
+    const box = (await divider.boundingBox())!;
+    await page.evaluate(() => {
+      (window as any).__ptr = null;
+      window.addEventListener('pointerdown', event => { (window as any).__ptr = event.pointerId; }, true);
+    });
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2);
+    await pw(divider).toHaveClass(/is-dragging/);
+    const captured = await page.evaluate(() => {
+      const element = document.querySelector('.split-divider') as HTMLElement;
+      return element.hasPointerCapture((window as any).__ptr);
+    });
+    expect(captured, 'the divider owns the pointer during the resize').toBe(true);
+    await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+    await pw(divider, 'blur clears the resize preview').not.toHaveClass(/is-dragging/);
+    expect(await page.evaluate(() => (document.querySelector('.split-divider') as HTMLElement).hasPointerCapture((window as any).__ptr)), 'blur releases capture').toBe(false);
+    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2);
+    await pw(divider, 'no preview after blur').not.toHaveClass(/is-dragging/);
+    await page.mouse.up();
+    await page.close();
+  });
+
+  it('AUD-04: an impossible edge split shows no preview; a fitting one does', async () => {
+    async function cornerDrag(page: Page) {
+      const corner = page.getByRole('button', { name: 'Split this area' });
+      await corner.waitFor();
+      // Let the ResizeObserver populate slot rects before fit validation runs.
+      await page.waitForTimeout(150);
+      const box = (await corner.boundingBox())!;
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2 + 48, box.y + box.height / 2, { steps: 6 });
+      return corner;
+    }
+    // A 500px pane cannot fit a thread (320) + a new empty pane (240) + divider (6).
+    const narrow = await openPage('?corner&w=500');
+    await cornerDrag(narrow);
+    expect(await narrow.locator('.split-drop-preview').count(), 'no hint for an impossible edge split').toBe(0);
+    await narrow.mouse.up();
+    await narrow.close();
+
+    const wide = await openPage('?corner&w=900');
+    await cornerDrag(wide);
+    await pw(wide.locator('.split-drop-preview'), 'a fitting edge split previews').toHaveCount(1);
+    await wide.mouse.up();
+    await wide.close();
+  });
+});
