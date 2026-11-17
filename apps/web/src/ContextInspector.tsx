@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type { CompactionProjectionV1, ContextRequestObservationV1, HostRequestProjectionV1, Thread } from '../../../packages/contracts';
+import type { ContextInferenceBudgetV1 } from '../../../packages/contracts/request-context';
 import { Popover } from '../../../packages/ui-shell/Popover';
 import { command } from './api';
 import { ContextMeter, contextNumber, contextSegments, contextTokenCount, type ContextUsage } from './ContextMeter';
@@ -84,6 +85,9 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   const projection = usage?.hostProjection;
   const hostSources = projection?.threadId === thread?.id && projection?.epoch === thread?.epoch &&
     (!thread?.runId || projection?.runId === thread.runId) ? projection : undefined;
+  const budgetObservation = usage?.inferenceBudget;
+  const budget = budgetObservation?.threadId === thread?.id && budgetObservation?.epoch === thread?.epoch &&
+    (!thread?.runId || budgetObservation?.runId === thread.runId) ? budgetObservation?.budget : undefined;
   const reported = ownedCompaction(thread, compaction), accepted = acceptedCompaction(thread, compaction, usage);
   const lastReceipt = useRef(accepted?.receipt.id);
   const playingReceipt = Boolean(accepted && (animateReceipt || lastReceipt.current !== accepted.receipt.id));
@@ -123,13 +127,14 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     requested ? 'Result not reported' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : unavailable?.status ?? 'Context';
   const failure = error || (reported?.status === 'failed' ? reported.error || 'Context could not be compacted. Try again.' : '');
   const recalled = ownedMemoryRecall(thread, memoryRecall);
-  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={(measured?.categories.length ? 282 : 200) + (failure ? 48 : 0) + (lastRequest ? 84 : 0) + (recalled ? 180 : 0) + (workbench?.enabled?48:0)}
+  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={(measured?.categories.length ? 282 : 200) + (failure ? 48 : 0) + (lastRequest ? 84 : 0) + (budget ? 120 : 0) + (recalled ? 180 : 0) + (workbench?.enabled?48:0)}
     role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
     {workbench?.enabled&&<nav aria-label="Context views"><button type="button" onClick={()=>{close();workbench.show('request');}}>Last request</button><button type="button" onClick={()=>{close();workbench.show('sources');}}>Sources</button><button type="button" onClick={()=>{close();workbench.show('tools');}}>Tools</button><span aria-current="page">Compaction</span></nav>}
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
       {lastRequest && <RequestEvidence request={lastRequest} sources={hostSources} compaction={usage?.compaction} />}
+      {budget && <InferenceBudget value={budget}/>}
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
       {memoryPreparation?.pending && <p role="status">Preparing project memory…</p>}
       {memoryPreparation?.error && <ErrorState message={memoryPreparation.error}/>}
@@ -144,6 +149,20 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
 }
 
 const requestViews = ['Last request', 'Sources', 'Tools', 'Compaction'] as const;
+
+function InferenceBudget({ value }: { value: ContextInferenceBudgetV1 }) {
+  const previous = value.previousRequest, reported = (count: number | null) => count === null ? 'not reported' : contextNumber(count);
+  return <section aria-label="Next inference budget">
+    <p className="context-categories-note">Request {value.sequence}: {contextNumber(value.promptBytes)} prompt bytes of a {contextNumber(value.maxPromptBytes)} byte limit.</p>
+    <p className="context-categories-note">{value.byteAdmission === 'BLOCKED' ? 'Request blocked by the host byte limit. No provider call was started.' : 'Prompt byte limit satisfied.'}</p>
+    {previous && <>
+      <p className="context-categories-note">Previous request: {reported(previous.inputTokens)} provider-reported input tokens; {reported(previous.cacheReadTokens)} cache-read tokens. Their accounting convention was not normalized.</p>
+      <p className="context-categories-note">Reported context: {reported(previous.reportedContextTokens)} tokens. Its measurement type was not reported; it was not substituted for input usage.</p>
+    </>}
+    <p className="context-categories-note">{value.sourceContinuity === 'VERIFIED' ? `Since the previous request: ${contextNumber(value.newSourceBytes!)} native source bytes, including ${contextNumber(value.newToolResultBytes!)} tool-result bytes across ${value.newToolResults} ${value.newToolResults === 1 ? 'result' : 'results'}.` : 'Source continuity is unavailable. Newly unreported tool bytes were not inferred.'}</p>
+    <p className="context-categories-note">Token budget unavailable. Normalized input usage, a compatible tokenizer and the actual output reserve were not reported. No automatic compaction decision was made from unknown token counts.</p>
+  </section>;
+}
 
 function RequestEvidence({ request, sources, compaction }: { request: ContextRequestObservationV1; sources?: HostRequestProjectionV1; compaction?: CompactionProjectionV1 }) {
   const id = useId();

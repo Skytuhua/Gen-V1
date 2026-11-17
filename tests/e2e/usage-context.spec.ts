@@ -274,6 +274,31 @@ test('reports unavailable native source metadata without claiming a reconstructe
   await expect(context(page).getByRole('region', { name: 'Original Hermes source metadata' })).toHaveCount(0);
 });
 
+test('shows actual next-inference bytes while keeping provider input, cache and context reports separate', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'budget-known');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const budget = context(page).getByRole('region', { name: 'Next inference budget' });
+  await expect(budget).toContainText('Request 2: 220 prompt bytes');
+  await expect(budget).toContainText('12 provider-reported input tokens; 80 cache-read tokens');
+  await expect(budget).toContainText('Reported context: 5K tokens');
+  await expect(budget).toContainText('not substituted for input usage');
+  await expect(budget).toContainText('100 native source bytes, including 80 tool-result bytes across 1 result');
+  await expect(budget).toContainText('actual output reserve were not reported');
+  await expect(budget).toContainText('No automatic compaction decision');
+  await update(page, 'restart'); await expect(budget).toHaveCount(0);
+});
+
+test('shows a blocked byte admission even when no provider request was dispatched', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'budget-blocked');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const budget = context(page).getByRole('region', { name: 'Next inference budget' });
+  await expect(budget).toContainText('Request blocked by the host byte limit. No provider call was started.');
+  await expect(budget).toContainText('Source continuity is unavailable');
+  await expect(budget).toContainText('Token budget unavailable');
+  await expect(context(page).getByRole('region', { name: 'Last request', exact: true })).toHaveCount(0);
+  await update(page, 'thread'); await expect(budget).toHaveCount(0);
+});
+
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
   await page.goto('/usage-context?requests'); await update(page, 'empty');
   await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

@@ -20,6 +20,17 @@ function Fixture() {
   useEffect(() => {
     const update = (event: Event) => {
       const action = (event as CustomEvent<string>).detail;
+      if (['budget-known', 'budget-unavailable', 'budget-blocked'].includes(action)) setUsage(value => ({ ...value, inferenceBudget: {
+        threadId, runId: 'fixture-run', epoch, budget: { version: 1, sequence: 2, promptBytes: action === 'budget-blocked' ? 16 * 1024 * 1024 + 1 : 220, maxPromptBytes: 16 * 1024 * 1024,
+          measurement: 'BYTE_ONLY', byteAdmission: action === 'budget-blocked' ? 'BLOCKED' : 'WITHIN_LIMIT', tokenAdmission: 'UNAVAILABLE',
+          sourceContinuity: action === 'budget-known' ? 'VERIFIED' : 'UNAVAILABLE', newSourceBytes: action === 'budget-known' ? 100 : null,
+          newToolResultBytes: action === 'budget-known' ? 80 : null, newToolResults: action === 'budget-known' ? 1 : null,
+          previousRequest: action === 'budget-known' ? { requestId: 'previous-request', sequence: 1, inputTokens: 12, outputTokens: 9, cacheReadTokens: 80, cacheWriteTokens: null,
+            reportedContextTokens: 5000, contextWindowTokens: 10000, usageConvention: 'provider-reported', contextMeasurement: 'UNSPECIFIED' } : null,
+          normalizedInputTokens: null, newUnreportedToolTokens: null, reservedOutputTokens: null, requiredTokens: null, shouldConsiderCompaction: null,
+          unknown: action === 'budget-known' ? ['NORMALIZED_INPUT', 'TOKENIZER', 'OUTPUT_RESERVE'] : ['NORMALIZED_INPUT', 'TOKENIZER', 'OUTPUT_RESERVE', 'CONTEXT_WINDOW', 'SOURCE_CONTINUITY'],
+        },
+      } }));
       if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13,inclusionReason:'selected by host',tokens:null,measurement:'BYTE_ONLY',exclusionReason:null}], omittedSources:0 } }));
       if (action === 'request-relevance') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 4, promptBytes: 1300, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', relevance: {
         cutId: 'b'.repeat(64), observedAtSequence: 4, candidateIds: ['host-result:1'], estimatedSavingsBytes: 1200, inspectionBudgetBytes: 65536, inspectedResults: 1, protectedResults: 0, omittedResults: 2, source: 'HOST_READ_RESULTS', measurement: 'BYTE_ONLY',
