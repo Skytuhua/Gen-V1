@@ -46,6 +46,14 @@ export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean
   return sectionOf(item, showWorking, patch) === target.list ? patch : null;
 }
 
+/** Clamp an insertion into the run of rows that shares item's group, the only positions grouping can render. */
+export function withinGroup(rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null): number {
+  const key = groupKey?.(item);
+  if (key === undefined || key === null) return index;
+  const run = rows.flatMap((candidate, at) => (groupKey!(candidate) === key ? [at] : []));
+  return run.length ? Math.min(Math.max(index, run[0]!), run.at(-1)! + 1) : index;
+}
+
 const row = (node: EventTarget | null) => (node instanceof Element ? node.closest<HTMLElement>('.sidebar-thread-row[data-thread-id]') : null);
 
 /** Rows of a drop list in document order with the dragged row removed. */
@@ -76,6 +84,8 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
   lists: () => SidebarLists;
   locked: () => boolean;
   showWorking: boolean;
+  /** Group a row belongs to when the list renders grouped runs; drops stay inside them. */
+  groupKey?: (item: Thread) => string | null;
   presentation: (item: Thread, patch: Patch) => Promise<boolean>;
   ensureManualOrder?: () => Promise<boolean>;
   prepareMove: (id: string, order: number, viaPointer?: boolean) => void;
@@ -113,8 +123,9 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     const patch = dropPatch(item, hit.target, state.current.showWorking);
     if (!patch) return { ...hit, valid: false as const };
     const rows = state.current.lists()[hit.target.list].filter(row => row.id !== item.id);
-    const order = orderFor(rows, hit.target.index);
-    const writes = order === null ? rebalance(state.current.lists()[hit.target.list], item, hit.target.index) : [{ id: item.id, order }];
+    const index = withinGroup(rows, item, hit.target.index, state.current.groupKey);
+    const order = orderFor(rows, index);
+    const writes = order === null ? rebalance(state.current.lists()[hit.target.list], item, index) : [{ id: item.id, order }];
     return { ...hit, valid: true as const, patch, writes };
   };
 
@@ -133,8 +144,11 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     const to = from + delta;
     if (to < 0 || to >= rows.length) return false;
     const without = rows.filter(row => row.id !== item.id);
-    const order = orderFor(without, to);
-    const writes = order === null ? rebalance(rows, item, to) : [{ id: item.id, order }];
+    const index = withinGroup(without, item, to, state.current.groupKey);
+    // Grouping keeps runs contiguous, so a move it cannot render is refused rather than saved.
+    if (index === from) return false;
+    const order = orderFor(without, index);
+    const writes = order === null ? rebalance(rows, item, index) : [{ id: item.id, order }];
     void commit(item, {}, writes, false);
     return true;
   };
@@ -227,14 +241,20 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
       }
     };
     const cancelled = (event: PointerEvent) => { if (held && event.pointerId === held.pointerId) cancel(); };
+    // touch-action is fixed when the gesture starts, so cancelling a pointermove
+    // cannot stop native panning. Preventing the cancellable touchmove does,
+    // and an engaged hold has not panned yet.
+    const pan = (event: TouchEvent) => { if (held?.active && event.cancelable) event.preventDefault(); };
     element.addEventListener('pointerdown', down);
     window.addEventListener('pointermove', moveTouch, { passive: false });
+    window.addEventListener('touchmove', pan, { passive: false });
     window.addEventListener('pointerup', up);
     window.addEventListener('pointercancel', cancelled);
     return () => {
       cancel();
       element.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', moveTouch);
+      window.removeEventListener('touchmove', pan);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', cancelled);
     };

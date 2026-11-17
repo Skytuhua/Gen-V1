@@ -31,16 +31,25 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
     const side: OverlaySide = (preferredSide === 'right' ? right : left) >= desiredWidth
       ? preferredSide
       : right >= left ? 'right' : 'left';
-    const popupHeight = Math.min(desiredHeight, availableHeight);
-    const popupWidth = Math.min(desiredWidth, side === 'left' ? left : right);
-    return {
-      left: clamp(side === 'right' ? origin(anchor.right) + 8 : origin(anchor.left) - 8 - popupWidth, leftEdge, rightEdge - popupWidth),
-      top: clamp(align === 'end' ? origin(anchor.bottom) - popupHeight : origin(anchor.top), topEdge, bottomEdge - popupHeight),
-      width: popupWidth, height: popupHeight, side,
-    };
+    // Beside the anchor only the remaining gap is available, so a card that
+    // cannot fit there whole would be squeezed to an unreadable sliver. Use the
+    // full viewport width above or below instead.
+    if ((side === 'right' ? right : left) >= desiredWidth) {
+      const popupHeight = Math.min(desiredHeight, availableHeight);
+      const popupWidth = Math.min(desiredWidth, side === 'left' ? left : right);
+      return {
+        left: clamp(side === 'right' ? origin(anchor.right) + 8 : origin(anchor.left) - 8 - popupWidth, leftEdge, rightEdge - popupWidth),
+        top: clamp(align === 'end' ? origin(anchor.bottom) - popupHeight : origin(anchor.top), topEdge, bottomEdge - popupHeight),
+        width: popupWidth, height: popupHeight, side,
+      };
+    }
   }
   const fitsPreferred = (preferredSide === 'above' ? above : below) >= desiredHeight;
-  const side: OverlaySide = fitsPreferred ? preferredSide : above >= below ? 'above' : 'below';
+  // A side card that does not fit beside its anchor falls back here, where
+  // "preferred" no longer names a vertical side: take the one that fits.
+  const side: OverlaySide = preferredSide === 'left' || preferredSide === 'right'
+    ? above >= desiredHeight ? 'above' : below >= desiredHeight ? 'below' : above >= below ? 'above' : 'below'
+    : fitsPreferred ? preferredSide : above >= below ? 'above' : 'below';
   const popupHeight = Math.min(desiredHeight, side === 'above' ? above : below);
   return {
     left: clamp(align === 'end' ? origin(anchor.right) - popupWidth : origin(anchor.left), leftEdge, leftEdge + availableWidth - popupWidth),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ThreadNavigationRow as Thread } from '../packages/contracts/shell-read-models';
-import { dropPatch, orderFor, rebalance, sectionOf } from '../apps/web/src/sidebar-reorder';
+import { dropPatch, orderFor, rebalance, sectionOf, withinGroup } from '../apps/web/src/sidebar-reorder';
 
 const row = (id: string, overrides: Partial<Thread> = {}, presentation?: NonNullable<Thread['presentation']>): Thread => ({
   id,
@@ -107,5 +107,28 @@ describe('dropPatch', () => {
   it('accepts a working drop for a running row', () => {
     const item = row('a', { runId: 'r1' }, { pinned: true });
     expect(dropPatch(item, { list: 'working', index: 0 }, true)).toEqual({ pinned: false });
+  });
+});
+
+describe('withinGroup', () => {
+  const project = (item: Thread) => item.projectId ?? item.projectName ?? 'Conversations';
+  const a1 = row('a1', { projectId: 'A' }), a2 = row('a2', { projectId: 'A' });
+  const b1 = row('b1', { projectId: 'B' }), b2 = row('b2', { projectId: 'B' });
+  const rows = [a1, b1, b2];
+
+  it('clamps a cross-project drop into the row own project run', () => {
+    expect(withinGroup(rows, a2, 2, project)).toBe(1);
+    expect(withinGroup(rows, a2, 0, project)).toBe(0);
+    expect(withinGroup(rows, a2, 3, project)).toBe(1);
+  });
+  it('keeps a within-group position unchanged', () => {
+    expect(withinGroup(rows, a2, 1, project)).toBe(1);
+  });
+  it('leaves positions alone when grouping is off or the row has no group', () => {
+    expect(withinGroup(rows, a2, 3)).toBe(3);
+    expect(withinGroup(rows, a2, 3, () => null)).toBe(3);
+  });
+  it('leaves an ungrouped row target alone when no other row shares its group', () => {
+    expect(withinGroup([b1, b2], a2, 2, project)).toBe(2);
   });
 });

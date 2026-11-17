@@ -66,9 +66,9 @@ describe('side placements for anchored panels beside their trigger', () => {
     });
   });
 
-  it('reduces width inside a narrow viewport instead of overflowing it', () => {
+  it('falls back below instead of squeezing the card into the remaining gap', () => {
     const result = placePopover({ anchor: { left: 100, right: 200, top: 100, bottom: 132 }, viewport: { left: 0, top: 0, width: 300, height: 400 }, width: 320, height: 240, preferredSide: 'right', align: 'start' });
-    expect(result).toEqual({ left: 208, top: 100, width: 84, height: 240, side: 'right' });
+    expect(result).toEqual({ left: 8, top: 140, width: 284, height: 240, side: 'below' });
     expect(result.left + result.width).toBeLessThanOrEqual(292);
   });
 

@@ -189,9 +189,12 @@ export function ShellSidebar({
   const visibleSettled = showAllSettled ? settled : settled.slice(0, 6);
   const locked = search.trim().length > 0 || filter !== 'all';
   const reorder = useThreadReorder(navRef, {
-    lists: () => ({ pinned, working, flat: orderedRemaining, settled: visibleSettled }),
+    // Ordering needs every settled row; only rendering stops at six.
+    lists: () => ({ pinned, working, flat: orderedRemaining, settled }),
     locked: () => locked,
     showWorking: preferences.showWorkingSection,
+    // Grouped runs are contiguous, so a drop can only land inside the row's own project.
+    groupKey: preferences.projectGrouping ? (item: Thread) => item.projectId ?? item.projectName ?? 'Conversations' : undefined,
     presentation,
     ensureManualOrder: preferences.projectOrder === 'manual' ? undefined : ensureManualOrder,
     prepareMove: (id, order, viaPointer) => threadMove.prepare(id, order, viaPointer),
