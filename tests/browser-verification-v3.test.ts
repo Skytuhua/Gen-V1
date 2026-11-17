@@ -1,5 +1,7 @@
 import {it,expect,afterEach,vi} from 'vitest';
-import {mkdtempSync,rmSync,existsSync,writeFileSync,lstatSync} from 'node:fs';
+import {mkdtempSync,rmSync,writeFileSync,lstatSync} from 'node:fs';
+import {crc32,deflateSync} from 'node:zlib';
+import {VerificationArtifactStore,attestVerificationArtifacts} from '../packages/core/verification-artifacts';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
@@ -14,7 +16,7 @@ const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e
 
 
 const stores:Store[]=[];
-function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
+function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
 const dirs:string[]=[];
 function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
 afterEach(()=>{vi.useRealTimers();for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
@@ -27,7 +29,10 @@ interface FakePage extends BrowserPage {visits:string[];clicks:string[];typed:[s
 // a compliant driver consults allowOrigin before each request; denied traffic
 // is blocked at the boundary and never reaches observedOrigins.
 function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Record<string,boolean>;failures?:{console?:string[];network?:string[]};origins?:string[];shotBytes?:number;requests?:string[];cancelOnText?:boolean}={}):FakeDriver{
- const state={url:over.url??'http://127.0.0.1:4100/',screens:Buffer.alloc(over.shotBytes??128,7),origins:over.origins??['http://127.0.0.1:4100'],blocked:[] as string[]};
+ const chunk=(name:string,data:Buffer)=>{const bytes=Buffer.alloc(data.length+12);bytes.writeUInt32BE(data.length);bytes.write(name,4);data.copy(bytes,8);bytes.writeUInt32BE(crc32(bytes.subarray(4,-4)),bytes.length-4);return bytes;};
+ const header=Buffer.alloc(13);header.writeUInt32BE(1280);header.writeUInt32BE(800,4);header[8]=8;header[9]=6;
+ const png=Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(Buffer.alloc((1280*4+1)*800))),chunk('IEND',Buffer.alloc(0))]);
+ const state={url:over.url??'http://127.0.0.1:4100/',screens:over.shotBytes?Buffer.alloc(over.shotBytes,7):png,origins:over.origins??['http://127.0.0.1:4100'],blocked:[] as string[]};
  const driver:FakeDriver={profileDir:undefined,launched:0,page:undefined as unknown as FakePage,allow:undefined,launch:async opts=>{driver.profileDir=opts.profileDir;driver.launched++;driver.allow=opts.allowOrigin;return session;}};
  const page:FakePage={
   url:()=>state.url,visits:[],clicks:[],typed:[],screens:state.screens,
@@ -53,11 +58,11 @@ function checklist(steps:BrowserStep[],over:Record<string,unknown>={}):BrowserCh
  return browserChecklistSchema.parse({version:1,checklistId:'cl-1',approvedOrigins:['http://127.0.0.1:4100'],viewport:{width:1280,height:800},steps,items:['item-1','item-2'],...over});
 }
 const digests={codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),recipeDigest:'c'.repeat(64),environmentId:'win32/test'};
-const run=(store:Store,steps:BrowserStep[],driver:BrowserDriver,over:Record<string,unknown>={})=>runBrowserChecklist(store,{owner,checklist:checklist(steps),artifactDir:join(tempDir('verify-artifacts-'),'out'),driver,digests,...over}as Parameters<typeof runBrowserChecklist>[1],FLAGS_ON);
+const run=(store:Store,steps:BrowserStep[],driver:BrowserDriver,over:Record<string,unknown>={})=>runBrowserChecklist(store,{owner,checklist:checklist(steps),profileDir:join(tempDir('verify-profile-'),'profile'),driver,digests,...over}as Parameters<typeof runBrowserChecklist>[1],FLAGS_ON);
 
 it('the browser workflow stays disabled until the host flag enables it',async()=>{
  const store=stateStore();
- expect(await codeAsync(runBrowserChecklist(store,{owner,checklist:checklist([{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}]),artifactDir:tempDir('verify-artifacts-'),driver:fakeDriver(),digests},{}))).toBe('CAPABILITY_DENIED');
+ expect(await codeAsync(runBrowserChecklist(store,{owner,checklist:checklist([{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}]),profileDir:tempDir('verify-profile-'),driver:fakeDriver(),digests},{}))).toBe('CAPABILITY_DENIED');
  expect(hostFlagEnabled('verification.workflowV1',{})).toBe(false);
 });
 
@@ -76,8 +81,9 @@ it('a passing checklist navigates, asserts and captures bound visual observation
  expect(textObs.outcome).toBe('PASS');expect(textObs.origin).toBe('http://127.0.0.1:4100/');expect(textObs.viewport).toEqual({width:1280,height:800});
  const shot=result.observations.find(obs=>obs.screenshotDigest)!;
  expect(shot.screenshotDigest).toMatch(/^[a-f0-9]{64}$/);
- expect(shot.artifactRefs.length).toBe(1);expect(existsSync(shot.artifactRefs[0])).toBe(true);
- // The driver ran a fresh profile under the verification artifact dir, never an inherited one.
+ expect(shot.artifactRefs.length).toBe(1);expect(shot.artifactRefs[0]).toMatch(/^verification-artifact:/);
+ expect(new VerificationArtifactStore(store).read(shot.artifactRefs[0],owner,shot.executionId).bytes.equals(driver.page.screens)).toBe(true);
+ // The driver ran a fresh profile in its separately owned private scope, never an inherited one.
  expect(driver.profileDir).toContain('profile');
 });
 
@@ -220,12 +226,15 @@ it.each(['deleted','replaced'] as const)('a %s required screenshot cannot verify
  ],fakeDriver({texts:{h1:'Welcome home'}}),{owner:boundOwner,digests:current});
  const captured=result.observations.find(obs=>obs.screenshotDigest)!,behavior=result.observations.find(obs=>obs.checklistItemId==='item-2'&&!obs.screenshotDigest)!;
  const recorded=store.all('visualObservation','t1');
- expect(result.outcome).toBe('PASS');expect(existsSync(captured.artifactRefs[0])).toBe(true);
- if(mutation==='deleted')rmSync(captured.artifactRefs[0]);
- else writeFileSync(captured.artifactRefs[0],'replacement bytes');
+ expect(result.outcome).toBe('PASS');
  const requirements=[{id:'page-works',checkRefs:[behavior.checkId]}];
+ const currentAssessment=()=>computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:current.codeDigest,dependencyDigest:current.dependencyDigest,environmentId:current.environmentId},requirements,observations:result.observations,artifactAttestations:attestVerificationArtifacts(store,result.observations,requirements),unresolvedEffects:[],verifierIdentity:'test',provenance:'synthetic browser core test'});
+ expect(currentAssessment().label).toBe('VERIFIED');
+ const artifactPath=join(store.dataDir,'artifacts','verification-v1',captured.artifactRefs[0].slice('verification-artifact:'.length)+'.bin');
+ if(mutation==='deleted')rmSync(artifactPath);
+ else writeFileSync(artifactPath,'replacement bytes');
  store.internal('test.declaration','t1',()=>store.put('verificationDeclaration','t1','t1',{version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:[],environmentId:current.environmentId,requirements}));
- const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:current.codeDigest,dependencyDigest:current.dependencyDigest,environmentId:current.environmentId},requirements,observations:result.observations,unresolvedEffects:[],verifierIdentity:'test',provenance:'synthetic browser core test'});
+ const assessment=currentAssessment();
  const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
  const service=new Service(store,runtime as never,{}),saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
  process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';

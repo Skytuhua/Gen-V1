@@ -12,12 +12,13 @@ import {verificationRecipeV1Schema,type CheckObservationV1,type VerificationReci
 import type {ApprovalV1,ToolEffectRecord,ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
+import {VerificationArtifactStore} from '../packages/core/verification-artifacts';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
 
 const stores:Store[]=[];
-function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
+function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
 const dirs:string[]=[];
 function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
 afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
@@ -189,6 +190,29 @@ it('a failing phase prevents the start, readiness and browser phases',async()=>{
  const phases=result.observations.map(obs=>obs.phase);
  expect(phases).toEqual(['BUILD','TEST','TEARDOWN']);
  expect(l.launched).toHaveLength(2); // no start process was ever created
+});
+
+it('retains bounded UTF-8 process logs through the host artifact store',async()=>{
+ const root=workspace(),store=stateStore(),service=new ProjectVerificationService(store,FLAGS_ON),o=owner();
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const l=launcher([{exitCode:0}]),launch=l.fn.launch;
+ l.fn.launch=async request=>{const process=await launch(request);process.log=async()=>({text:'😀'.repeat(20_000)+'tail',truncated:false});return process;};
+ const result=await service.runRecipe(o,request(r.recipeId),l.fn),test=result.observations.find(observation=>observation.phase==='TEST')!;
+ expect(result.outcome).toBe('PASS');expect(test.artifactRefs).toHaveLength(1);
+ const retained=new VerificationArtifactStore(store).read(test.artifactRefs[0],o,test.executionId);
+ expect(retained.bytes.length).toBe(64*1024);expect(retained.bytes.toString('utf8')).not.toContain('�');expect(retained.metadata.truncated).toBe(true);
+});
+
+it('does not fabricate an empty successful log when the observed log read fails',async()=>{
+ const root=workspace(),store=stateStore(),service=new ProjectVerificationService(store,FLAGS_ON),o=owner();
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const l=launcher([{exitCode:0}]),launch=l.fn.launch;
+ l.fn.launch=async request=>{const process=await launch(request);process.log=async()=>{throw Error('observed log unavailable');};return process;};
+ const result=await service.runRecipe(o,request(r.recipeId),l.fn);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.find(observation=>observation.phase==='TEST')?.detail).toContain('observed log unavailable');
+ expect(l.launched.every(process=>process.terminated)).toBe(true);
 });
 
 it('readiness requires the launched process tree to own the approved endpoint',async()=>{

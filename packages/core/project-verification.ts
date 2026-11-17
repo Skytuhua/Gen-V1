@@ -12,6 +12,7 @@ import {
 import { canonical, inside } from './security.ts';
 import { hostFlagEnabled } from './host-flags.ts';
 import { digest, type Store } from '../storage/store.ts';
+import { VerificationArtifactStore } from './verification-artifacts.ts';
 
 /** M06 project verification: approved recipes run through a fixed phase order
  * against an explicit, previously approved workspace identity. Every check
@@ -183,6 +184,7 @@ export interface RecipeExecutionRequest {
   dependencyFiles: string[];
   /** The approved loopback endpoint the START phase must own. */
   readiness?: { host: '127.0.0.1' | 'localhost'; port: number; path: string };
+  /** Historical compatibility only; retained bytes always use host custody. */
   artifactDir?: string;
 }
 
@@ -295,17 +297,17 @@ export class ProjectVerificationService {
       return result;
     };
 
-    const captureLog = async (process: LaunchedProcess, phase: RecipePhase): Promise<string[]> => {
-      const artifactRefs: string[] = [];
-      if (!request.artifactDir) return artifactRefs;
-      const log = await process.log().catch(() => ({ text: '', truncated: false }));
-      const name = `${executionId}-${phase.name.toLowerCase()}.log`;
-      const clipped = log.text.length > MAX_LOG_BYTES ? log.text.slice(0, MAX_LOG_BYTES) : log.text;
-      const fs = await import('node:fs/promises');
-      await fs.mkdir(request.artifactDir, { recursive: true });
-      await fs.writeFile(join(request.artifactDir, name), clipped);
-      artifactRefs.push(join(request.artifactDir, name));
-      return artifactRefs;
+    const artifacts = new VerificationArtifactStore(this.store);
+    const captureLog = async (process: LaunchedProcess): Promise<string[]> => {
+      const log = await process.log();
+      if (typeof log.text !== 'string' || typeof log.truncated !== 'boolean') throw new HarnessError('INVALID_PROCESS_EVIDENCE', 'Observed process log is malformed');
+      // Clip by UTF-8 bytes and drop an incomplete final code point. The host
+      // adapter has already redacted destination-bound secrets before this read.
+      const prefix = Buffer.from(log.text.slice(0, MAX_LOG_BYTES), 'utf8');
+      const text = new TextDecoder('utf-8').decode(prefix.subarray(0, MAX_LOG_BYTES), {stream: true});
+      const bytes = Buffer.from(text, 'utf8');
+      const retained = artifacts.write({owner, executionId, kind: 'LOG', bytes, truncated: log.truncated || bytes.length < Buffer.byteLength(log.text, 'utf8')});
+      return [retained.ref];
     };
 
     try {
@@ -349,7 +351,7 @@ export class ProjectVerificationService {
             const process = await launcher.launch({ executableId: phase.executableId, argv: phase.argv, cwd: join(root, ...phase.relativeCwd.split('/')), envRefs: phase.environmentRefs, timeoutMs: phase.timeoutMs });
             owned.push(process);
             const settled = await Promise.race([process.wait(), delay(Math.min(phase.timeoutMs, START_SETTLE_MS)).then(() => null)]);
-            const artifactRefs = await captureLog(process, phase);
+            const artifactRefs = await captureLog(process);
             if (settled === null) return { exitCode: null, outcome: 'PASS' as const, artifactRefs, detail: 'START process stayed alive through the settle window; readiness is proven by the READINESS phase' };
             if (settled.termination === 'CANCELLED') return { exitCode: settled.exitCode, outcome: 'CANCELLED' as const, artifactRefs };
             if (settled.termination === 'SPAWN_ERROR') return { exitCode: settled.exitCode, outcome: 'BLOCKED' as const, artifactRefs, detail: 'Launch failed inside the permitted execution environment' };
@@ -369,7 +371,7 @@ export class ProjectVerificationService {
           const process = await launcher.launch({ executableId: phase.executableId, argv: phase.argv, cwd: join(root, ...phase.relativeCwd.split('/')), envRefs: phase.environmentRefs, timeoutMs: phase.timeoutMs });
           owned.push(process);
           const settled = await process.wait();
-          const artifactRefs = await captureLog(process, phase);
+          const artifactRefs = await captureLog(process);
           if (settled.termination === 'TIMEOUT') return { exitCode: settled.exitCode, outcome: 'FAIL' as const, artifactRefs, detail: 'Phase timed out' };
           if (settled.termination === 'CANCELLED') return { exitCode: settled.exitCode, outcome: 'CANCELLED' as const, artifactRefs };
           if (settled.termination === 'SPAWN_ERROR') return { exitCode: settled.exitCode, outcome: 'BLOCKED' as const, artifactRefs, detail: 'Launch failed inside the permitted execution environment' };

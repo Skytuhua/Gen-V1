@@ -1,6 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { HarnessError } from '../contracts/index.ts';
 import type { ToolOwner } from '../contracts/tool-effects.ts';
 import {
@@ -10,6 +8,7 @@ import {
 } from '../contracts/verification.ts';
 import { hostFlagEnabled } from './host-flags.ts';
 import type { Store } from '../storage/store.ts';
+import { VerificationArtifactStore } from './verification-artifacts.ts';
 
 /** M06 browser QA: a fresh browser profile under the verification owner runs a
  * strict step union — NAVIGATE, CLICK, TYPE, ASSERT_TEXT, ASSERT_VISIBLE,
@@ -55,8 +54,8 @@ export interface BrowserRunInput {
   owner: ToolOwner;
   executionId?: string;
   checklist: BrowserChecklistV1;
-  /** Immutable artifact directory for screenshots and bounded logs. */
-  artifactDir: string;
+  /** Fresh private scope allocated by the admitted backend, never an artifact root. */
+  profileDir: string;
   driver: BrowserDriver;
   digests: { codeDigest: string; dependencyDigest: string; recipeDigest: string; environmentId: string };
   nowMs?: () => number;
@@ -100,14 +99,14 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
   const actionTraceId = `trace-${randomUUID()}`;
   const clock = input.nowMs ?? Date.now;
   const deadlineAt = clock() + BROWSER_RUN_DEADLINE_MS;
-  await mkdir(input.artifactDir, { recursive: true });
+  const artifacts = new VerificationArtifactStore(store);
 
   const observations: VisualObservationV1[] = [];
   const deniedOrigins: string[] = [];
   let outcome: BrowserRunResult['outcome'] = 'PASS';
   const deniedAtBoundary: string[] = [];
   const session = await input.driver.launch({
-    profileDir: join(input.artifactDir, 'profile'), viewport: checklist.viewport, approvedOrigins: checklist.approvedOrigins,
+    profileDir: input.profileDir, viewport: checklist.viewport, approvedOrigins: checklist.approvedOrigins,
     allowOrigin: origin => {
       const approved = sameOrigin(checklist.approvedOrigins, origin);
       if (!approved && !deniedAtBoundary.includes(origin)) deniedAtBoundary.push(origin);
@@ -118,11 +117,9 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
   const screenshots = new Map<string, string>();
   const writeShot = async (itemId: string, data: Buffer): Promise<string> => {
     if (data.length > MAX_ARTIFACT_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Screenshot exceeds the artifact bound');
-    const name = `${executionId}-${itemId}-${screenshots.size}.png`;
-    await writeFile(join(input.artifactDir, name), data);
-    const digest = createHash('sha256').update(data).digest('hex');
-    screenshots.set(itemId, name);
-    return digest;
+    const retained = artifacts.write({owner: input.owner, executionId, kind: 'SCREENSHOT', bytes: data, viewport: checklist.viewport});
+    screenshots.set(itemId, retained.ref);
+    return retained.sha256;
   };
 
   const record = (itemId: string, assertion: string, observed: string, outcomeValue: VisualObservationV1['outcome'], screenshotDigest: string | null, artifactRefs: string[] = [], observationKind: 'browser' | 'visual' = 'browser') => {
@@ -185,7 +182,7 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
         const digest = await writeShot(step.checklistItemId, data);
         // Capture is supporting evidence, distinct from an executed behavior
         // assertion. Binding this record alone must never verify a requirement.
-        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [join(input.artifactDir, screenshots.get(step.checklistItemId)!)], 'visual');
+        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [screenshots.get(step.checklistItemId)!], 'visual');
         return 'ok';
       }
       case 'COLLECT_ERRORS': {
