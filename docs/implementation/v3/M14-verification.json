@@ -91,7 +91,7 @@
         {
           "id": "linux-directory-custody",
           "status": "FAIL",
-          "evidence": "capabilities.test.ts: 13 failures of class CAPABILITY_DENIED \"File access check failed\" from packages/core/linux-path-guard.ts \u2014 requires root/CAP_SYS_ADMIN mount namespaces unavailable on this Linux host. Environmental denial, not an M14 product failure."
+          "evidence": "capabilities.test.ts: 13 failures of class CAPABILITY_DENIED from packages/core/linux-path-guard.ts. Root cause verified: packages/core/linux-path-guard.py private_profile() requires os.uname().machine==\"x86_64\" plus euid 0 and ext4 \u2014 this aarch64 host cannot launch the custody broker at all; the AppArmor userns restriction is a separate earlier denial now confirmed irrelevant (temporarily relaxed then restored with no effect). x86_64-only environmental gate, not an M14 product failure."
         }
       ],
       "commands": [
@@ -469,7 +469,7 @@
         {
           "id": "full-vitest",
           "status": "FAIL",
-          "evidence": "vitest run --maxWorkers=4: 3650 passed, 279 failed, 57 skipped, 4 unhandled errors in ~766s under shared-box contention. All M14 files pass; failures cluster in environmental classes \u2014 linux-path-guard CAP_SYS_ADMIN, missing node-pty native build, port conflicts, and contention timeouts. Baseline audit recorded 244 failures of the same classes."
+          "evidence": "pnpm test (build:credential-lease + build:widgets + vitest run): 3845 passed / 298 failed / 58 skipped, 45 of 382 files failing in 918s. Environment fixes (node-pty build, win32 SDK install) cleared 21 previously-failing files vs the audited 66. Remaining failures: ~40 files of x86_64-pinned linux-path-guard custody tests (broker requires x86_64+root+ext4; host is aarch64), Windows-only packaged-native tests (rg.exe, vendored win32 .node), missing bundled hermes-python toolchain, and shared-box contention timeouts. No M14-caused failure."
         }
       ],
       "commands": [
@@ -489,7 +489,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
-          "logDigest": "cfbe1d9c9d88c2e30db3114e81e0245cc34f36494648b35aa9632d2fee2a1af4"
+          "logDigest": "158955462a159313cb6713b4f803e5cb9e8dab3ea835df3f9c3e68be4ebd97ad"
         }
       ],
       "artifactRefs": []
@@ -500,8 +500,8 @@
       "requiredCases": [
         {
           "id": "playwright-gate",
-          "status": "NOT_RUN",
-          "evidence": "pnpm test:browser exits nonzero: node-pty native module absent (pnpm-ignored build script), dev-server port 5636 already used by another worktree, and EACCES on another agent's /tmp artifacts. No M14 browser surface runs on this host."
+          "status": "FAIL",
+          "evidence": "pnpm test:browser now executes real specs after the node-pty build fix (28 passed across projects). Remaining failures are platform/environmental: browser-action.spec.ts needs /opt/google/chrome and ui-shell-overlays.spec.ts needs /opt/microsoft/msedge \u2014 neither Chrome nor Edge exists for aarch64 Linux; plus sibling-worktree dev-server port conflicts (5397/5499/5636) and EACCES on foreign /tmp artifacts. No M14 browser surface is implicated."
         }
       ],
       "commands": [
@@ -518,7 +518,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-test-browser.log",
-          "logDigest": "a8357a257e5b6e73205ca0b964882928719e8fa237e6ccb5191030a58d6cdef2"
+          "logDigest": "2873d3d6a37d876d098a100f4936ed2ca56945ee32bc08ecc5bd1b1498c1c9c9"
         }
       ],
       "artifactRefs": []

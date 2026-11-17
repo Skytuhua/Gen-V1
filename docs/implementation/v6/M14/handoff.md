@@ -2,14 +2,33 @@
 
 Status: computed `bundleStatus` is **FAIL** — two phases carry FAIL
 status (`CORE.existing-contract-tests`, `INTEGRATION.direct-unit-baseline`),
-driven entirely by pre-existing environmental denials on this Linux host
-(linux-path-guard CAP_SYS_ADMIN, missing `pty.node`, port conflicts,
-contention timeouts). Every implementable M14 phase is complete and
-source-bound (PASS); the remaining phases are named holds that require
-external proof (a tested adapter fork API, an admitted parser manifest)
-or platforms this host cannot provide (browser, Windows/installed).
-No required M14 product case failed. The final commit SHA is reported in
-the session response, not inside this artifact.
+driven entirely by pre-existing environmental denials on this aarch64
+Linux host. Root causes were diagnosed to source level:
+
+- `linux-path-guard` tests (~40 files): `packages/core/linux-path-guard.py`
+  `private_profile()` requires `os.uname().machine == "x86_64"` plus euid 0
+  and ext4 backing — the custody broker cannot launch on aarch64 at all.
+  Not an AppArmor issue (userns relaxation was tried and reverted as
+  irrelevant).
+- Windows-only packaged-native tests: `rg.exe` and vendored win32 `.node`
+  bindings cannot execute on Linux.
+- Missing `hermes-python/bin/python3.14` bundled toolchain (produced by
+  CI packaging jobs, absent from this checkout).
+
+Environment fixes applied and verified: `pnpm-workspace.yaml` now lists
+`node-pty` in `onlyBuiltDependencies` (its native build never ran, which
+cascaded into ~21 test files failing at module import) and
+`supportedArchitectures: {os:[current,win32], cpu:[current,x64]}` so the
+win32 optional SDK packages the custody probes inspect actually install.
+No dependency or lockfile change; `pnpm install --frozen-lockfile` stays
+green.
+
+Every implementable M14 phase is complete and source-bound (PASS); the
+remaining phases are named holds that require external proof (a tested
+adapter fork API, an admitted parser manifest) or platforms this host
+cannot provide (x86_64 custody broker, Windows, browser). No required
+M14 product case failed. The final commit SHA is reported in the session
+response, not inside this artifact.
 
 ## Custody
 
@@ -68,21 +87,31 @@ the session response, not inside this artifact.
   credential-lease/widget builds: PASS.
 - `tests/public-source.test.ts`: 11/11 PASS after manifest enrollment.
 - Consumed contracts on the merged tree: 8/9 files PASS;
-  `tests/capabilities.test.ts` fails 13 on `linux-path-guard`
-  (root/CAP_SYS_ADMIN mount namespaces) — environmental, matches the
-  audited baseline class.
-- `pnpm test`: 3650 passed / 279 failed / 57 skipped; every failure is in
-  pre-existing environmental classes (path guard, missing `pty.node`,
-  port conflicts with sibling worktrees, contention timeouts). No
-  M14-caused failure after the manifest fix.
+  `tests/capabilities.test.ts` fails 13 on `linux-path-guard` — the
+  custody broker is x86_64-pinned and cannot launch on this aarch64 host.
+  Environmental, matches the audited baseline class.
+- `pnpm test` (final receipt): 3845 passed / 298 failed / 58 skipped,
+  45 of 382 files failing in 918s. The `pnpm-workspace.yaml` environment
+  fix (node-pty build + win32 optional SDKs) cleared 21 previously-
+  failing files vs the audited 66. Remaining failures are the
+  x86_64-pinned custody broker (~40 files), win32-only packaged natives
+  (rg.exe/.node), bundled-python absence and contention timeouts. No
+  M14-caused failure.
 
 ## Untested / blocked gates
 
-- `pnpm test:browser`: NOT_RUN to completion — `pty.node` native module
-  absent (pnpm-ignored build script), dev-server port conflict, `EACCES`
-  on foreign `/tmp` artifacts. Environmental on this host.
+- `pnpm test:browser`: now executes real specs (28 passed across
+  projects) after the pty fix. Remaining failures are environmental:
+  `browser-action`/`ui-shell-overlays` need `/opt/google/chrome` and
+  `/opt/microsoft/msedge` — neither exists for aarch64 Linux — plus
+  foreign `/tmp` EACCES artifacts. Orphaned dev servers that caused the
+  earlier port conflicts were cleaned up.
 - Windows/installed desktop matrix: NOT_RUN — no Windows host exists
   here; the platform claim is explicitly not made.
+- `linux-path-guard` custody class: NOT_RUN — the broker requires an
+  x86_64 kernel, real-root euid and ext4 backing; aarch64 cannot launch
+  it. `hermes-python/bin/python3.14` is also a CI-packaging artifact not
+  present in this checkout.
 - Live UI acceptance: source-bound only (typecheck/lint/build/unit
   dispatch); no live browser proof of `SessionBranchMenu`.
 
