@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M10",
-  "baseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
-  "sourceLockDigest": "14268e1b5dc9d9f509a57a51db7c005acb2ec466cf958cd883a3d54ba042ed71",
+  "baseSha": "567498568611bc33379b31a0630dfaf3691b339f",
+  "sourceLockDigest": "0f234e7866e671bdc6eddad5fcd355a83a780cf0fb46a190d39bd089d10a3986",
   "platform": "linux-arm64",
   "nodeVersion": "v24.11.1",
   "packageManagerVersion": "10.30.3",
@@ -89,13 +89,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:14:54.623Z",
-          "endedAt": "2026-11-17T02:15:24.455Z",
+          "startedAt": "2026-11-17T07:41:43.276Z",
+          "endedAt": "2026-11-17T07:42:26.670Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "29bbaee4045d35850f4ff907446dece6f48e55856a2f0f4e83a07f11c2cdb1d1"
+          "logDigest": "67a06776795d91a1c9febb298e30f2520f360d63ecc963efde48289d7f707e3a"
         },
         {
           "argv": [
@@ -108,13 +108,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:15:59.992Z",
-          "endedAt": "2026-11-17T02:16:05.906Z",
+          "startedAt": "2026-11-17T07:43:13.952Z",
+          "endedAt": "2026-11-17T07:43:17.254Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "7e926daf804e32e15ae0dce61ba4a5a7091e3af4c27161fe510824962f780073"
+          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
         }
       ],
       "artifactRefs": [
@@ -169,13 +169,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:14:54.623Z",
-          "endedAt": "2026-11-17T02:15:24.455Z",
+          "startedAt": "2026-11-17T07:41:43.276Z",
+          "endedAt": "2026-11-17T07:42:26.670Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "29bbaee4045d35850f4ff907446dece6f48e55856a2f0f4e83a07f11c2cdb1d1"
+          "logDigest": "67a06776795d91a1c9febb298e30f2520f360d63ecc963efde48289d7f707e3a"
         }
       ],
       "artifactRefs": [
@@ -219,13 +219,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:15:24.604Z",
-          "endedAt": "2026-11-17T02:15:36.901Z",
+          "startedAt": "2026-11-17T07:42:26.743Z",
+          "endedAt": "2026-11-17T07:43:03.099Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
-          "logDigest": "56425c8047163c89708861befb4c7de56cef10e12af2d09e63561f032247631d"
+          "logDigest": "8a8a1d189d25490035c276241a6bc5c4c939c30c5ffa9c9397d3a31f63510c18"
         },
         {
           "argv": [
@@ -238,13 +238,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:15:59.992Z",
-          "endedAt": "2026-11-17T02:16:05.906Z",
+          "startedAt": "2026-11-17T07:43:13.952Z",
+          "endedAt": "2026-11-17T07:43:17.254Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "7e926daf804e32e15ae0dce61ba4a5a7091e3af4c27161fe510824962f780073"
+          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
         }
       ],
       "artifactRefs": [
@@ -293,13 +293,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:15:37.045Z",
-          "endedAt": "2026-11-17T02:15:59.926Z",
+          "startedAt": "2026-11-17T07:43:03.217Z",
+          "endedAt": "2026-11-17T07:43:13.898Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
-          "logDigest": "88df3b16a20b7f481279a9821816cc85bc600b1920afc69990008d9ce56de955"
+          "logDigest": "a828de3c0cb571cf0b8575bfbf0222d5bb618ebe5ce4ef1a1789a8d21fc5a97c"
         },
         {
           "argv": [
@@ -312,13 +312,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:15:59.992Z",
-          "endedAt": "2026-11-17T02:16:05.906Z",
+          "startedAt": "2026-11-17T07:43:13.952Z",
+          "endedAt": "2026-11-17T07:43:17.254Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "7e926daf804e32e15ae0dce61ba4a5a7091e3af4c27161fe510824962f780073"
+          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
         }
       ],
       "artifactRefs": [
@@ -360,13 +360,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T04:57:06.798Z",
-          "endedAt": "2026-11-17T04:57:39.838Z",
+          "startedAt": "2026-11-17T08:04:58.416Z",
+          "endedAt": "2026-11-17T08:05:35.433Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log",
-          "logDigest": "ff868cfba002cdfa72928a8fe84da58a0a63ec5cb736bbd8fe3cf8088e6b5b71"
+          "logDigest": "4c013e7ce871d0eda04feb02074a3af8317f077215406445c1c16ebda6a40403"
         }
       ],
       "artifactRefs": [
@@ -411,8 +411,8 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:16:06.006Z",
-          "endedAt": "2026-11-17T02:19:17.978Z",
+          "startedAt": "2026-11-17T07:43:17.306Z",
+          "endedAt": "2026-11-17T07:45:21.732Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
@@ -426,13 +426,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:19:18.198Z",
-          "endedAt": "2026-11-17T02:22:25.721Z",
+          "startedAt": "2026-11-17T07:45:21.901Z",
+          "endedAt": "2026-11-17T07:46:52.457Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-lint-final.log",
-          "logDigest": "f43ed305112aec1ed77980693e14a7bd92fb4f97cf8de52d2191a82e20609bec"
+          "logDigest": "938cb79f3415ff4558d99e9a21d3fb24ee40e07b734a4ab840115b1c69b98f94"
         },
         {
           "argv": [
@@ -442,13 +442,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:22:25.944Z",
-          "endedAt": "2026-11-17T02:39:02.198Z",
+          "startedAt": "2026-11-17T07:46:52.532Z",
+          "endedAt": "2026-11-17T08:04:28.113Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-test-full-final.log",
-          "logDigest": "f216d6b516f1e15b524f3de9d11d1d771a3ac00aa87f665203eae62fdf7cc69d"
+          "logDigest": "5cbee414906dac3807b48bc24243290f71a22d5bab83f7b5a33dbc5162460e62"
         },
         {
           "argv": [
@@ -457,13 +457,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:39:02.261Z",
-          "endedAt": "2026-11-17T02:39:24.408Z",
+          "startedAt": "2026-11-17T08:04:28.171Z",
+          "endedAt": "2026-11-17T08:04:58.329Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
-          "logDigest": "8602d099a08b43a4f21d4c6b67fe50906b429be2695592b484a01cc8b139825e"
+          "logDigest": "7a9ba6dbb822253320ecb2b0288b456005dbb69de9dc076865d3674b28713f48"
         },
         {
           "argv": [
@@ -472,13 +472,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
           "executableIdentity": "pnpm",
-          "startedAt": "2026-11-17T02:39:24.456Z",
-          "endedAt": "2026-11-17T04:50:36.875Z",
+          "startedAt": "2026-11-17T08:05:35.498Z",
+          "endedAt": "2026-11-17T09:11:45.673Z",
           "exitCode": null,
           "termination": "TIMEOUT",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-test-browser-full-final.log",
-          "logDigest": "150e58427bec574d71729f346f8a5221349242d29d86910328059bfa52d33243"
+          "logDigest": "39cbfd50cd73ee34662d9660acbfd0978f7cf4bb64f8e348cd98aa5872d76fd1"
         }
       ],
       "artifactRefs": [
@@ -501,6 +501,7 @@
     "docs/implementation/v6/M10/compare-outcomes.mjs",
     "docs/implementation/v6/M10/handoff.md",
     "docs/implementation/v6/M10/logs/build-widgets.log",
+    "docs/implementation/v6/M10/logs/driver-summary-final-archived.txt",
     "docs/implementation/v6/M10/logs/driver-summary-r1.txt",
     "docs/implementation/v6/M10/logs/driver-summary-r2.txt",
     "docs/implementation/v6/M10/logs/driver-summary-r3.txt",
@@ -520,6 +521,7 @@
     "docs/implementation/v6/M10/logs/m10-browser-isolated-terminal-excerpts.log",
     "docs/implementation/v6/M10/logs/m10-browser-isolated-wo8-r2.log",
     "docs/implementation/v6/M10/logs/m10-browser-isolated-wo8.log",
+    "docs/implementation/v6/M10/logs/m10-browser-m08-restore-isolated.log",
     "docs/implementation/v6/M10/logs/m10-build-final.log",
     "docs/implementation/v6/M10/logs/m10-build-r3.log",
     "docs/implementation/v6/M10/logs/m10-build-widgets-r3.log",
@@ -550,6 +552,7 @@
     "docs/implementation/v6/M10/logs/vitest-comparison-r3.json",
     "docs/implementation/v6/M10/logs/vitest-comparison.json",
     "docs/implementation/v6/M10/post-gates.sh",
+    "docs/implementation/v6/M10/receipts-final-archived.jsonl",
     "docs/implementation/v6/M10/receipts-r1-archived.jsonl",
     "docs/implementation/v6/M10/receipts-r2-archived.jsonl",
     "docs/implementation/v6/M10/receipts-r3.jsonl",
@@ -557,6 +560,7 @@
     "docs/implementation/v6/M10/requirements.json",
     "docs/implementation/v6/M10/run-command.mjs",
     "docs/implementation/v6/M10/run-gates-r3.sh",
+    "docs/implementation/v6/M10/run-gates-r4.sh",
     "docs/implementation/v6/M10/run-gates.sh",
     "packages/contracts/background-work.ts",
     "packages/core/background-work.ts",
@@ -639,10 +643,10 @@
     "Foreground-timeout Continue-in-background offer is not wired to the operation timeout surface; the permitted-profile command path itself is implemented and gated.",
     "Windows/installed-desktop platform evidence absent; Linux aarch64 only.",
     "Live GitHub polling evidence absent; intake tested with injected authenticated fetch fixtures.",
-    "Full pnpm test: 298 failed / 3865 passed / 58 skipped vs baseline 298 / 3805 / 58; 297 shared failure identities. The single candidate-only identity passes 7/7 in an isolated candidate rerun (load flake); the single baseline-only identity failed only on the baseline run. The 60 new M10 unit tests all pass.",
-    "Full pnpm test:browser: 62 suites failed vs baseline 64; zero candidate-only failing suites (saved-drafts and thread-move failed only on the baseline run). 73 candidate-only test identities sit inside shared-failed suites: 71 are missing-msedge launch failures (baseline hit fixed-port collisions first; /opt/microsoft/msedge is absent on both cuts) and 2 are task-design timing cases that each pass in an isolated candidate rerun while the suite fails nondeterministically on both cuts. Missing Chrome/Edge channels, fixed-port collisions with concurrent agent worktrees and shared-machine load are not waived. The new background-work suite passes 11/11 in the full run and the focused receipt.",
-    "HOLD_SOURCE_DRIFT: R03 integration of captured origin/main 33639138f1cca3a596cab6315b1518a799fea6a5 (80 commits ahead of base 1c09d492) produced content conflicts in apps/server/server.ts, apps/web/src/App.tsx and packages/core/capability-flags.ts. Per R03 the merge was aborted after recording conflict paths and base/ours/theirs blob identities in the v6 handoff; no blanket ours/theirs applied. The task cut remains verified at its own base; a main-join requires owner-level resolution of the overlapping M15 workbench and M04 flag-key integrations.",
-    "Session-3 re-verification on the unchanged cut (merge abort restored byte-identical tree): pnpm build:widgets, the four targeted suites (60/60 tests), pnpm typecheck, pnpm lint and pnpm build all exit 0; separate ledger receipts-r3.jsonl.",
+    "Full pnpm test on the merged cut: 304 failed / 4115 passed / 62 skipped (4481) vs same-base baseline at 56749856: 306 failed / 4053 passed / 62 skipped (4421). All 304 candidate failure identities are shared with the baseline run — zero candidate-only failures; the 60-test delta is the new M10 suites, all passing. The 2 baseline-only identities (desktop-host startup collision, dev-plugin-runtime) are the same environmental/flaky class as the prior cut. Dominant causes unchanged: python3.14 absent (Hermes source worker), linux-path-guard denials, native/platform-specific suites.",
+    "Full pnpm test:browser on the merged cut: TIMEOUT at the 60-minute receipt-runner bound (exit recorded, termination=TIMEOUT) after 35 suite groups under concurrent-agent machine load; 24 of the 35 failed — 23 of 24 suite identities appear in the prior baseline's failed-suite list and the one new identity (m08-restore, a 20s load timeout) passes 7/7 in an isolated candidate rerun. The focused receipt pnpm test:browser --suite background-work exits 0 (11/11) on the merged cut. Missing Chrome/Edge channels (/opt/microsoft/msedge absent), fixed-port collisions with concurrent m04/m12/m14/m15 agent fixture servers and shared-machine load are not waived; a completed full-suite run remains an unmet gate.",
+    "HOLD_SOURCE_DRIFT resolved in session 4: the conflicted join with origin/main (then 33639138, re-captured as 567498568611bc33379b31a0630dfaf3691b339f after further main drift) was resolved under explicit user authorization. Resolution kept both integrations — M15/M04 flag keys beside the four M10 keys, main's customDock/onActiveViewsChange split-root plus background-work wiring, main's CRLF server.ts plus both route registrations — no blanket ours/theirs. The earlier abort-and-hold record stays in the v6 handoff.",
+    "Session-3 re-verification on the pre-merge cut (merge abort had restored a byte-identical tree): pnpm build:widgets, the four targeted suites (60/60 tests), pnpm typecheck, pnpm lint and pnpm build all exit 0; separate ledger receipts-r3.jsonl. Session-4 re-ran the full gate sequence on the merged cut with -final receipts; the pre-merge -final rows are preserved in receipts-final-archived.jsonl and git history.",
     "bundleStatus computes FAIL because the required full-repository gates fail on this environment; the deterministic M10 phases pass and the milestone outcome is PARTIAL with the named holds."
   ],
   "reviewerApproval": false

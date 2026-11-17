@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
-  "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+  "executionBaseSha": "567498568611bc33379b31a0630dfaf3691b339f",
   "inspectedPaths": [
     {
       "path": "packages/contracts/tool-effects.ts",
@@ -13,7 +13,7 @@
     },
     {
       "path": "packages/contracts/request-context.ts",
-      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+      "blobSha": "90485ab315299e97f96b7b2dc370f0851f7f620f"
     },
     {
       "path": "packages/contracts/execution-profile.ts",
@@ -29,11 +29,11 @@
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+      "blobSha": "bb13ab52cfb8ff5c4cd6f3d8081087d61ad60460"
     },
     {
       "path": "packages/core/service.ts",
-      "blobSha": "58ac6b1607c0881cdfb3493cd60293b47b23a13f"
+      "blobSha": "c010253aaf289e97d4ededddd8f83a3af4ae98fb"
     },
     {
       "path": "packages/core/attention.ts",
@@ -57,11 +57,11 @@
     },
     {
       "path": "packages/runtime-hermes/task-pool.ts",
-      "blobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+      "blobSha": "bf3e1241ee670850e2f8dd5ae6fefbe4f82841b8"
     },
     {
       "path": "packages/runtime-hermes/client.ts",
-      "blobSha": "c83ab13d1347c592df98ddf258788415bb971873"
+      "blobSha": "8744c4a15a3a768da1f5202242d3ba2406e666a5"
     },
     {
       "path": "packages/runtime/model-capacity.ts",
@@ -77,7 +77,7 @@
     },
     {
       "path": "packages/workspace/github.ts",
-      "blobSha": "dfcf9303025e2cbd03b62ccc3f6c502f6c265745"
+      "blobSha": "afc6a4db26458857ee71cf18f8b95da406a8593c"
     },
     {
       "path": "apps/server/attention-routes.ts",
@@ -85,7 +85,7 @@
     },
     {
       "path": "apps/server/server.ts",
-      "blobSha": "f47211cc6c67eb683241a368604c1e56d862908b"
+      "blobSha": "894473a7fbfc0d9e5879fb6982b7fcf40d902db6"
     },
     {
       "path": "apps/server/hermes-service.ts",
@@ -97,7 +97,7 @@
     },
     {
       "path": "package.json",
-      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+      "blobSha": "98917356c2e24da32ecd93b9e6cd8d92d3a81080"
     },
     {
       "path": "pnpm-lock.yaml",
