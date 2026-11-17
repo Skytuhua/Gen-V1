@@ -59,6 +59,7 @@ import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextB
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
 import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
+import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
@@ -95,6 +96,7 @@ export interface ServiceOptions {
 }
 export class Service {
   readonly sourceWorkbench: SourceWorkbench;
+  readonly controlConsent: BrowserConsentHost;
   readonly research:PersonalResearchRepository;
   readonly planning: PlanningCoordinator;
   readonly agentWork: AgentWorkCoordinator;
@@ -194,6 +196,7 @@ export class Service {
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
       released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
     });
+    this.controlConsent = new BrowserConsentHost(store, {registry: hostControlDriverRegistry});
     this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
       requestContextEnabled: () => this.requestContextEnabled(),
       readMemoryModule: async owner => {
@@ -870,6 +873,19 @@ export class Service {
       if(command.type==='skill.flags')return setSkillFlags(this.store,text(p,'name',64),{...(p.enabled===undefined?{}:{enabled:p.enabled as boolean}),...(p.protected===undefined?{}:{protected:p.protected as boolean})},p.baseRevision as number);
       if(command.type==='skill.decide')return decideSkillProposal(this.store,text(p,'proposalId',200),p.approve as boolean);
       throw new HarnessError('UNKNOWN_CAPABILITY','Unknown skill command.');
+    });
+    if(command.type==='control.request')return this.store.command(command,()=>{
+      const thread=this.thread(command.threadId!),mode=p.mode;
+      if(mode!=='FRESH_VERIFICATION_BROWSER'&&mode!=='CONSENTED_EXISTING_TAB'&&mode!=='SELECTED_DESKTOP_APPLICATION')throw new HarnessError('INVALID_INPUT','Choose a control mode.');
+      const owner={threadId:thread.id,runId:null,epoch:thread.epoch,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null,accountBinding:thread.accountId??null};
+      const OPS=['CLICK','TYPE','KEYPRESS','UPLOAD','DOWNLOAD','NAVIGATE'] as const;
+      const operations=Array.isArray(p.operations)?p.operations.filter((o):o is (typeof OPS)[number]=>typeof o==='string'&&(OPS as readonly string[]).includes(o)):[];
+      const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations,allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
+      return {consent:request,control:this.controlConsent.surfaceModel(thread.id)};
+    });
+    if(command.type==='control.stop')return this.store.command(command,()=>{
+      const thread=this.thread(command.threadId!);
+      return {control:this.controlConsent.stop(thread.id)};
     });
     if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
     if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));

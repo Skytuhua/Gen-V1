@@ -6,9 +6,9 @@ Gen is a Windows x64 preview. Source features, published downloads and acceptanc
 
 ## What you can download
 
-The [v0.6.1 prerelease](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) is the current published preview. It includes an unsigned Windows x64 installer and a SHA-256 checksum file. It is not a stable release.
+The [v0.6.1 prerelease](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1) is the current published preview. It includes an unsigned Windows x64 installer and a SHA-256 checksum file. It is not a stable release.
 
-The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the source setup instructions to try changes made after the v0.6.1 prerelease. Release availability can change; check the [release list](https://github.com/Skytuhua/Gen-V1/releases) before choosing an installer.
+The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the source setup instructions to try changes made after the v0.6.1 prerelease. Release availability can change; check the [release list](https://github.com/skytuhua-org/Gen-V1/releases) before choosing an installer.
 
 ## Unreleased 0.6.5 source
 

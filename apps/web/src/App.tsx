@@ -29,6 +29,7 @@ import {useSidebarCollapse} from './sidebar-collapse';
 import {sameSplitWorkspaceView,createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../../packages/core/split-workspace-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
 import { VerificationPanel } from './VerificationPanel';
+import { ControlConsentPanel } from './ControlConsentPanel';
 import { WorkspaceProvider, type WorkspaceContextValue } from './workspace-context';
 import './shell.css';
 import './connections.css';
@@ -215,7 +216,7 @@ export function OperationDecision({ operation, refresh }: { operation: Operation
 }
 
 function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string; close: () => void; refresh: () => Promise<void>; opener: HTMLElement | null }) {
-  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus({ preventScroll: true }); }); }, [opener]);
+  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected && document.activeElement === document.body) opener.focus({ preventScroll: true }); }); }, [opener]);
   const [path, setPath] = useState('');
   const [kind, setKind] = useState('project');
   const [writable, setWritable] = useState(false);
@@ -449,7 +450,7 @@ function CanvasThread({sharedComposers,thread,snapshot,visible,blocked,refresh,s
  },[owner,readOnly,visible]);
  const messages=snapshot.messages.filter(message=>message.threadId===thread.id),working=Boolean(thread.runId)||thread.status==='working';
  const run=async(action:()=>Promise<void>)=>{setBusy(true);try{await action();}finally{setBusy(false);}};
- return <SourceWorkbenchProvider snapshot={snapshot} active={visible&&!held&&!readOnly&&!threadParent(thread)} owner={{threadId:thread.id,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null}} ownerEpoch={`${thread.epoch}:${thread.accountId??''}:${visible}:${held}`}><div ref={findScope} className={`canvas-thread${readOnly?' canvas-thread-delegate':''}`}><div className="canvas-thread-status">{readOnly?'Delegated agent':threadParent(thread)?'Side conversation':'Main conversation'} · {threadStatus(thread)}{detached&&<button className="quiet" onClick={()=>void window.harnessDesktop?.focus(detached.id)}>Focus native window</button>}</div><ConversationFind ownerKey={thread.id} transcript={findTranscript} scope={findScope} active={visible} onLoadEarlier={messages.length>history?()=>setHistory(value=>value+60):undefined}/>{visible&&<div ref={findTranscript} className="canvas-thread-transcript" role="log" aria-label={`${thread.title} messages`}>{messages.length>history&&<button className="quiet" onClick={()=>setHistory(value=>value+60)}>Load earlier messages</button>}{messages.slice(-history).map(message=><div key={message.id} data-message-id={message.id} data-arrival={liveMessages.has(message.id)?'true':undefined} data-conversation-text className={`message message-${message.role}`}><span className="sr-only">{message.role}</span><CopyButton text={message.content} label="Copy message"/>{message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><Markdown text={message.content}/></SourceMessage>:<Markdown text={message.content}/>}</div>)}{!messages.length&&<p className="muted">No messages yet.</p>}{error&&<p role="alert" className="error-text">{error}</p>}{thread.error&&<p role="alert" className="error-text">{thread.error}</p>}{!readOnly&&working&&<button className="quiet" disabled={busy} onClick={()=>void run(async()=>{await stopConversation(thread, sharedComposers);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Stop</button>}{!readOnly&&['stopped','interrupted','failed'].includes(thread.status)&&<button className="secondary" disabled={busy||!modelId} onClick={()=>void run(async()=>{await command('run.resume',{modelId},thread.id);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Resume</button>}</div>}{visible&&<VerificationPanel threadId={thread.id}/>}{readOnly?<div className="canvas-thread-readonly">Read-only transcript.</div>:<div inert={held} style={{display:'contents'}}>{threadParent(thread)?<SideThreadComposer thread={thread} modelId={modelId} refresh={refresh}/>:<Composer sharedComposers={sharedComposers} selectProject={selectProject} key={thread.id} thread={thread} snapshot={snapshot} models={models} modelId={modelId} setModelId={setModelId} ensureThread={async prepare=>{await prepare(thread.id);return thread.id;}} busy={busy} runAction={run} refresh={refresh} setup={setup} openResource={openResource} browseProject={browseProject} inspectChanges={inspectChanges} reportError={reportError} predictionBlocked={held||!visible} onSide={async content=>{if(!content.trim())return;const receipt=await command('thread.create',{sideParentId:thread.id,title:content.slice(0,65)}),side=receipt.result as Thread,key=`side-draft:${thread.id}:${side.id}`,generation=await journalWrite(key,content);await refresh();await command('message.send',{content,modelId},side.id);await journalCompareAndSwap(key,generation,'');await refresh();}}/>}</div>}</div></SourceWorkbenchProvider>;
+ return <SourceWorkbenchProvider snapshot={snapshot} active={visible&&!held&&!readOnly&&!threadParent(thread)} owner={{threadId:thread.id,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null}} ownerEpoch={`${thread.epoch}:${thread.accountId??''}:${visible}:${held}`}><div ref={findScope} className={`canvas-thread${readOnly?' canvas-thread-delegate':''}`}><div className="canvas-thread-status">{readOnly?'Delegated agent':threadParent(thread)?'Side conversation':'Main conversation'} · {threadStatus(thread)}{detached&&<button className="quiet" onClick={()=>void window.harnessDesktop?.focus(detached.id)}>Focus native window</button>}</div><ConversationFind ownerKey={thread.id} transcript={findTranscript} scope={findScope} active={visible} onLoadEarlier={messages.length>history?()=>setHistory(value=>value+60):undefined}/>{visible&&<div ref={findTranscript} className="canvas-thread-transcript" role="log" aria-label={`${thread.title} messages`}>{messages.length>history&&<button className="quiet" onClick={()=>setHistory(value=>value+60)}>Load earlier messages</button>}{messages.slice(-history).map(message=><div key={message.id} data-message-id={message.id} data-arrival={liveMessages.has(message.id)?'true':undefined} data-conversation-text className={`message message-${message.role}`}><span className="sr-only">{message.role}</span><CopyButton text={message.content} label="Copy message"/>{message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><Markdown text={message.content}/></SourceMessage>:<Markdown text={message.content}/>}</div>)}{!messages.length&&<p className="muted">No messages yet.</p>}{error&&<p role="alert" className="error-text">{error}</p>}{thread.error&&<p role="alert" className="error-text">{thread.error}</p>}{!readOnly&&working&&<button className="quiet" disabled={busy} onClick={()=>void run(async()=>{await stopConversation(thread, sharedComposers);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Stop</button>}{!readOnly&&['stopped','interrupted','failed'].includes(thread.status)&&<button className="secondary" disabled={busy||!modelId} onClick={()=>void run(async()=>{await command('run.resume',{modelId},thread.id);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Resume</button>}</div>}{visible&&<VerificationPanel threadId={thread.id}/>}{visible&&<ControlConsentPanel threadId={thread.id}/>}{readOnly?<div className="canvas-thread-readonly">Read-only transcript.</div>:<div inert={held} style={{display:'contents'}}>{threadParent(thread)?<SideThreadComposer thread={thread} modelId={modelId} refresh={refresh}/>:<Composer sharedComposers={sharedComposers} selectProject={selectProject} key={thread.id} thread={thread} snapshot={snapshot} models={models} modelId={modelId} setModelId={setModelId} ensureThread={async prepare=>{await prepare(thread.id);return thread.id;}} busy={busy} runAction={run} refresh={refresh} setup={setup} openResource={openResource} browseProject={browseProject} inspectChanges={inspectChanges} reportError={reportError} predictionBlocked={held||!visible} onSide={async content=>{if(!content.trim())return;const receipt=await command('thread.create',{sideParentId:thread.id,title:content.slice(0,65)}),side=receipt.result as Thread,key=`side-draft:${thread.id}:${side.id}`,generation=await journalWrite(key,content);await refresh();await command('message.send',{content,modelId},side.id);await journalCompareAndSwap(key,generation,'');await refresh();}}/>}</div>}</div></SourceWorkbenchProvider>;
 
 }
 function stopConversation(thread: Thread, composers?: SharedAgentComposers) {
@@ -852,9 +853,9 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const usageReport=runtimeUsageReport(usageOwner,usageThreadId?snapshot.usage[usageThreadId]:undefined);
   useEffect(()=>{
     if(!loaded||!workspaceEnvelope||pinnedThreadId||navigationOnly||layout.activeTab!=='usage'||splitEnabled&&!convSplitState.layout)return;
-    if(layout.rightPanelOpen&&workspaceMode==='chat'&&!canvasActive&&!customDock&&!selectedPluginId){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
+    if(layout.rightPanelOpen&&!splitEnabled&&!canvasActive&&!customDock&&!selectedPluginId){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
     setLayout(value=>value.activeTab==='usage'?{...value,activeTab:'notes'}:value);
-  },[loaded,workspaceEnvelope,pinnedThreadId,navigationOnly,layout.activeTab,layout.rightPanelOpen,workspaceMode,canvasActive,customDock,splitEnabled,convSplitState.layout,selectedPluginId,thread?.id]);
+  },[loaded,workspaceEnvelope,pinnedThreadId,navigationOnly,layout.activeTab,layout.rightPanelOpen,canvasActive,customDock,splitEnabled,convSplitState.layout,selectedPluginId,thread?.id]);
   const [reviewRequest,setReviewRequest]=useState<ReviewRequest>();
   const pendingReviewId=useRef<number|undefined>(undefined);
   const handleReviewRequest=useCallback((id:number)=>{if(pendingReviewId.current===id)pendingReviewId.current=undefined;setReviewRequest(current=>current?.id===id?undefined:current);},[]);
@@ -929,10 +930,14 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   useEffect(()=>{
     if(!splitEnabled||!convSplitState.layout||!thread||placedThread.current===thread.id)return;
     const current=convSplitState.layout,existing=Object.values(current.panes).find(pane=>pane.viewIds.some(id=>current.views[id]?.kind==='thread'&&current.views[id]?.binding.threadId===thread.id));
-    if(existing&&!existing.collapsed&&existing.activeViewId&&current.views[existing.activeViewId]?.kind==='thread'&&current.views[existing.activeViewId]?.binding.threadId===thread.id){placedThread.current=thread.id;return;}
+    if(existing&&!existing.collapsed&&existing.activeViewId&&current.views[existing.activeViewId]?.kind==='thread'&&current.views[existing.activeViewId]?.binding.threadId===thread.id){placedThread.current=focusedSplitThread(current)??thread.id;return;}
     placedThread.current=thread.id;
     void placeSplitThread(thread.id,existing?.id??current.focusedPaneId).catch(cause=>{placedThread.current=null;setError(messageOf(cause));});
   },[splitEnabled,convSplitState.layout,thread?.id]);
+  const focusedSplitThread=(layout:SplitWorkspaceLayout)=>{
+    const viewId=document.activeElement?.closest<HTMLElement>('[data-split-view]')?.dataset.splitView,view=viewId?layout.views[viewId]:undefined;
+    return view?.kind==='thread'&&view.binding.authority.kind==='local'?view.binding.threadId:undefined;
+  };
   const focusSplitOwner=(view:SurfaceRef)=>{if(view.binding.authority.kind!=='local'||!view.binding.threadId)return;placedThread.current=view.binding.threadId;setSelectedId(view.binding.threadId);};
   const convSendSplitCommand=async(type:string,payload:Record<string,unknown>)=>{
     if(type==='view.activate')await journalFlush();
@@ -941,22 +946,23 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   };
   const placementBase=(layout:SplitWorkspaceLayout,mainPaneId:string):ConversationPlacementRecord=>mainPlacement??{version:1,workspaceId:layout.id,mainPaneId,mainSelection:{kind:'new'},floating:{},mainBasis:mainBasisOf(layout,mainPaneId)};
   // Detach parks the conversation and floats it on the same plane; main becomes explicitly empty (T02/R02).
-  const detachConversation=async(view:SurfaceRef)=>{
+  const detachConversation=async(view:SurfaceRef,requestedRect?:ChatRect)=>{
     const current=convSplitState.layout;
     if(!current||view.kind!=='thread'||view.binding.authority.kind!=='local')return;
-    const mainPaneId=resolveMainPaneId(current),viewport={width:window.innerWidth,height:window.innerHeight},rect=clampChatRect(DEFAULT_FLOAT_RECT,viewport);
+    const mainPaneId=resolveMainPaneId(current),viewport={width:window.innerWidth,height:window.innerHeight},rect=clampChatRect(requestedRect??DEFAULT_FLOAT_RECT,viewport);
     const base=placementBase(current,mainPaneId);
     const expectation=capturePlacementExpectation(current,{type:'view.park',payload:{viewId:view.id}},mainPaneId);
     const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'detach',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:{kind:'empty'},desiredMainPaneId:mainPaneId,floatingAdd:{[view.id]:{view,rect}},floatingRemove:[],expectation};
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.park',{viewId:view.id});
+      const next=await convSplitState.send('view.park',{viewId:view.id,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'empty'},floating:{...base.floating,[view.id]:{view,rect}},mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=null;setSelectedId(null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next);
+        placedThread.current=focusedThreadId??null;setSelectedId(focusedThreadId??null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Return replaces the main pane with the floating conversation, parking whatever occupied main (T02/R02).
   const returnConversation=async(view:SurfaceRef)=>{
@@ -969,13 +975,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace'});
+      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace',baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'thread',threadId},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=threadId;setSelectedId(threadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Docking a float into a real pane split is an acknowledged command, never a local geometry change (T03/R03).
   const dockFloat=async(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer=false)=>{
@@ -989,15 +995,15 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('pane.split',payload);
+      const next=await convSplitState.send('pane.split',{...payload,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
         const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=view.binding.threadId;setSelectedId(view.binding.threadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next)??view.binding.threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Local float geometry persists without a split command; the plane keeps the live rect (T02/R02).
   const moveFloat=(viewId:string,rect:ChatRect)=>{
