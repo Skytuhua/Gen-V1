@@ -219,6 +219,14 @@ export const securityFindingV1Schema = z.strictObject({
   impact: boundedText(1000),
   status: securityFindingStatusSchema,
   reproduction: boundedText(2000).nullable(),
+  /** Legacy records without host-stamped provenance remain unverified. */
+  evidenceQuality: z.enum(['ADVISORY', 'EXECUTED', 'UNVERIFIED']).optional(),
+  provenance: z.strictObject({
+    owner: toolOwnerSchema,
+    executionId: boundedText(200),
+    codeDigest: sha256HexSchema,
+    dependencyDigest: sha256HexSchema,
+  }).optional(),
   createdAt: isoTimestamp,
   updatedAt: isoTimestamp,
 });
