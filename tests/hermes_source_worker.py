@@ -404,7 +404,8 @@ class WorkerFixture(unittest.TestCase):
                  "generation": 1, "instructionDigest": "b" * 64, "toolRegistryDigest": "c" * 64}, "sourceSha256": source["historySha256"], "retainedIndices": kept,
                 "references": [{"kind": "PENDING_APPROVAL", "id": "request:approval", "revision": 3, "digest": "d" * 64}], "maxRetainedBytes": 65536}
         protection = {"plan": plan, "planDigest": hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()}
-        compact = {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": source["historySha256"], "compactionProtection": protection}
+        compact = {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": source["historySha256"], "compactionProtection": protection,
+                   "compactionContext": {key: plan["owner"][key] for key in ("threadId", "runId", "epoch")}}
         return params, source, plan, compact
 
     def test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive(self):
@@ -431,6 +432,43 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(self.request("agent.history", {})["messages"], applied["messages"])
         self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], applied["messages"])
         self.assertLess(receipt["afterBytes"], receipt["beforeBytes"])
+
+    def test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for key, value in (("runId", "wrong-maintenance"), ("epoch", 3)):
+            with self.subTest(field=key):
+                attempt = json.loads(json.dumps(compact))
+                plan = attempt["compactionProtection"]["plan"]
+                plan["owner"][key] = value
+                attempt["compactionProtection"]["planDigest"] = hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()
+                failure = self.request("agent.compact", attempt, error_code="ProtectionError")
+                self.assertIn("SOURCE_MISMATCH", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_requires_an_explicit_same_thread_maintenance_context(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for context in (None, {**compact["compactionContext"], "threadId": "other-thread"}, {**compact["compactionContext"], "epoch": True}):
+            with self.subTest(context=context):
+                failure = self.request("agent.compact", {**compact, "compactionContext": context}, error_code="ProtectionError")
+                self.assertIn("SOURCE_MISMATCH", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_cannot_replace_the_retained_source_context(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for key, value in (("runId", "wrong-source-run"), ("epoch", 2)):
+            with self.subTest(field=key):
+                failure = self.request("agent.compact", {**compact, "ctx": {**compact["ctx"], key: value}}, error_code="PermissionError")
+                self.assertIn("Maintenance context does not own this source session", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
 
     def test_m04_protection_refuses_when_native_normalization_makes_the_old_prose_part_of_a_required_tool_group(self):
         params, source, _plan, compact = self.protected_compaction_fixture(distinct_turns=False)

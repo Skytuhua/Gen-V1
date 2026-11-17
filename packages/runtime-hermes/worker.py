@@ -721,6 +721,13 @@ class Worker:
     def native_compaction(self, params, messages):
         agent, context = self.agent, copy.deepcopy(self.ctx)
         binding = {"threadId": (self.ctx or {}).get("threadId"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+        if params.get("compactionProtection") is not None:
+            maintenance = params.get("compactionContext")
+            # The retained conversation ctx remains the native session owner.
+            # This distinct host context owns only the protected maintenance.
+            if not isinstance(maintenance, dict) or set(maintenance) != {"threadId", "runId", "epoch"} or maintenance.get("threadId") != binding["threadId"] or type(maintenance.get("epoch")) is not int:
+                raise COMPACTION.ProtectionError("SOURCE_MISMATCH")
+            binding.update({"runId": maintenance["runId"], "epoch": maintenance["epoch"]})
         def current():
             if self.agent is not agent or self.ctx != context or not self.active_owner or self.cancelled.is_set() or self.current_ctx().get("phase") != "foreground":
                 raise COMPACTION.ProtectionError("HOST_REVOKED")
