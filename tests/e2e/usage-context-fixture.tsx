@@ -21,6 +21,9 @@ function Fixture() {
     const update = (event: Event) => {
       const action = (event as CustomEvent<string>).detail;
       if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13,inclusionReason:'selected by host',tokens:null,measurement:'BYTE_ONLY',exclusionReason:null}], omittedSources:0 } }));
+      if (action === 'request-relevance') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 4, promptBytes: 1300, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', relevance: {
+        cutId: 'b'.repeat(64), observedAtSequence: 4, candidateIds: ['host-result:1'], estimatedSavingsBytes: 1200, inspectionBudgetBytes: 65536, inspectedResults: 1, protectedResults: 0, omittedResults: 2, source: 'HOST_READ_RESULTS', measurement: 'BYTE_ONLY',
+      } } }));
       if (action === 'decrease') setUsage(value => ({ ...value, contextTokens: 4000 }));
       if (action === 'unknown') setUsage({ ...EMPTY_USAGE });
       if (action === 'session') setSession('two');

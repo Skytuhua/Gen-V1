@@ -67,6 +67,19 @@ export interface CompactionMetadataV1 {
 }
 
 /** Public counts at the admitted broker boundary; never the provider's actual context. */
+export interface ContextRelevanceObservationV1 {
+  readonly cutId: string;
+  readonly observedAtSequence: number;
+  readonly candidateIds: readonly string[];
+  readonly estimatedSavingsBytes: number;
+  readonly inspectionBudgetBytes: number;
+  readonly inspectedResults: number;
+  readonly protectedResults: number;
+  readonly omittedResults: number;
+  readonly source: 'HOST_READ_RESULTS';
+  readonly measurement: 'BYTE_ONLY';
+}
+
 export interface ContextRequestObservationV1 {
   readonly threadId: string;
   readonly runId: string;
@@ -77,6 +90,7 @@ export interface ContextRequestObservationV1 {
   readonly visibility: 'OPAQUE_NATIVE_CONTEXT';
   readonly source: 'hermes';
   readonly toolSnapshot?: { readonly count: number; readonly schemaBytes: number; readonly digest: string };
+  readonly relevance?: ContextRelevanceObservationV1;
 }
 
 /** Projection of app-owned submission fragments, not native/provider history. */

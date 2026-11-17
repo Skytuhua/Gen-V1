@@ -182,6 +182,12 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
       </>}
       {index === 2 && <p className="context-categories-note">{request.toolSnapshot ? `${request.toolSnapshot.count} host tool schemas · ${contextNumber(request.toolSnapshot.schemaBytes)} serialized bytes.` : 'Schema counts were not reported by this adapter.'}</p>}
       {index === 3 && <>
+        {request.relevance && <section aria-label="Read-only relevance observation">
+          <p className="context-categories-note">{request.relevance.candidateIds.length} old host read {request.relevance.candidateIds.length === 1 ? 'result' : 'results'} for review · {contextNumber(request.relevance.estimatedSavingsBytes)} bytes potential savings (estimate).</p>
+          <p className="context-categories-note">Nothing was removed. Native context is opaque; these results require semantic review before compaction.</p>
+          <p className="context-categories-note">{request.relevance.protectedResults} protected · {request.relevance.omittedResults} outside the observation window · {contextNumber(request.relevance.inspectionBudgetBytes)} byte inspection cap.</p>
+          {Boolean(request.relevance.candidateIds.length) && <details><summary>Candidate result observations</summary><ul>{request.relevance.candidateIds.map(candidate => <li key={candidate}>{candidate}</li>)}</ul></details>}
+        </section>}
         {!compaction?.candidates.length && <p className="context-categories-note">No loss-aware compaction receipt. An observation is not a history change.</p>}
         {Boolean(compaction?.candidates.length) && <ul aria-label="Compaction candidates">
           {compaction?.candidates.map(entry => <li key={entry.metadata.candidateId}>
