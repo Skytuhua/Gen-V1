@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: m01-m03-audit-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   GIT_CONFIG_COUNT: 1
