@@ -202,3 +202,9 @@ A third review pass on `596ce44c` surfaced two genuine defects:
 - **Held-firing recovery (durable-wakeups.ts) — 🔴**: a host interruption between the resume commit and `deliverHeld`'s claim could strand a held PENDING occurrence permanently — neither `tick` nor `recover` inspected it. `recover()` now re-delivers held occurrences for every live wakeup after reconciliation. Regression test simulates the crash gap (unblocked wakeup + stranded PENDING occurrence) and verifies delivery on `recover()`.
 
 80 M10 tests pass; typecheck/lint/build PASS; evidence regenerated on `7be06068` with validator 0 issues. `bundleStatus` remains honest `FAIL` (unchanged environmental full-repo gates); `reviewerApproval` remains false.
+
+## Session 7 continued — round-4 finding fixed on `12f9dcbe`
+
+- **Recovery respected disablement** (`durable-wakeups.ts`): the held-occurrence redelivery added in `7be06068` ran unconditionally, so `recover()` on a host with `jobs.backgroundV1` disabled could still execute deferred firings. The loop now requires `enabled()`; reconciliation itself is unaffected and held occurrences stay durable until an enabled recovery. Regression test: a stranded held firing stays `PENDING` with no spawn while the flag is off, then delivers on re-enable.
+
+81 M10 tests pass; evidence regenerated on `12f9dcbe`, validator 0 issues. `bundleStatus` remains honest `FAIL`; `reviewerApproval` remains false.
