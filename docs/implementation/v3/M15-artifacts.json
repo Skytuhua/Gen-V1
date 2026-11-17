@@ -37,8 +37,8 @@
     },
     {
       "path": "docs/implementation/v3/M15-evidence-plan.json",
-      "bytes": 35022,
-      "sha256": "86f3a27e39901ae388f0297e83adf928c767830940a0b702b128a9b90e35150c"
+      "bytes": 35071,
+      "sha256": "fbff61548af605fc3411b657445cce57d7387d06f6f64e4cc1c398f05b54a5f1"
     },
     {
       "path": "docs/implementation/v3/M15-feature-comparison.md",
@@ -8819,6 +8819,16 @@
       "path": "docs/implementation/v3/m15-logs/v6pm-vitest-workbench-recovery-v3.json",
       "bytes": 557,
       "sha256": "30da1895ece4ee3d351176bcbc181766dc580f5b04bfaf43fc72f83e0ca18c09"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/v6pm2-gate-test-browser.json",
+      "bytes": 487,
+      "sha256": "c4fbf3034611e1a94a3d788ca83fb5a378a051af7168c093e68c3cc0ac616b75"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/v6pm2-gate-test.json",
+      "bytes": 471,
+      "sha256": "1be5b0b6117e6fc41a76f0c7ad427d357fea9ac4b3086602aa31a96a6724cfeb"
     }
   ]
 }

@@ -3229,5 +3229,23 @@
     "exitCode": 0,
     "startedAt": "2026-11-17T07:17:17.337Z",
     "endedAt": "2026-11-17T07:17:20.351Z"
+  },
+  {
+    "id": "v6pm2-gate-test-browser",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm2-gate-test-browser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-17T10:28:09.465Z",
+    "endedAt": "2026-11-17T12:33:01.141Z"
+  },
+  {
+    "id": "v6pm2-gate-test",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm2-gate-test.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-17T10:18:18.972Z",
+    "endedAt": "2026-11-17T10:27:32.179Z"
   }
 ]
