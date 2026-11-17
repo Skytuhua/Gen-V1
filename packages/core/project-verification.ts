@@ -358,6 +358,9 @@ export class ProjectVerificationService {
       }
     }
     }
+    // A successful command cannot establish a clean verification run while
+    // its owned resources remain live or cleanup evidence could not be saved.
+    if (cleanupFailures.length && outcome === 'PASS') outcome = 'FAIL';
     return { executionId, observations, cleanupFailures, outcome };
   }
 }

@@ -272,3 +272,25 @@ it('driver failures record BLOCKED, not a fabricated outcome',async()=>{
  expect(result.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='__driver__')?.observed).toMatch(/renderer crashed/);
 });
+
+it('owned browser cleanup failure is retained and prevents successful verification',async()=>{
+ const store=stateStore();
+ const base=fakeDriver({texts:{h1:'Welcome home'}});
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close:async()=>{throw new Error('owned browser still running');}})};
+ const result=await run(store,[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+ ],driver);
+ expect(result.outcome).toBe('FAIL');
+ const cleanup=result.observations.find(obs=>obs.checklistItemId==='__cleanup__')!;
+ expect(cleanup.outcome).toBe('FAIL');
+ expect(cleanup.observed).toContain('owned browser still running');
+ expect(store.get('visualObservation',cleanup.checkId)).toEqual(cleanup);
+ const assertion=result.observations.find(obs=>obs.checklistItemId==='item-1')!;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[assertion.checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.label).toBe('FAILED');
+});
