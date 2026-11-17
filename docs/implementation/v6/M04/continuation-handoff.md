@@ -50,18 +50,15 @@ Resolution path (requires a **new task revision explicitly authorizing conflict 
 
 Evidence required: D01 passing at the merged cut; composer admission tests; scoped browser test; updated verification receipt with the new baseSha and source lock.
 
-### 3.2 HOLD_NATIVE_COMPACTION — C4 actual apply, U03 measured results
+### 3.2 HOLD_NATIVE_COMPACTION — RESOLVED: real source-cut CAS implemented
 
-State: deterministic eligibility/apply gates exist and are tested; `run.compact` under `context.lossAwareCompactionV1` throws UNSUPPORTED_COMPACTION and never calls legacy compaction (tested). No adapter exposes an observed native loss-aware compare-and-swap apply.
+The protocol was extended rather than faked: the worker verifies an exact history precondition inside the native process immediately before mutation.
 
-Why held: C4 requires "the exact native compaction API and rollback proof"; S11 requires an observed native API + tests; D06 forbids a fake host-only reset; R11 forbids invented proof. The original Hermes worker runtime (pinned Python 3.14) is not provisioned on this host, so native behavior cannot even be observed here.
-
-Resolution path:
-1. Provision the reviewed runtime prerequisites (§5) or run on the reviewed linux-x64 workflow host.
-2. Inspect the actual native source protocol (packages/runtime-hermes/worker.py, the original Hermes source client methods) for a compaction API. Determine whether it supports exact-source-cut compare-and-swap. If it only supports blunt reset/summary persistence, it does NOT satisfy S11 — keep UNSUPPORTED_COMPACTION and record the finding.
-3. If a CAS-capable API exists: implement the adapter apply behind `applyCompactionCandidate`'s `nativeApply` seam; before apply verify exact source cut, workspace, model/account, generation; after apply create a fresh generation and immutable before/after usage observation (CompactionMetadataV1.usageObservationRef). Adapter-specific runtime tests with the pinned Python; wrong generation/model/workspace/account must refuse (T05 native cases).
-4. G03 rollback proof: disable flags mid-run, cancel observers, original native history retained, failed summary never replaces the active session, result artifacts kept until retention expiry.
-5. Only then may `context.lossAwareCompactionV1` be considered for activation — activation is a separate decision, never implied by tests passing.
+- `worker.py`: `agent.history` returns a worker-computed `historySha256` (canonical `sha256(json.dumps(history, sort_keys=True))`). `agent.compact` accepts `expectedHistorySha256`; a mismatch returns `{compacted:false, mismatch:true, historySha256}` without touching history. `self.history` is only assigned after `_compress_context` returns inside `native_checkpoint` (owner binding rechecked: thread/run/epoch/session/model/account); the `before` deepcopy is the rollback witness and `save_session` persists only post-apply.
+- `contracts`/`runtime-hermes`: `RuntimeAdapter.compact` gains an optional `expectedHistorySha256` param; `nativeHistoryDigest(ctx, sessionPath, accountId)` reads the live worker's digest via the `agent.history` maintenance channel. Adapter maps `mismatch` to `HERMES_COMPACTION_MISMATCH`; compact still requires the exact retained thread/model/account/session and `compacted===true`.
+- `service`: `applyLossAwareCompaction` mints the binding-bound candidate, evaluates through `applyCompactionCandidate` (stale/cancelled/oversized never reaches `nativeApply`), snapshots the live digest, calls `compact` with the expected hash, persists a `compactionUsage` entity (measured before/after bytes) inside the command transaction, projects verdict + measured bytes into `usage.compaction` for the Compaction tab. APPLIED returns a command receipt; FAILED throws `COMPACTION_FAILED`; adapters without `nativeHistoryDigest` still throw `UNSUPPORTED_COMPACTION`.
+- Tests: `tests/hermes_source_worker.py::test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest` (runs on Windows CI with the pinned Python — deps are not provisioned on linux-arm64); `tests/context-request-observation.test.ts` CAS apply/mismatch/unsupported cases verify the digest is passed, measured bytes land in the projection, and mismatch never mutates.
+- `context.lossAwareCompactionV1` stays default-off; activation remains a separate reviewer decision.
 
 ### 3.3 HOLD_AUXILIARY_MODEL — C5 live shadow scoring and precompute summarization
 
