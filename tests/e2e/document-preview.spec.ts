@@ -4,6 +4,7 @@ import type { ArtifactRecord, HostCommand, Snapshot, Thread } from '../../packag
 import { DOCUMENT_SCHEMAS } from '../../packages/ui-catalog/documents';
 import { createSigningPdfFixture, SIGNING_FIELD_STATE_KEYS, SIGNING_SIGNATURE_BOX } from './document-preview-fixture';
 import { observeDraftWorkers, pageTreePdf } from './pdf-test-helper';
+import { serveTaskSplitLayout } from './task-interface-fixture';
 
 const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
@@ -33,6 +34,7 @@ async function fixtureHost(page: Page, bytes: Uint8Array, options: { snapshot?: 
   await page.route('**/api/**', async route => {
     const url = new URL(route.request().url());
     if (url.pathname === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'synthetic-token' } });
+    if (url.pathname === '/api/plugins') return route.fulfill({ json: { plugins: [] } });
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: [] } });
     if (url.pathname === '/api/snapshot') return route.fulfill({ json: state.snapshot });
     if (url.pathname === '/api/shell-settings') return route.fulfill({ json: state.snapshot.settings });
@@ -50,9 +52,11 @@ async function fixtureHost(page: Page, bytes: Uint8Array, options: { snapshot?: 
     if (command.type === 'resource.upload') { const id = `signature-${state.pngs.size}`; state.pngs.set(id, Buffer.from(String(payload.base64), 'base64')); result = { id, threadId: command.threadId, kind: 'attachment', label: 'signature.png', path: '/synthetic/signature.png', writable: false, createdAt: timestamp }; state.snapshot.resources.push(result as Snapshot['resources'][number]); }
     if (command.type === 'state.save') { const record = state.snapshot.userStates[0]; record.values = payload.values as Record<string, unknown>; record.revision++; result = record; }
     if (command.type === 'artifact.expand') state.snapshot.artifacts[0].placement = payload.expanded ? 'expanded' : 'inline';
+    if (command.type === 'artifact.archive') state.snapshot.artifacts.find(artifact => artifact.id === payload.artifactId)!.lifecycle = 'archived';
     state.snapshot.seq++;
     return route.fulfill({ json: { commandId: command.id, eventSeq: state.snapshot.seq, result } });
   });
+  await serveTaskSplitLayout(page, state.snapshot);
   return state;
 }
 const preview = (page: Page) => page.getByRole('region', { name: 'Agreement.pdf', exact: true });
@@ -171,7 +175,7 @@ test('draft abort and the hard deadline terminate actual workers while Settings 
 });
 
 test('replacement state and unmount abort their own pending draft worker', async ({ page }) => {
-  await fixtureHost(page, await createSigningPdfFixture()); await page.goto('/');
+  const state = await fixtureHost(page, await createSigningPdfFixture()); await page.goto('/');
   await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
   await observeDraftWorkers(page);
   let release!: () => void; const gate = new Promise<void>(resolve => { release = resolve; });
@@ -183,9 +187,13 @@ test('replacement state and unmount abort their own pending draft worker', async
     await page.getByRole('textbox', { name: 'Full name', exact: true }).fill('Replacement two');
     await expect.poll(workers).toEqual([true, false]);
     await page.getByRole('button', { name: 'Other task Ready', exact: true }).click();
-    await expect.poll(workers).toEqual([true, true]);
+    expect(await workers()).toEqual([true, false]);
     await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click();
+    await page.getByRole('button', { name: 'Archive artifact', exact: true }).click();
+    await expect.poll(workers).toEqual([true, true]);
   } finally { release(); await page.unroute('**/src/pdf-draft.worker.ts*'); }
+  expect(state.commands.at(-1)).toMatchObject({type:'artifact.archive',threadId:'pdf-thread',payload:{artifactId:'pdf-artifact'}});
+  state.snapshot.artifacts[0].lifecycle = 'active'; await page.reload();
   await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
 });
 
@@ -449,9 +457,11 @@ test('unmount destroys the actual PDF loading task and rapid rerenders leave no 
   await preview(page).getByRole('button', { name: 'Zoom in PDF' }).click({ clickCount: 3 });
   await page.getByRole('button', { name: 'Collapse artifact', exact: true }).click();
   await page.getByRole('button', { name: 'Other task Ready', exact: true }).click();
+  await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click();
+  await page.getByRole('button', { name: 'Archive artifact', exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as unknown as Record<string, number>).__destroyCount)).toBeGreaterThan(1);
   await expect.poll(() => page.evaluate(() => (window as unknown as Record<string, number>).__cancelCount)).toBeGreaterThan(0);
-  await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click(); await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
+  state.snapshot.artifacts[0].lifecycle = 'active'; await page.reload(); await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
   expect(errors).toEqual([]);
 });
 

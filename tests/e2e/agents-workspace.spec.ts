@@ -13,6 +13,9 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
  const target = {authority: 'personal', parentThreadId: 'parent-00', jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}};
  await page.route('**/api/**', async route => {
   const url = new URL(route.request().url()); requests.push(url.pathname + url.search);
+  if (url.pathname === '/api/plugins') return route.fulfill({json: {plugins: []}});
+  if (url.pathname === '/api/shell/navigation') return route.fulfill({json: {items: [], total: 0, nextCursor: null, sequence: 10}});
+  if (url.pathname === '/api/attention') return route.fulfill({json: {items: [], unreadCount: 0, sequence: 10}});
   if (url.pathname === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'synthetic'}});
   if (url.pathname === '/api/shell-settings') return route.fulfill({json: {theme: 'dark', preferences: {}}});
   if (url.pathname === '/api/workspace') return route.fulfill({json: {state: {version: 1, revision: 1, activeCanvasId: 'agents', canvases: [{id: 'agents', name: 'All Agents', preset: 'all-agents', version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}, projects: []}});
@@ -159,11 +162,30 @@ test('all grid parents are reachable, subscriptions follow visibility, and draft
  await page.getByRole('button', {name: 'Open conversation parent-00', exact: true}).click();
  await expect(page.locator('html')).toHaveAttribute('data-opened-thread', 'parent-00');
 });
+test('the actual App retains offscreen drafts, keyboard targets and the 24-history bound', async ({page}) => {
+ const h = await setup(page, true), input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
+ await expect(page.locator('.workspace-host')).toBeVisible(); await input.fill('Actual App offscreen draft');
+ await page.locator('.agents-agent-grid').first().focus(); await page.keyboard.press('ArrowRight');
+ await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeFocused();
+ await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
+ const projects = page.locator('.agents-projects'), slots = page.locator('.agents-agent-grid').first().locator(':scope > .agents-grid-slot');
+ for (let index = 0; index < 33; index++) {
+  await slots.nth(index).scrollIntoViewIfNeeded();
+  await expect(page.getByRole('log', {name: `parent-${String(index).padStart(2, '0')} messages`, exact: true})).toContainText('Current transcript output');
+ }
+ await expect(input).toHaveCount(0);
+ const histories = h.requests.filter(path => path.startsWith('/api/agents/history?')).map(path => new URL(path, 'http://fixture').searchParams.get('agentId')).filter(id => id?.startsWith('parent-'));
+ expect([...new Set(histories)].sort()).toEqual(Array.from({length: 33}, (_, index) => `parent-${String(index).padStart(2, '0')}`));
+ await expect.poll(() => h.requests.filter(path => path.includes('visible=')).length).toBeGreaterThan(0);
+ for (const path of h.requests.filter(path => path.includes('visible='))) expect(new URL(path, 'http://fixture').searchParams.get('visible')!.split(',').length).toBeLessThanOrEqual(24);
+ await projects.evaluate(node => {node.scrollTop = 0;}); await expect(input).toHaveValue('Actual App offscreen draft');
+});
+
 test('IME does not send, working parents send, uncertain retries keep identity and later drafts', async ({page}) => {
- const h = await setup(page), input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
+ const h = await setup(page, true), input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
  await input.fill('First'); await input.dispatchEvent('keydown', {key: 'Enter', isComposing: true}); expect(h.commands).toHaveLength(0);
  h.fail(true); await input.press('Enter'); await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toBeVisible();
- await input.fill('Later'); h.fail(false); await page.getByRole('button', {name: 'Retry send to parent-00', exact: true}).click();
+ await input.fill('Later'); h.fail(false); await page.getByRole('button', {name: 'Retry send to parent-00', exact: true}).click();await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);await expect(page.getByRole('button', {name: 'Send to parent-00', exact: true})).toBeEnabled();
  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');
  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);
  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);
@@ -180,8 +202,9 @@ test('filtered children retain their completed owning parent and local reading s
  await page.getByRole('searchbox', {name: 'Filter agents', exact: true}).fill('');
  await expect(log).toBeVisible(); expect(await log.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
 });
-test('the actual App candidate opens and restores compact routing without mounting snapshot bootstrap', async ({page}) => {
+test('the actual App opens and restores compact routing without mounting snapshot bootstrap', async ({page}) => {
  const h = await setup(page, true);
+ await expect(page.locator('.workspace-host')).toBeVisible();
  await expect.poll(() => h.requests.some(path => path.startsWith('/api/agents?'))).toBe(true);
  expect(h.requests.some(path => path.startsWith('/api/snapshot') || path.startsWith('/api/events'))).toBe(false);
  await expect(page.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
@@ -189,7 +212,7 @@ test('the actual App candidate opens and restores compact routing without mounti
  expect(h.requests.some(path => path.startsWith('/api/snapshot') || path.startsWith('/api/events'))).toBe(false);
 });
 test('child follow-up uses the published parent/run target and current ticket through handled', async ({page}) => {
- const h = await setup(page), child = page.getByRole('group', {name: 'Agent child-active', exact: true});
+ const h = await setup(page, true), child = page.getByRole('group', {name: 'Agent child-active', exact: true});
  await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});
  await input.fill('Read the next source'); await expect(child.getByRole('button', {name: 'Send to child-active', exact: true})).toBeEnabled(); await input.press('Enter');
  await expect(child.getByRole('status')).toHaveText('processing'); expect(h.commands).toHaveLength(1);
@@ -222,7 +245,7 @@ test('agent task progress exposes its name and unknown share to assistive techno
 });
 
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
- const h = await setup(page), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
+ const h = await setup(page, true), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});
  const before = await log.evaluate(node => node.scrollTop); h.output('Updated current transcript output');
  await expect(parent.getByRole('button', {name: 'New output', exact: true})).toBeVisible(); expect(Math.abs(await log.evaluate(node => node.scrollTop) - before)).toBeLessThan(3);
@@ -231,13 +254,15 @@ test('output while reading earlier retains position and exposes an explicit new-
  await expect(log.locator('.agents-message').first()).toContainText('Updated current transcript output');
  expect(await log.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
 });
-for (const [theme, width, height, zoom] of [['dark', 1440, 900, 1], ['light', 1024, 768, 1.25], ['dark', 640, 520, 1.5], ['light', 390, 700, 1]] as const) {
+for (const [theme, width, height, zoom, columns] of [['dark', 1920, 1080, 1, 4], ['dark', 1440, 900, 1, 4], ['light', 1024, 768, 1.25, 1], ['dark', 1280, 600, 1, 2], ['dark', 640, 520, 1.5, 1], ['light', 390, 844, 1, 1]] as const) {
  test(`readable geometry ${theme} ${width}x${height} at ${zoom}`, async ({page}, info) => {
-  await page.setViewportSize({width, height}); await page.emulateMedia({reducedMotion: 'reduce'}); await setup(page);
+  await page.setViewportSize({width, height}); await page.emulateMedia({reducedMotion: 'reduce'}); await setup(page, true);
+  await expect(page.locator('.workspace-host')).toBeVisible();
   await page.evaluate(({theme, zoom}) => {document.documentElement.dataset.theme = theme; document.documentElement.style.zoom = String(zoom);}, {theme, zoom});
   const input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true}); await expect(input).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(await page.locator('.agents-toolbar').evaluate(node => node.getBoundingClientRect().height / Number(document.documentElement.style.zoom || 1))).toBe(36);
+  await expect.poll(() => page.locator('.agents-agent-grid').first().evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length)).toBe(columns);
   const targets = await page.locator('.agents-workspace button:visible').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height / Number(document.documentElement.style.zoom || 1)));
   expect(targets.every(size => size >= 32)).toBe(true);
   await page.screenshot({path: info.outputPath(`agents-${theme}-${width}-${zoom}.png`)});
@@ -333,7 +358,7 @@ test('a message board post acknowledgement preserves edits for the next post', a
 
 test('keyboard entry into a virtual agent keeps focus on that card', async ({page}) => {
  await page.setViewportSize({width: 1440, height: 780});
- await setup(page);
+ await setup(page, true);
  const grid = page.getByRole('region', {name: 'Alpha agents', exact: true});
  // The fixture's dynamic import can finish after the document load event.
  await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible({timeout: 15_000});
