@@ -203,6 +203,28 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ for(const terminal of ['pointerup','pointercancel'] as const) it(`docked drag keeps its owning pointer after a foreign ${terminal}`,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});
+   await draft.fill('Keep this docked drag draft');
+   await page.evaluate(()=>{(window as any).dockedDragInput=document.querySelector('[data-split-view="thread:thread-a"] textarea');window.addEventListener('pointerdown',event=>{(window as any).dockedPointer=event.pointerId;},{once:true,capture:true});});
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2;
+   await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+60,y);
+   await pw(surface).toHaveAttribute('data-floating','true');
+   await page.mouse.move(x+80,y);const before=(await surface.boundingBox())!;
+   await page.evaluate(type=>window.dispatchEvent(new PointerEvent(type,{pointerId:(window as any).dockedPointer+100,isPrimary:false,bubbles:true})),terminal);
+   await page.mouse.move(x+120,y);
+   await pw.poll(async()=>(await surface.boundingBox())!.x).toBeGreaterThan(before.x+20);
+   await page.mouse.up();
+   const completed=(await surface.boundingBox())!;
+   await page.mouse.move(x+160,y);expect((await surface.boundingBox())!.x).toBeCloseTo(completed.x,1);
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(1);
+   expect(await draft.inputValue()).toBe('Keep this docked drag draft');
+   expect(await page.evaluate(()=>(window as any).dockedDragInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)',async()=>{
   const host=await fixture({mode:'default',mainTabs:true}),{page}=host;try{
    const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
