@@ -208,3 +208,7 @@ A third review pass on `596ce44c` surfaced two genuine defects:
 - **Recovery respected disablement** (`durable-wakeups.ts`): the held-occurrence redelivery added in `7be06068` ran unconditionally, so `recover()` on a host with `jobs.backgroundV1` disabled could still execute deferred firings. The loop now requires `enabled()`; reconciliation itself is unaffected and held occurrences stay durable until an enabled recovery. Regression test: a stranded held firing stays `PENDING` with no spawn while the flag is off, then delivers on re-enable.
 
 81 M10 tests pass; evidence regenerated on `12f9dcbe`, validator 0 issues. `bundleStatus` remains honest `FAIL`; `reviewerApproval` remains false.
+
+## Session 7 continued — round-5 finding fixed on `2f64f7ac`
+
+- **deliverHeld gated at the unit, not the call site** (`durable-wakeups.ts`): the enablement check added in `12f9dcbe` covered only `recover()`'s sweep; the explicit `background.wakeup.resume` command path reaches `deliverHeld` too, so an operator resume on a disabled feature could still execute a held firing. The gate now lives inside `deliverHeld`, covering `resume()`, `resumeBlockedForWork()` and `recover()` uniformly.

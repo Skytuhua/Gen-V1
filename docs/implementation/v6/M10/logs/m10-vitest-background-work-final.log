@@ -1,28 +1,29 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1698318) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1702556) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 16967[2mms[22m[39m
-     [33m[2m✓[22m[39m restart before claim delivers once; restart after uncertain claim never redelivers without reconciliation [33m 429[2mms[22m[39m
-     [33m[2m✓[22m[39m blocks delivery when the owner epoch changed and never revives prior authority [33m 681[2mms[22m[39m
-     [33m[2m✓[22m[39m requires persisted opt-in, a >=60s interval and one idle job per profile [33m 434[2mms[22m[39m
-     [33m[2m✓[22m[39m foreground admission cancels queued idle work and keeps a running permit until confirmed teardown [33m 1010[2mms[22m[39m
-     [33m[2m✓[22m[39m review forks require an auxiliary budget and report UNSUPPORTED_FORK on the pinned wrapper [33m 497[2mms[22m[39m
-     [33m[2m✓[22m[39m commands without an approved execution profile stay HOLD_EXECUTION_PROFILE [33m 325[2mms[22m[39m
-     [33m[2m✓[22m[39m captures exact process identity, bounded cursor output and an exit receipt [33m 472[2mms[22m[39m
-     [33m[2m✓[22m[39m failed exit codes settle FAILED, never SUCCEEDED [33m 438[2mms[22m[39m
-     [33m[2m✓[22m[39m PID reuse yields UNKNOWN and never signals the reused PID [33m 317[2mms[22m[39m
-     [33m[2m✓[22m[39m recovery never executes a held firing while the feature is disabled [33m 518[2mms[22m[39m
-     [33m[2m✓[22m[39m an auto-resumed schedule keeps an operator pause [33m 566[2mms[22m[39m
-     [33m[2m✓[22m[39m an answer after the owner run changed is denied before any follow-up [33m 438[2mms[22m[39m
-     [33m[2m✓[22m[39m admits background work through Service.command with host-derived ownership [33m 343[2mms[22m[39m
-     [33m[2m✓[22m[39m routes human respond/decline and intake configuration through the same command path [33m 321[2mms[22m[39m
-     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 4287[2mms[22m[39m
-     [33m[2m✓[22m[39m S08: a confirmed successful idle teardown releases its permit [33m 821[2mms[22m[39m
+ [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 16087[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps background admission disabled until the host enables its own key [33m 332[2mms[22m[39m
+     [33m[2m✓[22m[39m restart before claim delivers once; restart after uncertain claim never redelivers without reconciliation [33m 304[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks delivery when the owner epoch changed and never revives prior authority [33m 593[2mms[22m[39m
+     [33m[2m✓[22m[39m foreground admission cancels queued idle work and keeps a running permit until confirmed teardown [33m 586[2mms[22m[39m
+     [33m[2m✓[22m[39m captures exact process identity, bounded cursor output and an exit receipt [33m 336[2mms[22m[39m
+     [33m[2m✓[22m[39m failed exit codes settle FAILED, never SUCCEEDED [33m 321[2mms[22m[39m
+     [33m[2m✓[22m[39m PID reuse yields UNKNOWN and never signals the reused PID [33m 637[2mms[22m[39m
+     [33m[2m✓[22m[39m a repeated or concurrent start never spawns a second owned process [33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m a settled command releases its session so busy readiness clears [33m 521[2mms[22m[39m
+     [33m[2m✓[22m[39m a scheduled command stays parked while a human step is pending, then runs after the answer [33m 808[2mms[22m[39m
+     [33m[2m✓[22m[39m a blocked AT_UTC wakeup re-arms on resume instead of staying permanently dead [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m a human-deferred host-event firing delivers on resume without a new event [33m 363[2mms[22m[39m
+     [33m[2m✓[22m[39m recovery never executes a held firing while the feature is disabled [33m 677[2mms[22m[39m
+     [33m[2m✓[22m[39m an auto-resumed schedule keeps an operator pause [33m 610[2mms[22m[39m
+     [33m[2m✓[22m[39m host-event wakeups deliver when the host publishes an allowlisted event [33m 337[2mms[22m[39m
+     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 3927[2mms[22m[39m
+     [33m[2m✓[22m[39m S08: a confirmed successful idle teardown releases its permit [33m 340[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
 [2m      Tests [22m [1m[32m43 passed[39m[22m[90m (43)[39m
-[2m   Start at [22m 15:37:01
-[2m   Duration [22m 22.82s[2m (transform 3.85s, setup 0ms, import 5.29s, tests 16.97s, environment 0ms)[22m
+[2m   Start at [22m 15:45:12
+[2m   Duration [22m 21.74s[2m (transform 3.78s, setup 0ms, import 5.30s, tests 16.09s, environment 0ms)[22m
 
