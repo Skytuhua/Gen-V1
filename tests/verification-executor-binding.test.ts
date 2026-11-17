@@ -43,6 +43,49 @@ it('describes host identities without launching and freezes approval metadata', 
   expect(f.backend.launch).not.toHaveBeenCalled();
 });
 
+it('checks a read-side binding synchronously without consuming it or opening execution', async () => {
+  const f = await fixture(), binding = await f.authority.describe(f.input);
+  expect(f.authority.assertCurrent(binding, f.input)).toBeUndefined();
+  expect(f.authority.assertCurrent(binding, f.input)).toBeUndefined();
+  await f.authority.take(binding, f.input);
+  expect(f.authority.assertCurrent(binding, f.input)).toBeUndefined();
+  expect(f.backend.launchObserved).not.toHaveBeenCalled();
+});
+
+it.each(['trust', 'executable', 'root', 'profile', 'proof', 'environment', 'implementation'] as const)('rejects a stale %s at the synchronous read-side commit fence', async kind => {
+  const f = await fixture(), binding = await f.authority.describe(f.input);
+  if (kind === 'trust') f.trust.revoke('trust');
+  if (kind === 'executable') writeFileSync(f.executable, 'other-test executable text');
+  if (kind === 'root') { renameSync(f.root, join(f.parent, 'old')); mkdirSync(f.root); }
+  if (kind === 'profile') f.profile.version++;
+  if (kind === 'proof') f.backend.proof!.status = 'FAIL';
+  if (kind === 'environment') (f.config.environment as Record<string, string>).LANG = 'changed';
+  if (kind === 'implementation') f.backend.launchObserved = vi.fn();
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+});
+
+it('refuses foreign, cloned, cancelled and changed-owner read-side binding checks', async () => {
+  const f = await fixture(), binding = await f.authority.describe(f.input);
+  expect(() => f.authority.assertCurrent(structuredClone(binding), f.input)).toThrow(/binding is foreign/);
+  expect(() => createVerificationBindingAuthority(f.config).assertCurrent(binding, f.input)).toThrow(/binding is foreign/);
+  expect(() => f.authority.assertCurrent(binding, { ...f.input, owner: { ...f.owner, epoch: 9 } })).toThrow(/another owner/);
+  const controller = new AbortController(); controller.abort();
+  expect(() => f.authority.assertCurrent(binding, { ...f.input, signal: controller.signal })).toThrow(/cancelled/);
+});
+
+it('checks approved configuration file witnesses as well as executable witnesses', async () => {
+  const f = await fixture(), path = join(f.root, 'build-config'); writeFileSync(path, 'approved config');
+  await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  const binding = await f.authority.describe(f.input); writeFileSync(path, 'modified config');
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+});
+
+it('rejects backend implementation replacement during asynchronous preparation', async () => {
+  const f = await fixture(), verify = f.trust.verify.bind(f.trust);
+  vi.spyOn(f.trust, 'verify').mockImplementation(async (...args) => { const result = await verify(...args); f.backend.launchObserved = vi.fn(); return result; });
+  await expect(f.authority.describe(f.input)).rejects.toThrow(/changed/);
+});
+
 it('rejects cloned, wrong-owner and already-spent bindings', async () => {
   const f = await fixture(), binding = await f.authority.describe(f.input);
   await expect(f.authority.take(structuredClone(binding), f.input)).rejects.toThrow(/foreign/);

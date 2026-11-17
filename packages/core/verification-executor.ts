@@ -23,6 +23,8 @@ export interface OpenVerificationExecutor extends VerificationExecutionFence {
 }
 export interface VerificationExecutorFactory {
   describe(input: DescribeVerificationExecutor): Promise<VerificationExecutorBinding>;
+  /** Non-consuming read-side fence. It never launches or resolves secrets. */
+  assertCurrent(binding: VerificationExecutorBinding, fence: VerificationExecutionFence): void;
   /** Service calls only after durable M02 dispatch and exact approval consumption. */
   open(input: OpenVerificationExecutor): Promise<VerificationExecutorSession>;
 }
@@ -53,6 +55,7 @@ export function createVerificationExecutorFactory(config: VerificationExecutorHo
   const authority = createVerificationBindingAuthority(config);
   return {
     describe: authority.describe,
+    assertCurrent: authority.assertCurrent,
     async open(input) {
       assertExecutionFence(input);
       if (!/^[a-zA-Z0-9._:-]{1,200}$/.test(input.executionId)) throw executorDenied('INVALID_INPUT', 'Verification execution identity is invalid.');

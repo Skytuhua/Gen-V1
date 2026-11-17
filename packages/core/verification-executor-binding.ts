@@ -1,4 +1,6 @@
 import { stat } from 'node:fs/promises';
+import { lstatSync, realpathSync } from 'node:fs';
+import { join } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
 import { executionProfileV1Schema, isTrustedHostProfile, type ExecutionProfileV1 } from '../contracts/execution-profile.ts';
 import { toolOwnerSchema, type ToolOwner } from '../contracts/tool-effects.ts';
@@ -95,6 +97,18 @@ function exactOrigin(value: string): string {
     throw executorDenied('INVALID_INPUT', 'Verification requires exact HTTP origins without credentials or paths.');
   return value;
 }
+interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string }
+const changedBasis = () => executorDenied('EXECUTION_BINDING_CHANGED', 'Verification execution basis changed.');
+function basisWitness(path: string, kind: BasisWitness['kind']): BasisWitness {
+  try {
+    const value = lstatSync(path, { bigint: true });
+    if ((kind === 'file' ? !value.isFile() : !value.isDirectory()) || realpathSync(path) !== path) throw changedBasis();
+    return { canonicalPath: path, kind, dev: String(value.dev), ino: String(value.ino), size: String(value.size), mtimeNs: String(value.mtimeNs), ctimeNs: String(value.ctimeNs), nlink: String(value.nlink) };
+  } catch { throw changedBasis(); }
+}
+function assertWitnesses(witnesses: readonly BasisWitness[]): void {
+  for (const witness of witnesses) if (digest(basisWitness(witness.canonicalPath, witness.kind)) !== digest(witness)) throw changedBasis();
+}
 
 /** The public descriptor is approval metadata, never launch authority. A
  * WeakMap retains its custody and opening spends that exact object once. */
@@ -102,6 +116,7 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
   const records = new WeakMap<VerificationExecutorBinding, {
     input: DescribeVerificationExecutor; used: boolean; backend: ObservedVerificationBackend;
     launch: ObservedVerificationBackend['launchObserved']; probe: ObservedVerificationBackend['probeListener']; browser: ObservedVerificationBackend['openBrowserDriver'];
+    basis: { authorityAtStart: string; trustId: string; trustDigest: string; witnesses: readonly BasisWitness[] };
   }>();
   const hostState = () => digest({ profiles: config.profiles, executables: config.executables, approvedBackendId: config.approvedBackendId,
     backends: config.backends.map(({ backendId, platform, installed, approved, proof }) => ({ backendId, platform, installed, approved, proof })),
@@ -122,6 +137,7 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
     const selected = selectBackend(config.approvedBackendId, config.backends);
     if (selected.status !== 'SELECTED') throw executorDenied(selected.status, selected.reason);
     const backend = selected.backend as ObservedVerificationBackend;
+    const methods = { launch: backend.launchObserved, probe: backend.probeListener, browser: backend.openBrowserDriver };
     if (backend.backendId !== profile.backendId || typeof backend.launchObserved !== 'function')
       throw executorDenied('UNSUPPORTED_BACKEND', 'The approved backend cannot provide observed verification execution.');
     if (backend.platform !== process.platform || backend.proof?.platform !== process.platform || backend.proof?.status !== 'PASS' || !backend.proof.evidenceRef || !Number.isFinite(Date.parse(backend.proof.recordedAt)) || backend.proof.platformProofRef !== profile.platformProofRef)
@@ -135,15 +151,24 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
     const browserRequired = input.browserRequired === true;
     if (browserRequired && (!origins.length || !backend.openBrowserDriver)) throw executorDenied('UNSUPPORTED_BACKEND', 'The approved backend has no admitted managed browser scope.');
     const root = await checkedExecution(input, () => canonicalRootIdentity(input.rootPath));
+    const witnesses: BasisWitness[] = [];
+    const capture = (path: string, kind: BasisWitness['kind'], expected?: { dev: string; ino: string }) => {
+      const witness = basisWitness(path, kind);
+      if (expected && (witness.dev !== expected.dev || witness.ino !== expected.ino)) throw changedBasis();
+      witnesses.push(witness);
+    };
+    capture(root.canonicalPath, 'directory', root);
     const roots: RootIdentity[] = [];
     for (const path of [...profile.readRoots, ...profile.writeRoots]) {
       const identity = await checkedExecution(input, () => canonicalRootIdentity(path));
       if (!inside(root.canonicalPath, identity.canonicalPath)) throw executorDenied('CAPABILITY_DENIED', 'Verification file roots must stay inside the current project.');
+      capture(identity.canonicalPath, 'directory', identity);
       roots.push(identity);
     }
     const envelope = config.trust.get(registration.trustId);
     if (!envelope || envelope.revokedAt) throw executorDenied('PROJECT_TRUST_INVALIDATED', 'The project trust decision is unavailable.');
     const trust = structuredClone(envelope.record);
+    for (const approved of trust.approvedDigests) capture(join(root.canonicalPath, ...approved.path.split('/')), 'file');
     const valid = await checkedExecution(input, () => config.trust.verify(registration.trustId, root.canonicalPath));
     if (valid.status !== 'CURRENT' || digest(config.trust.get(registration.trustId)) !== digest(envelope))
       throw executorDenied('PROJECT_TRUST_INVALIDATED', 'The project trust decision changed.');
@@ -158,6 +183,7 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       const canonicalPath = await checkedExecution(input, () => canonical(registrations[0]!.path));
       const identity = await checkedExecution(input, () => stat(canonicalPath, { bigint: true }));
       if (!identity.isFile()) throw executorDenied('EXECUTABLE_UNAVAILABLE', 'Verification requires a regular executable file.');
+      capture(canonicalPath, 'file', { dev: String(identity.dev), ino: String(identity.ino) });
       const sha256 = await checkedExecution(input, () => digestFileSha256(canonicalPath));
       if (!profile.executableAllowlist.some(entry => entry.executableSha256 === sha256))
         throw executorDenied('EXECUTABLE_UNAVAILABLE', 'Executable bytes are not approved by this profile.');
@@ -168,7 +194,8 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       throw executorDenied('SECRET_REF_APPROVAL', 'Secret references require current account-bound host registration.');
     if (Object.keys(config.environment).length > 64 || Object.entries(config.environment).some(([name, value]) => !/^[A-Za-z_][A-Za-z0-9_]{0,127}$/.test(name) || /secret|token|password|credential|key/i.test(name) || typeof value !== 'string' || value.includes('\0') || Buffer.byteLength(value) > 8192))
       throw executorDenied('INVALID_INPUT', 'Child environment requires a bounded nonsecret host allowlist.');
-    if (hostState() !== authorityAtStart || digest(config.trust.get(registration.trustId)) !== digest(envelope))
+    if (hostState() !== authorityAtStart || digest(config.trust.get(registration.trustId)) !== digest(envelope) ||
+        backend.launchObserved !== methods.launch || backend.probeListener !== methods.probe || backend.openBrowserDriver !== methods.browser)
       throw executorDenied('EXECUTION_BINDING_CHANGED', 'Execution authority changed during verification preparation.');
     const profileDigest = digest(profile);
     const binding: VerificationExecutorBinding = freeze({
@@ -177,14 +204,28 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       environmentId: digest({ platform: process.platform, arch: process.arch, hostRuntime: process.version, root, roots, trust, proof: backend.proof, profileDigest, executables, origins, environment: config.environment, secretRefs }),
     });
     assertExecutionFence(input);
-    return { binding, backend, trust, origins, roots, executables, authorityAtStart, trustId: registration.trustId, trustDigest: digest(envelope) };
+    assertWitnesses(witnesses);
+    return { binding, backend, trust, origins, roots, executables, authorityAtStart, trustId: registration.trustId, trustDigest: digest(envelope), witnesses, methods };
   }
   return {
     async describe(input: DescribeVerificationExecutor): Promise<VerificationExecutorBinding> {
       const retained = { ...input, owner: toolOwnerSchema.parse(input.owner), executableIds: [...input.executableIds], approvedOrigins: [...input.approvedOrigins] };
-      const { binding, backend } = await inspect(retained);
-      records.set(binding, { input: retained, used: false, backend, launch: backend.launchObserved, probe: backend.probeListener, browser: backend.openBrowserDriver });
+      const basis = await inspect(retained), { binding, backend, methods } = basis;
+      records.set(binding, { input: retained, used: false, backend, ...methods, basis });
       return binding;
+    },
+    /** Non-consuming synchronous fence for a read-side Store commit. Native
+     * launch still requires take plus the backend's atomic dispatch boundary. */
+    assertCurrent(binding: VerificationExecutorBinding, fence: VerificationExecutionFence): void {
+      const record = records.get(binding);
+      if (!record || digest(record.input.owner) !== digest(fence.owner)) throw executorDenied('CAPABILITY_DENIED', 'The verification binding is foreign or belongs to another owner.');
+      const checkAuthority = () => {
+        if (!config.backends.includes(record.backend) || record.backend.launchObserved !== record.launch || record.backend.probeListener !== record.probe || record.backend.openBrowserDriver !== record.browser ||
+            hostState() !== record.basis.authorityAtStart || digest(config.trust.get(record.basis.trustId)) !== record.basis.trustDigest) throw changedBasis();
+      };
+      assertExecutionFence(fence); checkAuthority();
+      assertWitnesses(record.basis.witnesses);
+      assertExecutionFence(fence); checkAuthority();
     },
     async take(binding: VerificationExecutorBinding, fence: VerificationExecutionFence) {
       const record = records.get(binding);
