@@ -939,6 +939,11 @@
           "evidence": "pnpm typecheck, pnpm lint and pnpm build pass as separate observed receipts on linux-arm64 against the merged tree."
         },
         {
+          "id": "postmerge-baseline-comparison",
+          "status": "PASS",
+          "evidence": "R09 separate-source-cut baseline executed in detached worktree /home/piadmin/Gen-V1-m15-v6-baseline at captured main 33639138 (product code identical to candidate; PR #390 already merged). Baseline pnpm test FAIL 305/4048 across 44 files — a strict superset of the candidate's 43 failed files (extra file is a baseline-only flake); every candidate failure reproduces on the baseline. Baseline pnpm test:browser ran all 78 suites to completion: every candidate-failed suite also fails on baseline, and the candidate is strictly greener (composer-press 22/0 and saved-drafts 27/0 green on candidate, 1 unexpected each on baseline). No M15 regression detected. Receipts v6base-gate-test and v6base-gate-test-browser retained."
+        },
+        {
           "id": "postmerge-custody-and-disposition",
           "status": "PASS",
           "evidence": "Recovered remote head 25cded33 is an ancestor of main; PR #390 merged at 2eec9061. requirements.json D01 re-audited: recorded payload hashes unreproducible; equivalent longpaths env block verified present in both named workflows via explicit commit 0539bc1f. Original checkout, sibling worktrees, stash and untracked files preserved."
@@ -7797,6 +7802,36 @@
             "/home/piadmin/tools/pnpm",
             "test:browser"
           ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6-baseline",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-17T21:31:06.421Z",
+          "endedAt": "2026-11-17T23:51:57.320Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/baseline-gate-test-browser.log",
+          "logDigest": "36fd52b2fe718ec9a0442d565730efdd7ab86f9d0860ff8fd500de4e596ee41d"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "test"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6-baseline",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-17T21:14:35.246Z",
+          "endedAt": "2026-11-17T21:26:40.546Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M15/logs/baseline-gate-test.log",
+          "logDigest": "166e023adcb0fe0b9c880f8c6d4aeeb8cbea3f1d3cb30290d30a7eb87db68ec3"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "test:browser"
+          ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6",
           "executableIdentity": "/home/piadmin/tools/pnpm",
           "startedAt": "2026-11-17T07:35:39.350Z",
@@ -9771,6 +9806,8 @@
     "docs/implementation/v3/m15-logs/v6-vitest-workbench-continuation-v6.json",
     "docs/implementation/v3/m15-logs/v6-vitest-workbench-performance-v3.json",
     "docs/implementation/v3/m15-logs/v6-vitest-workbench-recovery-v3.json",
+    "docs/implementation/v3/m15-logs/v6base-gate-test-browser.json",
+    "docs/implementation/v3/m15-logs/v6base-gate-test.json",
     "docs/implementation/v3/m15-logs/v6pm-gate-build.json",
     "docs/implementation/v3/m15-logs/v6pm-gate-lint.json",
     "docs/implementation/v3/m15-logs/v6pm-gate-test-browser.json",
@@ -9841,6 +9878,8 @@
     "docs/implementation/v6/M15/feature-comparison.md",
     "docs/implementation/v6/M15/handoff-postmerge.md",
     "docs/implementation/v6/M15/handoff.md",
+    "docs/implementation/v6/M15/logs/baseline-gate-test-browser.log",
+    "docs/implementation/v6/M15/logs/baseline-gate-test.log",
     "docs/implementation/v6/M15/logs/gate-build.log",
     "docs/implementation/v6/M15/logs/gate-lint.log",
     "docs/implementation/v6/M15/logs/gate-test-browser.log",
@@ -10291,7 +10330,7 @@
     "The controlled renderer fixture reports 5.6 ms/34 rows versus 2038.1 ms/100000 rows, excludes paint and uses a stubbed read model. It does not establish whole-App startup, full task-tree scaling, installed-desktop DPI or universal-device performance.",
     "Unavailable atomic complete-diff witness, authenticated historical-artifact reader, trusted formatted-inline offsets and optional M10/M14 integrations remain blocked. Feature rollback retains current-code durable source references; old binaries lacking the account-admission witness can fail closed. ui.sourceWorkbenchV1 and reviewerApproval remain false. No merge, release, deployment or activation is granted.",
     "V6 continuation adds tests/workbench-continuation-v6.test.ts plus docs/implementation/v6/M15/ records on the published c993 cut. The unpublished D01 workflow repair could not be byte-verified against its recorded hashes and remains HOLD_UNPUBLISHED_CUSTODY; a base merge to observed main a79a897d conflicts in 10 files and remains HOLD_SOURCE_DRIFT. Local phase gates here: typecheck/lint/build PASS; pnpm test FAIL 52/4102 and test:browser FAIL 463/1149, both environment-bound (no M15-scope failures). Neither hold grants merge, release or activation; ui.sourceWorkbenchV1 and reviewerApproval stay false.",
-    "Post-merge continuation on linux-arm64 (recovered remote head 25cded33, ancestor of main; R03 merge of main 33639138 committed cleanly): all four v6 targeted suites plus pnpm typecheck, lint and build pass as observed v6pm-* receipts. pnpm test observed statuses: FAIL (pre-pty) then FAIL (post-pty fix); pnpm test:browser observed statuses: FAIL then FAIL — actual receipts retained in ATTEMPT_HISTORY. C4 Windows native/installed, configured Edge/Chromium suites, repository shards and base/candidate comparison remain NOT_RUN (HOLD_PLATFORM_PROOF): the m15-evidence workflow triggers only on pushes to agent/m15-v3, which no longer exists remotely after the PR #390 merge, and this continuation keeps publication LOCAL_ONLY. D01: recorded payload hashes remain unreproducible (HOLD_UNPUBLISHED_CUSTODY for the payload); the equivalent env block is verified present via explicit commit 0539bc1f. Flags ui.sourceWorkbenchV1 and reviewerApproval remain false."
+    "Post-merge continuation on linux-arm64 (recovered remote head 25cded33, ancestor of main; R03 merge of main 33639138 committed cleanly): all four v6 targeted suites plus pnpm typecheck, lint and build pass as observed v6pm-* receipts. pnpm test observed statuses: FAIL (pre-pty) then FAIL (post-pty fix); pnpm test:browser observed statuses: FAIL then FAIL — actual receipts retained in ATTEMPT_HISTORY. Separate-cut baseline at main 33639138 (identical product code, detached worktree): pnpm test FAIL (305/4048, failed-file set a strict superset of the candidate's) and test:browser FAIL (every candidate-failed suite also fails on baseline; candidate strictly greener) — confirming environment-bound failures, no M15 regression. C4 Windows native/installed, configured Edge/Chromium suites and repository shards remain NOT_RUN (HOLD_PLATFORM_PROOF): the m15-evidence workflow triggers only on pushes to agent/m15-v3, which no longer exists remotely after the PR #390 merge, and this continuation keeps publication LOCAL_ONLY. D01: recorded payload hashes remain unreproducible (HOLD_UNPUBLISHED_CUSTODY for the payload); the equivalent env block is verified present via explicit commit 0539bc1f. Flags ui.sourceWorkbenchV1 and reviewerApproval remain false."
   ],
   "reviewerApproval": false
 }

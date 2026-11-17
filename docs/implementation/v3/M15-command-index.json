@@ -3150,6 +3150,24 @@
     "endedAt": "2026-11-16T19:16:55.763Z"
   },
   {
+    "id": "v6base-gate-test-browser",
+    "receipt": "docs/implementation/v3/m15-logs/v6base-gate-test-browser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-17T21:31:06.421Z",
+    "endedAt": "2026-11-17T23:51:57.320Z"
+  },
+  {
+    "id": "v6base-gate-test",
+    "receipt": "docs/implementation/v3/m15-logs/v6base-gate-test.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-17T21:14:35.246Z",
+    "endedAt": "2026-11-17T21:26:40.546Z"
+  },
+  {
     "id": "v6pm-gate-build",
     "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-build.json",
     "phase": "V6_POSTMERGE_LINUX",
