@@ -158,11 +158,11 @@ export class ProjectTrustLedger {
       }
       throw error;
     }
-    return record;
+    return structuredClone(record);
   }
   get(trustId: string): Readonly<TrustEnvelope> | null {
     const envelope = this.records.get(trustId);
-    return envelope ? { ...envelope, record: { ...envelope.record } } : null;
+    return envelope ? structuredClone(envelope) : null;
   }
   revoke(trustId: string): boolean {
     const envelope = this.records.get(trustId);
