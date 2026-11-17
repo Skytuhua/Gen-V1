@@ -182,14 +182,17 @@ export class BrowserConsentHost {
    * touched; unrelated tabs, applications and their state are never closed,
    * and grant/consent records are retained as receipts. */
   stop(threadId: string): ControlSurfaceModelV1 {
-    const grant = this.activeGrant(threadId);
-    const pending = grant ? null : this.pendingConsent(threadId);
-    if (!grant && !pending) return this.surfaceModel(threadId);
+    const actives = this.grants(threadId).filter(grant => grantState(grant, this.now()) === 'ACTIVE');
+    const pending = actives.length ? null : this.pendingConsent(threadId);
+    if (!actives.length && !pending) return this.surfaceModel(threadId);
     this.write('control.stopped', threadId, () => {
-      if (grant) {
+      // Stop is unconditional for this thread: every active grant is revoked,
+      // never only the first one the lookup happens to return.
+      for (const grant of actives) {
         const current = this.store.get<InteractiveGrantV1>('interactiveGrant', grant.grantId);
         if (current) this.store.put('interactiveGrant', grant.grantId, threadId, { ...current, revocationGeneration: current.revocationGeneration + 1 });
-      } else if (pending) {
+      }
+      if (!actives.length && pending) {
         this.store.put('controlConsent', pending.consentId, threadId, { ...pending, state: 'DENIED', reason: 'stopped', resolvedAtMs: this.now() });
       }
     });
@@ -215,9 +218,12 @@ export class BrowserConsentHost {
    * harmless. The caller supplies the current generation from its own
    * revocation counter. */
   authorizeAction(grant: InteractiveGrantV1, action: 'CAPTURE' | ControlInteractOperation, currentRevocationGeneration?: number): void {
-    if (grantState(grant, this.now(), currentRevocationGeneration) !== 'ACTIVE') throw new HarnessError('CAPABILITY_DENIED', 'The control grant is expired or revoked.');
-    if (action === 'CAPTURE') { if (!grant.capturePermission) throw new HarnessError('CAPABILITY_DENIED', 'Observation was not consented for this target.'); return; }
-    if (!grant.permittedOperations.includes(action)) throw new HarnessError('CAPABILITY_DENIED', `Operation ${action} is not consented for this target.`);
+    // Authorize the live record, never the caller's snapshot: a grant revoked
+    // after issue must not stay authorized (S03/D04).
+    const live = this.store.get<InteractiveGrantV1>('interactiveGrant', grant.grantId) ?? grant;
+    if (grantState(live, this.now(), currentRevocationGeneration) !== 'ACTIVE') throw new HarnessError('CAPABILITY_DENIED', 'The control grant is expired or revoked.');
+    if (action === 'CAPTURE') { if (!live.capturePermission) throw new HarnessError('CAPABILITY_DENIED', 'Observation was not consented for this target.'); return; }
+    if (!live.permittedOperations.includes(action)) throw new HarnessError('CAPABILITY_DENIED', `Operation ${action} is not consented for this target.`);
   }
 
   /** S02: candidate targets come only through the approved driver for the
@@ -236,7 +242,7 @@ export class BrowserConsentHost {
     const pending = grant ? null : this.pendingConsent(threadId);
     const browserEnabled = capabilityEnabled('control.consentedBrowserV1');
     const desktopEnabled = capabilityEnabled('control.selectedDesktopV1');
-    const modeAvailable = (mode: ControlMode) => (mode === 'SELECTED_DESKTOP_APPLICATION' ? desktopEnabled : browserEnabled) && this.deps.registry.list().some(item => item.apiProtocol === protocolFor(mode));
+    const modeAvailable = (mode: ControlMode) => (mode === 'SELECTED_DESKTOP_APPLICATION' ? desktopEnabled : browserEnabled) && this.deps.registry.list().filter(item => item.apiProtocol === protocolFor(mode)).length === 1;
     return {
       state: grant ? 'active' : pending ? (pending.state === 'PENDING' ? 'consent' : 'unavailable') : 'unavailable',
       liveControlActive: grant !== null,

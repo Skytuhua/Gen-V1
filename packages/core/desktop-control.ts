@@ -123,33 +123,62 @@ export class ControlDispatcher {
   private async freshObservation(driver: ControlDriverHandle, item: QueuedControlAction): Promise<TargetObservationV1> {
     const observed = await driver.observe(item.grant.target);
     if (!sameTargetIdentity(observed.target, item.grant.target)) throw new HarnessError('TARGET_MISMATCH', 'The controlled target changed identity; renew consent.');
+    // A tab that navigated to an origin outside the consent loses input
+    // authority even when identity and geometry are unchanged (S03).
+    if (item.grant.target.kind === 'BROWSER_TAB' && observed.target.origin !== null && !item.grant.allowedOrigins.includes(observed.target.origin)) throw new HarnessError('NEEDS_NEW_PERMISSION', 'The controlled tab navigated to an unconsented origin; renew consent.');
     if (JSON.stringify(observed.geometry) !== JSON.stringify(item.observation.geometry)) throw new HarnessError('TARGET_MOVED', 'The controlled target moved or changed DPI; observe again.');
     if (this.now() - observed.observedAtMs > CONTROL_MAX_OBSERVATION_AGE_MS) throw new HarnessError('OBSERVATION_STALE', 'The fresh observation arrived stale.');
     return observed;
+  }
+
+  /** Permission state for an item right now: the dispatcher's own generation
+   * must match the generation recorded at enqueue, Stop must not have run and
+   * the grant must still be active under that generation. */
+  private permissionLive(item: QueuedControlAction): boolean {
+    return !this.stopped && item.generation === this.generation && grantState(item.grant, this.now(), this.generation) === 'ACTIVE';
   }
 
   private async drain(): Promise<void> {
     const { driver } = this.requireDriver();
     while (this.queue.length) {
       const item = this.queue.shift()!;
-      const wait = CONTROL_MIN_DISPATCH_INTERVAL_MS - (this.now() - this.lastDispatchAt);
-      if (wait > 0) await this.sleep(wait);
+      // Account for the item as in flight immediately: an enqueue during the
+      // rate-limit wait must still count it against the queue cap.
+      this.inFlight = item;
+      let reachedDispatch = false;
       try {
-        if (item.generation !== this.generation || grantState(item.grant, this.now(), this.generation) !== 'ACTIVE') {
+        const wait = CONTROL_MIN_DISPATCH_INTERVAL_MS - (this.now() - this.lastDispatchAt);
+        if (wait > 0) await this.sleep(wait);
+        if (!this.permissionLive(item)) {
           item.outcome = 'CANCELLED';
           item.reason = 'grant_revoked';
         } else {
-          this.inFlight = item;
-          const observed = await this.freshObservation(driver, item);
-          const result = await driver.dispatch(item.action);
-          // UNCERTAIN set by stop() survives: a delivered-or-hung dispatch is
-          // never claimed DISPATCHED after Stop.
-          if (item.outcome === 'QUEUED') item.outcome = 'DISPATCHED';
-          item.action = { ...item.action, postObservationRef: observed.observationId, effectReceipt: result.receipt };
-          this.lastDispatchAt = this.now();
+          await this.freshObservation(driver, item);
+          // Stop or expiry can land while observe is in flight; re-check
+          // permission immediately before handing input to the driver.
+          if (!this.permissionLive(item)) {
+            item.outcome = 'CANCELLED';
+            item.reason = 'grant_revoked';
+          } else {
+            reachedDispatch = true;
+            // Rate-limit spacing binds dispatch attempts, not only successes.
+            this.lastDispatchAt = this.now();
+            const result = await driver.dispatch(item.action);
+            // UNCERTAIN set by stop() survives: a delivered-or-hung dispatch is
+            // never claimed DISPATCHED after Stop.
+            if (item.outcome === 'QUEUED') item.outcome = 'DISPATCHED';
+            // Post-action evidence must postdate the action; a failed
+            // post-observation stays null rather than mislabelling the
+            // pre-dispatch observation as the resulting state.
+            let postObservationRef: string | null = null;
+            try { postObservationRef = (await driver.observe(item.grant.target)).observationId; } catch { postObservationRef = null; }
+            item.action = { ...item.action, postObservationRef, effectReceipt: result.receipt };
+          }
         }
       } catch (error) {
-        item.outcome = 'REJECTED';
+        // Only failures before the dispatch attempt are clean rejections; a
+        // rejection at or after dispatch may postdate delivered input.
+        if (item.outcome === 'QUEUED') item.outcome = reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
         item.reason = error instanceof HarnessError ? error.code : 'DRIVER_ERROR';
       } finally {
         if (this.inFlight === item) this.inFlight = null;
