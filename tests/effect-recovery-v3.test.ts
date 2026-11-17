@@ -147,7 +147,7 @@ it('does not repeat an effect across an invocation page boundary', async () => {
   expect(new Set(seen).size).toBe(3);
 });
 
-const operationDefinition = { id: 'operation:file.replace', version: 1, schemaDigest: 'd', risk: 'HOST_EXECUTE' as const, replayClass: 'NONREPLAYABLE' as const, allowedRoles: ['run' as const], executorBinding: 'domain' as const, approval: 'operation' as const };
+const operationDefinition = { id: 'operation:file.replace', version: 1 as const, schemaDigest: 'd', risk: 'HOST_EXECUTE' as const, replayClass: 'NONREPLAYABLE' as const, allowedRoles: ['run' as const], executorBinding: 'domain' as const, approval: 'operation' as const };
 const crashedOperation = { id: 'op-crash', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'succeeded' as const, approved: true, createdAt: '', result: { done: true } };
 
 it('settles a crashed operation dispatch from the committed operation record', async () => {
