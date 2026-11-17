@@ -7,7 +7,7 @@ import {
  ProjectVerificationService,recipeDigest,recipeApprovalCommitment,sourceDigest,environmentId,
  type VerificationLauncher,type LaunchedProcess,type ListenerProbe,
 } from '../packages/core/project-verification';
-import {computeAssessment,observationFreshness} from '../packages/core/verification-gate';
+import {BoundedRepairLoop,computeAssessment,observationFreshness} from '../packages/core/verification-gate';
 import {verificationRecipeV1Schema,type CheckObservationV1,type VerificationRecipeV1} from '../packages/contracts/verification';
 import type {ApprovalV1,ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
@@ -251,6 +251,20 @@ it('a passing recipe cannot report success when its owned process cleanup fails'
  expect(result.outcome).toBe('FAIL');
  expect(result.cleanupFailures).toEqual(['owned process still running']);
  expect(result.observations.find(obs=>obs.phase==='TEARDOWN')?.outcome).toBe('FAIL');
+});
+
+it('identical runner failures stop repair despite fresh observation IDs on every execution',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const loop=new BoundedRepairLoop(store,o,r.recipeId,['tests-pass']),checkIds:string[]=[];
+ for(let attempt=0;attempt<2;attempt++){
+  const result=await service.runRecipe(o,request(r.recipeId),launcher([{exitCode:1}]).fn);
+  const failures=result.observations.filter(obs=>obs.outcome==='FAIL');checkIds.push(failures[0].checkId);
+  loop.recordAttempt({requirementIds:['tests-pass'],failures,outcome:result.outcome});
+ }
+ expect(new Set(checkIds).size).toBe(2);
+ expect(loop.nextDecision()).toEqual({allowed:false,reason:'UNCHANGED_FAILURE'});
 });
 
 it('the completion projection marks fresh trusted evidence verified and names missing checks',async()=>{

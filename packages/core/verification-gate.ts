@@ -86,7 +86,7 @@ export function admitQaSpawn(request: QaSpawnRequest, approval: { actionCommitme
 /* commits.                                                             */
 /* ------------------------------------------------------------------ */
 
-export type RepairStopReason = 'VERIFIED' | 'UNCHANGED_FAILURE' | 'BUDGET' | 'REVOKED' | 'CONFLICT' | 'BLOCKED';
+export type RepairStopReason = 'VERIFIED' | 'UNCHANGED_FAILURE' | 'BUDGET' | 'REVOKED' | 'CONFLICT' | 'BLOCKED' | 'CANCELLED';
 
 export interface RepairAttempt {
   attempt: number;
@@ -109,6 +109,8 @@ export class BoundedRepairLoop {
     const key = `repair-${owner.threadId}-${recipeId}`;
     this.state = store.get<RepairState>('repair', key) ?? { recipeId, requirementIds: [...requirementIds], attempts: [], stopped: null };
     this.key = key;
+    if (digest([...requirementIds].sort()) !== digest([...this.state.requirementIds].sort()))
+      throw new HarnessError('REPAIR_SCOPE', 'A repair must keep the same requirement IDs');
     if (!this.state.attempts.length) this.persist();
   }
   private readonly key: string;
@@ -124,6 +126,9 @@ export class BoundedRepairLoop {
 
   /** Returns whether another attempt may start, and why not. */
   nextDecision(): { allowed: boolean; reason: RepairStopReason | null } {
+    // Controllers may overlap or be reconstructed. Read the latest durable
+    // attempt history before enforcing a budget or appending another attempt.
+    this.state = this.store.get<RepairState>('repair', this.key) ?? this.state;
     if (this.state.stopped) return { allowed: false, reason: this.state.stopped };
     if (this.state.attempts.length >= MAX_REPAIR_ATTEMPTS) { this.state.stopped = 'BUDGET'; this.persist(); return { allowed: false, reason: 'BUDGET' }; }
     const failures = this.state.attempts.filter(a => a.outcome === 'FAIL').map(a => a.failureDigest);
@@ -134,18 +139,35 @@ export class BoundedRepairLoop {
   recordAttempt(input: { requirementIds: string[]; failures: { checkId: string; outcome: string; detail?: string }[]; outcome: RepairAttempt['outcome']; revoked?: boolean; conflict?: boolean }): RepairAttempt {
     const decision = this.nextDecision();
     if (!decision.allowed) throw new HarnessError('REPAIR_BUDGET', `Repair stopped: ${decision.reason}`);
-    if (input.requirementIds.join(',') !== this.state.requirementIds.join(','))
+    if (digest([...input.requirementIds].sort()) !== digest([...this.state.requirementIds].sort()))
       throw new HarnessError('REPAIR_SCOPE', 'A repair attempt must keep the same requirement IDs');
     const attempt: RepairAttempt = {
       attempt: this.state.attempts.length + 1,
       requirementIds: [...input.requirementIds],
-      failureDigest: digest(input.failures.map(f => ({ checkId: f.checkId, outcome: f.outcome, detail: f.detail ?? '' }))),
+      failureDigest: digest(input.failures.map(failure => {
+        const observed = this.store.get<CheckObservationV1>('checkObservation', failure.checkId) ??
+          this.store.get<VisualObservationV1>('visualObservation', failure.checkId);
+        if (!observed) return digest({ checkId: failure.checkId, outcome: failure.outcome, detail: failure.detail ?? '' });
+        if (digest(observed.owner) !== digest(this.owner))
+          throw new HarnessError('REPAIR_SCOPE', 'Repair evidence belongs to another owner binding');
+        // Execution and observation IDs are new for every retest. Compare the
+        // stable check identity and actual failure instead of those run IDs.
+        return digest({
+          phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
+          cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
+          outcome: observed.outcome, exitCode: observed.exitCode,
+          item: 'checklistItemId' in observed ? observed.checklistItemId : null,
+          assertion: 'assertion' in observed ? observed.assertion : null,
+          detail: failure.detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
+        });
+      }).sort()),
       outcome: input.outcome,
       recordedAt: now(),
     };
     this.state.attempts.push(attempt);
     if (input.revoked) this.state.stopped = 'REVOKED';
     else if (input.conflict) this.state.stopped = 'CONFLICT';
+    else if (input.outcome === 'CANCELLED') this.state.stopped = 'CANCELLED';
     else if (input.outcome === 'BLOCKED') this.state.stopped = 'BLOCKED';
     else if (input.outcome === 'PASS') this.state.stopped = 'VERIFIED';
     this.persist();
