@@ -379,3 +379,126 @@ it('a browser step still fails when its deadline expires',async()=>{
  expect(result.observations.find(obs=>obs.checklistItemId==='__step__')?.outcome).toBe('FAIL');
  expect(vi.getTimerCount()).toBe(0);
 });
+
+it('audits bounded console and network failures even when the checklist omits COLLECT_ERRORS',async()=>{
+ const store=stateStore(),driver=fakeDriver({texts:{h1:'Ready'},failures:{console:Array.from({length:120},()=> 'x'.repeat(900)),network:['GET /broken 500']}});
+ const result=await run(store,[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('FAIL');expect(result.collected.console).toHaveLength(100);expect(result.collected.console[0]).toHaveLength(500);
+ const errors=result.observations.find(value=>value.checklistItemId==='__errors__')!;
+ expect(errors.outcome).toBe('FAIL');expect(errors.artifactRefs).toHaveLength(1);
+ expect(new VerificationArtifactStore(store).read(errors.artifactRefs[0],owner,errors.executionId).metadata.kind).toBe('LOG');
+});
+
+it('an already cancelled browser request launches no session',async()=>{
+ const controller=new AbortController(),driver=fakeDriver();controller.abort();
+ const result=await run(stateStore(),[{kind:'ASSERT_URL',url:'http://127.0.0.1:4100/',checklistItemId:'item-1'}],driver,{signal:controller.signal});
+ expect(driver.launched).toBe(0);expect(result.outcome).toBe('CANCELLED');
+ expect(result.observations.some(value=>value.checklistItemId==='__cancelled__')).toBe(true);
+});
+
+it('cancellation interrupts a pending assertion and closes the owned browser',async()=>{
+ const controller=new AbortController(),base=fakeDriver();let entered!:()=>void;
+ const started=new Promise<void>(resolve=>{entered=resolve;}),close=vi.fn(async()=>{});
+ base.page.text=()=>{entered();return new Promise(()=>{});};
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close})};
+ const pending=run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'}],driver,{signal:controller.signal});
+ await started;controller.abort();const result=await pending;
+ expect(result.outcome).toBe('CANCELLED');expect(close).toHaveBeenCalledTimes(1);
+ expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
+
+it('a changed run owner cannot record a late successful assertion',async()=>{
+ const store=stateStore(),driver=fakeDriver({texts:{h1:'Ready'}});
+ driver.page.text=async()=>{store.internal('test.owner.changed','t1',()=>{const thread=store.get<Record<string,unknown>>('thread','t1')!;store.put('thread','t1','t1',{...thread,runId:'other-run',epoch:2});});return 'Ready';};
+ const result=await run(store,[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'}],driver);
+ expect(result.outcome).toBe('CANCELLED');expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
+
+it('a launch failure records blocked execution evidence',async()=>{
+ const result=await run(stateStore(),[{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}],{launch:async()=>{throw new Error('browser unavailable');}});
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.find(value=>value.checklistItemId==='__driver__')?.observed).toContain('browser unavailable');
+});
+
+it('the overall deadline bounds launch and closes a session that arrives too late',async()=>{
+ vi.useFakeTimers();let resolveLaunch!:(session:BrowserSession)=>void;
+ const base=fakeDriver(),close=vi.fn(async()=>{}),driver:BrowserDriver={launch:()=>new Promise(resolve=>{resolveLaunch=resolve;})};
+ const pending=run(stateStore(),[{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}],driver);
+ await vi.advanceTimersByTimeAsync(300_000);const result=await pending;
+ expect(result.outcome).toBe('FAIL');expect(result.observations.find(value=>value.checklistItemId==='__deadline__')?.outcome).toBe('FAIL');
+ resolveLaunch({...await base.launch({profileDir:'fixture',viewport:{width:1280,height:800},approvedOrigins:[],allowOrigin:()=>true}),close});
+ await vi.advanceTimersByTimeAsync(0);expect(close).toHaveBeenCalledTimes(1);expect(vi.getTimerCount()).toBe(0);
+});
+
+it('the overall deadline also caps the last in-flight browser step',async()=>{
+ vi.useFakeTimers();let clock=0,entered!:()=>void;const started=new Promise<void>(resolve=>{entered=resolve;}),driver=fakeDriver();
+ driver.page.goto=async()=>{clock=299_990;};driver.page.text=()=>{entered();return new Promise(()=>{});};
+ const pending=run(stateStore(),[{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'}],driver,{nowMs:()=>clock});
+ await started;await vi.advanceTimersByTimeAsync(10);const result=await pending;
+ expect(result.outcome).toBe('FAIL');expect(result.observations.find(value=>value.checklistItemId==='__deadline__')?.outcome).toBe('FAIL');expect(vi.getTimerCount()).toBe(0);
+});
+
+it('a hanging close is bounded and retained as failed cleanup',async()=>{
+ vi.useFakeTimers();let entered!:()=>void;const closing=new Promise<void>(resolve=>{entered=resolve;}),base=fakeDriver({texts:{h1:'Ready'}});
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close:()=>{entered();return new Promise(()=>{});}})};
+ const pending=run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ await closing;await vi.advanceTimersByTimeAsync(15_000);const result=await pending;
+ expect(result.outcome).toBe('FAIL');expect(result.observations.find(value=>value.checklistItemId==='__cleanup__')?.outcome).toBe('FAIL');expect(vi.getTimerCount()).toBe(0);
+});
+
+it('returns its captured error audit without querying a closed browser',async()=>{
+ let closed=false;const base=fakeDriver({texts:{h1:'Ready'}});
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),collectedFailures:()=>{if(closed)throw Error('closed');return{console:[],network:[]};},close:async()=>{closed=true;}})};
+ const result=await run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('PASS');expect(result.collected).toEqual({console:[],network:[]});expect(closed).toBe(true);
+});
+
+it('does not return success when its owner changes during browser cleanup',async()=>{
+ const store=stateStore(),base=fakeDriver({texts:{h1:'Ready'}});
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close:async()=>{store.internal('test.cleanup.owner','t1',()=>{const thread=store.get<Record<string,unknown>>('thread','t1')!;store.put('thread','t1','t1',{...thread,runId:'after-cleanup',epoch:2});});}})};
+ const result=await run(store,[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('CANCELLED');expect(result.observations.find(value=>value.checklistItemId==='__cancelled__')?.outcome).toBe('CANCELLED');
+});
+
+it('rejects an unbounded viewport before creating a browser',async()=>{
+ const driver=fakeDriver();
+ await expect(run(stateStore(),[{kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-1'}],driver,{checklist:checklist([{kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-1'}],{viewport:{width:8192,height:8192}})})).rejects.toMatchObject({code:'RESOURCE_LIMIT'});
+ expect(driver.launched).toBe(0);
+});
+
+it('a malformed visibility response cannot become a passing assertion',async()=>{
+ const driver=fakeDriver();driver.page.visible=async()=> 'false' as unknown as boolean;
+ const result=await run(stateStore(),[{kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-1'},{kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
+
+it('an array text response cannot satisfy a string assertion',async()=>{
+ const driver=fakeDriver();driver.page.text=async()=> ['Ready'] as unknown as string;
+ const result=await run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
+
+it('revokes the request-time origin callback before cleanup and after return',async()=>{
+ const base=fakeDriver({texts:{h1:'Ready'}});let permittedDuringClose:boolean|undefined;
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close:async()=>{permittedDuringClose=options.allowOrigin('http://127.0.0.1:4100');}})};
+ const result=await run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('PASS');expect(permittedDuringClose).toBe(false);expect(base.allow?.('http://127.0.0.1:4100')).toBe(false);
+});
+
+it('ASSERT_URL rejects a nonstring URL even when its later origin read is valid',async()=>{
+ const driver=fakeDriver({texts:{h1:'Ready'}});let reads=0;
+ driver.page.url=()=> ++reads===1?['http://127.0.0.1:4100/'] as unknown as string:'http://127.0.0.1:4100/';
+ const result=await run(stateStore(),[{kind:'ASSERT_URL',url:'http://127.0.0.1:4100/',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
+
+it('rejects nonstring origin evidence instead of coercing an array to an allowed origin',async()=>{
+ const driver=fakeDriver({texts:{h1:'Ready'},origins:[['http://127.0.0.1:4100']] as unknown as string[]});
+ const result=await run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.some(value=>value.checklistItemId==='__driver__'&&value.outcome==='BLOCKED')).toBe(true);
+});
+
+it('does not record a successful assertion at an unapproved actual page origin',async()=>{
+ const driver=fakeDriver({url:'https://foreign.example/',texts:{h1:'Ready'},origins:['http://127.0.0.1:4100']});
+ const result=await run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'},{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-2'}],driver);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.some(value=>value.outcome==='PASS')).toBe(false);
+});
