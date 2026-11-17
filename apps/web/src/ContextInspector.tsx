@@ -228,19 +228,34 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
         </section>}
         {!compaction?.candidates.length && <p className="context-categories-note">No loss-aware compaction receipt. An observation is not a history change.</p>}
         {Boolean(compaction?.candidates.length) && <ul aria-label="Compaction candidates">
-          {compaction?.candidates.map(entry => <li key={entry.metadata.candidateId}>
-            candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replace('_', ' ')}` : ''}
-            {' · '}{entry.retainedConstraints.length ? `${entry.retainedConstraints.length} retained constraints` : 'no retained constraints'} · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
-            {' · '}est. reduction {entry.estimatedByteReduction === null ? 'not estimated' : `${contextNumber(entry.estimatedByteReduction)} bytes (estimate)`}
-            {entry.measuredBeforeBytes !== null && ` · measured ${contextNumber(entry.measuredBeforeBytes)} → ${entry.measuredAfterBytes === null ? 'unavailable' : contextNumber(entry.measuredAfterBytes)} bytes`}
-          </li>)}
+          {compaction?.candidates.map(entry => <CompactionCandidateDetails key={entry.metadata.candidateId} entry={entry}/>)}
         </ul>}
-        {Boolean(compaction?.candidates.length) && <p className="context-categories-note">
-          {compaction?.accounting.attempts} {compaction?.accounting.attempts === 1 ? 'attempt' : 'attempts'} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed · cost {compaction?.accounting.costBytes ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'not measured'}
-        </p>}
+        {Boolean(compaction?.candidates.length) && <>
+          <p className="context-categories-note">Omitted native categories: unavailable.</p>
+          <p className="context-categories-note">Recent candidate view: {compaction?.accounting.attempts} {compaction?.accounting.attempts === 1 ? 'attempt' : 'attempts'} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed.</p>
+          <p className="context-categories-note">Auxiliary byte accounting: {contextTokenCount(compaction?.accounting.costBytes) && compaction.accounting.costBytes > 0 ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'unavailable'}. Auxiliary model cost: unavailable.</p>
+        </>}
       </>}
     </div>)}
   </section>;
+}
+function CompactionCandidateDetails({entry}: {entry: CompactionProjectionV1['candidates'][number]}) {
+  const [shown, setShown] = useState(32);
+  const remaining = Math.max(0, entry.retainedConstraints.length - shown);
+  const measured = (bytes: number | null) => contextTokenCount(bytes) ? contextNumber(bytes) + ' bytes' : 'unavailable';
+  return <li>
+    candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replaceAll('_', ' ')}` : ''}
+    {' · '}{entry.retainedConstraints.length} retained constraints · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
+    <p className="context-categories-note">Estimated reduction: {contextTokenCount(entry.estimatedByteReduction) ? contextNumber(entry.estimatedByteReduction) + ' bytes (estimate)' : 'unavailable'}.</p>
+    <p className="context-categories-note">Measured source: {measured(entry.measuredBeforeBytes)}; measured result: {measured(entry.measuredAfterBytes)}.</p>
+    {Boolean(entry.retainedConstraints.length) && <details>
+      <summary>Retained constraint references</summary>
+      <p className="context-categories-note">Protection plan references. An applied receipt confirms that history changed.</p>
+      <ul aria-label="Retained constraint references">{entry.retainedConstraints.slice(0, shown).map((reference, index) => <li key={index} style={{overflowWrap: 'anywhere'}}>{reference}</li>)}</ul>
+      {remaining > 0 && <><p className="context-categories-note">Showing {shown} of {entry.retainedConstraints.length} references.</p>
+        <button type="button" onClick={() => setShown(value => value + Math.min(32, remaining))}>Show {Math.min(32, remaining)} more references</button></>}
+    </details>}
+  </li>;
 }
 function MemoryRecallDetails({value}: {value: ContextMemoryRecall}) {
   const [pending, setPending] = useState<string>(), [requested, setRequested] = useState<string[]>([]), [error, setError] = useState('');

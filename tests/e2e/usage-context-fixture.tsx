@@ -32,6 +32,16 @@ function Fixture() {
         },
       } }));
       if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13,inclusionReason:'selected by host',tokens:null,measurement:'BYTE_ONLY',exclusionReason:null}], omittedSources:0 } }));
+      if (['request-compaction', 'request-compaction-unavailable', 'request-compaction-many'].includes(action)) setUsage(value => ({ ...value,
+        lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' },
+        compaction: { version: 1, candidates: [{
+          metadata: { version: 1, candidateId: 'candidate-visible', binding: { generation: 1, modelId: 'openai/model', accountId: null, workspaceId: 'thread:' + threadId, instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64), sourceCut: 'c'.repeat(64) }, summaryRef: null, sourceInterval: null, usageObservationRef: null },
+          status: action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED', verdict: action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED',
+          retainedConstraints: action === 'request-compaction-many' ? Array.from({length: 34}, (_, index) => 'native-record:' + 'd'.repeat(64) + ':' + index) : ['DECISION:taskMemory:keep-tests', 'PENDING_APPROVAL:request:review-change'],
+          toolPairs: 1, estimatedByteReduction: action === 'request-compaction-unavailable' ? null : 0,
+          measuredBeforeBytes: action === 'request-compaction-unavailable' ? null : 1200, measuredAfterBytes: action === 'request-compaction-unavailable' ? null : 600,
+        }], accounting: { attempts: 1, failed: action === 'request-compaction-unavailable' ? 1 : 0, discarded: 0, costBytes: 0 } },
+      }));
       if (action === 'request-relevance') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 4, promptBytes: 1300, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', relevance: {
         cutId: 'b'.repeat(64), observedAtSequence: 4, candidateIds: ['host-result:1'], estimatedSavingsBytes: 1200, inspectionBudgetBytes: 65536, inspectedResults: 1, protectedResults: 0, omittedResults: 2, source: 'HOST_READ_RESULTS', measurement: 'BYTE_ONLY',
       } } }));
