@@ -1,0 +1,42 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+ ❯ tests/compaction-v3.test.ts (8 tests | 1 failed) 335ms
+   × gates the shadow relevance phase on an approved auxiliary budget and a fixed six-second timeout 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/compaction-v3.test.ts > gates the shadow relevance phase on an approved auxiliary budget and a fixed six-second timeout
+AssertionError: expected { status: 'COMPLETED', …(1) } to match object { Object (status, observation) }
+
+- Expected
++ Received
+
+  {
+-   "observation": null,
+-   "status": "OBSERVER_UNAVAILABLE",
++   "observation": {
++     "candidateIds": [
++       "old",
++     ],
++     "estimatedSavingsBytes": 100,
++   },
++   "status": "COMPLETED",
+  }
+
+ ❯ tests/compaction-v3.test.ts:217:31
+    215|   const before = calls;
+    216|   expect(await once.run(cut)).toMatchObject({ status: 'COMPLETED' });
+    217|   expect(await once.run(cut)).toMatchObject({ status: 'OBSERVER_UNAVAI…
+       |                               ^
+    218|   expect(calls).toBe(before + 1);
+    219|   expect(await once.run({ ...cut, cutId: 'shadow-cut-2' })).toMatchObj…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  18:02:51
+   Duration  805ms (transform 162ms, setup 0ms, import 157ms, tests 335ms, environment 0ms)
+

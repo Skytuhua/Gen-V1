@@ -1,0 +1,3 @@
+{"scope":"SYNTHETIC_ONLY","count":100,"baselineSchemaBytes":19981,"candidateInitialBytes":595,"candidateAfterDescribeOneBytes":793,"latency":null,"providerTokens":null,"quality":null}
+{"scope":"SYNTHETIC_ONLY","count":500,"baselineSchemaBytes":100781,"candidateInitialBytes":595,"candidateAfterDescribeOneBytes":793,"latency":null,"providerTokens":null,"quality":null}
+{"scope":"SYNTHETIC_ONLY","firstSources":1000,"nextSources":1001,"candidateBodyReads":1,"uncachedBodyReads":1001,"latency":null,"providerTokens":null,"quality":null}
