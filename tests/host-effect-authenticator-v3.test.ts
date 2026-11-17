@@ -51,7 +51,7 @@ describe('host-only effect authenticators', () => {
   });
 
   it.each(['', '0'.repeat(64), 'v2:' + keyId + ':' + '0'.repeat(64), 'v1:' + keyId + ':xyz', 'x'.repeat(4096)])
-    ('rejects a malformed authenticator without accepting a prefix: %s', tag => {
+    ('rejects malformed authenticator case %# without accepting a prefix', tag => {
       const auth = createEffectAuthenticator(Buffer.alloc(32, 1), keyId);
       expect(auth.verify('grant', { remainingUses: 1 }, tag)).toBe(false);
     });
@@ -133,6 +133,7 @@ describe.runIf(process.platform === 'win32')('real Windows effect-key custody', 
   it('binds the key to its exact profile and requested key identity', async () => {
     const root = await directory(), other = await directory();
     const custody = owned(await initializeEffectKey(root, { codec }));
+    expect(custody.authenticator.keyId).not.toBe(otherId);
     await expect(openEffectKey(root, { codec, expectedKeyId: otherId })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
     await mkdir(join(other, 'effect-authority')); await copyFile(keyFile(root), keyFile(other));
     await expect(openEffectKey(other, { codec })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
