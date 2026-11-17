@@ -42,6 +42,30 @@ it('passes only a matching idle receipt through the optional host channel and re
 });
 
 const run=(extra:Partial<StartRun>={}):StartRun=>({threadId:'thread',runId:'run',epoch:1,inputId:'input',modelId:'openai/model',accountId:null,sessionPath:null,prompt:'Original user prompt',resources:[],...extra});
+it('awaits the current host owner at actual foreground dispatch and refuses a late admission after settlement',async()=>{
+ __setCapabilityFlagForTests('context.compilerV1',true);
+ const f=await fixture();let release!:()=>void;const admit=vi.fn(()=>new Promise<void>(done=>{release=done;}));
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onBeforeInference:admit});
+ try{
+  await f.runtime.start(run());expect(admit).not.toHaveBeenCalled();
+  f.event('model_request',{sequence:1,inputIds:['input']});expect(admit).not.toHaveBeenCalled();
+  const response=fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Actual flattened request'})});
+  await vi.waitFor(()=>expect(admit).toHaveBeenCalledExactlyOnceWith({ctx:{threadId:'thread',runId:'run',epoch:1},modelId:'openai/model',accountId:null,thinkingLevel:null,sequence:1,inputIds:['input']}));
+  expect(f.natives).toHaveLength(0);f.event('foreground_settled',{text:'Owner completed'});release();
+  expect((await response).status).toBe(400);expect(f.natives).toHaveLength(0);await f.settle();
+ }finally{release?.();__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
+});
+it('requires the host admission callback when foreground context coordination is enabled',async()=>{
+ __setCapabilityFlagForTests('context.compilerV1',true);const f=await fixture();
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({})});
+ try{
+  await f.runtime.start(run());f.event('model_request',{sequence:1,inputIds:['input']});let status:number|undefined;
+  const response=fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Actual flattened request'})}).then(value=>{status=value.status;return value;});
+  await vi.waitFor(()=>expect(status!==undefined||f.natives[0]?.input!==undefined).toBe(true));
+  if(f.natives[0]?.input)f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'settled'});
+  expect((await response).status).toBe(400);expect(f.natives).toHaveLength(0);await f.settle();
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
+});
 it('compiles an owned native source delta only at its real broker request and preserves opaque provider context',async()=>{
  __setCapabilityFlagForTests('context.compilerV1',true);
  const f=await fixture({},undefined,{apiVersion:1,source:'original-acp-messages'}),hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -68,7 +92,7 @@ async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapabili
  const dataDir=await mkdtemp(join(tmpdir(),'hermes-runtime-')),events:RuntimeEvent[]=[],sourceEvents:HermesEvent[]=[],sources:{options:ConstructorParameters<typeof HermesClient>[0];calls:{method:string;params:Record<string,unknown>}[];client:HermesSourceClient}[]=[],natives:{callbacks:RuntimeCallbacks;input:StartRun;runtime:RuntimeAdapter}[]=[];
  const accounts={get:()=>null,claimUse:vi.fn(()=>({id:'lease',nonce:'nonce'})),releaseUse:vi.fn()},catalog:RuntimeAdapter={configure(){},models:vi.fn(async()=>[]),start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:vi.fn(async()=>['old-receipt']),dispose:vi.fn(async()=>{})};
  const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability}),...(contextCapability===undefined?{}:{contextCapture:contextCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
- runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true}))});
+ runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true})),onBeforeInference:()=>{}});
  const source=()=>sources.at(-1)!,start=()=>source().calls.filter(call=>call.method==='agent.start').at(-1)!.params;
  const event=(name:string,data:Record<string,unknown>={},phase='foreground')=>source().options.onEvent?.({event:name,ctx:{...(start().ctx as Record<string,unknown>),phase},data});
  const settle=async(data:Record<string,unknown>={})=>{event('foreground_settled',data);event('settled',data);await vi.waitFor(()=>expect(runtime.reviewBusy).toBe(false));};

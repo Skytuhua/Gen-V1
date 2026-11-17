@@ -14,6 +14,7 @@ export interface HermesBrokerOptions {
  input:StartRun;createRuntime:()=>RuntimeAdapter;
  onInput?:(ids:string[])=>void|Promise<void>;
  onUsage?:(usage:RuntimeUsage,request:ModelRequest)=>void;
+ beforeInference?:(request:ModelRequest&{promptBytes:number})=>void|Promise<void>;
  onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number;nativeContext?:NativeContextCompilation;nativeSourcesUnavailable?:'UNSUPPORTED_ADAPTER'})=>void;
  onStage?:(stage:ModelRequestStage|'queued',request:ModelRequest)=>void;
  onObservation?:(observation:ModelRequestObservationV1,request:ModelRequest)=>void;
@@ -73,6 +74,8 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      if(scheduler){const permit=await scheduler.acquire(providerId,input.accountId??null,owned.controller.signal,{requestClass:requestClassFor(metadata.phase==='foreground'?'foreground':'background')});release=permit.release;}
      else release=await options.capacity!.acquire(providerId,input.accountId??null,owned.controller.signal);
      stage('acquired');
+     if(closed||owned.cancelled)throw new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.');
+     if(metadata.phase==='foreground')await options.beforeInference?.({...metadata,promptBytes:Buffer.byteLength(nativeInput.prompt)});
      if(closed||owned.cancelled)throw new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.');
      const runtime=owned.runtime=options.createRuntime();
      runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){

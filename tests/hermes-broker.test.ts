@@ -5,6 +5,30 @@ import {createHermesBroker} from '../packages/runtime-hermes/broker.ts';
 const input:StartRun={threadId:'outer',runId:'run',epoch:3,inputId:'input',inputIds:['input'],modelId:'openai/model',accountId:'selected-account',prompt:'user',sessionPath:null,resources:[]};
 function native(){let callbacks!:RuntimeCallbacks;let started!:StartRun;const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:async()=>[],start:vi.fn(async value=>{started=value;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};return{runtime,get input(){return started;},event(type:string,data:Record<string,unknown>={}){callbacks.onEvent({...started,type,...data});},tool(){return callbacks.onTool({name:'write',args:{}},started);}};}
 const post=(broker:{url:string;key:string},body:unknown,signal?:AbortSignal)=>fetch(broker.url,{method:'POST',headers:{Authorization:'Bearer '+broker.key,'content-type':'application/json'},body:JSON.stringify(body),signal});
+it('awaits owned inference admission before constructing or starting a provider runtime',async()=>{
+ const n=native(),factory=vi.fn(()=>n.runtime),onContextRequest=vi.fn();let release!:()=>void;
+ const beforeInference=vi.fn(()=>new Promise<void>(done=>{release=done;})),b=await createHermesBroker({input,createRuntime:factory,beforeInference,onContextRequest});
+ try{b.expect({sequence:1,inputIds:['input'],phase:'foreground'});const response=post(b,{sessionId:'acp',modelId:input.modelId,prompt:'opaque'});
+  await vi.waitFor(()=>expect(beforeInference).toHaveBeenCalled());expect(factory).not.toHaveBeenCalled();expect(onContextRequest).not.toHaveBeenCalled();
+  expect(beforeInference).toHaveBeenCalledExactlyOnceWith({sequence:1,inputIds:['input'],phase:'foreground',promptBytes:6});
+  release();await vi.waitFor(()=>expect(n.runtime.start).toHaveBeenCalled());n.event('settled');expect((await response).status).toBe(200);
+ }finally{release?.();await b.close();}
+});
+it('fails closed when inference admission rejects without spending a native call',async()=>{
+ const n=native(),factory=vi.fn(()=>n.runtime),onContextRequest=vi.fn(),b=await createHermesBroker({input,createRuntime:factory,beforeInference:async()=>{throw Error('Owner changed');},onContextRequest});
+ const start=n.runtime.start;n.runtime.start=vi.fn(async value=>{await start(value);n.event('settled');});
+ try{b.expect({sequence:1,inputIds:['input'],phase:'foreground'});expect((await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'opaque'})).status).toBe(400);
+  expect(factory).not.toHaveBeenCalled();expect(onContextRequest).not.toHaveBeenCalled();expect(b.usage(1)).toBeNull();expect(b.observation(1)?.outcome).toBe('failed');
+ }finally{await b.close();}
+});
+it('holds cancellation through a pending inference admission and never dispatches its late result',async()=>{
+ const n=native(),factory=vi.fn(()=>n.runtime);let release!:()=>void;
+ const beforeInference=vi.fn(()=>new Promise<void>(done=>{release=done;})),b=await createHermesBroker({input,createRuntime:factory,beforeInference});
+ try{b.expect({sequence:1,inputIds:['input'],phase:'foreground'});const response=post(b,{sessionId:'acp',modelId:input.modelId,prompt:'opaque'}).catch(()=>null);
+  await vi.waitFor(()=>expect(beforeInference).toHaveBeenCalled());let closed=false;const closing=b.close().then(()=>{closed=true;});await Promise.resolve();expect(closed).toBe(false);
+  release();await closing;await response;expect(factory).not.toHaveBeenCalled();expect(b.observation(1)?.outcome).toBe('cancelled');
+ }finally{release?.();await b.close();}
+});
 it('authenticates and seals the model/account/context before starting any native runtime',async()=>{
  const n=native(),factory=vi.fn(()=>n.runtime),onContextRequest=vi.fn(),b=await createHermesBroker({input,createRuntime:factory,onContextRequest});try{
  expect((await fetch(b.url,{method:'POST',body:'{}'})).status).toBe(403);b.expect({sequence:1,inputIds:['input'],phase:'foreground'});
