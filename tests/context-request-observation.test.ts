@@ -1,11 +1,11 @@
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Service } from '../packages/core/service';
 import { Store } from '../packages/storage/store';
 import { capabilityEnabled, M04_FLAG_KEYS, __setCapabilityFlagForTests } from '../packages/core/capability-flags';
-import type { RuntimeAdapter, RuntimeCallbacks } from '../packages/contracts';
+import type { RequestContextV1, RuntimeAdapter, RuntimeCallbacks } from '../packages/contracts';
 
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const close of cleanup.splice(0)) await close(); });
@@ -129,20 +129,26 @@ it('does not implement loss-aware compaction by calling legacy native compaction
   }
 });
 
-const compactionReceipt = (threadId: string) => ({ receipt: {
-  id: `receipt-${threadId}`, contextGeneration: 1, prompt: { utf8Bytes: 4096, context: [] },
-  modelBinding: { modelId: 'test/model', accountId: null }, owner: { workspaceId: 'workspace-fixture' },
+const compactionReceipt = (threadId: string): { receipt: RequestContextV1 } => ({ receipt: {
+  requestId: `receipt-${threadId}`, contextGeneration: 1, segments: [],
+  modelBinding: { modelId: 'test/model', accountId: null }, owner: { threadId, workspaceId: 'thread:' + threadId },
   instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64),
-  sourceCut: { revisionDigest: 'c'.repeat(64) }, budget: { utf8Bytes: 4096 },
+  sourceCut: { sequence: 18, revisionDigest: 'c'.repeat(64) }, budget: { utf8Bytes: 4096, tokens: null, measurement: 'BYTE_ONLY' },
+  nativeContext: { visibility: 'OPAQUE_NATIVE_CONTEXT', totalBytes: null },
 }});
 
 it('applies loss-aware compaction only through the verified native source-cut CAS', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'm04-compaction-cas-')), store = new Store(directory);
   const compactCalls: Array<{ expected?: string }> = [];
-  let historyCalls = 0;
-  const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {},
+  let historyCalls = 0, callbacks!: RuntimeCallbacks;
+  const runtime: RuntimeAdapter = { configure: value => { callbacks = value; }, models: async () => [], start: async () => {},
     followUp: async () => {}, cancel: async () => {},
-    compact: async (_ctx: unknown, _session: unknown, _model: unknown, _account: unknown, _checkpoint: unknown, expectedHistorySha256?: string) => { compactCalls.push({ expected: expectedHistorySha256 }); },
+    compact: async (ctx, _session, _model, _account, _checkpoint, expectedHistorySha256) => {
+      compactCalls.push({ expected: expectedHistorySha256 });
+      callbacks.onEvent({ ...ctx, type: 'compaction.start', reason: 'manual' });
+      callbacks.onEvent({ ...ctx, type: 'compaction.end', reason: 'manual', aborted: false });
+      callbacks.onEvent({ ...ctx, type: 'settled', aborted: false });
+    },
     history: async () => [], dispose: async () => {},
     nativeHistoryDigest: async () => { historyCalls++; return { sha256: 'd'.repeat(64), messages: [{ role: 'user', content: `segment ${historyCalls}` }] }; } };
   const service = new Service(store, runtime);
@@ -198,4 +204,202 @@ it('records a failed verdict without mutating when the native source-cut digest 
     __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
     await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
   }
+});
+
+async function ownedCompactionFixture(requestContextEnabled = false) {
+  const directory = mkdtempSync(join(tmpdir(), 'm04-owned-compaction-')), store = new Store(directory);
+  const threadId = 'owned-compaction';
+  let callbacks!: RuntimeCallbacks, historyReads = 0;
+  const runtime: RuntimeAdapter = {
+    configure: value => { callbacks = value; }, models: async () => [{ id: 'test/model', provider: 'test', name: 'Fixture model' }], start: vi.fn(async () => {}), followUp: async () => {},
+    cancel: vi.fn(async () => {}), history: async () => [], dispose: async () => {},
+    compact: vi.fn(async ctx => {
+      callbacks.onEvent({ ...ctx, type: 'compaction.start', reason: 'manual' });
+      callbacks.onEvent({ ...ctx, type: 'usage', usage: { inputTokens: 123, outputTokens: 17, cost: 0.02 } });
+      callbacks.onEvent({ ...ctx, type: 'compaction.end', reason: 'manual', aborted: false });
+      callbacks.onEvent({ ...ctx, type: 'settled', aborted: false });
+    }),
+    nativeHistoryDigest: vi.fn(async () => ({ sha256: (++historyReads === 1 ? 'd' : 'e').repeat(64), messages: [{ role: 'user', content: historyReads === 1 ? 'Original context' : 'Summary' }] })),
+  };
+  const service = new Service(store, runtime, { requestContextEnabled });
+  store.internal('fixture', threadId, () => {
+    store.put('thread', threadId, threadId, { id: threadId, title: 'Fixture', runId: null, epoch: 4, status: 'ready', modelId: 'test/model', accountId: null,
+      sessionPath: '/owned-session', projectName: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' });
+    store.put('requestContextReceipt', `receipt-${threadId}`, threadId, { receipt: { ...compactionReceipt(threadId).receipt, requestId: `receipt-${threadId}`, owner: { threadId, workspaceId: 'thread:' + threadId } } });
+    store.put('requestContextGeneration', threadId, threadId, { generation: 1 });
+  });
+  __setCapabilityFlagForTests('context.lossAwareCompactionV1', true);
+  cleanup.push(async () => {
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
+    __setCapabilityFlagForTests('ui.sourceWorkbenchV1', undefined);
+    await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
+  });
+  const command = { id: 'owned-compact', type: 'run.compact', threadId, payload: {} };
+  return { service, store, runtime, threadId, command, callbacks: () => callbacks };
+}
+
+it('owns native compaction callbacks and advances the durable context generation after application', async () => {
+  const f = await ownedCompactionFixture();
+  await f.service.command(f.command);
+  expect(f.store.get<{ value: unknown }>('usage', f.threadId)?.value).toMatchObject({ inputTokens: 123, outputTokens: 17, cost: 0.02, activity: 'idle' });
+  expect(f.service.thread(f.threadId)).toMatchObject({ runId: null, epoch: 5, status: 'ready' });
+  expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 2 });
+  await f.service.command(f.command);
+  expect(f.runtime.compact).toHaveBeenCalledOnce();
+});
+
+it.each(['legacy', 'saved'] as const)('preserves the %s session account when a provider default is selected', async mode => {
+  const f = await ownedCompactionFixture();
+  const create = async (id: string) => (await f.service.command({ id, type: 'account.create', payload: { providerId: 'openai', label: id } })).result as { id: string };
+  const selected = await create('default-account'), saved = await create('session-account');
+  await f.service.command({ id: 'select-default', type: 'account.select', payload: { providerId: 'openai', accountId: selected.id } });
+  const expectedAccount = mode === 'saved' ? saved.id : null;
+  f.store.internal('fixture.account-binding', f.threadId, () => {
+    const { accountId: _accountId, ...thread } = f.service.thread(f.threadId);
+    f.store.put('thread', f.threadId, f.threadId, { ...thread, modelId: 'openai/model', ...(mode === 'saved' ? { accountId: saved.id } : {}) });
+    f.store.put('requestContextReceipt', `receipt-${f.threadId}`, f.threadId, { receipt: { ...compactionReceipt(f.threadId).receipt, modelBinding: { modelId: 'openai/model', accountId: expectedAccount } } });
+  });
+  await f.service.command(f.command);
+  const thread = f.service.thread(f.threadId);
+  expect(Object.hasOwn(thread, 'accountId')).toBe(mode === 'saved');
+  expect(thread.accountId).toBe(mode === 'saved' ? saved.id : undefined);
+  expect(f.runtime.compact).toHaveBeenCalledWith(expect.objectContaining({ accountId: expectedAccount }), '/owned-session', 'openai/model', expectedAccount, undefined, 'd'.repeat(64));
+  expect(f.store.snapshot().settings.selectedAccounts?.openai).toBe(selected.id);
+});
+
+it.each(['before settlement', 'during finalization'] as const)('delivers queued input %s only after recording the applied compaction', async timing => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true);
+  type Snapshot = { sha256: string; messages: unknown[] };
+  let releaseBefore!: (value: Snapshot) => void, releaseAfter!: (value: Snapshot) => void;
+  const before = new Promise<Snapshot>(resolve => { releaseBefore = resolve; }), after = new Promise<Snapshot>(resolve => { releaseAfter = resolve; });
+  vi.mocked(f.runtime.nativeHistoryDigest!).mockReturnValueOnce(before).mockReturnValueOnce(after);
+  let stateAtStart: unknown;
+  vi.mocked(f.runtime.start).mockImplementation(async () => {
+    stateAtStart = { generation: f.store.get('requestContextGeneration', f.threadId), usage: f.store.get('usage', f.threadId) };
+  });
+  const compacted = f.service.command(f.command).then(() => 'APPLIED', () => 'FAILED');
+  const queue = () => f.service.command({ id: 'queued-after-compaction', type: 'message.send', threadId: f.threadId, payload: { content: 'Continue after compaction', modelId: 'test/model', sendMode: 'AFTER_CURRENT' } });
+  try {
+    await vi.waitFor(() => expect(f.runtime.nativeHistoryDigest).toHaveBeenCalledTimes(1));
+    if (timing === 'before settlement') await queue();
+    releaseBefore({ sha256: 'd'.repeat(64), messages: [{ role: 'user', content: 'Original context' }] });
+    await vi.waitFor(() => expect(f.runtime.nativeHistoryDigest).toHaveBeenCalledTimes(2));
+    if (timing === 'during finalization') await queue();
+    expect(f.runtime.start).not.toHaveBeenCalled();
+    expect(f.store.get('outbox', 'queued-after-compaction')).toMatchObject({ status: 'persisted', runId: null });
+    releaseAfter({ sha256: 'e'.repeat(64), messages: [{ role: 'user', content: 'Summary' }] });
+    expect(await compacted).toBe('APPLIED');
+    await vi.waitFor(() => expect(f.runtime.start).toHaveBeenCalledOnce());
+    expect(stateAtStart).toMatchObject({ generation: { generation: 2 }, usage: { value: { compaction: { candidates: [expect.objectContaining({ status: 'APPLIED', verdict: 'APPLIED' })] } } } });
+    expect(f.service.thread(f.threadId)).toMatchObject({ epoch: 6, status: 'working' });
+  } finally {
+    releaseBefore({ sha256: 'd'.repeat(64), messages: [] });
+    releaseAfter({ sha256: 'e'.repeat(64), messages: [] });
+    await compacted;
+  }
+});
+
+it.each(['prepared input', 'stop', 'model'] as const)('retains confirmed native application when %s changes during optional usage measurement', async change => {
+  const f = await ownedCompactionFixture(change === 'prepared input');
+  __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true);
+  let releaseAfter!: (value: { sha256: string; messages: unknown[] }) => void;
+  const after = new Promise<{ sha256: string; messages: unknown[] }>(resolve => { releaseAfter = resolve; });
+  vi.mocked(f.runtime.nativeHistoryDigest!).mockResolvedValueOnce({ sha256: 'd'.repeat(64), messages: [{ role: 'user', content: 'Original context' }] }).mockReturnValueOnce(after);
+  const compacted = f.service.command(f.command).then(() => 'APPLIED', () => 'FAILED');
+  try {
+    await vi.waitFor(() => expect(f.runtime.nativeHistoryDigest).toHaveBeenCalledTimes(2));
+    if (change === 'prepared input') await f.service.command({ id: 'queued-prepared-input', type: 'message.send', threadId: f.threadId, payload: { content: 'Continue with prepared context', modelId: 'test/model', sendMode: 'AFTER_CURRENT' } });
+    else if (change === 'stop') await f.service.command({ id: 'stop-after-native-apply', type: 'run.stop', threadId: f.threadId, payload: {} });
+    else f.store.internal('owner.model-changed', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, { ...f.service.thread(f.threadId), modelId: 'test/other' }));
+    expect(f.runtime.start).not.toHaveBeenCalled();
+    releaseAfter({ sha256: 'e'.repeat(64), messages: [{ role: 'user', content: 'Summary' }] });
+    expect(await compacted).toBe('APPLIED');
+    const usage = f.store.get<{ value: { compaction: { candidates: unknown[] } } }>('usage', f.threadId);
+    expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({ status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: expect.any(Number), measuredAfterBytes: null })]);
+    if (change === 'prepared input') {
+      await vi.waitFor(() => expect(f.runtime.start).toHaveBeenCalledOnce());
+      expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 3 });
+    } else {
+      expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 2 });
+      expect(f.service.thread(f.threadId)).toMatchObject(change === 'stop' ? { status: 'stopped', runId: null } : { modelId: 'test/other', runId: null });
+    }
+  } finally {
+    releaseAfter({ sha256: 'e'.repeat(64), messages: [] });
+    await compacted;
+  }
+});
+
+it('advances past a queued draft generation when native compaction confirms its fenced source', async () => {
+  const f = await ownedCompactionFixture(true);
+  __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true);
+  let finishNative!: () => void;
+  const native = new Promise<void>(resolve => { finishNative = resolve; });
+  vi.mocked(f.runtime.compact).mockImplementation(async ctx => {
+    await native;
+    f.callbacks().onEvent({ ...ctx, type: 'compaction.end', reason: 'manual', aborted: false });
+    f.callbacks().onEvent({ ...ctx, type: 'settled', aborted: false });
+  });
+  const compacted = f.service.command(f.command).then(() => 'APPLIED', () => 'FAILED');
+  try {
+    await vi.waitFor(() => expect(f.runtime.compact).toHaveBeenCalledOnce());
+    await f.service.command({ id: 'queued-during-native', type: 'message.send', threadId: f.threadId, payload: { content: 'Continue with this queued draft', modelId: 'test/model', sendMode: 'AFTER_CURRENT' } });
+    expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 2 });
+    expect(f.runtime.start).not.toHaveBeenCalled();
+    finishNative();
+    expect(await compacted).toBe('APPLIED');
+    await vi.waitFor(() => expect(f.runtime.start).toHaveBeenCalledOnce());
+    expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 3 });
+    expect(f.store.get('outbox', 'queued-during-native')).toMatchObject({ status: 'processing' });
+  } finally { finishNative(); await compacted; }
+});
+
+it('returns the same admitted compaction through authenticated HTTP and exposes its measured result', async () => {
+  const f = await ownedCompactionFixture(), { buildServer } = await import('../apps/server/server.ts');
+  const app = await buildServer(f.service, { port: 4317, dev: false });
+  try {
+    const host = { host: '127.0.0.1:4317' };
+    expect((await app.inject({ method: 'POST', url: '/api/commands', headers: host, payload: f.command })).statusCode).toBe(401);
+    const bootstrap = await app.inject({ url: '/api/bootstrap', headers: host });
+    const headers = { ...host, cookie: String(bootstrap.headers['set-cookie']).split(';')[0], 'x-harness-csrf': bootstrap.json().csrfToken };
+    const first = await app.inject({ method: 'POST', url: '/api/commands', headers, payload: f.command });
+    expect(first.statusCode).toBe(200);
+    const replay = await app.inject({ method: 'POST', url: '/api/commands', headers, payload: f.command });
+    expect(replay.statusCode).toBe(200);
+    expect(replay.json()).toEqual(first.json());
+    expect(f.runtime.compact).toHaveBeenCalledOnce();
+    const snapshot = (await app.inject({ url: '/api/snapshot', headers })).json();
+    expect(snapshot.usage[f.threadId]).toMatchObject({ inputTokens: 123, outputTokens: 17, cost: 0.02,
+      compaction: { candidates: [expect.objectContaining({ status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: expect.any(Number), measuredAfterBytes: expect.any(Number) })] } });
+  } finally { await app.close(); }
+});
+
+it.each(['silent', 'settled without compaction', 'failed'] as const)('does not publish an applied candidate for a %s native result', async result => {
+  const f = await ownedCompactionFixture();
+  vi.mocked(f.runtime.compact).mockImplementation(async ctx => {
+    if (result === 'settled without compaction') f.callbacks().onEvent({ ...ctx, type: 'settled', aborted: false });
+    if (result === 'failed') f.callbacks().onEvent({ ...ctx, type: 'error', message: 'Native compaction failed' });
+  });
+  await expect(f.service.command(f.command)).rejects.toMatchObject({ code: 'COMPACTION_FAILED' });
+  expect(f.store.all('compactionUsage', f.threadId)).toEqual([]);
+  expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({ generation: 1 });
+});
+
+it.each(['stop', 'account', 'model', 'thinking', 'workspace', 'session', 'generation', 'receipt'] as const)('refuses native compaction when %s changes while the source snapshot is pending', async change => {
+  const f = await ownedCompactionFixture();
+  let resolveSnapshot!: (value: { sha256: string; messages: unknown[] }) => void;
+  const snapshot = new Promise<{ sha256: string; messages: unknown[] }>(resolve => { resolveSnapshot = resolve; });
+  vi.mocked(f.runtime.nativeHistoryDigest!).mockReturnValueOnce(snapshot);
+  const result = f.service.command(f.command).then(() => 'APPLIED', () => 'REFUSED');
+  await vi.waitFor(() => expect(f.runtime.nativeHistoryDigest).toHaveBeenCalledOnce());
+  if (change === 'stop') await f.service.command({ id: 'stop-compaction', type: 'run.stop', threadId: f.threadId, payload: {} });
+  else if (change === 'generation') f.store.internal('generation-changed', f.threadId, () => f.store.put('requestContextGeneration', f.threadId, f.threadId, { generation: 2 }));
+  else if (change === 'receipt') f.store.internal('receipt-changed', f.threadId, () => f.store.put('requestContextReceipt', 'new-receipt', f.threadId, { receipt: { ...compactionReceipt(f.threadId).receipt, requestId: 'new-receipt' } }));
+  else f.store.internal('owner-changed', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, {
+    ...f.service.thread(f.threadId), ...({ account: { accountId: 'other-account' }, model: { modelId: 'test/other' }, thinking: { thinkingLevel: 'high' }, workspace: { workspaceId: 'other-workspace' }, session: { sessionPath: '/other-session' } }[change]),
+  }));
+  resolveSnapshot({ sha256: 'd'.repeat(64), messages: [{ role: 'user', content: 'Original context' }] });
+  expect(await result).toBe('REFUSED');
+  expect(f.runtime.compact).not.toHaveBeenCalled();
+  expect(f.store.all('compactionUsage', f.threadId)).toEqual([]);
 });
