@@ -101,6 +101,11 @@ export class SecretReferenceLedger {
     }
     issued.consumed = true;
     const value = await entry.resolver();
+    // The host can revoke the reference, or the approval can expire, while
+    // asynchronous credential lookup is pending. No value has been delivered
+    // yet, so recheck before releasing it to the authorized destination.
+    if (entry.revoked) throw denied('SECRET_REF_REVOKED', 'The secret reference was revoked.');
+    if (issued.expiresAt <= this.now()) throw denied('SECRET_REF_APPROVAL', 'The secret approval expired.');
     if (typeof value !== 'string' || !value || Buffer.byteLength(value, 'utf8') > MAX_SECRET_BYTES || value.includes('\0')) {
       throw denied('SECRET_REF_INVALID', 'The secret resolver returned an invalid value.');
     }

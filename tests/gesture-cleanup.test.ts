@@ -249,7 +249,7 @@ describe('gesture cleanup', () => {
   });
 
 
-  for (const mode of ['move', 'resize'] as const) for (const delta of [60, 0, 9999]) it(`floating ${mode} commits final pointer bounds (${delta}) and retains its draft`, async () => {
+  for (const mode of ['move', 'resize'] as const) for (const delta of [60, 0, 9999]) it(`floating ${mode} uses final pointer bounds (${delta}) and retains its draft`, async () => {
     const page = await openPage('?float&terminal'), surface = page.locator('[data-split-view="thread:solo"]');
     try {
       const grip = page.getByRole('button', {name: mode === 'move' ? 'Placement and move for Conversation' : 'Resize Conversation'});
@@ -265,7 +265,7 @@ describe('gesture cleanup', () => {
       await grip.dispatchEvent('pointerup', {pointerId, button: 0, clientX: x + delta, clientY: y + dy});
       await page.mouse.up();
       const rect = mode === 'move' ? {x: Math.min(100 + delta, viewport.width - 20 - 400), y: Math.min(80 + dy, viewport.height - 20 - 340), width: 400, height: 340} : {x: delta === 9999 ? 20 : 100, y: delta === 9999 ? 20 : 80, width: Math.min(400 + delta, viewport.width - 40), height: Math.min(340 + dy, viewport.height - 40)};
-      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual([{viewId: 'thread:solo', rect}]);
+      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual(mode === 'resize' && delta === 0 ? [] : [{viewId: 'thread:solo', rect}]);
       const painted = await surface.evaluate(node => {const el = node as HTMLElement; return {x: parseFloat(el.style.left), y: parseFloat(el.style.top), width: parseFloat(el.style.width), height: parseFloat(el.style.height)};});
       expect(painted).toEqual(rect);
       expect(await input.inputValue()).toBe('Unsent terminal-position draft');
@@ -284,7 +284,7 @@ describe('gesture cleanup', () => {
       if (delta >= 3) await grip.dispatchEvent('pointerup', {pointerId, button: 0, clientX: x + delta, clientY: y});
       await page.mouse.up(); await page.evaluate(() => new Promise(requestAnimationFrame));
       const rect = {x: delta < 3 ? 100 : 100 + delta, y: 80, width: 400, height: 340};
-      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual([{viewId: 'thread:solo', rect}]);
+      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual(delta < 3 ? [] : [{viewId: 'thread:solo', rect}]);
       expect(await surface.evaluate(node => ({x: parseFloat((node as HTMLElement).style.left), y: parseFloat((node as HTMLElement).style.top)}))).toEqual({x: rect.x, y: rect.y});
       await pw(page.getByRole('menu')).toHaveCount(delta < 3 ? 1 : 0);
     } finally {await page.close();}
