@@ -4,6 +4,7 @@ import {
   CONTROL_MAX_OBSERVATION_AGE_MS,
   CONTROL_MIN_DISPATCH_INTERVAL_MS,
   CONTROL_QUEUE_CAP,
+  classifyControlAction,
   controlActionV1Schema,
   controlTargetIdentityV1Schema,
   type ControlActionV1,
@@ -82,6 +83,15 @@ export class ControlDispatcher {
     if (this.stopped) throw new HarnessError('CANCELLED', 'Control input was stopped; request renewed consent.');
     if (grantState(input.grant, this.now(), this.generation) !== 'ACTIVE') throw new HarnessError('CAPABILITY_DENIED', 'The control grant is expired or revoked.');
     if (input.action.action === 'CAPTURE') throw new HarnessError('INVALID_INPUT', 'CAPTURE is an observation, not a queued input action.');
+    // D05/S07: every dispatch passes the host-classified effect risk. An
+    // unclassified action denies; consequential operations keep their
+    // separate exact approval; credential text is never typed (secure handoff).
+    const classification = classifyControlAction(input.action.action, input.action.redactedParameters);
+    if (classification === 'DENY') throw new HarnessError('CAPABILITY_DENIED', 'This control action is not consented; credentials go through the secure human handoff.');
+    if (classification === 'REQUIRE_APPROVAL') throw new HarnessError('APPROVAL_REQUIRED', 'This consequential control action needs its own exact approval.');
+    // D03/D05: operations the grant did not explicitly consent deny — consent
+    // is an allowlist, never a floor.
+    if (!input.grant.permittedOperations.includes(input.action.action)) throw new HarnessError('CAPABILITY_DENIED', `Operation ${input.action.action} is not consented for this target.`);
     if (this.queue.length + (this.inFlight ? 1 : 0) >= CONTROL_QUEUE_CAP) throw new HarnessError('QUEUE_FULL', 'The control input queue is full.');
     if (this.now() - input.observation.observedAtMs > CONTROL_MAX_OBSERVATION_AGE_MS) throw new HarnessError('OBSERVATION_STALE', 'The target observation is stale; observe again before queuing input.');
     if (!sameTargetIdentity(input.grant.target, input.observation.target)) throw new HarnessError('TARGET_MISMATCH', 'The observation does not describe the granted target.');

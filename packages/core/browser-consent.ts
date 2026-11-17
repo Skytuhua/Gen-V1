@@ -64,7 +64,10 @@ export function sameTargetIdentity(a: ControlTargetIdentityV1, b: ControlTargetI
 export type GrantState = 'ACTIVE' | 'EXPIRED' | 'REVOKED' | 'NEEDS_NEW_PERMISSION';
 
 export function grantState(grant: InteractiveGrantV1, nowMs: number, currentRevocationGeneration?: number): GrantState {
-  if (currentRevocationGeneration !== undefined && currentRevocationGeneration !== grant.revocationGeneration) return 'REVOKED';
+  // revocationGeneration is bumped exactly by revocation: a holder passing
+  // its recorded generation sees REVOKED once they differ, and a reader of
+  // the record itself sees REVOKED once it is non-zero.
+  if (currentRevocationGeneration !== undefined ? currentRevocationGeneration !== grant.revocationGeneration : grant.revocationGeneration !== 0) return 'REVOKED';
   if (nowMs >= grant.expiresAtMs) return 'EXPIRED';
   return 'ACTIVE';
 }
@@ -135,6 +138,8 @@ export class BrowserConsentHost {
     const consent = this.store.get<ConsentRequestV1>('controlConsent', consentId);
     if (!consent || consent.owner.threadId !== owner.threadId || consent.state !== 'PENDING') throw new HarnessError('CAPABILITY_DENIED', 'No pending consent request for this grant.');
     if (!capabilityEnabled(flagFor(consent.mode))) throw new HarnessError('CAPABILITY_DENIED', 'This control capability is disabled on this host.');
+    const expectedKind = consent.mode === 'SELECTED_DESKTOP_APPLICATION' ? 'APPLICATION' : 'BROWSER_TAB';
+    if (target.kind !== expectedKind) throw new HarnessError('INVALID_INPUT', 'The selected target does not match the consented mode.');
     this.deps.registry.resolve(consent.mode);
     const now = this.now();
     const grant: InteractiveGrantV1 = interactiveGrantV1Schema.parse({
@@ -170,14 +175,38 @@ export class BrowserConsentHost {
     });
   }
 
+  /** S04/G03: independent host Stop — the rollback surface the UI's Stop
+   * button binds to. Revokes the active grant (bumping revocationGeneration
+   * before any queued-action cancellation the driver layer performs) and
+   * closes a still-pending consent. Only this thread's own control state is
+   * touched; unrelated tabs, applications and their state are never closed,
+   * and grant/consent records are retained as receipts. */
+  stop(threadId: string): ControlSurfaceModelV1 {
+    const grant = this.activeGrant(threadId);
+    const pending = grant ? null : this.pendingConsent(threadId);
+    if (!grant && !pending) return this.surfaceModel(threadId);
+    this.write('control.stopped', threadId, () => {
+      if (grant) {
+        const current = this.store.get<InteractiveGrantV1>('interactiveGrant', grant.grantId);
+        if (current) this.store.put('interactiveGrant', grant.grantId, threadId, { ...current, revocationGeneration: current.revocationGeneration + 1 });
+      } else if (pending) {
+        this.store.put('controlConsent', pending.consentId, threadId, { ...pending, state: 'DENIED', reason: 'stopped', resolvedAtMs: this.now() });
+      }
+    });
+    return this.surfaceModel(threadId);
+  }
+
   /** S03: validate the live target at each action. A new origin, changed
    * process/window creation identity or a revoked grant all require renewed
    * consent — the pending action is refused, never transformed. */
   validateTarget(grant: InteractiveGrantV1, observed: ControlTargetIdentityV1, origin: string | null = observed.origin): GrantState {
-    const state = grantState(grant, this.now());
+    // Read the live record: the caller's object may be a stale snapshot taken
+    // before a revocation, and revocation must never be missed (S03/D04).
+    const live = this.store.get<InteractiveGrantV1>('interactiveGrant', grant.grantId) ?? grant;
+    const state = grantState(live, this.now());
     if (state !== 'ACTIVE') return state;
-    if (!sameTargetIdentity(grant.target, observed)) return 'NEEDS_NEW_PERMISSION';
-    if (grant.target.kind === 'BROWSER_TAB' && origin !== null && !grant.allowedOrigins.some(allowed => allowed === origin)) return 'NEEDS_NEW_PERMISSION';
+    if (!sameTargetIdentity(live.target, observed)) return 'NEEDS_NEW_PERMISSION';
+    if (live.target.kind === 'BROWSER_TAB' && origin !== null && !live.allowedOrigins.some(allowed => allowed === origin)) return 'NEEDS_NEW_PERMISSION';
     return 'ACTIVE';
   }
 

@@ -12,6 +12,7 @@ import {
   controlActionV1Schema,
   controlDriverRegistrationV1Schema,
   interactiveGrantV1Schema,
+  type ConsentRequestV1,
   type ControlTargetIdentityV1,
   type InteractiveGrantV1,
 } from '../packages/contracts/interactive-control.ts';
@@ -176,6 +177,28 @@ describe('M16-S03 target revalidation at each action', () => {
     expect(codeOf(() => host.authorizeAction(grant, 'CAPTURE'))).toBeNull();
     expect(codeOf(() => host.authorizeAction(grant, 'CLICK'))).toBe('CAPABILITY_DENIED');
     expect(codeOf(() => host.authorizeAction(grant, 'UPLOAD'))).toBe('CAPABILITY_DENIED');
+  });
+});
+
+describe('M16-S04/G03 host Stop and rollback', () => {
+  it('stop revokes the active grant generation and retains the receipt', () => {
+    const { store, host, registry } = fixture();
+    const grant = granted(host, registry);
+    const model = host.stop(owner.threadId);
+    expect(model.state).toBe('unavailable');
+    expect(model.liveControlActive).toBe(false);
+    const stored = store.get<InteractiveGrantV1>('interactiveGrant', grant.grantId)!;
+    expect(stored.revocationGeneration).toBe(1); // receipt retained, not erased
+  });
+
+  it('stop closes a pending consent and a target kind that mismatches the mode cannot be granted', () => {
+    const { store, host, registry } = fixture();
+    registry.register(registration());
+    const consent = host.requestConsent(owner, { mode: 'CONSENTED_EXISTING_TAB', observe: true, operations: ['CLICK'] });
+    expect(codeOf(() => host.grant(consent.consentId, owner, app, device))).toBe('INVALID_INPUT');
+    const model = host.stop(owner.threadId);
+    expect(model.state).toBe('unavailable');
+    expect(store.get<ConsentRequestV1>('controlConsent', consent.consentId)?.state).toBe('DENIED');
   });
 });
 

@@ -3,11 +3,12 @@ cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
 exitCode: 0
 termination: NONE
 
+
  RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m16-v6
 
 
  Test Files  1 passed (1)
-      Tests  7 passed (7)
-   Start at  06:31:21
-   Duration  2.47s (transform 1.49s, setup 0ms, import 2.08s, tests 144ms, environment 0ms)
+      Tests  8 passed (8)
+   Start at  08:59:14
+   Duration  10.49s (transform 9.11s, setup 0ms, import 9.89s, tests 232ms, environment 0ms)
 

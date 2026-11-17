@@ -151,6 +151,28 @@ describe('M16-S09/D07 capability detection and driver absence', () => {
   });
 });
 
+// D05/S07: host-classified effect risk gates every input action.
+describe('M16-D05/S07 effect classification at the input boundary', () => {
+  it('denies TYPE carrying credential material and consequential ops keep their exact approval', async () => {
+    const { dispatcher, calls, now } = harness();
+    const grantValue = grant(now.value);
+    expect(codeOf(() => dispatcher.enqueue({ grant: grantValue, action: { action: 'TYPE', redactedParameters: { password: 'hunter2' } }, observation: observation(now.value) }))).toBe('CAPABILITY_DENIED');
+    expect(codeOf(() => dispatcher.enqueue({ grant: grantValue, action: { action: 'TYPE', redactedParameters: { text: 'enter my password here' } }, observation: observation(now.value) }))).toBe('CAPABILITY_DENIED');
+    expect(codeOf(() => dispatcher.enqueue({ grant: grantValue, action: { action: 'UPLOAD', redactedParameters: { path: 'a.png' } }, observation: observation(now.value) }))).toBe('APPROVAL_REQUIRED');
+    expect(codeOf(() => dispatcher.enqueue({ grant: grantValue, action: { action: 'DOWNLOAD', redactedParameters: {} }, observation: observation(now.value) }))).toBe('APPROVAL_REQUIRED');
+    expect(codeOf(() => dispatcher.enqueue({ grant: grantValue, action: { action: 'NAVIGATE', redactedParameters: { url: 'https://app.example' } }, observation: observation(now.value) }))).toBe('APPROVAL_REQUIRED');
+    expect(calls.dispatch).toHaveLength(0);
+    await dispatcher.stop();
+  });
+
+  it('an action absent from the consent deny-defaults even when classified consented', async () => {
+    const { dispatcher, now } = harness();
+    const narrow = { ...grant(now.value), permittedOperations: ['CLICK' as const] };
+    expect(codeOf(() => dispatcher.enqueue({ grant: narrow, action: { action: 'TYPE', redactedParameters: { text: 'hello' } }, observation: observation(now.value) }))).toBe('CAPABILITY_DENIED');
+    await dispatcher.stop();
+  });
+});
+
 // The CAPTURE separation stays enforced at the input boundary (D03).
 describe('M16-D03 capture is never queued as input', () => {
   it('rejects CAPTURE on the input queue', async () => {

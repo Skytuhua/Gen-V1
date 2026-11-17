@@ -174,6 +174,24 @@ it('M16-D06 real-platform acceptance stays BLOCKED without an approved installed
   expect(controlCapability({ flagEnabled: false, registration: registration(), platformSupported: true }).state).toBe('BLOCKED');
 });
 
+/** G03/S04 through the real command path: control.stop revokes the thread's
+ * own grant only and keeps the recorded receipts. */
+it('M16-G03 control.stop through the real service revokes only the thread grant', async () => {
+  // The service's own consent host runs on Date.now(), so grant on the same clock.
+  const { store, service } = serviceFixture();
+  const registry = new ControlDriverRegistry();
+  registry.register(registration('native-window'));
+  __setCapabilityFlagForTests('control.selectedDesktopV1', true);
+  const host = new BrowserConsentHost(store, { registry });
+  const consent = host.requestConsent(owner, { mode: 'SELECTED_DESKTOP_APPLICATION', observe: false, operations: ['CLICK'] });
+  const issued = host.grant(consent.consentId, owner, app, { deviceId: 'd', sessionId: 's' });
+  const receipt = await service.command({ id: 'cmd-stop', type: 'control.stop', threadId: 'thread-1', payload: {} });
+  const control = (receipt.result as { control: { state: string; liveControlActive: boolean } }).control;
+  expect(control.state).toBe('unavailable');
+  expect(control.liveControlActive).toBe(false);
+  expect(store.get<InteractiveGrantV1>('interactiveGrant', issued.grantId)?.revocationGeneration).toBe(1);
+});
+
 /** Supporting assertion for G02: the M16 flags exist in the host registry and
  * default false. */
 it('M16-G02 flags are registered default-off and never in UI preferences', async () => {

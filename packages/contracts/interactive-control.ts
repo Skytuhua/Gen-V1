@@ -144,6 +144,28 @@ export const controlDriverRegistrationV1Schema = z.strictObject({
 });
 export type ControlDriverRegistrationV1 = z.infer<typeof controlDriverRegistrationV1Schema>;
 
+/** D05/S07: host-classified effect risk for a control action. CAPTURE is
+ * observation, admitted by the separate capture permission. CLICK and
+ * KEYPRESS are consent-admitted input. TYPE is consent-admitted only when its
+ * parameters carry no credential material — credentials go through the
+ * existing secure human handoff, never a model-visible value (S07).
+ * UPLOAD/DOWNLOAD/NAVIGATE are consequential and retain the existing
+ * exact-approval flow (U03). Anything not explicitly classified denies —
+ * effect risk is never inferred harmless from page or model text (D05). */
+export type ControlActionClassification = 'CONSENTED' | 'REQUIRE_APPROVAL' | 'DENY';
+
+const CREDENTIAL_PARAMETER = /pass|secret|credential|token|pin|otp|2fa|cvv|card/i;
+export function classifyControlAction(action: ControlActionKind, redactedParameters: Record<string, unknown>): ControlActionClassification {
+  if (action === 'CAPTURE' || action === 'CLICK' || action === 'KEYPRESS') return 'CONSENTED';
+  if (action === 'TYPE') {
+    for (const key of Object.keys(redactedParameters)) if (CREDENTIAL_PARAMETER.test(key)) return 'DENY';
+    if (typeof redactedParameters.text === 'string' && /pass|secret|credential/i.test(redactedParameters.text.slice(0, 40))) return 'DENY';
+    return 'CONSENTED';
+  }
+  if (action === 'UPLOAD' || action === 'DOWNLOAD' || action === 'NAVIGATE') return 'REQUIRE_APPROVAL';
+  return 'DENY';
+}
+
 /** Consent request record (store kind 'controlConsent'). A pending request is
  * what makes the disabled capability presentation visible; it grants nothing
  * by itself. */

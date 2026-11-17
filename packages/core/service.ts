@@ -727,6 +727,10 @@ export class Service {
       const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations:Array.isArray(p.operations)?(p.operations as ('CLICK'|'TYPE'|'KEYPRESS'|'UPLOAD'|'DOWNLOAD'|'NAVIGATE')[]):[],allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
       return {consent:request,control:this.controlConsent.surfaceModel(thread.id)};
     });
+    if(command.type==='control.stop')return this.store.command(command,()=>{
+      const thread=this.thread(command.threadId!);
+      return {control:this.controlConsent.stop(thread.id)};
+    });
     if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
     if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));
     if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));

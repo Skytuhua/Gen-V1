@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { authenticated, read } from './api';
+import { authenticated, command, read } from './api';
 import type { ControlSurfaceModelV1 } from '../../../packages/contracts/interactive-control.ts';
 
 /** M16 consented control surface. While input is active the persistent
@@ -56,12 +56,15 @@ export function ControlConsentPanel({ threadId }: { threadId: string }) {
     );
   }
   const grant = model.activeGrant!;
+  // Independent Stop (S04/U01): revokes the grant through the host command
+  // path; only this thread's own control connection is closed (G03).
+  const stop = () => { void command('control.stop', {}, threadId).then(receipt => { const control = (receipt.result as { control?: ControlSurfaceModelV1 }).control; if (control) setModel(control); }).catch(() => {}); };
   return (
     <section className="control-consent-panel" aria-label="Browser and desktop control" role="status">
       <header><span className="control-consent-title">Controlled {grant.target.kind === 'BROWSER_TAB' ? 'tab' : 'application'}</span><span className="control-consent-state">Active</span></header>
       <p>{MODE_LABEL[grant.mode] ?? grant.mode} · Observe {grant.capturePermission ? 'allowed' : 'not allowed'} · Interact {grant.permittedOperations.length ? grant.permittedOperations.join(', ') : 'not allowed'}</p>
       {model.expiryMs !== null && <p>Permission expires in {Math.max(0, Math.ceil(model.expiryMs / 1000))}s{grant.allowedOrigins.length ? ` · Origins: ${grant.allowedOrigins.join(', ')}` : ''}</p>}
-      <button type="button">Stop</button>
+      <button type="button" onClick={stop}>Stop</button>
     </section>
   );
 }
