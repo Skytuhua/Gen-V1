@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect, type Locator, type Page } from '@playwright/test';
@@ -9,7 +10,7 @@ import { serveTaskFixture, taskFixture, type TaskSpec } from '../tests/e2e/task-
 const output = resolve(process.argv[2] ?? '.harness-readme-launch');
 await mkdir(output, { recursive: true });
 process.env.GEN_E2E = '1';
-const server = await createServer({ server: { host: '127.0.0.1', port: 5579, strictPort: true }, configLoader: 'runner' });
+const server = await createServer({ server: { host: '127.0.0.1', port: 5579, strictPort: true, fs: { allow: [resolve('.'), realpathSync('node_modules')] } }, configLoader: 'runner' });
 await server.listen();
 try {
   const chromiumServer = await chromium.launchServer({ headless: true, args: ['--force-device-scale-factor=1', '--disable-background-timer-throttling'] });
@@ -31,6 +32,10 @@ try {
       } finally { await context.close(); }
     };
     const hold = (page: Page, ms = 750) => page.waitForTimeout(ms);
+    const zoomTo = async (page: Page, factor: number) => {
+      await page.evaluate(value => { (document.body.style as CSSStyleDeclaration).transition = 'zoom 650ms ease-in-out'; document.body.style.zoom = String(value); }, factor);
+      await hold(page, 750);
+    };
     async function point(page: Page, target: Locator) {
       await target.scrollIntoViewIfNeeded();
       const box = await target.boundingBox();
@@ -174,8 +179,10 @@ try {
       return async () => {
         await hold(page, 500); await ask(demo.prompt);
         await expect(page.getByText(demo.reply, {exact:true})).toBeVisible({timeout: 12000});
-        await expect(page.locator('.artifact-content')).toBeVisible(); await hold(page, 1050);
+        await expect(page.locator('.artifact-content')).toBeVisible(); await hold(page, 650);
+        await zoomTo(page, 1.25); await hold(page, 400);
         await demo.interact(page);
+        await zoomTo(page, 1.0); await hold(page, 350);
         if (demo.followup) {
           await ask(demo.followup.prompt);
           await expect(page.getByText(demo.followup.reply, {exact:true})).toBeVisible({timeout: 12000});
@@ -184,67 +191,67 @@ try {
         await hold(page, 1500);
       };
     });
-    if(!mode || mode === 'everyday') {
+    if(!mode || mode === 'scenarios') {
       await workflow({
-        name: 'study-plan', title: 'Plan a study week', artifactTitle: 'Your study plan',
-        prompt: 'I have 30 minutes each night before my quiz. Make me a study checklist.',
-        reply: 'Start with the hardest topics. Each session fits in 30 minutes.',
+        name: 'migration-checklist', title: 'Break down the session-store migration', artifactTitle: 'Migration checklist',
+        prompt: 'Break the session-store migration into steps I can check off.',
+        reply: 'Four steps, ordered so each lands on its own. Check off the ones already done.',
         spec: {root:'table', elements:{table:{type:'Table', props:{
-          rowsBinding:'rows', rowKey:'id', stateKey:'selected', caption:'Study sessions',
-          columns:[{key:'day',label:'Day'},{key:'task',label:'What to do'},{key:'duration',label:'Time'}],
+          rowsBinding:'rows', rowKey:'id', stateKey:'selected', caption:'Migration steps',
+          columns:[{key:'step',label:'Step'},{key:'scope',label:'Scope'},{key:'effort',label:'Effort'}],
         }}}},
         data: {rows:[
-          {id:'mon',day:'Monday',task:'Review lecture notes',duration:'20 min'},
-          {id:'tue',day:'Tuesday',task:'Practice the hardest problems',duration:'30 min'},
-          {id:'wed',day:'Wednesday',task:'Make a one-page summary',duration:'25 min'},
-          {id:'thu',day:'Thursday',task:'Take a short practice quiz',duration:'30 min'},
+          {id:'iface',step:'Extract token storage behind an interface',scope:'packages/core',effort:'Small'},
+          {id:'reads',step:'Migrate reads to the new store',scope:'apps/server',effort:'Medium'},
+          {id:'dual',step:'Dual-write behind a flag',scope:'packages/storage',effort:'Medium'},
+          {id:'cleanup',step:'Remove the legacy path',scope:'packages/storage',effort:'Small'},
         ]},
         values:{selected:[]},
         async interact(page) {
-          for(const row of ['mon','tue']) {
+          for(const row of ['iface','reads']) {
             const checkbox=page.locator(`.task-table [data-row-id=${row}] input`);
             await point(page, checkbox); await checkbox.check(); await expect(checkbox).toBeChecked(); await hold(page, 650);
           }
         },
       });
       await workflow({
-        name:'laptop-comparison', title:'Compare three laptops', artifactTitle:'Laptop shortlist',
-        prompt:'Compare these three sample laptops by price, weight and battery life.',
-        reply:'All three are under $1,000. Sort by what matters most to you.',
+        name:'runtime-comparison', title:'Compare candidate base images', artifactTitle:'Base image shortlist',
+        prompt:'Compare the three candidate base images by size, cold start and open CVEs.',
+        reply:'All three pass the smoke suite. Sort by the constraint that matters to the deployment.',
         spec:{root:'table',elements:{table:{type:'Table',props:{
-          rowsBinding:'rows',rowKey:'id',stateKey:'selected',caption:'Compare laptops',
-          columns:[{key:'name',label:'Laptop'},{key:'price',label:'Price ($)'},{key:'weight',label:'Weight (lb)'},{key:'battery',label:'Battery (hr)'}],
+          rowsBinding:'rows',rowKey:'id',stateKey:'selected',caption:'Compare base images',
+          columns:[{key:'name',label:'Image'},{key:'size',label:'Size (MB)'},{key:'cold',label:'Cold start (ms)'},{key:'cves',label:'Open CVEs'}],
         }}}},
         data:{rows:[
-          {id:'alder',name:'Alder 14',price:849,weight:3.2,battery:10},
-          {id:'fern',name:'Fern Air',price:979,weight:2.6,battery:13},
-          {id:'pine',name:'Pine 13',price:749,weight:3.1,battery:9},
+          {id:'slim',name:'node24-slim',size:320,cold:410,cves:7},
+          {id:'alpine',name:'node24-alpine',size:128,cold:390,cves:3},
+          {id:'distroless',name:'node24-distroless',size:210,cold:520,cves:1},
         ]},values:{selected:[]},
         async interact(page) {
           const table=page.locator('.task-table');
-          for(const [name,expected] of [['Sort Price ($)','Pine 13'],['Sort Weight (lb)','Fern Air']]) {
+          for(const [name,expected] of [['Sort Size (MB)','node24-alpine'],['Sort Open CVEs','node24-distroless']]) {
             const button=page.getByRole('button',{name,exact:true});
             await point(page,button);await button.click();await expect(table.locator('tbody tr').first()).toContainText(expected);await hold(page,850);
           }
-          const pick=table.locator('[data-row-id=fern] input');
+          const pick=table.locator('[data-row-id=distroless] input');
           await point(page,pick);await pick.check();await expect(pick).toBeChecked();
         },
       });
       await workflow({
-        name:'weekend-trip',title:'Plan a car-free weekend',artifactTitle:'Saturday itinerary',
-        prompt:'Plan a relaxed Saturday trip without a car. Give me a backup if it rains.',
-        reply:'Here are two easy versions of the day. Open either to see the details.',
+        name:'rollout-plan',title:'Plan the cache rollout',artifactTitle:'Rollout and rollback',
+        prompt:'Draft a staged rollout for the Redis cache. Include a rollback.',
+        reply:'Three phases, each flag-gated with its own rollback step.',
         spec:{root:'list',elements:{
-          list:{type:'Stack',props:{gap:'sm'},children:['morning','afternoon','rain']},
-          morning:{type:'Disclosure',props:{title:'Morning Â· Train and coffee',text:'Take the 9:15 train and walk five minutes to the station cafÃ©.',stateKey:'morning'}},
-          afternoon:{type:'Disclosure',props:{title:'Afternoon Â· Waterfront walk',text:'Leave the afternoon open for the waterfront path and lunch.',stateKey:'afternoon'}},
-          rain:{type:'Disclosure',props:{title:'Rain backup Â· Museum',text:'Swap the waterfront walk for a small museum near the station.',stateKey:'rain'}},
+          list:{type:'Stack',props:{gap:'sm'},children:['shadow','dual','rollback']},
+          shadow:{type:'Disclosure',props:{title:'Phase 1 · Shadow reads',text:'Read from Redis alongside the current store and log mismatches.',stateKey:'shadow'}},
+          dual:{type:'Disclosure',props:{title:'Phase 2 · Dual writes',text:'Write both stores behind the rollout flag; reads still prefer the legacy store.',stateKey:'dual'}},
+          rollback:{type:'Disclosure',props:{title:'Rollback · Disable the flag',text:'Turn the flag off to return all traffic to the legacy store immediately.',stateKey:'rollback'}},
         }},
-        followup:{prompt:'Move the rain plan to the morning.',reply:'Museum first, then lunch by the station. Keep the afternoon flexible.'},
+        followup:{prompt:'Gate phase 2 on the rollback checks passing.',reply:'Dual writes now wait for a verified rollback path before enabling.'},
         async interact(page) {
-          const rain=page.getByRole('button',{name:'Rain backup Â· Museum',exact:true});
-          await point(page,rain);await rain.click();await expect(rain).toHaveAttribute('aria-expanded','true');
-          await expect(page.getByText('Swap the waterfront walk for a small museum near the station.',{exact:true})).toBeVisible();
+          const rollback=page.getByRole('button',{name:'Rollback · Disable the flag',exact:true});
+          await point(page,rollback);await rollback.click();await expect(rollback).toHaveAttribute('aria-expanded','true');
+          await expect(page.getByText('Turn the flag off to return all traffic to the legacy store immediately.',{exact:true})).toBeVisible();
           await hold(page,1000);
         },
       });

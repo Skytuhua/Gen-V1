@@ -6,7 +6,7 @@ Gen runs a local application host and a Windows desktop or browser interface. Yo
 
 ## Try the published preview
 
-Open the [v0.6.1 preview release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1). It contains an unsigned Windows x64 installer and `SHA256SUMS.txt`. Check the release notes and compare the installer’s SHA-256 with that file:
+Open the [v0.6.1 preview release](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1). It contains an unsigned Windows x64 installer and `SHA256SUMS.txt`. Check the release notes and compare the installer’s SHA-256 with that file:
 
 ```powershell
 Get-FileHash -Algorithm SHA256 -LiteralPath .\Gen-V1-Setup-0.6.1-win-x64.exe
@@ -21,7 +21,7 @@ Use Windows x64 with Node.js **24.10.0 or newer**, pnpm **10.30.3** and CPython 
 From PowerShell:
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -50,7 +50,7 @@ Development starts the backend on loopback port 4317 and the generated-app recei
 
 ## Connect an account
 
-1. Open **Settings → Providers** and add a local account label.
+1. Open **Settings → Models & Accounts** and add a local account label.
 2. Choose **Connect** for that account and complete its native sign-in flow.
 3. Check readiness, refresh models and choose one available to your account.
 4. Start a new conversation and send a small task you can verify.
@@ -93,6 +93,14 @@ After an interruption, inspect the saved task state and receipts before resuming
 | No models appear | Finish sign-in in the same profile, check readiness and refresh models. |
 | Cleanup is unconfirmed | Preserve the blocked state and investigate shutdown; do not clear ownership guards. |
 | A source feature differs from the installer | Compare the [source/preview release notes](release-notes.md). |
+
+## Troubleshooting a fresh development checkout
+
+| Symptom | Cause and fix |
+| --- | --- |
+| `py -3.14` is not recognized, or Hermes reports Python cannot start | CPython **3.14** is not on PATH. Install it, then rerun the pinned `--target` install above. On hosts without the Windows `py` launcher, set `HARNESS_HERMES_PYTHON` to the interpreter's absolute path so the host can find it. |
+| `pnpm install` fails inside `node-pty` (`prebuild` / `node-gyp` errors) | The pinned `node-pty@1.1.0` ships no prebuilt binary for some non-Windows platforms (for example Linux arm64) and falls back to `node-gyp rebuild`. Install a C++ toolchain — `python3`, `g++` and `make` — then rerun `pnpm install` (or `pnpm rebuild node-pty`). The repository patch in `pnpm-workspace.yaml` is applied automatically. |
+| Browser suites fail with `Executable doesn't exist` for `chrome` or `msedge` | Several Playwright configs pin a branded channel (`channel: 'chrome'` or `'msedge'`) instead of the bundled Chromium. Install the channel — `pnpm exec playwright install chrome msedge` or the vendor's system package — or run a suite that uses bundled Chromium. Configs that select `msedge` only on Windows already fall back on other platforms. |
 
 Building an installer also needs pinned integration and Git/GitHub CLI bundles. A JavaScript install alone is insufficient; follow the [full packaging instructions](../getting-started.md#build-a-windows-installer). No private plug-in checkout or real profile is required.
 
