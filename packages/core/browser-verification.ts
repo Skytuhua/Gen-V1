@@ -167,7 +167,8 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
       }
       case 'ASSERT_URL': {
         const current = session.page.url();
-        const pass = current === step.url || current.startsWith(step.url);
+        let pass = false;
+        try { pass = new URL(current).href === new URL(step.url).href; } catch { /* an invalid URL cannot satisfy the assertion */ }
         record(step.checklistItemId, `URL is ${step.url}`, `observed ${current}`, pass ? 'PASS' : 'FAIL', null);
         if (!pass) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';

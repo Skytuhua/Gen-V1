@@ -95,6 +95,23 @@ it('navigation or traffic outside the approved origins fails closed',async()=>{
  expect(traffic.outcome).toBe('FAIL');expect(traffic.deniedOrigins).toContain('https://cdn.evil.example');
 });
 
+it.each(['/dashboard-disabled','/dashboard?admin=1','/dashboard#unexpected'])('ASSERT_URL rejects a different URL sharing the expected prefix: %s',async path=>{
+ const result=await run(stateStore(),[
+  {kind:'ASSERT_URL',url:'http://127.0.0.1:4100/dashboard',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({url:`http://127.0.0.1:4100${path}`,visible:{nav:true}}));
+ expect(result.outcome).toBe('FAIL');
+ expect(result.observations.find(obs=>obs.checklistItemId==='item-1')?.outcome).toBe('FAIL');
+});
+
+it('ASSERT_URL accepts the same normalized URL',async()=>{
+ const result=await run(stateStore(),[
+  {kind:'ASSERT_URL',url:'http://127.0.0.1:4100',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({url:'http://127.0.0.1:4100/',visible:{nav:true}}));
+ expect(result.outcome).toBe('PASS');
+});
+
 it('a failed assertion stops the run and unobserved items are blocked, never green',async()=>{
  const store=stateStore();
  const driver=fakeDriver({texts:{'h1':'Other text'},visible:{}});
