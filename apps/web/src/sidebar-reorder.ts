@@ -54,8 +54,17 @@ export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean
 export function withinGroup(list: SidebarSection, rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null): number {
   const key = list === 'flat' ? groupKey?.(item) : null;
   if (key === undefined || key === null) return index;
-  const run = rows.flatMap((candidate, at) => (groupKey!(candidate) === key ? [at] : []));
-  return run.length ? Math.min(Math.max(index, run[0]!), run.at(-1)! + 1) : index;
+  const keys = rows.map(candidate => groupKey!(candidate));
+  const run = keys.flatMap((value, at) => (value === key ? [at] : []));
+  if (run.length) return Math.min(Math.max(index, run[0]!), run.at(-1)! + 1);
+  // A lone row has no run of its own, so only a boundary between runs can
+  // render it: snap to the nearer edge of the run the insertion entered.
+  const after = index < keys.length ? keys[index] : undefined;
+  if (after === undefined || (index > 0 && keys[index - 1] !== after)) return index;
+  let start = index, end = index;
+  while (start > 0 && keys[start - 1] === after) start--;
+  while (end < keys.length && keys[end] === after) end++;
+  return index - start < end - index ? start : end;
 }
 
 const row = (node: EventTarget | null) => (node instanceof Element ? node.closest<HTMLElement>('.sidebar-thread-row[data-thread-id]') : null);

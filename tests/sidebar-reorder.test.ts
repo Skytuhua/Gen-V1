@@ -134,7 +134,13 @@ describe('withinGroup', () => {
     expect(withinGroup('flat', rows, a2, 3)).toBe(3);
     expect(withinGroup('flat', rows, a2, 3, () => null)).toBe(3);
   });
-  it('leaves an ungrouped row target alone when no other row shares its group', () => {
+  it('leaves an ungrouped row target alone at a run boundary', () => {
     expect(withinGroup('flat', [b1, b2], a2, 2, project)).toBe(2);
+    expect(withinGroup('flat', [b1, b2], a2, 0, project)).toBe(0);
+  });
+  it('snaps a lone row dropped mid-run to the nearer run edge', () => {
+    const b3 = row('b3', { projectId: 'B' }), three = [b1, b2, b3];
+    expect(withinGroup('flat', three, a2, 1, project)).toBe(0);
+    expect(withinGroup('flat', three, a2, 2, project)).toBe(3);
   });
 });
