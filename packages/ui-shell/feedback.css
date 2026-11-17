@@ -38,7 +38,7 @@
 .ui-toast .ui-toast-action { padding: 4px 8px; color: var(--text, #f4f4f4); font: inherit; font-weight: 550; }
 .ui-toast .ui-toast-close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; }
 .ui-toast button:hover { background: var(--hover, #262626); color: var(--text, #f4f4f4); }
-.ui-toast button:focus-visible { outline: 2px solid var(--accent, #91a7ff); outline-offset: 1px; }
+.ui-toast button:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset: 1px; }
 @keyframes ui-toast-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
 @keyframes ui-toast-out { to { opacity: 0; transform: translateY(6px) scale(.98); } }
 

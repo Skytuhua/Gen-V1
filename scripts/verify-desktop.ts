@@ -62,7 +62,7 @@ try{
  checks.push({name:'Native sidebar pointer and keyboard expansion with draft retention at 100/125/150 percent app zoom',passed:true,details:{zoom:[1,1.25,1.5],actualViewportCases:zoomGeometry,actualDisplays:displayGeometry,physicalDpiChange:false,originalR15Reproduced:false}});
  const composer=main.getByRole('textbox',{name:'Message',exact:true}),composerIdentity=await composer.elementHandle(),nativeCount=app.windows().length;
  await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
- await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Area actions',exact:true}).click();await main.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+ await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
  const float=main.locator('[data-split-view="thread:task-thread"][data-floating="true"]');await expect(float).toBeVisible();expect(app.windows().length).toBe(nativeCount);
  const before=(await float.boundingBox())!,handle=(await float.getByRole('button',{name:'Resize Source-bound task fixture',exact:true}).boundingBox())!;
  await main.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await main.mouse.down();

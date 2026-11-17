@@ -149,7 +149,7 @@ test('provider search selects its detail and repeats without probing unrelated p
   for(const provider of [{id:'gemini-cli',query:'Gemini'},{id:'cursor-sdk',query:'Cursor'},{id:'gemini-cli',query:'Gemini'}]){
     await search.fill(provider.query);await dialog.getByRole('button',{name:new RegExp('^'+provider.query)}).click();
     const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
-    await expect(target).toContainText('Synthetic selected-provider status.');await expect(dialog.locator('.connection-row')).toHaveCount(1);
+    await expect(target.locator('.connection-account-auth')).toHaveAttribute('data-state','unknown');await expect(target.locator('.connection-auth-summary strong')).toHaveText('Status unknown');await expect(dialog.locator('.connection-row')).toHaveCount(1);
     await expect(dialog.getByRole('navigation',{name:'Subscription providers'}).getByRole('button',{name:provider.query,exact:true})).toHaveAttribute('aria-pressed','true');
     await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
   }
@@ -177,7 +177,7 @@ test('browser task-notification preference saves without permission requests and
   });
   await nav.getByRole('button', { name: 'Notifications & Usage', exact: true }).click();
   await expect(dialog.getByText(/System popups and sound are unavailable in this browser build/)).toBeVisible();
-  await expect(dialog.getByText('System popups and sound deliver in the Windows app. These options apply there; in-app notices stay active in this browser.')).toBeVisible();
+  await expect(dialog.getByText('System notifications and sound require the Windows app.')).toBeVisible();
   await dialog.getByRole('combobox', { name: 'Task notifications', exact: true }).click();
   await dialog.getByRole('option', { name: 'Popups and sound', exact: true }).click();
   await expect.poll(() => commands.filter(command => command.type === 'settings.update').length).toBeGreaterThan(0);
@@ -409,6 +409,25 @@ for (const [theme, width] of [['dark', 1440], ['light', 1440], ['dark', 390], ['
   }
   expect(host.commands.filter(command => command.type === 'settings.update' || command.type.startsWith('account.') || command.type === 'message.send')).toEqual([]);
   await page.keyboard.press('Escape'); await expect(host.dialog).toHaveCount(0); await expect(host.composer).toHaveValue('Retain this conversation draft');
+});
+
+
+for (const theme of ['dark','light'] as const) test(`keyboard focus stays neutral without section frames or composer glow in ${theme}`,async({page})=>{
+  const host=await openSettings(page,theme);
+  host.snapshot.settings.preferences={...getPreferences(host.snapshot.settings),customAccent:'#c026d3'};await host.publish();
+  await expect.poll(()=>page.locator('html').evaluate(node=>node.style.getPropertyValue('--project-accent-ink'))).toBe('#c026d3');
+  await host.search.focus();await page.keyboard.press('Tab');await host.search.focus();
+  const search=await host.search.evaluate(node=>{const label=node.closest('label')!,probe=document.createElement('span');probe.style.color='var(--ui-focus-ring)';label.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();const style=getComputedStyle(label);return{neutral,color:style.outlineColor,style:style.outlineStyle,width:style.outlineWidth};});
+  expect(search.color).toBe(search.neutral);expect(search.style).toBe('solid');expect(search.width).toBe('2px');
+  const button=host.nav.getByRole('button',{name:'General',exact:true});await button.focus();
+  expect(await button.evaluate(node=>getComputedStyle(node).outlineColor)).toBe(search.neutral);
+  await page.keyboard.press('Escape');await expect(host.dialog).toHaveCount(0);await host.composer.focus();
+  const composer=await host.composer.evaluate(node=>{const style=getComputedStyle(node.closest('.composer')!);return{border:style.borderColor,shadow:style.boxShadow};});
+  expect(composer).toEqual({border:search.neutral,shadow:'none'});await expect(host.composer).toHaveValue('Retain this conversation draft');
+  await host.composer.blur();const box=page.locator('form.composer:visible');await box.dispatchEvent('dragover');await expect(box).toHaveClass(/dragging/);
+  expect(await box.evaluate(node=>getComputedStyle(node).borderColor)).toBe(search.neutral);
+  const drop=await box.evaluate(node=>{const probe=document.createElement('span');probe.style.background='var(--hover)';node.append(probe);const neutral=getComputedStyle(probe).backgroundColor;probe.remove();return{neutral,paint:getComputedStyle(node).backgroundColor};});expect(drop.paint).toBe(drop.neutral);
+  await box.dispatchEvent('dragleave');await expect(box).not.toHaveClass(/dragging/);await expect(host.composer).toHaveValue('Retain this conversation draft');
 });
 
 

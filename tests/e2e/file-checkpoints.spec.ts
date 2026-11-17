@@ -162,7 +162,7 @@ test('QA #130 displays escaped control paths and reviews their exact original by
 test('recorded comparison preferences have real renderer effects with explicit scope (T07)',async({page})=>{
  const recorded=async(query:string)=>{await page.goto('/file-checkpoints'+query);await page.getByRole('tab',{name:'Recorded',exact:true}).click();};
  await recorded('?ws=1');
- await expect(page.getByText('Layout, whitespace and color preferences apply to recorded before/after comparisons. Unified source patches are shown verbatim.')).toBeVisible();
+ await expect(page.getByText('Layout, whitespace and color preferences apply to recorded before/after comparisons. Unified source patches are shown verbatim.')).toHaveCount(0);
  const wsPair=page.locator('.workspace-diff').filter({hasText:'whitespace.ts'});
  expect(await wsPair.locator('section').first().locator('pre').evaluate(node=>node.textContent)).toBe('alpha\n \nbeta');
  const unifiedText=await page.locator('.workspace-diff').filter({hasText:'Repository diff'}).locator('.unified-diff').evaluate(node=>node.textContent);
