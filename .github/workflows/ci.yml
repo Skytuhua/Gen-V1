@@ -195,7 +195,7 @@ jobs:
         run: pnpm desktop:build
 
   installed-memory:
-    name: Installed desktop memory retention
+    name: Installed desktop memory retention and opt-in
     runs-on: windows-latest
     timeout-minutes: 60
     defaults:
@@ -272,14 +272,14 @@ jobs:
       - name: Package the production Windows installer
         run: pnpm desktop:package --output-root .harness-installed-package
 
-      - name: Verify installed default-off memory retention and restart
+      - name: Verify installed default-off retention and separate enabled opt-in
         run: |
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
           $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
           $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
           $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
-          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention', '--project-memory-enabled')
           Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
           & pnpm @verifyArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -299,4 +299,6 @@ jobs:
             .harness-desktop-installed/run-*/verification.json
             .harness-desktop-installed/run-*/*.png
             .harness-desktop-installed/run-*/installed-memory-redacted-export.json
+            .harness-desktop-installed/run-*/enabled-memory/*.png
+            .harness-desktop-installed/run-*/enabled-memory/installed-memory-redacted-export.json
             .harness-packaged-providers/run-*/verification.json

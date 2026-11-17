@@ -9,7 +9,7 @@ import {terminateProcessTree} from '../packages/runtime-pi/process-tree.ts';
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 import {verificationPorts,assertWrapperArguments} from './portable-verification.ts';
 import {verifyPackagedProviders} from './verify-packaged-providers.ts';
-import type {InstalledMemorySeed,InstalledMemoryObservation} from './installed-memory-retention.ts';
+import type {InstalledMemorySeed,InstalledMemoryObservation,InstalledMemoryMode} from './installed-memory-retention.ts';
 import {createStartupOutputCapture,startupErrorDiagnostic} from '../apps/desktop/backend-policy.ts';
 
 const APP_ID='local.generativeharness.desktop';
@@ -19,7 +19,7 @@ export type InstallPreflight={entries:RegistryEntry[];runningAppPids:number[];sh
 type ContentManifest={files:{path:string;bytes:number;sha256:string}[];bytes:number;sha256:string};
 type FileIdentity={dev:string;ino:string;sha256:string};
 type OwnedCache={path:string;dev:string;ino:string;file:FileIdentity}|null;
-type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[]};
+type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[];mode:InstalledMemoryMode};
 const PREFLIGHT_TIMEOUT_MS=60000;
 const PREFLIGHT_PHASES=['script-start','registry-complete','shortcuts-complete','cache-complete','processes-complete','result-complete'] as const;
 type PreflightProgress={phase:typeof PREFLIGHT_PHASES[number];scriptElapsedMs:number};
@@ -106,9 +106,9 @@ export function parseInstallPreflightProgress(stderr:string):PreflightProgress[]
 }
 
 export function readInstalledVerificationArguments(args:string[]){
- const [setup,unpacked,option,...extra]=args;
- if(!setup||!unpacked||extra.length||option!==undefined&&option!=='--project-memory-retention')throw Error('Usage: verify-installed-desktop <absolute Setup.exe> <absolute win-unpacked> [--project-memory-retention]');
- return {setup,unpacked,memoryRetention:option==='--project-memory-retention'};
+ const [setup,unpacked,...options]=args,memoryRetention=options.includes('--project-memory-retention'),memoryEnabled=options.includes('--project-memory-enabled');
+ if(!setup||!unpacked||new Set(options).size!==options.length||options.some(option=>!['--project-memory-retention','--project-memory-enabled'].includes(option))||memoryEnabled&&!memoryRetention)throw Error('Usage: verify-installed-desktop <absolute Setup.exe> <absolute win-unpacked> [--project-memory-retention [--project-memory-enabled]]');
+ return {setup,unpacked,memoryRetention,memoryEnabled};
 }
 
 export function nsisApplicationGuid(appId:string){
@@ -186,6 +186,10 @@ function baseEnvironment():NodeJS.ProcessEnv{
  const env:NodeJS.ProcessEnv={};
  for(const key of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM','TEMP','TMP','USERPROFILE','HOME','LOCALAPPDATA','APPDATA'])if(process.env[key]!==undefined)env[key]=process.env[key];
  return env;
+}
+/** Explicit installed phases cannot inherit ambient harness feature activation. */
+export function installedVerificationEnvironment(directory:string,ports:readonly[number,number,number],memoryMode?:InstalledMemoryMode):NodeJS.ProcessEnv{
+ return {...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(ports[0]),HARNESS_DESKTOP_WIDGET_PORT:String(ports[1]),...(memoryMode==='enabled'?{HARNESS_FLAG_MEMORY_PROJECT_V1:'true'}:{})};
 }
 async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean;phase?:OwnedPhase;onStderr?:(stderr:string)=>void;onObservation?:(value:OwnedProcessObservation)=>void;sampleProgress?:(elapsedMs:number,active:()=>boolean)=>Promise<InstalledPathProgress>}){
  const started=Date.now(),phase=options.phase??'verification',observation=newOwnedProcessObservation(phase,options.timeoutMs,started);options.onObservation?.(observation);
@@ -374,18 +378,18 @@ export async function assertInstalledConnectionReady(providerId:string,read:()=>
 async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
- const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:['ignore','pipe','pipe']});
+ const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:installedVerificationEnvironment(directory,ports,memory?.mode),windowsHide:false,stdio:['ignore','pipe','pipe']});
  let startupCapture:ReturnType<typeof observeInstalledStartup>|undefined;const startupDiagnostic:Record<string,unknown>={};
  const refreshStartup=()=>{try{if(startupCapture)Object.assign(startupDiagnostic,startupCapture.read());}catch{}};
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
  try{
-  startupCapture=observeInstalledStartup(child,iteration);refreshStartup();child.once('close',refreshStartup);
+  startupCapture=observeInstalledStartup(child,iteration);refreshStartup();startupDiagnostic.memoryMode=memory?.mode??null;child.once('close',refreshStartup);
   ((receipt.launchDiagnostics??=[]) as unknown[]).push(startupDiagnostic);
   await expect.poll(async()=>{if(launchError)throw launchError;if(child.exitCode!==null||child.signalCode!==null)throw Error('Installed application exited before readiness.');try{return (await fetch(debugOrigin+'/json/version',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:45000,intervals:[100,250,500]}).toBe(true);
   browser=await chromium.connectOverCDP(debugOrigin);
   const verifyBrowserOwner=async()=>{verifiedOwner=false;const session=await browser!.newBrowserCDPSession();try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}};
   await verifyBrowserOwner();
-  const readiness:{iteration:number;pid:number|null;timeoutMs:number;status:'waiting'|'ready'|'failed';observations:InstalledPageReadinessObservation[]}={iteration,pid:child.pid??null,timeoutMs:INSTALLED_MAIN_PAGE_TIMEOUT_MS,status:'waiting',observations:[]};
+  const readiness:{iteration:number;memoryMode:InstalledMemoryMode|null;pid:number|null;timeoutMs:number;status:'waiting'|'ready'|'failed';observations:InstalledPageReadinessObservation[]}={iteration,memoryMode:memory?.mode??null,pid:child.pid??null,timeoutMs:INSTALLED_MAIN_PAGE_TIMEOUT_MS,status:'waiting',observations:[]};
   ((receipt.launchReadiness??=[]) as unknown[]).push(readiness);
   const page=await waitForInstalledMainPage({child,origin,pages:()=>browser!.contexts().flatMap(context=>context.pages()),verifyOwner:verifyBrowserOwner,launchError:()=>launchError,observe:value=>{readiness.observations.push(value);if(value.phase==='ready'||value.phase==='failed')readiness.status=value.phase;}});
   const message=page.getByRole('textbox',{name:'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
@@ -401,12 +405,12 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
    await page.screenshot({path:join(directory,'installed-settings.png')});await providers.getByRole('button',{name:'Gemini',exact:true}).click();await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
    await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
   }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');
-  if(memory){if(!child.pid)throw Error('The owned installed process has no PID.');await (await import('./installed-memory-retention.ts')).verifyInstalledMemoryUI(page,memory.seed,iteration,memory.observations,{pid:child.pid,executable,isAlive:()=>child.exitCode===null&&child.signalCode===null});}
+  if(memory){if(!child.pid)throw Error('The owned installed process has no PID.');await (await import('./installed-memory-retention.ts')).verifyInstalledMemoryUI(page,memory.seed,iteration,memory.observations,{pid:child.pid,executable,isAlive:()=>child.exitCode===null&&child.signalCode===null},memory.mode);}
   expect((await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
   await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
-  if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration));
-  const result={iteration,mode:'personal',pid:child.pid,readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
+  if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration,memory.mode));
+  const result={iteration,mode:'personal',memoryMode:memory?.mode??null,pid:child.pid,readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
   (receipt.launches as unknown[]).push(result);return result;
  }finally{
   if(verifiedOwner)await browser?.close().catch(()=>{});
@@ -415,7 +419,8 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  }
 }
 
-export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean}={}){
+export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean;memoryEnabled?:boolean}={}){
+ if(options.memoryEnabled&&!options.memoryRetention)throw Error('Enabled memory verification requires the separate default-off retention phase.');
  if(process.platform!=='win32'||process.arch!=='x64')throw Error('This verification requires Windows x64.');
  if(!isAbsolute(setupPath)||!isAbsolute(expectedUnpackedPath))throw Error('Pass absolute installer and expected unpacked-directory paths.');
  const setup=await realpath(setupPath),expectedUnpacked=await realpath(expectedUnpackedPath),setupIdentity=await identity(setup);
@@ -425,7 +430,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  // A nested evidence UUID path exceeds the conservative Windows path budget for Gemini assets.
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
- const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,launches:[],passed:false};
+ const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches per requested phase with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,memoryEnabledRequested:options.memoryEnabled===true,launches:[],passed:false};
  const preflightObservations:PreflightObservation[]=[];receipt.preflightObservations=preflightObservations;
  const preflight=(stage:PreflightStage)=>installPreflight(ownedDirectory,stage,preflightObservations);
  let installedUninstaller:{path:string;identity:FileIdentity}|undefined,ownedCache:OwnedCache|undefined,installationInvoked=false,mainError:unknown;
@@ -451,10 +456,18 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   let memory:MemoryRetention|undefined;
   if(options.memoryRetention){
    const seed=await (await import('./installed-memory-retention.ts')).seedInstalledMemoryProfile(ownedDirectory);
-   memory={seed,observations:[]};
+   memory={seed,observations:[],mode:'default-off'};
    receipt.memoryRetention={version:1,scope:'Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.',seed,hostDefaultOff:true,seedEnablement:'Constructor-local fixture creation only; project disabled before installed launch.',providerNetworkCalls:null,observations:memory.observations};
   }
   const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory);
+  if(options.memoryEnabled){
+   // Keep the default-off receipt and profile intact. The enabled phase owns
+   // a separate, new profile and uses the production host environment path.
+   const enabledDirectory=join(ownedDirectory,'enabled-memory');await mkdir(enabledDirectory);
+   const seed=await (await import('./installed-memory-retention.ts')).seedInstalledMemoryProfile(enabledDirectory),enabled:MemoryRetention={seed,observations:[],mode:'enabled'};
+   receipt.memoryEnabled={version:1,scope:'Seeded disposable retained records in a separate installed profile with explicit production host activation and UI source opt-in. Proves review, pinned sources, deterministic consolidation, redacted native export, Forget and restart. No foreground recall/exclusion/send, automatic extraction, native checkpoint, live-provider evaluation or elapsed-retention purge proof.',seed,activation:{HARNESS_FLAG_MEMORY_PROJECT_V1:'true'},sourceConsent:'Disabled before launch; enabled only through the project-memory UI.',providerNetworkCalls:null,observations:enabled.observations};
+   await launchInstalled(executable,enabledDirectory,1,receipt,ports,enabled);await launchInstalled(executable,enabledDirectory,2,receipt,ports,enabled);
+  }
  }catch(error){mainError=error;receipt.error=error instanceof Error?error.message:'Installed verification failed.';}
  finally{
   if(installedUninstaller){
@@ -475,6 +488,6 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  if(mainError)throw mainError;return {directory:ownedDirectory,receipt};
 }
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
- const {setup,unpacked,memoryRetention}=readInstalledVerificationArguments(process.argv.slice(2));
- await verifyInstalledDesktop(setup,unpacked,{memoryRetention});
+ const {setup,unpacked,memoryRetention,memoryEnabled}=readInstalledVerificationArguments(process.argv.slice(2));
+ await verifyInstalledDesktop(setup,unpacked,{memoryRetention,memoryEnabled});
 }
