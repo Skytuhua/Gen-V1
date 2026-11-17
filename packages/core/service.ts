@@ -118,6 +118,7 @@ export class Service {
   private readonly compactionRegistry = createCompactionCandidateRegistry();
   private readonly compactionCandidateIds = new Map<string, string[]>();
   private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
+  private readonly compactionInflight = new Map<string, Promise<void>>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -409,6 +410,14 @@ export class Service {
     return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
   }
   private async applyLossAwareCompaction(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+    const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(thread));
+    const tail=run.then(()=>undefined,()=>undefined);
+    this.compactionInflight.set(thread.id,tail);
+    tail.finally(()=>{if(this.compactionInflight.get(thread.id)===tail)this.compactionInflight.delete(thread.id);});
+    return run;
+  }
+  private async applyLossAwareCompactionInner(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
     const receipt=this.latestRequestReceipt(thread.id);
     if(!receipt)return {status:'UNSUPPORTED_COMPACTION',candidateId:'',usageEntity:null};
     const binding=this.compactionBindingOf(receipt);
@@ -418,12 +427,14 @@ export class Service {
     const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch,accountId:binding.accountId??null};
     const bytes=(list:unknown[])=>list.reduce((n:number,m)=>n+Buffer.byteLength(JSON.stringify(m),'utf8'),0);
     const outcome:{usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}={usageEntity:null};
-    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
+    const freshReceipt=this.latestRequestReceipt(thread.id);
+    const current=freshReceipt?this.compactionBindingOf(freshReceipt):binding;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
       const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
       if(!snap)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
       const beforeBytes=bytes(snap.messages);
       await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,undefined,snap.sha256);
-      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
+      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null).catch(()=>null);
       outcome.usageEntity={id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:after?bytes(after.messages):null};
       return {generation:binding.generation+1,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
     }:undefined});
@@ -814,6 +825,7 @@ export class Service {
       if (capabilityEnabled('context.lossAwareCompactionV1')) {
         if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
         if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
+        this.assertNoOtherRun(thread.id);
         const compactionOutcome = await this.applyLossAwareCompaction(thread);
         if (compactionOutcome.status === 'UNSUPPORTED_COMPACTION')
           throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
