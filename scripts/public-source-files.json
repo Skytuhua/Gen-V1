@@ -3103,6 +3103,7 @@
     "tests/profile-lease.test.ts",
     "tests/project-colors.test.ts",
     "tests/project-context-summary.test.ts",
+    "tests/project-memory-file-sources-v3.test.ts",
     "tests/project-memory-fixture.ts",
     "tests/project-memory-host-fixture.ts",
     "tests/project-memory-http-v3.test.ts",
