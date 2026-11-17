@@ -74,7 +74,9 @@ export class SecretReferenceLedger {
     if (!sameDestination(requested, entry.ref.destination)) {
       throw denied('SECRET_REF_DESTINATION', 'Secret resolution requires the exact permitted destination.');
     }
-    const ttl = Math.min(Math.max(options?.ttlMs ?? DEFAULT_APPROVAL_TTL_MS, 1), MAX_APPROVAL_TTL_MS);
+    const requestedTtl = options?.ttlMs ?? DEFAULT_APPROVAL_TTL_MS;
+    if (!Number.isSafeInteger(requestedTtl)) throw denied('INVALID_INPUT', 'Secret approval TTL must be a finite safe integer.');
+    const ttl = Math.min(Math.max(requestedTtl, 1), MAX_APPROVAL_TTL_MS);
     const approval: IssuedApproval = {
       nonce: randomUUID(), refId, destination: structuredClone(entry.ref.destination),
       expiresAt: this.now() + ttl, actor: options?.actor ?? null, consumed: false,
@@ -99,6 +101,11 @@ export class SecretReferenceLedger {
     }
     issued.consumed = true;
     const value = await entry.resolver();
+    // The host can revoke the reference, or the approval can expire, while
+    // asynchronous credential lookup is pending. No value has been delivered
+    // yet, so recheck before releasing it to the authorized destination.
+    if (entry.revoked) throw denied('SECRET_REF_REVOKED', 'The secret reference was revoked.');
+    if (issued.expiresAt <= this.now()) throw denied('SECRET_REF_APPROVAL', 'The secret approval expired.');
     if (typeof value !== 'string' || !value || Buffer.byteLength(value, 'utf8') > MAX_SECRET_BYTES || value.includes('\0')) {
       throw denied('SECRET_REF_INVALID', 'The secret resolver returned an invalid value.');
     }
@@ -161,8 +168,9 @@ export function createSecretRedactor(secrets: Iterable<string>, options?: { fiel
     variants.add(Buffer.from(secret, 'utf8').toString('base64'));
     variants.add(Buffer.from(secret, 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''));
   }
+  // Match complete JSON string values, including escaped quotes and backslashes.
   const fieldPatterns = (options?.fields ?? []).map(field =>
-    new RegExp(`("${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:\\s*")([^"]*)(")`, 'g'));
+    new RegExp(`("${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:\\s*")((?:\\\\.|[^"\\\\])*)(")`, 'g'));
 
   function redact(text: string): { text: string; redactions: number } {
     // Match on an ANSI-stripped view so escape-split secrets still redact,

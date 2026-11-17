@@ -158,6 +158,10 @@ export class Store {
     return rows.map(row => ({ seq: row.seq, id: row.id, type: row.type, threadId: row.thread_id, payload: JSON.parse(row.payload), occurredAt: row.occurred_at }));
   }
   get sequence(): number { return Number((this.statements.sequence.get() as { seq: number }).seq); }
+  /** True while a command/internal commit is open: host modules invoked from
+   * a command write through the open transaction instead of opening a nested
+   * one (Store rejects nested commits). */
+  get inTransaction(): boolean { return this.transactionOpen; }
   private visibleEntities() {
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
