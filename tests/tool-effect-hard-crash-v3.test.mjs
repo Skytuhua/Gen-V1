@@ -4,13 +4,14 @@ const { spawn } = await import('node:child_process');
 const { createRequire } = await import('node:module');
 const { tmpdir } = await import('node:os');
 const { join } = await import('node:path');
+const { pathToFileURL } = await import('node:url');
 
 const roots = [];
 afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
 const require = createRequire(join(process.cwd(), 'package.json'));
-const loader = require.resolve('tsx');
+const loader = pathToFileURL(require.resolve('tsx')).href;
 const worker = join(process.cwd(), 'tests/fixtures/tool-effect-crash-worker.mjs');
 
 async function runWorker(root, mode, phase = '') {
@@ -18,7 +19,27 @@ async function runWorker(root, mode, phase = '') {
     const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', '--import', loader, worker, mode, root, phase],
       { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '', stderr = '', timedOut = false, overflow = false;
+    let checking = false, killAccepted = false, pauseMarker = null, pauseError = null;
+    let poll;
     const timer = setTimeout(() => { timedOut = true; child.kill('SIGKILL'); }, 20_000);
+    const clear = () => { clearTimeout(timer); if (poll) clearInterval(poll); };
+    if (mode === 'crash') poll = setInterval(() => {
+      if (checking || killAccepted) return;
+      checking = true;
+      void readFile(join(root, 'termination-point.txt'), 'utf8').then(marker => {
+        if (marker !== phase + '\n') throw new Error('Unexpected durability pause: ' + marker);
+        pauseMarker = marker;
+        killAccepted = child.kill('SIGKILL');
+        clearInterval(poll);
+        if (!killAccepted) throw new Error('Supervisor could not terminate its owned paused process');
+      }).catch(error => {
+        if (error.code !== 'ENOENT') {
+          pauseError = error;
+          clearInterval(poll);
+          child.kill('SIGKILL');
+        }
+      }).finally(() => { checking = false; });
+    }, 10);
     const collect = (text, isError) => {
       if (Buffer.byteLength(stdout) + Buffer.byteLength(stderr) + text.length > 128 * 1024) {
         overflow = true; child.kill('SIGKILL'); return;
@@ -27,11 +48,12 @@ async function runWorker(root, mode, phase = '') {
     };
     child.stdout.on('data', text => collect(text, false));
     child.stderr.on('data', text => collect(text, true));
-    child.once('error', error => { clearTimeout(timer); reject(error); });
+    child.once('error', error => { clear(); reject(error); });
     child.once('close', (code, signal) => {
-      clearTimeout(timer);
+      clear();
       if (timedOut || overflow) reject(new Error('Owned crash worker exceeded its time/output bound: ' + stderr));
-      else resolve({ code, signal, stdout, stderr });
+      else if (pauseError) reject(pauseError);
+      else resolve({ code, signal, stdout, stderr, killAccepted, pauseMarker });
     });
   });
 }
@@ -56,7 +78,7 @@ it.each(cases)('retains exact effect certainty after hard termination at $phase'
   roots.push(root);
   const crash = await runWorker(root, 'crash', expected.phase);
   expect(await readFile(join(root, 'termination-point.txt'), 'utf8')).toBe(expected.phase + '\n');
-  expect(crash.signal, JSON.stringify(crash)).toBe('SIGKILL');
+  expect(crash, JSON.stringify(crash)).toMatchObject({ code: null, signal: 'SIGKILL', killAccepted: true, pauseMarker: expected.phase + '\n' });
   const recovered = await runWorker(root, 'recover');
   expect(recovered, recovered.stderr).toMatchObject({ code: 0, signal: null });
   const first = JSON.parse(recovered.stdout);

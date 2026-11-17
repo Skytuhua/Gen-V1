@@ -1,4 +1,4 @@
-const { closeSync, existsSync, fsyncSync, openSync, readFileSync, writeSync } = await import('node:fs');
+const { closeSync, existsSync, fsyncSync, openSync, readFileSync, renameSync, writeSync } = await import('node:fs');
 const { join } = await import('node:path');
 const { Store } = await import('../../packages/storage/store.ts');
 const { buildToolRegistry, ToolAuthority } = await import('../../packages/core/tool-authority.ts');
@@ -26,11 +26,15 @@ function durableWrite(path, value, append = false) {
   const fd = openSync(path, append ? 'a' : 'w');
   try { writeSync(fd, value); fsyncSync(fd); } finally { closeSync(fd); }
 }
-function terminate(at) {
+function pauseAt(at) {
   if (phase !== at) return;
-  durableWrite(join(root, 'termination-point.txt'), at + '\n');
-  process.kill(process.pid, 'SIGKILL');
-  throw new Error('SIGKILL did not terminate the owned worker');
+  const pending = join(root, 'termination-point.tmp');
+  durableWrite(pending, at + '\n');
+  // Publish the marker only after fsync. The supervisor owns the kill handle;
+  // this synchronous pause can stop inside an open SQLite transaction.
+  renameSync(pending, join(root, 'termination-point.txt'));
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0);
+  throw new Error('Crash worker unexpectedly resumed its durability pause');
 }
 function effectCount() {
   return existsSync(counter) ? readFileSync(counter, 'utf8').trim().split('\n').filter(Boolean).length : 0;
@@ -48,26 +52,26 @@ if (mode === 'crash') {
   const put = store.put.bind(store);
   store.put = (kind, id, threadId, value) => {
     put(kind, id, threadId, value);
-    if (kind === 'approval' && value.remainingUses === 0) terminate('approval-written');
-    if (kind === 'toolEffect' && value.state === 'DISPATCHED') terminate('dispatched-record');
-    if (kind === 'toolEffect' && value.state === 'SUCCEEDED') terminate('settlement-record');
+    if (kind === 'approval' && value.remainingUses === 0) pauseAt('approval-written');
+    if (kind === 'toolEffect' && value.state === 'DISPATCHED') pauseAt('dispatched-record');
+    if (kind === 'toolEffect' && value.state === 'SUCCEEDED') pauseAt('settlement-record');
   };
   __setEffectFaultHookForTests(at => {
-    if (at === 'admission') terminate('admission');
-    if (at === 'dispatch') terminate('prepared-record');
-    if (at === 'settlement') terminate('settlement');
+    if (at === 'admission') pauseAt('admission');
+    if (at === 'dispatch') pauseAt('prepared-record');
+    if (at === 'settlement') pauseAt('settlement');
   });
   store.subscribe(event => {
-    if (event.type === 'toolEffect.admitted') terminate('admission-commit');
-    if (event.type === 'toolEffect.settled') terminate('settlement-commit');
+    if (event.type === 'toolEffect.admitted') pauseAt('admission-commit');
+    if (event.type === 'toolEffect.settled') pauseAt('settlement-commit');
   });
   ledger.verifyOperationApproval(operation, thread);
   const admitted = ledger.admitOperationDispatch(operation, thread,
     () => store.put('operation', operation.id, thread.id, { ...operation, status: 'running' }));
   if (admitted?.state !== 'DISPATCHED') throw new Error('Fixture was not admitted');
-  terminate('before-external');
+  pauseAt('before-external');
   durableWrite(counter, 'effect\n', true);
-  terminate('external-committed');
+  pauseAt('external-committed');
   ledger.settle(invocationId, { value: { effects: 1 } }, 'SUCCEEDED');
   throw new Error('Selected crash point was not reached');
 }
