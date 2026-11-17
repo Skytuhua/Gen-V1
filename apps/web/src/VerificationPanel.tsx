@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { VerificationPanelModel as Model, VerificationPanelRow as Row } from '../../../packages/core/verification-read-models';
-import { authenticated, read } from './api';
+import { authenticated, command, read } from './api';
 import {VerificationArtifact, isRetainedVerificationArtifact} from './VerificationArtifact';
 
 /** M06 verification panel — additive read model. Columns: requirement,
@@ -96,12 +96,82 @@ function SecurityFindings({findings}: {findings: NonNullable<Model['securityFind
   </section>;
 }
 
+
+type Workflow = NonNullable<Model['workflow']>;
+const repairState: Record<NonNullable<Workflow['repair']>['state'], string> = {
+  AWAITING_APPROVAL: 'Awaiting approval', RUNNING: 'Attempt running', READY: 'Ready for another attempt',
+  BLOCKED: 'Cannot continue', STOPPING: 'Stopping and cleaning up', STOPPED: 'Repair stopped',
+};
+const repairStop = {PASSED: 'Checks passed', UNCHANGED_FAILURE: 'Repeated unchanged failure', BUDGET: 'Budget exhausted',
+  REVOKED: 'Approval or execution authority revoked', CONFLICT: 'Source or owner changed', BLOCKED: 'Execution or cleanup unconfirmed', CANCELLED: 'Cancelled'};
+
+function VerificationActions({threadId, workflow, refresh}: {threadId: string; workflow: Workflow; refresh: () => void}) {
+  const alive = useRef(true), pending = useRef(false), latest = useRef(workflow);
+  latest.current = workflow;
+  const [loading, setLoading] = useState<string | null>(null), [waiting, setWaiting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null), [error, setError] = useState<string | null>(null);
+  const [seconds, setSeconds] = useState(String(workflow.suggestedBudget.ms / 1000)), [tokens, setTokens] = useState(String(workflow.suggestedBudget.tokens));
+  useEffect(() => {alive.current = true; return () => {alive.current = false;};}, []);
+  useEffect(() => {setWaiting(false);}, [workflow]);
+  const act = async (type: string, payload: Record<string, unknown>, label: string) => {
+    if (pending.current || waiting) return;
+    const captured = workflow, isCurrent = () => alive.current && latest.current.ownerKey === captured.ownerKey && latest.current.executionId === captured.executionId &&
+      latest.current.repair?.planId === captured.repair?.planId && latest.current.repair?.revision === captured.repair?.revision;
+    pending.current = true; setLoading(label); setNotice(null); setError(null);
+    try {
+      await command(type, payload, threadId, crypto.randomUUID(), isCurrent);
+      if (isCurrent()) setNotice(type === 'verification.repair.stop' ? 'Repair stopped. Cleanup status is shown below.' : 'Verification prepared. Review and approve the new operation.');
+    } catch (fault) {
+      if (isCurrent()) setError(fault instanceof Error ? fault.message.slice(0, 500) : 'The verification request failed.');
+    } finally {
+      pending.current = false;
+      if (alive.current) {setLoading(null); setWaiting(true); refresh();}
+    }
+  };
+  const busy = Boolean(loading) || waiting, plan = workflow.repair;
+  return <section className="verification-actions" aria-label="Verification actions" aria-busy={busy}>
+    <p>Each run prepares a new operation for your approval. Previous check results remain in the history.</p>
+    {plan && <div className="verification-repair" aria-label="Bounded repair progress">
+      <h3>Bounded repair</h3>
+      <p>{plan.attempts} of {plan.maxAttempts} attempts used · {repairState[plan.state]}</p>
+      <p>{Math.ceil(plan.remainingMs / 1000)} seconds remaining · Deadline <time dateTime={plan.deadline}>{new Date(plan.deadline).toLocaleString()}</time></p>
+      {workflow.qa && <p>{plan.remainingTokens} QA tokens remaining · {plan.reservedTokens} reserved for the running attempt</p>}
+      {plan.state === 'AWAITING_APPROVAL' && <p>Review and approve the prepared operation to run this attempt.</p>}
+      {plan.stopped && <p role="status">Stop reason: {repairStop[plan.stopped]}{plan.stopDetail ? '. ' + plan.stopDetail : '.'}</p>}
+      {plan.state === 'BLOCKED' && plan.unavailableReason && <p role="status">{plan.unavailableReason}</p>}
+      <div className="verification-action-buttons">
+        {plan.canContinue && <button type="button" disabled={busy} onClick={() => void act('verification.repair.next', {planId: plan.planId, revision: plan.revision}, 'Preparing next attempt...')}>Prepare next attempt</button>}
+        <button type="button" disabled={busy || !plan.canStop} onClick={() => void act('verification.repair.stop', {planId: plan.planId, revision: plan.revision}, 'Stopping repair...')}>Stop repair</button>
+      </div>
+    </div>}
+    {!plan && workflow.canStartRepair && <form className="verification-budget" aria-label="Bounded repair budget" onSubmit={event => {
+      event.preventDefault();
+      const ms = Number(seconds) * 1000, allocation = workflow.qa ? Number(tokens) : 0;
+      if (!Number.isInteger(ms) || ms < 1000 || ms > 1_800_000 || !Number.isInteger(allocation) || allocation < (workflow.qa ? 1 : 0) || allocation > 300_000) {
+        setError('Choose a time limit from 1 to 1800 seconds and a QA token budget from 1 to 300000 when QA is included.'); return;
+      }
+      void act('verification.repair.start', {executionId: workflow.executionId, budget: {tokens: allocation, ms}}, 'Preparing bounded repair...');
+    }}>
+      <p>Bounded repair allows at most 3 approved attempts within the budget. Apply changes in your working copy before each attempt.</p>
+      <label>Repair time limit (seconds)<input type="number" min="1" max="1800" step="1" required value={seconds} disabled={busy} onChange={event => setSeconds(event.target.value)} /></label>
+      {workflow.qa && <label>Repair QA token budget<input type="number" min="1" max="300000" step="1" required value={tokens} disabled={busy} onChange={event => setTokens(event.target.value)} /></label>}
+      <button type="submit" disabled={busy}>Start bounded repair</button>
+    </form>}
+    <div className="verification-action-buttons"><button type="button" disabled={busy || !workflow.canRerun} onClick={() => void act('verification.rerun', {executionId: workflow.executionId}, 'Preparing rerun...')}>Rerun checks</button></div>
+    {plan && !plan.stopped && workflow.canRerun && <p>A separate rerun replaces the execution used to continue this repair.</p>}
+    {workflow.unavailableReason && (!plan || plan.state === 'STOPPED') && <p role="status">{workflow.unavailableReason}</p>}
+    {(loading || waiting || notice) && <p role="status">{loading ?? (waiting ? 'Refreshing verification...' : notice)}</p>}
+    {error && <p role="alert">{error}</p>}
+  </section>;
+}
+
 export function VerificationPanel({ threadId }: { threadId: string }) {
   return <VerificationReadPanel key={threadId} threadId={threadId} />;
 }
 
 function VerificationReadPanel({ threadId }: { threadId: string }) {
   const [state, setState] = useState<{threadId: string; model: Model | null; unavailable: boolean} | null>(null);
+  const [refresh, setRefresh] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null), opener = useRef<HTMLButtonElement | null>(null), id = useId();
   useEffect(() => {
     const controller = new AbortController();
@@ -123,7 +193,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
     };
     void load();
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [threadId]);
+  }, [threadId, refresh]);
   // Render-time ownership matters: effects run after the newly selected owner
   // renders, so resetting state in an effect alone can show the prior result.
   const current = state?.threadId === threadId ? state : null;
@@ -133,7 +203,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
     <p role="status">Verification unavailable. The current evidence could not be refreshed.</p>
   </section>;
   const hasFindings = Boolean(model?.securityFindings && (model.securityFindings.items.length || model.securityFindings.invalid || model.securityFindings.truncated));
-  if (!model || (!model.label && !model.rows.length && !hasFindings)) return null;
+  if (!model || (!model.label && !model.rows.length && !hasFindings && !model.workflow)) return null;
   return (
     <section className="verification-panel" aria-label="Verification" tabIndex={0}>
       <header>
@@ -141,6 +211,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
         {model.label && <span className={outcomeClass(model.label, 'CURRENT')}>{LABEL_TEXT[model.label]}</span>}
         {model.staleBanner && <span className="verification-stale-banner">Stale results — evidence belongs to an earlier source</span>}
       </header>
+      {model.workflow && <VerificationActions key={model.workflow.ownerKey + ':' + model.workflow.executionId} threadId={threadId} workflow={model.workflow} refresh={() => setRefresh(value => value + 1)} />}
       {model.summary.missing.length > 0 && (
         <p className="verification-missing">Missing checks: {model.summary.missing.join('; ')}</p>
       )}
