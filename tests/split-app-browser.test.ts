@@ -366,6 +366,20 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },30000);
 
 
+
+ for(const terminal of ['click','jitter','move-cancel','resize-cancel','resize-click'] as const)it('shrunken float preserves raw placement after '+terminal,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;await draft.fill('Preserve the raw floating placement');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,key)).toBeNull();
+   const grip=surface.locator('.split-float-grip');await grip.focus();for(let i=0;i<20;i++)await page.keyboard.press('Shift+ArrowRight');const original=(await surface.boundingBox())!;expect(original.x).toBeGreaterThan(400);const saved=await page.evaluate(key=>localStorage.getItem(key),key);expect(saved).not.toBeNull();
+   await page.setViewportSize({width:900,height:700});await pw.poll(async()=>(await surface.boundingBox())!.x).toBeLessThan(original.x-100);const projected=(await surface.boundingBox())!,root=(await page.locator('.split-root-workarea .split-workspace').boundingBox())!;expect(root.y).toBeGreaterThan(projected.y-root.y);
+   const handle=terminal.startsWith('resize')?surface.locator('.split-float-resize'):grip,box=(await handle.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   if(terminal==='jitter')await page.mouse.move(box.x+box.width/2+2,box.y+box.height/2);else if(terminal.endsWith('cancel'))await page.mouse.move(box.x+box.width/2+20,box.y+box.height/2+20);
+   if(terminal.endsWith('cancel'))await page.keyboard.press('Escape');await page.mouse.up();await page.keyboard.press('Escape');
+   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(saved);await pw.poll(()=>surface.boundingBox()).toEqual(projected);
+   await page.setViewportSize({width:1600,height:1000});await pw.poll(()=>surface.boundingBox()).toEqual(original);await pw(draft).toHaveValue('Preserve the raw floating placement');expect(host.commands.filter(command=>command.type==='message.send')).toHaveLength(0);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
  for(const held of [false,true]) it('viewport shrink retains a visible moved float while '+(held?'held':'idle'),async()=>{
   const host=await fixture(),{page}=host;try{
    const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the resized viewport draft');
