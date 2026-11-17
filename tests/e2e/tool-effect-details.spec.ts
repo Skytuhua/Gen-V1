@@ -109,3 +109,33 @@ test('a late response cannot replace evidence fetched after a run-owner change',
     expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
   } finally { release(); }
 });
+
+test('repository test approval visibly discloses unrestricted host execution', async ({ page }) => {
+  const value = await fixture(page);
+  Object.assign(value.operation, { kind: 'repository.test', status: 'prepared', approved: false,
+    description: 'Run the approved project test.' });
+  await value.open();
+  const review = page.getByRole('region', { name: 'Operation approval', exact: true });
+  await expect(review.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('Unrestricted host');
+  await expect(review.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('local user privileges');
+  await expect(review.getByRole('button', { name: 'Approve operation', exact: true })).toBeEnabled();
+  expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+});
+
+test('repository test receipts retain the actual unrestricted execution policy', async ({ page }) => {
+  const value = await fixture(page);
+  Object.assign(value.operation, { kind: 'repository.test', status: 'succeeded', approved: true,
+    description: 'Run the approved project test.', result: { exitCode: 0 } });
+  await page.goto('/');
+  const receipt = page.getByRole('region', { name: 'Operation outcome', exact: true });
+  await receipt.locator('.operation-receipt > summary').click();
+  await expect(receipt.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('Unrestricted host');
+  await expect(receipt.getByRole('button', { name: 'Approve operation', exact: true })).toHaveCount(0);
+  expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+});
+
+test('ordinary file operations are not labeled as unrestricted process execution', async ({ page }) => {
+  const value = await fixture(page);
+  await value.open();
+  await expect(page.getByRole('note', { name: 'Execution policy', exact: true })).toHaveCount(0);
+});
