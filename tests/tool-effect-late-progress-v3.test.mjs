@@ -88,6 +88,7 @@ it.each([
       x.callbacks.onEvent({ ...x.run, type: 'settled' });
       expect(context.signal.aborted).toBe(false);
       await x.command('thread.archive', x.thread.id);
+      expect(context.signal.aborted).toBe(false);
     } else if (revoked) {
       await x.command('run.stop', x.thread.id);
       expect(context.signal.aborted).toBe(true);
