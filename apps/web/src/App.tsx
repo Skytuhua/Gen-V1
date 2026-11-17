@@ -79,7 +79,7 @@ import type {PanelBinding,PanelPlacement,WorkspacePanelKind,SurfaceRef} from '..
 import type {SplitDropEdge,SplitWorkspaceLayout} from '../../../packages/contracts/split-workspace.ts';
 import {WorkspaceSplitLayout} from './WorkspaceSplitLayout';
 import {getSplitWorkspace,sendSplitWorkspaceCommand,useSplitWorkspaceState} from './split-workspace-api';
-import {readConversationPlacement,capturePlacementExpectation,expectationHolds,resolveMainPaneId,conversationPlacementKey,type ConversationPlacementRecord,type PendingPlacementIntent,type MainBasis} from './conversation-placement';
+import {readConversationPlacement,capturePlacementExpectation,expectationHolds,resolveMainPaneId,planVisible,conversationPlacementKey,type ConversationPlacementRecord,type PendingPlacementIntent,type MainBasis} from './conversation-placement';
 import {clampChatRect,type ChatRect} from '../../../packages/ui-shell/chat-layout.ts';
 import {useSplitWorkspaceProfiles,useSplitLayoutProfileActions} from './split-workspace-profiles';
 import {threadPlacementCommand,threadReconciliationCommand} from './split-thread-placement';
@@ -1091,7 +1091,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     return[owner];
   });
   const sharedUsageOwner=usageCandidates.find(owner=>owner.id===selectedId)??usageCandidates.find(owner=>owner.id===thread?.id);
-  const fullPlanVisible=Boolean(thread&&convSplitState.layout&&Object.values(convSplitState.layout.views).some(view=>view.kind==='plan'&&view.binding.threadId===thread.id&&Object.values(convSplitState.layout!.panes).some(pane=>pane.viewIds.includes(view.id)&&!pane.collapsed)));
+  const fullPlanVisible=Boolean(thread&&convSplitState.layout&&planVisible(convSplitState.layout,thread.id));
   const contextSummaries=<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
     defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><SurfaceBoundary resetKey={thread?.id??'new'}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} fullPlanVisible={fullPlanVisible||Boolean(detachedPlan)} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></SurfaceBoundary></DockedSummary><UsageFooter open={liveUsageOpen} threadId={sharedUsageOwner?.id} usage={sharedUsageOwner?snapshot.usage[sharedUsageOwner.id]:undefined} visible={Boolean(sharedUsageOwner)&&preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={openUsage}/></SummaryDock>;
   const [retryingMainLayout,setRetryingMainLayout]=useState(false);
