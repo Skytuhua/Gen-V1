@@ -1,4 +1,4 @@
-import {it,expect,afterEach} from 'vitest';
+import {it,expect,afterEach,vi} from 'vitest';
 import {mkdtempSync,rmSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -16,7 +16,7 @@ const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
 const dirs:string[]=[];
 function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{vi.useRealTimers();for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 const owner:ToolOwner={threadId:'t1',runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null};
 
@@ -293,4 +293,27 @@ it('owned browser cleanup failure is retained and prevents successful verificati
   unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
  });
  expect(assessment.label).toBe('FAILED');
+});
+
+it('completed browser steps release their deadline timers',async()=>{
+ vi.useFakeTimers();
+ const result=await run(stateStore(),[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({texts:{h1:'Welcome home'},visible:{nav:true}}));
+ expect(result.outcome).toBe('PASS');
+ expect(vi.getTimerCount()).toBe(0);
+});
+
+it('a browser step still fails when its deadline expires',async()=>{
+ vi.useFakeTimers();let entered!:()=>void;
+ const started=new Promise<void>(resolve=>{entered=resolve;}),driver=fakeDriver();
+ driver.page.text=()=>{entered();return new Promise(()=>{});};
+ const pending=run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'}],driver);
+ await started;await vi.advanceTimersByTimeAsync(15_000);
+ const result=await pending;
+ expect(result.outcome).toBe('FAIL');
+ expect(result.observations.find(obs=>obs.checklistItemId==='__step__')?.outcome).toBe('FAIL');
+ expect(vi.getTimerCount()).toBe(0);
 });
