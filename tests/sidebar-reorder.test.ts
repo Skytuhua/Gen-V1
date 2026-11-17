@@ -144,3 +144,23 @@ describe('withinGroup', () => {
     expect(withinGroup('flat', three, a2, 2, project)).toBe(3);
   });
 });
+
+describe('withinGroup towards a direction', () => {
+  const project = (item: Thread) => item.projectId ?? item.projectName ?? 'Conversations';
+  const b1 = row('b1', { projectId: 'B' }), b2 = row('b2', { projectId: 'B' }), b3 = row('b3', { projectId: 'B' });
+  const lone = row('a', { projectId: 'A' });
+  const three = [b1, b2, b3];
+
+  it('crosses the whole run for a keyboard move into it', () => {
+    expect(withinGroup('flat', three, lone, 1, project, 1)).toBe(3);
+    expect(withinGroup('flat', three, lone, 2, project, -1)).toBe(0);
+  });
+  it('keeps the nearer-edge rule for a drop', () => {
+    expect(withinGroup('flat', three, lone, 1, project)).toBe(0);
+    expect(withinGroup('flat', three, lone, 2, project)).toBe(3);
+  });
+  it('leaves a row that has its own run to the clamp, whichever way it moves', () => {
+    const a1 = row('a1', { projectId: 'A' });
+    expect(withinGroup('flat', [a1, b1, b2], lone, 2, project, 1)).toBe(1);
+  });
+});

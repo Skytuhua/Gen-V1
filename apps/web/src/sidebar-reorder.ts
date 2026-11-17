@@ -51,7 +51,7 @@ export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean
  * flat list renders project runs; the other sections interleave projects, so a
  * position there means exactly what the indicator showed.
  */
-export function withinGroup(list: SidebarSection, rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null): number {
+export function withinGroup(list: SidebarSection, rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null, towards?: -1 | 1): number {
   const key = list === 'flat' ? groupKey?.(item) : null;
   if (key === undefined || key === null) return index;
   const keys = rows.map(candidate => groupKey!(candidate));
@@ -64,7 +64,8 @@ export function withinGroup(list: SidebarSection, rows: readonly Thread[], item:
   let start = index, end = index;
   while (start > 0 && keys[start - 1] === after) start--;
   while (end < keys.length && keys[end] === after) end++;
-  return index - start < end - index ? start : end;
+  // A keyboard move crosses the whole run it pressed into; a drop takes the nearer edge.
+  return towards ? (towards > 0 ? end : start) : index - start < end - index ? start : end;
 }
 
 const row = (node: EventTarget | null) => (node instanceof Element ? node.closest<HTMLElement>('.sidebar-thread-row[data-thread-id]') : null);
@@ -160,7 +161,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     const to = from + delta;
     if (to < 0 || to >= rows.length) return false;
     const without = rows.filter(row => row.id !== item.id);
-    const index = withinGroup(section, without, item, to, state.current.groupKey);
+    const index = withinGroup(section, without, item, to, state.current.groupKey, delta);
     // Grouping keeps runs contiguous, so a move it cannot render is refused rather than saved.
     if (index === from) return false;
     const order = orderFor(without, index);
