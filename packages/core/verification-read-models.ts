@@ -2,6 +2,7 @@ import {assertVerificationReadBasis, type VerificationReadBasis} from './verific
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import type { Store } from '../storage/store.ts';
 import type { Thread } from '../contracts/index.ts';
+import type {VerificationWorkflowView} from '../contracts/verification-repair.ts';
 import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
@@ -53,6 +54,7 @@ export interface SecurityFindingView extends Omit<SecurityFindingV1, 'provenance
 }
 
 export interface VerificationPanelModel {
+  workflow?: VerificationWorkflowView | null;
   label: CompletionLabel | null;
   staleBanner: boolean;
   summary: { verified: number; failed: number; unverified: number; blocked: number; missing: string[] };

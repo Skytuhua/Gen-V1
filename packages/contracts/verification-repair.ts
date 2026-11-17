@@ -19,3 +19,31 @@ export const verificationRepairPlanSchema = z.strictObject({
   stopped: verificationRepairStopSchema.nullable(), stopDetail: z.string().max(500).nullable(), createdAt: stamp, updatedAt: stamp,
 });
 export type VerificationRepairPlan = z.infer<typeof verificationRepairPlanSchema>;
+
+/** Read-only controls for the current durable owner. Commands still revalidate authority. */
+export interface VerificationWorkflowView {
+  ownerKey: string;
+  executionId: string;
+  recipeId: string;
+  qa: boolean;
+  canRerun: boolean;
+  canStartRepair: boolean;
+  unavailableReason: string | null;
+  suggestedBudget: {tokens: number; ms: number};
+  repair: {
+    planId: string;
+    revision: number;
+    attempts: number;
+    maxAttempts: 3;
+    state: 'AWAITING_APPROVAL' | 'RUNNING' | 'READY' | 'BLOCKED' | 'STOPPING' | 'STOPPED';
+    remainingTokens: number;
+    reservedTokens: number;
+    remainingMs: number;
+    deadline: string;
+    stopped: VerificationRepairStop | null;
+    stopDetail: string | null;
+    unavailableReason: string | null;
+    canContinue: boolean;
+    canStop: boolean;
+  } | null;
+}
