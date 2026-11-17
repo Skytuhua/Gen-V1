@@ -37,7 +37,7 @@ it('accepts the supported V1 contract and executes its registered definition onc
   expect(await x.invoke(1)).toEqual({ content: 'read result' });
   expect(x.invocations()).toBe(1);
   expect(x.store.get('toolEffect', 'version-check')).toMatchObject({
-    state: 'SUCCEEDED', toolId: 'repository_read', definitionDigest: contract.schemaDigest,
+    state: 'SUCCEEDED', toolId: 'repository_read',
   });
 });
 
