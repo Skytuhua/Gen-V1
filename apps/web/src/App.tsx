@@ -217,7 +217,7 @@ export function OperationDecision({ operation, refresh }: { operation: Operation
 }
 
 function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string; close: () => void; refresh: () => Promise<void>; opener: HTMLElement | null }) {
-  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus({ preventScroll: true }); }); }, [opener]);
+  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected && document.activeElement === document.body) opener.focus({ preventScroll: true }); }); }, [opener]);
   const [path, setPath] = useState('');
   const [kind, setKind] = useState('project');
   const [writable, setWritable] = useState(false);
@@ -854,9 +854,9 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const usageReport=runtimeUsageReport(usageOwner,usageThreadId?snapshot.usage[usageThreadId]:undefined);
   useEffect(()=>{
     if(!loaded||!workspaceEnvelope||pinnedThreadId||navigationOnly||layout.activeTab!=='usage'||splitEnabled&&!convSplitState.layout)return;
-    if(layout.rightPanelOpen&&workspaceMode==='chat'&&!canvasActive&&!customDock&&!selectedPluginId){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
+    if(layout.rightPanelOpen&&!splitEnabled&&!canvasActive&&!customDock&&!selectedPluginId){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
     setLayout(value=>value.activeTab==='usage'?{...value,activeTab:'notes'}:value);
-  },[loaded,workspaceEnvelope,pinnedThreadId,navigationOnly,layout.activeTab,layout.rightPanelOpen,workspaceMode,canvasActive,customDock,splitEnabled,convSplitState.layout,selectedPluginId,thread?.id]);
+  },[loaded,workspaceEnvelope,pinnedThreadId,navigationOnly,layout.activeTab,layout.rightPanelOpen,canvasActive,customDock,splitEnabled,convSplitState.layout,selectedPluginId,thread?.id]);
   const [reviewRequest,setReviewRequest]=useState<ReviewRequest>();
   const pendingReviewId=useRef<number|undefined>(undefined);
   const handleReviewRequest=useCallback((id:number)=>{if(pendingReviewId.current===id)pendingReviewId.current=undefined;setReviewRequest(current=>current?.id===id?undefined:current);},[]);

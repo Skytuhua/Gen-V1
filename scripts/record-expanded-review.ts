@@ -119,7 +119,7 @@ export async function recordExpandedReview(options:{output:string;scenarios?:Exp
   }finally{await closeCapture(browser);await host.close();}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
-  const arg=(key:string)=>{const position=process.argv.indexOf(key);return position<0?undefined:process.argv[position+1];};
+  const arg=(key:string)=>{const position=process.argv.indexOf(key);if(position<0)return undefined;const value=process.argv[position+1];if(!value||value.startsWith('--'))throw new Error(key+' requires a value');return value;};
   const selected=arg('--scenario')?.split(',');if(selected?.some(name=>!scenarios.includes(name as ExpandedScenario)))throw new Error('Unknown expanded-review scenario');
   const theme=captureTheme(arg('--theme'));
   if(process.argv.includes('--dry-run'))console.log(JSON.stringify({source:EXPANDED_PROVENANCE,theme,scenarios:selected??scenarios,...expandedCoverage(selected as ExpandedScenario[]|undefined??scenarios)},null,2));

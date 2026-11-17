@@ -34,7 +34,9 @@ class ScriptedConversation implements RuntimeAdapter{
  async dispose(){this.stopped=true;}
 }
 
-const index=process.argv.indexOf('--output'),output=resolve(index<0?'docs/evidence/dark-micro-motion-20261031/side':process.argv[index+1]);
+const index=process.argv.indexOf('--output'),value=process.argv[index+1];
+if(index>=0&&(!value||value.startsWith('--')))throw Error('--output requires a value');
+const output=resolve(index<0?'docs/evidence/dark-micro-motion-20261031/side':value);
 await mkdir(output,{recursive:false});
 const store=new Store(join(output,'fixture-state')),main=new ScriptedConversation(),sides:ScriptedConversation[]=[];
 const service=new Service(store,main,{sideRuntimeFactory:()=>{const side=new ScriptedConversation(true);sides.push(side);return side;}});
