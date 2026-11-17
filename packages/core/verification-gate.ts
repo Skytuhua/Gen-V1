@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { HarnessError, type Thread } from '../contracts/index.ts';
 import type { ToolOwner } from '../contracts/tool-effects.ts';
+import { verificationArtifactAttestationSchema, type VerificationArtifactAttestation } from '../contracts/verification-artifacts.ts';
 import {
   type AssessedRequirement, type CheckObservationV1, type CompletionLabel,
   type DeliverableAssessmentV1, type ObservationFreshness, type SecurityFindingV1,
@@ -221,6 +222,8 @@ export interface AssessmentInput {
   sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
   requirements: RequirementSpec[];
   observations: (CheckObservationV1 | VisualObservationV1)[];
+  /** Host-only current byte attestations. Never a model or browser argument. */
+  artifactAttestations?: readonly VerificationArtifactAttestation[];
   unresolvedEffects: string[];
   verifierIdentity: string;
   provenance: string;
@@ -237,20 +240,32 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // at checklist admission (browserChecklistSchema).
   const isAuditMarker = (obs: CheckObservationV1) =>
     'checklistItemId' in obs && typeof obs.checklistItemId === 'string' && obs.checklistItemId.startsWith('__');
-  const executionKey = (obs: CheckObservationV1) => JSON.stringify([
+  const executionKey = (obs: Pick<CheckObservationV1, 'executionId' | 'owner'>) => JSON.stringify([
     obs.executionId, obs.owner.threadId, obs.owner.runId, obs.owner.epoch,
     obs.owner.projectId, obs.owner.workspaceId, obs.owner.accountBinding,
   ]);
   const canVerify = (obs: CheckObservationV1) => !isAuditMarker(obs) &&
     obs.observationKind !== 'review-advisory' && obs.observationKind !== 'visual';
-  // Capture metadata cannot attest continued artifact custody. Until a host
-  // artifact verifier is composed, screenshot-dependent executions stay
-  // blocked. Never read model-supplied references or trust their digest alone.
-  const needsScreenshotCustody = (obs: CheckObservationV1) => obs.observationKind !== 'review-advisory' && (
-    obs.observationKind === 'visual' ||
-    'screenshotDigest' in obs && obs.screenshotDigest !== null ||
-    obs.observationKind === 'browser' && obs.artifactRefs.length > 0
-  );
+  // The gate stays pure. Only explicit host inputs from a current bounded read
+  // can attest bytes; metadata in an observation never supplies custody.
+  const attestations = new Map<string, VerificationArtifactAttestation | null>();
+  for (const raw of (input.artifactAttestations ?? []).slice(0, 256)) {
+    const parsed = verificationArtifactAttestationSchema.safeParse(raw);
+    if (!parsed.success) continue;
+    const value = parsed.data, key = executionKey(value) + ':' + value.ref;
+    const existing = attestations.get(key);
+    attestations.set(key, existing !== undefined && digest(existing) !== digest(value) ? null : value);
+  }
+  const missingArtifactCustody = (obs: CheckObservationV1): 'screenshot' | 'artifact' | null => {
+    if (obs.observationKind === 'review-advisory') return null;
+    const proofs = obs.artifactRefs.map(ref => attestations.get(executionKey(obs) + ':' + ref));
+    const screenshotRequired = obs.observationKind === 'visual' ||
+      'screenshotDigest' in obs && obs.screenshotDigest !== null ||
+      proofs.some(proof => proof?.kind === 'SCREENSHOT');
+    if (screenshotRequired && (!('screenshotDigest' in obs) || typeof obs.screenshotDigest !== 'string' || !('viewport' in obs) ||
+        !proofs.some(proof => proof?.kind === 'SCREENSHOT' && proof.sha256 === obs.screenshotDigest && digest(proof.viewport) === digest(obs.viewport)))) return 'screenshot';
+    return proofs.some(proof => !proof) ? 'artifact' : null;
+  };
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
@@ -271,8 +286,8 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       const refExecutions = new Set(checks.map(executionKey));
       const related = executionChecks.filter(obs => refExecutions.has(executionKey(obs)));
       if (!checks.length) missing.push(`no observation bound to ${ref} for ${req.id}`);
-      else if (related.some(needsScreenshotCustody))
-        missing.push(`screenshot custody is unavailable for ${req.id} (${ref})`);
+      else if (related.some(obs => missingArtifactCustody(obs)))
+        missing.push(`${related.some(obs => missingArtifactCustody(obs) === 'screenshot') ? 'screenshot' : 'artifact'} custody is unavailable for ${req.id} (${ref})`);
       else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
         missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
       else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
@@ -282,7 +297,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
     if (executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
       assessment = executionChecks.some(obs => obs.outcome === 'BLOCKED') && !executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'CANCELLED') ? 'BLOCKED' : 'FAILED';
-    } else if (executionChecks.some(needsScreenshotCustody)) {
+    } else if (executionChecks.some(obs => missingArtifactCustody(obs))) {
       assessment = 'BLOCKED';
     } else if (req.checkRefs.length && !missing.length) {
       assessment = 'VERIFIED';

@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts, VerificationArtifactStore} from './verification-artifacts.ts';
 import {createHash, randomUUID} from 'node:crypto';
 import {closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync} from 'node:fs';
 import {readdir, stat} from 'node:fs/promises';
@@ -493,12 +494,16 @@ export class SourceWorkbench {
     // An old-account observation cannot supply a hidden Verified requirement.
     const recorded = latest<DeliverableAssessmentV1>('assessment', 1)[0];
     const unresolvedEffects = this.store.all<ToolEffectRecord>('toolEffect', threadId).filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state)).map(effect => effect.invocationId);
-    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), unresolvedEffects: unresolvedEffects.slice(0, 64), verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
+    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
     const assessed = new Map(assessment?.requirements.map(requirement => [requirement.id, requirement]));
     const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? check.codeDigest === current.codeDigest && check.dependencyDigest === current.dependencyDigest && check.environmentId === current.environmentId ? 'CURRENT' : 'STALE' : 'UNKNOWN';
+    const artifactMetadata = new VerificationArtifactStore(this.store);
     for (const check of observations) {
       const freshness = freshnessOf(check);
-      const screenshotRefs = check.artifactRefs.filter(ref => /\.(png|jpe?g|webp)(?:$|[?#])/i.test(ref));
+      const screenshotRefs = check.artifactRefs.filter(ref => {
+        if (!ref.startsWith('verification-artifact:')) return /\.(png|jpe?g|webp)(?:$|[?#])/i.test(ref);
+        try {return artifactMetadata.describe(ref, check.owner, check.executionId).kind === 'SCREENSHOT';} catch {return false;}
+      });
       const requirement = declaration?.requirements.find(requirement => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
       verificationItems.push({id: check.checkId, kind: 'CHECK', label: (check.detail ?? (check.argv.join(' ') || check.phase)).slice(0, 2000), grade: check.observationKind === 'review-advisory' ? 'REPORTED' : !unresolvedEffects.length && requirement && assessed.get(requirement.id)?.assessment === 'VERIFIED' && freshness === 'CURRENT' && check.outcome === 'PASS' ? 'VERIFIED' : 'OBSERVED', freshness, outcome: check.outcome, sourceRevision: check.codeDigest, command: check.argv, logRefs: check.artifactRefs.filter(ref => !screenshotRefs.includes(ref)), screenshotRefs, ...(requirement ? {parentId: 'requirement:' + requirement.id} : {})});
     }

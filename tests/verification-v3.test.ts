@@ -504,7 +504,7 @@ describe('complete requirement evidence',()=>{
  it('a browser artifact reference cannot attest its own screenshot custody',()=>{
   const result=assess(['browser'],[observation('browser',{phase:'BROWSER',observationKind:'browser',artifactRefs:['untrusted://capture.png']})]);
   expect(result.label).toBe('BLOCKED');
-  expect(result.requirements[0].missing).toEqual(['screenshot custody is unavailable for build-and-test (browser)']);
+  expect(result.requirements[0].missing).toEqual(['artifact custody is unavailable for build-and-test (browser)']);
  });
 
  it('missing artifact metadata cannot make a visual dependency trusted',()=>{

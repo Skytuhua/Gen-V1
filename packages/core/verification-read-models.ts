@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import type { Store } from '../storage/store.ts';
 import type { Thread } from '../contracts/index.ts';
 import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
@@ -107,6 +108,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
       },
       requirements: declaration?.requirements ?? latest!.requirements,
       observations: ownedObservations,
+      artifactAttestations: attestVerificationArtifacts(store, ownedObservations, declaration?.requirements ?? latest!.requirements),
       unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',

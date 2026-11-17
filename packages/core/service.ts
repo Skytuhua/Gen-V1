@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
@@ -1632,6 +1633,7 @@ export class Service {
       sourceCut,
       requirements: declaration?.requirements ?? [],
       observations,
+      artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration?.requirements ?? []),
       unresolvedEffects,
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",

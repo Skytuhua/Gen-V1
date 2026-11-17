@@ -34,4 +34,10 @@ export type VerificationArtifactRecord = z.infer<typeof verificationArtifactReco
 
 /** An internal host input, produced only after reading and hashing the retained
  * bytes. Observation fields and API/model arguments never issue attestations. */
-export type VerificationArtifactAttestation = Pick<VerificationArtifactRecord, 'ref' | 'owner' | 'executionId' | 'kind' | 'sha256' | 'byteLength' | 'viewport'>;
+export const verificationArtifactAttestationSchema = z.strictObject({
+  ref: verificationArtifactRecordSchema.shape.ref, owner: verificationArtifactRecordSchema.shape.owner,
+  executionId: verificationArtifactRecordSchema.shape.executionId, kind: verificationArtifactRecordSchema.shape.kind,
+  sha256: verificationArtifactRecordSchema.shape.sha256, byteLength: verificationArtifactRecordSchema.shape.byteLength,
+  viewport: verificationArtifactRecordSchema.shape.viewport,
+});
+export type VerificationArtifactAttestation = z.infer<typeof verificationArtifactAttestationSchema>;

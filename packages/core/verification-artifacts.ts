@@ -9,7 +9,9 @@ import {verificationArtifactRecordSchema, verificationArtifactRefSchema, verific
 import {digest, type Store} from '../storage/store.ts';
 import {observationMatchesThreadOwner} from './verification-gate.ts';
 
-export const VERIFICATION_ARTIFACT_LIMITS = Object.freeze({logBytes: 64 * 1024, screenshotBytes: 8 * 1024 * 1024, executionCount: 50, executionBytes: 64 * 1024 * 1024});
+export const VERIFICATION_ARTIFACT_LIMITS = Object.freeze({logBytes: 64 * 1024, screenshotBytes: 8 * 1024 * 1024, executionCount: 50, executionBytes: 64 * 1024 * 1024, assessmentCount: 256, assessmentBytes: 64 * 1024 * 1024});
+interface AttestationBudget {remainingBytes: number; remainingArtifacts: number}
+type AttestationCache = Map<string, VerificationArtifactAttestation | null>;
 const rootKind = 'verificationArtifactRoot', artifactKind = 'verificationArtifact', rootId = 'v1';
 const denied = (message: string) => new HarnessError('VERIFICATION_ARTIFACT_UNAVAILABLE', message);
 const identity = (stat: BigIntStats) => ({device: String(stat.dev), inode: String(stat.ino)});
@@ -230,10 +232,16 @@ export class VerificationArtifactStore {
     }
   }
 
-  read(ref: string, expectedOwner: ToolOwner, executionId: string): {metadata: VerificationArtifactRecord; bytes: Buffer} {
+  /** Historical type metadata only. This does not attest that bytes still exist. */
+  describe(ref: string, expectedOwner: ToolOwner, executionId: string): VerificationArtifactRecord {
     const metadata = this.metadata(ref);
     if (!sameOwner(metadata.owner, expectedOwner) || metadata.executionId !== executionId) throw denied('Verification artifact belongs to another producing owner or execution.');
     currentThread(this.store, metadata.owner, false);
+    return metadata;
+  }
+
+  read(ref: string, expectedOwner: ToolOwner, executionId: string): {metadata: VerificationArtifactRecord; bytes: Buffer} {
+    const metadata = this.describe(ref, expectedOwner, executionId);
     const root = this.root(false), path = this.path(ref), linked = lstatSync(path, {bigint: true});
     if (!linked.isFile() || linked.isSymbolicLink() || linked.nlink !== 1n || !sameIdentity(metadata.identity, identity(linked)) || !validPath(path))
       throw denied('Verification artifact physical identity changed.');
@@ -261,17 +269,46 @@ export class VerificationArtifactStore {
     return this.read(ref, metadata.owner, metadata.executionId);
   }
 
-  attest(observation: CheckObservationV1 | VisualObservationV1): VerificationArtifactAttestation[] {
+  attest(observation: CheckObservationV1 | VisualObservationV1,
+    budget: AttestationBudget = {remainingBytes: VERIFICATION_ARTIFACT_LIMITS.assessmentBytes, remainingArtifacts: VERIFICATION_ARTIFACT_LIMITS.assessmentCount},
+    cache: AttestationCache = new Map()): VerificationArtifactAttestation[] {
     const attestations: VerificationArtifactAttestation[] = [];
-    for (const ref of new Set(observation.artifactRefs)) {
+    for (const ref of new Set(observation.artifactRefs.slice(0, 64))) {
       try {
-        const {metadata} = this.read(ref, observation.owner, observation.executionId);
-        if ('screenshotDigest' in observation && metadata.kind === 'SCREENSHOT' &&
-            (metadata.sha256 !== observation.screenshotDigest || digest(metadata.viewport) !== digest(observation.viewport))) continue;
-        const {owner, executionId, kind, sha256, byteLength, viewport} = metadata;
-        attestations.push({ref, owner, executionId, kind, sha256, byteLength, viewport});
+        const key = digest({owner: observation.owner, executionId: observation.executionId, ref});
+        let attestation = cache.get(key);
+        if (attestation === undefined) {
+          cache.set(key, null);
+          const metadata = this.metadata(ref);
+          if (!sameOwner(metadata.owner, observation.owner) || metadata.executionId !== observation.executionId || budget.remainingArtifacts < 1 || metadata.byteLength > budget.remainingBytes) continue;
+          budget.remainingArtifacts--; budget.remainingBytes -= metadata.byteLength;
+          this.read(ref, observation.owner, observation.executionId);
+          const {owner, executionId, kind, sha256, byteLength, viewport} = metadata;
+          attestation = {ref, owner, executionId, kind, sha256, byteLength, viewport}; cache.set(key, attestation);
+        }
+        if (!attestation) continue;
+        if ('screenshotDigest' in observation && attestation.kind === 'SCREENSHOT' &&
+            (attestation.sha256 !== observation.screenshotDigest || digest(attestation.viewport) !== digest(observation.viewport))) continue;
+        attestations.push(attestation);
       } catch { /* Historical metadata survives; missing custody supplies no proof. */ }
     }
     return attestations;
   }
+}
+
+/** Resolve only the explicitly required producing executions, including their
+ * sibling checks. One synchronous bounded cut serves each live grade. Artifacts
+ * outside that cut and raw historical paths are never opened. */
+export function attestVerificationArtifacts(store: Store, observations: readonly (CheckObservationV1 | VisualObservationV1)[], requirements: readonly {checkRefs: readonly string[]}[]): VerificationArtifactAttestation[] {
+  const refs = new Set(requirements.flatMap(requirement => [...requirement.checkRefs]));
+  const executionKey = (observation: CheckObservationV1) => digest({owner: observation.owner, executionId: observation.executionId});
+  const required = new Set(observations.filter(observation => refs.has(observation.checkId) || refs.has(observation.executionId)).map(executionKey));
+  const budget: AttestationBudget = {remainingBytes: VERIFICATION_ARTIFACT_LIMITS.assessmentBytes, remainingArtifacts: VERIFICATION_ARTIFACT_LIMITS.assessmentCount};
+  const cache: AttestationCache = new Map(), result = new Map<string, VerificationArtifactAttestation>();
+  try {
+    const artifacts = new VerificationArtifactStore(store);
+    for (const observation of observations) if (required.has(executionKey(observation)) && observation.observationKind !== 'review-advisory')
+      for (const attestation of artifacts.attest(observation, budget, cache)) result.set(digest(attestation), attestation);
+  } catch { /* Unavailable protected storage cannot provide a current proof. */ }
+  return [...result.values()];
 }

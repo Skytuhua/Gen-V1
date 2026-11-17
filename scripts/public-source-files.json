@@ -3187,6 +3187,7 @@
     "tests/tool-effects-v3.test.ts",
     "tests/update-readiness.test.ts",
     "tests/usage-accounting-v3.test.ts",
+    "tests/verification-artifact-gate-v3.test.ts",
     "tests/verification-artifacts-v3.test.ts",
     "tests/verification-evidence-owner-v3.test.ts",
     "tests/verification-executor-binding.test.ts",
