@@ -35,11 +35,11 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
   const configDirty = useRef(false), retry = useRef<{signature: string; commandId: string} | undefined>(undefined);
   const ownerKey = memoryOwnerKey(owner), id = useId();
   useLayoutEffect(() => {active.current = true; return () => {active.current = false; generation.current++; detailGeneration.current++; pendingRead.current?.abort(); pendingDetail.current?.abort();};}, []);
-  const load = useCallback(async () => {
+  const load = useCallback(async (refreshBinding = false) => {
     const version = ++generation.current; pendingRead.current?.abort(); const controller = new AbortController(); pendingRead.current = controller;
     setLoading(true); setError('');
     try {
-      const next = await getProjectMemory(owner, controller.signal, scope.current);
+      const next = await getProjectMemory(owner, controller.signal, scope.current, {refreshBinding});
       if (!active.current || version !== generation.current) return;
       scope.current = next.scope; setView(next);
       setEditor(previous => previous && next.tombstones.some(value => value.itemId === previous.id) ? undefined : previous);
@@ -98,9 +98,9 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       {error && <ErrorState message={error}/>}
       {notice && <p role="status" className="project-memory-notice" data-memory-export-status={exportResult?.status} data-memory-export-admitted={exportResult?.admitted ? 'true' : undefined} data-memory-export-filename={exportResult?.filename} data-memory-export-bytes={exportResult?.bytes} data-memory-export-sha256={exportResult?.sha256}>{notice}</p>}
       {loading && <p role="status">{view ? 'Refreshing project memory…' : 'Loading project memory…'}</p>}
-      {!view && !loading && <button type="button" onClick={() => void load()}>Retry loading</button>}
+      {!view && !loading && <button type="button" onClick={() => void load(true)}>Retry loading</button>}
       {view && <>
-        <header className="project-memory-heading"><div><h3>{view.projectName}</h3></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load();}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
+        <header className="project-memory-heading"><div><h3>{view.projectName}</h3></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load(true);}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
         <section className="project-memory-consent" aria-label="Project memory settings">
           <p><strong>{view.enabled ? 'Enabled for this project' : 'Not enabled for this project'}</strong></p>
           {view.disabledReason && <p>{view.disabledReason}</p>}
@@ -166,6 +166,6 @@ function ConflictReview({row, disabled, readOnly, onAction, onSource}: {row: Row
   return <form className="project-memory-conflict" onSubmit={event => {event.preventDefault(); if (disabled || readOnly || !selected.length || selected.length > 2 || !note.trim()) return; void onAction({action: 'resolve', itemId: row.item.id, baseRevision: row.item.revision, survivingRevisions: selected, note: note.trim()});}}>
     <p>Select one surviving revision, or preserve two. A resolution note is required. Conflicts are excluded from recall.</p><p className="project-memory-caption">Resolving requires every pinned source to still be available — if a source is gone, only Forget applies.</p>
     <fieldset disabled={disabled}><legend>Surviving revisions</legend>{versions.map(item => <div key={item.revision}><label><input type="checkbox" checked={selected.includes(item.revision)} disabled={readOnly || !selected.includes(item.revision) && selected.length >= 2} onChange={event => setSelected(values => event.target.checked ? [...values, item.revision].sort((a, b) => a - b) : values.filter(value => value !== item.revision))}/>Keep revision {item.revision}</label><p className="project-memory-text">{item.text}</p>{item.sourceRefs.map((ref, index) => <button key={`${ref.digest}:${index}`} type="button" onClick={() => onSource(item, ref)}>View source for revision {item.revision}</button>)}</div>)}</fieldset>
-    <label>Resolution note<textarea rows={2} required maxLength={1000} disabled={disabled} value={note} onChange={event => setNote(event.target.value)}/></label><button type="submit" disabled={disabled || !selected.length || !note.trim()}>Resolve conflict</button>
+    <label>Resolution note<textarea rows={2} required maxLength={1000} disabled={disabled || readOnly} value={note} onChange={event => setNote(event.target.value)}/></label><button type="submit" disabled={disabled || readOnly || !selected.length || !note.trim()}>Resolve conflict</button>
   </form>;
 }
