@@ -96,7 +96,7 @@
       "disposition": "IMPLEMENT",
       "sourcePaths": ["packages/core/context-relevance.ts"],
       "testIds": ["tests/compaction-v3.test.ts", "tests/context-contract-preservation-v6.test.ts"],
-      "reason": "The report-only metadata observer exists and never mutates input. The specified opt-in shadow phase wrapper (one eligible immutable cut, fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, cancellation) is absent and must be added. Any live auxiliary model call remains BLOCKED: HOLD_AUXILIARY_MODEL."
+      "reason": "The report-only metadata observer exists and never mutates input. The opt-in shadow phase wrapper is implemented: one report per eligible immutable cut (duplicate or invalid cutIds are refused without a model call), fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, and cancellation. Any live auxiliary model call remains BLOCKED: HOLD_AUXILIARY_MODEL."
     },
     {
       "id": "M04-S10",

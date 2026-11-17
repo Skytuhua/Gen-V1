@@ -112,16 +112,18 @@ LOCAL_ONLY. No push, no remote merge, no force update, no flag activation, revie
 - Suites that passed on the candidate include wo8 (24), chart-coordinates, smooth-pdf and others using the cached Chromium headless shell.
 - Baseline attribution: all 42 plain-chromium failed suites were rerun on the unchanged baseline cut (17:57:59Z–20:22:54Z, logs/baseline-browser.log; bounded receipt logs/baseline-browser-bounded.log) and all 42 fail there too. `dist/web` is byte-identical between candidate and baseline (53 files, equal SHA-256), so no browser outcome difference can be source-caused by this diff. Discordant suites: terminal-excerpts passed on the candidate rerun (exit 0, logs/candidate-rerun-terminal.log); composer-commands is flaky in both directions (candidate rerun 11 passed/1 failed vs baseline 10/2; logs/candidate-rerun-composer.log).
 
-## Final receipts at the final hardened cut (post shadow-observer hardening)
+## Final receipts at the final cut (one-cut shadow guard included; all M04-scoped commands exit 0)
 
-- tests/context-compiler-v3.test.ts: 11 passed, exit 0 (20:30:40Z–20:30:42Z).
-- tests/context-results-v3.test.ts: 3 passed, exit 0 (20:30:42Z–20:30:45Z).
-- tests/compaction-v3.test.ts: 8 passed, exit 0 (20:30:45Z–20:30:48Z).
-- tests/context-contract-preservation-v6.test.ts: 5 passed, exit 0 (20:30:48Z–20:30:52Z).
-- tests/context-discovery-v3.test.ts: 6 passed, exit 0 (20:30:52Z–20:30:55Z).
-- Supporting + public-source (observation, custody, draft-sources, hermes-runtime, hermes-broker, usage-context, public-source): 78 passed, exit 0 (20:30:55Z–20:31:04Z).
-- pnpm typecheck exit 0 (20:31:17Z–20:33:06Z); pnpm lint exit 0 (20:33:06Z–20:34:45Z).
-- Logs: logs/final2-*.log. The browser gate tested a web bundle byte-identical to the final cut's web sources; the hardening touched only packages/core/context-relevance.ts, which is outside the web import closure.
+- tests/context-compiler-v3.test.ts: 11 passed (2026-11-17T02:03:42Z–02:03:44Z).
+- tests/context-results-v3.test.ts: 3 passed (02:03:44Z–02:03:46Z).
+- tests/compaction-v3.test.ts: 8 passed (02:03:46Z–02:03:48Z).
+- tests/context-contract-preservation-v6.test.ts: 5 passed (02:03:48Z–02:03:52Z).
+- pnpm typecheck exit 0 (02:03:52Z–02:05:39Z); pnpm lint exit 0 (02:05:39Z–02:07:06Z).
+- pnpm test (includes credential-lease + widget builds): exit 1 — 277 failed / 3073 passed / 46 skipped (02:07:21Z–02:22:11Z). Failure count is identical to the unchanged baseline cut (277); the +10 passed are exactly the new v6 tests. Failure-set differences are six known timing-flaky non-M04 tests; quiet reruns on both cuts (logs/final3-delta-rerun.log: 4 failed/75 passed; logs/baseline3-delta-rerun.log: 2 failed/77 passed) confirm bidirectional flakiness plus the same stable environment failures. No M04-scoped suite fails.
+- pnpm build exit 0 (02:28:46Z–02:29:38Z); rebuilt dist/web is byte-identical (53 files, equal SHA-256) to the baseline bundle and to the bundle the browser gate tested, binding that receipt to this cut by identity (tests/e2e and configs are unchanged by the v6 diff).
+- tests/context-discovery-v3.test.ts: 6 passed (02:31:03Z–02:31:12Z); supporting + public-source: 78 passed (02:31:12Z–02:31:44Z).
+- Logs: logs/final3-*.log. Post-handoff fix: the shadow phase now enforces one report per eligible immutable cut (duplicate/invalid cutId refused without a model call); red receipt logs/red2-compaction.log, green logs/green2-shadow.log.
+- S13 clarification: the fixed paired deterministic fixtures are tests/fixtures/m04-context-v3.json consumed by the three v3 suites (schema-byte baseline/candidate pairs at 100/500 tools; append-read pairs at 1000/1001 sources); no separate paired runner script exists in the repository. Live quality/cost stays NOT_RUN.
 
 ## Evidence outcome (R11)
 

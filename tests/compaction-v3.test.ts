@@ -211,6 +211,15 @@ it('gates the shadow relevance phase on an approved auxiliary budget and a fixed
   const healthy = createShadowRelevancePhase({ approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 2 }, observe });
   expect(await healthy.run(cut)).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['old'], estimatedSavingsBytes: 100 } });
   expect(JSON.stringify(cut)).toBe(serialized);
+  const once = createShadowRelevancePhase({ approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 3 }, observe });
+  const before = calls;
+  expect(await once.run(cut)).toMatchObject({ status: 'COMPLETED' });
+  expect(await once.run(cut)).toMatchObject({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+  expect(calls).toBe(before + 1);
+  expect(await once.run({ ...cut, cutId: 'shadow-cut-2' })).toMatchObject({ status: 'COMPLETED' });
+  expect(calls).toBe(before + 2);
+  expect(await once.run({ ...cut, cutId: '' })).toMatchObject({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+  expect(calls).toBe(before + 2);
 });
 
 it('reports only eligible old tool-result savings once, without modifying the projected request', async () => {

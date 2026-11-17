@@ -55,6 +55,7 @@ export function createShadowRelevancePhase(options: {
   const unschedule = options.unschedule ?? (handle => clearTimeout(handle as ReturnType<typeof setTimeout>));
   let budget = options.approval && Number.isSafeInteger(options.approval.budgetCalls) ? options.approval.budgetCalls : 0;
   const approved = () => Boolean(options.approval?.modelId && options.approval?.accountId && budget > 0);
+  const seen = new Set<string>();
   let cancelled = false;
   let pending: { resolve: (result: ShadowResult) => void; timer: unknown } | null = null;
   const settle = (status: ShadowStatus, observation: ShadowObservation | null) => {
@@ -66,7 +67,9 @@ export function createShadowRelevancePhase(options: {
   };
   return {
     run(cut: ShadowCut): Promise<ShadowResult> {
-      if (!approved() || cancelled || pending) return Promise.resolve({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+      if (!approved() || cancelled || pending || !cut.cutId || cut.cutId.length > 256 || seen.has(cut.cutId))
+        return Promise.resolve({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+      seen.add(cut.cutId);
       budget--;
       return new Promise(resolve => {
         const timer = schedule(() => settle('TIMED_OUT', null), SHADOW_OBSERVER_TIMEOUT_MS);

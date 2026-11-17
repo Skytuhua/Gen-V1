@@ -55,13 +55,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:40Z",
-          "endedAt": "2026-11-16T20:30:42Z",
+          "startedAt": "2026-11-17T02:03:42Z",
+          "endedAt": "2026-11-17T02:03:44Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-context-compiler-v3.log",
-          "logDigest": "82138e30734bdfd84cc7a9de13c7744be342c52da385635f81a5cdb4d0d44e80"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-compiler-v3.log",
+          "logDigest": "b51067a0738c6f27eca348d09fe668695a6b4be433203e72264cbce038ed78c0"
         },
         {
           "argv": [
@@ -73,13 +73,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:42Z",
-          "endedAt": "2026-11-16T20:30:45Z",
+          "startedAt": "2026-11-17T02:03:44Z",
+          "endedAt": "2026-11-17T02:03:46Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-context-results-v3.log",
-          "logDigest": "f985432b593299b2e95c0dbd942a18dcb15c4264e839d57d6dc1493d9f4d2c46"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-results-v3.log",
+          "logDigest": "7480a41103b1fbb7a0af5c4c40311d2dac6501e9ddc493bf73a0fc1dec37f4d7"
         },
         {
           "argv": [
@@ -91,13 +91,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:52Z",
-          "endedAt": "2026-11-16T20:30:55Z",
+          "startedAt": "2026-11-17T02:31:03Z",
+          "endedAt": "2026-11-17T02:31:12Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-context-discovery-v3.log",
-          "logDigest": "69d6086a71a5e647715401813d848a02b501173e3aea146b2c3179a2b58bbb19"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-discovery.log",
+          "logDigest": "c649f6d574260c67c26e30b88fa1db3dd12c1d8a1d26ba520ce309b3017ff7e2"
         },
         {
           "argv": [
@@ -115,13 +115,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:55Z",
-          "endedAt": "2026-11-16T20:31:04Z",
+          "startedAt": "2026-11-17T02:31:12Z",
+          "endedAt": "2026-11-17T02:31:44Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-support.log",
-          "logDigest": "0e8534334c538e19afa7fe19ca2f5262ca1fc3c91b8877da7e47dc43ff011d68"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-support.log",
+          "logDigest": "65b27a75b6216e28c75d3ff3354ed5b56a975884909e676a924f06dbfc5f1d36"
         }
       ],
       "artifactRefs": [
@@ -171,18 +171,20 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:45Z",
-          "endedAt": "2026-11-16T20:30:48Z",
+          "startedAt": "2026-11-17T02:03:46Z",
+          "endedAt": "2026-11-17T02:03:48Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-compaction-v3.log",
-          "logDigest": "db70ed3bb4055b925ef79494e1c7ef9da3f6fd08d4915bcf3c1bb193e60c268f"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-compaction-v3.log",
+          "logDigest": "b6a68ac0f3cca5d2901d16720b70fcc4727cf05dc9c199f768da8ea13373f8c9"
         }
       ],
       "artifactRefs": [
         "docs/implementation/v6/M04/logs/red-compaction.log",
-        "docs/implementation/v6/M04/logs/green-compaction.log"
+        "docs/implementation/v6/M04/logs/green-compaction.log",
+        "docs/implementation/v6/M04/logs/red2-compaction.log",
+        "docs/implementation/v6/M04/logs/green2-shadow.log"
       ]
     },
     {
@@ -225,13 +227,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:48Z",
-          "endedAt": "2026-11-16T20:30:52Z",
+          "startedAt": "2026-11-17T02:03:48Z",
+          "endedAt": "2026-11-17T02:03:52Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-context-contract-preservation-v6.log",
-          "logDigest": "f4309573738edddcac26b7db287f78381a8def009e5ac20a5e7d7fb487fb5cae"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-contract-preservation-v6.log",
+          "logDigest": "cfdf339598a6dedd406888ea4bc6b0084fd0b09d79c8cf7fc63d16264757849b"
         }
       ],
       "artifactRefs": [
@@ -300,13 +302,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:30:55Z",
-          "endedAt": "2026-11-16T20:31:04Z",
+          "startedAt": "2026-11-17T02:31:12Z",
+          "endedAt": "2026-11-17T02:31:44Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-support.log",
-          "logDigest": "0e8534334c538e19afa7fe19ca2f5262ca1fc3c91b8877da7e47dc43ff011d68"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-support.log",
+          "logDigest": "65b27a75b6216e28c75d3ff3354ed5b56a975884909e676a924f06dbfc5f1d36"
         }
       ],
       "artifactRefs": [
@@ -386,12 +388,12 @@
         {
           "id": "pnpm-test-full",
           "status": "FAIL",
-          "evidence": "288 failed / 3058 passed / 50 skipped on linux-arm64; unchanged baseline cut ee2c7ad1 fails 277 / 3063 / 46 with the same environment gaps (sandbox launcher, Python 3.14, native engines). Quiet delta reruns attribute every candidate-only failure to contention flakiness or baseline-reproduced environment failures; no M04-scoped suite fails. Gate remains an observed FAIL."
+          "evidence": "Final cut: 277 failed / 3073 passed / 46 skipped (3396 tests) \u2014 failure count identical to unchanged baseline ee2c7ad1 (277 / 3063 / 46; the +10 passed are the new v6 tests). Failure sets differ only in six known timing-flaky non-M04 tests; quiet reruns of those suites on both cuts confirm bidirectional flakiness and the same stable environment failures (sandbox launcher, Python 3.14, native engines, 10k-file search limit). No M04-scoped suite fails. Gate remains an observed FAIL on both cuts."
         },
         {
           "id": "pnpm-test-browser",
           "status": "FAIL",
-          "evidence": "463 passed / 1239 failed across 78 suites (exit 1). 18 suites configure channel msedge and 12 channel chrome; neither distribution exists on this linux-arm64 host and channel changes are forbidden (R09), including the M04 usage-context suite (msedge, 21 launch failures). The 42 plain-chromium failed suites were rerun on the unchanged baseline cut: all 42 fail there as well; dist/web is byte-identical between cuts (53 files, equal SHA-256), so no browser delta is source-caused. Discordant suites terminal-excerpts (candidate rerun exit 0) and composer-commands (11/1 vs baseline 10/2) are timing-flaky. Gate remains an observed FAIL on both cuts."
+          "evidence": "463 passed / 1239 failed across 78 suites (exit 1). 18 suites configure channel msedge and 12 channel chrome; neither distribution exists on this linux-arm64 host and channel changes are forbidden (R09), including the M04 usage-context suite (msedge, 21 launch failures). The 42 plain-chromium failed suites were rerun on the unchanged baseline cut: all 42 fail there as well; dist/web is byte-identical between cuts (53 files, equal SHA-256), so no browser delta is source-caused. Discordant suites terminal-excerpts (candidate rerun exit 0) and composer-commands (11/1 vs baseline 10/2) are timing-flaky. Gate remains an observed FAIL on both cuts. Final-cut pnpm build reproduced dist/web byte-identical (53 files, equal SHA-256) to the bundle this gate tested; tests/e2e and configs are unchanged by the v6 diff, so this receipt is bound to the final cut by bundle identity."
         }
       ],
       "commands": [
@@ -402,12 +404,12 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:31:17Z",
-          "endedAt": "2026-11-16T20:33:06Z",
+          "startedAt": "2026-11-17T02:03:52Z",
+          "endedAt": "2026-11-17T02:05:39Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-typecheck.log",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-typecheck.log",
           "logDigest": "601b8d4308fdb9da8eabefa514a2a7531a63ac5c63ca7ad69206a9338db7ad3a"
         },
         {
@@ -417,12 +419,12 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T20:33:06Z",
-          "endedAt": "2026-11-16T20:34:45Z",
+          "startedAt": "2026-11-17T02:05:39Z",
+          "endedAt": "2026-11-17T02:07:06Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/final2-lint.log",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-lint.log",
           "logDigest": "ff6a1a962352e24656773420f42da139978709afb04f87bca0ac076cfc92b5c7"
         },
         {
@@ -480,13 +482,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T13:10:25Z",
-          "endedAt": "2026-11-16T13:11:30Z",
+          "startedAt": "2026-11-17T02:28:46Z",
+          "endedAt": "2026-11-17T02:29:38Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/build.log",
-          "logDigest": "03d0351ec981c0aa1d65e88d142c6619fd69331c53b5b0e12a6503262e39b78a"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-build.log",
+          "logDigest": "0e403e356a4594fab37c487ca029a6883028ce4aca28f592248070539be97d81"
         },
         {
           "argv": [
@@ -495,13 +497,13 @@
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
           "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
-          "startedAt": "2026-11-16T12:48:23Z",
-          "endedAt": "2026-11-16T13:07:06Z",
+          "startedAt": "2026-11-17T02:07:21Z",
+          "endedAt": "2026-11-17T02:22:11.955123Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v6/M04/logs/candidate2-full-test.log",
-          "logDigest": "9a17331094798549aa7aa905964ba09913667fce215ffff9eb497f9ea8d1231a"
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-full-test.log",
+          "logDigest": "53cac4ce5812898967fff9c55d19ed70c4d21b8210d0e3671250d9fb2dc3739a"
         },
         {
           "argv": [
@@ -556,7 +558,11 @@
         "docs/implementation/v6/M04/logs/candidate-delta-rerun.log",
         "docs/implementation/v6/M04/logs/baseline-delta-rerun.log",
         "docs/implementation/v6/M04/logs/candidate-rerun-terminal.log",
-        "docs/implementation/v6/M04/logs/candidate-rerun-composer.log"
+        "docs/implementation/v6/M04/logs/candidate-rerun-composer.log",
+        "docs/implementation/v6/M04/logs/final3-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/baseline3-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/red2-compaction.log",
+        "docs/implementation/v6/M04/logs/green2-shadow.log"
       ]
     }
   ],
@@ -581,6 +587,7 @@
     "docs/implementation/v6/M04/logs/baseline-results.log",
     "docs/implementation/v6/M04/logs/baseline-support.log",
     "docs/implementation/v6/M04/logs/baseline2-full-test.log",
+    "docs/implementation/v6/M04/logs/baseline3-delta-rerun.log",
     "docs/implementation/v6/M04/logs/browser-bounded.log",
     "docs/implementation/v6/M04/logs/build-credential-lease.log",
     "docs/implementation/v6/M04/logs/build-widgets.log",
@@ -600,14 +607,27 @@
     "docs/implementation/v6/M04/logs/final2-lint.log",
     "docs/implementation/v6/M04/logs/final2-support.log",
     "docs/implementation/v6/M04/logs/final2-typecheck.log",
+    "docs/implementation/v6/M04/logs/final3-build.log",
+    "docs/implementation/v6/M04/logs/final3-compaction-v3.log",
+    "docs/implementation/v6/M04/logs/final3-context-compiler-v3.log",
+    "docs/implementation/v6/M04/logs/final3-context-contract-preservation-v6.log",
+    "docs/implementation/v6/M04/logs/final3-context-results-v3.log",
+    "docs/implementation/v6/M04/logs/final3-delta-rerun.log",
+    "docs/implementation/v6/M04/logs/final3-discovery.log",
+    "docs/implementation/v6/M04/logs/final3-full-test.log",
+    "docs/implementation/v6/M04/logs/final3-lint.log",
+    "docs/implementation/v6/M04/logs/final3-support.log",
+    "docs/implementation/v6/M04/logs/final3-typecheck.log",
     "docs/implementation/v6/M04/logs/green-compaction.log",
     "docs/implementation/v6/M04/logs/green-compiler.log",
     "docs/implementation/v6/M04/logs/green-discovery.log",
     "docs/implementation/v6/M04/logs/green-preservation.log",
     "docs/implementation/v6/M04/logs/green-results.log",
+    "docs/implementation/v6/M04/logs/green2-shadow.log",
     "docs/implementation/v6/M04/logs/red-compaction.log",
     "docs/implementation/v6/M04/logs/red-discovery.log",
-    "docs/implementation/v6/M04/logs/red-preservation.log"
+    "docs/implementation/v6/M04/logs/red-preservation.log",
+    "docs/implementation/v6/M04/logs/red2-compaction.log"
   ],
   "dependencyContracts": [
     {
