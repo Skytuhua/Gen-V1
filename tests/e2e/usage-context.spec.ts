@@ -87,6 +87,112 @@ test('verification does not color a historical pass green when freshness is inde
   await expect(verification(page)).toContainText('INDETERMINATE');
   await expect(verification(page).locator('.verification-outcome.pass')).toHaveCount(0);
 });
+const exactCheckDetails = () => ({
+  argv: ['node', 'checks/argument boundaries.mjs', '', 'a b', '"quoted"', 'line\nbreak', '--target=' + 'tail'.repeat(70)],
+  cwdIdentity: '/fixture/physical-workspace/with spaces/dev=17/ino=2039',
+  codeDigest: 'a'.repeat(64), dependencyDigest: 'b'.repeat(64), recipeDigest: 'c'.repeat(64),
+  environmentId: 'fixture/linux/node24/pnpm10.30.3/exact-environment',
+  startedAt: '2026-11-17T07:00:00.123Z', endedAt: '2026-11-17T07:00:01.456Z',
+  exitCode: 0, observationKind: 'process', detail: 'Observed exit 0. Literal output: <script>not executable</script>', visual: null,
+});
+test('verification check details preserve exact arguments, execution identities and historical outcome', async ({page}) => {
+  const details = exactCheckDetails(), model = verificationResult('Exact process check', 'STALE').verification;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {
+    ...model, label: 'COMPLETED_UNVERIFIED', staleBanner: true, rows: [{...model.rows[0], details, evidence: ['artifact:bounded-log:sha256:' + 'd'.repeat(64)]}],
+  }}}));
+  await page.goto('/usage-context?verification');
+  const trigger = verification(page).getByRole('button', {name: 'Check details for check-one (Exact process check)', exact: true});
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.focus(); await page.keyboard.press('Enter');
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Exact process check)', exact: true});
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  expect(JSON.parse(await detail.getByLabel('Arguments (JSON)', {exact: true}).innerText())).toEqual(details.argv);
+  for (const value of [details.cwdIdentity, details.codeDigest, details.dependencyDigest, details.recipeDigest, details.environmentId, details.startedAt, details.endedAt, details.detail]) await expect(detail.getByText(value, {exact: true})).toBeVisible();
+  await expect(detail.getByLabel('Recorded outcome', {exact: true})).toHaveText('PASS');
+  await expect(detail.getByLabel('Current freshness', {exact: true})).toHaveText('STALE');
+  await expect(detail.getByLabel('Exit code', {exact: true})).toHaveText('0');
+  await expect(detail.locator('.verification-outcome.pass')).toHaveCount(0);
+  await expect(detail.getByRole('img')).toHaveCount(0); await expect(detail.getByRole('link')).toHaveCount(0);
+  await detail.getByRole('button', {name: 'Close check details', exact: true}).click();
+  await expect(trigger).toBeFocused(); await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+test('verification shows browser expected and observed fields with null exit and screenshot identities', async ({page}) => {
+  const model = verificationResult('Browser behavior').verification;
+  const visual = {checklistItemId: 'save-button', actionTraceId: 'trace:button-save', origin: 'http://127.0.0.1:4100', viewport: {width: 390, height: 844}, assertion: 'Clicking Save displays the saved state.', observed: 'Saved state remained hidden.', screenshotDigest: 'e'.repeat(64)};
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {
+    ...model, label: 'FAILED', rows: [{...model.rows[0], outcome: 'FAIL', phase: 'BROWSER', details: {...exactCheckDetails(), observationKind: 'browser', exitCode: null, visual}}],
+  }}}));
+  await page.goto('/usage-context?verification');
+  await verification(page).getByRole('button', {name: 'Check details for check-one (Browser behavior)', exact: true}).click();
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Browser behavior)', exact: true});
+  await expect(detail.getByLabel('Expected', {exact: true})).toHaveText(visual.assertion);
+  await expect(detail.getByLabel('Observed', {exact: true})).toHaveText(visual.observed);
+  await expect(detail.getByLabel('Viewport', {exact: true})).toHaveText('390 × 844');
+  await expect(detail.getByLabel('Exit code', {exact: true})).toHaveText('Not reported');
+  for (const value of [visual.origin, visual.actionTraceId, visual.checklistItemId, visual.screenshotDigest]) await expect(detail.getByText(value, {exact: true})).toBeVisible();
+  await expect(detail.getByRole('img')).toHaveCount(0);
+});
+test('verification keeps one check bound to two requirements independently addressable', async ({page}) => {
+  const errors: string[] = [], model = verificationResult('First requirement').verification;
+  page.on('console', message => {if (message.type() === 'error') errors.push(message.text());});
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...model, rows: [
+    {...model.rows[0], details: exactCheckDetails()}, {...model.rows[0], requirement: 'Second requirement', details: exactCheckDetails()},
+  ]}}}));
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Second requirement');
+  expect(errors.filter(error => /same key/i.test(error))).toEqual([]);
+  await verification(page).getByRole('button', {name: 'Check details for check-one (Second requirement)', exact: true}).click();
+  await expect(verification(page).getByRole('region', {name: 'Check details for check-one (Second requirement)', exact: true})).toBeVisible();
+  await expect(verification(page).getByRole('button', {name: 'Check details for check-one (First requirement)', exact: true})).toHaveAttribute('aria-expanded', 'false');
+});
+test('verification expansion keeps the composer reachable in a short canvas', async ({page}, info) => {
+  const model = verificationResult('Check inside conversation').verification;
+  await page.setViewportSize({width: 340, height: 420});
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {
+    ...model, rows: [{...model.rows[0], details: exactCheckDetails()}],
+  }}}));
+  await page.goto('/usage-context?verification&canvas');
+  const trigger = verification(page).getByRole('button', {name: 'Check details for check-one (Check inside conversation)', exact: true});
+  await trigger.click();
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Check inside conversation)', exact: true});
+  await expect(detail).toBeFocused();
+  await expect(page.getByRole('textbox', {name: 'Reply', exact: true})).toBeInViewport();
+  const panel = verification(page);
+  expect(await panel.evaluate(node => node.getBoundingClientRect().bottom <= innerHeight)).toBe(true);
+  await panel.focus(); await expect(panel).toBeFocused();
+  const before = await panel.evaluate(node => node.scrollTop);
+  await page.keyboard.press('ArrowDown');
+  await expect.poll(() => panel.evaluate(node => node.scrollTop)).toBeGreaterThan(before);
+  await detail.getByRole('button', {name: 'Close check details', exact: true}).click();
+  await expect(trigger).toBeFocused();
+  await page.getByRole('textbox', {name: 'Reply', exact: true}).fill('Reply remains reachable.');
+  await expect(page.getByRole('textbox', {name: 'Reply', exact: true})).toHaveValue('Reply remains reachable.');
+  await trigger.click();
+  await page.screenshot({path: info.outputPath('verification-short-canvas.png'), fullPage: true});
+});
+for (const theme of ['dark', 'light']) test(`verification stays inside a narrow window with keyboard scrolling and wrapped details in ${theme}`, async ({page}, info) => {
+  const model = verificationResult('requirement-' + 'long-identity-'.repeat(10), 'STALE').verification;
+  const details = {...exactCheckDetails(), cwdIdentity: '/physical/' + 'path-segment/'.repeat(30), environmentId: 'environment:' + 'host-identity-'.repeat(12)};
+  await page.setViewportSize({width: 340, height: 420});
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {
+    ...model, label: 'COMPLETED_UNVERIFIED', staleBanner: true, rows: [{...model.rows[0], verifier: 'execution:' + 'identity-'.repeat(16), evidence: ['artifact:sha256:' + 'f'.repeat(64)], details}],
+  }}}));
+  await page.goto('/usage-context?verification');
+  await page.evaluate(value => document.documentElement.dataset.theme = value, theme);
+  await expect(verification(page)).toContainText('Completed unverified');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const scroller = verification(page).getByRole('region', {name: 'Verification checks', exact: true});
+  await scroller.focus(); await expect(scroller).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(() => scroller.evaluate(node => node.scrollLeft)).toBeGreaterThan(0);
+  await verification(page).getByRole('button', {name: `Check details for check-one (${model.rows[0].requirement})`, exact: true}).click();
+  const detail = verification(page).getByRole('region', {name: `Check details for check-one (${model.rows[0].requirement})`, exact: true});
+  await expect(detail).toBeVisible();
+  expect(await detail.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(JSON.parse(await detail.getByLabel('Arguments (JSON)', {exact: true}).innerText())).toEqual(details.argv);
+  await page.screenshot({path: info.outputPath(`verification-${theme}-narrow.png`), fullPage: true});
+});
 test('a token decrease after a command acknowledgement is not a compaction receipt', async ({ page }) => {
   const commands: { type: string; threadId: string }[] = [];
   await page.route('**/api/commands', route => { commands.push(route.request().postDataJSON()); return route.fulfill({ json: { commandId: 'fixture', eventSeq: 1, result: {} } }); });

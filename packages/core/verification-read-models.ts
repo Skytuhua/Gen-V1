@@ -12,6 +12,21 @@ import { assertVerificationSourceRoot, sourceDigestSync } from './project-verifi
  * A stale result is a result attached to a different source cut — it never
  * renders as a green badge, and the panel shows a Stale banner. */
 
+export interface VerificationCheckDetails {
+  argv: string[];
+  cwdIdentity: string;
+  codeDigest: string;
+  dependencyDigest: string;
+  recipeDigest: string;
+  environmentId: string;
+  startedAt: string;
+  endedAt: string;
+  exitCode: number | null;
+  observationKind: CheckObservationV1['observationKind'];
+  detail: string | null;
+  visual: Pick<VisualObservationV1, 'checklistItemId' | 'actionTraceId' | 'origin' | 'viewport' | 'assertion' | 'observed' | 'screenshotDigest'> | null;
+}
+
 export interface VerificationPanelRow {
   requirement: string;
   checkId: string | null;
@@ -23,6 +38,7 @@ export interface VerificationPanelRow {
   verifier: string | null;
   evidence: string[];
   missing: string[];
+  details?: VerificationCheckDetails;
 }
 
 export interface VerificationPanelModel {
@@ -33,6 +49,21 @@ export interface VerificationPanelModel {
 }
 
 const short = (value: string) => (value.length > 12 ? value.slice(0, 12) : value);
+
+function checkDetails(obs: CheckObservationV1 | VisualObservationV1): VerificationCheckDetails {
+  // Functional browser assertions also carry visual fields. Their recorded
+  // kind must not hide the expected/observed behavior or tested viewport.
+  const visual = 'checklistItemId' in obs ? {
+    checklistItemId: obs.checklistItemId, actionTraceId: obs.actionTraceId, origin: obs.origin,
+    viewport: {...obs.viewport}, assertion: obs.assertion, observed: obs.observed, screenshotDigest: obs.screenshotDigest,
+  } : null;
+  return {
+    argv: [...obs.argv], cwdIdentity: obs.cwdIdentity, codeDigest: obs.codeDigest,
+    dependencyDigest: obs.dependencyDigest, recipeDigest: obs.recipeDigest, environmentId: obs.environmentId,
+    startedAt: obs.startedAt, endedAt: obs.endedAt, exitCode: obs.exitCode,
+    observationKind: obs.observationKind, detail: obs.detail?.slice(0, 2000) ?? null, visual,
+  };
+}
 
 export function verificationPanelModel(store: Store, threadId: string): VerificationPanelModel {
   const declaration = store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
@@ -107,7 +138,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
         rows.push({
           requirement: req.id, checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
           sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
-          freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
+          freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [], details: checkDetails(obs),
         });
       }
     }
@@ -121,7 +152,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     rows.push({
       requirement: '—', checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
       sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
-      freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
+      freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [], details: checkDetails(obs),
     });
   }
 

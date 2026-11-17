@@ -6,7 +6,7 @@ import {Store} from '../packages/storage/store';
 import {verificationPanelModel} from '../packages/core/verification-read-models';
 import {computeAssessment} from '../packages/core/verification-gate';
 import {sourceDigestSync} from '../packages/core/project-verification';
-import type {CheckObservationV1, VerificationDeclarationV1} from '../packages/contracts/verification';
+import type {CheckObservationV1, VerificationDeclarationV1, VisualObservationV1} from '../packages/contracts/verification';
 import type {ToolEffectRecord, ToolOwner} from '../packages/contracts/tool-effects';
 
 const cleanup: (() => void)[] = [];
@@ -97,4 +97,31 @@ it('shows a missing reference even when another reference already has an observa
 it('does not duplicate a check when both its check and execution are bound', () => {
   const f = fixture(); f.declaration.requirements[0].checkRefs.push('check-1'); f.save();
   expect(verificationPanelModel(f.store, 't1').rows.filter(row => row.checkId === 'check-1')).toHaveLength(1);
+});
+
+it('retains exact execution details for bound and unbound observations without joining arguments', () => {
+  const f = fixture();
+  f.observation.argv = ['node', 'checks/with spaces.mjs', '', 'a b', '"quoted"', 'line\nbreak', 'tail'.repeat(80)];
+  f.observation.cwdIdentity = '/physical/workspace with spaces/dev=5/ino=39';
+  f.observation.detail = 'Bounded recorded process detail.';
+  f.save([f.observation, {...f.observation, checkId: 'unbound-check', executionId: 'unbound-execution'}]);
+  const model = verificationPanelModel(f.store, 't1');
+  expect(model.rows).toHaveLength(2);
+  for (const row of model.rows) expect(row.details).toEqual({
+    argv: f.observation.argv, cwdIdentity: f.observation.cwdIdentity, codeDigest: f.observation.codeDigest,
+    dependencyDigest: f.observation.dependencyDigest, recipeDigest: f.observation.recipeDigest,
+    environmentId: f.observation.environmentId, startedAt: f.observation.startedAt, endedAt: f.observation.endedAt,
+    exitCode: 0, observationKind: 'process', detail: f.observation.detail, visual: null,
+  });
+});
+
+it('projects browser assertion details by their fields even when the observation kind is browser', () => {
+  const f = fixture();
+  const visual = {checklistItemId: 'button-save', actionTraceId: 'trace-save', origin: 'http://127.0.0.1:4100', viewport: {width: 390, height: 844}, assertion: 'The save state is visible.', observed: 'The save state is hidden.', screenshotDigest: null};
+  const observation: VisualObservationV1 = {...f.observation, observationKind: 'browser', phase: 'BROWSER', outcome: 'FAIL', exitCode: null, ...visual};
+  f.save([]);
+  f.store.internal('test.visual', 't1', () => f.store.put('visualObservation', observation.checkId, 't1', observation));
+  const model = verificationPanelModel(f.store, 't1');
+  expect(model.rows[0].details).toMatchObject({observationKind: 'browser', exitCode: null, detail: null, visual});
+  expect(model.rows[0]).toMatchObject({outcome: 'FAIL', freshness: 'CURRENT'});
 });

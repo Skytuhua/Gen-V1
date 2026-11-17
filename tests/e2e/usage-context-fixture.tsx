@@ -9,6 +9,8 @@ import type { ModelRequestObservationV1 } from '../../packages/contracts/model-r
 import { EMPTY_USAGE, type Thread } from '../../packages/contracts';
 import type { ContextUsage } from '../../apps/web/src/ContextMeter';
 import '../../apps/web/src/styles.css';
+import '../../apps/web/src/shell.css';
+import '../../apps/web/src/workspace-canvas.css';
 
 function Fixture() {
   const [open, setOpen] = useState(false), anchor = useRef<HTMLButtonElement>(null);
@@ -78,10 +80,16 @@ function Fixture() {
 }
 function VerificationFixture() {
   const [threadId, setThreadId] = useState('thread-one');
-  return <main style={{padding: 12}}>
-    <button onClick={() => setThreadId('thread-one')}>First conversation</button>
-    <button onClick={() => setThreadId('thread-two')}>Second conversation</button>
-    <VerificationPanel threadId={threadId} />
+  const canvas = new URLSearchParams(location.search).has('canvas');
+  const panel = <VerificationPanel threadId={threadId} />;
+  return <main style={{padding: 12, ...(canvas ? {height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden'} as const : {})}}>
+    <nav><button onClick={() => setThreadId('thread-one')}>First conversation</button>
+      <button onClick={() => setThreadId('thread-two')}>Second conversation</button></nav>
+    {canvas ? <div className="canvas-thread" style={{flex: 1}}>
+      <div className="canvas-thread-transcript" role="log">Synthetic conversation transcript</div>
+      {panel}
+      <div className="composer-dock"><textarea aria-label="Reply" rows={2} /></div>
+    </div> : panel}
   </main>;
 }
 createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('verification') ? <VerificationFixture /> : <Fixture />);
