@@ -37,9 +37,7 @@ async function preview(page: Page, memoryHost: MemoryHostFixture, threadId: stri
   return prepared;
 }
 
-test('enabled project memory uses real HTTP through proposal, recall, request exclusion, Forget and Store restart', async ({ page, memoryHost }, info) => {
-  // No page.route(), injected fetch/EventSource or seeded memory records.
-  // The only fixture substitution is the explicitly scripted RuntimeAdapter.
+async function createMemoryProject(page: Page, memoryHost: MemoryHostFixture) {
   await page.goto(MEMORY_HOST_URL);
   await expect(composer(page)).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(MEMORY_FIXTURE_LABEL);
@@ -76,6 +74,13 @@ test('enabled project memory uses real HTTP through proposal, recall, request ex
   expect(memoryHost.extractions[0]!.deliveries[0]).toMatchObject({ accountId: null, resources: [], sessionPath: null });
   expect(memoryHost.extractions[0]!.deliveries[0].threadId).not.toBe(thread.id);
   await expect.poll(() => memoryHost.extractions[0]!.disposed).toBe(true);
+  return { thread, proposed };
+}
+
+test('enabled project memory uses real HTTP through proposal, recall, request exclusion, Forget and Store restart', async ({ page, memoryHost }, info) => {
+  // No page.route(), injected fetch/EventSource or seeded memory records.
+  // The only fixture substitution is the explicitly scripted RuntimeAdapter.
+  const { thread, proposed } = await createMemoryProject(page, memoryHost);
 
   await openReview(page);
   await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
@@ -162,4 +167,75 @@ test('enabled project memory uses real HTTP through proposal, recall, request ex
   const image = info.outputPath('memory-host-forget-restart.png');
   await page.screenshot({ path: image, fullPage: true });
   await info.attach('memory-host-forget-restart', { path: image, contentType: 'image/png' });
+});
+
+test('real concurrent user corrections stay out of recall until explicitly resolved and expire immediately', async ({ page, memoryHost }, info) => {
+  const { thread, proposed } = await createMemoryProject(page, memoryHost);
+  const row = (target: Page) => review(target).getByRole('article', { name: `Memory ${proposed.id}`, exact: true });
+  await openReview(page); await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
+  await row(page).getByRole('button', { name: `Accept ${proposed.id}`, exact: true }).click();
+  await review(page).getByRole('tab', { name: 'Accepted', exact: true }).click();
+  await expect(row(page)).toContainText('Accepted · revision 2');
+  const concurrent = await page.context().newPage();
+  try {
+    await concurrent.goto(MEMORY_HOST_URL); await expect(composer(concurrent)).toBeVisible(); await openReview(concurrent);
+    // Both actual editors capture revision 2. Neither tab has an intercepted API.
+    await row(page).getByRole('button', { name: `Edit ${proposed.id}`, exact: true }).click();
+    await row(concurrent).getByRole('button', { name: `Edit ${proposed.id}`, exact: true }).click();
+    const corrected = 'Use PostgreSQL for project persistence.', competing = 'Use MySQL for project persistence.';
+    await review(page).getByRole('textbox', { name: 'Memory text', exact: true }).fill(corrected);
+    await review(page).getByRole('button', { name: 'Save correction', exact: true }).click();
+    await expect(row(page)).toContainText('Accepted · revision 3');
+    await review(page).getByRole('button', { name: 'Close dialog', exact: true }).click();
+    const correction = await preview(page, memoryHost, thread.id, 'Explain PostgreSQL persistence for this project.');
+    expect(correction.items).toEqual([expect.objectContaining({ id: proposed.id, revision: 3, text: corrected })]);
+    await page.keyboard.press('Escape'); await page.getByRole('button', { name: 'Send message', exact: true }).click();
+    await expect.poll(() => memoryHost.runtime.deliveries.length).toBe(2);
+    expect(memoryHost.runtime.deliveries[1]!.prompt).toContain(corrected);
+    expect(memoryHost.runtime.deliveries[1]!.prompt).not.toContain(MEMORY_CLAIM);
+    await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+
+    await review(concurrent).getByRole('textbox', { name: 'Memory text', exact: true }).fill(competing);
+    const denied = concurrent.waitForResponse(value => value.url().endsWith('/memory/actions') && value.request().method() === 'POST');
+    await review(concurrent).getByRole('button', { name: 'Save correction', exact: true }).click();
+    expect((await denied).status()).toBe(403);
+    await expect(review(concurrent)).toContainText('The reviewed project, account or conversation changed.');
+    await expect(review(concurrent).getByRole('textbox', { name: 'Memory text', exact: true })).toHaveValue(competing);
+    // A foreground send changed the run owner. Refresh the owner fence while
+    // preserving the user's captured revision 2 and unsaved correction text.
+    await review(concurrent).getByRole('button', { name: 'Refresh', exact: true }).click();
+    await expect(review(concurrent).getByRole('button', { name: 'Save correction', exact: true })).toBeEnabled();
+    await review(concurrent).getByRole('button', { name: 'Save correction', exact: true }).click();
+    await expect(review(concurrent).getByRole('tab', { name: 'Conflicts', exact: true })).toHaveAttribute('aria-selected', 'true');
+    await expect(row(concurrent)).toContainText('Conflict · revision 4');
+    await expect(row(concurrent)).toContainText(corrected); await expect(row(concurrent)).toContainText(competing);
+    expect((await preview(page, memoryHost, thread.id, 'Compare PostgreSQL and MySQL project persistence.')).items).toEqual([]);
+    await page.keyboard.press('Escape');
+    const conflictImage = info.outputPath('memory-host-concurrent-conflict.png'); await concurrent.screenshot({ path: conflictImage, fullPage: true });
+    await info.attach('memory-host-concurrent-conflict', { path: conflictImage, contentType: 'image/png' });
+    await row(concurrent).getByRole('checkbox', { name: 'Keep revision 3', exact: true }).check();
+    await row(concurrent).getByRole('textbox', { name: 'Resolution note', exact: true }).fill('Keep the reviewed PostgreSQL persistence decision.');
+    await row(concurrent).getByRole('button', { name: 'Resolve conflict', exact: true }).click();
+    await review(concurrent).getByRole('tab', { name: 'Accepted', exact: true }).click();
+    await expect(row(concurrent)).toContainText('Accepted · revision 5');
+    const resolved = await preview(page, memoryHost, thread.id, 'Use the resolved PostgreSQL project persistence decision.');
+    expect(resolved.items).toEqual([expect.objectContaining({ id: proposed.id, revision: 5, text: corrected })]);
+    await page.keyboard.press('Escape'); await page.getByRole('button', { name: 'Send message', exact: true }).click();
+    await expect.poll(() => memoryHost.runtime.deliveries.length).toBe(3);
+    expect(memoryHost.runtime.deliveries[2]!.prompt).toContain(corrected);
+    expect(memoryHost.runtime.deliveries[2]!.prompt).not.toContain(competing);
+    await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+
+    await review(concurrent).getByRole('button', { name: 'Refresh', exact: true }).click();
+    await expect(row(concurrent).getByRole('button', { name: `Expire ${proposed.id}`, exact: true })).toBeEnabled();
+    await row(concurrent).getByRole('button', { name: `Expire ${proposed.id}`, exact: true }).click();
+    await expect(row(concurrent)).toContainText('Expired · revision 6');
+    expect((await preview(page, memoryHost, thread.id, 'Recall PostgreSQL project persistence after expiry.')).items).toEqual([]);
+    await page.keyboard.press('Escape');
+    await row(concurrent).getByRole('button', { name: `View source ${proposed.id} 1`, exact: true }).click();
+    await expect(review(concurrent).getByRole('region', { name: 'Supporting source', exact: true })).toContainText(MEMORY_SOURCE);
+    const expiryImage = info.outputPath('memory-host-expired-source.png'); await concurrent.screenshot({ path: expiryImage, fullPage: true });
+    await info.attach('memory-host-expired-source', { path: expiryImage, contentType: 'image/png' });
+    expect((await memoryHost.memory(thread.id)).items[0]!.item).toMatchObject({ revision: 6, state: 'EXPIRED', text: corrected });
+  } finally { await concurrent.close(); }
 });

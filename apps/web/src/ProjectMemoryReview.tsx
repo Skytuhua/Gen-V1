@@ -35,11 +35,11 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
   const configDirty = useRef(false), retry = useRef<{signature: string; commandId: string} | undefined>(undefined);
   const ownerKey = memoryOwnerKey(owner), id = useId();
   useLayoutEffect(() => {active.current = true; return () => {active.current = false; generation.current++; detailGeneration.current++; pendingRead.current?.abort(); pendingDetail.current?.abort();};}, []);
-  const load = useCallback(async () => {
+  const load = useCallback(async (refreshBinding = false) => {
     const version = ++generation.current; pendingRead.current?.abort(); const controller = new AbortController(); pendingRead.current = controller;
     setLoading(true); setError('');
     try {
-      const next = await getProjectMemory(owner, controller.signal, scope.current);
+      const next = await getProjectMemory(owner, controller.signal, scope.current, {refreshBinding});
       if (!active.current || version !== generation.current) return;
       scope.current = next.scope; setView(next);
       setEditor(previous => previous && next.tombstones.some(value => value.itemId === previous.id) ? undefined : previous);
@@ -98,9 +98,9 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       {error && <ErrorState message={error}/>}
       {notice && <p role="status" className="project-memory-notice" data-memory-export-status={exportResult?.status} data-memory-export-admitted={exportResult?.admitted ? 'true' : undefined} data-memory-export-filename={exportResult?.filename} data-memory-export-bytes={exportResult?.bytes} data-memory-export-sha256={exportResult?.sha256}>{notice}</p>}
       {loading && <p role="status">{view ? 'Refreshing project memory…' : 'Loading project memory…'}</p>}
-      {!view && !loading && <button type="button" onClick={() => void load()}>Retry loading</button>}
+      {!view && !loading && <button type="button" onClick={() => void load(true)}>Retry loading</button>}
       {view && <>
-        <header className="project-memory-heading"><div><h3>{view.projectName}</h3></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load();}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
+        <header className="project-memory-heading"><div><h3>{view.projectName}</h3></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load(true);}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
         <section className="project-memory-consent" aria-label="Project memory settings">
           <p><strong>{view.enabled ? 'Enabled for this project' : 'Not enabled for this project'}</strong></p>
           {view.disabledReason && <p>{view.disabledReason}</p>}
