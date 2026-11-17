@@ -980,8 +980,14 @@ test('dirty widget artifact archive retains its mount until explicit discard', a
 test('widget initialization and theme changes receive matching root color tokens', async ({ page }) => {
   const initial = widgetWorkspace(); initial.settings.theme = 'dark'; const state = await host(page, initial); await page.goto('/');
   const frame = page.frameLocator('iframe.widget-frame'); await expect(frame.locator('#theme')).toHaveText('dark|#000');
+  const checkFocus=async()=>{
+    await frame.getByRole('textbox',{name:'Widget note',exact:true}).focus();await page.keyboard.press('Tab');const button=frame.getByRole('button',{name:'Checkpoint note',exact:true});await expect(button).toBeFocused();
+    const tone=await button.evaluate(node=>{const probe=document.createElement('span');probe.style.color='var(--muted-foreground,#717177)';document.body.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();const style=getComputedStyle(node);return{neutral,color:style.outlineColor,width:style.outlineWidth,visible:node.matches(':focus-visible')};});
+    expect(tone.color).toBe(tone.neutral);expect(tone.width).toBe('2px');expect(tone.visible).toBe(true);
+  };
+  await checkFocus();
   await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Appearance', exact: true }).click(); await page.getByRole('combobox', { name: 'Color scheme', exact: true }).click(); await page.getByRole('option', { name: 'Light', exact: true }).click(); await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Apply', exact: true }).click(); await page.keyboard.press('Escape');
-  await expect(frame.locator('#theme')).toHaveText('light|#fff'); expect(state.mounts).toBe(1);
+  await expect(frame.locator('#theme')).toHaveText('light|#fff');await checkFocus();expect(state.mounts).toBe(1);
 });
 
 test('bounded history loads earlier messages without remounting dirty artifacts', async ({ page }) => {

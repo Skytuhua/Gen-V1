@@ -15,5 +15,5 @@
 .trace-ruler>span,.trace-span-label{flex-basis:var(--trace-label-width,220px)}
 @container work-object (max-width:650px){.artifact[data-artifact-inline=true] .trace-ruler>div>span:not(:first-child):not(:last-child){display:none}}
 
-.work-selection-halo{position:absolute;inset:-2px;border:1px solid transparent;border-radius:inherit;pointer-events:none;user-select:none;box-shadow:0 0 5px color-mix(in srgb,var(--accent) 12%,transparent)}
+.work-selection-halo{position:absolute;inset:-2px;border:1px solid transparent;border-radius:inherit;pointer-events:none;user-select:none}
 @media(prefers-reduced-motion:reduce){.work-selection-halo{display:none}}
