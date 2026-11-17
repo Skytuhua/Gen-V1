@@ -19,7 +19,7 @@
 .agent-inbox .inbox-search{display:block;padding:0 16px 8px}
 .agent-inbox .inbox-search>label{display:flex;align-items:center;gap:8px;min-height:32px;padding:0 9px;border:1px solid var(--border);border-radius:7px;color:var(--muted)}
 .agent-inbox .inbox-search input{background:transparent;border:0;outline:0;width:100%;font-size:12px;padding:7px 0}
-.agent-inbox .inbox-search>label:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.agent-inbox .inbox-search>label:focus-within{outline:2px solid var(--ui-focus-ring,#808080);outline-offset:1px}
 .agent-inbox .inbox-tasks-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:none}
 .agent-inbox .inbox-tasks-body{padding:8px 16px 16px;min-height:100%}
 .agent-inbox .inbox-tasks-body[data-empty=true]{display:flex;flex-direction:column}

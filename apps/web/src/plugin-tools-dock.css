@@ -7,7 +7,7 @@ body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden]))>div:empty:not(#root) 
 .ui-tool-dock>.plugin-tool-window {position:relative;inset:auto;flex:1 0 calc(39px + var(--ui-tool-body-min,128px));width:100%;min-height:calc(39px + var(--ui-tool-body-min,128px));border:1px solid var(--border);border-radius:0;box-shadow:none;transition:none;}
 .ui-tool-dock>.plugin-tool-window[data-collapsed=true] {flex:0 0 auto;min-height:36px;}
 .plugin-tool-window>p {padding:12px;margin:0;}
-.plugin-tool-window :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--accent);outline-offset:-2px;}
+.plugin-tool-window :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px;}
 .plugin-tool-window>.floating-window-header {flex-shrink:0;}
 .plugin-tool-window>.floating-window-header>.floating-window-summary {font-size:12px;white-space:normal;text-align:left;}
 .plugin-tool-window>.floating-window-body[hidden] {display:none;}

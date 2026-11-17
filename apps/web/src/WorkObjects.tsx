@@ -94,7 +94,7 @@ function useSelectionHalo(){
   cleanup.current?.();cleanup.current=undefined;
   if(!target||readMotionPolicy()!=='full')return;
   const halo=document.createElement('span');halo.className='work-selection-halo';halo.setAttribute('aria-hidden','true');target.append(halo);
-  const animation=halo.animate([{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 40%,transparent)'},{opacity:.8,borderColor:'color-mix(in srgb,#8471bc 55%,transparent)',offset:.35},{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 30%,transparent)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});
+  const animation=halo.animate([{opacity:0,borderColor:'var(--ui-focus-ring,#808080)'},{opacity:.8,borderColor:'var(--ui-focus-ring,#808080)',offset:.35},{opacity:0,borderColor:'var(--ui-focus-ring,#808080)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});
   let disposed=false;
   const settle=()=>{if(disposed)return;disposed=true;observer.disconnect();stopObservingMotion();animation.removeEventListener('finish',settle);animation.removeEventListener('cancel',settle);animation.cancel();halo.remove();};
   const observer=new MutationObserver(settle);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
