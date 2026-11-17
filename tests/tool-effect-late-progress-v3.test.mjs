@@ -21,8 +21,9 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'operation-late-progress-'));
   const store = new Store(join(root, 'state'));
   const starts = [], entered = deferred(), release = deferred();
+  let callbacks;
   const runtime = {
-    configure: () => {},
+    configure: value => { callbacks = value; },
     models: async () => [{ id: 'test/model', provider: 'test', name: 'Test' }],
     start: async input => { starts.push(input); },
     followUp: async () => {}, cancel: async () => {}, compact: async () => {},
@@ -65,12 +66,14 @@ async function fixture() {
     store, service, command, thread, run, operation, entered, release, starts,
     externalEffects: async () => (await readFile(externalPath, 'utf8')).split('\n').filter(Boolean),
     callbackState: () => ({ ran: callbackRan, error: callbackError }),
+    get callbacks() { return callbacks; },
   };
 }
 
 it.each([
   { mode: 'stop', revoked: true },
-  { mode: 'archive', revoked: true },
+  { mode: 'stop then archive', revoked: true },
+  { mode: 'settle then archive', revoked: true },
   { mode: 'unchanged', revoked: false },
 ])('handles a late operation callback after $mode without losing the historical effect', async ({ mode, revoked }) => {
   const x = await fixture();
@@ -79,10 +82,16 @@ it.each([
   const waiting = x.service.dispatchOperation(x.operation.id).then(value => ({ value }), error => ({ error }));
   try {
     expect(await x.externalEffects()).toEqual([x.operation.id]);
-    if (revoked) {
+    if (mode === 'settle then archive') {
+      x.callbacks.onEvent({ ...x.run, type: 'input.processing', inputIds: x.run.inputIds });
+      x.callbacks.onEvent({ ...x.run, type: 'assistant.message', content: 'Action submitted', inputIds: x.run.inputIds });
+      x.callbacks.onEvent({ ...x.run, type: 'settled' });
+      expect(context.signal.aborted).toBe(false);
+      await x.command('thread.archive', x.thread.id);
+    } else if (revoked) {
       await x.command('run.stop', x.thread.id);
       expect(context.signal.aborted).toBe(true);
-      if (mode === 'archive') await x.command('thread.archive', x.thread.id);
+      if (mode === 'stop then archive') await x.command('thread.archive', x.thread.id);
     }
     x.release.resolve();
     await waiting;
@@ -99,10 +108,12 @@ it.each([
     });
     expect(x.store.all('approval', x.thread.id).find(value => value.operationId === x.operation.id).remainingUses).toBe(0);
     if (revoked) {
-      expect(x.store.get('thread', x.thread.id)).toMatchObject({ runId: null, status: 'stopped', epoch: x.run.epoch + 1 });
+      expect(x.store.get('thread', x.thread.id)).toMatchObject(mode === 'settle then archive'
+        ? { runId: null, epoch: x.run.epoch }
+        : { runId: null, status: 'stopped', epoch: x.run.epoch + 1 });
       expect(x.starts).toHaveLength(1);
     }
-    if (mode === 'archive') expect(x.store.get('archivedThread', x.thread.id)).toBe(true);
+    if (mode.includes('archive')) expect(x.store.get('archivedThread', x.thread.id)).toBe(true);
   } finally {
     x.release.resolve();
     await waiting;
