@@ -21,7 +21,7 @@ The packaged desktop build includes Node, Python and native runtime assets. Sour
 From PowerShell:
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -190,7 +190,7 @@ These are build instructions. They do not establish a successful Windows package
 installation or retained-memory verification; those results require their own
 executed receipts.
 
-Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
+Check [the Gen V1 beta release](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
 
 ## Run the checks
 
