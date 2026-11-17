@@ -115,7 +115,10 @@ export class ProjectTools{
     this.store.internal('workspace.working-copy.created',thread.id,()=>{const latest=this.store.get<Thread>('thread',thread.id);if(!latest||latest.workspaceId||latest.epoch!==current.epoch||latest.runId!==current.runId)throw new HarnessError('WORKSPACE_CHANGED','Thread changed while creating its working copy.');this.store.put('workspaceBinding',workspaceId,thread.id,binding);this.store.put('thread',thread.id,thread.id,{...latest,workspaceId});const grant:ResourceGrant={id:randomUUID(),threadId:thread.id,kind:'project',path,label:base.project.name,writable:true,createdAt:new Date().toISOString(),identity:binding.identity};this.store.put('resource',grant.id,thread.id,grant);});
     bound=true;
    }finally{
-    if(!bound)await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['worktree','remove','--force',path],controller.signal).catch(()=>rm(path,{recursive:true,force:true}).catch(()=>{}));
+    // The guard aborts controller when custody is lost, which is exactly when
+    // cleanup must still run — a dead signal would skip worktree removal and
+    // re-leak the orphaned worktrees/<id> registration this guards against.
+    if(!bound)await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['worktree','remove','--force',path],new AbortController().signal).catch(()=>rm(path,{recursive:true,force:true}).catch(()=>{}));
    }
   });
  }
