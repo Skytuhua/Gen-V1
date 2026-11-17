@@ -100,7 +100,7 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
         else { captures.push(source); texts.set(physicalId, text); }
         captured = true;
         return visit(index + 1);
-      });
+      }, { readOnly: true });
     } catch (error) {
       // Never catch/retry the dispatch callback or a deeper source's owner failure.
       if (captured || error instanceof HarnessError && ['STALE_REQUEST_CONTEXT', 'CANCELLED_RUN'].includes(error.code)) throw error;
