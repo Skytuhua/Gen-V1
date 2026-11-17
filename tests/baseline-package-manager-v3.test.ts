@@ -4,10 +4,11 @@ import { constants, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, 
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const repository = new URL('../', import.meta.url);
 const runner = new URL('../scripts/research-baseline.ts', import.meta.url).href;
-const loader = createRequire(import.meta.url).resolve('tsx');
+const loader = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
 let directory: string;
 let node: string;
 
@@ -70,6 +71,7 @@ describe('M01 installed package manager admission', () => {
     expect(result.error).toBeUndefined();
     expect(result.status).toBe(1);
     expect(value.observed()).toEqual([]);
+    expect(result.stderr).toContain('SPAWN_ERROR: Corepack or an installed pnpm executable/JavaScript entry is required.');
     expect(result.stderr).not.toContain('97');
   });
 
