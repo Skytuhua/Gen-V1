@@ -25,15 +25,16 @@ describe('compact settings and unified context presentation', () => {
     expect(html).toContain('Private · no content');
   });
 
-  it('shows a concise validated plan and honest empty companion sections', () => {
+  it('shows a concise validated plan and keeps empty companion groups hidden', () => {
     const snapshot = { threads: [], data: [{ id: 'plan:thread-a', threadId: 'thread-a', provenance: 'harness:plan', revision: 2, value: { version: 1, title: 'Inspect changes', agents: [], steps: [{ id: 'check', title: 'Run checks', status: 'working', requirements: [] }] } }] } as unknown as Snapshot;
     const html = renderToStaticMarkup(createElement(ProjectContextCard, { snapshot, threadId: 'thread-a', threadTitle: 'Current conversation', onOpenDetailedPlan: () => {} }));
     expect(html).toContain('aria-label="Plan summary"');
     expect(html).toContain('data-plan-revision="2"');
     expect(html).toContain('Open full plan');
     expect(html).toContain('0 of 1 tasks complete');
-    expect(html).toContain('No automation service connected.');
-    expect(html).toContain('Side conversations');
+    // Empty groups stay hidden rather than rendering filler notes.
+    expect(html).not.toContain('Automations');
+    expect(html).not.toContain('Side conversations');
     expect(html).not.toContain('plan-steps');
   });
 });
