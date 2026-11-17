@@ -94,7 +94,7 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
    if(!frame)frame=requestAnimationFrame(draw);
   };
   const finish=(cancel=false)=>{
-   cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cancelled);target.removeEventListener('lostpointercapture',cancelled);window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);
+   cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cancelled);target.removeEventListener('lostpointercapture',cancelled);window.removeEventListener('keydown',escape,true);window.removeEventListener('blur',blur);
    stop.current=null;if(target.hasPointerCapture(pointerId))target.releasePointerCapture(pointerId);
    setTracking(false);setDockTarget(false);draw();
    if(cancel){commit(saved,true,false);return;}
@@ -104,8 +104,9 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   const end=(e:globalThis.PointerEvent)=>{if(e.pointerId===pointerId){move(e);finish();}};
   const cancelled=(e:globalThis.PointerEvent)=>{if(e.pointerId===pointerId)finish(true);};
   const blur=()=>finish(true);
-  const escape=(e:globalThis.KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();finish(true);}};
-  stop.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',end);window.addEventListener('pointercancel',cancelled);target.addEventListener('lostpointercapture',cancelled);window.addEventListener('keydown',escape);window.addEventListener('blur',blur);
+  const escape=(e:globalThis.KeyboardEvent)=>{if(e.key==='Escape'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();e.stopPropagation();finish(true);}};
+  // The active pointer interaction owns cancellation before document tooltips.
+  stop.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',end);window.addEventListener('pointercancel',cancelled);target.addEventListener('lostpointercapture',cancelled);window.addEventListener('keydown',escape,true);window.addEventListener('blur',blur);
  };
  const adjust=(event:KeyboardEvent<HTMLElement>,edge?:ChatEdge)=>{
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||event.altKey||event.ctrlKey||event.metaKey||event.nativeEvent.isComposing||!panel.current)return;

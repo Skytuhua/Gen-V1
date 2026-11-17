@@ -1,0 +1,1780 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "saved-drafts.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "command": "exec timeout --kill-after=5s 300s pnpm exec vite --config tests/e2e/saved-drafts.vite.config.ts --configLoader runner",
+      "url": "http://127.0.0.1:5522/fixture",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "saved-drafts.spec.ts",
+      "file": "saved-drafts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "named save, reload, delete/cancel and empty state stay local",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30333,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:58:39"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:00:08.347Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-2e6eee4bc4f04cdd5e76",
+          "file": "saved-drafts.spec.ts",
+          "line": 283,
+          "column": 1
+        },
+        {
+          "title": "replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30732,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:61:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:00:40.793Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-1571454870c78027923e",
+          "file": "saved-drafts.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "stale restore is rejected atomically after a concurrent window edit",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 31027,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Target crashed \nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:01:14.561Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-03d87d9ee9950d001228",
+          "file": "saved-drafts.spec.ts",
+          "line": 361,
+          "column": 1
+        },
+        {
+          "title": "rich records list missing/revoked references but restore text only, preserving current excerpts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30410,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:67:102"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:01:48.379Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-rich-records--891c3-preserving-current-excerpts/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-rich-records--891c3-preserving-current-excerpts/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-4712bddea200ed5a2188",
+          "file": "saved-drafts.spec.ts",
+          "line": 391,
+          "column": 1
+        },
+        {
+          "title": "account/profile/thread/project/working-copy libraries remain isolated",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30525,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:70:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:02:22.723Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-account-profi-3def2-y-libraries-remain-isolated/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-account-profi-3def2-y-libraries-remain-isolated/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5279dfda3e4bb93d2883",
+          "file": "saved-drafts.spec.ts",
+          "line": 422,
+          "column": 1
+        },
+        {
+          "title": "quota failure and corrupt records keep the active draft and offer retry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 31102,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:337"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:02:58.528Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-78a4c0e85f26e5f515de",
+          "file": "saved-drafts.spec.ts",
+          "line": 442,
+          "column": 1
+        },
+        {
+          "title": "keyboard/IME does not save or send a composing name; focus returns to the trigger",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9336,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Drafts', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Drafts', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:76:187",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 187,
+                      "line": 76
+                    },
+                    "snippet": "  74 | });\n  75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{\n> 76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);\n     |                                                                                                                                                                                           ^\n  77 | });\n  78 | test('approved list captures and stress names remain usable at 1440/1024/768 with reduced motion',async({page},info)=>{\n  79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 187,
+                        "line": 76
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Drafts', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  74 | });\n  75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{\n> 76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);\n     |                                                                                                                                                                                           ^\n  77 | });\n  78 | test('approved list captures and stress names remain usable at 1440/1024/768 with reduced motion',async({page},info)=>{\n  79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:76:187"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:03:32.252Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-keyboard-IME--7cf9d-ocus-returns-to-the-trigger/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-keyboard-IME--7cf9d-ocus-returns-to-the-trigger/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 187,
+                    "line": 76
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-b9d1bc51d73ceea6c38f",
+          "file": "saved-drafts.spec.ts",
+          "line": 484,
+          "column": 1
+        },
+        {
+          "title": "approved list captures and stress names remain usable at 1440/1024/768 with reduced motion",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 31341,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:79:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:03:45.000Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5b78d6907434a555290b",
+          "file": "saved-drafts.spec.ts",
+          "line": 520,
+          "column": 1
+        },
+        {
+          "title": "empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30211,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:04:19.652Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5a10a0ac5536a8cb85df",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30261,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 90,
+                        "line": 45
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n\n\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n> 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n     |                                                                                          ^\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n  47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n  48 | }\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:33"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:04:51.668Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-18569b93b7d45a1c5995",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 199,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:23.659Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-fe46e5d9096cdeca0643",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "new excerpt-only saves remain reviewable after the original selection is gone",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 250,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:25.411Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-excerpt-o-462ab--original-selection-is-gone/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-1663358a27c001e52695",
+          "file": "saved-drafts.spec.ts",
+          "line": 651,
+          "column": 42
+        },
+        {
+          "title": "new skill-only saves remain reviewable after the original selection is gone",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 188,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:26.720Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-4abcb020f636d8da1116",
+          "file": "saved-drafts.spec.ts",
+          "line": 651,
+          "column": 42
+        },
+        {
+          "title": "source-only named metadata remains inspectable after selection removal without changing the current send mode",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 248,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:113:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:113:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:28.523Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-source-only-n-847a1-nging-the-current-send-mode/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-3b53d16a2ccde2895f62",
+          "file": "saved-drafts.spec.ts",
+          "line": 739,
+          "column": 1
+        },
+        {
+          "title": "legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 227,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:144:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:144:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:30.437Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-86aa2f26799054625f82",
+          "file": "saved-drafts.spec.ts",
+          "line": 868,
+          "column": 1
+        },
+        {
+          "title": "approved thread capacity blocks a new draft with an alert and keeps records in every working copy",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 15,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 298,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:159:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:159:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:32.239Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-thre-4f8d3-cords-in-every-working-copy/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-8c61f6aa073d9b8634d2",
+          "file": "saved-drafts.spec.ts",
+          "line": 967,
+          "column": 1
+        },
+        {
+          "title": "idle expiry refreshes an open list and deletes only the expired saved record",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 16,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 414,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:168:42",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:168:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:34.011Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-idle-expiry-r-1cffe-ly-the-expired-saved-record/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-713958bd80870190dbe8",
+          "file": "saved-drafts.spec.ts",
+          "line": 1016,
+          "column": 1
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on load",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 17,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 188,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:36.186Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-8e742--threads-and-copies-on-load/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-febb25d518bc41c80695",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on list",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 18,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 165,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:37.527Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-16565--threads-and-copies-on-list/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-a03578e9c28967879757",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on switch",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 19,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 175,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:38.718Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-de1bd-hreads-and-copies-on-switch/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-a5be6d5687743be2c34e",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "empty active library schedules expiry for inactive threads and copies without reading their owner",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 20,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 185,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:195:42",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:195:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:39.977Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-active--22f2c-without-reading-their-owner/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-250c7fbb06160a9a3cb6",
+          "file": "saved-drafts.spec.ts",
+          "line": 1139,
+          "column": 1
+        },
+        {
+          "title": "another window adding an inactive library reschedules the empty active library deadline",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 21,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 412,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:202:42",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:202:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:41.100Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-another-windo-a3522-pty-active-library-deadline/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-18f9c66efd3c383d4a5c",
+          "file": "saved-drafts.spec.ts",
+          "line": 1158,
+          "column": 1
+        },
+        {
+          "title": "malformed inactive library does not block valid load or inactive expiry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 22,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 246,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:42.657Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-27f09-lid-load-or-inactive-expiry/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-ba00e9cb40b7edff55a1",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid save or inactive expiry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 23,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 225,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:44.380Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-e7ac3-lid-save-or-inactive-expiry/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-6900127859d4d7eb7136",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid list or inactive expiry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 24,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 576,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:45.803Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-c346f-lid-list-or-inactive-expiry/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-d3935d19c746af0361a7",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid switch or inactive expiry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 25,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 173,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:47.677Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-dbecf-d-switch-or-inactive-expiry/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-52489ab2b0ec516c0363",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not stop the global expiry deadline",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 26,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 226,
+                  "error": {
+                    "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n",
+                    "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:223:42",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 258,
+                      "line": 42
+                    },
+                    "snippet": "  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 258,
+                        "line": 42
+                      },
+                      "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n\n\n  40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};\n  41 | async function setup(page:Page,query=''){\n> 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;\n     |                                                                                                                                                                                                                                                                  ^\n  43 | }\n  44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n    at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:223:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:49.442Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-934cd--the-global-expiry-deadline/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 258,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-89770e2643bbe964c71a",
+          "file": "saved-drafts.spec.ts",
+          "line": 1295,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:00:03.477Z",
+    "duration": 346439.23400000005,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 27,
+    "flaky": 0
+  }
+}

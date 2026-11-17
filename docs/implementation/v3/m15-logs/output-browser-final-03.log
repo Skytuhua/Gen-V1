@@ -1,0 +1,36 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","workbench"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5
+
+Browser suite: workbench (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench.spec.ts:31:1 › M15 selected visible text exposes explicit actions (849ms)
+  ✓   2 tests/e2e/workbench.spec.ts:46:1 › M15 forged DOM attributes cannot register a selection (701ms)
+  ✓   3 tests/e2e/workbench.spec.ts:55:1 › M15 hidden and clipped source text is refused (567ms)
+  ✓   4 tests/e2e/workbench.spec.ts:77:1 › M15 refuses a clipped interior span even when both selection endpoints are visible (698ms)
+  ✓   5 tests/e2e/workbench.spec.ts:105:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence (1.2s)
+  ✓   6 tests/e2e/workbench.spec.ts:124:1 › M15 Escape respects IME and dismisses pointing without activating buttons (975ms)
+  ✓   7 tests/e2e/workbench.spec.ts:144:1 › M15 toolbar stays reachable at both viewports and 200 percent zoom (1.0s)
+  ✓   8 tests/e2e/workbench.spec.ts:188:1 › M15 output window stays bounded while streaming preserves the logical anchor (1.0s)
+  ✓   9 tests/e2e/workbench.spec.ts:221:1 › M15 full copy and search use the declared reader fixture beyond mounted DOM (1.1s)
+  ✓  10 tests/e2e/workbench.spec.ts:258:1 › M15 delayed full-result response cannot write into a new owner view (1.0s)
+  ✓  11 tests/e2e/workbench.spec.ts:291:1 › M15 discards a delayed search result when its query changes (920ms)
+  ✓  12 tests/e2e/workbench.spec.ts:323:1 › M15 real browser journal reload retains canonical draft, source refs and scroll anchor (2.5s)
+  ✓  13 tests/e2e/workbench.spec.ts:345:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor (2.1s)
+  ✓  14 tests/e2e/workbench.spec.ts:358:1 › M15 uncertain handoff and failed flush retain explicit conflict copies in the browser journal (2.0s)
+  ✓  15 tests/e2e/workbench.spec.ts:387:1 › M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom (3.0s)
+  ✓  16 tests/e2e/workbench.spec.ts:490:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines (57.0s)
+
+  16 passed (1.4m)

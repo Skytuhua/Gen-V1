@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 2,
+  "ingestionStatus": "BYTES_VERIFIED",
+  "testOutcome": "Read original job conclusions and command statuses; ingestion does not grant a passing test result.",
+  "repository": "skytuhua-org/Gen-V1",
+  "workflow": ".github/workflows/m15-evidence.yml",
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "runId": 43797606300,
+  "runAttempt": 1,
+  "runConclusion": "failure",
+  "artifactId": 14195684579,
+  "artifactName": "m15-browser-3f68a8f1bc1ca5a588862571d905163861e94492-43797606300-1",
+  "kind": "browser",
+  "shard": null,
+  "shardCount": null,
+  "event": "push",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "jobId": 133069879994,
+  "jobConclusion": "failure",
+  "archive": {
+    "path": "archive.zip",
+    "bytes": 15367240,
+    "sha256": "33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843",
+    "githubDigest": "sha256:33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843",
+    "githubDigestVerified": true
+  },
+  "metadata": [
+    {
+      "path": "github-run.json",
+      "bytes": 13144,
+      "sha256": "2fa3a089a883ad822181e80748245333cf0b0d497ce8fac93f7403e92e5045cb"
+    },
+    {
+      "path": "github-artifact.json",
+      "bytes": 742,
+      "sha256": "3beda5686977886b5bb37d897f2d4b6c6d1eaa3a06a461644a28776e379041c5"
+    },
+    {
+      "path": "github-jobs.json",
+      "bytes": 24002,
+      "sha256": "e346a124d3edff49afd12eee0e98356deeb49b9cf97324777ada29d0c6064f51"
+    }
+  ],
+  "files": {
+    "path": "files.json",
+    "entries": 150,
+    "bytes": 81129,
+    "sha256": "4291c4df9d7867541f0e653a423f98c3468c0772b5f57b93d8bfc267cdea2a1c"
+  },
+  "sourceValidation": {
+    "status": "MATCH",
+    "records": [
+      {
+        "path": "test-results/m15/checkout-source.json",
+        "sha256": "e99feece28e4b5ba1556f1c9bad264d87a7ea5cafc4eab23db3103103bb76434",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+          "recordedAt": "2026-11-16T03:30:08.6425251Z"
+        }
+      },
+      {
+        "path": "test-results/m15/browser-source.json",
+        "sha256": "bf0a18c45f522254a8283210ed48f9aef438dc67c27ad70ae200e7d498540a3b",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "node": "v24.22.2",
+          "pnpm": "10.30.3",
+          "playwright": "1.56.1",
+          "edgePath": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "edgeVersion": "157.0.4341.46",
+          "startedAt": "2026-11-16T03:31:09.7123076Z"
+        }
+      },
+      {
+        "path": "test-results/m15/split-browser-source.json",
+        "sha256": "bd5f1e540918fca9821d9d79a8fc88ff049d7bea7126b7d33be0aca78f622773",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "nodeExecutable": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+          "node": "v24.22.2",
+          "edgePath": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+          "edgeVersion": "157.0.4341.46",
+          "flags": {
+            "GEN_SPLIT_RENDERER_BROWSER": "1",
+            "GEN_SPLIT_APP_BROWSER": "1",
+            "GEN_TEST_BROWSER_CHANNEL": "msedge"
+          },
+          "testFiles": [
+            "tests/split-workspace-renderer.test.ts",
+            "tests/split-app-browser.test.ts"
+          ],
+          "maxWorkers": 1,
+          "recordedAt": "2026-11-16T03:49:08.3749061Z"
+        }
+      }
+    ],
+    "missing": []
+  },
+  "commands": {
+    "observed": [
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.json",
+        "sha256": "56704f1d4fe0884defa90483455f05df13e99fb69d25355c641c4125e1beea3f",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-workbench-43797606300-1.log",
+        "logSha256": "26c7c1b3ef4eb9b7936bdab4005501c50a39a9965d25a7afd0239da3b497ec5d"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.json",
+        "sha256": "fe18dd275bddf74d75db11bcaff735e9fb2d88deb7f4a825cfddfa5d5bf96e07",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-workbench-app-43797606300-1.log",
+        "logSha256": "7ef5ff78d3dfc95477363b6d1edf7204606c076be3daa875039fd15f6d4b7f95"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-43797606300-1.json",
+        "sha256": "92f5dfd9e4d21eebb521ab63bf4ba70c379168ba9099ef7aa3d428aa9486aa14",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-saved-drafts-43797606300-1.log",
+        "logSha256": "c0bd7d5158f7606f6351751cf09965cafed6c1cedf6c6ce50e8566b5e47fa75a"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.json",
+        "sha256": "60f57a55fd8bb1c7b8b08c53284bc5dc3f44e864c8edf9d2cf780c31bef36537",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.log",
+        "logSha256": "ff1fe6f1e2364c603a51dce3d9d468433819067a2fe1c302d1062bb38fbcae30"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-43797606300-1.json",
+        "sha256": "454fa1c9437913ebf529b8a631eafe96a0ab25f59e1801c5326df5f031b0afcc",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-artifact-acknowledgment-43797606300-1.log",
+        "logSha256": "54eb8ec9e8e2eba20056000f68ae6c9a486fff032d39a2dbfe981e144a918a2e"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-43797606300-1.json",
+        "sha256": "eb36e306d8a17b891eb14d45e520d93463ec0a3fd0ee0d8d1cf92116146fa44f",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-scoped-conversation-43797606300-1.log",
+        "logSha256": "edc251ef9d5282e18fef7eb2ca40853274a5fad11d033494bb2fb8a479a16e94"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-43797606300-1.json",
+        "sha256": "4340c9950321f0115341e7a1eac5b77a5c7fdee6bd35d9635830039ce4be8b89",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-overlays-43797606300-1.log",
+        "logSha256": "ee099fcc9662c753fa214ad90f9c3f48abd6bd0f2f6491f504a78253ccdf57af"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-43797606300-1.json",
+        "sha256": "0f2c7291604386feb0fe9db0178e994dfc79bb750e26294d609ceea9d9b0780a",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-ui-shell-controls-43797606300-1.log",
+        "logSha256": "ee93eb85e5bf453f32b096e6ee66b8f113996c8da7041ea24e1a2924705bc7fe"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-usage-context-43797606300-1.json",
+        "sha256": "d3bbc81077d249c51d580a46b23f2c41eabf73ac05e806d2914b0696e298dbb2",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-usage-context-43797606300-1.log",
+        "logSha256": "a1bd5a5ac24bed3577fd9afdc3a411a5d50e3752efe1905068464eb0cc9222db"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-43797606300-1.json",
+        "sha256": "718b1b19cb1b05071ef0852ed5133f0391b47d20c4d227d5ffd20dbaf6d529b0",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-agents-workspace-43797606300-1.log",
+        "logSha256": "299d3b91f1930f5ba22740c1ab3fd7b3cfd128f76d3c895fe45e66dc0884d146"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-43797606300-1.json",
+        "sha256": "cf34788ea7cb4c76d4415337380ebd483bc068b91d5778286e21c325745314c1",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-agents-actual-app-43797606300-1.log",
+        "logSha256": "b5c0a3db853cf893eb405136ed2302f2c95c8258dd0be897f176e72c28ca31b1"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.json",
+        "sha256": "62ab788a547a04b9f7bd620ab9ae0d907740531d85fcba9a7855fad05229680c",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-workspace-host-43797606300-1.log",
+        "logSha256": "24c404d2c7a0dc057d863baf5426fa2bb43c848d76b4965c16c5511413d49ba5"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-43797606300-1.json",
+        "sha256": "af5cad995dc090b73e51968812fed61727b1ab2236b2ff956c2ea75793e0c12a",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-saved-layout-chooser-43797606300-1.log",
+        "logSha256": "825a8d3cc7c5a8f4d4b181744a909aeca2ca74736cea233d96afb6501ccea66c"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.json",
+        "sha256": "bb6c46adf25a7ee95bdaccbf76dd6fe623ca8d01a572c924c2ee6bb508799d5c",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.log",
+        "logSha256": "cf8c900d349f7fad5bf5320d8b6f7d070a5926778ac75d6d8b593de1c2d79372"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.json",
+        "sha256": "4f65ae13e98f13dfd6ef929a9e93e3bfb581c7a67cddd20be45b5ff60ba14f97",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.log",
+        "logSha256": "183f36af908182cb76ac84fe8dfc11d29a3eef40c0b3a15905c2fa479dd5711c"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-split-browser-43797606300-1.json",
+        "sha256": "f24624d2ac4168f26e328486013c0ce6a391b80063cbc06ba8d8eebbb207d8b2",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-split-browser-43797606300-1.log",
+        "logSha256": "5b98a98bbae25b09f193717f5e5c52e166a38a6780e4315e645c9bea8681f834"
+      }
+    ],
+    "missing": [],
+    "additionalRetainedReceipts": []
+  },
+  "fullRepositoryResult": null,
+  "ingestedAt": "2026-11-16T04:10:56.537676+00:00",
+  "ingestionHelperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+  "workflowEvidenceRevision": "c3-v2",
+  "splitBrowserResult": {
+    "status": "PRESENT",
+    "path": "test-results/m15/split-browser-results.json",
+    "sha256": "e00cf4a7c475b40586b6efd61f3aa20fa368ca7c6ffdd1badd9579fa8ba346a7",
+    "success": true,
+    "counts": {
+      "numTotalTestSuites": 4,
+      "numPassedTestSuites": 4,
+      "numFailedTestSuites": 0,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 37,
+      "numPassedTests": 37,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "reportedTestFiles": [
+      "tests/split-app-browser.test.ts",
+      "tests/split-workspace-renderer.test.ts"
+    ],
+    "missingTestFiles": [],
+    "filesWithUnexecutedAssertions": [],
+    "note": "Both explicitly enabled split files are required. Missing or skipped bodies remain incomplete; a retained failing result is not relabeled, and ingestion grants no test PASS."
+  }
+}

@@ -1,0 +1,150 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - button "Source-bound task fixture Ready" [active] [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: RT
+                - generic [ref=e36]: Reusable task surfaces
+              - time [ref=e38]: 17d
+            - generic [ref=e39]: Source-bound task fixture
+            - generic [ref=e40]: Ready
+          - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e47]:
+          - button "Other task Ready" [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: RT
+                - generic [ref=e52]: Reusable task surfaces
+              - time [ref=e54]: 17d
+            - generic [ref=e55]: Other task
+            - generic [ref=e56]: Ready
+          - button "Options for Other task" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+    - generic "App controls" [ref=e63]:
+      - button "Settings" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e68]: Settings
+      - button "Pull requests" [ref=e69] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e74]: PRs
+      - button "Usage" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e78]: Usage
+      - button "Update" [disabled] [ref=e79]:
+        - img [ref=e80]
+        - generic [ref=e83]: Update
+  - separator "Resize sidebar" [ref=e84]
+  - generic [ref=e85]:
+    - generic [ref=e86]:
+      - status [ref=e87]:
+        - generic [ref=e88]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e89] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e90]:
+        - button "Workspace" [pressed] [ref=e91] [cursor=pointer]
+        - button "All Agents" [ref=e92] [cursor=pointer]
+        - button "Open workspace panel" [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+        - button "Layouts" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+          - text: Layouts
+          - img [ref=e102]
+    - generic [ref=e108]:
+      - generic [ref=e109]:
+        - region "Other task" [ref=e111]:
+          - generic [ref=e112]:
+            - button "Split this area" [ref=e113]: ◩
+            - tablist "Area views" [ref=e114]:
+              - tab "Source-bound task fixture" [ref=e115] [cursor=pointer]:
+                - generic [ref=e116]: Source-bound task fixture
+              - tab "Other task" [selected] [ref=e117] [cursor=pointer]:
+                - generic [ref=e118]: Other task
+            - button "Area actions" [ref=e120] [cursor=pointer]:
+              - img [ref=e121]
+            - button "Minimize area" [expanded] [ref=e125] [cursor=pointer]: ▴
+        - generic [ref=e136]:
+          - main "Chat" [ref=e137]:
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - img [ref=e140]
+                - generic [ref=e142]: Reusable task surfaces
+                - generic [ref=e143]: /
+                - strong [ref=e144]: Other task
+              - button "Find in conversation" [ref=e147] [cursor=pointer]:
+                - img [ref=e148]
+            - generic "Conversation" [ref=e152]:
+              - generic [ref=e155]:
+                - img [ref=e157]
+                - heading "What are we working on?" [level=1] [ref=e159]
+                - paragraph [ref=e160]: Start with a question, file, or project.
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - textbox "Message" [ref=e167]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e168]:
+                  - button "Inspect changes" [ref=e169] [cursor=pointer]:
+                    - img [ref=e170]
+                    - generic [ref=e172]: Changes
+                  - button "Create PR" [ref=e173] [cursor=pointer]:
+                    - img [ref=e174]
+                    - generic [ref=e179]: Create PR
+              - status [ref=e180]
+              - generic [ref=e182]:
+                - group "Project and runtime" [ref=e183]:
+                  - button "Saved drafts" [ref=e184] [cursor=pointer]
+                  - button "Attach files" [ref=e185] [cursor=pointer]:
+                    - img [ref=e186]
+                  - button "Select project" [ref=e187] [cursor=pointer]:
+                    - img [ref=e188]
+                    - generic [ref=e190]: Reusable task surfaces
+                  - generic "Local workspace" [ref=e191]:
+                    - img [ref=e192]
+                    - text: Local
+                  - button "Task mode" [ref=e194] [cursor=pointer]:
+                    - img [ref=e195]
+                    - generic [ref=e198]: Build
+                  - button "Show live usage" [ref=e199] [cursor=pointer]:
+                    - img [ref=e200]
+                - group "Model and voice" [ref=e202]:
+                  - combobox "Model" [ref=e203] [cursor=pointer]:
+                    - img [ref=e204]
+                    - generic [ref=e207]: Fixture
+                    - img [ref=e208]
+                  - button "Inspect context usage" [ref=e211] [cursor=pointer]:
+                    - img [ref=e212]
+                  - button "Start voice input" [ref=e213] [cursor=pointer]:
+                    - img [ref=e214]
+                  - button "Send message" [disabled] [ref=e218]:
+                    - img [ref=e219]
+          - generic:
+            - img
+            - generic: Dock chat
+      - complementary "Conversation summaries" [ref=e222]:
+        - region "Project overview window" [ref=e223]:
+          - button "Expand Project overview" [ref=e225] [cursor=pointer]:
+            - strong [ref=e226]: Project overview
+            - img [ref=e227]
+  - region "Notifications"
+```

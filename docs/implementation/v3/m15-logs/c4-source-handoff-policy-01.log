@@ -1,0 +1,18 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-handoff-v3.test.ts","tests/editor-handoff.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/source-handoff-v3.test.ts (22 tests) 1533ms
+     ✓ acknowledges only an untouched owner whose source, text and pending recovery all failed  645ms
+     ✓ keeps failed source imports blocked until an atomic import retry commits the exact bundle  530ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 10ms
+
+ Test Files  2 passed (2)
+      Tests  25 passed (25)
+   Start at  12:56:54
+   Duration  2.76s (transform 1.15s, setup 0ms, import 306ms, tests 1.54s, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json

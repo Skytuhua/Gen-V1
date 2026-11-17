@@ -1,0 +1,5 @@
+argv: ["pnpm","--version"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+10.30.3

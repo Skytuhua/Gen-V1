@@ -1,0 +1,24 @@
+{
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "event": "push",
+  "ref": "refs/heads/agent/m15-v3",
+  "runId": "43797606300",
+  "runAttempt": "1",
+  "runner": "Windows-X64",
+  "nodeExecutable": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "node": "v24.22.2",
+  "edgePath": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "edgeVersion": "157.0.4341.46",
+  "flags": {
+    "GEN_SPLIT_RENDERER_BROWSER": "1",
+    "GEN_SPLIT_APP_BROWSER": "1",
+    "GEN_TEST_BROWSER_CHANNEL": "msedge"
+  },
+  "testFiles": [
+    "tests/split-workspace-renderer.test.ts",
+    "tests/split-app-browser.test.ts"
+  ],
+  "maxWorkers": 1,
+  "recordedAt": "2026-11-16T03:49:08.3749061Z"
+}

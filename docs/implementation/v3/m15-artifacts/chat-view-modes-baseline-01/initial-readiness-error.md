@@ -1,0 +1,395 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary "Thread navigation" [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - strong [ref=e9]: Gen V1
+        - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - textbox "Search threads" [ref=e19]:
+            - /placeholder: Search
+        - button "Filter threads" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - button "Connect project" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+        - button "New thread" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+      - navigation "Threads" [ref=e29]:
+        - generic [ref=e31]:
+          - button "Chat view modes Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: GV
+                - generic [ref=e36]: Gen-V1
+              - time [ref=e38]: 16d
+            - generic [ref=e39]: Chat view modes
+            - generic [ref=e40]: Ready
+          - button "Options for Chat view modes" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+      - generic "App controls" [ref=e47]:
+        - button "Settings" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+          - generic [ref=e52]: Settings
+        - button "Pull requests" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e58]: PRs
+        - button "Usage" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+          - generic [ref=e62]: Usage
+        - button "Update" [disabled] [ref=e63]:
+          - img [ref=e64]
+          - generic [ref=e67]: Update
+    - separator "Resize sidebar" [ref=e68]
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - status [ref=e71]:
+          - generic [ref=e72]: Plug-ins could not be loaded.
+          - button "Retry" [ref=e73] [cursor=pointer]
+        - generic "Workspace layouts" [ref=e74]:
+          - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+          - button "All Agents" [ref=e76] [cursor=pointer]
+          - button "Code Review" [ref=e77] [cursor=pointer]
+          - button "Research" [ref=e78] [cursor=pointer]
+          - button "Custom" [ref=e79] [cursor=pointer]
+          - button "Layouts" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - text: Layouts
+            - img [ref=e86]
+          - button "Panels" [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+            - text: Panels
+            - img [ref=e95]
+      - generic [ref=e100]:
+        - generic [ref=e102]:
+          - main "Chat" [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - img [ref=e106]
+                - generic [ref=e108]: Gen-V1
+                - generic [ref=e109]: /
+                - strong [ref=e110]: Chat view modes
+              - generic [ref=e111]:
+                - button "Find in conversation" [ref=e113] [cursor=pointer]:
+                  - img [ref=e114]
+                - button "Open workspace panel" [ref=e117] [cursor=pointer]:
+                  - img [ref=e118]
+                - generic [ref=e120]:
+                  - generic "Switch layout (Ctrl/⌘+Shift+L)" [ref=e121]:
+                    - button "Switch layout" [ref=e122] [cursor=pointer]:
+                      - img [ref=e123]
+                  - button "Detach chat" [ref=e125] [cursor=pointer]:
+                    - img [ref=e126]
+            - generic [ref=e133]:
+              - scrollbar "Scroll conversation" [ref=e134] [cursor=pointer]
+              - generic "Conversation" [ref=e136]:
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]: You
+                    - generic [ref=e141]:
+                      - button "Copy message" [ref=e142] [cursor=pointer]:
+                        - img [ref=e143]
+                      - status [ref=e146]
+                      - paragraph [ref=e148]: Help me keep this conversation close while I work.
+                  - generic [ref=e149]:
+                    - generic [ref=e150]: Assistant
+                    - generic [ref=e151]:
+                      - button "Copy message" [ref=e152] [cursor=pointer]:
+                        - img [ref=e153]
+                      - status [ref=e156]
+                      - generic [ref=e157]:
+                        - paragraph [ref=e158]: You can keep the same conversation in a full page, a side drawer, or a small pop-up.
+                        - paragraph [ref=e159]: Your messages, files, and draft stay with you as you move between layouts.
+                  - generic [ref=e160]:
+                    - generic [ref=e161]: You
+                    - generic [ref=e162]:
+                      - button "Copy message" [ref=e163] [cursor=pointer]:
+                        - img [ref=e164]
+                      - status [ref=e167]
+                      - paragraph [ref=e169]: I’d like to make room for the workspace.
+                  - generic [ref=e170]:
+                    - generic [ref=e171]: Assistant
+                    - generic [ref=e172]:
+                      - button "Copy message" [ref=e173] [cursor=pointer]:
+                        - img [ref=e174]
+                      - status [ref=e177]
+                      - paragraph [ref=e179]: Use the layout menu in the header. Resize a panel from any edge or corner, or move it by its header. You can dock it on the right again whenever you need.
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: Assistant
+                    - generic [ref=e182]:
+                      - button "Copy message" [ref=e183] [cursor=pointer]:
+                        - img [ref=e184]
+                      - status [ref=e187]
+                      - generic [ref=e188]:
+                        - paragraph [ref=e189]: Message 1. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e190]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: Assistant
+                    - generic [ref=e193]:
+                      - button "Copy message" [ref=e194] [cursor=pointer]:
+                        - img [ref=e195]
+                      - status [ref=e198]
+                      - generic [ref=e199]:
+                        - paragraph [ref=e200]: Message 2. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e201]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e202]:
+                    - generic [ref=e203]: Assistant
+                    - generic [ref=e204]:
+                      - button "Copy message" [ref=e205] [cursor=pointer]:
+                        - img [ref=e206]
+                      - status [ref=e209]
+                      - generic [ref=e210]:
+                        - paragraph [ref=e211]: Message 3. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e212]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e213]:
+                    - generic [ref=e214]: Assistant
+                    - generic [ref=e215]:
+                      - button "Copy message" [ref=e216] [cursor=pointer]:
+                        - img [ref=e217]
+                      - status [ref=e220]
+                      - generic [ref=e221]:
+                        - paragraph [ref=e222]: Message 4. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e223]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e224]:
+                    - generic [ref=e225]: Assistant
+                    - generic [ref=e226]:
+                      - button "Copy message" [ref=e227] [cursor=pointer]:
+                        - img [ref=e228]
+                      - status [ref=e231]
+                      - generic [ref=e232]:
+                        - paragraph [ref=e233]: Message 5. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e234]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e235]:
+                    - generic [ref=e236]: Assistant
+                    - generic [ref=e237]:
+                      - button "Copy message" [ref=e238] [cursor=pointer]:
+                        - img [ref=e239]
+                      - status [ref=e242]
+                      - generic [ref=e243]:
+                        - paragraph [ref=e244]: Message 6. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e245]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e246]:
+                    - generic [ref=e247]: Assistant
+                    - generic [ref=e248]:
+                      - button "Copy message" [ref=e249] [cursor=pointer]:
+                        - img [ref=e250]
+                      - status [ref=e253]
+                      - generic [ref=e254]:
+                        - paragraph [ref=e255]: Message 7. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e256]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: Assistant
+                    - generic [ref=e259]:
+                      - button "Copy message" [ref=e260] [cursor=pointer]:
+                        - img [ref=e261]
+                      - status [ref=e264]
+                      - generic [ref=e265]:
+                        - paragraph [ref=e266]: Message 8. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e267]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e268]:
+                    - generic [ref=e269]: Assistant
+                    - generic [ref=e270]:
+                      - button "Copy message" [ref=e271] [cursor=pointer]:
+                        - img [ref=e272]
+                      - status [ref=e275]
+                      - generic [ref=e276]:
+                        - paragraph [ref=e277]: Message 9. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e278]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e279]:
+                    - generic [ref=e280]: Assistant
+                    - generic [ref=e281]:
+                      - button "Copy message" [ref=e282] [cursor=pointer]:
+                        - img [ref=e283]
+                      - status [ref=e286]
+                      - generic [ref=e287]:
+                        - paragraph [ref=e288]: Message 10. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e289]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e290]:
+                    - generic [ref=e291]: Assistant
+                    - generic [ref=e292]:
+                      - button "Copy message" [ref=e293] [cursor=pointer]:
+                        - img [ref=e294]
+                      - status [ref=e297]
+                      - generic [ref=e298]:
+                        - paragraph [ref=e299]: Message 11. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e300]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e301]:
+                    - generic [ref=e302]: Assistant
+                    - generic [ref=e303]:
+                      - button "Copy message" [ref=e304] [cursor=pointer]:
+                        - img [ref=e305]
+                      - status [ref=e308]
+                      - generic [ref=e309]:
+                        - paragraph [ref=e310]: Message 12. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e311]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e312]:
+                    - generic [ref=e313]: Assistant
+                    - generic [ref=e314]:
+                      - button "Copy message" [ref=e315] [cursor=pointer]:
+                        - img [ref=e316]
+                      - status [ref=e319]
+                      - generic [ref=e320]:
+                        - paragraph [ref=e321]: Message 13. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e322]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e323]:
+                    - generic [ref=e324]: Assistant
+                    - generic [ref=e325]:
+                      - button "Copy message" [ref=e326] [cursor=pointer]:
+                        - img [ref=e327]
+                      - status [ref=e330]
+                      - generic [ref=e331]:
+                        - paragraph [ref=e332]: Message 14. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e333]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e334]:
+                    - generic [ref=e335]: Assistant
+                    - generic [ref=e336]:
+                      - button "Copy message" [ref=e337] [cursor=pointer]:
+                        - img [ref=e338]
+                      - status [ref=e341]
+                      - generic [ref=e342]:
+                        - paragraph [ref=e343]: Message 15. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e344]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e345]:
+                    - generic [ref=e346]: Assistant
+                    - generic [ref=e347]:
+                      - button "Copy message" [ref=e348] [cursor=pointer]:
+                        - img [ref=e349]
+                      - status [ref=e352]
+                      - generic [ref=e353]:
+                        - paragraph [ref=e354]: Message 16. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e355]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e356]:
+                    - generic [ref=e357]: Assistant
+                    - generic [ref=e358]:
+                      - button "Copy message" [ref=e359] [cursor=pointer]:
+                        - img [ref=e360]
+                      - status [ref=e363]
+                      - generic [ref=e364]:
+                        - paragraph [ref=e365]: Message 17. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e366]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e367]:
+                    - generic [ref=e368]: Assistant
+                    - generic [ref=e369]:
+                      - button "Copy message" [ref=e370] [cursor=pointer]:
+                        - img [ref=e371]
+                      - status [ref=e374]
+                      - generic [ref=e375]:
+                        - paragraph [ref=e376]: Message 18. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e377]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e378]:
+                    - generic [ref=e379]: Assistant
+                    - generic [ref=e380]:
+                      - button "Copy message" [ref=e381] [cursor=pointer]:
+                        - img [ref=e382]
+                      - status [ref=e385]
+                      - generic [ref=e386]:
+                        - paragraph [ref=e387]: Message 19. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e388]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e389]:
+                    - generic [ref=e390]: Assistant
+                    - generic [ref=e391]:
+                      - button "Copy message" [ref=e392] [cursor=pointer]:
+                        - img [ref=e393]
+                      - status [ref=e396]
+                      - generic [ref=e397]:
+                        - paragraph [ref=e398]: Message 20. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e399]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e400]:
+                    - generic [ref=e401]: Assistant
+                    - generic [ref=e402]:
+                      - button "Copy message" [ref=e403] [cursor=pointer]:
+                        - img [ref=e404]
+                      - status [ref=e407]
+                      - generic [ref=e408]:
+                        - paragraph [ref=e409]: Message 21. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e410]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e411]:
+                    - generic [ref=e412]: Assistant
+                    - generic [ref=e413]:
+                      - button "Copy message" [ref=e414] [cursor=pointer]:
+                        - img [ref=e415]
+                      - status [ref=e418]
+                      - generic [ref=e419]:
+                        - paragraph [ref=e420]: Message 22. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e421]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e422]:
+                    - generic [ref=e423]: Assistant
+                    - generic [ref=e424]:
+                      - button "Copy message" [ref=e425] [cursor=pointer]:
+                        - img [ref=e426]
+                      - status [ref=e429]
+                      - generic [ref=e430]:
+                        - paragraph [ref=e431]: Message 23. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e432]: The composer and attachments belong to the same conversation.
+                  - generic [ref=e433]:
+                    - generic [ref=e434]: Assistant
+                    - generic [ref=e435]:
+                      - button "Copy message" [ref=e436] [cursor=pointer]:
+                        - img [ref=e437]
+                      - status [ref=e440]
+                      - generic [ref=e441]:
+                        - paragraph [ref=e442]: Message 24. This synthetic history makes it possible to check that the reading position stays put when the chat changes shape.
+                        - paragraph [ref=e443]: The composer and attachments belong to the same conversation.
+            - generic [ref=e447]:
+              - group "Attachments" [ref=e448]:
+                - generic "/synthetic/notes.txt · Read only — the agent can view this file but cannot change it" [ref=e451]:
+                  - img [ref=e452]
+                  - text: notes.txt
+                  - img "Read only" [ref=e455]
+              - generic [ref=e458]:
+                - textbox "Message" [ref=e460]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e461]:
+                  - button "Inspect changes" [ref=e462] [cursor=pointer]:
+                    - img [ref=e463]
+                    - generic [ref=e465]: Changes
+                  - button "Create PR" [ref=e466] [cursor=pointer]:
+                    - img [ref=e467]
+                    - generic [ref=e472]: Create PR
+              - status [ref=e473]
+              - generic [ref=e475]:
+                - group "Project and runtime" [ref=e476]:
+                  - button "Saved drafts" [ref=e477] [cursor=pointer]
+                  - button "Attach files" [ref=e478] [cursor=pointer]:
+                    - img [ref=e479]
+                  - button "Select project" [ref=e480] [cursor=pointer]:
+                    - img [ref=e481]
+                    - generic [ref=e483]: Gen-V1
+                  - generic "Local workspace" [ref=e484]:
+                    - img [ref=e485]
+                    - text: Local
+                  - button "Task mode" [ref=e487] [cursor=pointer]:
+                    - img [ref=e488]
+                    - generic [ref=e491]: Build
+                  - button "Show live usage" [ref=e492] [cursor=pointer]:
+                    - img [ref=e493]
+                - group "Model and voice" [ref=e495]:
+                  - combobox "Model" [ref=e496] [cursor=pointer]:
+                    - img [ref=e497]
+                    - generic [ref=e500]: Fixture
+                    - img [ref=e501]
+                  - button "Inspect context usage" [ref=e504] [cursor=pointer]:
+                    - img [ref=e505]
+                  - button "Start voice input" [ref=e506] [cursor=pointer]:
+                    - img [ref=e507]
+                  - button "Send message" [disabled] [ref=e511]:
+                    - img [ref=e512]
+          - generic:
+            - img
+            - generic: Dock chat
+        - complementary "Conversation summaries" [ref=e515]:
+          - region "Project overview window" [ref=e516]:
+            - button "Expand Project overview" [ref=e518] [cursor=pointer]:
+              - strong [ref=e519]: Project overview
+              - img [ref=e520]
+    - region "Notifications"
+  - status [ref=e522]:
+    - generic [ref=e523]: Plug-ins could not be loaded. Check the host connection, then retry.
+    - button "Dismiss notification" [ref=e524] [cursor=pointer]:
+      - img [ref=e525]
+```

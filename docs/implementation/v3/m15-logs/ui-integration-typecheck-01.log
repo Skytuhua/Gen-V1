@@ -1,0 +1,58 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+apps/web/src/SourceWorkbench.tsx(4,2): error TS6133: 'sameLogicalOwner' is declared but its value is never read.
+packages/core/source-workbench.ts(2,91): error TS6133: 'statSync' is declared but its value is never read.
+packages/core/source-workbench.ts(90,34): error TS18047: 'thread' is possibly 'null'.
+packages/core/source-workbench.ts(90,73): error TS18047: 'thread' is possibly 'null'.
+packages/core/source-workbench.ts(115,5): error TS2322: Type 'ResourceGrant | null' is not assignable to type 'ResourceGrant'.
+  Type 'null' is not assignable to type 'ResourceGrant'.
+packages/core/source-workbench.ts(120,21): error TS18047: 'artifact' is possibly 'null'.
+packages/core/source-workbench.ts(125,13): error TS2322: Type 'ArtifactRecord | null' is not assignable to type 'ArtifactRecord'.
+  Type 'null' is not assignable to type 'ArtifactRecord'.
+packages/core/source-workbench.ts(125,23): error TS2322: Type 'DataRecord | null' is not assignable to type 'DataRecord'.
+  Type 'null' is not assignable to type 'DataRecord'.
+packages/core/source-workbench.ts(125,48): error TS18047: 'data' is possibly 'null'.
+packages/core/source-workbench.ts(125,90): error TS18047: 'artifact' is possibly 'null'.
+packages/core/source-workbench.ts(167,27): error TS2532: Object is possibly 'undefined'.
+packages/core/source-workbench.ts(167,49): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(168,70): error TS2532: Object is possibly 'undefined'.
+packages/core/source-workbench.ts(168,98): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(168,198): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(170,11): error TS18048: 'comparison' is possibly 'undefined'.
+packages/core/source-workbench.ts(170,22): error TS2339: Property 'value' does not exist on type 'ComparisonRead'.
+  Property 'value' does not exist on type '{ state: "loading"; }'.
+packages/core/source-workbench.ts(171,65): error TS2532: Object is possibly 'undefined'.
+packages/core/source-workbench.ts(171,97): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(171,220): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(173,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/core/source-workbench.ts(193,37): error TS18047: 'record' is possibly 'null'.
+packages/core/source-workbench.ts(193,86): error TS18047: 'record' is possibly 'null'.
+packages/core/source-workbench.ts(193,106): error TS18047: 'record' is possibly 'null'.
+packages/core/source-workbench.ts(194,5): error TS2322: Type 'SourceCapture | null' is not assignable to type 'SourceCapture'.
+  Type 'null' is not assignable to type 'SourceCapture'.
+packages/core/source-workbench.ts(229,100): error TS18048: 'comparison' is possibly 'undefined'.
+packages/core/source-workbench.ts(229,111): error TS2339: Property 'value' does not exist on type 'ComparisonRead'.
+  Property 'value' does not exist on type '{ state: "loading"; }'.
+packages/core/source-workbench.ts(232,69): error TS2322: Type '{ selectedTextDigest: string; encoding: "UTF16"; start: number; end: number; } | { selectedTextDigest: string; encoding: "LINES_1_BASED"; startLine: number; endLine: number; } | { selectedTextDigest: string; encoding: "DIFF_LINES_1_BASED"; startLine: number; endLine: number; } | { ...; }' is not assignable to type '{ encoding: "UTF16"; start: number; end: number; selectedTextDigest: string; } | { encoding: "LINES_1_BASED"; startLine: number; endLine: number; } | { encoding: "DIFF_LINES_1_BASED"; startLine: number; endLine: number; } | { ...; }'.
+  Object literal may only specify known properties, and 'selectedTextDigest' does not exist in type '{ encoding: "LINES_1_BASED"; startLine: number; endLine: number; }'.
+packages/core/source-workbench.ts(232,138): error TS2339: Property 'start' does not exist on type '{ encoding: "UTF16"; start: number; end: number; selectedTextDigest: string; } | { encoding: "LINES_1_BASED"; startLine: number; endLine: number; } | { encoding: "DIFF_LINES_1_BASED"; startLine: number; endLine: number; } | { ...; }'.
+  Property 'start' does not exist on type '{ encoding: "LINES_1_BASED"; startLine: number; endLine: number; }'.
+packages/core/source-workbench.ts(232,158): error TS2339: Property 'end' does not exist on type '{ encoding: "UTF16"; start: number; end: number; selectedTextDigest: string; } | { encoding: "LINES_1_BASED"; startLine: number; endLine: number; } | { encoding: "DIFF_LINES_1_BASED"; startLine: number; endLine: number; } | { ...; }'.
+  Property 'end' does not exist on type '{ encoding: "LINES_1_BASED"; startLine: number; endLine: number; }'.
+tests/source-composer-v3.test.ts(32,46): error TS2345: Argument of type '() => Promise<void>' is not assignable to parameter of type '(_input: ParentSend) => Promise<never>'.
+  Type 'Promise<void>' is not assignable to type 'Promise<never>'.
+    Type 'void' is not assignable to type 'never'.
+tests/source-workbench-host-v3.test.ts(3,22): error TS6133: 'mkdirSync' is declared but its value is never read.
+ ELIFECYCLE  Command failed with exit code 2.

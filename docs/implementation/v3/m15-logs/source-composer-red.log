@@ -1,0 +1,124 @@
+argv: ["pnpm","exec","vitest","run","tests/source-composer-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-composer-v3.test.ts (5 tests | 3 failed) 58ms
+   × sends host source references and mode through the existing parent transport and clears only accepted metadata 41ms
+   × refuses source metadata belonging to a replaced workspace without discarding it 5ms
+   × refuses a pending source send after workspace replacement 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-composer-v3.test.ts > sends host source references and mode through the existing parent transport and clears only accepted metadata
+AssertionError: expected { threadId: 'task', …(3) } to match object { content: 'Explain', …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "content": "Explain",
+-   "sendMode": "AFTER_CURRENT",
+-   "sourceRefs": [
+-     {
+-       "captureId": "first",
+-       "keepCaptured": false,
+-       "source": {
+-         "capturedAt": "2026-11-15T00:00:00.000Z",
+-         "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+-         "kind": "MESSAGE",
+-         "logicalOwner": {
+-           "projectId": "project",
+-           "threadId": "task",
+-           "workspaceId": "workspace",
+-         },
+-         "range": {
+-           "encoding": "UTF16",
+-           "end": 4,
+-           "selectedTextDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+-           "start": 0,
+-         },
+-         "sourceId": "message",
+-         "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+-       },
+-     },
+-   ],
+  }
+
+ ❯ tests/source-composer-v3.test.ts:22:69
+     20|  await updateSourceDraft(logicalOwner, state => ({...state, sourceRefs…
+     21|  await composer.submit(target);
+     22|  expect(send).toHaveBeenCalledOnce(); expect(send.mock.calls[0][0]).to…
+       |                                                                     ^
+     23|  expect((await readSourceDraft(logicalOwner)).sourceRefs).toEqual([]);…
+     24| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/source-composer-v3.test.ts > refuses source metadata belonging to a replaced workspace without discarding it
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "commandId": "6abae592-df12-4132-af30-f83ad8aee7a5",
+        "content": "Explain",
+        "modelId": "model",
+        "threadId": "task",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/source-composer-v3.test.ts:41:19
+     39|  const send = vi.fn(async (_input: ParentSend) => {}), composer = crea…
+     40|  const replacement = {...target, workspaceId: 'replacement'}; await co…
+     41|  expect(send).not.toHaveBeenCalled(); expect(composer.getSnapshot(repl…
+       |                   ^
+     42|  expect((await readSourceDraft(logicalOwner)).sourceRefs).toHaveLength…
+     43| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/source-composer-v3.test.ts > refuses a pending source send after workspace replacement
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "commandId": "d770b01b-d695-4475-ae2a-1806777a2934",
+        "content": "Original",
+        "modelId": "model",
+        "threadId": "task",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/source-composer-v3.test.ts:47:101
+     45|  const send = vi.fn(async (_input: ParentSend) => {throw Error('Discon…
+     46|  await composer.prepare(target); await composer.edit(target, 'Original…
+     47|  send.mockClear(); await composer.submit({...target, workspaceId: 'rep…
+       |                                                                                                     ^
+     48| });
+     49| it('leaves ordinary sends unchanged when no source context has been au…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  05:41:14
+   Duration  1.20s (transform 225ms, setup 0ms, import 657ms, tests 58ms, environment 0ms)
+

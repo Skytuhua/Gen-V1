@@ -1,0 +1,26 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","-g","exposes explicit actions"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m✘ [ERROR] Could not resolve "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/tests/e2e/workbench.vite.config.ts"
+[2m[WebServer] [22m
+[2m[WebServer] [22mfailed to load config from /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/tests/e2e/workbench.vite.config.ts
+[2m[WebServer] [22merror when starting dev server:
+[2m[WebServer] [22mError: Build failed with 1 error:
+[2m[WebServer] [22merror: Could not resolve "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/tests/e2e/workbench.vite.config.ts"
+[2m[WebServer] [22m    at failureErrorWithLog (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752:15)
+[2m[WebServer] [22m    at /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1211:25
+[2m[WebServer] [22m    at runOnEndCallbacks (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1592:45)
+[2m[WebServer] [22m    at buildResponseToResult (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1209:7)
+[2m[WebServer] [22m    at /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1236:16
+[2m[WebServer] [22m    at responseCallbacks.<computed> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:886:9)
+[2m[WebServer] [22m    at handleIncomingPacket (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:941:12)
+[2m[WebServer] [22m    at Socket.readFromStdout (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+[2m[WebServer] [22m    at Socket.emit (node:events:514:28)
+[2m[WebServer] [22m    at addChunk (node:internal/streams/readable:569:12)
+Error: Process from config.webServer was not able to start. Exit code: 1
+

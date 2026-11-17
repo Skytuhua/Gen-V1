@@ -1,0 +1,5 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/external-adoption-01/adopt.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{"adoptedHead": "0f487aa82fba616131d7f9e547076d3a14d67f48", "combinedStagedTree": "adf97443a7e1a6405a05fd7e2e680a2b35f9145e", "combinedSourcePaths": 3275, "combinedRuntimePaths": 228, "immutableC3PathsVerified": 880, "originalCheckoutClean": true}

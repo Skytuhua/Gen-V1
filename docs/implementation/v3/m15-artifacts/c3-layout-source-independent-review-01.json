@@ -1,0 +1,128 @@
+{
+  "kind": "Independent read-only review of retained C3 test/source/evidence; no test executed by reviewer",
+  "disposition": "No material defect found within the stated Service/Store/runtime-fixture scope",
+  "c2_parent": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+  "source_files": [
+    {
+      "path": "tests/source-workbench-host-v3.test.ts",
+      "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281",
+      "bytes": 64040,
+      "c2_sha256": "ecbe0e1ec4810cbd31812944416c0140a55594efe1e91c334486673b1f0104c8",
+      "equals_c2": false
+    },
+    {
+      "path": "packages/core/service.ts",
+      "sha256": "27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81",
+      "bytes": 154408,
+      "c2_sha256": "27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81",
+      "equals_c2": true
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "bytes": 15079,
+      "c2_sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "equals_c2": true
+    },
+    {
+      "path": "packages/core/source-workbench.ts",
+      "sha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925",
+      "bytes": 51691,
+      "c2_sha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925",
+      "equals_c2": true
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "sha256": "f130b708297368baa20fe7a0b7c202566ebd19ed6d342d2e5a686505133c9c67",
+      "bytes": 12833,
+      "c2_sha256": "fa28c8b2ef9aaf86b5b5f4c3b4a888d1c6268c2cfcbf30943c79f3b47adad4bb",
+      "equals_c2": false
+    },
+    {
+      "path": "packages/contracts/workspace.ts",
+      "sha256": "d7f0c5e199ca901105cadb1869d47075ff5e50786ab77cabe6204cf0e6190d1c",
+      "bytes": 7750,
+      "c2_sha256": "9c7a394138a027f713a30f14b29c36c5b465df11afa70803cbb4391ff71d3887",
+      "equals_c2": false
+    },
+    {
+      "path": "packages/contracts/source-selection.ts",
+      "sha256": "e63ce5749be5468b122df211f2663275bec8deb01d83b9fb908dc636fb4a7f25",
+      "bytes": 10706,
+      "c2_sha256": "e63ce5749be5468b122df211f2663275bec8deb01d83b9fb908dc636fb4a7f25",
+      "equals_c2": true
+    },
+    {
+      "path": "packages/workspace/tools.ts",
+      "sha256": "419148db0f57678c51df9def6b8379b3078193df954a716a81817417a5aa629e",
+      "bytes": 25568,
+      "c2_sha256": "419148db0f57678c51df9def6b8379b3078193df954a716a81817417a5aa629e",
+      "equals_c2": true
+    }
+  ],
+  "initial_test_copy": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/c3-layout-source-01-test.ts",
+    "sha256": "c0a061494ba6a7c3c84fce0b75ae55e22d1627ff347bf79b96694c54ab01dbed"
+  },
+  "retained_execution_receipts": [
+    {
+      "id": "c3-layout-source-01",
+      "status": "FAIL",
+      "exitCode": 1,
+      "record_sha256": "30e65e47e8c69d5f335a88d48e8c11860b2f214d864b81071eecf5af0e639931",
+      "log_sha256": "b9a1edf3693a3a062fd8eaeda10d221bf4c40387e89369478454f389ce4b1442",
+      "result_sha256": "d2ca95375d332de2fb69bd0eb0fd892727adb35f1ae8c44733751ead1c62e7e7",
+      "passed": 0,
+      "failed": 1,
+      "filtered_out": 47,
+      "selected_case": {
+        "fullName": "preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture]",
+        "status": "failed",
+        "duration": 146.63761099999965,
+        "failureMessages": [
+          "AssertionError: expected 'For multi-step work, publish plan_upd\u2026' to contain '{\"name\":\"Retained layout source\",\"cou\u2026'\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/source-workbench-host-v3.test.ts:269:30\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      }
+    },
+    {
+      "id": "c3-layout-source-02",
+      "status": "PASS",
+      "exitCode": 0,
+      "record_sha256": "b8e35fba34a16f573d3d716cbbb41a6a3788795e1e359888f4a41e88779f90ff",
+      "log_sha256": "4df7fb4e68dc52de32ae591fb96b5ad08e83748c6edf9e8ac0ea559144d27736",
+      "result_sha256": "42baf6b8bbfc154b395251612eb8a498317b353f01012fe6341b27c84a40e09a",
+      "passed": 1,
+      "failed": 0,
+      "filtered_out": 47,
+      "selected_case": {
+        "fullName": "preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture]",
+        "status": "passed",
+        "duration": 262.9910709999999,
+        "failureMessages": []
+      }
+    }
+  ],
+  "supported_findings": [
+    "The test adds a real WorkspaceRepository over the same SQLite Store used by actual Service and SourceWorkbench, with M04 preparation enabled.",
+    "Store.get/all parse fresh JSON, so complete before/after custody snapshots do not share live mutable projection objects.",
+    "One account-unbound ARTIFACT_REGION capture stays identical through unsent and accepted legacy layout apply/select; exact original ref remains readable and its quoted runtime evidence JSON is compared in full.",
+    "The initial account-admission witness is created only by the explicit first send, then its entire stored value stays equal across accepted layout operations and failed retired-preset creation.",
+    "Thread, selected account/settings, project/root, working copy, captures, witness, outbox, messages, artifacts, data and resources are compared around every layout mutation.",
+    "Same-ID profile application returns its original receipt; same-ID message.send after all layout actions returns its original receipt, retains one outbox and one runtime start, and produces no follow-ups.",
+    "New research/code-review/custom creation throws PRESET_RETIRED with no receipt, unchanged layout state and unchanged custody.",
+    "The only initial-to-final test correction decodes the quoted source JSON and checks exactly one complete capture/source/version/text envelope; no production or deadline change is present in that correction."
+  ],
+  "limits": [
+    "The 47 excluded tests in each filtered receipt were not executed and are not passes or a native-platform result.",
+    "The recording RuntimeAdapter models/start/followUp are synthetic. A StartRun requestContext exists, but full M04 receipt equality, provider execution, Hermes, ACP and native completion are not asserted.",
+    "Measured temporary directory identities are exercised by SourceWorkbench.assertOwner/physical and Service.requestBasis. No actual Git repository, native Git operation or FILE_RANGE read is performed.",
+    "Only one retained Research profile is applied and selected. New creation rejection covers all three retired presets, but retained Code Review/Custom profile application is not covered by this case.",
+    "Receipt invariants are the ordinary message.send response and profile.apply replay, not equality of every capture/M04 receipt or all event rows.",
+    "This is component integration through Service, SourceWorkbench, WorkspaceRepository and Store; it does not exercise HTTP routing, the browser, native Windows/Edge or installed desktop."
+  ],
+  "reviewer_actions": {
+    "repository_edits": false,
+    "test_execution": false,
+    "private_artifact_only": true
+  }
+}

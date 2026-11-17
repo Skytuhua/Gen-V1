@@ -1,0 +1,72 @@
+{
+  "schema": "m15-independent-static-fixture-review-v1",
+  "reviewedAt": "2026-11-16T04:43:10.170741+00:00",
+  "status": "NO_MATERIAL_STATIC_FIXTURE_DEFECT_FOUND",
+  "execution": "NOT_RUN_BY_REVIEWER",
+  "repositoryMutations": false,
+  "proposal": {
+    "target": "tests/source-workbench-hermes-v3.test.ts",
+    "beforeSha256": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5",
+    "additionSha256": "2a2f0c48186beee784e76ad21044de7cc0592e3009f8dc55c286c7e7d0999725",
+    "afterSha256": "21a8fc6e282809d51632ba21547a0715ab45acf0ba92a762f6e0cfe2f07eee35",
+    "patchSha256": "f1d9bf80b10839304bf4cb337ef8e61c22f852ca26cc0f49aa28797d9655b3eb",
+    "exactDelta": "Two imports and the appended test only; existing native test body is byte-identical."
+  },
+  "readSourceHashes": {
+    "tests/source-workbench-hermes-v3.test.ts": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5",
+    "tests/project-memory-fixture.ts": "71159ca52a41e8d1c6f00caa7d1f3ab01cb56d2ffce5fc12d2e4806d67d33852",
+    "packages/core/service.ts": "c65007b5f1b181d4ee7e444400e70a2fbb76afd9fdf4803c769050b41fba1909",
+    "packages/core/request-custody.ts": "0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94",
+    "packages/core/project-memory-host.ts": "8a522f1ca2b33d1968f921e19b6d972cbaf5bf52ed781efc0e0ccc27f7ab5809",
+    "packages/core/project-memory.ts": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+    "packages/core/memory-retrieval.ts": "e3f88f9bc94dfcad6404be75b64c2ffeb16b7978997683f660767ead71e73e83",
+    "packages/core/source-workbench.ts": "9fc076adf608a620156fc39e49c34e92f4bb69ed58da6d8e7c4fc2d915fa0227",
+    "packages/runtime-hermes/index.ts": "2204c8e4659ca79c30e6f5f09327f0d2327897120eb3005e10cf0038c7abc00d",
+    "packages/runtime-hermes/task-pool.ts": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+    "packages/runtime-hermes/client.ts": "159ba27af61f7a4052bf12b132645008baddbcb1cb622653b696283749dbcac4",
+    "packages/runtime-hermes/settings.ts": "e993774834d555e2d80919b7f6213a87bf5158e695bcf42f0e657c47b5c3cba9",
+    "packages/storage/store.ts": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae"
+  },
+  "checks": [
+    {
+      "area": "real execution boundary",
+      "evidence": "addition.ts 20-58; runtime-hermes index.ts, client.ts, task-pool.ts",
+      "assessment": "Only the native model transport factory/catalog is scripted. No createClient, workerPath, Python command, Store, source guard or history override is supplied. Observing runtime.start/followUp forwards each unchanged input to the bound original method."
+    },
+    {
+      "area": "project/account consent",
+      "evidence": "addition.ts 10-18; tests/project-memory-fixture.ts; project-memory-host.ts scheduleSettled",
+      "assessment": "Both seeded threads receive the explicit null account and selected model before project memory is initialized. The physical project root and existing ProjectMemory configure/propose/accept APIs establish the memory scope. Only the source thread is eligible for extraction, so the distinct recipient cannot create a background extraction job through scheduleSettled."
+    },
+    {
+      "area": "effective request-context activation",
+      "evidence": "addition.ts 10-13,58,92-105; service.ts requestContextEnabled and prepareProjectMemory",
+      "assessment": "memory.projectV1 enables production request custody even with context.compilerV1 false and requestContextEnabled:false. The explicit M05 preparation ID is forwarded through the real message.send path."
+    },
+    {
+      "area": "exact source and memory frames",
+      "evidence": "addition.ts 61-81,89-112; source-workbench.ts prepareSend; request-custody.ts framing; project-memory-host.ts sources/view",
+      "assessment": "The test captures an actual granted file range, parses the quoted envelope, prepares accepted M05 evidence, and compares the exact dispatched input to real model/history envelopes. Reference segment hashes include the selected-source frame. Memory contentRef hashes the injection without its supplemental header, while injectedBytes includes that header, matching the production contracts."
+    },
+    {
+      "area": "settlement, replay and persistence",
+      "evidence": "addition.ts 82-137; Store receipt/all/close and Hermes settlement/history",
+      "assessment": "Assertions wait for handled enteredRuntime outbox state, ready thread, source settled event and drained source/review activity before observing history. Both exact command replays must return the original receipt without another model call. The SQLite Store is closed and reopened before checking the exact outbox, capture and command receipts."
+    },
+    {
+      "area": "retained file integrity",
+      "evidence": "addition.ts 89-93,115-130",
+      "assessment": "The second turn edits the real granted file, observes the old reference as stale, then explicitly retains the capture. Original source rows and grant equality, forbidden fresh/unselected text checks, and two user frames in the persisted Python session bind the retained source bytes."
+    }
+  ],
+  "findings": [],
+  "limits": [
+    "Static review is not an executed Windows result. No test, typecheck or native process was launched by this review.",
+    "The current test is gated to Windows. Linux collection or skip cannot establish its body or the native guard.",
+    "The new test owns a 180000ms deadline; the original 150000ms native test remains unchanged. No latency conclusion follows.",
+    "The recipient starts explicitly bound to the null account with a seeded model. First unbound or non-null account admission, queue/race semantics and rollback require separate tests.",
+    "The fixture checks capability negotiation and a required memory checkpoint contract, but it does not force compaction or execute a checkpoint round trip.",
+    "The accepted memory is seeded through the real review API. The fixture does not prove extraction, consolidation, live-provider access, installed-desktop behavior or a renderer flow.",
+    "Usage is checked after accepted dispatch and after reopening. This case alone does not prove absence of pre-acceptance usage accounting."
+  ]
+}

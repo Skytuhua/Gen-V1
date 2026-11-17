@@ -1,0 +1,29 @@
+argv: ["pnpm","test:browser","--suite","root"]
+cwd: /workspace/scratch/1b47eb428672/gen-v1
+exitCode: 1
+termination: NONE
+
+> gen-v1@0.6.5 test:browser /workspace/scratch/1b47eb428672/gen-v1
+> tsx scripts/test-browser.ts --suite root
+
+node:net:2368
+      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+                    ^
+
+Error: listen EPERM: operation not permitted /tmp/tsx-1000/25.pipe
+    at Server.setupListenHandle [as _listen2] (node:net:2368:21)
+    at listenInCluster (node:net:2499:12)
+    at Server.listen (node:net:2641:5)
+    at file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:53:31537
+    at new Promise (<anonymous>)
+    at createIpcServer (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:53:31515)
+    at async file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:55:459 {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '/tmp/tsx-1000/25.pipe',
+  port: -1
+}
+
+Node.js v24.22.1
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded independent read-only C3 App/native-return review",
+  "recordedAt": "2026-11-16T02:20:06.652739+00:00",
+  "reviewer": "/root/m15_host_gates",
+  "workingDirectory": "/workspace/scratch/1b47eb428672/m15-v3",
+  "observedHead": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+  "publishedC2": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "sourceIdentityKind": "working-file hashes; not a published C3 commit identity",
+  "conclusion": "No material App reconciliation, source-owner, journal, or fixture defect found within the reviewed scope.",
+  "productMutationsByThisReview": false,
+  "testOrBrowserJobsByThisReview": false,
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 157534,
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "bytes": 20550,
+      "sha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419"
+    },
+    {
+      "path": "apps/web/src/SourceSelectionActions.tsx",
+      "bytes": 9495,
+      "sha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d"
+    },
+    {
+      "path": "apps/web/src/SurfaceBoundary.tsx",
+      "bytes": 1078,
+      "sha256": "877ff198f52dda58e9e639ffa54d9b7ceedc080ef60c67ddddbade92db92b22d"
+    },
+    {
+      "path": "apps/web/src/desktop-context.tsx",
+      "bytes": 7359,
+      "sha256": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893"
+    },
+    {
+      "path": "apps/web/src/split-workspace-api.ts",
+      "bytes": 5085,
+      "sha256": "acdb5f53ea301e733ab333268c4359c308b035eaba522c0aaba01b5729370805"
+    },
+    {
+      "path": "apps/web/src/split-thread-placement.ts",
+      "bytes": 2357,
+      "sha256": "dbd4b17d01edf6fed9cabc5f5b0582a12e44736cddaedd7ce4330bb64a1eab7e"
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "bytes": 10722,
+      "sha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8"
+    },
+    {
+      "path": "apps/web/src/workbench-api.ts",
+      "bytes": 4860,
+      "sha256": "8f99344e9451e931e9aa77684df14a67ad2497bf28ebbb0921d3314c604ea088"
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "bytes": 37558,
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb"
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "bytes": 10123,
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 10212,
+      "sha256": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d"
+    },
+    {
+      "path": "tests/e2e/workbench-app.playwright.config.ts",
+      "bytes": 476,
+      "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6"
+    },
+    {
+      "path": "tests/source-workbench-host-v3.test.ts",
+      "bytes": 64040,
+      "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281"
+    }
+  ],
+  "proposal": {
+    "path": "app-reconcile/App.proposed.tsx",
+    "bytes": 157534,
+    "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+  },
+  "staticComparisons": {
+    "integratedAppEqualsFrozenProposal": true,
+    "composerSendEqualsPublishedC2": true,
+    "sourceJournalAndEditorHandoffEqualsPublishedC2": true,
+    "nativeReturnEffectEqualsAccepted49": true,
+    "canonicalPlacementEqualsPublishedC2": true,
+    "providerOpeningsEqualPublishedC2": true,
+    "selectFunctionsEqualPublishedC2": true
+  },
+  "executionRecordsRead": [
+    {
+      "id": "c3-native-return-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c3-native-return-01.json",
+        "bytes": 834,
+        "sha256": "1075fb5b77658e481b5aeaf0736575ecc7e8b832d8d40150878156088c75e71d"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c3-native-return-01.log",
+        "bytes": 1285,
+        "sha256": "af50001f2310ce02d022ec8c5fdc7383c6913d8ab43677dfa471567ec3623473"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T02:08:36.291Z",
+      "endedAt": "2026-11-16T02:08:54.799Z"
+    },
+    {
+      "id": "c3-final-typecheck-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-01.json",
+        "bytes": 542,
+        "sha256": "a17718acee70634389c28dfdf873a47cd6496716974dd85a21a6feb7f8858785"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-01.log",
+        "bytes": 1879,
+        "sha256": "6661a43f7b02ab48fd80369c166ff1a6fd793ac018719ca35e7a5c7ad1ba8ae0"
+      },
+      "status": "FAIL",
+      "exitCode": 2,
+      "startedAt": "2026-11-16T02:11:54.132Z",
+      "endedAt": "2026-11-16T02:13:40.798Z"
+    },
+    {
+      "id": "c3-final-typecheck-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-02.json",
+        "bytes": 542,
+        "sha256": "e74e76f336b0db7081b958fa885f007c2d511089ff7fab9f9fce00e9576af0fc"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c3-final-typecheck-02.log",
+        "bytes": 182,
+        "sha256": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T02:14:26.942Z",
+      "endedAt": "2026-11-16T02:15:33.882Z"
+    },
+    {
+      "id": "c3-layout-source-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c3-layout-source-01.json",
+        "bytes": 923,
+        "sha256": "30e65e47e8c69d5f335a88d48e8c11860b2f214d864b81071eecf5af0e639931"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c3-layout-source-01.log",
+        "bytes": 8493,
+        "sha256": "b9a1edf3693a3a062fd8eaeda10d221bf4c40387e89369478454f389ce4b1442"
+      },
+      "status": "FAIL",
+      "exitCode": 1,
+      "startedAt": "2026-11-16T02:10:14.542Z",
+      "endedAt": "2026-11-16T02:10:17.514Z"
+    },
+    {
+      "id": "c3-layout-source-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c3-layout-source-02.json",
+        "bytes": 923,
+        "sha256": "b8e35fba34a16f573d3d716cbbb41a6a3788795e1e359888f4a41e88779f90ff"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c3-layout-source-02.log",
+        "bytes": 917,
+        "sha256": "4df7fb4e68dc52de32ae591fb96b5ad08e83748c6edf9e8ac0ea559144d27736"
+      },
+      "status": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-11-16T02:11:03.604Z",
+      "endedAt": "2026-11-16T02:11:06.620Z"
+    }
+  ],
+  "evidenceFiles": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/source-cut.json",
+      "bytes": 1615,
+      "sha256": "a4be72dc61869cc233c1a22a71f4f748e3d6b5c05bca915dbd667852c9aa0f8d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/results.json",
+      "bytes": 19994,
+      "sha256": "7eb0bae3aee0fdb4da5f9b3f8bb16f06c3a6a0df1e67701b4d118c7865c81b67"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-native-return-01/native-return-source-isolation.json",
+      "bytes": 12328,
+      "sha256": "60acad4096a592270fc57b5b82374099dca008e3960dbcc5819e9c9298c11a27"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-typecheck-01-native-fixture-source.txt",
+      "bytes": 10005,
+      "sha256": "e33142f1fd7073d07f1508d78a1ac805f0b7b226864561fc1d51a4c361485ce5"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-01-results.json",
+      "bytes": 14804,
+      "sha256": "d2ca95375d332de2fb69bd0eb0fd892727adb35f1ae8c44733751ead1c62e7e7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json",
+      "bytes": 14350,
+      "sha256": "42baf6b8bbfc154b395251612eb8a498317b353f01012fe6341b27c84a40e09a"
+    }
+  ],
+  "nativeFilteredResult": {
+    "id": "c3-native-return-01",
+    "stats": {
+      "startTime": "2026-11-16T02:08:38.362Z",
+      "duration": 16381.244999999999,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "errors": [],
+    "executedFixtureSha256": "f787e1b71dfeecf34f495995032b554f26a8e31b8746fb91a654c9ab26f54e00",
+    "executedSpecSha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+    "currentFixtureSha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+    "descriptionCompletion": [
+      {
+        "kind": "description-completed",
+        "owner": {
+          "threadId": "task-thread",
+          "projectId": null,
+          "workspaceId": "source-copy-a"
+        },
+        "outcome": "fulfilled",
+        "requestFailure": {
+          "errorText": "net::ERR_ABORTED"
+        }
+      }
+    ],
+    "captureCount": 2,
+    "ordinaryCommands": [],
+    "scope": "Real App and source journal with scripted DesktopBridge/source HTTP and canonical split helper; no installed desktop or native host source authority."
+  },
+  "fixtureRevisionSequence": [
+    {
+      "sha256": "f787e1b71dfeecf34f495995032b554f26a8e31b8746fb91a654c9ab26f54e00",
+      "observation": "Filtered native-return case PASS 1."
+    },
+    {
+      "sha256": "e33142f1fd7073d07f1508d78a1ac805f0b7b226864561fc1d51a4c361485ce5",
+      "observation": "GET context route correction; retained typecheck01 FAIL with four TS2352 diagnostics."
+    },
+    {
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "observation": "Optional pre-init Window field, typed local call array, explicit missing-fixture error; typecheck02 PASS. No complete current App22 result inspected by this review."
+    }
+  ],
+  "limits": [
+    "The fulfilled route bookkeeping plus net::ERR_ABORTED does not prove stale response delivery to application code.",
+    "The queue case verifies exact one message.send and post-acknowledgment clearing, but does not independently hold a queue acknowledgment.",
+    "No full current App22 or 24-file focused completion is claimed by this review.",
+    "No installed Windows desktop, actual Edge execution, native file guard, Python/ACP/Hermes transport, or real service source authority is exercised by the scripted browser case.",
+    "Competing native focus intents and failed persistence/handoff retry are outside the new case. The code does not promise automatic retry of a consumed return intent after select handoff failure.",
+    "SurfaceBoundary Retry rendering resets that boundary; it does not promise to recover a cached rejected dynamic import or preserve arbitrary descendant React state through a thrown render."
+  ],
+  "supplementaryHostCase": {
+    "name": "preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture]",
+    "finalTestSha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281",
+    "initialTestSha256": "c0a061494ba6a7c3c84fce0b75ae55e22d1627ff347bf79b96694c54ab01dbed",
+    "initial": "c3-layout-source-01 FAIL 1 selected, 47 filtered exclusions; quoted evidence envelope assertion error.",
+    "corrected": "c3-layout-source-02 PASS 1 selected, 47 filtered exclusions; exact capture/source/version/text parsed from the single evidence envelope.",
+    "scope": "Real Service/Store/M04 and WorkspaceRepository; runtime records starts only. Directory identity checks do not establish native Git or native file access."
+  }
+}

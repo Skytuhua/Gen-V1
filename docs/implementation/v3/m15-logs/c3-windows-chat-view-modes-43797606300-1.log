@@ -1,0 +1,18 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","chat-view-modes"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794800130611-14ef0216-5095-47d8-86ce-dbb3680c62ce
+
+Browser suite: chat-view-modes (2 spec files)
+
+Running 6 tests using 1 worker
+
+  ok 1 tests\e2e\chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership (2.2s)
+  ok 2 tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag (1.6s)
+  ok 3 tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 (1.6s)
+  ok 4 tests\e2e\chat-view-modes.spec.ts:24:1 › the conversation lives in the split plane with its messages, composer and attachments (4.3s)
+  ok 5 tests\e2e\chat-view-modes.spec.ts:36:1 › draft, selection and reading position survive the workspace panel opening (2.7s)
+  ok 6 tests\e2e\chat-view-modes.spec.ts:78:1 › reduced motion settles instantly and keyboard focus stays in the composer (2.4s)
+
+  6 passed (17.8s)

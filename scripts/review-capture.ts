@@ -38,12 +38,32 @@ export async function installThemeAudit(page: Page, expected: CaptureTheme) {
   };
 }
 
+type CaptureResources = { context?: BrowserContext; browser?: Browser; server?: BrowserServer };
+
+async function captureCloseErrors({ context, browser, server }: CaptureResources): Promise<unknown[]> {
+  const errors: unknown[] = [];
+  // Close in ownership order, but always attempt the server, which owns the
+  // Chromium process even if the context or client connection has failed.
+  for (const resource of [context, browser, server]) {
+    try { await resource?.close(); }
+    catch (error) { errors.push(error); }
+  }
+  return errors;
+}
+
 export async function openCaptureBrowser() {
   const server = await chromium.launchServer({ headless: true, args: ['--force-device-scale-factor=1', '--disable-background-timer-throttling', '--disable-backgrounding-occluded-windows'] });
-  const browser = await chromium.connect(server.wsEndpoint());
-  const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-  const page = await context.newPage();
-  return { server, browser, context, page };
+  let browser: Browser | undefined, context: BrowserContext | undefined;
+  try {
+    browser = await chromium.connect(server.wsEndpoint());
+    context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    return { server, browser, context, page };
+  } catch (cause) {
+    const errors = await captureCloseErrors({ context, browser, server });
+    if (errors.length) throw new AggregateError([cause, ...errors], 'Capture browser startup and cleanup failed', { cause });
+    throw cause;
+  }
 }
 function run(executable: string, args: string[], stdin?: string) {
   return new Promise<string>((resolve, reject) => {
@@ -92,12 +112,23 @@ export async function recordWindow(_server: BrowserServer, page: Page, filename:
   let stopping: Promise<Record<string, unknown>> | undefined;
   return () => stopping ??= (async () => {
     clearInterval(timer); sample(); const elapsedSeconds = (performance.now() - started) / 1000;
-    await session.send('Page.stopScreencast'); await session.detach(); capture.stdin?.end();
-    const failure = await complete; if (failure) throw failure;
+    const errors: unknown[] = [];
+    try { await session.send('Page.stopScreencast'); }
+    catch (error) { errors.push(error); }
+    try { await session.detach(); }
+    catch (error) { errors.push(error); }
+    // The encoder must receive EOF even after the browser has disconnected.
+    capture.stdin?.end();
+    const failure = await complete;
+    if (failure) errors.push(failure);
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1) throw new AggregateError(errors, 'Recording teardown failed');
     const probe = JSON.parse(await run('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_name,width,height,r_frame_rate,avg_frame_rate:format=duration,size', '-of', 'json', filename]));
     return { ...probe, capture: { method: 'Chromium compositor JPEG frames sampled against wall time at 30fps; unchanged or delayed frames held; no interpolation', sourceFrames, writtenFrames, elapsedSeconds, startedWallTimeMilliseconds, firstTimestamp: timestamps[0], lastTimestamp: timestamps.at(-1) } };
   })();
 }
 export async function closeCapture(value: { context: BrowserContext; browser: Browser; server: BrowserServer }) {
-  await value.context.close(); await value.browser.close(); await value.server.close();
+  const errors = await captureCloseErrors(value);
+  if (errors.length === 1) throw errors[0];
+  if (errors.length > 1) throw new AggregateError(errors, 'Capture browser cleanup failed');
 }

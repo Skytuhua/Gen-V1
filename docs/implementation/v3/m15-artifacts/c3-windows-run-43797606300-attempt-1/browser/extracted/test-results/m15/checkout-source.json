@@ -1,0 +1,13 @@
+{
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "event": "push",
+  "ref": "refs/heads/agent/m15-v3",
+  "runId": "43797606300",
+  "runAttempt": "1",
+  "runner": "Windows-X64",
+  "image": "20261112.366.7",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+  "recordedAt": "2026-11-16T03:30:08.6425251Z"
+}

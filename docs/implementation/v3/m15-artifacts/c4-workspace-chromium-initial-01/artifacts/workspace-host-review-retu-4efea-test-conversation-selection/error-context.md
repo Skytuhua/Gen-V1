@@ -1,0 +1,144 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - button "Project investigation Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: AL
+                - generic [ref=e36]: Alpha
+              - time [ref=e38]: 17d
+            - generic [ref=e39]: Project investigation
+            - generic [ref=e40]: Ready
+          - button "Options for Project investigation" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e47]:
+          - button "Empty draft stays in navigation Ready" [active] [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: AL
+                - generic [ref=e52]: Alpha
+              - time [ref=e54]: 17d
+            - generic [ref=e55]: Empty draft stays in navigation
+            - generic [ref=e56]: Ready
+          - button "Options for Empty draft stays in navigation" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+    - generic "App controls" [ref=e63]:
+      - button "Settings" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e68]: Settings
+      - button "Pull requests" [ref=e69] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e74]: PRs
+      - button "Usage" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e78]: Usage
+      - button "Update" [disabled] [ref=e79]:
+        - img [ref=e80]
+        - generic [ref=e83]: Update
+  - separator "Resize sidebar" [ref=e84]
+  - generic [ref=e85]:
+    - generic "Workspace layouts" [ref=e87]:
+      - button "Workspace" [pressed] [ref=e88] [cursor=pointer]
+      - button "All Agents" [ref=e89] [cursor=pointer]
+      - button "Open workspace panel" [ref=e90] [cursor=pointer]:
+        - img [ref=e91]
+      - button "Layouts" [ref=e94] [cursor=pointer]:
+        - img [ref=e95]
+        - text: Layouts
+        - img [ref=e99]
+    - generic [ref=e105]:
+      - generic [ref=e106]:
+        - region "Empty draft stays in navigation" [ref=e108]:
+          - generic [ref=e109]:
+            - button "Split this area" [ref=e110]: ◩
+            - tablist "Area views" [ref=e111]:
+              - tab "Project investigation" [ref=e112] [cursor=pointer]:
+                - generic [ref=e113]: Project investigation
+              - tab "Empty draft stays in navigation" [selected] [ref=e114] [cursor=pointer]:
+                - generic [ref=e115]: Empty draft stays in navigation
+            - button "Area actions" [ref=e117] [cursor=pointer]:
+              - img [ref=e118]
+            - button "Minimize area" [expanded] [ref=e122] [cursor=pointer]: ▴
+        - generic [ref=e133]:
+          - main "Chat" [ref=e134]:
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - img [ref=e137]
+                - generic [ref=e139]: Alpha
+                - generic [ref=e140]: /
+                - strong [ref=e141]: Empty draft stays in navigation
+              - button "Find in conversation" [ref=e144] [cursor=pointer]:
+                - img [ref=e145]
+            - generic "Conversation" [ref=e149]:
+              - generic [ref=e152]:
+                - img [ref=e154]
+                - heading "What are we working on?" [level=1] [ref=e156]
+                - paragraph [ref=e157]: Start with a question, file, or project.
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - textbox "Message" [ref=e164]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e165]:
+                  - button "Inspect changes" [ref=e166] [cursor=pointer]:
+                    - img [ref=e167]
+                    - generic [ref=e169]: Changes
+                  - button "Create PR" [ref=e170] [cursor=pointer]:
+                    - img [ref=e171]
+                    - generic [ref=e176]: Create PR
+              - status [ref=e177]
+              - generic [ref=e179]:
+                - group "Project and runtime" [ref=e180]:
+                  - button "Saved drafts" [disabled] [ref=e181]
+                  - button "Attach files" [ref=e182] [cursor=pointer]:
+                    - img [ref=e183]
+                  - button "Select project" [ref=e184] [cursor=pointer]:
+                    - img [ref=e185]
+                    - generic [ref=e187]: Alpha
+                  - generic "Local workspace" [ref=e188]:
+                    - img [ref=e189]
+                    - text: Local
+                  - button "Task mode" [ref=e191] [cursor=pointer]:
+                    - img [ref=e192]
+                    - generic [ref=e195]: Build
+                - group "Model and voice" [ref=e196]:
+                  - combobox "Model" [ref=e197] [cursor=pointer]:
+                    - img [ref=e198]
+                    - generic [ref=e201]: Fixture
+                    - img [ref=e202]
+                  - button "Inspect context usage" [ref=e205] [cursor=pointer]:
+                    - img [ref=e206]
+                  - button "Start voice input" [ref=e207] [cursor=pointer]:
+                    - img [ref=e208]
+                  - button "Send message" [disabled] [ref=e212]:
+                    - img [ref=e213]
+          - generic:
+            - img
+            - generic: Dock chat
+      - complementary "Conversation summaries" [ref=e216]:
+        - region "Project overview window" [ref=e217]:
+          - button "Expand Project overview" [ref=e219] [cursor=pointer]:
+            - strong [ref=e220]: Project overview
+            - img [ref=e221]
+  - region "Notifications"
+```

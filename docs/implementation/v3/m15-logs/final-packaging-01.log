@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/public-source.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  06:47:33
+   Duration  4.09s (transform 501ms, setup 0ms, import 1.11s, tests 2.51s, environment 0ms)
+

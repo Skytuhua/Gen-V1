@@ -1,0 +1,88 @@
+{
+  "stats": {
+    "startTime": "2026-11-15T22:08:11.792Z",
+    "duration": 209714.635,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  },
+  "source": "test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/results.json",
+  "target": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-results.json",
+  "sha256": "a50f284850b145bc3d036a63d6f970807de008aeee12895a5c28a5c115c9db07",
+  "failures": [
+    {
+      "title": "stale restore is rejected atomically after a concurrent window edit",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 495,
+            "line": 64
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\nExpected substring: \u001b[32m\"current draft changed\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\u001b[22m\n\n\n  62 | });\n  63 | test('stale restore is rejected atomically after a concurrent window edit',async({page,context})=>{\n> 64 |  await setup(page);await save(page,'Saved text','Named prompt');await draft(page).fill('Original current');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();const other=await context.newPage();await setup(other);await draft(other).fill('Concurrent edit');await expect(draft(page)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Replace text'}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft'}).getByRole('alert')).toContainText('current draft changed');await expect(draft(other)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Cancel',exact:true}).click();await open(page);await expect(page.getByText(/Before replacing \u00b7/)).toHaveCount(0);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^\n  65 | });\n  66 | test('rich records list missing/revoked references but restore text only, preserving current excerpts',async({page})=>{\n  67 |  const writes=await setup(page);await seed(page,'rich');await draft(page).fill('Current text');await open(page);await page.getByRole('button',{name:'Restore text only',exact:true}).click();await expect(page.getByText(/Resource revoked-resource: unvalidated/)).toBeVisible();await expect(page.getByText(/Skill review: unvalidated revision/)).toBeVisible();await expect(page.getByText(/Terminal saved-terminal: saved excerpt not restored/)).toBeVisible();await expect(page.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await page.getByRole('button',{name:'Replace text'}).click();await expect(draft(page)).toHaveValue('Recovered text');await expect(page.getByRole('button',{name:'Terminal selection \u00b7 current-terminal',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Terminal selection \u00b7 saved-terminal',exact:true})).toBeHidden();expect(writes).toEqual([]);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:495"
+        }
+      ]
+    },
+    {
+      "title": "quota failure and corrupt records keep the active draft and offer retry",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 622,
+            "line": 73
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected substring: \u001b[32m\"Quota\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n\n  71 | });\n  72 | test('quota failure and corrupt records keep the active draft and offer retry',async({page})=>{\n> 73 |  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^\n  74 | });\n  75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{\n  76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Saved drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:622"
+        }
+      ]
+    },
+    {
+      "title": "approved list captures and stress names remain usable at 1440/1024/768 with reduced motion",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 464,
+            "line": 81
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n\n  79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);\n  80 |  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}\n> 81 |  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^\n  82 | });\n  83 |\n  84 | for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure shows a keyboard-reachable alert and preserves drafts`,async({page},info)=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:81:464"
+        }
+      ]
+    },
+    {
+      "title": "new skill-only saves remain reviewable after the original selection is gone",
+      "status": "unexpected",
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 165,
+            "line": 47
+          },
+          "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Draft name', { exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\" maxlength=\"120\" aria-label=\"Draft name\"/>\u001b[22m\n\u001b[2m    - fill(\"References only\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Saved drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n> 47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n     |                                                                                                                                                                     ^\n  48 | }\n  49 | async function seed(page:Page,kind:'rich'|'full'|'corrupt'){\n  50 |  await page.evaluate(async({owner,kind})=>{const path='/apps/web/src/saved-drafts.ts',journalPath='/apps/web/src/journal.ts',excerptPath='/apps/web/src/terminal-excerpts.ts';const s=await import(path),j=await import(journalPath),e=await import(excerptPath);const ref={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'review',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:165)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:104:2"
+        }
+      ]
+    },
+    {
+      "title": "approved thread capacity blocks a new draft with an alert and keeps records in every working copy",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 92,
+            "line": 163
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\nExpected substring: \u001b[32m\"20 per thread\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\u001b[22m\n\n\n  161 |  },owner);\n  162 |  await draft(page).fill('Keep this current text');await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Over capacity');await page.getByRole('button',{name:'Save draft',exact:true}).click();\n> 163 |  await expect(page.getByRole('dialog',{name:'Save prompt',exact:true}).getByRole('alert')).toContainText('20 per thread');await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep this current text');\n      |                                                                                            ^\n  164 |  expect(await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp);return [(await s.loadSavedDrafts(owner)).library.records.length,(await s.loadSavedDrafts({...owner,workingCopyId:'other-copy'})).library.records.length];},owner)).toEqual([19,1]);expect(writes).toEqual([]);\n  165 | });\n  166 |\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:163:92"
+        }
+      ]
+    }
+  ]
+}

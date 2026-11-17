@@ -1,0 +1,40 @@
+{
+  "status": "REPRODUCED_MODULE_PROGRESS_DEFECT",
+  "sourceCut": "5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a",
+  "diagnostic": {
+    "id": "c4-empty-owner-diagnostic-01",
+    "status": "FAIL",
+    "exitCode": 1,
+    "sourceReads": 66,
+    "allReads": 68,
+    "readyGuards": 0,
+    "logSha256": "79799610a35ab463e85f506bc54f755db69d847118c79301d0e7b9ff2b8a0fb9",
+    "resultSha256": "a5ba3c276030b54bfdeae4b743c69c7ad292c3c801cc5bf70550c5a8f97c007c"
+  },
+  "normalRegression": {
+    "id": "c4-empty-owner-red-01",
+    "status": "FAIL",
+    "passed": 25,
+    "failed": 2,
+    "skipped": 0,
+    "logSha256": "59667b334bca693ddcb16ca0a4849fcd29b89c513c076729ad48f0278c9faa17",
+    "resultsSha256": "15d519ee3bff5c2862766939a1e527b51ccff1f64081897e4b4e4199fd70d02f"
+  },
+  "traceReadbackSha256": "bafb80c34dc6b7c05b3512e705fd6ba669c89c1873560edd4efe20712e2b1a7e",
+  "proposal": {
+    "productionPatchSha256": "a60c434a3be5915ad523559425722005039467d5e858dd313e064a00bbe85306",
+    "recoverySha256": "2c4c50c7300d3960a0be2d8a18f089150b9a5a8b3d3cc5f0776a77de36ecc5a3",
+    "strictValidatorBodyUnchanged": true,
+    "strictValidatorBodySha256": "5e31aa28e35ad388556e004e1df99c46e1b6b7ab35edc8c68a6cdef55414d3b2",
+    "queuedBoundaryPatchSha256": "a5e7d1fe674bbdc28eedac4d9ae71ef6ab08527848d628e5e875eef9ad5d3b1a",
+    "queuedBoundaryTestSha256": "8378a53a26963b97fa27b64dc0aa094b97bef7f21e66766be02c6a74a50c89bf",
+    "status": "PROPOSED_NOT_EXECUTED_AT_REVIEW"
+  },
+  "limits": [
+    "The outside diagnostic scripts only IDB/staging delivery, and executes actual journal/recovery/registry. It is not a browser or native-target run.",
+    "Browser activity and source-aware traces stop before the expected split command, consistent with this reproduced module defect; no journal instrumentation is present in those traces.",
+    "Stale reload and rollback initialization had no post-navigation snapshot read in the observed traces; their cause remains unclassified.",
+    "Earlier retained-record same-owner cases remain passing; their cache and microtask scheduling did not cover absent macrotask reads.",
+    "FIFO candidate still requires its separate validation-boundary tests and complete current browser gates."
+  ]
+}

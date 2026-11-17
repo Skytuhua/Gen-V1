@@ -1,0 +1,25 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/desktop-surfaces.playwright.config.ts","--grep","detached workspace selection does not acquire|export refuses pending signature assets|review: a failed detached workspace close retains","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/e2e/desktop-surfaces.spec.ts:581:1 › detached workspace selection does not acquire an unacknowledged second artifact editor
+[1A[2K[2/3] tests/e2e/desktop-surfaces.spec.ts:823:1 › export refuses pending signature assets instead of silently omitting the mark
+[1A[2K[3/3] tests/e2e/desktop-surfaces.spec.ts:1126:1 › review: a failed detached workspace close retains the editable surface
+[1A[2K  3 passed (13.4s)

@@ -1,0 +1,3326 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M15-source-aware-workbench",
+  "baseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "sourceLockDigest": "d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8",
+  "platform": "linux-x64",
+  "nodeVersion": "v24.22.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "CORE",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "accepted-M01-M02-contracts",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/core-prerequisites.json"
+        },
+        {
+          "id": "source-draft-recovery-composer-contracts",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-focused-01.json"
+        },
+        {
+          "id": "final-host-source-evidence-review-corrections",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/review-final-core-green.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:32:14.806Z",
+          "endedAt": "2026-11-15T21:32:45.955Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/core-prerequisites.log",
+          "logDigest": "6632f9300be5523924f942d0569c62cc96daeebcdb7236c0957de96a049ae5f4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/source-selection-dom-v3.test.ts",
+            "tests/source-composer-v3.test.ts",
+            "tests/source-draft-transfer-v3.test.ts",
+            "tests/activity-output-v3.test.ts",
+            "tests/workbench-input-recovery-v3.test.ts",
+            "tests/workbench-performance-v3.test.ts",
+            "tests/workbench-recovery-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "tests/agents-workspace-dispatch.test.ts",
+            "tests/saved-drafts.test.ts",
+            "tests/draft-transfer.test.ts",
+            "tests/compact-draft-transfer.test.ts",
+            "tests/journal.test.ts",
+            "tests/editor-handoff.test.ts",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:23:29.123Z",
+          "endedAt": "2026-11-15T22:23:51.024Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-focused-01.log",
+          "logDigest": "8870cb70f218aeba60dcc810556a6098bb562315c974fa5146294ad11c1517b8"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/source-selection-dom-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:32:01.270Z",
+          "endedAt": "2026-11-15T22:32:11.287Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/review-final-core-green.log",
+          "logDigest": "6a98500e5ceccd1cc6d12bc314446f17b74907d2b23a2bfa258d75ec6f04291e"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M15-dependency-review.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION_HOST",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "durable-source-admission-and-recovery",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/host-recovery-final-07.json"
+        },
+        {
+          "id": "partial-host-composition-and-authenticated-routes",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/host-route-composition-green-08.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/service-workspace-admission.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:17:52.343Z",
+          "endedAt": "2026-11-15T22:18:10.782Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-recovery-final-07.log",
+          "logDigest": "92ef44b38b1e41446476f9dc0aaef7103c7b4ca26bee0ba2d22559293f9a1506"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/model-discovery.test.ts",
+            "tests/workspace-linked-pr.test.ts",
+            "tests/plugin-frame-custody.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:20:05.703Z",
+          "endedAt": "2026-11-15T22:20:31.031Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-route-composition-green-08.log",
+          "logDigest": "4ab83056e45a2471a77fa2dd46a1197814a8445947bcc722e6cb8072cc8ff440"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION_APP",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "canonical-selection-durable-send-rollback-recovery-anchor",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/app-browser-final-03.json"
+        },
+        {
+          "id": "interior-clipping-and-transformed-source-negatives",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/selection-review-green-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:34:14.001Z",
+          "endedAt": "2026-11-15T22:36:01.229Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-final-03.log",
+          "logDigest": "41771c8f0b3ea873c14531f808d327f6c1abbe9b5b1a075f8872acde5524f5c9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--grep",
+            "clipped interior|transformed Markdown",
+            "--reporter=list",
+            "--output=test-results/m15-selection-review-green-01"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:29:02.151Z",
+          "endedAt": "2026-11-15T22:29:13.538Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/selection-review-green-01.log",
+          "logDigest": "b6e55bc3967c89dbe3b668ffde55fc670e9b4cb5b7fedd4a99104aac13b16771"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/app-browser-final-03/results.json",
+        "docs/implementation/v3/m15-artifacts/app-browser-final-03/retained-source.png",
+        "docs/implementation/v3/m15-artifacts/app-browser-final-03/evidence-drawer.png"
+      ]
+    },
+    {
+      "id": "DRAFT_AND_CHAT_REGRESSION",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "saved-drafts-complete-browser-suite",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.json"
+        },
+        {
+          "id": "chat-layout-complete-browser-suite",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/chat-view-modes-final-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "saved-drafts"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:18:36.185Z",
+          "endedAt": "2026-11-15T22:21:20.015Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.log",
+          "logDigest": "cd43ce0eea5e91a11bbaa254eaa905b242f5c5ff6e78441c709474ed6da60d15"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "chat-view-modes"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:20:04.458Z",
+          "endedAt": "2026-11-15T22:22:18.372Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/chat-view-modes-final-01.log",
+          "logDigest": "cf032dae9900e21333c80a7b04a7fb88f57ec7ea468d7f2a1a9bfdfffe8d767a"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "PERFORMANCE_BROWSER",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "large-renderer-layout-recovery-final",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/output-browser-final-03.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:40:08.521Z",
+          "endedAt": "2026-11-15T22:41:34.963Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-final-03.log",
+          "logDigest": "cb6c0b74797d48d0a6a23ababf3d16ee86aabc6d5844557269f025f858ecdd9d"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/browser-final-03/renderer-performance.json",
+        "docs/implementation/v3/m15-artifacts/browser-final-03/results.json",
+        "docs/implementation/v3/m15-artifacts/browser-final-03/artifact-manifest.json"
+      ]
+    },
+    {
+      "id": "CHANGED_PATH_CHROMIUM",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "usage-context",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/usage-context-chromium-01.json"
+        },
+        {
+          "id": "scoped-conversation",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json"
+        },
+        {
+          "id": "agents-workspace",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/usage-context.chromium.playwright.config.ts",
+            "--output",
+            "test-results/m15-usage-context-chromium-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:24:39.620Z",
+          "endedAt": "2026-11-15T22:25:07.498Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/usage-context-chromium-01.log",
+          "logDigest": "8170c21c8ca1419e9920eb3ec6ae6f0938d053f2d151d7036d5a9ac42162b330"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/scoped-conversation.chromium.playwright.config.ts",
+            "--output",
+            "test-results/m15-scoped-conversation-chromium-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:27:40.260Z",
+          "endedAt": "2026-11-15T22:28:12.708Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.log",
+          "logDigest": "020ee22a2d89b0803f7d765f9ac3577b4abcca6984d63b65fb29d1e617898695"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+            "--output",
+            "test-results/m15-agents-workspace-chromium-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:25:39.429Z",
+          "endedAt": "2026-11-15T22:26:44.363Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.log",
+          "logDigest": "26c197a5458ca52c8cc00b4685c560a680d1c6b93eeb9ebb25d41cf9563304d5"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/changed-path-browser-regressions-summary.json"
+      ]
+    },
+    {
+      "id": "FULL_REPOSITORY_REGRESSION",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "declared-pnpm-test",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/full-repository-test-01.json"
+        },
+        {
+          "id": "full-vitest-supported-loader",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/full-vitest-01.json"
+        },
+        {
+          "id": "root-browser-baseline",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.json"
+        },
+        {
+          "id": "root-browser-candidate",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/candidate-root-browser-01.json"
+        },
+        {
+          "id": "isolated-artifact-startup-regression",
+          "status": "FAIL",
+          "evidence": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "test"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:00:39.943Z",
+          "endedAt": "2026-11-15T22:00:42.154Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/full-repository-test-01.log",
+          "logDigest": "ee22c1a7b3840d2ad617bd841773c96082e81680bee10db0b9b9b5293802242e"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--maxWorkers=1",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=docs/implementation/v3/m15-artifacts/full-vitest-01-results.json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:02:07.090Z",
+          "endedAt": "2026-11-15T22:17:55.701Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/full-vitest-01.log",
+          "logDigest": "e8700f7d8ddb387301129a8d0431456b2dfa44bfbe527fe105745d6bf100adfa"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T21:40:29.677Z",
+          "endedAt": "2026-11-15T21:49:20.716Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.log",
+          "logDigest": "c0c0c1d55695a1410087b8ffc378be396a5daa5c2e25c79f67b456f6668ba3c1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:00:41.283Z",
+          "endedAt": "2026-11-15T22:11:05.278Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/candidate-root-browser-01.log",
+          "logDigest": "fc0f1dd32574bca2dc9aea642954a6ac3d5aff4c5154d56419c7f4ea68975387"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "playwright.config.ts",
+            "tests/e2e/artifact-acknowledgment.spec.ts",
+            "tests/e2e/clarity-data-work.spec.ts",
+            "tests/e2e/document-window.spec.ts",
+            "--grep",
+            "an older snapshot cannot replace a newer acknowledged selection|trend gives its actual scale and units without hiding gaps or fabricating a zero baseline|flat and unavailable trends describe only supplied values|(light|dark) architecture is legible before selecting a node|large edited source fits the real host state limit without duplicating the source text",
+            "--output",
+            "test-results/browser/candidate-root-extra-six-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:18:32.399Z",
+          "endedAt": "2026-11-15T22:19:21.899Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/candidate-root-extra-six-01.log",
+          "logDigest": "f74508195ef0de7d56954dce9c1ec0f101c0a79e42e8b053e7236d0254b197d3"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "playwright.config.ts",
+            "tests/e2e/artifact-acknowledgment.spec.ts",
+            "--output",
+            "test-results/browser/candidate-root-artifact-quiet-01/artifacts",
+            "--reporter=list,json"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:38:51.552Z",
+          "endedAt": "2026-11-15T22:39:03.814Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.log",
+          "logDigest": "d5bc14c7f01ce8a62ef42456d497f2325dad3b04ad3de2cd1179b4fad33f2c34"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/full-vitest-01-audit-summary.json",
+        "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-comparison.json",
+        "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/results.json"
+      ]
+    },
+    {
+      "id": "BUILD_AND_PACKAGING",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-typecheck-02.json"
+        },
+        {
+          "id": "production-build",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-build-01.json"
+        },
+        {
+          "id": "public-source-runtime-import-closure",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/packaging-import-closure-green.json"
+        },
+        {
+          "id": "final-controller-typecheck",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-typecheck-03.json"
+        },
+        {
+          "id": "complete-reviewed-public-package",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-packaging-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:32:29.484Z",
+          "endedAt": "2026-11-15T22:33:35.851Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-typecheck-02.log",
+          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:36:53.233Z",
+          "endedAt": "2026-11-15T22:37:15.762Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-build-01.log",
+          "logDigest": "e88d6d0643ff673d2df9c964ffaa3e770f1fccb5c9fad45741a73706e74f6ce5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "tests/workbench-input-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:19:15.421Z",
+          "endedAt": "2026-11-15T22:19:22.004Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/packaging-import-closure-green.log",
+          "logDigest": "4eeb2af67d4ef8ff6f47c6de53ab9b1d3e24054c1bffe845d94c0a857c7b690c"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:47:26.357Z",
+          "endedAt": "2026-11-15T22:48:31.929Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-typecheck-03.log",
+          "logDigest": "e9a201c2479a7028e4074b54c117b9e7909d92bcf7db8fba5d879c57845b4c04"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:47:26.349Z",
+          "endedAt": "2026-11-15T22:47:38.097Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-packaging-01.log",
+          "logDigest": "f969102cd293b0d1bea25741028e039bc2d3997862b61872cc3b617c9c12ee3c"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "PLATFORM",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "actual-Windows-file-capture",
+          "status": "NOT_RUN",
+          "evidence": "Linux host; explicit Windows test skip"
+        },
+        {
+          "id": "native-history-and-installed-desktop-handoff",
+          "status": "NOT_RUN",
+          "evidence": "No native target execution"
+        },
+        {
+          "id": "declared-Edge-browser",
+          "status": "NOT_RUN",
+          "evidence": "Declared attempts failed at missing executable before assertions"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "usage-context"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:23:26.750Z",
+          "endedAt": "2026-11-15T22:24:03.742Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/usage-context-declared-01.log",
+          "logDigest": "9b61742966201144aeba91663992e6175352975378202dda3c87d8335cf6e87e"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "agents-workspace"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:23:26.686Z",
+          "endedAt": "2026-11-15T22:23:56.404Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/agents-workspace-declared-01.log",
+          "logDigest": "e8bf32b8e92150e354bac40a4d1e39908d4c80e5438ba339e2f734f0edc81a27"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "scoped-conversation"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:23:27.087Z",
+          "endedAt": "2026-11-15T22:23:55.495Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/scoped-conversation-declared-01.log",
+          "logDigest": "d07722aa24d21fb21e4511597f2b603d8cc0376309a36857d5478500d7c36701"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "UNAVAILABLE_CAPABILITIES",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "atomic-diff-capture",
+          "status": "NOT_RUN",
+          "evidence": "Owning comparison witness unavailable"
+        },
+        {
+          "id": "historical-evidence-artifact-navigation",
+          "status": "NOT_RUN",
+          "evidence": "Authorized retained-artifact reader unavailable"
+        },
+        {
+          "id": "transformed-inline-source-map",
+          "status": "NOT_RUN",
+          "evidence": "Canonical message selector is the supported fallback"
+        },
+        {
+          "id": "optional-M05-M10-M14",
+          "status": "NOT_RUN",
+          "evidence": "Typed owning contracts unavailable"
+        },
+        {
+          "id": "latest-main-reconciliation",
+          "status": "NOT_RUN",
+          "evidence": "Accepted source pin intentionally retained"
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M15-original-prompt-audit.md",
+        "docs/implementation/v3/m15-artifacts/publication-main-drift.json"
+      ]
+    },
+    {
+      "id": "EVIDENCE_INTEGRITY",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "actual-controller-rejects-altered-bundles",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/evidence-controller-green-01.json"
+        },
+        {
+          "id": "original-checkout-preserved",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m15-logs/final-checkout-custody-01.json"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "scripts/m15-evidence-probe.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:46:17.355Z",
+          "endedAt": "2026-11-15T22:46:27.247Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-controller-green-01.log",
+          "logDigest": "e57d760522ffdf114b37ef6c6df0a514da347f81809ccf6e3f2e93f5d751715b"
+        },
+        {
+          "argv": [
+            "python3",
+            "-c",
+            "import json,subprocess; original=\"/workspace/scratch/1b47eb428672/gen-v1\"; run=lambda *args:subprocess.check_output([\"git\",\"-C\",original,*args],text=True).strip(); status=run(\"status\",\"--porcelain=v1\"); head=run(\"rev-parse\",\"HEAD\"); print(json.dumps({\"originalRoot\":run(\"rev-parse\",\"--show-toplevel\"),\"originalHead\":head,\"originalStatus\":status,\"canonicalOrigin\":run(\"remote\",\"get-url\",\"origin\")},indent=2)); assert not status; assert head==\"399cde39ff4ee82272c7a7700944325c44b36070\""
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "startedAt": "2026-11-15T22:40:21.117Z",
+          "endedAt": "2026-11-15T22:40:21.411Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-checkout-custody-01.log",
+          "logDigest": "d91d558b6255fdea7c0e5b598458a5f90d9df533e15067e3644f78ff35674e77"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m15-artifacts/evidence-controller-probes.json",
+        "docs/implementation/v3/M15-handoff.md",
+        "docs/implementation/v3/M15-final-review.md"
+      ]
+    },
+    {
+      "id": "ATTEMPT_HISTORY",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "all-other-executed-attempts-retained",
+          "status": "PASS",
+          "evidence": "M15-command-index.json; failed setup, red fixtures and superseded runs keep their actual nonzero status."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/activity-output-v3.test.ts",
+            "tests/source-composer-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:09:57.691Z",
+          "endedAt": "2026-11-15T22:10:01.353Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/activity-contract-green.log",
+          "logDigest": "9e622719bdea7558b21e532753f1676b15ec05972728f634a9453c5f24b05c43"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/activity-output-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:08:49.881Z",
+          "endedAt": "2026-11-15T22:08:52.114Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/activity-contract-red.log",
+          "logDigest": "be39b2dd844f7154319b538ba76d97db0f3501552848b3fcb96ef750ca46a451"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:53:00.270Z",
+          "endedAt": "2026-11-15T21:53:50.140Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-01.log",
+          "logDigest": "137694dee879c8174360dc62e97c65516d0002b749c3d9eef88236f644301917"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:56:54.757Z",
+          "endedAt": "2026-11-15T21:57:41.679Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-02.log",
+          "logDigest": "bf836ee0888ef73de8a37dd5354ef365d7620c87fba29c15ef7278ff08c0a60e"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:58:53.544Z",
+          "endedAt": "2026-11-15T22:00:05.247Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-03.log",
+          "logDigest": "7636b15c4b86ec1a58ed6bfcaa4f1d7523e0a962dc21e151ce65bb157e753a5f"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:04:08.679Z",
+          "endedAt": "2026-11-15T22:05:12.517Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-04.log",
+          "logDigest": "765fcdd972c36a79b29f59c3973c6fffef5a0056bf7c6124c9dc35e6d60146de"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:22:59.690Z",
+          "endedAt": "2026-11-15T22:24:30.469Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-final-01.log",
+          "logDigest": "1be206bfa024b1500e35fdc34e25b26fce3dba322e7d79fa9b521d1ca5da5559"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:29:47.098Z",
+          "endedAt": "2026-11-15T22:32:13.379Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-final-02.log",
+          "logDigest": "67f94b37ed3e1589bce6cee8872f5b41fc12c89b2eb338badc7c84ac5623d41d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:31:04.173Z",
+          "endedAt": "2026-11-15T22:31:06.168Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/artifact-array-red-01.log",
+          "logDigest": "5355a57c4f01e6fbd4d8d7dba62062823effa8b52d96123862dc3df0304c1ca3"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T21:35:48.520Z",
+          "endedAt": "2026-11-15T21:35:57.552Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-browser-root-node-loader.log",
+          "logDigest": "861fde837d74cbcb13f4f3b030fc9ca054e46f7492a3bddcffdf3a7ab104144c"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:33.469Z",
+          "endedAt": "2026-11-15T21:35:34.213Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-browser-root.log",
+          "logDigest": "ab833b11454332d6099e6aefc9794c9a06bee20456c0915f2f8403447aee13dd"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:29.780Z",
+          "endedAt": "2026-11-15T21:35:30.445Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-build-widgets.log",
+          "logDigest": "d7c21a8a722ab0b0bd2e98f84a46f894b832feb7850851c3671f349b10d39e17"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/chat-view-modes.playwright.config.ts",
+            "--grep",
+            "active drag",
+            "--output",
+            "test-results/browser/chat-drag-escape-green-01"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:09:42.554Z",
+          "endedAt": "2026-11-15T22:10:05.643Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/chat-drag-escape-green-01.log",
+          "logDigest": "1c5318c1902d0328ccfb6051730606d0ffd2ff5d32348efaf0631e69354bf8b5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/chat-view-modes.playwright.config.ts",
+            "--grep",
+            "active drag",
+            "--output",
+            "test-results/browser/chat-drag-escape-red-01"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:08:59.720Z",
+          "endedAt": "2026-11-15T22:09:29.326Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/chat-drag-escape-red-01.log",
+          "logDigest": "0d6fb3e9865791da336ea7fe33c2cfe84eae1f79f581bd246b52ed4798a04ab5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "chat-view-modes"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:05:07.167Z",
+          "endedAt": "2026-11-15T22:06:58.395Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/chat-view-modes-baseline-01.log",
+          "logDigest": "8913797931d41b770abe4570e9b8f05f3fdbed0bc0288fd10f8ceacf079338f7"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "chat-view-modes"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:00:59.221Z",
+          "endedAt": "2026-11-15T22:04:03.938Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/chat-view-modes-review-01.log",
+          "logDigest": "4398c82d4a63fcf09d72a08e15018e0acc65581fde529195e56e538066068721"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-dom-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:06.953Z",
+          "endedAt": "2026-11-15T21:35:08.820Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/dom-selection-green.log",
+          "logDigest": "6c13325080453c538b895e88b221438a504b113d52bfa0fc890bfa5cd2d098cf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-dom-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:33:16.443Z",
+          "endedAt": "2026-11-15T21:33:17.954Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/dom-selection-red.log",
+          "logDigest": "3c156a0480ec2c81531acc70c6808e10205c4440592357cc2212933e46d99364"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-draft-transfer-v3.test.ts",
+            "tests/saved-drafts.test.ts",
+            "tests/draft-transfer.test.ts",
+            "tests/compact-draft-transfer.test.ts",
+            "tests/journal.test.ts",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:50:36.577Z",
+          "endedAt": "2026-11-15T21:50:55.782Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-green-01.log",
+          "logDigest": "9cb7d022e7de10af3ef7c1d89447b268d2dda0fe458361a49e35f5829ec24bbe"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-draft-transfer-v3.test.ts",
+            "tests/saved-drafts.test.ts",
+            "tests/draft-transfer.test.ts",
+            "tests/compact-draft-transfer.test.ts",
+            "tests/journal.test.ts",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:58:27.972Z",
+          "endedAt": "2026-11-15T21:58:35.187Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-green-02.log",
+          "logDigest": "f947878baf0add01cfdd81f2504c226a1b1b55a1032df632bc4f0a71a94acc6e"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-draft-transfer-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:47:42.929Z",
+          "endedAt": "2026-11-15T21:47:47.420Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-red.log",
+          "logDigest": "3813cf98dd84490fee8f97d55b1f6c44abb240cf91fabe7c3ab740ffe53cc3cd"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "tsc",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:52:52.854Z",
+          "endedAt": "2026-11-15T21:53:50.982Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-types-01.log",
+          "logDigest": "89a0641e6597f66c4d8cfc509b72d25ec93cfedc365191fa7af3103488aa96bf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "tsc",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:53:58.085Z",
+          "endedAt": "2026-11-15T21:55:01.430Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-types-02.log",
+          "logDigest": "e71f9ba9134388a5715fd3850d98ca95ae0651d30d79611ff93031699d75ea07"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-draft-transfer-v3.test.ts",
+            "--testNamePattern",
+            "format version|version two",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:58:05.233Z",
+          "endedAt": "2026-11-15T21:58:10.417Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/draft-transfer-version-red.log",
+          "logDigest": "60ce150add335d7adccebc940c0952348aba1653ba61ff75f6a6092dbb06ed1a"
+        },
+        {
+          "argv": [
+            "node",
+            "scripts/m15-evidence-probe.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:44:41.079Z",
+          "endedAt": "2026-11-15T22:44:41.243Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-controller-red-01.log",
+          "logDigest": "50ed4cc44cc125b9918d6e7ae1f4fa4525e46f207e0212abfe5f62ba9fd90656"
+        },
+        {
+          "argv": [
+            "node",
+            "scripts/m15-evidence-probe.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:44:57.779Z",
+          "endedAt": "2026-11-15T22:45:18.875Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-controller-red-02.log",
+          "logDigest": "6827bb5634bbc05e0013c6cf5660b781f429dd91f5ee92bc2d9269d8be22730e"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/source-selection-dom-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:29:45.561Z",
+          "endedAt": "2026-11-15T22:29:56.288Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-window-green-01.log",
+          "logDigest": "bc7a08ab1b66e9a7954643697c4143c32bedde7a855ad270cd7b104719a902f6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--testNamePattern",
+            "bound failure falls outside",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:29:08.355Z",
+          "endedAt": "2026-11-15T22:29:14.497Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-window-red-01.log",
+          "logDigest": "7781ce948f929cd41430f1d6d446a44b28f94a682bb9af71fb8c0f31228c2276"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:31:05.679Z",
+          "endedAt": "2026-11-15T22:32:05.437Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/final-typecheck-01.log",
+          "logDigest": "a739b82727ae50df590b0c5af2ccf2b8d477f11202872bd788c1eab802e5a901"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:46:43.258Z",
+          "endedAt": "2026-11-15T21:47:15.633Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-boundaries-green-02.log",
+          "logDigest": "8e8f1f0aa896e70923a1d4051398f0ac062cdbfaa420a2c96d23dfc38ad12efa"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:45:54.709Z",
+          "endedAt": "2026-11-15T21:46:05.781Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-boundaries-red-04.log",
+          "logDigest": "fa6312353ba40c06cf7fbe2bb75413b39c6eed8579eddc7b5a2a570326b3a6c1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:33:58.001Z",
+          "endedAt": "2026-11-15T21:34:01.732Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-contracts-red-01.log",
+          "logDigest": "0e16963660e4361c948e4d41d3b8dbe3406b51a5f80b45d9188256013dc4a1ab"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:50:12.002Z",
+          "endedAt": "2026-11-15T21:50:21.586Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-gates-red-05.log",
+          "logDigest": "1225e1e01b403d6941b1a26e9300908d7e23825e7cdd0933a25515cebda36579"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:52:55.569Z",
+          "endedAt": "2026-11-15T21:53:03.943Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-output-green-03.log",
+          "logDigest": "579ec062c6eff6c873819abf85e61c681a18f82f9c362d0f41c14174ea7405e6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:52:00.531Z",
+          "endedAt": "2026-11-15T21:52:13.873Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-output-red-06.log",
+          "logDigest": "b220340712d4840c1abeadb536c0cff0ab69f8c626c915933753f5c3df237dd6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:02:26.749Z",
+          "endedAt": "2026-11-15T22:02:50.792Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-owner-read-green-05.log",
+          "logDigest": "0d844545f8b3b913c0336e6def3dfbf794626fd4d5db97c8a9c773426ef4a690"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:01:40.263Z",
+          "endedAt": "2026-11-15T22:01:59.079Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-owner-read-red-08.log",
+          "logDigest": "3e5d5609ce2f5a2d71dd21819048ad5e3ce3a4e8e7c44230ecb1ecd6c77d1aba"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/service-workspace-admission.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:16:09.388Z",
+          "endedAt": "2026-11-15T22:16:20.725Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-recovery-review-green-attempt-06.log",
+          "logDigest": "26a483889b26b56f70d8ce950896e27fba8661789254310883f2b229f7acd1d0"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:12:16.053Z",
+          "endedAt": "2026-11-15T22:12:24.908Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-recovery-review-red-09.log",
+          "logDigest": "dc0fc61661730b8b529738b7f4f698fb75ffc8cf978f26a829399562fce43975"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/service-workspace-admission.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:58:31.803Z",
+          "endedAt": "2026-11-15T21:58:48.997Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-review-green-04.log",
+          "logDigest": "0bc40f8d2336af36eae0ca4ec71b4fd4964bc0061da0485945e0de4f71daeb31"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:56:13.628Z",
+          "endedAt": "2026-11-15T21:56:19.707Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-review-red-07.log",
+          "logDigest": "849b9c6b1c160a869d8c312f80ed9679f4deb117bca5cecaeaa203f6a354bf2b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1",
+            "-t",
+            "owning service is absent"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:19:47.906Z",
+          "endedAt": "2026-11-15T22:19:54.292Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-route-composition-red-10.log",
+          "logDigest": "0dda4cd6354e172ea798b553d4e828a95dbb883232585f5931341cd282893b8f"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:42:31.534Z",
+          "endedAt": "2026-11-15T21:42:36.867Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-runtime-green-attempt-01.log",
+          "logDigest": "5d622ac80b587c1cc3ec024548245fc738197ef185cf4ddc18fd6f1d77c120f6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-selection-v3.test.ts",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:09.162Z",
+          "endedAt": "2026-11-15T21:35:12.578Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-runtime-red-02.log",
+          "logDigest": "cca50eb3b2ff4332b8169f109a1234c8330ab213a869fe77c471346a65440109"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-workbench-host-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:59.815Z",
+          "endedAt": "2026-11-15T21:36:02.856Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-runtime-red-03.log",
+          "logDigest": "ed57358d6504a670744a7719a1dd2c9f5f5b89e5e3c980e9a5c284cb386724c7"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:00:21.310Z",
+          "endedAt": "2026-11-15T22:01:40.037Z",
+          "exitCode": 137,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-typecheck-02.log",
+          "logDigest": "517a4cd1e90141bea876d55b09d72bb42af8af76ca5e497995b9c16914fd9ddc"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:43:49.719Z",
+          "endedAt": "2026-11-15T21:44:48.663Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/host-typecheck-attempt-01.log",
+          "logDigest": "5fb5d91ad3baa0552598ee1125f07b82043fbaf3705d852dde184579c57fa80c"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-input-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:14:00.275Z",
+          "endedAt": "2026-11-15T22:14:01.813Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-client-green.log",
+          "logDigest": "e230ef69e221cac714de54ccfff622410b3034e7102f2d519dc860c1b49b9401"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-input-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:13:31.801Z",
+          "endedAt": "2026-11-15T22:13:33.808Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-client-red.log",
+          "logDigest": "62773a8f44f972d17e31dc2185e86ae2bb004476b501b9c4f426a0d4e1c61790"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:17:49.767Z",
+          "endedAt": "2026-11-15T22:19:16.071Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-ui-green-01.log",
+          "logDigest": "f525d074553d8bcebc2b874ba9a805f8dab90c7726dd809a19b2ef57189da840"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench-app.playwright.config.ts",
+            "--grep",
+            "accepted stale input|rollback permits cancellation",
+            "--reporter=list",
+            "--output=test-results/m15-input-recovery-red-02"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:15:11.209Z",
+          "endedAt": "2026-11-15T22:16:20.220Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-ui-red-02.log",
+          "logDigest": "e66bff148d223a7f9a28b3a075f4f3a49f460bdbfe279f1f4503a1f4be563e06"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench-app",
+            "--grep",
+            "accepted stale input|rollback permits cancellation"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:15:01.843Z",
+          "endedAt": "2026-11-15T22:15:02.492Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-ui-red.log",
+          "logDigest": "f7e2db37a46a4776b22d0229689b396eb43a1d799ec1d44cdfdee5be91031351"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--grep",
+            "measures paired controlled"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:48:42.841Z",
+          "endedAt": "2026-11-15T21:48:46.202Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-benchmark-02.log",
+          "logDigest": "711d76f2cfacf251ccfd4993fe193c56185caca27df3b7a3d9d5b95017ad200d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--grep",
+            "measures paired controlled"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:49:03.806Z",
+          "endedAt": "2026-11-15T21:49:18.832Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-benchmark-03.log",
+          "logDigest": "8098a7962ee56d153b674740ae3329c116eee56991dfb8948962495de824e502"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--output",
+            "test-results/browser/m15-benchmark-04",
+            "--grep",
+            "measures paired controlled"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:49:51.637Z",
+          "endedAt": "2026-11-15T21:51:31.661Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-benchmark-04.log",
+          "logDigest": "039a36800fdf25761bc23e0f5a6429aa33cf07c86774bb736bbd297638055cab"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:45:15.559Z",
+          "endedAt": "2026-11-15T21:47:31.831Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-candidate-01.log",
+          "logDigest": "4aa33fefdfb95008c21882f50e77f2e96f8ad4370bcc2e4f37237b2d33987a08"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:53:37.825Z",
+          "endedAt": "2026-11-15T21:55:04.457Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-final-01.log",
+          "logDigest": "70d42281b22196dc20effd5903561a5b34e5f34ff7f699a7d608f5329b698022"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:56:47.674Z",
+          "endedAt": "2026-11-15T21:58:14.973Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-final-02.log",
+          "logDigest": "0557d68d62fd1d14925dc0ba8578e416892d4931a95e4efc61ca5dc00148b78d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--grep",
+            "output window stays bounded"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:43:51.422Z",
+          "endedAt": "2026-11-15T21:44:03.237Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-red-01.log",
+          "logDigest": "f494fac9f01bc0bffb9c3da055db9f7e7a747391fac932c670c509af17ea5751"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--output",
+            "test-results/browser/m15-query-race-red-01",
+            "--grep",
+            "query changes"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:56:12.523Z",
+          "endedAt": "2026-11-15T21:56:24.506Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-query-race-red-01.log",
+          "logDigest": "c5b9e312a3d7141ce46446a85bf9491e7a5c777feb7767083c8f295a659161e5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--output",
+            "test-results/browser/m15-view-race-green-01",
+            "--grep",
+            "rapid presentation|reachable controls"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:02:23.807Z",
+          "endedAt": "2026-11-15T22:02:42.950Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-view-race-green-01.log",
+          "logDigest": "13f358c015012392ffdfccc874431fac1302719ac7009a5f67f589043e4b5405"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--output",
+            "test-results/browser/m15-view-race-red-01",
+            "--grep",
+            "rapid presentation"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:01:29.937Z",
+          "endedAt": "2026-11-15T22:01:48.338Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/output-view-race-red-01.log",
+          "logDigest": "054e2f4e4703c4eb738ba784065b7cda8b02de15ee62e5ba6e9d0a7039628d9b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-performance-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:39:57.926Z",
+          "endedAt": "2026-11-15T21:39:59.546Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/performance-denied-green-01.log",
+          "logDigest": "d962043695d6536899ba9f7664961f59d0a53ce7a73f1ce0e77703a205dfb347"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-performance-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:39:34.439Z",
+          "endedAt": "2026-11-15T21:39:35.829Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/performance-denied-red-01.log",
+          "logDigest": "4d6f59f1b971dc764406ac4f773f62e5a42e64befb069d69443f1d1b80dc208e"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-performance-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:38:34.082Z",
+          "endedAt": "2026-11-15T21:38:36.317Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/performance-stage-green-01.log",
+          "logDigest": "006568ea936e55e553554f029aa6899772814e1ea8080692dbdb845d358de6fc"
+        },
+        {
+          "argv": [
+            "git",
+            "push",
+            "--dry-run",
+            "origin",
+            "399cde39ff4ee82272c7a7700944325c44b36070:refs/heads/agent/m15-v3"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/usr/local/bin/git",
+          "startedAt": "2026-11-15T22:35:06.873Z",
+          "endedAt": "2026-11-15T22:35:12.668Z",
+          "exitCode": 128,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/publication-git-preflight.log",
+          "logDigest": "568b211840dc20e01270c42f185db3bb4f6f64d76a10c111f81e23b915335ed3"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-recovery-v3.test.ts",
+            "tests/workbench-performance-v3.test.ts",
+            "tests/draft-transfer.test.ts",
+            "tests/compact-draft-transfer.test.ts",
+            "tests/saved-drafts.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:53:04.965Z",
+          "endedAt": "2026-11-15T21:53:13.081Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-import-race-green-01.log",
+          "logDigest": "17e838449f9c6742870986bea7fddc97cb912a98fedc814e1cf31742c3e77ee4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:52:42.267Z",
+          "endedAt": "2026-11-15T21:52:44.421Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-import-race-red-01.log",
+          "logDigest": "cc8107c3d34a5b3437058fda12228f2de8316ebd9429f3d49a5d7be5ad7ecd46"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:42:28.563Z",
+          "endedAt": "2026-11-15T21:42:30.265Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-owner-key-green-01.log",
+          "logDigest": "3290a8bd0cab025cd1bf9ab7940cc855d72ef4b8ebde82f337233dfcd98c9047"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:42:19.851Z",
+          "endedAt": "2026-11-15T21:42:21.605Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-owner-key-red-01.log",
+          "logDigest": "36fc8cf9625aa925d6de19cc82834db9f7bdafea2deab8630d8459eee902e2c6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-performance-v3.test.ts",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:23.457Z",
+          "endedAt": "2026-11-15T21:35:25.164Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-performance-red-01.log",
+          "logDigest": "e6cb11574eb2b2671a4688855bc890c57dcd74524374a4d5beea3ac9fb0182cc"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:38:57.169Z",
+          "endedAt": "2026-11-15T21:39:42.300Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-performance-typecheck-01.log",
+          "logDigest": "2c27caf4c9b808105eb55d022ca82347e2d96bf29b5d0d7d27ca6625e6526eb9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workbench-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:36:48.126Z",
+          "endedAt": "2026-11-15T21:36:50.041Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-stage-green-01.log",
+          "logDigest": "57985800bb2cbc9d7713a773865353280bfefa4086dbeaba1865176d7bd73cb2"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "saved-drafts"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:00:01.218Z",
+          "endedAt": "2026-11-15T22:05:50.079Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-01.log",
+          "logDigest": "8a9f68f6813df50e413e0e7e64846de2d3c5e46196ac3e9e73503041939d57de"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "saved-drafts"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:08:10.222Z",
+          "endedAt": "2026-11-15T22:11:41.697Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-02.log",
+          "logDigest": "e9d6ebfc2c06e63c5b828eba953f3a11ed4cb1fb6f0ae6b7b7cf1f5b0555f0fa"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "saved-drafts"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:12:35.241Z",
+          "endedAt": "2026-11-15T22:14:55.260Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-03.log",
+          "logDigest": "cd8283017b29b999b3c699166b65ff05dd180d25e3fadfa270bb873a475bb961"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "tests/e2e/saved-drafts.playwright.config.ts",
+            "--grep",
+            "replace keeps recoverable text|quota failure and corrupt records",
+            "--reporter=line,json",
+            "--output",
+            "test-results/m15-saved-drafts-focus-reload-01"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:18:07.532Z",
+          "endedAt": "2026-11-15T22:18:29.957Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-focus-reload-01.log",
+          "logDigest": "12f66468c8c278205b8c99dbe47064180fc07434cafd317394570c52b005044c"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "tests/e2e/saved-drafts.playwright.config.ts",
+            "--grep",
+            "source-only named metadata",
+            "--reporter=line,json",
+            "--output",
+            "test-results/m15-saved-source-ui"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T21:52:43.709Z",
+          "endedAt": "2026-11-15T21:52:56.889Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-source-ui-01.log",
+          "logDigest": "edd5fbcaf792be0ad0f62293c28a86bc981cffa305d035de66140ee2dd7fa5c9"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/@playwright/test/cli.js",
+            "test",
+            "--config",
+            "tests/e2e/saved-drafts.playwright.config.ts",
+            "--grep",
+            "source-only named metadata",
+            "--reporter=line,json",
+            "--output",
+            "test-results/m15-saved-source-ui-02"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T21:53:50.124Z",
+          "endedAt": "2026-11-15T21:54:09.175Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/saved-source-ui-02.log",
+          "logDigest": "c0966e64e3464b7b0fbb3cee8663623f217fbcb225805b931cd76a51a79d87b1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "--grep",
+            "clipped interior|transformed Markdown",
+            "--reporter=list",
+            "--output=test-results/m15-selection-review-red-01"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:27:21.465Z",
+          "endedAt": "2026-11-15T22:27:42.242Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/selection-review-red-01.log",
+          "logDigest": "0be2235c281a2db302a2882d443873794f6e6f631ac5b59ffc0cc9d2cf01fc33"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "install",
+            "chromium"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:32:06.772Z",
+          "endedAt": "2026-11-15T21:32:46.213Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-browser.log",
+          "logDigest": "54d1c2f0d7f2822cf60790a5e3021ae83674507ad5831cbbf90a0575cd8840bf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/build-windows-credential-lease.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T22:01:46.329Z",
+          "endedAt": "2026-11-15T22:01:48.243Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-credential-lease-loader.log",
+          "logDigest": "3f4dc96976290d312fff03a97f0cb36492bef57f5fc701cf3a3b8bd4bcccae98"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "install",
+            "--frozen-lockfile"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:29:08.680Z",
+          "endedAt": "2026-11-15T21:31:37.738Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-install.log",
+          "logDigest": "4f09c61769c34fe19605c8ae70a5955985c83b863f82b56edec7079c2ca8ede1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "--version"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:29:08.015Z",
+          "endedAt": "2026-11-15T21:29:08.588Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-pnpm.log",
+          "logDigest": "c2cafcd49656645513117ea1470e7da42c94c48b43ce025f3142511e347604f8"
+        },
+        {
+          "argv": [
+            "node",
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
+            "rebuild",
+            "--directory",
+            "node_modules/node-pty"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T21:39:40.354Z",
+          "endedAt": "2026-11-15T21:39:52.962Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-pty.log",
+          "logDigest": "cb2381f23ec61c88b511d55a90c439fc431e52b3b9c8aa249ce74d6058b627bf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:34:25.697Z",
+          "endedAt": "2026-11-15T21:34:26.606Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/setup-widgets.log",
+          "logDigest": "7f7bcdd429f281fd13b49f722420e738b01bb2d41d4e914bc57f01e018dd2ddc"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-composer-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:42:05.695Z",
+          "endedAt": "2026-11-15T21:42:08.214Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/source-composer-green-01.log",
+          "logDigest": "10836cb412ad478231f235e11b4696c9d1be464f89cb624dd917db4477e71980"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-composer-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:47:05.950Z",
+          "endedAt": "2026-11-15T21:47:13.509Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/source-composer-green-02.log",
+          "logDigest": "cc15e617030565fab6ab6120a129219654e95a5779258a9b367cc1edaeb7187f"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-composer-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:41:13.144Z",
+          "endedAt": "2026-11-15T21:41:15.406Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/source-composer-red.log",
+          "logDigest": "4941bd16beb1e327be9c283b975441f0776de2a3b4533ae8aac9ddc260e56c2c"
+        },
+        {
+          "argv": [
+            "node",
+            "--input-type=module",
+            "-e",
+            "import {chromium} from '@playwright/test';\nconst browser=await chromium.launch();\ntry {\n const page=await browser.newPage({viewport:{width:1280,height:800}});\n await page.setContent('<div id=\"root\" tabindex=\"0\"><span id=\"start\">Visible start </span><div id=\"hidden\" style=\"content-visibility:hidden;contain-intrinsic-size:auto 30px\">UNPAINTED SOURCE</div><span id=\"end\"> Visible end</span></div>');\n const result=await page.evaluate(()=>{\n  const root=document.querySelector('#root'),range=document.createRange();\n  range.setStart(document.querySelector('#start').firstChild,0);range.setEnd(document.querySelector('#end').firstChild,12);\n  getSelection().removeAllRanges();getSelection().addRange(range);\n  return {canonical:root.textContent,selected:getSelection().toString(),rectangles:[...range.getClientRects()].map(r=>({x:r.x,y:r.y,width:r.width,height:r.height})),hiddenStyle:{contentVisibility:getComputedStyle(document.querySelector('#hidden')).contentVisibility,display:getComputedStyle(document.querySelector('#hidden')).display,visibility:getComputedStyle(document.querySelector('#hidden')).visibility}};\n });\n console.log(JSON.stringify(result));\n} finally {await browser.close();}"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T22:14:00.693Z",
+          "endedAt": "2026-11-15T22:14:01.707Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/source-selection-visibility-probe-01.log",
+          "logDigest": "32a8b0bb5be74762bfbb6f0ea08dad4cfa27c0d5ef427527f752d940183b4214"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:08.912Z",
+          "endedAt": "2026-11-15T21:35:09.512Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-first.log",
+          "logDigest": "cbdbc5f0a17ab51807e69c3ab911898e24329365d12b009b48490c01949192a4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "workbench"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:35:59.093Z",
+          "endedAt": "2026-11-15T21:36:05.480Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-loader.log",
+          "logDigest": "923a5ab4c7fe1bf087da45e37a0aef218f9401966b0920d276deff60a6e51082"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "-g",
+            "exposes explicit actions"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:33:57.200Z",
+          "endedAt": "2026-11-15T21:34:08.505Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-red-2.log",
+          "logDigest": "5ce19c9286f927a78eca4be9ae818668e5e7920b7b4d4105c47c91a23945bb34"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/workbench.playwright.config.ts",
+            "-g",
+            "exposes explicit actions"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:33:40.744Z",
+          "endedAt": "2026-11-15T21:33:44.247Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-red.log",
+          "logDigest": "173fc460c747a0f769c021c792f90255a3d784189cf1e3bbf1ce5db42427ddd1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:45:27.581Z",
+          "endedAt": "2026-11-15T21:46:31.481Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/ui-integration-typecheck-01.log",
+          "logDigest": "f590fbf0eec2b2f92a0a2e43dacdc1abe4e96b2c50a028e716d200f38e0b1112"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/source-composer-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "tests/agents-workspace-dispatch.test.ts",
+            "tests/source-selection-dom-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:58:52.044Z",
+          "endedAt": "2026-11-15T21:58:59.775Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/ui-review-unit-01.log",
+          "logDigest": "8d0d9ea6fbcd8d2b715e1eba055d25a3b9f790bdce68498f8ea973a7e0b4d4ae"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+          "startedAt": "2026-11-15T21:53:01.741Z",
+          "endedAt": "2026-11-15T21:54:19.003Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m15-logs/ui-typecheck-02.log",
+          "logDigest": "b923107baad766f3189a521392bb32e443ea2ebb1229c2a2d9f45a310af08ad3"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M15-command-index.json"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "apps/server/server.ts",
+    "apps/server/source-workbench-routes.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/ContextInspector.tsx",
+    "apps/web/src/SavedDrafts.tsx",
+    "apps/web/src/SourceSelectionActions.tsx",
+    "apps/web/src/SourceWorkbench.tsx",
+    "apps/web/src/WorkActivity.tsx",
+    "apps/web/src/WorkbenchActivity.tsx",
+    "apps/web/src/WorkbenchInputsPanel.tsx",
+    "apps/web/src/WorkbenchOutput.tsx",
+    "apps/web/src/WorkbenchPanels.tsx",
+    "apps/web/src/activity-output.ts",
+    "apps/web/src/agents-workspace/composer.ts",
+    "apps/web/src/draft-transfer.ts",
+    "apps/web/src/project-api.ts",
+    "apps/web/src/saved-drafts.ts",
+    "apps/web/src/source-workbench.css",
+    "apps/web/src/workbench-api.ts",
+    "apps/web/src/workbench-input-recovery.ts",
+    "apps/web/src/workbench-output.css",
+    "apps/web/src/workbench-recovery.ts",
+    "apps/web/src/workbench-window.ts",
+    "docs/implementation/v3/M15-artifacts.json",
+    "docs/implementation/v3/M15-browser-baseline.md",
+    "docs/implementation/v3/M15-browser-regression-review.md",
+    "docs/implementation/v3/M15-command-index.json",
+    "docs/implementation/v3/M15-dependency-review.md",
+    "docs/implementation/v3/M15-draft-transfer-review.md",
+    "docs/implementation/v3/M15-evidence-plan.json",
+    "docs/implementation/v3/M15-feature-comparison.md",
+    "docs/implementation/v3/M15-final-review.md",
+    "docs/implementation/v3/M15-handoff.md",
+    "docs/implementation/v3/M15-original-prompt-audit.md",
+    "docs/implementation/v3/M15-plan.md",
+    "docs/implementation/v3/M15-source-cut.json",
+    "docs/implementation/v3/M15-source-lock.json",
+    "docs/implementation/v3/M15-validation-summary.json",
+    "docs/implementation/v3/M15-verification.json",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01-results.json",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-child-fol-030cb-rent-ticket-through-handled/error-context.md",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-first-age-596b1-arent-conversations-at-1440/error-context.md",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+    "docs/implementation/v3/m15-artifacts/agents-workspace-declared-01-results.json",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-01/results.json",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-02/evidence-drawer.png",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-02/results.json",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-02/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-02/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue.md",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-02/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload.md",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/evidence-drawer.png",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/results.json",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/baseline-root-native-ready-results.json",
+    "docs/implementation/v3/m15-artifacts/baseline-root-native-ready-summary.json",
+    "docs/implementation/v3/m15-artifacts/baseline-root-results.json",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/scoped-conversation.chromium.playwright.config.ts",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/usage-context.chromium.playwright.config.ts",
+    "docs/implementation/v3/m15-artifacts/browser-final-02/output-1280x800-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/browser-final-02/output-1920x1080-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/browser-final-02/renderer-performance.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-02/results.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/artifact-manifest.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/output-1280x800-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/output-1920x1080-zoom200.png",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/renderer-performance.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/results.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/source-cut-before.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/error-context.md",
+    "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/results.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-comparison.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/architecture-dark/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/architecture-light/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/artifact-acknowledgment/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/document-large-edit/error-context.md",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/document-large-edit/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-flat/error-context.md",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-flat/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-scale/error-context.md",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-scale/trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-results.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-extra-six-01/artifact-acknowledgment-trace.zip",
+    "docs/implementation/v3/m15-artifacts/candidate-root-extra-six-01/results.json",
+    "docs/implementation/v3/m15-artifacts/changed-path-browser-regressions-summary.json",
+    "docs/implementation/v3/m15-artifacts/chat-view-modes-baseline-01/escape-drag-error.md",
+    "docs/implementation/v3/m15-artifacts/chat-view-modes-baseline-01/initial-readiness-error.md",
+    "docs/implementation/v3/m15-artifacts/chat-view-modes-baseline-01/results.json",
+    "docs/implementation/v3/m15-artifacts/chat-view-modes-final-01/results.json",
+    "docs/implementation/v3/m15-artifacts/evidence-controller-probes.json",
+    "docs/implementation/v3/m15-artifacts/full-vitest-01-audit-summary.json",
+    "docs/implementation/v3/m15-artifacts/full-vitest-01-results.json",
+    "docs/implementation/v3/m15-artifacts/publication-main-drift.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-01-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-01-summary.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-hmr-trace.zip",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-hmr.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-summary.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-focus-trace.zip",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-hmr-trace.zip",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-summary.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-trace-summary.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04-summary.json",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1024.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1440.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-768.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/save-error.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/stress-list.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/restore-conflict-1440.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/restore-abort-1440.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1024.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1440.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-768.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1024.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1440.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-768.png",
+    "docs/implementation/v3/m15-artifacts/saved-drafts-focus-reload-01-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-source-ui-02-results.json",
+    "docs/implementation/v3/m15-artifacts/saved-source-ui-results.json",
+    "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01-results.json",
+    "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/01-dark-transcript.png",
+    "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/02-light-short-zoom.png",
+    "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/03-dark-short-zoom.png",
+    "docs/implementation/v3/m15-artifacts/scoped-conversation-declared-01-results.json",
+    "docs/implementation/v3/m15-artifacts/usage-context-chromium-01-results.json",
+    "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/context-light-short.png",
+    "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/context-dark-short.png",
+    "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/usage-light-short.png",
+    "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/usage-dark-short.png",
+    "docs/implementation/v3/m15-artifacts/usage-context-declared-01-results.json",
+    "docs/implementation/v3/m15-logs/activity-contract-green.json",
+    "docs/implementation/v3/m15-logs/activity-contract-green.log",
+    "docs/implementation/v3/m15-logs/activity-contract-red.json",
+    "docs/implementation/v3/m15-logs/activity-contract-red.log",
+    "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json",
+    "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.log",
+    "docs/implementation/v3/m15-logs/agents-workspace-declared-01.json",
+    "docs/implementation/v3/m15-logs/agents-workspace-declared-01.log",
+    "docs/implementation/v3/m15-logs/app-browser-01.json",
+    "docs/implementation/v3/m15-logs/app-browser-01.log",
+    "docs/implementation/v3/m15-logs/app-browser-02.json",
+    "docs/implementation/v3/m15-logs/app-browser-02.log",
+    "docs/implementation/v3/m15-logs/app-browser-03.json",
+    "docs/implementation/v3/m15-logs/app-browser-03.log",
+    "docs/implementation/v3/m15-logs/app-browser-04.json",
+    "docs/implementation/v3/m15-logs/app-browser-04.log",
+    "docs/implementation/v3/m15-logs/app-browser-final-01.json",
+    "docs/implementation/v3/m15-logs/app-browser-final-01.log",
+    "docs/implementation/v3/m15-logs/app-browser-final-02.json",
+    "docs/implementation/v3/m15-logs/app-browser-final-02.log",
+    "docs/implementation/v3/m15-logs/app-browser-final-03.json",
+    "docs/implementation/v3/m15-logs/app-browser-final-03.log",
+    "docs/implementation/v3/m15-logs/artifact-array-red-01.json",
+    "docs/implementation/v3/m15-logs/artifact-array-red-01.log",
+    "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.json",
+    "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.log",
+    "docs/implementation/v3/m15-logs/baseline-browser-root-node-loader.json",
+    "docs/implementation/v3/m15-logs/baseline-browser-root-node-loader.log",
+    "docs/implementation/v3/m15-logs/baseline-browser-root.json",
+    "docs/implementation/v3/m15-logs/baseline-browser-root.log",
+    "docs/implementation/v3/m15-logs/baseline-build-widgets.json",
+    "docs/implementation/v3/m15-logs/baseline-build-widgets.log",
+    "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json",
+    "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.log",
+    "docs/implementation/v3/m15-logs/candidate-root-browser-01.json",
+    "docs/implementation/v3/m15-logs/candidate-root-browser-01.log",
+    "docs/implementation/v3/m15-logs/candidate-root-extra-six-01.json",
+    "docs/implementation/v3/m15-logs/candidate-root-extra-six-01.log",
+    "docs/implementation/v3/m15-logs/chat-drag-escape-green-01.json",
+    "docs/implementation/v3/m15-logs/chat-drag-escape-green-01.log",
+    "docs/implementation/v3/m15-logs/chat-drag-escape-red-01.json",
+    "docs/implementation/v3/m15-logs/chat-drag-escape-red-01.log",
+    "docs/implementation/v3/m15-logs/chat-view-modes-baseline-01.json",
+    "docs/implementation/v3/m15-logs/chat-view-modes-baseline-01.log",
+    "docs/implementation/v3/m15-logs/chat-view-modes-final-01.json",
+    "docs/implementation/v3/m15-logs/chat-view-modes-final-01.log",
+    "docs/implementation/v3/m15-logs/chat-view-modes-review-01.json",
+    "docs/implementation/v3/m15-logs/chat-view-modes-review-01.log",
+    "docs/implementation/v3/m15-logs/core-prerequisites.json",
+    "docs/implementation/v3/m15-logs/core-prerequisites.log",
+    "docs/implementation/v3/m15-logs/dom-selection-green.json",
+    "docs/implementation/v3/m15-logs/dom-selection-green.log",
+    "docs/implementation/v3/m15-logs/dom-selection-red.json",
+    "docs/implementation/v3/m15-logs/dom-selection-red.log",
+    "docs/implementation/v3/m15-logs/draft-context-green-01.json",
+    "docs/implementation/v3/m15-logs/draft-context-green-01.log",
+    "docs/implementation/v3/m15-logs/draft-context-green-02.json",
+    "docs/implementation/v3/m15-logs/draft-context-green-02.log",
+    "docs/implementation/v3/m15-logs/draft-context-red.json",
+    "docs/implementation/v3/m15-logs/draft-context-red.log",
+    "docs/implementation/v3/m15-logs/draft-context-types-01.json",
+    "docs/implementation/v3/m15-logs/draft-context-types-01.log",
+    "docs/implementation/v3/m15-logs/draft-context-types-02.json",
+    "docs/implementation/v3/m15-logs/draft-context-types-02.log",
+    "docs/implementation/v3/m15-logs/draft-transfer-version-red.json",
+    "docs/implementation/v3/m15-logs/draft-transfer-version-red.log",
+    "docs/implementation/v3/m15-logs/evidence-controller-green-01.json",
+    "docs/implementation/v3/m15-logs/evidence-controller-green-01.log",
+    "docs/implementation/v3/m15-logs/evidence-controller-red-01.json",
+    "docs/implementation/v3/m15-logs/evidence-controller-red-01.log",
+    "docs/implementation/v3/m15-logs/evidence-controller-red-02.json",
+    "docs/implementation/v3/m15-logs/evidence-controller-red-02.log",
+    "docs/implementation/v3/m15-logs/evidence-window-green-01.json",
+    "docs/implementation/v3/m15-logs/evidence-window-green-01.log",
+    "docs/implementation/v3/m15-logs/evidence-window-red-01.json",
+    "docs/implementation/v3/m15-logs/evidence-window-red-01.log",
+    "docs/implementation/v3/m15-logs/final-build-01.json",
+    "docs/implementation/v3/m15-logs/final-build-01.log",
+    "docs/implementation/v3/m15-logs/final-checkout-custody-01.json",
+    "docs/implementation/v3/m15-logs/final-checkout-custody-01.log",
+    "docs/implementation/v3/m15-logs/final-focused-01.json",
+    "docs/implementation/v3/m15-logs/final-focused-01.log",
+    "docs/implementation/v3/m15-logs/final-packaging-01.json",
+    "docs/implementation/v3/m15-logs/final-packaging-01.log",
+    "docs/implementation/v3/m15-logs/final-typecheck-01.json",
+    "docs/implementation/v3/m15-logs/final-typecheck-01.log",
+    "docs/implementation/v3/m15-logs/final-typecheck-02.json",
+    "docs/implementation/v3/m15-logs/final-typecheck-02.log",
+    "docs/implementation/v3/m15-logs/final-typecheck-03.json",
+    "docs/implementation/v3/m15-logs/final-typecheck-03.log",
+    "docs/implementation/v3/m15-logs/full-repository-test-01.json",
+    "docs/implementation/v3/m15-logs/full-repository-test-01.log",
+    "docs/implementation/v3/m15-logs/full-vitest-01.json",
+    "docs/implementation/v3/m15-logs/full-vitest-01.log",
+    "docs/implementation/v3/m15-logs/host-boundaries-green-02.json",
+    "docs/implementation/v3/m15-logs/host-boundaries-green-02.log",
+    "docs/implementation/v3/m15-logs/host-boundaries-red-04.json",
+    "docs/implementation/v3/m15-logs/host-boundaries-red-04.log",
+    "docs/implementation/v3/m15-logs/host-contracts-red-01.json",
+    "docs/implementation/v3/m15-logs/host-contracts-red-01.log",
+    "docs/implementation/v3/m15-logs/host-gates-red-05.json",
+    "docs/implementation/v3/m15-logs/host-gates-red-05.log",
+    "docs/implementation/v3/m15-logs/host-output-green-03.json",
+    "docs/implementation/v3/m15-logs/host-output-green-03.log",
+    "docs/implementation/v3/m15-logs/host-output-red-06.json",
+    "docs/implementation/v3/m15-logs/host-output-red-06.log",
+    "docs/implementation/v3/m15-logs/host-owner-read-green-05.json",
+    "docs/implementation/v3/m15-logs/host-owner-read-green-05.log",
+    "docs/implementation/v3/m15-logs/host-owner-read-red-08.json",
+    "docs/implementation/v3/m15-logs/host-owner-read-red-08.log",
+    "docs/implementation/v3/m15-logs/host-recovery-final-07.json",
+    "docs/implementation/v3/m15-logs/host-recovery-final-07.log",
+    "docs/implementation/v3/m15-logs/host-recovery-review-green-attempt-06.json",
+    "docs/implementation/v3/m15-logs/host-recovery-review-green-attempt-06.log",
+    "docs/implementation/v3/m15-logs/host-recovery-review-red-09.json",
+    "docs/implementation/v3/m15-logs/host-recovery-review-red-09.log",
+    "docs/implementation/v3/m15-logs/host-review-green-04.json",
+    "docs/implementation/v3/m15-logs/host-review-green-04.log",
+    "docs/implementation/v3/m15-logs/host-review-red-07.json",
+    "docs/implementation/v3/m15-logs/host-review-red-07.log",
+    "docs/implementation/v3/m15-logs/host-route-composition-green-08.json",
+    "docs/implementation/v3/m15-logs/host-route-composition-green-08.log",
+    "docs/implementation/v3/m15-logs/host-route-composition-red-10.json",
+    "docs/implementation/v3/m15-logs/host-route-composition-red-10.log",
+    "docs/implementation/v3/m15-logs/host-runtime-green-attempt-01.json",
+    "docs/implementation/v3/m15-logs/host-runtime-green-attempt-01.log",
+    "docs/implementation/v3/m15-logs/host-runtime-red-02.json",
+    "docs/implementation/v3/m15-logs/host-runtime-red-02.log",
+    "docs/implementation/v3/m15-logs/host-runtime-red-03.json",
+    "docs/implementation/v3/m15-logs/host-runtime-red-03.log",
+    "docs/implementation/v3/m15-logs/host-typecheck-02.json",
+    "docs/implementation/v3/m15-logs/host-typecheck-02.log",
+    "docs/implementation/v3/m15-logs/host-typecheck-attempt-01.json",
+    "docs/implementation/v3/m15-logs/host-typecheck-attempt-01.log",
+    "docs/implementation/v3/m15-logs/input-recovery-client-green.json",
+    "docs/implementation/v3/m15-logs/input-recovery-client-green.log",
+    "docs/implementation/v3/m15-logs/input-recovery-client-red.json",
+    "docs/implementation/v3/m15-logs/input-recovery-client-red.log",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-green-01.json",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-green-01.log",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-red-02.json",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-red-02.log",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-red.json",
+    "docs/implementation/v3/m15-logs/input-recovery-ui-red.log",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-02.json",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-02.log",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-03.json",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-03.log",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-04.json",
+    "docs/implementation/v3/m15-logs/output-browser-benchmark-04.log",
+    "docs/implementation/v3/m15-logs/output-browser-candidate-01.json",
+    "docs/implementation/v3/m15-logs/output-browser-candidate-01.log",
+    "docs/implementation/v3/m15-logs/output-browser-final-01.json",
+    "docs/implementation/v3/m15-logs/output-browser-final-01.log",
+    "docs/implementation/v3/m15-logs/output-browser-final-02.json",
+    "docs/implementation/v3/m15-logs/output-browser-final-02.log",
+    "docs/implementation/v3/m15-logs/output-browser-final-03.json",
+    "docs/implementation/v3/m15-logs/output-browser-final-03.log",
+    "docs/implementation/v3/m15-logs/output-browser-red-01.json",
+    "docs/implementation/v3/m15-logs/output-browser-red-01.log",
+    "docs/implementation/v3/m15-logs/output-query-race-red-01.json",
+    "docs/implementation/v3/m15-logs/output-query-race-red-01.log",
+    "docs/implementation/v3/m15-logs/output-view-race-green-01.json",
+    "docs/implementation/v3/m15-logs/output-view-race-green-01.log",
+    "docs/implementation/v3/m15-logs/output-view-race-red-01.json",
+    "docs/implementation/v3/m15-logs/output-view-race-red-01.log",
+    "docs/implementation/v3/m15-logs/packaging-import-closure-green.json",
+    "docs/implementation/v3/m15-logs/packaging-import-closure-green.log",
+    "docs/implementation/v3/m15-logs/performance-denied-green-01.json",
+    "docs/implementation/v3/m15-logs/performance-denied-green-01.log",
+    "docs/implementation/v3/m15-logs/performance-denied-red-01.json",
+    "docs/implementation/v3/m15-logs/performance-denied-red-01.log",
+    "docs/implementation/v3/m15-logs/performance-stage-green-01.json",
+    "docs/implementation/v3/m15-logs/performance-stage-green-01.log",
+    "docs/implementation/v3/m15-logs/publication-git-preflight.json",
+    "docs/implementation/v3/m15-logs/publication-git-preflight.log",
+    "docs/implementation/v3/m15-logs/recovery-import-race-green-01.json",
+    "docs/implementation/v3/m15-logs/recovery-import-race-green-01.log",
+    "docs/implementation/v3/m15-logs/recovery-import-race-red-01.json",
+    "docs/implementation/v3/m15-logs/recovery-import-race-red-01.log",
+    "docs/implementation/v3/m15-logs/recovery-owner-key-green-01.json",
+    "docs/implementation/v3/m15-logs/recovery-owner-key-green-01.log",
+    "docs/implementation/v3/m15-logs/recovery-owner-key-red-01.json",
+    "docs/implementation/v3/m15-logs/recovery-owner-key-red-01.log",
+    "docs/implementation/v3/m15-logs/recovery-performance-red-01.json",
+    "docs/implementation/v3/m15-logs/recovery-performance-red-01.log",
+    "docs/implementation/v3/m15-logs/recovery-performance-typecheck-01.json",
+    "docs/implementation/v3/m15-logs/recovery-performance-typecheck-01.log",
+    "docs/implementation/v3/m15-logs/recovery-stage-green-01.json",
+    "docs/implementation/v3/m15-logs/recovery-stage-green-01.log",
+    "docs/implementation/v3/m15-logs/renderer-performance-04.json",
+    "docs/implementation/v3/m15-logs/review-final-core-green.json",
+    "docs/implementation/v3/m15-logs/review-final-core-green.log",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-01.json",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-01.log",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-02.json",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-02.log",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-03.json",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-03.log",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.json",
+    "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.log",
+    "docs/implementation/v3/m15-logs/saved-drafts-focus-reload-01.json",
+    "docs/implementation/v3/m15-logs/saved-drafts-focus-reload-01.log",
+    "docs/implementation/v3/m15-logs/saved-source-ui-01.json",
+    "docs/implementation/v3/m15-logs/saved-source-ui-01.log",
+    "docs/implementation/v3/m15-logs/saved-source-ui-02.json",
+    "docs/implementation/v3/m15-logs/saved-source-ui-02.log",
+    "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json",
+    "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.log",
+    "docs/implementation/v3/m15-logs/scoped-conversation-declared-01.json",
+    "docs/implementation/v3/m15-logs/scoped-conversation-declared-01.log",
+    "docs/implementation/v3/m15-logs/selection-review-green-01.json",
+    "docs/implementation/v3/m15-logs/selection-review-green-01.log",
+    "docs/implementation/v3/m15-logs/selection-review-red-01.json",
+    "docs/implementation/v3/m15-logs/selection-review-red-01.log",
+    "docs/implementation/v3/m15-logs/setup-browser.json",
+    "docs/implementation/v3/m15-logs/setup-browser.log",
+    "docs/implementation/v3/m15-logs/setup-credential-lease-loader.json",
+    "docs/implementation/v3/m15-logs/setup-credential-lease-loader.log",
+    "docs/implementation/v3/m15-logs/setup-install.json",
+    "docs/implementation/v3/m15-logs/setup-install.log",
+    "docs/implementation/v3/m15-logs/setup-pnpm.json",
+    "docs/implementation/v3/m15-logs/setup-pnpm.log",
+    "docs/implementation/v3/m15-logs/setup-pty.json",
+    "docs/implementation/v3/m15-logs/setup-pty.log",
+    "docs/implementation/v3/m15-logs/setup-widgets.json",
+    "docs/implementation/v3/m15-logs/setup-widgets.log",
+    "docs/implementation/v3/m15-logs/source-composer-green-01.json",
+    "docs/implementation/v3/m15-logs/source-composer-green-01.log",
+    "docs/implementation/v3/m15-logs/source-composer-green-02.json",
+    "docs/implementation/v3/m15-logs/source-composer-green-02.log",
+    "docs/implementation/v3/m15-logs/source-composer-red.json",
+    "docs/implementation/v3/m15-logs/source-composer-red.log",
+    "docs/implementation/v3/m15-logs/source-selection-visibility-probe-01.json",
+    "docs/implementation/v3/m15-logs/source-selection-visibility-probe-01.log",
+    "docs/implementation/v3/m15-logs/toolbar-browser-first.json",
+    "docs/implementation/v3/m15-logs/toolbar-browser-first.log",
+    "docs/implementation/v3/m15-logs/toolbar-browser-loader.json",
+    "docs/implementation/v3/m15-logs/toolbar-browser-loader.log",
+    "docs/implementation/v3/m15-logs/toolbar-browser-red-2.json",
+    "docs/implementation/v3/m15-logs/toolbar-browser-red-2.log",
+    "docs/implementation/v3/m15-logs/toolbar-browser-red.json",
+    "docs/implementation/v3/m15-logs/toolbar-browser-red.log",
+    "docs/implementation/v3/m15-logs/ui-integration-typecheck-01.json",
+    "docs/implementation/v3/m15-logs/ui-integration-typecheck-01.log",
+    "docs/implementation/v3/m15-logs/ui-review-unit-01.json",
+    "docs/implementation/v3/m15-logs/ui-review-unit-01.log",
+    "docs/implementation/v3/m15-logs/ui-typecheck-02.json",
+    "docs/implementation/v3/m15-logs/ui-typecheck-02.log",
+    "docs/implementation/v3/m15-logs/usage-context-chromium-01.json",
+    "docs/implementation/v3/m15-logs/usage-context-chromium-01.log",
+    "docs/implementation/v3/m15-logs/usage-context-declared-01.json",
+    "docs/implementation/v3/m15-logs/usage-context-declared-01.log",
+    "packages/contracts/index.ts",
+    "packages/contracts/source-selection.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/service.ts",
+    "packages/core/source-workbench.ts",
+    "packages/ui-shell/ChatView.tsx",
+    "scripts/browser-suites.ts",
+    "scripts/m15-evidence-probe.mjs",
+    "scripts/m15-evidence.mts",
+    "scripts/m15-record.mjs",
+    "scripts/public-source-files.json",
+    "tests/activity-output-v3.test.ts",
+    "tests/agents-workspace-composer.test.ts",
+    "tests/agents-workspace-dispatch.test.ts",
+    "tests/e2e/chat-view-modes.spec.ts",
+    "tests/e2e/saved-drafts.spec.ts",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "tests/e2e/workbench-app.spec.ts",
+    "tests/e2e/workbench-fixture.tsx",
+    "tests/e2e/workbench.playwright.config.ts",
+    "tests/e2e/workbench.spec.ts",
+    "tests/e2e/workbench.vite.config.ts",
+    "tests/source-composer-v3.test.ts",
+    "tests/source-draft-transfer-v3.test.ts",
+    "tests/source-selection-dom-v3.test.ts",
+    "tests/source-selection-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-effects.ts",
+      "version": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/effect-recovery.ts",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-authority.ts",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/storage/store.ts",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/index.ts",
+      "version": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "ui.sourceWorkbenchV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "Overall full-repository regression remains FAIL: full Vitest 3202 passed, 289 failed, 51 skipped and 4 unhandled errors; root browser 74 passed, 38 failed and 1 skipped. Targeted corrections and reruns do not rewrite those full attempts.",
+    "Current-main reconciliation is unvalidated. Remote main was 62 commits ahead at 673ca733d306ade463635def2d09299bc37043ec; execution evidence remains pinned to 399cde39ff4ee82272c7a7700944325c44b36070.",
+    "Actual Windows file capture, native runtime/history continuity, installed-desktop handoff and native path/grant coverage remain blocked. The one Windows host test is skipped, not passed.",
+    "A truly empty account-unbound task can reject its first file capture send when ordinary admission pins a non-null account. Resolve and test on the actual native target without weakening account custody.",
+    "Linux file leaf reads are deliberately unsupported; do not enable FILE_RANGE on this platform from pure-contract evidence.",
+    "DIFF_HUNK capture requires an atomic complete comparison witness from the owning service; capture remains disabled.",
+    "Historical log/screenshot navigation needs an authenticated retained-artifact read contract. References are metadata, not working navigation.",
+    "Inline transformed-Markdown selection requires trusted source offsets. Exact canonical text remains accessible per message, including messages outside the bounded catalogue.",
+    "M05 memory review, M10 background work and M14 branches have no tested owning integration and remain unsupported.",
+    "Edge executable is absent. Usage/context and scoped-conversation Chromium equivalents pass; agents-workspace Chromium retains 2 failures. Chromium does not certify Edge or Windows.",
+    "Renderer performance is a controlled browser fixture, not whole-application/task-timeline scaling or universal-device performance.",
+    "Independent release approval, merge and production activation are not granted. ui.sourceWorkbenchV1 stays false; reviewerApproval stays false."
+  ],
+  "reviewerApproval": false
+}

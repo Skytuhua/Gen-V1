@@ -1,0 +1,260 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-handoff-v3.test.ts","tests/editor-handoff.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-handoff-v3.test.ts (20 tests | 12 failed) 592ms
+     × acknowledges only an untouched owner whose source, text and pending recovery all failed 253ms
+     ✓ does not treat an unobserved owner as a failed, untouched recovery 11ms
+     ✓ retains the strict read after an earlier successful empty recovery 9ms
+     ✓ keeps a locally begun source action blocking before its first journal write 13ms
+     × does not reset attempted source work across an A to B to A owner transition 5ms
+     × drains pending source hydration before judging an independently recovered pending send 16ms
+     × waits for a first single CAS before a generation exists 6ms
+     × waits for a first many CAS before a generation exists 14ms
+     × retains a failed first source CAS even when an empty read and false retry succeed 6ms
+     × does not let accepted old-source cleanup retire a failed newer attachment 8ms
+     × retires an earlier failed attachment only after an explicit source edit commits 6ms
+     × does not let an older explicit commit acknowledge a newer failed source operation 6ms
+     × keeps failed source imports blocked until an atomic import retry commits the exact bundle 154ms
+     ✓ waits through import preprocessing before the same registry handoff (commit fails: false) 28ms
+     × waits through import preprocessing before the same registry handoff (commit fails: true) 18ms
+     × retains an ordinary failed draft write until its exact staged generation persists 4ms
+     ✓ does not classify a recovered staging record with failed replay as cold 4ms
+     ✓ retains the obligation of source metadata acquired through broadcast after initial failure 8ms
+     ✓ retains a record observed by entry enumeration even without a cached generation 9ms
+     ✓ rejects a foreign-owner source record instead of granting the cold-owner allowance 10ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 12ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > acknowledges only an untouched owner whose source, text and pending recovery all failed
+AssertionError: promise rejected "Error: IDB unavailable" instead of resolving
+ ❯ tests/source-handoff-v3.test.ts:125:59
+    123|     await failedInitialRecovery(journal);
+    124|     const opens = local.state.opens;
+    125|     await expect(recovery.prepareSourceOwnerHandoff(owner)).resolves.t…
+       |                                                           ^
+    126|     expect(local.state.opens).toBe(opens);
+    127|     expect(local.rows.size).toBe(0); expect(local.staged.size).toBe(0);
+
+Caused by: Error: IDB unavailable
+ ❯ tests/source-handoff-v3.test.ts:120:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > does not reset attempted source work across an A to B to A owner transition
+AssertionError: promise rejected "Error: Owner recovery unavailable" instead of resolving
+ ❯ tests/source-handoff-v3.test.ts:165:64
+    163|     const fence = recovery.createWorkbenchOwnerFence(owner), first = f…
+    164|     fence.switchOwner(otherOwner);
+    165|     await expect(recovery.prepareSourceOwnerHandoff(otherOwner)).resol…
+       |                                                                ^
+    166|     fence.switchOwner(owner);
+    167|     expect(fence.isCurrent(first)).toBe(false);
+
+Caused by: Error: Owner recovery unavailable
+ ❯ tests/source-handoff-v3.test.ts:157:40
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > drains pending source hydration before judging an independently recovered pending send
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/source-handoff-v3.test.ts:179:48
+    177|     await journal.journalReadRecord('agents-pending:thread-a');
+    178|     const handing = watch(recovery.prepareSourceOwnerHandoff(owner));
+    179|     try {await turn(); expect(handing.settled).toBe(false);}
+       |                                                ^
+    180|     finally {held.release(); await hydrating;}
+    181|     const result = await handing.result;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > waits for a first single CAS before a generation exists
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > waits for a first many CAS before a generation exists
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/source-handoff-v3.test.ts:201:48
+    199|     expect(journal.journalGeneration(sourceKey)).toBeUndefined(); expe…
+    200|     const handing = watch(recovery.prepareSourceOwnerHandoff(owner));
+    201|     try {await turn(); expect(handing.settled).toBe(false);}
+       |                                                ^
+    202|     finally {held.release(); expect(await writing).toBe(true);}
+    203|     expect(await handing.result).toEqual({ok: true, value: undefined});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > retains a failed first source CAS even when an empty read and false retry succeed
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:215:59
+    213|     expect(await journal.journalReadRecord(sourceKey)).toBeUndefined();
+    214|     expect(await journal.journalCompareAndSwap(sourceKey, 'missing-gen…
+    215|     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.to…
+       |                                                           ^
+    216|     expect(local.rows.size).toBe(0);
+    217|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > does not let accepted old-source cleanup retire a failed newer attachment
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:228:59
+    226|     expect(await recovery.clearAcceptedSourceDraft(owner, submitted.ge…
+    227|     expect((await recovery.readSourceDraft(owner)).sourceRefs).toEqual…
+    228|     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.to…
+       |                                                           ^
+    229|     expect(local.rows.get('draft:thread-a')?.value).toBe('Keep prompt'…
+    230|     expect(journal.journalGeneration(sourceKey)).not.toBe(submitted.ge…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > retires an earlier failed attachment only after an explicit source edit commits
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:239:59
+    237|     local.state.failCommit = failure;
+    238|     await expect(recovery.updateSourceDraft(owner, value => ({...value…
+    239|     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.to…
+       |                                                           ^
+    240|     await recovery.updateSourceDraft(owner, value => ({...value, sourc…
+    241|     await expect(recovery.prepareSourceOwnerHandoff(owner)).resolves.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > does not let an older explicit commit acknowledge a newer failed source operation
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:254:59
+    252|     await expect(journal.journalCompareAndSwap(sourceKey, undefined, {…
+    253|     local.state.unavailable = undefined; held.release(); expect(await …
+    254|     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.to…
+       |                                                           ^
+    255|     expect(local.rows.get(sourceKey)?.value).toEqual(metadata);
+    256|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > keeps failed source imports blocked until an atomic import retry commits the exact bundle
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:264:59
+    262|     await expect(importDraftTransfer(backup, references)).rejects.toBe…
+    263|     expect(local.rows.size).toBe(0);
+    264|     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.to…
+       |                                                           ^
+    265|     expect((await importDraftTransfer(backup, references)).map(row => …
+    266|     await expect(recovery.prepareSourceOwnerHandoff(owner)).resolves.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > waits through import preprocessing before the same registry handoff (commit fails: true)
+AssertionError: expected { ok: true, value: undefined } to deeply equal { ok: false, …(1) }
+
+- Expected
++ Received
+
+  {
+-   "error": Error {
+-     "message": "Imported source commit failed after preprocessing",
+-   },
+-   "ok": false,
++   "ok": true,
++   "value": undefined,
+  }
+
+ ❯ tests/source-handoff-v3.test.ts:292:24
+    290|       if (fails) {
+    291|         expect(imported).toEqual({ok: false, error: failure});
+    292|         expect(result).toEqual({ok: false, error: failure});
+       |                        ^
+    293|         expect(local.rows.size).toBe(0);
+    294|       } else {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > retains an ordinary failed draft write until its exact staged generation persists
+AssertionError: expected undefined to match object { Object (value, generation) }
+
+- Expected:
+{
+  "generation": "9a509620-df58-40b4-9b7a-b831f4bfaaa7",
+  "value": "Locally authored text",
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-handoff-v3.test.ts:311:46
+    309|     local.state.unavailable = undefined;
+    310|     await expect(recovery.prepareSourceOwnerHandoff(owner)).resolves.t…
+    311|     expect(local.rows.get('draft:thread-a')).toMatchObject({value: 'Lo…
+       |                                              ^
+    312|     expect(local.staged.size).toBe(0);
+    313|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  12 failed | 11 passed (23)
+   Start at  12:51:28
+   Duration  1.53s (transform 298ms, setup 0ms, import 162ms, tests 604ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json

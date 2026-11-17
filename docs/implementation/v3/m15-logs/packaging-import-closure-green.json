@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/public-source.test.ts",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:19:15.421Z",
+  "endedAt": "2026-11-15T22:19:22.004Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/packaging-import-closure-green.log",
+  "logDigest": "4eeb2af67d4ef8ff6f47c6de53ab9b1d3e24054c1bffe845d94c0a857c7b690c"
+}

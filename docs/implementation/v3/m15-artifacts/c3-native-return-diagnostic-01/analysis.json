@@ -1,0 +1,2053 @@
+{
+  "kind": "C3 diagnostic-only native-return and two-timeout analysis",
+  "sealedAt": "2026-11-16T02:44:14.210741+00:00",
+  "diagnosticRun": {
+    "id": "c3-native-return-diagnostic-01",
+    "status": "FAIL",
+    "exitCode": 1,
+    "stats": {
+      "startTime": "2026-11-16T02:34:17.642Z",
+      "duration": 215815.731,
+      "expected": 20,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "logDigest": "52033ae9a880a57360a1fd9790e9c81ebfed5e4ea0fa70ee7dfc900cd49e6548",
+    "nativeCaseStatus": "passed",
+    "nativeCaseDurationMs": 9501
+  },
+  "nativeReturnObservation": {
+    "eventToReceiptMs": 724.7,
+    "stages": [
+      {
+        "at": 1071.199999999255,
+        "kind": "native-bridge:state",
+        "windows": [
+          "main"
+        ],
+        "focusKind": "thread",
+        "focusThreadId": "task-thread",
+        "relativeToNativeEventMs": 0.0
+      },
+      {
+        "at": 1094.800000000745,
+        "kind": "native-effect",
+        "component": "shell",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": true,
+        "splitSelectionReady": false,
+        "resolvedMainId": "second-thread",
+        "alreadyHandled": false,
+        "relativeToNativeEventMs": 23.6
+      },
+      {
+        "at": 1094.9000000022352,
+        "kind": "native-effect:wait-layout",
+        "component": "shell",
+        "relativeToNativeEventMs": 23.7
+      },
+      {
+        "at": 1166.300000000745,
+        "kind": "native-effect",
+        "component": "task-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": false,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "task-thread",
+        "pinnedThreadId": "task-thread",
+        "alreadyHandled": false,
+        "relativeToNativeEventMs": 95.1
+      },
+      {
+        "at": 1167.6000000014901,
+        "kind": "native-effect",
+        "component": "second-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": false,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "second-thread",
+        "pinnedThreadId": "second-thread",
+        "alreadyHandled": false,
+        "relativeToNativeEventMs": 96.4
+      },
+      {
+        "at": 1167.800000000745,
+        "kind": "native-effect",
+        "component": "shell",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": true,
+        "splitSelectionReady": true,
+        "resolvedMainId": "second-thread",
+        "alreadyHandled": false,
+        "revision": 2,
+        "relativeToNativeEventMs": 96.6
+      },
+      {
+        "at": 1167.800000000745,
+        "kind": "native-effect:consume",
+        "component": "shell",
+        "returningSplitThread": true,
+        "resolvedMainId": "second-thread",
+        "targetThreadId": "task-thread",
+        "relativeToNativeEventMs": 96.6
+      },
+      {
+        "at": 1167.800000000745,
+        "kind": "select:prepare-start",
+        "component": "shell",
+        "target": "task-thread",
+        "resolvedMainId": "second-thread",
+        "relativeToNativeEventMs": 96.6
+      },
+      {
+        "at": 1167.800000000745,
+        "kind": "workspace-prepare:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 96.6
+      },
+      {
+        "at": 1167.800000000745,
+        "kind": "source-journal:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 96.6
+      },
+      {
+        "at": 1224,
+        "kind": "source-journal:source-read",
+        "component": "shell",
+        "threadId": "second-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 152.8
+      },
+      {
+        "at": 1241.4000000022352,
+        "kind": "source-journal:composed",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 170.2
+      },
+      {
+        "at": 1241.5,
+        "kind": "source-journal:ack-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 170.3
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "source-journal:ack-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "source-journal:handoff-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "source-journal:flush-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "source-journal:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "workspace-prepare:source-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.4000000022352,
+        "kind": "editor-handoff:start",
+        "handoff": 1,
+        "guards": [
+          "workspace-host-journal",
+          "composer-journal:shell",
+          "source-workbench::0::false:false:0",
+          "composer-journal:task-thread",
+          "composer-journal:second-thread",
+          "source-workbench::0::true:false:1"
+        ],
+        "relativeToNativeEventMs": 175.2
+      },
+      {
+        "at": 1246.5,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "workspace-host-journal",
+        "relativeToNativeEventMs": 175.3
+      },
+      {
+        "at": 1246.5,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "composer-journal:shell",
+        "relativeToNativeEventMs": 175.3
+      },
+      {
+        "at": 1246.5,
+        "kind": "source-journal:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.3
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "source-workbench::0::false:false:0",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "composer-journal:task-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "source-journal:start",
+        "component": "task-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "source-journal:flush-start",
+        "component": "task-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "composer-journal:second-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "source-journal:start",
+        "component": "second-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "source-journal:flush-start",
+        "component": "second-thread",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "editor-guard:start",
+        "handoff": 1,
+        "key": "source-workbench::0::true:false:1",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.6000000014901,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "workspace-host-journal",
+        "relativeToNativeEventMs": 175.4
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "source-workbench::0::false:false:0",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "source-journal:end",
+        "component": "task-thread",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "source-journal:end",
+        "component": "second-thread",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "source-workbench::0::true:false:1",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "source-journal:source-read",
+        "component": "shell",
+        "threadId": "second-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "composer-journal:task-thread",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1246.699999999255,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "composer-journal:second-thread",
+        "relativeToNativeEventMs": 175.5
+      },
+      {
+        "at": 1247,
+        "kind": "source-journal:composed",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.8
+      },
+      {
+        "at": 1247,
+        "kind": "source-journal:ack-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 175.8
+      },
+      {
+        "at": 1448,
+        "kind": "native-effect",
+        "component": "shell",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": true,
+        "splitSelectionReady": true,
+        "resolvedMainId": "second-thread",
+        "alreadyHandled": true,
+        "revision": 2,
+        "relativeToNativeEventMs": 376.8
+      },
+      {
+        "at": 1545,
+        "kind": "source-journal:ack-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "source-journal:handoff-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "source-journal:flush-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "source-journal:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "editor-guard:end",
+        "handoff": 1,
+        "key": "composer-journal:shell",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "editor-handoff:end",
+        "handoff": 1,
+        "failed": false,
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "workspace-prepare:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545,
+        "kind": "select:prepare-end",
+        "component": "shell",
+        "target": "task-thread",
+        "relativeToNativeEventMs": 473.8
+      },
+      {
+        "at": 1545.1000000014901,
+        "kind": "select-now:start",
+        "component": "shell",
+        "target": "task-thread",
+        "loaded": true,
+        "splitEnabled": true,
+        "revision": 2,
+        "resolvedMainId": "second-thread",
+        "relativeToNativeEventMs": 473.9
+      },
+      {
+        "at": 1545.1000000014901,
+        "kind": "select-now:split",
+        "component": "shell",
+        "target": "task-thread",
+        "paneId": "pane-main",
+        "revision": 2,
+        "relativeToNativeEventMs": 473.9
+      },
+      {
+        "at": 1545.1000000014901,
+        "kind": "place-thread:prepare-start",
+        "component": "shell",
+        "threadId": "task-thread",
+        "paneId": "pane-main",
+        "revision": 2,
+        "relativeToNativeEventMs": 473.9
+      },
+      {
+        "at": 1545.1000000014901,
+        "kind": "workspace-prepare:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 473.9
+      },
+      {
+        "at": 1545.1000000014901,
+        "kind": "source-journal:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 473.9
+      },
+      {
+        "at": 1545.199999999255,
+        "kind": "source-journal:source-read",
+        "component": "shell",
+        "threadId": "second-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 474.0
+      },
+      {
+        "at": 1545.4000000022352,
+        "kind": "source-journal:composed",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 474.2
+      },
+      {
+        "at": 1545.4000000022352,
+        "kind": "source-journal:ack-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 474.2
+      },
+      {
+        "at": 1702.699999999255,
+        "kind": "native-effect",
+        "component": "task-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "task-thread",
+        "pinnedThreadId": "task-thread",
+        "alreadyHandled": false,
+        "relativeToNativeEventMs": 631.5
+      },
+      {
+        "at": 1702.699999999255,
+        "kind": "native-effect:consume",
+        "component": "task-thread",
+        "returningSplitThread": false,
+        "resolvedMainId": "task-thread",
+        "targetThreadId": "task-thread",
+        "relativeToNativeEventMs": 631.5
+      },
+      {
+        "at": 1703.300000000745,
+        "kind": "native-effect",
+        "component": "second-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "second-thread",
+        "pinnedThreadId": "second-thread",
+        "alreadyHandled": false,
+        "relativeToNativeEventMs": 632.1
+      },
+      {
+        "at": 1703.300000000745,
+        "kind": "native-effect:consume",
+        "component": "second-thread",
+        "returningSplitThread": false,
+        "resolvedMainId": "second-thread",
+        "targetThreadId": "task-thread",
+        "relativeToNativeEventMs": 632.1
+      },
+      {
+        "at": 1777.9000000022352,
+        "kind": "native-effect",
+        "component": "task-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "task-thread",
+        "pinnedThreadId": "task-thread",
+        "alreadyHandled": true,
+        "relativeToNativeEventMs": 706.7
+      },
+      {
+        "at": 1778.300000000745,
+        "kind": "native-effect",
+        "component": "second-thread",
+        "targetKind": "thread",
+        "targetThreadId": "task-thread",
+        "loaded": true,
+        "splitEnabled": false,
+        "splitSelectionReady": false,
+        "resolvedMainId": "second-thread",
+        "pinnedThreadId": "second-thread",
+        "alreadyHandled": true,
+        "relativeToNativeEventMs": 707.1
+      },
+      {
+        "at": 1778.4000000022352,
+        "kind": "source-journal:ack-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 707.2
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:handoff-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:flush-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "workspace-prepare:source-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-handoff:start",
+        "handoff": 2,
+        "guards": [
+          "workspace-host-journal",
+          "composer-journal:shell",
+          "composer-journal:task-thread",
+          "composer-journal:second-thread",
+          "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1",
+          "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2"
+        ],
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "workspace-host-journal",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "composer-journal:shell",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "composer-journal:task-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:start",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "composer-journal:second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "source-journal:start",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.5,
+        "kind": "editor-guard:start",
+        "handoff": 2,
+        "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2",
+        "relativeToNativeEventMs": 707.3
+      },
+      {
+        "at": 1778.6000000014901,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "workspace-host-journal",
+        "relativeToNativeEventMs": 707.4
+      },
+      {
+        "at": 1778.699999999255,
+        "kind": "source-journal:source-read",
+        "component": "shell",
+        "threadId": "second-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 707.5
+      },
+      {
+        "at": 1778.699999999255,
+        "kind": "source-journal:source-read",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 707.5
+      },
+      {
+        "at": 1778.699999999255,
+        "kind": "source-journal:source-read",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "sourceCount": 1,
+        "relativeToNativeEventMs": 707.5
+      },
+      {
+        "at": 1779,
+        "kind": "source-journal:composed",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 707.8
+      },
+      {
+        "at": 1779.199999999255,
+        "kind": "source-journal:composed",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "relativeToNativeEventMs": 708.0
+      },
+      {
+        "at": 1779.199999999255,
+        "kind": "source-journal:composed",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 708.0
+      },
+      {
+        "at": 1779.199999999255,
+        "kind": "source-journal:ack-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 708.0
+      },
+      {
+        "at": 1779.300000000745,
+        "kind": "source-journal:ack-start",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "relativeToNativeEventMs": 708.1
+      },
+      {
+        "at": 1779.300000000745,
+        "kind": "source-journal:ack-start",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 708.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:ack-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:handoff-end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:flush-start",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "composer-journal:shell",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:ack-end",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:handoff-end",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:flush-start",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:end",
+        "component": "task-thread",
+        "threadId": "task-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "composer-journal:task-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:ack-end",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "pending": false,
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:handoff-end",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "status": "READY",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:flush-start",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "source-journal:end",
+        "component": "second-thread",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.300000000745,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "composer-journal:second-thread",
+        "relativeToNativeEventMs": 715.1
+      },
+      {
+        "at": 1786.4000000022352,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1",
+        "relativeToNativeEventMs": 715.2
+      },
+      {
+        "at": 1786.4000000022352,
+        "kind": "editor-guard:end",
+        "handoff": 2,
+        "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2",
+        "relativeToNativeEventMs": 715.2
+      },
+      {
+        "at": 1786.5,
+        "kind": "editor-handoff:end",
+        "handoff": 2,
+        "failed": false,
+        "relativeToNativeEventMs": 715.3
+      },
+      {
+        "at": 1786.5,
+        "kind": "workspace-prepare:end",
+        "component": "shell",
+        "threadId": "second-thread",
+        "relativeToNativeEventMs": 715.3
+      },
+      {
+        "at": 1786.5,
+        "kind": "place-thread:prepare-end",
+        "component": "shell",
+        "threadId": "task-thread",
+        "paneId": "pane-main",
+        "revision": 2,
+        "relativeToNativeEventMs": 715.3
+      },
+      {
+        "at": 1786.5,
+        "kind": "place-thread:send",
+        "component": "shell",
+        "threadId": "task-thread",
+        "paneId": "pane-main",
+        "type": "view.open",
+        "revision": 2,
+        "relativeToNativeEventMs": 715.3
+      },
+      {
+        "at": 1795.9000000022352,
+        "kind": "place-thread:receipt",
+        "component": "shell",
+        "threadId": "task-thread",
+        "paneId": "pane-main",
+        "revision": 3,
+        "relativeToNativeEventMs": 724.7
+      }
+    ],
+    "postReloadTransactionStarts": 65,
+    "postReloadTransactionCompletions": 65,
+    "postReloadRequestStarts": 79,
+    "postReloadRequestSuccesses": 79,
+    "idbAbortsOrErrors": [],
+    "nativeCallsAfterReload": []
+  },
+  "timeoutCases": [
+    {
+      "caseDirectory": "workbench-app-real-activit-45647-es-the-authorized-full-read",
+      "testOrigin": 54608.129,
+      "reloadStart": 59106.127,
+      "afterHooksStart": 84689.47,
+      "libraryLastRecordedTime": 84419.823,
+      "actions": [
+        {
+          "id": "call@881",
+          "start": 54679.985,
+          "end": 54828.067,
+          "method": "goto",
+          "selector": null,
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@883",
+          "start": 54834.813,
+          "end": 56921.877,
+          "method": "expect",
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "error": null
+        },
+        {
+          "id": "call@919",
+          "start": 56952.06,
+          "end": 57315.16,
+          "method": "click",
+          "selector": "details.activity summary",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@921",
+          "start": 57322.056,
+          "end": 57332.236,
+          "method": "expect",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Copy full result\"s]",
+          "expression": "to.be.enabled",
+          "error": null
+        },
+        {
+          "id": "call@923",
+          "start": 57338.892,
+          "end": 57347.736,
+          "method": "queryCount",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> [data-output-row-id]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@925",
+          "start": 57353.759,
+          "end": 57379.265,
+          "method": "fill",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=searchbox[name=\"Search full result\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@927",
+          "start": 57385.718,
+          "end": 57859.226,
+          "method": "click",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Search full result\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@931",
+          "start": 57904.569,
+          "end": 57918.812,
+          "method": "expect",
+          "selector": "internal:role=region[name=\"Retained work activity\"s]",
+          "expression": "to.have.text",
+          "error": null
+        },
+        {
+          "id": "call@933",
+          "start": 57924.218,
+          "end": 57932.459,
+          "method": "expect",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> [data-output-row-id=\"activity:1198\"]",
+          "expression": "to.be.visible",
+          "error": null
+        },
+        {
+          "id": "call@935",
+          "start": 57937.155,
+          "end": 57972.086,
+          "method": "fill",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=searchbox[name=\"Search full result\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@937",
+          "start": 57981.544,
+          "end": 58053.515,
+          "method": "click",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Search full result\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@941",
+          "start": 58068.985,
+          "end": 58112.827,
+          "method": "expect",
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> [data-output-row-id=\"activity:1199\"]",
+          "expression": "to.be.visible",
+          "error": null
+        },
+        {
+          "id": "call@949",
+          "start": 58128.989,
+          "end": 58469.1,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Other task\"i] >> nth=0",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@951",
+          "start": 58476.131,
+          "end": 59089.391,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Source-bound task fixture\"i] >> nth=0",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@971",
+          "start": 59106.127,
+          "end": 59233.153,
+          "method": "reload",
+          "selector": null,
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@973",
+          "start": 59238.939,
+          "end": 61139.192,
+          "method": "expect",
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "error": null
+        },
+        {
+          "id": "call@1011",
+          "start": 61160.372,
+          "end": null,
+          "method": "click",
+          "selector": "details.activity summary",
+          "expression": null,
+          "error": null
+        }
+      ],
+      "runnerActions": [
+        {
+          "id": "pw:api@55",
+          "start": 56951.87,
+          "end": 57320.315,
+          "title": "Click locator('details.activity summary')",
+          "error": null
+        },
+        {
+          "id": "pw:api@82",
+          "start": 59104.885,
+          "end": 59237.227,
+          "title": "Reload",
+          "error": null
+        },
+        {
+          "id": "pw:api@102",
+          "start": 61159.762,
+          "end": 84998.895,
+          "title": "Click locator('details.activity summary')",
+          "error": {
+            "name": "",
+            "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('details.activity summary')\u001b[22m\n\u001b[2m    - locator resolved to <summary>\u2026</summary>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    45 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+            "stack": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('details.activity summary')\u001b[22m\n\u001b[2m    - locator resolved to <summary>\u2026</summary>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    45 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:104:383"
+          }
+        },
+        {
+          "id": "hook@103",
+          "start": 84689.47,
+          "end": 85006.933,
+          "title": "After Hooks",
+          "error": null
+        }
+      ],
+      "network": [
+        {
+          "start": 55659.038,
+          "end": 55669.116,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace/profiles?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 55659.273,
+          "end": 55669.469,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "revision": 1,
+            "panes": {
+              "pane-main": {
+                "id": "pane-main",
+                "viewIds": [
+                  "thread:task-thread"
+                ],
+                "activeViewId": "thread:task-thread",
+                "collapsed": false
+              }
+            },
+            "error": null
+          }
+        },
+        {
+          "start": 58490.658,
+          "end": 58505.836,
+          "method": "POST",
+          "url": "http://127.0.0.1:5592/api/split-workspace/commands",
+          "status": 200,
+          "request": {
+            "id": "ee33d0df-7c77-4881-aeb5-937f9493e2c6",
+            "type": "split-workspace.view.open",
+            "payload": {
+              "workspaceId": "workspace",
+              "baseRevision": 1,
+              "paneId": "pane-main",
+              "view": {
+                "id": "thread:other",
+                "kind": "thread",
+                "binding": {
+                  "authority": {
+                    "kind": "local"
+                  },
+                  "threadId": "other"
+                }
+              }
+            }
+          },
+          "response": {
+            "revision": 2,
+            "panes": {
+              "pane-main": {
+                "id": "pane-main",
+                "viewIds": [
+                  "thread:task-thread",
+                  "thread:other"
+                ],
+                "activeViewId": "thread:other",
+                "collapsed": false
+              }
+            },
+            "error": null
+          }
+        },
+        {
+          "start": 59873.966,
+          "end": 59885.443,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/bootstrap",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "csrfToken",
+              "widgetOrigin"
+            ]
+          }
+        },
+        {
+          "start": 59889.127,
+          "end": 59895.075,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "projects",
+              "state"
+            ]
+          }
+        },
+        {
+          "start": 59889.315,
+          "end": 59895.316,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/plugins",
+          "status": 404,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 59892.569,
+          "end": 59900.391,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/shell-settings",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "theme",
+              "modelId",
+              "preferences"
+            ]
+          }
+        },
+        {
+          "start": 60003.077,
+          "end": 60008.926,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/snapshot",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "seq",
+              "activeThreadId",
+              "threads",
+              "messages",
+              "artifacts",
+              "userStates",
+              "data",
+              "requests",
+              "operations",
+              "resources",
+              "usage",
+              "settings"
+            ]
+          }
+        },
+        {
+          "start": 60112.244,
+          "end": 60120.774,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models?threadId=other",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 60112.507,
+          "end": 60121.033,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace/profiles?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 60112.653,
+          "end": 60120.934,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "revision": 2,
+            "panes": {
+              "pane-main": {
+                "id": "pane-main",
+                "viewIds": [
+                  "thread:task-thread",
+                  "thread:other"
+                ],
+                "activeViewId": "thread:other",
+                "collapsed": false
+              }
+            },
+            "error": null
+          }
+        },
+        {
+          "start": 60225.292,
+          "end": 60241.116,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/snapshot",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "seq",
+              "activeThreadId",
+              "threads",
+              "messages",
+              "artifacts",
+              "userStates",
+              "data",
+              "requests",
+              "operations",
+              "resources",
+              "usage",
+              "settings"
+            ]
+          }
+        },
+        {
+          "start": 60225.459,
+          "end": 60241.443,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/snapshot",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "seq",
+              "activeThreadId",
+              "threads",
+              "messages",
+              "artifacts",
+              "userStates",
+              "data",
+              "requests",
+              "operations",
+              "resources",
+              "usage",
+              "settings"
+            ]
+          }
+        },
+        {
+          "start": 60321.778,
+          "end": 60333.697,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/task-thread",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "logicalOwner",
+              "enabled",
+              "sources",
+              "sourceCapabilities"
+            ]
+          }
+        },
+        {
+          "start": 60323.326,
+          "end": 60335.206,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models?threadId=task-thread",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 60327.448,
+          "end": 60341.197,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "projects",
+              "state"
+            ]
+          }
+        },
+        {
+          "start": 60392.688,
+          "end": 60397.607,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/other",
+          "status": 404,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 60394.261,
+          "end": 60401.605,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models?threadId=other",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 60397.627,
+          "end": 60408.921,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "projects",
+              "state"
+            ]
+          }
+        },
+        {
+          "start": 60633.568,
+          "end": 60643.924,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/task-thread/inputs",
+          "status": 200,
+          "request": null,
+          "response": {
+            "owner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "inputs": []
+          }
+        },
+        {
+          "start": 60637.631,
+          "end": 60649.325,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/other/inputs",
+          "status": 200,
+          "request": null,
+          "response": {
+            "owner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "inputs": []
+          }
+        }
+      ],
+      "tracePath": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip",
+      "traceSha256": "0e6cc0bb0d03a54fb8c9276bdeb9cdbadd6a07b485abe971fa9f80227e61b1e5",
+      "errorContextPath": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/error-context.md",
+      "errorContextSha256": "73eeada8bd755ad24d2bf41221e59564d73d2d278c5a0abedaa562fe2660a855"
+    },
+    {
+      "caseDirectory": "workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment",
+      "testOrigin": 128887.522,
+      "reloadStart": 151411.592,
+      "afterHooksStart": 158995.043,
+      "libraryLastRecordedTime": 158887.487,
+      "actions": [
+        {
+          "id": "call@440",
+          "start": 129452.912,
+          "end": 131099.036,
+          "method": "goto",
+          "selector": null,
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@442",
+          "start": 131244.652,
+          "end": 141120.009,
+          "method": "expect",
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "error": null
+        },
+        {
+          "id": "call@478",
+          "start": 141689.329,
+          "end": 141702.093,
+          "method": "expect",
+          "selector": "internal:role=toolbar[name=\"Selected source\"i]",
+          "expression": "to.be.visible",
+          "error": null
+        },
+        {
+          "id": "call@480",
+          "start": 141710.332,
+          "end": 143540.84,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Attach to prompt\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@486",
+          "start": 143809.335,
+          "end": 144143.707,
+          "method": "expect",
+          "selector": "internal:role=article[name=\"Selected source Assistant message\"i]",
+          "expression": "to.be.visible",
+          "error": null
+        },
+        {
+          "id": "call@492",
+          "start": 144646.527,
+          "end": 146471.964,
+          "method": "fill",
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@494",
+          "start": 146486.193,
+          "end": 148412.079,
+          "method": "click",
+          "selector": "internal:role=combobox[name=\"Source delivery mode\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@496",
+          "start": 148787.537,
+          "end": 149785.32,
+          "method": "click",
+          "selector": "internal:role=listbox[name=\"Source delivery mode\"s] >> internal:role=option[name=\"After current run\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@500",
+          "start": 149820.924,
+          "end": 150628.86,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Send message\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@506",
+          "start": 150659.019,
+          "end": 150700.682,
+          "method": "expect",
+          "selector": "internal:role=article[name=/Selected source/]",
+          "expression": "to.have.count",
+          "error": null
+        },
+        {
+          "id": "call@508",
+          "start": 150714.814,
+          "end": 150866.11,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Inspect queued source inputs\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@518",
+          "start": 150874.082,
+          "end": 151096.547,
+          "method": "expect",
+          "selector": "internal:role=dialog[name=\"Sources and evidence\"i]",
+          "expression": "to.have.text",
+          "error": null
+        },
+        {
+          "id": "call@520",
+          "start": 151130.222,
+          "end": 151286.698,
+          "method": "click",
+          "selector": "internal:role=dialog[name=\"Sources and evidence\"i] >> internal:role=button[name=\"Keep captured sources\"s]",
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@522",
+          "start": 151294.581,
+          "end": 151405.931,
+          "method": "expect",
+          "selector": "internal:role=dialog[name=\"Sources and evidence\"i] >> internal:role=alert",
+          "expression": "to.have.text",
+          "error": null
+        },
+        {
+          "id": "call@528",
+          "start": 151411.592,
+          "end": 151775.896,
+          "method": "reload",
+          "selector": null,
+          "expression": null,
+          "error": null
+        },
+        {
+          "id": "call@530",
+          "start": 151782.334,
+          "end": null,
+          "method": "click",
+          "selector": "internal:role=button[name=\"Inspect queued source inputs\"s]",
+          "expression": null,
+          "error": null
+        }
+      ],
+      "runnerActions": [
+        {
+          "id": "pw:api@69",
+          "start": 150714.29,
+          "end": 150871.878,
+          "title": "Click getByRole('button', { name: 'Inspect queued source inputs', exact: true })",
+          "error": null
+        },
+        {
+          "id": "pw:api@75",
+          "start": 151129.437,
+          "end": 151290.514,
+          "title": "Click getByRole('dialog', { name: 'Sources and evidence' }).getByRole('button', { name: 'Keep captured sources', exact: true })",
+          "error": null
+        },
+        {
+          "id": "pw:api@79",
+          "start": 151411.417,
+          "end": 151780.662,
+          "title": "Reload",
+          "error": null
+        },
+        {
+          "id": "pw:api@80",
+          "start": 151782.07,
+          "end": 160306.801,
+          "title": "Click getByRole('button', { name: 'Inspect queued source inputs', exact: true })",
+          "error": null
+        },
+        {
+          "id": "hook@96",
+          "start": 158995.043,
+          "end": 162249.533,
+          "title": "After Hooks",
+          "error": null
+        },
+        {
+          "id": "pw:api@99",
+          "start": 160311.473,
+          "end": 162234.081,
+          "title": "Click getByRole('dialog', { name: 'Sources and evidence' }).getByRole('button', { name: 'Keep captured sources', exact: true })",
+          "error": {
+            "name": "",
+            "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence' }).getByRole('button', { name: 'Keep captured sources', exact: true })\u001b[22m\n",
+            "stack": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence' }).getByRole('button', { name: 'Keep captured sources', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:127:213"
+          }
+        }
+      ],
+      "network": [
+        {
+          "start": 138884.549,
+          "end": 138951.306,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace/profiles?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 138884.716,
+          "end": 138952.053,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "revision": 1,
+            "panes": {
+              "pane-main": {
+                "id": "pane-main",
+                "viewIds": [
+                  "thread:task-thread"
+                ],
+                "activeViewId": "thread:task-thread",
+                "collapsed": false
+              }
+            },
+            "error": null
+          }
+        },
+        {
+          "start": 154281.033,
+          "end": 154291.582,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/bootstrap",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "csrfToken",
+              "widgetOrigin"
+            ]
+          }
+        },
+        {
+          "start": 154305.322,
+          "end": 154324.39,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "projects",
+              "state"
+            ]
+          }
+        },
+        {
+          "start": 154305.479,
+          "end": 154327.718,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/plugins",
+          "status": 404,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 154305.703,
+          "end": 154330.703,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/shell-settings",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "theme",
+              "modelId",
+              "preferences"
+            ]
+          }
+        },
+        {
+          "start": 154995.158,
+          "end": 155020.607,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/snapshot",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "seq",
+              "activeThreadId",
+              "threads",
+              "messages",
+              "artifacts",
+              "userStates",
+              "data",
+              "requests",
+              "operations",
+              "resources",
+              "usage",
+              "settings"
+            ]
+          }
+        },
+        {
+          "start": 155581.398,
+          "end": 155597.731,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 155589.988,
+          "end": 155617.523,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace/profiles?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": null
+        },
+        {
+          "start": 155590.196,
+          "end": 155618.922,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/split-workspace?workspaceId=workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "revision": 1,
+            "panes": {
+              "pane-main": {
+                "id": "pane-main",
+                "viewIds": [
+                  "thread:task-thread"
+                ],
+                "activeViewId": "thread:task-thread",
+                "collapsed": false
+              }
+            },
+            "error": null
+          }
+        },
+        {
+          "start": 156095.494,
+          "end": 156116.827,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models?threadId=task-thread",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 156097.088,
+          "end": 156118.647,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/snapshot",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "seq",
+              "activeThreadId",
+              "threads",
+              "messages",
+              "artifacts",
+              "userStates",
+              "data",
+              "requests",
+              "operations",
+              "resources",
+              "usage",
+              "settings"
+            ]
+          }
+        },
+        {
+          "start": 156497.658,
+          "end": 156525.827,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/task-thread",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "logicalOwner",
+              "enabled",
+              "sources",
+              "sourceCapabilities"
+            ]
+          }
+        },
+        {
+          "start": 156499.311,
+          "end": 156527.367,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/models?threadId=task-thread",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "models"
+            ]
+          }
+        },
+        {
+          "start": 156499.75,
+          "end": 156527.203,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workspace",
+          "status": 200,
+          "request": null,
+          "response": {
+            "keys": [
+              "projects",
+              "state"
+            ]
+          }
+        },
+        {
+          "start": 157544.815,
+          "end": 157956.324,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/task-thread/inputs",
+          "status": 200,
+          "request": null,
+          "response": {
+            "owner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "inputs": [
+              {
+                "inputId": "accepted-input",
+                "state": "BLOCKED",
+                "sourceCount": 1,
+                "canKeepCaptured": true,
+                "canCancel": true,
+                "reason": "The captured source changed before dispatch."
+              }
+            ]
+          }
+        },
+        {
+          "start": 157546.531,
+          "end": 157791.315,
+          "method": "GET",
+          "url": "http://127.0.0.1:5592/api/workbench/threads/task-thread/inputs",
+          "status": 200,
+          "request": null,
+          "response": {
+            "owner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "inputs": [
+              {
+                "inputId": "accepted-input",
+                "state": "BLOCKED",
+                "sourceCount": 1,
+                "canKeepCaptured": true,
+                "canCancel": true,
+                "reason": "The captured source changed before dispatch."
+              }
+            ]
+          }
+        }
+      ],
+      "tracePath": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/trace.zip",
+      "traceSha256": "1c4a82d18646801924abeda628bc9c39114cc8ad88d8c67620ebbae644ab0976",
+      "errorContextPath": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/error-context.md",
+      "errorContextSha256": "c1d8f103811efcdbc9d4ce16734498fccd56f585ad45b3316fc4110559ca70a8"
+    }
+  ],
+  "conclusions": [
+    "The diagnostic full run failed20pass/2timeout, with no skips or flaky results. Native return passed only on this temporary instrumentation cut. Original App01 remains FAIL21/1 at its unchanged product/test cut.",
+    "The native diagnostic shows root split readiness waiting, canonical B rev2 consumption, both local source/editor barriers, then one A view.open receipt at rev3 within724.7ms. It contains no IDB abort/error or native focus call. It does not reveal the precise uncompleted stage of the original uninstrumented native failure.",
+    "Activity/full-read assertions passed before navigation, including29 mounted rows and both final-line searches. Only Other placement was sent and committed rev2 before reload; no A placement POST was sent. Reload started16.736ms after the back-to-A click completed and correctly restored Other-active rev2. The final summary exists in hidden A, so its click waits until timeout. The existing test does not synchronize on completed canonical navigation before reload. No output-loss or conflict response was demonstrated.",
+    "Stale recovery consumed22.524s before reload in a30s test. Post-reload inputs200 preserved accepted-input and canKeepCaptured=true. Runner teardown began158995.043; Inspect completed160306.801; the final Keep click began160311.473,1316.430ms after teardown. The library trace stops158887.487 before that action and cannot diagnose later lazy-module completion or retry behavior. The captured DOM shows the expected owner and pending acknowledgment plus Loading source views.",
+    "No single common product or IDB cause is established. The activity failure is an observed incomplete-navigation prerequisite; the stale-recovery failure exhausts the whole-test budget before its last action. IDB diagnostics were enabled only for native return and cannot be generalized to the two other failures.",
+    "No product repair, assertion/deadline change, barrier bypass or second diagnostic attempt was made. All four original source files were restored byte-for-byte. Later Windows execution must remain separate platform evidence, not a claimed repair of these Linux results."
+  ],
+  "boundedTestProposal": "If revising the activity case after review, assert Other tab selection after the first click, then original tab selection after the second click, using the existing assertion deadline before reloading. Keep all full-read/search/row/reload assertions. This proposal was not applied.",
+  "hashes": {
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-cut.json": "1c35abd3514576d73e345cb65d81c04a372fe26a4f78bd8b4d55ba0bddca1654",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-source.json": "fe4bebc18509e7de6467e4d2edcc0f106a2ee05e3e860c8a5307c79b85bc1f56",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/restoration.json": "d5102fae6bbb51524cd9259154ba16c466f3ca40d62fb2c9950a8ec29797b4e1",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/results.json": "e41770ef2fcfac30eadbc0d6cb3c5691690a7f2e4b4bd21481bb40bdb6dc9597",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-diagnostics.json": "03775cb251ef058627da1de5d1a30489a97fab839dd326cb9bafb398c671a1c9",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/native-return-source-isolation.json": "25c23d51d4f6f1fa0f788ff094cc498de2b37b61bf9fd26d3b48df0fc85f4b32",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/pre-diagnostic-triage.json": "4feee9416e6b5a44d6e10d1dd2095764ec0815db09643e85f79e49ed60777d35"
+  },
+  "restoredFiles": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "restoredSha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+      "diagnosticSha256": "8d86fa738f1a7f0c1a43f0edf68071f8fde8c5852c71085045e00375246152c4",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/App.tsx.txt",
+          "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+          "bytes": 157534
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/App.tsx.txt",
+          "sha256": "8d86fa738f1a7f0c1a43f0edf68071f8fde8c5852c71085045e00375246152c4",
+          "bytes": 161351
+        }
+      ]
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "restoredSha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+      "diagnosticSha256": "aa86d70c3decd93f93ef51a1ad48e757c67c876f80312b8b7b2116dc8be6e856",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/editor-handoff.ts.txt",
+          "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+          "bytes": 600
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/editor-handoff.ts.txt",
+          "sha256": "aa86d70c3decd93f93ef51a1ad48e757c67c876f80312b8b7b2116dc8be6e856",
+          "bytes": 1839
+        }
+      ]
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "restoredSha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "diagnosticSha256": "6c57fe685518916719cd4ea33b8d664614ef85d7b16c9fa7b80f5bf2c8f6684a",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+          "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+          "bytes": 10123
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+          "sha256": "6c57fe685518916719cd4ea33b8d664614ef85d7b16c9fa7b80f5bf2c8f6684a",
+          "bytes": 13508
+        }
+      ]
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "restoredSha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+      "diagnosticSha256": "c586933ae2d6167d93261ca2193835fc9a5a7df79cb797574aa1c788a3ef57af",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+          "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+          "bytes": 37558
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+          "sha256": "c586933ae2d6167d93261ca2193835fc9a5a7df79cb797574aa1c788a3ef57af",
+          "bytes": 38297
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,8 @@ import {terminalExcerptSchema,type TerminalExcerpt,excerptDraftKey} from './term
 import {journalCompareAndSwapMany,journalReadRecord,journalEntries,journalSubscribeEntries,type JournalRecord} from './journal';
 import {skillDraftKey,readSkillBindings} from './composer-skill-drafts';
 import {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES,SAVED_DRAFT_IDLE_MS,TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
+import {logicalOwnerV1Schema,sameLogicalOwner,type LogicalOwnerV1} from '../../../packages/contracts/source-selection';
+import {parseSourceDraftMetadata,sourceDraftKey,type SourceDraftState} from './workbench-recovery';
 export {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES} from './draft-limits';
 const id=z.string().min(1).max(240),encoder=new TextEncoder();
 export const savedDraftOwnerSchema=z.object({profileId:id,accountId:id.nullable(),threadId:id,projectId:id.nullable(),workingCopyId:id.nullable()}).strict();
@@ -15,7 +17,12 @@ export type DraftResourceRef=z.infer<typeof draftResourceRefSchema>;
 const resourceRefSchema=z.union([draftResourceRefSchema,z.strictObject({resourceId:id,identity:z.string().max(2048).optional()})]);
 export type SavedResourceRef=z.infer<typeof resourceRefSchema>;
 const textSchema=z.string().refine(value=>encoder.encode(value).length<=SAVED_DRAFT_MAX_BYTES,`Draft text exceeds ${SAVED_DRAFT_MAX_BYTES/1000} KB.`);
-export const savedDraftSchema=z.object({version:z.literal(1),id:z.string().uuid(),name:z.string().trim().min(1).max(120),owner:savedDraftOwnerSchema,updatedAt:z.string().datetime(),text:textSchema,resourceRefs:z.array(resourceRefSchema).max(100),skills:z.array(skillReferenceSchema).max(100),excerpts:z.array(terminalExcerptSchema).max(TERMINAL_EXCERPT_MAX_COUNT)}).strict();
+const logicalOwner=(owner:SavedDraftOwner):LogicalOwnerV1=>({threadId:owner.threadId,projectId:owner.projectId,workspaceId:owner.workingCopyId});
+const sourceContextSchema=z.unknown().transform((value,context)=>{
+ try{return parseSourceDraftMetadata(value,logicalOwnerV1Schema.parse((value as {logicalOwner?:unknown}|null)?.logicalOwner));}
+ catch{context.addIssue({code:'custom',message:'Saved source context is invalid or exceeds its bounds.'});return z.NEVER;}
+});
+export const savedDraftSchema=z.object({version:z.literal(1),id:z.string().uuid(),name:z.string().trim().min(1).max(120),owner:savedDraftOwnerSchema,updatedAt:z.string().datetime(),text:textSchema,resourceRefs:z.array(resourceRefSchema).max(100),skills:z.array(skillReferenceSchema).max(100),excerpts:z.array(terminalExcerptSchema).max(TERMINAL_EXCERPT_MAX_COUNT),sourceContext:sourceContextSchema.optional()}).strict().refine(draft=>!draft.sourceContext||sameLogicalOwner(draft.sourceContext.logicalOwner,logicalOwner(draft.owner)),'Saved sources belong to another conversation, project or working copy.');
 export type SavedDraft=z.infer<typeof savedDraftSchema>;
 export interface SavedDraftLibrary {version:1;owner:SavedDraftOwner;records:SavedDraft[]}
 export const savedDraftOwnerKey=(owner:SavedDraftOwner)=>{const o=savedDraftOwnerSchema.parse(owner);return JSON.stringify([o.profileId,o.accountId,o.threadId,o.projectId,o.workingCopyId]);};
@@ -26,8 +33,8 @@ export function readSavedDraftLibrary(value:unknown,owner:SavedDraftOwner):Saved
  if(savedDraftOwnerKey(parsed.owner)!==key||parsed.records.some(record=>savedDraftOwnerKey(record.owner)!==key||record.excerpts.some(e=>e.threadId!==owner.threadId||e.projectId!==owner.projectId))||new Set(parsed.records.map(r=>r.id)).size!==parsed.records.length)throw Error('Saved drafts belong to another owner or contain duplicate records.');
  return parsed;
 }
-export function createSavedDraft(owner:SavedDraftOwner,name:string,text:string,metadata:{resourceRefs?:SavedResourceRef[];skills?:SkillReference[];excerpts?:readonly TerminalExcerpt[]}={}):SavedDraft{
- const draft=savedDraftSchema.parse({version:1,id:crypto.randomUUID(),owner,name,updatedAt:new Date().toISOString(),text,resourceRefs:metadata.resourceRefs??[],skills:metadata.skills??[],excerpts:metadata.excerpts??[]});
+export function createSavedDraft(owner:SavedDraftOwner,name:string,text:string,metadata:{resourceRefs?:SavedResourceRef[];skills?:SkillReference[];excerpts?:readonly TerminalExcerpt[];sourceContext?:SourceDraftState}={}):SavedDraft{
+ const draft=savedDraftSchema.parse({version:1,id:crypto.randomUUID(),owner,name,updatedAt:new Date().toISOString(),text,resourceRefs:metadata.resourceRefs??[],skills:metadata.skills??[],excerpts:metadata.excerpts??[],...(metadata.sourceContext?{sourceContext:metadata.sourceContext}:{})});
  const reviewed=draft.excerpts.reduce((bytes,e)=>bytes+encoder.encode(e.text).length,0),original=draft.excerpts.reduce((bytes,e)=>bytes+encoder.encode(e.originalText).length,0);
  if(Math.max(reviewed,original)>TERMINAL_EXCERPT_MAX_BYTES)throw Error(`Saved excerpts exceed ${TERMINAL_EXCERPT_MAX_BYTES/1000} KB combined. Shorten or remove an excerpt.`);
  if(encoder.encode(text).length+reviewed>SAVED_DRAFT_MAX_BYTES)throw Error(`Draft text and reviewed excerpts exceed ${SAVED_DRAFT_MAX_BYTES/1000} KB. Shorten the prompt or an excerpt.`);
@@ -97,27 +104,29 @@ export function subscribeSavedDrafts(_owner:SavedDraftOwner,listener:()=>void){
 }
 function append(library:SavedDraftLibrary,record:SavedDraft,count:number){if(count>=SAVED_DRAFT_MAX_COUNT)throw Error(`Saved drafts is full (${SAVED_DRAFT_MAX_COUNT} per thread). Delete a draft before saving or replacing. Existing drafts are kept.`);return readSavedDraftLibrary({...library,records:[record,...library.records]},library.owner);}
 export async function saveNamedDraft(owner:SavedDraftOwner,name:string,resourceRefs:SavedResourceRef[]=[]){
- const [library,active,skills,excerpts]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId),journalReadRecord(skillDraftKey(owner.threadId)),journalReadRecord(excerptDraftKey(owner.threadId))]);
+ const sourceKey=sourceDraftKey(logicalOwner(owner));
+ const [library,active,skills,excerpts,source]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId),journalReadRecord(skillDraftKey(owner.threadId)),journalReadRecord(excerptDraftKey(owner.threadId)),journalReadRecord(sourceKey)]);
  if(active&&typeof active.value!=='string')throw Error('Active draft could not be read. Keep this window open.');
- const text=active?.value??'';
- if(!text.trim()&&!resourceRefs.length&&!readSkillBindings(skills?.value).length&&!(excerpts?.value as unknown[]|undefined)?.length)throw Error('Write a prompt before saving.');
- const draft=createSavedDraft(owner,name,text,{resourceRefs,skills:readSkillBindings(skills?.value).map(binding=>binding.ref),excerpts:excerpts?.value as TerminalExcerpt[]|undefined});
+ const text=active?.value??'',sourceContext=source?parseSourceDraftMetadata(source.value,logicalOwner(owner)):undefined;
+ if(!text.trim()&&!resourceRefs.length&&!readSkillBindings(skills?.value).length&&!(excerpts?.value as unknown[]|undefined)?.length&&!sourceContext?.sourceRefs.length)throw Error('Write a prompt or select a source before saving.');
+ const draft=createSavedDraft(owner,name,text,{resourceRefs,skills:readSkillBindings(skills?.value).map(binding=>binding.ref),excerpts:excerpts?.value as TerminalExcerpt[]|undefined,sourceContext});
  const next=append(library.library,draft,library.count);
- if(!await journalCompareAndSwapMany([{key:savedDraftLibraryKey(owner),generation:library.generation,value:next},{key:threadQuotaKey(owner),generation:library.threadGeneration,value:0}],[{key:'draft:'+owner.threadId,generation:active?.generation},{key:skillDraftKey(owner.threadId),generation:skills?.generation},{key:excerptDraftKey(owner.threadId),generation:excerpts?.generation}]))throw Error('Draft changed in another window. Retry saving.');
+ if(!await journalCompareAndSwapMany([{key:savedDraftLibraryKey(owner),generation:library.generation,value:next},{key:threadQuotaKey(owner),generation:library.threadGeneration,value:0}],[{key:'draft:'+owner.threadId,generation:active?.generation},{key:skillDraftKey(owner.threadId),generation:skills?.generation},{key:excerptDraftKey(owner.threadId),generation:excerpts?.generation},{key:sourceKey,generation:source?.generation}]))throw Error('Draft changed in another window. Retry saving.');
  return draft;
 }
 export async function deleteSavedDraft(owner:SavedDraftOwner,id:string,generation:string|undefined){
  const current=await loadSavedDrafts(owner);if(current.generation!==generation)throw Error('Saved drafts changed. Review the list and retry.');
  if(!await journalCompareAndSwapMany([{key:savedDraftLibraryKey(owner),generation,value:{...current.library,records:current.library.records.filter(r=>r.id!==id)}},{key:threadQuotaKey(owner),generation:current.threadGeneration,value:0}]))throw Error('Saved drafts changed. Review the list and retry.');
 }
-export interface DraftRestorePlan {ownerKey:string;draft:SavedDraft;libraryGeneration:string|undefined;active:JournalRecord<string>|undefined}
-export async function planDraftRestore(owner:SavedDraftOwner,id:string):Promise<DraftRestorePlan>{const [library,active]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId)]);const draft=library.library.records.find(r=>r.id===id);if(!draft)throw Error('This saved draft is no longer available. Refresh the list.');if(active&&typeof active.value!=='string')throw Error('Active draft could not be read. Keep this window open.');return {ownerKey:savedDraftOwnerKey(owner),draft,libraryGeneration:library.generation,active};}
+export interface DraftRestorePlan {ownerKey:string;draft:SavedDraft;libraryGeneration:string|undefined;active:JournalRecord<string>|undefined;source:JournalRecord<SourceDraftState>|undefined}
+export async function planDraftRestore(owner:SavedDraftOwner,id:string):Promise<DraftRestorePlan>{const [library,active,source]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId),journalReadRecord(sourceDraftKey(logicalOwner(owner)))]);const draft=library.library.records.find(r=>r.id===id);if(!draft)throw Error('This saved draft is no longer available. Refresh the list.');if(active&&typeof active.value!=='string')throw Error('Active draft could not be read. Keep this window open.');return {ownerKey:savedDraftOwnerKey(owner),draft,libraryGeneration:library.generation,active,source:source?{...source,value:parseSourceDraftMetadata(source.value,logicalOwner(owner))}:undefined};}
 export async function restoreSavedDraftText(owner:SavedDraftOwner,plan:DraftRestorePlan,mode:'replace'|'insert',caret:number){
  if(plan.ownerKey!==savedDraftOwnerKey(owner)||savedDraftOwnerKey(plan.draft.owner)!==plan.ownerKey)throw Error('The composer owner changed. Restore cancelled.');
  const current=await loadSavedDrafts(owner);if(current.generation!==plan.libraryGeneration)throw Error('Saved drafts changed. Review the list and retry.');
  const selected=current.library.records.find(record=>record.id===plan.draft.id);if(!selected||JSON.stringify(selected)!==JSON.stringify(plan.draft)||!selected.text)throw Error('Saved prompt changed or has no text to restore. Review and retry.');
  const before=plan.active?.value??'',result=mode==='insert'?insertDraftText(before,plan.draft.text,caret):{text:plan.draft.text,caret:plan.draft.text.length};textSchema.parse(result.text);
- const library=mode==='replace'&&before?append(current.library,createSavedDraft(owner,'Before replacing · '+new Date().toLocaleString(),before),current.count):current.library;
- if(!await journalCompareAndSwapMany([{key:'draft:'+owner.threadId,generation:plan.active?.generation,value:result.text},{key:savedDraftLibraryKey(owner),generation:plan.libraryGeneration,value:library},{key:threadQuotaKey(owner),generation:current.threadGeneration,value:0}]))throw Error('The current draft changed in another window. Nothing was replaced. Review and retry.');
+ const recovery=mode==='replace'&&Boolean(before);
+ const library=recovery?append(current.library,createSavedDraft(owner,'Before replacing · '+new Date().toLocaleString(),before,{sourceContext:plan.source?.value}),current.count):current.library;
+ if(!await journalCompareAndSwapMany([{key:'draft:'+owner.threadId,generation:plan.active?.generation,value:result.text},{key:savedDraftLibraryKey(owner),generation:plan.libraryGeneration,value:library},{key:threadQuotaKey(owner),generation:current.threadGeneration,value:0}],recovery?[{key:sourceDraftKey(logicalOwner(owner)),generation:plan.source?.generation}]:[]))throw Error('The current draft changed in another window. Nothing was replaced. Review and retry.');
  return result.caret;
 }

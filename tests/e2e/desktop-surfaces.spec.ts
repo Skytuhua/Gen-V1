@@ -146,6 +146,100 @@ test('review: detached browser follows saved theme and subsequent system changes
  snapshot.settings.theme='light';await host.publish();await expect(page.locator('html')).toHaveAttribute('data-theme','light');snapshot.settings.theme='system';await page.emulateMedia({colorScheme:'dark'});await host.publish();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');await page.emulateMedia({colorScheme:'light'});await expect(page.locator('html')).toHaveAttribute('data-theme','light');
 });
 
+async function checkSinglePanelOpener(page:Page,draft:string){
+ const composer=page.getByRole('textbox',{name:'Message',exact:true});await composer.fill(draft);
+ await expect(composer).toHaveCount(1);const retained=await composer.elementHandle();
+ const opener=page.getByRole('button',{name:'Open workspace panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
+ const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(panel).toBeVisible();
+ const close=page.getByRole('button',{name:'Hide workspace panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
+ await expect(opener).toBeFocused();await expect(composer).toHaveValue(draft);await expect(composer).toHaveCount(1);
+ expect(await retained!.evaluate(element=>element.isConnected&&element===document.querySelector('textarea[aria-label="Message"]'))).toBe(true);
+}
+
+test('M15 panel opener: an ordinary new conversation has one reachable workspace control',async({page})=>{
+ const snapshot=fixture();snapshot.activeThreadId=null;snapshot.threads=[];snapshot.messages=[];snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.usage={};
+ const host=await serveTaskFixture(page,snapshot);await serveTaskSplitLayout(page,snapshot);await page.goto('/');
+ await checkSinglePanelOpener(page,'Retain the ordinary new-conversation draft');
+ expect(host.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toEqual([]);
+});
+
+test('M15 panel opener: a pinned native thread retains its workspace control',async({page})=>{
+ // Scripted native bridge with real App; this does not launch an installed desktop.
+ await bridge(page,{kind:'thread',threadId:'task-thread'});const host=await serveTaskFixture(page,fixture());await page.goto('/');
+ await checkSinglePanelOpener(page,'Retain the pinned native-thread draft');await expect(page.locator('.workspace-controls')).toHaveCount(0);
+ expect(host.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toEqual([]);
+ expect(await page.evaluate(()=>(window as any).__desktopCalls)).toEqual([]);
+});
+
+test('native close waits for a source backup to finish parsing and retains a failed import until retry',async({page})=>{
+ // Real App, journal, import, and editor registry. The native bridge and host
+ // HTTP are scripted; this does not launch an installed desktop or grant sources.
+ await bridge(page);
+ await page.addInitScript(()=>{
+  const state=window as unknown as {__holdSourceImport?:boolean;__releaseSourceImport?:()=>void;__failSourceImport?:boolean};
+  state.__holdSourceImport=true;
+  const read=File.prototype.text,put=IDBObjectStore.prototype.put;
+  File.prototype.text=function(this:File){
+   if(this.name!=='source-bundle.json'||!state.__holdSourceImport)return read.call(this);
+   const file=this;return new Promise<string>((resolve,reject)=>{state.__releaseSourceImport=()=>{state.__releaseSourceImport=undefined;void read.call(file).then(resolve,reject);};});
+  };
+  IDBObjectStore.prototype.put=function(this:IDBObjectStore,value:unknown,key?:IDBValidKey){
+   if(state.__failSourceImport&&typeof key==='string'&&key.startsWith('source-context:'))throw new DOMException('Scripted source import commit failed','QuotaExceededError');
+   return put.call(this,value,key);
+  };
+ });
+ const snapshot=fixture();snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];
+ const host=await serveTaskFixture(page,snapshot);await serveTaskSplitLayout(page,snapshot);
+ const owner={threadId:'task-thread',projectId:null,workspaceId:null};
+ const key='source-context:task-thread::';
+ const sourceRef={captureId:'backup-capture',keepCaptured:true,source:{kind:'MESSAGE',sourceId:'reply',sourceRevision:'backup-revision',logicalOwner:owner,contentDigest:'a'.repeat(64),capturedAt:'2026-11-15T10:00:00.000Z',range:{encoding:'UTF16',start:0,end:9,selectedTextDigest:'b'.repeat(64)}}};
+ const source={draftId:'backup-draft',logicalOwner:owner,revision:7,sourceRefs:[sourceRef],sendMode:'AFTER_CURRENT',conflictState:'NONE'};
+ const backup={app:'generative-harness-drafts',version:2,entries:[{key:'draft:task-thread',record:{value:'Preserve the imported source prompt',generation:'backup-text',updatedAt:1}},{key,record:{value:source,generation:'backup-source',updatedAt:1}}]};
+ const file={name:'source-bundle.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))};
+ await page.route('**/api/workbench/**',route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path==='/api/workbench/threads/task-thread')return route.fulfill({json:{logicalOwner:owner,enabled:false,sources:[],sourceCapabilities:[]}});
+  if(path.endsWith('/inputs'))return route.fulfill({json:{logicalOwner:owner,inputs:[]}});
+  return route.fulfill({status:503,json:{error:{code:'FIXTURE_READ_UNAVAILABLE',message:'Retained host source reads are outside this storage fixture.'}}});
+ });
+ await page.route('**/api/shell/draft-references',route=>route.fulfill({json:{threads:[{id:'task-thread'}],skills:[],userStates:[],requests:[]}}));
+ await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+ await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();
+ const input=page.getByLabel('Draft backup file',{exact:true}),retained=await input.elementHandle();
+ await input.setInputFiles(file);
+ await expect.poll(()=>page.evaluate(()=>typeof(window as unknown as {__releaseSourceImport?:unknown}).__releaseSourceImport)).toBe('function');
+ await expect(page.getByRole('button',{name:'Import browser drafts',exact:true})).toBeDisabled();
+ // Observe the actual pre-key recovery barrier rather than depending on a sleep.
+ const pending=await page.evaluate(async key=>{const path='/src/journal.ts',journal=await import(path);return journal.journalHandoffState([key,'draft:task-thread','agents-pending:task-thread']).map((value:{pending:boolean})=>value.pending);},key);
+ expect(pending).toEqual([true,true,true]);
+ await page.evaluate(()=>{
+  const state=window as unknown as {__closeDesktop?:()=>Promise<boolean>;__sourceImportClose?:boolean};
+  if(!state.__closeDesktop)throw Error('Native close fixture is unavailable.');
+  void state.__closeDesktop().then(value=>{state.__sourceImportClose=value;});
+ });
+ expect(await page.evaluate(()=>(window as unknown as {__sourceImportClose?:boolean}).__sourceImportClose)).toBeUndefined();
+ await page.evaluate(()=>{
+  const state=window as unknown as {__releaseSourceImport?:()=>void;__failSourceImport?:boolean};
+  if(!state.__releaseSourceImport)throw Error('The source file was not held before parsing.');
+  state.__failSourceImport=true;state.__releaseSourceImport();
+ });
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {__sourceImportClose?:boolean}).__sourceImportClose)).toBe(false);
+ await expect(page.locator('.draft-transfer [role="alert"]')).toContainText('Scripted source import commit failed');
+ await expect(page.getByRole('button',{name:'Import browser drafts',exact:true})).toBeEnabled();
+ expect(await retained!.evaluate(element=>element.isConnected)).toBe(true);
+ const failedRows=await page.evaluate(async key=>{const path='/src/journal.ts',journal=await import(path);return Promise.all([journal.journalReadRecord(key),journal.journalReadRecord('draft:task-thread')]);},key);
+ expect(failedRows).toEqual([undefined,undefined]);
+ expect(await page.evaluate(()=>(window as unknown as {__closeDesktop:()=>Promise<boolean>}).__closeDesktop())).toBe(false);
+ // Only a new explicit import retries the failed source transaction.
+ await page.evaluate(()=>{const state=window as unknown as {__holdSourceImport?:boolean;__failSourceImport?:boolean};state.__holdSourceImport=false;state.__failSourceImport=false;});
+ await input.setInputFiles(file);
+ await expect(page.locator('.draft-transfer [role="status"]')).toContainText('2 drafts imported');
+ const restored=await page.evaluate(async owner=>{const path='/src/workbench-recovery.ts',recovery=await import(path);return recovery.composeDraftContext(owner);},owner);
+ expect(restored).toMatchObject({draftId:source.draftId,logicalOwner:owner,sourceRefs:[sourceRef],sendMode:'AFTER_CURRENT',conflictState:'NONE',text:'Preserve the imported source prompt'});
+ expect(await page.evaluate(()=>(window as unknown as {__closeDesktop:()=>Promise<boolean>}).__closeDesktop())).toBe(true);
+ expect(host.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toEqual([]);
+ expect(await page.evaluate(()=>(window as unknown as {__desktopCalls:unknown[][]}).__desktopCalls.filter(call=>call[0]==='detach'))).toEqual([]);
+});
 test('retained native thread header cancels a move on blur',async({page})=>{
  await bridge(page,{kind:'thread',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  await page.getByRole('button',{name:'Detach chat',exact:true}).click();const handle=page.getByRole('button',{name:'Move chat panel',exact:true});await handle.hover();await page.mouse.down();

@@ -1,0 +1,32 @@
+argv: ["node","node_modules/@playwright/test/cli.js","test","--config","docs/implementation/v3/m15-artifacts/browser-adapters/scoped-conversation.chromium.playwright.config.ts","--output","test-results/m15-scoped-conversation-chromium-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[2m[WebServer] [22m(node:26) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:38) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:65) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:65) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/scoped-conversation.spec.ts:151:1 › uses the actual module with a supplied composer and real epoch, with no global reads (2.3s)
+  ✓   2 tests/e2e/scoped-conversation.spec.ts:166:1 › preserves an earlier reading anchor and composer focus on refresh, with a jump hint (1.2s)
+  ✓   3 tests/e2e/scoped-conversation.spec.ts:186:1 › prepends older pages without moving the visible message or losing keyboard focus (1.8s)
+  ✓   4 tests/e2e/scoped-conversation.spec.ts:206:1 › keeps hidden chat mounted and invalidates the parent context on resync and revocation (816ms)
+  ✓   5 tests/e2e/scoped-conversation.spec.ts:228:1 › follows new messages only while already at the bottom (864ms)
+  ✓   6 tests/e2e/scoped-conversation.spec.ts:237:1 › stays within short narrow light and dark panes at 200% zoom with reduced motion (1.8s)
+  ✓   7 tests/e2e/scoped-conversation.spec.ts:266:1 › delivers invalidation while reacquisition is still pending and removes stale transcript (1.5s)
+  ✓   8 tests/e2e/scoped-conversation.spec.ts:282:1 › automatically polls owner status while chat is hidden and keeps the same supplied node (3.4s)
+  ✓   9 tests/e2e/scoped-conversation.spec.ts:300:1 › renders bounded Unicode continuation exactly and restores keyboard focus (1.4s)
+  ✓  10 tests/e2e/scoped-conversation.spec.ts:315:1 › clears context and transcript on explicit close (1.1s)
+  ✓  11 tests/e2e/scoped-conversation.spec.ts:323:1 › shows concise loading, error, retry and empty states using real API failures (1.6s)
+  ✓  12 tests/e2e/scoped-conversation.spec.ts:361:1 › fences the rendered owner during canonical navigation, then uses the next exact real epoch (1.3s)
+  ✓  13 tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=false) (1.6s)
+  ✓  14 tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=true) (1.0s)
+  ✓  15 tests/e2e/scoped-conversation.spec.ts:447:1 › automatic refresh does not take focus back from the supplied composer (1.1s)
+
+  15 passed (29.3s)

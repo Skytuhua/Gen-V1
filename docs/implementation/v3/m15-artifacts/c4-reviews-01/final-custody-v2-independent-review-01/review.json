@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T06:21:07.432295+00:00",
+  "kind": "READ_ONLY_STATIC_CUSTODY_EXTENSION_REVIEW",
+  "outcome": "NO_MATERIAL_DEFECT_FOUND",
+  "original": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody.py",
+    "bytes": 10456,
+    "sha256": "1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419"
+  },
+  "candidate": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2.py",
+    "bytes": 14618,
+    "sha256": "facae1b76710059ef7bf4c2c50c0642acf91d318dba18446e24100aaa3083634"
+  },
+  "patch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-proposal-01/helper.patch",
+    "bytes": 6899,
+    "sha256": "6bc31eb2ca290ad2f141d2f196949beeec27e572030fb444ff2d9b52bffc5672"
+  },
+  "design": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-proposal-01/design.md",
+    "bytes": 1933,
+    "sha256": "323be0c89ff6027c28c4084d174b3a46311ab54db86b81d1a404a5c432b14dc6"
+  },
+  "proposal": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-proposal-01/proposal.json",
+    "bytes": 2153,
+    "sha256": "182ac4a7e0ec5b5b37546ac2b56eee393865c8809b8087ecedd12fc502e1f4e7"
+  },
+  "archiveManifest": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+    "bytes": 1567,
+    "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+  },
+  "testedCut": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+    "bytes": 548158,
+    "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+  },
+  "testedPublicManifestRow": {
+    "path": "scripts/public-source-files.json",
+    "kind": "regular",
+    "mode": "0o644",
+    "bytes": 219989,
+    "sha256": "f9cb5f536f5808fbb741ac5c57b2f0511ee29da35653fa68a71f634b3b18c9fc"
+  },
+  "staticChecks": {
+    "pythonAstParses": true,
+    "exactPatchMatches": true,
+    "removingOnlyDeclaredExtensionReproducesOriginalBytes": true,
+    "restoredOriginalSha256": "1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419"
+  },
+  "reviewedBoundaries": [
+    "Both required parent arguments are compared with fixed eeda and98 identities. Local HEAD remains the tested-context parent.",
+    "The exact rev-list parent sequence must be [98,eeda], rejecting a merge parent or other direct/indirect ancestor. An ancestry check is retained in addition.",
+    "Complete Git tree mode/kind/blob tuples may differ at exactly the two ordered generated metadata paths, with no product/test/published-evidence drift allowance.",
+    "The dedicated archive manifest digest is fixed. Its schema, source/previous commit, source tree, exact two ordered source paths, empty product delta and false new-execution flag are checked.",
+    "Each new archive destination must be canonical, without symlink ancestors, and a regular file with executable mode matching the Git mode. Mode/kind/blob, size/SHA-256 and exact Git bytes are mandatory.",
+    "All original six complete archive loops and their exact membership, source/destination and byte checks are byte-identical.",
+    "The published log/artifact loop retains all index/mode/blob/worktree checks, now anchored to98. The complete-tree comparison proves those paths did not drift fromeeda.",
+    "Original checkout, merge/unmerged-index, accepted b4aa ancestry, fixed lock/ordinary CI, tested-source membership/kind/mode/bytes/digest, exact runtime array and228 count, manifest preimage/schema/admission and whitespace checks are preserved.",
+    "Tested-cut digest remains an explicit required caller argument, then cut.head must equal eeda and acceptedBase must equal b4aa. The approved execution must supply final03 digest0c4ceab1; the helper does not hardcode that digest."
+  ],
+  "findings": [],
+  "execution": {
+    "checker": "NOT_RUN",
+    "tests": "NOT_RUN",
+    "repositoryEdits": false,
+    "indexEdits": false,
+    "outsideReportOnly": true
+  },
+  "limits": [
+    "Static review is not a successful custody execution.",
+    "The subsequent command must pass the exact reviewed final03 path/digest and a tested-public-manifest preimage that hashes to its unique cut row.",
+    "Publication lease/API success, current platform acceptance and general later-main compatibility are outside this check.",
+    "A different published parent or additional incoming path cannot pass this pinned extension; it requires separate review."
+  ]
+}

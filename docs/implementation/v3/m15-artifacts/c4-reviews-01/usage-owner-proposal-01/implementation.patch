@@ -1,0 +1,122 @@
+--- a/apps/web/src/App.tsx
++++ b/apps/web/src/App.tsx
+@@ -51,7 +51,7 @@
+ import {Select} from '../../../packages/ui-shell/Select';
+ import {PluginFrame,usePluginCatalog} from './PluginFrame';
+ import {recordedChangeSummary} from './composer-evidence';
+-import {useDesktop,useDesktopCloseGuard,useDesktopReady,useDetachedSurface,usePendingSurface} from './desktop-context';
++import {useDesktop,useDesktopCloseGuard,useDesktopReady,useDetachedSurface,usePendingSurface,detachedSurface,pendingSurface} from './desktop-context';
+ import {DesktopBrowserDock} from './DesktopBrowser';
+ import {journalFlush} from './journal';
+ import {prepareEditorHandoff} from './editor-handoff';
+@@ -481,6 +481,8 @@
+   useModalRegion(sidebar, mobile && sidebarOpen, () => setSidebarOpen(false), 'input', sidebarScrim);
+   const [focusedResource,setFocusedResource]=useState<string|undefined>(undefined);
+   const [liveUsageOpen,setLiveUsageOpen]=useState(false);
++  const [liveUsageViews,setLiveUsageViews]=useState<{workspaceId:string;viewIds:string[]}>({workspaceId:'',viewIds:[]});
++  const updateLiveUsageViews=useCallback((workspaceId:string,viewIds:string[])=>setLiveUsageViews(current=>current.workspaceId===workspaceId&&current.viewIds.length===viewIds.length&&current.viewIds.every((id,index)=>id===viewIds[index])?current:{workspaceId,viewIds}),[]);
+   const [usageOpen,setUsageOpen]=useState(false),[usageThreadId,setUsageThreadId]=useState<string|null>(null);
+   const [settingsOpen, setSettingsOpen] = useState(false);
+   const [settingsSection, setSettingsSection] = useState('general');
+@@ -1042,15 +1044,25 @@
+   const splitRoot=splitEnabled&&Boolean(thread||convSplitState.layout&&Object.keys(convSplitState.layout.views).length);
+   const panelToggle=!embeddedThreadId?<button type="button" className={`icon-button workspace-panel-toggle ${layout.rightPanelOpen ? 'selected' : ''}`} aria-label={layout.rightPanelOpen ? 'Hide workspace panel' : 'Open workspace panel'} aria-pressed={layout.rightPanelOpen} title={layout.rightPanelOpen ? 'Close right panel' : 'Open right panel'} onClick={() => setLayout(value => value.rightPanelOpen ? { ...value, rightPanelOpen: false, rightPanelMaximized: false } : { ...value, rightPanelOpen: true })}><PanelRight size={17} /></button>:null;
+   const rightWindowOpen=layout.rightPanelOpen||sideOpen||Boolean(documentWindow&&documentWindow.placement==='docked')||Boolean(desktop?.state.dockedBrowser);
++  // Live Usage follows an eligible visible conversation focus; main placement remains its own navigation owner.
++  const usagePlaneLayout=customDock?customConversationLayout:convSplitState.layout;
++  const activeUsageViewIds=liveUsageViews.workspaceId===usagePlaneLayout?.id?liveUsageViews.viewIds:[];
++  const usageCandidates=!splitEnabled||selectedPluginId||desktop?.closing?[]:Object.values(usagePlaneLayout?.views??{}).flatMap(view=>{
++    if(view.kind!=='thread'||view.binding.authority.kind!=='local'||!activeUsageViewIds.includes(view.id))return[];
++    const owner=snapshot.threads.find(item=>item.id===view.binding.threadId&&(item.projectId??null)===(view.binding.projectId??null));
++    if(!owner||detachedSurface(desktop,{kind:'thread',threadId:owner.id})||pendingSurface(desktop,{kind:'thread',threadId:owner.id}))return[];
++    return[owner];
++  });
++  const sharedUsageOwner=usageCandidates.find(owner=>owner.id===selectedId)??usageCandidates.find(owner=>owner.id===thread?.id);
+   const contextSummaries=<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
+-    defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><SurfaceBoundary resetKey={thread?.id??'new'}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></SurfaceBoundary></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={()=>openUsage()}/></SummaryDock>;
++    defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><SurfaceBoundary resetKey={thread?.id??'new'}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></SurfaceBoundary></DockedSummary><UsageFooter open={liveUsageOpen} threadId={sharedUsageOwner?.id} usage={sharedUsageOwner?snapshot.usage[sharedUsageOwner.id]:undefined} visible={Boolean(sharedUsageOwner)&&preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={openUsage}/></SummaryDock>;
+   const [retryingMainLayout,setRetryingMainLayout]=useState(false);
+   const retryMainLayout=()=>{
+     if(retryingMainLayout)return;
+     setRetryingMainLayout(true);
+     void convSplitState.refresh().catch(()=>{}).finally(()=>setRetryingMainLayout(false));
+   };
+-  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!rightWindowOpen&&(!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen))} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} onDockFloat={dockFloat} emptyMainPaneId={!customDock&&mainPlacement?.mainSelection.kind==='empty'?resolveMainPaneId(planeLayout):undefined} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:convSplitState.error?<div className="workspace-error"><span role="alert">{convSplitState.error}</span><button type="button" className="quiet" disabled={retryingMainLayout} onClick={retryMainLayout}>Retry workspace layout</button></div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
++  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!rightWindowOpen&&(!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen))} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} onActiveViewsChange={updateLiveUsageViews} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} onDockFloat={dockFloat} emptyMainPaneId={!customDock&&mainPlacement?.mainSelection.kind==='empty'?resolveMainPaneId(planeLayout):undefined} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:convSplitState.error?<div className="workspace-error"><span role="alert">{convSplitState.error}</span><button type="button" className="quiet" disabled={retryingMainLayout} onClick={retryMainLayout}>Retry workspace layout</button></div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
+   const interfaceFont = preferences.interfaceFont === 'system' ? '-apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif' : preferences.interfaceFont === 'Inter' ? '"Inter Variable", sans-serif' : preferences.interfaceFont;
+   const handledHostIntent=useRef<number|undefined>(undefined),[modelPickerRequest,setModelPickerRequest]=useState<{id:number;threadId?:string}>();
+   const pickerRequest=externalModelPicker??modelPickerRequest;
+--- a/apps/web/src/WorkspaceSplitLayout.tsx
++++ b/apps/web/src/WorkspaceSplitLayout.tsx
+@@ -15,6 +15,7 @@
+  layout:SplitWorkspaceLayout;
+  onCommand:(type:string,payload:Record<string,unknown>)=>Promise<unknown>;
+  renderView:(view:SurfaceRef,active:boolean)=>ReactNode;
++ onActiveViewsChange?:(workspaceId:string,viewIds:string[])=>void;
+  title?:(view:SurfaceRef)=>string;
+  onDropThread?:(threadId:string,paneId:string,edge:SplitDropEdge,outer?:boolean)=>Promise<void>;
+  editorOptions?:{id:string;title:string}[];
+@@ -37,7 +38,7 @@
+ const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
+ 
+ /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
+-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
++export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsChange,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
+  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false),draggingView=useRef<SurfaceRef|null>(null);
+  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[menuPane,setMenuPane]=useState<string|null>(null);
+  const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
+@@ -146,12 +147,23 @@
+   return <div key={node.id} className={`split-node split-${node.axis}`} style={style}>{renderNode(node.first)}<div role="separator" tabIndex={0} aria-label={`Resize ${node.axis==='horizontal'?'columns':'rows'}`} aria-orientation={node.axis==='horizontal'?'vertical':'horizontal'} aria-valuenow={Math.round(ratio*100)} aria-valuemin={5} aria-valuemax={95} className={`split-divider${previewRatio?.id===node.id?' is-dragging':''}`} onPointerDown={event=>beginResize(event,node)} onPointerMove={moveResize} onPointerUp={endResize} onPointerCancel={cancel} onLostPointerCapture={()=>{if(resize.current)cancel();}} onContextMenu={event=>{event.preventDefault();cancel();}} onKeyDown={event=>keyResize(event,node)}>{previewRatio?.id===node.id&&<span>{Math.round(ratio*100)}% {node.axis==='horizontal'?'width':'height'}</span>}</div>{renderNode(node.second)}</div>;
+  };
+  const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes)){const active=pane.activeViewId?layout.views[pane.activeViewId]:undefined;if(!pane.collapsed&&active&&(pane.id!==emptyMainPaneId||active.kind!=='thread')&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(active.id,pane.id);}
++ const viewPlacements=Object.values(layout.views).map(view=>{
++  const paneId=visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,floatRect=!paneId&&layout.parkedViewIds.includes(view.id)?floatRectOf(view.id):undefined,active=Boolean(slot&&slot.width>0&&slot.height>0)||Boolean(floatRect);
++  const style:CSSProperties=floatRect?{left:floatRect.x,top:floatRect.y,width:floatRect.width,height:floatRect.height}:active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'};
++  return{view,paneId,floatRect,active,style};
++ });
++ const activeViewKey=JSON.stringify(viewPlacements.filter(placement=>placement.active).map(placement=>placement.view.id).sort());
++ useLayoutEffect(()=>{
++  if(!onActiveViewsChange)return;
++  onActiveViewsChange(layout.id,JSON.parse(activeViewKey));
++  return()=>onActiveViewsChange(layout.id,[]);
++ },[layout.id,activeViewKey,onActiveViewsChange]);
+  const overlay=drop?rects[drop.paneId]:undefined;
+  return <div ref={root} className={`split-workspace${narrow?' is-narrow':''} ${className}`} data-workspace-id={layout.id} aria-busy={busy} onPointerDownCapture={event=>{const paneId=(event.target as HTMLElement).closest<HTMLElement>('[data-split-view]')?.dataset.paneId;if(paneId&&paneId!==layout.focusedPaneId&&!busy)void send('pane.focus',{paneId},false);}} onDragOver={dragOver} onDragLeave={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDrop(null);}} onDrop={dropView}>
+   {narrow&&<div className="split-workspace-tools"><label>Area<Select aria-label="Active workspace area" value={layout.focusedPaneId} disabled={busy} onValueChange={paneId=>{void send('pane.focus',{paneId},false);}} options={splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return{value:paneId,label:viewId?title(layout.views[viewId]!):'Empty area'};})}/></label></div>}
+   {error&&<p role="alert" className="split-layout-error">{error}<button onClick={()=>setError('')}>Dismiss</button></p>}
+   <div className="split-tree">{narrow?renderPane(layout.focusedPaneId):renderNode(layout.root)}</div>
+-  <div className="split-surface-plane">{Object.values(layout.views).map(view=>{const paneId=visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,floatRect=!paneId&&layout.parkedViewIds.includes(view.id)?floatRectOf(view.id):undefined,active=Boolean(slot&&slot.width>0&&slot.height>0)||Boolean(floatRect),style=floatRect?{left:floatRect.x,top:floatRect.y,width:floatRect.width,height:floatRect.height}:active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'};return <div key={view.id} className={`split-surface${floatRect?' split-surface-float':''}`} data-split-view={view.id} data-pane-id={paneId} data-floating={floatRect?true:undefined} style={style} inert={!active} aria-hidden={!active}>{renderView(view,active)}{floatRect&&<div className="split-float-header"><strong ref={node=>{if(floatMenu===view.id)floatGripAnchor.current=node;}} className="split-float-grip" role="button" tabIndex={0} aria-label={`Placement and move for ${title(view)}`} aria-haspopup="menu" aria-expanded={floatMenu===view.id} onPointerDown={event=>beginFloat(event,view.id,'move')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}} onClick={()=>{if(floatDragged.current)return;setFloatMenu(current=>current===view.id?null:view.id);}} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setFloatMenu(current=>current===view.id?null:view.id);}else keyFloat(event,view.id);}}>{title(view)}</strong></div>}{floatRect&&<button type="button" className="split-float-resize" aria-label={`Resize ${title(view)}`} onPointerDown={event=>beginFloat(event,view.id,'resize')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}}/>}</div>;})}</div>
++  <div className="split-surface-plane">{viewPlacements.map(({view,paneId,floatRect,active,style})=><div key={view.id} className={`split-surface${floatRect?' split-surface-float':''}`} data-split-view={view.id} data-pane-id={paneId} data-floating={floatRect?true:undefined} style={style} inert={!active} aria-hidden={!active}>{renderView(view,active)}{floatRect&&<div className="split-float-header"><strong ref={node=>{if(floatMenu===view.id)floatGripAnchor.current=node;}} className="split-float-grip" role="button" tabIndex={0} aria-label={`Placement and move for ${title(view)}`} aria-haspopup="menu" aria-expanded={floatMenu===view.id} onPointerDown={event=>beginFloat(event,view.id,'move')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}} onClick={()=>{if(floatDragged.current)return;setFloatMenu(current=>current===view.id?null:view.id);}} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setFloatMenu(current=>current===view.id?null:view.id);}else keyFloat(event,view.id);}}>{title(view)}</strong></div>}{floatRect&&<button type="button" className="split-float-resize" aria-label={`Resize ${title(view)}`} onPointerDown={event=>beginFloat(event,view.id,'resize')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}}/>}</div>)}</div>
+   {drop&&overlay&&<div className={`split-drop-preview edge-${drop.edge}`} style={drop.outer?{left:0,top:topBar,width:size.width,height:size.height-topBar}:{left:overlay.left,top:overlay.top,width:overlay.width,height:overlay.height}}><span>{drop.joinFrom?'Join into this area':edgeLabel[drop.edge]}</span></div>}
+   {floatMenu&&onReturnFloat&&layout.views[floatMenu]&&<Popover anchor={floatGripAnchor} contentRef={floatMenuContent} initialFocus={floatMenuItem} open width={220} height={46} preferredSide="below" align="start" role="menu" aria-label={`Placement for ${title(layout.views[floatMenu]!)}`} className="ui-control-popup" onDismiss={()=>setFloatMenu(null)}><button ref={floatMenuItem} type="button" role="menuitem" className="ui-control-option" onClick={()=>{const view=layout.views[floatMenu];setFloatMenu(null);if(view)onReturnFloat(view);}}>Return to main</button></Popover>}
+  </div>;
+--- a/tests/e2e/shell-error-ownership.spec.ts
++++ b/tests/e2e/shell-error-ownership.spec.ts
+@@ -28,7 +28,7 @@
+  await page.route('**/plugins/*/frame?*',route=>{const url=new URL(route.request().url()),session=url.searchParams.get('session');return route.fulfill({contentType:'text/html',body:`<html><body>Scoped plug-in fixture<script>
+  const channel=new MessageChannel();window.fixtureConnected=false;channel.port1.onmessage=event=>{if(event.data.type==='gen.plugin.connected'){window.fixtureConnected=true;channel.port1.postMessage({type:'gen.plugin.ready',pluginId:'sample-visuals',session:${JSON.stringify(session)}});}if(event.data.type==='gen.plugin.flush')channel.port1.postMessage({type:'gen.plugin.flushed',session:${JSON.stringify(session)},id:event.data.id,ok:true});};channel.port1.start();parent.postMessage({type:'gen.plugin.connect',pluginId:'sample-visuals',session:${JSON.stringify(session)}},'*',[channel.port2]);</script></body></html>`});});
+  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Studio',exact:true}).click();
+- const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);
++ const iframe=page.getByRole('region',{name:'Studio',exact:true}).locator('iframe');await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);
+  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
+  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
+  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+--- a/tests/e2e/usage-app-integration.spec.ts
++++ b/tests/e2e/usage-app-integration.spec.ts
+@@ -65,6 +65,8 @@
+  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
+  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
++ await summary.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(summary.getByText('999 input tokens',{exact:true})).toBeVisible();
++ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+  await summary.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(modal(page)).toBeVisible();
+  await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('Other synthetic owner');await expect(modal(page)).toContainText('999');
+  await page.keyboard.press('Escape');await page.reload();await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();
+@@ -111,6 +113,7 @@
+ 
+ 
+ test('review: an open restored Usage tab stays closed in split workspace and keeps both composers available',async({page})=>{
++ await page.setViewportSize({width:1920,height:900});
+  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
+  const h=await host(page,{split:true});
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');

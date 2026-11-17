@@ -1,0 +1,97 @@
+[
+  {
+    "path": "test-results/m15/full-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      30
+    ],
+    "compressedBytes": 450,
+    "bytes": 743,
+    "crc32": "154d34da",
+    "sha256": "1f8d06772c290f689efa6af27be9ad7d7ec61ad9d9ea5c8695c756ed6ab2e72d",
+    "gitBlob": "62ab14901c9f0bc8fcc11a1fe42304ff2a7c661e"
+  },
+  {
+    "path": "test-results/m15/checkout-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      26
+    ],
+    "compressedBytes": 304,
+    "bytes": 476,
+    "crc32": "4543a62c",
+    "sha256": "9f24a3d348b6567c01b27847db71c3734dad57f4c0fff4d761b2ea155c4a22ac",
+    "gitBlob": "ce47c8226718b824e6bd161159ee1cf9d5c8794d"
+  },
+  {
+    "path": "test-results/m15/full-results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      10
+    ],
+    "compressedBytes": 45248,
+    "bytes": 336174,
+    "crc32": "b1c00a86",
+    "sha256": "968ff8fae8be8814bc58292308de193f63a9e03347d22ef5539612f93c911283",
+    "gitBlob": "74226f3579656f6573c64c926911dd4f0ee548ff"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-full-shard-1-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      10
+    ],
+    "compressedBytes": 471,
+    "bytes": 762,
+    "crc32": "bc676d43",
+    "sha256": "eecf5013c781af307f66c9af6bdf2f274e86ef615fbe78bba78f0e69288053cc",
+    "gitBlob": "7fe9b12ce09ac72427f1ef85993241cc743759d3"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-full-shard-1-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      41,
+      10
+    ],
+    "compressedBytes": 9847,
+    "bytes": 39372,
+    "crc32": "d4c1d762",
+    "sha256": "a1b65d75a823bbef671f8150afe340aed93377a90246a27a32f89a033e9fb13e",
+    "gitBlob": "bc51e544e6e1e78e570ee509121f21c7b3dc8464"
+  }
+]

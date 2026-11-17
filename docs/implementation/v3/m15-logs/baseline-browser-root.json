@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser",
+    "--suite",
+    "root"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:35:33.469Z",
+  "endedAt": "2026-11-15T21:35:34.213Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-browser-root.log",
+  "logDigest": "ab833b11454332d6099e6aefc9794c9a06bee20456c0915f2f8403447aee13dd"
+}

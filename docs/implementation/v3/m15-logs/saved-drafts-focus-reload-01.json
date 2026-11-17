@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/e2e/saved-drafts.playwright.config.ts",
+    "--grep",
+    "replace keeps recoverable text|quota failure and corrupt records",
+    "--reporter=line,json",
+    "--output",
+    "test-results/m15-saved-drafts-focus-reload-01"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:18:07.532Z",
+  "endedAt": "2026-11-15T22:18:29.957Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-focus-reload-01.log",
+  "logDigest": "12f66468c8c278205b8c99dbe47064180fc07434cafd317394570c52b005044c"
+}

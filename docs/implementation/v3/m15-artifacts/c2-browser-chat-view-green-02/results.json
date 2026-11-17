@@ -1,0 +1,330 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "chat-view-modes.spec.ts",
+          "chat-view-escape.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --host 127.0.0.1 --port 5491 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5491",
+      "reuseExistingServer": false,
+      "env": {
+        "GEN_E2E": "1"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "chat-view-escape.spec.ts",
+      "file": "chat-view-escape.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "active drag Escape cancels before an open tooltip and then releases keyboard ownership",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3224,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:38.217Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-8b26bda87fa30921d4ba",
+          "file": "chat-view-escape.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "active drag ignores Escape with IME composition flag",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:41.720Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-f67262f7afbbfa01c60e",
+          "file": "chat-view-escape.spec.ts",
+          "line": 75,
+          "column": 5
+        },
+        {
+          "title": "active drag ignores Escape with IME legacy key 229",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1935,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:44.208Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-42e5abeefeef16c1b624",
+          "file": "chat-view-escape.spec.ts",
+          "line": 75,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "chat-view-modes.spec.ts",
+      "file": "chat-view-modes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "the conversation lives in the split plane with its messages, composer and attachments",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5558,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:11:124)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:14:2",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts",
+                      "column": 124,
+                      "line": 11
+                    },
+                    "snippet": "   9 | const view=(page:Page)=>page.locator('[data-split-view=\"thread:task-thread\"]');\n  10 | const input=(page:Page)=>view(page).getByRole('textbox',{name:'Message',exact:true});\n> 11 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}\n     |                                                                                                                            ^\n  12 |\n  13 | test('the conversation lives in the split plane with its messages, composer and attachments',async({page})=>{\n  14 |  await open(page,true);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts",
+                        "column": 124,
+                        "line": 11
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   9 | const view=(page:Page)=>page.locator('[data-split-view=\"thread:task-thread\"]');\n  10 | const input=(page:Page)=>view(page).getByRole('textbox',{name:'Message',exact:true});\n> 11 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}\n     |                                                                                                                            ^\n  12 |\n  13 | test('the conversation lives in the split plane with its messages, composer and attachments',async({page})=>{\n  14 |  await open(page,true);\n    at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:11:124)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:14:2"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:46.323Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts",
+                    "column": 124,
+                    "line": 11
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-3043e066181997d2314d",
+          "file": "chat-view-modes.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "draft, selection and reading position survive the workspace panel opening",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2904,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:52.996Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-ec4e9c6296e956956fd8",
+          "file": "chat-view-modes.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "reduced motion settles instantly and keyboard focus stays in the composer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2471,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:35:56.027Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-ef940d8385c1571ba767",
+          "file": "chat-view-modes.spec.ts",
+          "line": 78,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T01:35:34.449Z",
+    "duration": 24281.328,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

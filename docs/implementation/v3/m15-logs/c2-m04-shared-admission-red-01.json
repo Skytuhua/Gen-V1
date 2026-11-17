@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/request-preparation-service-v3.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-red-01-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:42:17.983Z",
+  "endedAt": "2026-11-16T00:42:22.578Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-red-01.log",
+  "logDigest": "285735c07dbe698b5d8dd351ce66c16912d0ee3df3f32288086199234b508659"
+}

@@ -1,0 +1,58 @@
+argv: ["node","scripts/m15-evidence-probe.mjs"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "scope": "Actual controller with disposable copies of this bundle; originals restored in finally.",
+  "cases": [
+    {
+      "id": "unchanged-bundle",
+      "accepted": true,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:46:19.098Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 123,\n  \"artifactHashes\": 356,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 415,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    },
+    {
+      "id": "omit-failed-and-blocked-phases",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:46:20.594Z\",\n  \"integrityStatus\": \"FAIL\",\n  \"bundleStatus\": \"PASS\",\n  \"commandRecords\": 123,\n  \"artifactHashes\": 356,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 415,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": [\n    \"Phases, required cases or command assignments differ from the reviewed plan.\",\n    \"Remaining gates differ from the reviewed plan.\"\n  ]\n}\n"
+    },
+    {
+      "id": "alter-command-index",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:46:22.685Z\",\n  \"integrityStatus\": \"FAIL\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 123,\n  \"artifactHashes\": 356,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 415,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": [\n    \"Command index differs from actual receipts and reviewed phase membership.\"\n  ]\n}\n"
+    },
+    {
+      "id": "malformed-command-receipt",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:26\n return [{id:name.slice(0,-5),file,command:commandEvidenceSchema.parse(value)}];\n                                                                 ^\n\nZodError: [\n  {\n    \"expected\": \"array\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"argv\"\n    ],\n    \"message\": \"Invalid input: expected array, received undefined\"\n  }\n]\n    at <anonymous> (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:26:66)\n    at Array.flatMap (<anonymous>)\n    at records (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:18:95)\n    at <anonymous> (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:50:22)\n    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)\n    at async node:internal/modules/esm/loader:647:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.22.1\n"
+    },
+    {
+      "id": "alter-legacy-renderer-exception",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:23\n  if(hash(file)!=='1b5485bbddc560dc0467411d8257005052e2701ba33e662547fa42cc99149a86')throw Error('Legacy renderer artifact differs from its immutable bytes.');\n                                                                                           ^\n\nError: Legacy renderer artifact differs from its immutable bytes.\n    at <anonymous> (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:23:92)\n    at Array.flatMap (<anonymous>)\n    at records (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:18:95)\n    at <anonymous> (/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-evidence.mts:50:22)\n    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)\n    at async node:internal/modules/esm/loader:647:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.22.1\n"
+    },
+    {
+      "id": "alter-source-cut-metadata",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:46:25.830Z\",\n  \"integrityStatus\": \"FAIL\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 123,\n  \"artifactHashes\": 356,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 415,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": [\n    \"Implementation source cut has a different base.\",\n    \"Implementation source changed: apps/server/server.ts\"\n  ]\n}\n"
+    },
+    {
+      "id": "alter-dependency-contract",
+      "rejected": true,
+      "exitCode": 1,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:46:27.197Z\",\n  \"integrityStatus\": \"FAIL\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 123,\n  \"artifactHashes\": 356,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 415,\n  \"sourceLockDigest\": \"51e8c5ff2a1bfa8bc8721adad79bb04907a70601097fc750789e97c9733d0a99\",\n  \"reviewerApproval\": false,\n  \"issues\": [\n    \"Source lock differs from the reviewed plan and actual base blobs.\",\n    \"Dependency contracts differ from the reviewed source lock.\"\n  ]\n}\n"
+    }
+  ]
+}

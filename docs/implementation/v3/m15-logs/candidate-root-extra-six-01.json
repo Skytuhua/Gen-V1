@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "playwright.config.ts",
+    "tests/e2e/artifact-acknowledgment.spec.ts",
+    "tests/e2e/clarity-data-work.spec.ts",
+    "tests/e2e/document-window.spec.ts",
+    "--grep",
+    "an older snapshot cannot replace a newer acknowledged selection|trend gives its actual scale and units without hiding gaps or fabricating a zero baseline|flat and unavailable trends describe only supplied values|(light|dark) architecture is legible before selecting a node|large edited source fits the real host state limit without duplicating the source text",
+    "--output",
+    "test-results/browser/candidate-root-extra-six-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:18:32.399Z",
+  "endedAt": "2026-11-15T22:19:21.899Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/candidate-root-extra-six-01.log",
+  "logDigest": "f74508195ef0de7d56954dce9c1ec0f101c0a79e42e8b053e7236d0254b197d3"
+}

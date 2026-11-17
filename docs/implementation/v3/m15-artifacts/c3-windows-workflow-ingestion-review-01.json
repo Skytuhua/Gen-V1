@@ -1,0 +1,138 @@
+{
+  "reviewStatus": "NO_MATERIAL_STATIC_DEFECT_FOUND",
+  "reviewer": "/root/m15_host_gates",
+  "recordedAt": "2026-11-16T02:04:27.378705+00:00",
+  "scope": "Read-only private workflow and ingestion review. No Windows, PowerShell, browser or test execution by this reviewer. No active repository edits or staging.",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "acceptedTree": "2ecdb4c95fc6b604159257a125064ad585b966e5",
+  "privateFiles": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/m15-evidence.push-draft.yml",
+      "bytes": 24021,
+      "sha256": "2f760bcf58d23c4923395687b8bc7891d75285282d6df04ef2db5a3cb254e4a0"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/m15-evidence.push-draft.yml.diff",
+      "bytes": 25558,
+      "sha256": "2bd665bb51fafa4d773e9b78c91f10e8d3b2d588b214cc6959b250dce1eb98f4"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ingest-ci-artifact.py",
+      "bytes": 21261,
+      "sha256": "971bc3ce8cfde7c44d9176c61d6b0a2a9b20a085cb7b2c0d48fc7d0f4a8ae18f"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ingest-ci-artifact.py.diff",
+      "bytes": 15456,
+      "sha256": "34205f911a2a15d92377d32ea153753ab8d594e517678ab33b21e9b2f559b8aa"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/test-ci-ingestion.py",
+      "bytes": 13819,
+      "sha256": "e0789d260c064791daf943cc9bc67667319a13459c95ffca0f38d9452d4e0ef3"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-ingestion-self-test-01.json",
+      "bytes": 1233,
+      "sha256": "c6336f686d2f88ecc0a5aaeb23374669228e5a3cf30a55009f6fe36eca887e2f"
+    }
+  ],
+  "supportingSourceFiles": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/.github/workflows/ci.yml",
+      "bytes": 4132,
+      "sha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/.github/actions/setup/action.yml",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-record.mjs",
+      "bytes": 2439,
+      "sha256": "971842beaeb9e0f1571afbe68407282603bbfef5b28aaab3df949af58e524cd6"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/test-browser.ts",
+      "bytes": 3310,
+      "sha256": "6aba884457c135fc19cec841a3060b76a5c75ac90afbe19ce425fbe0fcada513"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/package.json",
+      "bytes": 3186,
+      "sha256": "58d6665ea47afdbbd9d7a67ee30195d202981b10e36832c860ddc3f534856a1b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/browser-suites.ts",
+      "bytes": 6312,
+      "sha256": "210d98d5d42e5c8a9ee1a242d4aea8c6367404b341a08411388f0ca2d69bde2a"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.playwright.config.ts",
+      "bytes": 461,
+      "sha256": "8fc46e2ac81103eb3674ad3cf0a0b550c673395b3aa2d6aeb14310d229b7e8c4"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+      "bytes": 476,
+      "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.playwright.config.ts",
+      "bytes": 593,
+      "sha256": "97be79757a18a8e6c657e820ecbb5abe250646cab70c255956e4e965b02149ac"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.playwright.config.ts",
+      "bytes": 578,
+      "sha256": "f8265e93fe341253ccf01c5f17832bfcbb85c0b4d6811b439924290fb98f5cf0"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/playwright.config.ts",
+      "bytes": 465,
+      "sha256": "f1cf1a7731441ac7e651d2da94721ab24d90e5a42de67b830c0b3b69f4bda0ca"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/scoped-conversation.playwright.config.ts",
+      "bytes": 651,
+      "sha256": "0fe83b29de917cee83d24a5cecd4f6f6d2977cf54d0a731ee3db3fed1f198cbc"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/ui-shell-overlays.playwright.config.ts",
+      "bytes": 576,
+      "sha256": "9d9f7064059c2a2ee217ec546747a01d9fde20048255aea66dac5c454d23531b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/ui-shell-controls.playwright.config.ts",
+      "bytes": 576,
+      "sha256": "8cc1c1dbb71ec3248270895310a9cd705d7766cb069dc089e2a139da27621795"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-context.playwright.config.ts",
+      "bytes": 610,
+      "sha256": "42a248a6c340ebfdf6905643ec00c212f2a330b6f40a42465de7bd9c8035cb0b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.playwright.config.ts",
+      "bytes": 679,
+      "sha256": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac"
+    }
+  ],
+  "directObservations": {
+    "workflowDiffExactlyMatchesActiveFrozenC2AtReview": true,
+    "ingestionDiffExactlyMatchesSealedC2": true,
+    "ordinaryCiSetupAndBrowserRunnerIdenticalAt138And49AndReviewedWorkingFiles": true,
+    "vitestAndPlaywrightCliPathsExistInPinnedLocalInstall": true,
+    "fullResultsCountFieldsMatchExistingVitest4ResultShape": true
+  },
+  "limits": [
+    "Windows and PowerShell argument execution has not been observed.",
+    "No real GitHub artifact download, upload round trip or ingestion has been observed.",
+    "Native/Edge/installed-desktop acceptance is not established by this review or synthetic ingestion fixtures.",
+    "Root baseline checkout/build retain default success gating after candidate build, so candidate build failure omits baseline execution and produces incomplete comparison evidence.",
+    "Cancelled or timed-out processes may omit command receipts; always-upload retains files that exist and ingestion reports missing records.",
+    "Edge preflight metadata describes an installed executable; selected msedge configurations request actual Edge, while workbench/App/root/saved/chat and artifact acknowledgment use bundled Chromium.",
+    "Full-shard ingestion records reported JSON counts and failures; it does not award aggregate PASS or synthesize missing shards."
+  ]
+}

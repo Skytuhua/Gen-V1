@@ -1,0 +1,89 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/gen-v1/playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794778548890-4c2ec330-9390-406f-b701-0b6d98815dc6/root/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "artifact-acknowledgment.spec.ts",
+          "clarity-data-work.spec.ts",
+          "dark-default.spec.ts",
+          "document-window.spec.ts",
+          "host-loop.spec.ts",
+          "journal-reload.spec.ts",
+          "latency.spec.ts",
+          "map-theme.spec.ts",
+          "migration-redesign.spec.ts",
+          "operational-motion.spec.ts",
+          "overnight-shell.spec.ts",
+          "plan-timeline.spec.ts",
+          "review-capture-theme.spec.ts",
+          "shell-micro-motion.spec.ts",
+          "signing-motion.spec.ts",
+          "skills.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts",
+      "url": "http://127.0.0.1:5499",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'\nRequire stack:\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js",
+      "stack": "Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'\nRequire stack:\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js\n    at Object.loadNativeModule (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)\n    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)\n    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)"
+    },
+    {
+      "message": "Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'\nRequire stack:\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js",
+      "stack": "Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'\nRequire stack:\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js\n- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js\n    at Object.loadNativeModule (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)\n    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)\n    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-11-15T21:35:50.605Z",
+    "duration": 6885.15,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

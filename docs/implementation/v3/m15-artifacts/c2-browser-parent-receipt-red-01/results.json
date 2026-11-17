@@ -1,0 +1,149 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "agents-workspace.spec.ts",
+          "agents-workspace-evidence.spec.ts"
+        ],
+        "timeout": 20000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/agents-workspace.vite.config.ts --port 5636 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5636",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "agents-workspace.spec.ts",
+      "file": "agents-workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7917,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Retry send to parent-00', exact: true })\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Retry send to parent-00', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to 1 element\u001b[22m\n\u001b[2m      - unexpected value \"1\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Retry send to parent-00', exact: true })\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Retry send to parent-00', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to 1 element\u001b[22m\n\u001b[2m      - unexpected value \"1\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:164:89",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                      "column": 89,
+                      "line": 164
+                    },
+                    "snippet": "  162 |  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');\n  163 |  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);\n> 164 |  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);\n      |                                                                                         ^\n  165 | });\n  166 | test('filtered children retain their completed owning parent and local reading state', async ({page}) => {\n  167 |  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                        "column": 89,
+                        "line": 164
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Retry send to parent-00', exact: true })\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Retry send to parent-00', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to 1 element\u001b[22m\n\u001b[2m      - unexpected value \"1\"\u001b[22m\n\n\n  162 |  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');\n  163 |  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);\n> 164 |  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);\n      |                                                                                         ^\n  165 | });\n  166 | test('filtered children retain their completed owning parent and local reading state', async ({page}) => {\n  167 |  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:164:89"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T00:23:24.347Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                    "column": 89,
+                    "line": 164
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-133aa4fdbf2b8d52c2a0",
+          "file": "agents-workspace.spec.ts",
+          "line": 536,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T00:23:20.507Z",
+    "duration": 12282.646,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

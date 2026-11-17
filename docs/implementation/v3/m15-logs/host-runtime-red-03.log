@@ -1,0 +1,100 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (8 tests | 8 failed) 189ms
+   × captures exact UTF16 text once, rejects forged revisions and prevents surrogate splitting 42ms
+   × keeps historical bytes immutable and requires explicit retained-version send after source changes 39ms
+   × reauthorizes retained file bytes after grant revocation and never grants source context 14ms
+   × reads artifact rows only through a declared same-owner structured binding 14ms
+   × rejects mutation during model discovery and preserves the accepted command identity on retries 12ms
+   × queues AFTER_CURRENT on the same durable outbox without entering the active run 32ms
+   × keeps the flag off by default and retains saved-source read access after rollback 19ms
+   × uses the existing authenticated host and CSRF boundaries for captures and source reads 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > captures exact UTF16 text once, rejects forged revisions and prevents surrogate splitting
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:32:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > keeps historical bytes immutable and requires explicit retained-version send after source changes
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:43:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reauthorizes retained file bytes after grant revocation and never grants source context
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:56:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reads artifact rows only through a declared same-owner structured binding
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:69:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > rejects mutation during model discovery and preserves the accepted command identity on retries
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:82:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > queues AFTER_CURRENT on the same durable outbox without entering the active run
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:94:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > keeps the flag off by default and retains saved-source read access after rollback
+AssertionError: expected [Function] to not throw an error but 'HarnessError: Unknown capability flag…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"HarnessError: Unknown capability flag: ui.sourceWorkbenchV1"
+
+ ❯ tests/source-workbench-host-v3.test.ts:103:63
+    101| it('keeps the flag off by default and retains saved-source read access…
+    102|   const f = fixture();
+    103|   expect(() => capabilityEnabled('ui.sourceWorkbenchV1')).not.toThrow(…
+       |                                                               ^
+    104|   const workbench = f.workbench(), captured = await workbench.capture(…
+    105|   __setCapabilityFlagForTests('ui.sourceWorkbenchV1', false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > uses the existing authenticated host and CSRF boundaries for captures and source reads
+AssertionError: M15 must use a host source service: expected Service{ store: Store{ …(7) }, …(38) } to have property "sourceWorkbench"
+ ❯ Object.workbench tests/source-workbench-host-v3.test.ts:26:82
+
+ ❯ tests/source-workbench-host-v3.test.ts:111:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed (8)
+   Start at  05:36:00
+   Duration  2.08s (transform 1.01s, setup 0ms, import 1.66s, tests 189ms, environment 0ms)
+

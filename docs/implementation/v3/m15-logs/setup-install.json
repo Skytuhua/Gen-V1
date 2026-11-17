@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:29:08.680Z",
+  "endedAt": "2026-11-15T21:31:37.738Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/setup-install.log",
+  "logDigest": "4f09c61769c34fe19605c8ae70a5955985c83b863f82b56edec7079c2ca8ede1"
+}

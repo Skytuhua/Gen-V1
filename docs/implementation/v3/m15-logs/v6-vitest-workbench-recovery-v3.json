@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/workbench-recovery-v3.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+  "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+  "startedAt": "2026-11-16T19:16:54.460Z",
+  "endedAt": "2026-11-16T19:16:55.763Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-recovery-v3.log",
+  "logDigest": "cc39a4db070b8c8d65ad1f23c43cb29d2c99f16b309f6a09088dbf3030876fb4"
+}

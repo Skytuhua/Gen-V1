@@ -1,0 +1,19 @@
+{
+  "kind": "UNAPPLIED_COMBINED_NATIVE_REGRESSION_PROPOSAL",
+  "path": "tests/source-workbench-hermes-v3.test.ts",
+  "beforeSha256": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5",
+  "afterSha256": "21a8fc6e282809d51632ba21547a0715ab45acf0ba92a762f6e0cfe2f07eee35",
+  "patchSha256": "f1d9bf80b10839304bf4cb337ef8e61c22f852ca26cc0f49aa28797d9655b3eb",
+  "beforeBytes": 16941,
+  "afterBytes": 30651,
+  "target": "Windows real native file guards and Hermes Python/ACP with scripted model-only transport",
+  "limits": [
+    "No source file, workflow selection or test deadline is changed by preparation.",
+    "The existing first-file native case remains unchanged.",
+    "The new two-turn case has its own180000ms deadline and does not establish latency.",
+    "The recipient account is explicit null; first unbound nonnull account admission and queued delivery are separate tests.",
+    "The case observes real checkpoint capability negotiation but does not trigger native compaction or claim live-provider/installed-desktop coverage.",
+    "Project extraction source policy includes the source thread only, so the distinct recipient starts no background extraction runtime.",
+    "No test body has been executed at preparation."
+  ]
+}

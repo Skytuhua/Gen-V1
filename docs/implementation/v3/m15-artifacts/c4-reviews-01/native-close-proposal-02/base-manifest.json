@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "OUTSIDE_REPOSITORY_ONLY",
+  "files": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "bytes": 11172,
+      "sha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c"
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "bytes": 10722,
+      "sha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "bytes": 22578,
+      "sha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 161958,
+      "sha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d"
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "bytes": 2835,
+      "sha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793"
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "bytes": 12050,
+      "sha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13"
+    }
+  ]
+}

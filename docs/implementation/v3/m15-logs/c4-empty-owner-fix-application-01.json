@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport hashlib,subprocess,json\nrepo=Path('/workspace/scratch/1b47eb428672/m15-v3')\npatch=repo.parent/'m15-publication/c4/empty-owner-handoff-proposal-01/production.patch'\ntarget=repo/'apps/web/src/workbench-recovery.ts'\nsha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nassert sha(target)=='43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed'\nassert sha(patch)=='a60c434a3be5915ad523559425722005039467d5e858dd313e064a00bbe85306'\nsubprocess.run(['git','apply','--check',str(patch)],cwd=repo,check=True)\nsubprocess.run(['git','apply',str(patch)],cwd=repo,check=True)\nassert sha(target)=='2c4c50c7300d3960a0be2d8a18f089150b9a5a8b3d3cc5f0776a77de36ecc5a3'\nprint(json.dumps({'status':'APPLIED_NOT_VALIDATED','path':str(target.relative_to(repo)),'sha256':sha(target),'precedingRed':'c4-empty-owner-red-02:27 PASS/4 FAIL','scope':'Per-thread FIFO; independent full-owner validation; original strict loop unchanged'}))\n"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T05:57:43.019Z",
+  "endedAt": "2026-11-16T05:57:43.128Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-empty-owner-fix-application-01.log",
+  "logDigest": "f866f2b28ebf5cd1539c00a99c048fcf792f29970f8704498112eca338d7fa76"
+}

@@ -1,0 +1,26 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/native-close-application-01/apply-phase-b.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "phase": "B_OWNER_RECOVERY_POLICY_AND_CONCURRENT_GUARD_DIAGNOSTIC",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "manifestSha256": "d0268b597ca2008a8b4c39e9c28b5fe5d22ec90121541f17f1aca91702be8a04",
+  "test": {
+    "schemaVersion": 1,
+    "status": "FROZEN_OUTSIDE_REPOSITORY_NOT_RUN",
+    "path": "tests/source-handoff-v3.test.ts",
+    "baseSha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df",
+    "proposedSha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd",
+    "bytes": 27654,
+    "declaredCases": 22,
+    "addedCases": 2,
+    "patchSha256": "8cbba0c8979fd9d57ab689a25114e42f56ee12d900b8d60568b28d15af8af43c",
+    "diagnosticSentinel": "Actual journalHandoffState data is delegated unchanged for the first 64 inspections; an explicit fixture error after that prevents an infinite read-only microtask loop from starving the ordinary test timer. No deadline changes.",
+    "productionChanges": false
+  },
+  "indexUnchanged": true,
+  "originalCheckoutClean": true,
+  "runtimeResult": "NOT_RUN",
+  "unresolvedReviewFinding": "The two actual same-owner guards may fail to settle because each observes the other guard read. This exact uncorrected policy is now tested with the bounded diagnostic fixture. No final acceptance is granted."
+}

@@ -1,0 +1,314 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-workbench-memory-v3.test.ts","tests/source-composer-v3.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-source-memory-initial-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-memory-v3.test.ts (14 tests | 12 failed) 490ms
+   ✓ keeps source workbench, project memory and request custody off by default 47ms
+   × uses the host request-context option true without rewriting capability flags 37ms
+   × uses the host request-context option false without rewriting capability flags 34ms
+   × reports effective M04 custody after the same M05 preparation and retained M15 source reach one real host dispatch 146ms
+   × projects M05 'disabled with no records' through authorized read-only metadata 17ms
+   × projects M05 'disabled with retained records' through authorized read-only metadata 14ms
+   × projects M05 'enabled with no records' through authorized read-only metadata 21ms
+   × projects M05 'enabled with retained records' through authorized read-only metadata 38ms
+   × projects M05 'enabled with only retained tombstones' through authorized read-only metadata 45ms
+   × reports project-less M05 as empty without opening memory storage or inventing a scoped link 21ms
+   ✓ keeps M05 unsupported when a bare SourceWorkbench has no owning module reader 19ms
+   × rejects a changed account during the actual owning M05 read instead of returning empty metadata 16ms
+   × rejects a changed project during the actual owning M05 read instead of returning empty metadata 18ms
+   × propagates an unexpected owning memory read failure instead of manufacturing an empty module 17ms
+ ✓ tests/source-composer-v3.test.ts (8 tests) 79ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > uses the host request-context option true without rewriting capability flags
+AssertionError: expected { id: 'M04', …(5) } to match object { state: 'AVAILABLE' }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "state": "AVAILABLE",
++   "state": "DISABLED",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:87:108
+     85|   expect(f.starts[0].memoryCheckpoint).toBeUndefined();
+     86|   expect(registeredCapabilityFlags()).toEqual(flags);
+     87|   expect((await f.service.sourceWorkbench.evidence('thread')).modules.…
+       |                                                                                                            ^
+     88| });
+     89|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > uses the host request-context option false without rewriting capability flags
+AssertionError: expected { id: 'M04', …(5) } to match object { state: 'DISABLED' }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "state": "DISABLED",
++   "state": "AVAILABLE",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:87:108
+     85|   expect(f.starts[0].memoryCheckpoint).toBeUndefined();
+     86|   expect(registeredCapabilityFlags()).toEqual(flags);
+     87|   expect((await f.service.sourceWorkbench.evidence('thread')).modules.…
+       |                                                                                                            ^
+     88| });
+     89|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > reports effective M04 custody after the same M05 preparation and retained M15 source reach one real host dispatch
+AssertionError: expected { id: 'M04', …(5) } to match object { state: 'AVAILABLE', …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "href": "/api/workbench/threads/thread/context",
+-   "reason": null,
+-   "state": "AVAILABLE",
++   "reason": "Context custody is not enabled by this host.",
++   "state": "DISABLED",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:149:64
+    147|   // has now issued and delivered this exact context despite the M04 f…
+    148|   const evidence = await workbench.evidence('thread');
+    149|   expect(evidence.modules.find(module => module.id === 'M04')).toMatch…
+       |                                                                ^
+    150| });
+    151|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > projects M05 'disabled with no records' through authorized read-only metadata
+ FAIL  tests/source-workbench-memory-v3.test.ts > projects M05 'disabled with retained records' through authorized read-only metadata
+AssertionError: expected { id: 'M05', …(5) } to match object { id: 'M05', …(4) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "href": "/api/projects/project/memory?threadId=thread",
++   "href": null,
+    "id": "M05",
+    "readOnly": true,
+-   "state": "DISABLED",
++   "state": "UNSUPPORTED",
+    "title": "Memory review",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:179:18
+    177|   const before = {items: f.store.all('projectMemoryItem'), sources: f.…
+    178|   const evidence = await f.service.sourceWorkbench.evidence('thread'),…
+    179|   expect(module).toMatchObject({id: 'M05', title: 'Memory review', sta…
+       |                  ^
+    180|   expect(module!.reason).toBe(hostEnabled ? null : f.view.disabledReas…
+    181|   if (!hostEnabled) expect(module!.reason).toContain('Existing records…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > projects M05 'enabled with no records' through authorized read-only metadata
+AssertionError: expected { id: 'M05', …(5) } to match object { id: 'M05', …(4) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "href": "/api/projects/project/memory?threadId=thread",
++   "href": null,
+    "id": "M05",
+    "readOnly": true,
+-   "state": "EMPTY",
++   "state": "UNSUPPORTED",
+    "title": "Memory review",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:179:18
+    177|   const before = {items: f.store.all('projectMemoryItem'), sources: f.…
+    178|   const evidence = await f.service.sourceWorkbench.evidence('thread'),…
+    179|   expect(module).toMatchObject({id: 'M05', title: 'Memory review', sta…
+       |                  ^
+    180|   expect(module!.reason).toBe(hostEnabled ? null : f.view.disabledReas…
+    181|   if (!hostEnabled) expect(module!.reason).toContain('Existing records…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > projects M05 'enabled with retained records' through authorized read-only metadata
+ FAIL  tests/source-workbench-memory-v3.test.ts > projects M05 'enabled with only retained tombstones' through authorized read-only metadata
+AssertionError: expected { id: 'M05', …(5) } to match object { id: 'M05', …(4) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "href": "/api/projects/project/memory?threadId=thread",
++   "href": null,
+    "id": "M05",
+    "readOnly": true,
+-   "state": "AVAILABLE",
++   "state": "UNSUPPORTED",
+    "title": "Memory review",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:179:18
+    177|   const before = {items: f.store.all('projectMemoryItem'), sources: f.…
+    178|   const evidence = await f.service.sourceWorkbench.evidence('thread'),…
+    179|   expect(module).toMatchObject({id: 'M05', title: 'Memory review', sta…
+       |                  ^
+    180|   expect(module!.reason).toBe(hostEnabled ? null : f.view.disabledReas…
+    181|   if (!hostEnabled) expect(module!.reason).toContain('Existing records…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > reports project-less M05 as empty without opening memory storage or inventing a scoped link
+AssertionError: expected { id: 'M05', …(5) } to match object { Object (state, readOnly, ...) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "href": null,
+    "readOnly": true,
+-   "state": "EMPTY",
++   "state": "UNSUPPORTED",
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:196:64
+    194|   const evidence = await f.service.sourceWorkbench.evidence('thread');
+    195|   expect(evidence.logicalOwner).toEqual({threadId: 'thread', projectId…
+    196|   expect(evidence.modules.find(module => module.id === 'M05')).toMatch…
+       |                                                                ^
+    197|   expect(reader).not.toHaveBeenCalled();
+    198|   expect(f.store.all('projectMemoryStorageFormat')).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > rejects a changed account during the actual owning M05 read instead of returning empty metadata
+ FAIL  tests/source-workbench-memory-v3.test.ts > rejects a changed project during the actual owning M05 read instead of returning empty metadata
+AssertionError: expected 'settled' to be 'entered' // Object.is equality
+
+Expected: "entered"
+Received: "settled"
+
+ ❯ tests/source-workbench-memory-v3.test.ts:222:93
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/source-workbench-memory-v3.test.ts > propagates an unexpected owning memory read failure instead of manufacturing an empty module
+AssertionError: promise resolved "{ logicalOwner: { …(3) }, …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "items": [],
++   "logicalOwner": {
++     "projectId": "project",
++     "threadId": "thread",
++     "workspaceId": null,
++   },
++   "modules": [
++     {
++       "href": "/api/workbench/threads/thread/context",
++       "id": "M04",
++       "readOnly": true,
++       "reason": "Context custody is not enabled by this host.",
++       "state": "DISABLED",
++       "title": "Context and tools",
++     },
++     {
++       "href": null,
++       "id": "M05",
++       "readOnly": true,
++       "reason": "No tested typed memory-review contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Memory review",
++     },
++     {
++       "href": "/api/threads/thread/verification",
++       "id": "M06",
++       "readOnly": true,
++       "reason": "The verification workflow is disabled; saved evidence remains readable.",
++       "state": "DISABLED",
++       "title": "Verification",
++     },
++     {
++       "href": null,
++       "id": "M08",
++       "readOnly": true,
++       "reason": "Checkpoint capture and restore have separate host gates.",
++       "state": "DISABLED",
++       "title": "Checkpoints and review",
++     },
++     {
++       "href": null,
++       "id": "M09",
++       "readOnly": true,
++       "reason": "Typed agent work is disabled.",
++       "state": "DISABLED",
++       "title": "Task tree",
++     },
++     {
++       "href": null,
++       "id": "M10",
++       "readOnly": true,
++       "reason": "No tested background-work read contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Background work",
++     },
++     {
++       "href": "/api/snapshot",
++       "id": "M11",
++       "readOnly": true,
++       "reason": "Measured request timings are disabled. Unknown timings remain unknown.",
++       "state": "DISABLED",
++       "title": "Request timings",
++     },
++     {
++       "href": null,
++       "id": "M14",
++       "readOnly": true,
++       "reason": "No tested conversation-branch contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Conversation branches",
++     },
++   ],
+  }
+
+ ❯ tests/source-workbench-memory-v3.test.ts:236:60
+    234|   const f = await memoryReadFixture('accepted'), failure = new Error('…
+    235|   vi.spyOn(f.memory, 'read').mockImplementationOnce(() => {throw failu…
+    236|   await expect(f.service.sourceWorkbench.evidence('thread')).rejects.t…
+       |                                                            ^
+    237|   expect(f.store.all('outbox')).toEqual([]); expect(f.store.all('sourc…
+    238| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  12 failed | 10 passed (22)
+   Start at  11:53:36
+   Duration  2.96s (transform 1.27s, setup 0ms, import 1.94s, tests 569ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-memory-initial-01/results.json

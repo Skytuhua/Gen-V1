@@ -1,0 +1,25 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/chat-view-modes.playwright.config.ts","--grep","active drag","--output","test-results/browser/chat-drag-escape-green-01"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/e2e/chat-view-modes.spec.ts:243:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership
+[1A[2K[2/3] tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME composition flag
+[1A[2K[3/3] tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME legacy key 229
+[1A[2K  3 passed (19.8s)

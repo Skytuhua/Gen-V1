@@ -1,0 +1,36 @@
+{
+  "kind": "REVIEW_ONLY_PRODUCT_PROPOSAL",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "beforeSha256": "f3941173ffdb488278162a168b7e3eb83b1f8175d1d7e5c95a11b8262a211d06",
+      "afterSha256": "932c29c2db7d6fe8ae072c3b0b6c219db2551c41ddaa1212eaee64f354ee2ae8",
+      "beforeBytes": 160347,
+      "afterBytes": 160453,
+      "preservesCRLFCount": true
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "beforeSha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+      "afterSha256": "da0b285af5b935f26ecf69fb891f8e216d95918710ec4a02a5a1af6bbd157ee8",
+      "beforeBytes": 10077,
+      "afterBytes": 10076,
+      "preservesCRLFCount": true
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "beforeSha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191",
+      "afterSha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+      "beforeBytes": 2836,
+      "afterBytes": 2835,
+      "preservesCRLFCount": true
+    }
+  ],
+  "limits": [
+    "No repository file is written by this script.",
+    "Only confirmed error presenters change role; other status messages remain intact.",
+    "Restored Usage waits for canonical owner resolution and opens only in ordinary chat mode.",
+    "Existing failed browser receipts remain unchanged."
+  ],
+  "patchSha256": "cee80a2273fcca1065184adae23bce9af4b970a351df8613de08f3d5b8f9b408"
+}

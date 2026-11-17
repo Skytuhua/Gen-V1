@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/research-baseline.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/context-compiler-v3.test.ts",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/project-memory-service-v3.test.ts",
+    "tests/project-memory-request-http-v3.test.ts",
+    "tests/memory-host-lifecycle-v3.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c4-prerequisites-01/results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T03:31:42.539Z",
+  "endedAt": "2026-11-16T03:32:48.906Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-prerequisites-01.log",
+  "logDigest": "87e4ff679923b0365ff110e1ab193c85c4195ca8f51dfa2e83291a23644b6260"
+}

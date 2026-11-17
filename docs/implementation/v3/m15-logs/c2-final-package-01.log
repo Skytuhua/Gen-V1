@@ -1,0 +1,17 @@
+argv: ["pnpm","exec","vitest","run","tests/public-source.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-final-package-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/public-source.test.ts (11 tests) 1432ms
+     ✓ resolves the staged browser entry using only admitted public sources  339ms
+     ✓ admits the local import closure of exported TypeScript and JavaScript inputs  646ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  09:49:21
+   Duration  2.64s (transform 363ms, setup 0ms, import 889ms, tests 1.43s, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-final-package-01-results.json

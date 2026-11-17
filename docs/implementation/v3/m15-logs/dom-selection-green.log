@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-dom-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  05:35:08
+   Duration  492ms (transform 116ms, setup 0ms, import 143ms, tests 6ms, environment 2ms)
+

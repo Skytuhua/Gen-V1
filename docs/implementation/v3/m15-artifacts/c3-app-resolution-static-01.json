@@ -1,0 +1,226 @@
+{
+  "status": "PASS",
+  "kind": "private static merge proposal review, no execution or integration result",
+  "upstreamBase": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "upstreamTarget": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "conflictTree": "7c6fac6a46fbbc6b095cfba3b1a261fbb2b57856",
+  "checks": [
+    {
+      "name": "proposal TSX parses without diagnostics",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "proposed browser case parses without diagnostics",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "active App still equals frozen C2 snapshot",
+      "pass": true
+    },
+    {
+      "name": "active App spec still equals frozen C2 spec",
+      "pass": true
+    },
+    {
+      "name": "Composer equals C2 after removing only new upstream hint",
+      "pass": true
+    },
+    {
+      "name": "CanvasThread and its provider equal C2",
+      "pass": true
+    },
+    {
+      "name": "prepareSourceJournal equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "prepareWorkspace equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "selectNow equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "select equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "placeSplitThread equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "resolvedMainId equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "workspaceContext equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "threadHeld equals C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "SourceWorkbenchProvider opening props and count equal C2",
+      "pass": true,
+      "details": {
+        "count": 2
+      }
+    },
+    {
+      "name": "SourceMessage opening props and count equal C2",
+      "pass": true,
+      "details": {
+        "count": 2
+      }
+    },
+    {
+      "name": "WorkbenchComposer opening props and count equal C2",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "source provider closing count remains balanced",
+      "pass": true
+    },
+    {
+      "name": "artifact owner/active props remain identical to C2",
+      "pass": true,
+      "details": {
+        "count": 2
+      }
+    },
+    {
+      "name": "ChatView JSX ancestry remains identical except accepted summary child boundary",
+      "pass": true
+    },
+    {
+      "name": "canvasBodyGuarded preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "renderWorkspaceCanvas preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "renderSplitView preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "renderConversationView preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "contextSummaries preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "splitSelectionReady preserves upstream49 declaration",
+      "pass": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "native return effect exactly preserves upstream49",
+      "pass": true
+    },
+    {
+      "name": "SurfaceBoundary opening props and count preserve upstream49",
+      "pass": true,
+      "details": {
+        "count": 5
+      }
+    },
+    {
+      "name": "SummaryLayout owner/visibility attributes preserve C2",
+      "pass": true
+    },
+    {
+      "name": "working hint excludes only enabled explicit queue mode",
+      "pass": true
+    },
+    {
+      "name": "no merge markers remain",
+      "pass": true
+    }
+  ],
+  "files": [
+    {
+      "name": "App.base138.tsx",
+      "sha256": "a3b7252bd57ec61f54cd8c92bb6b7b543da86b71babf2cdd18b5c90cea8a0a42"
+    },
+    {
+      "name": "App.upstream49.tsx",
+      "sha256": "d48f71c3f2815b0356114ec6a28984048df21e079017481a0cc01f161c84a168"
+    },
+    {
+      "name": "App.c2.tsx",
+      "sha256": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b"
+    },
+    {
+      "name": "App.conflict.tsx",
+      "sha256": "2f42d8ac7e6c9b0345232613401db95cfc93cb9e0ab2824bd57ccf58cb3ffde9"
+    },
+    {
+      "name": "App.proposed.tsx",
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+    },
+    {
+      "name": "workbench-app.proposed.spec.ts",
+      "sha256": "26d7eec38adae678f8dfd7347f24ea3d5a5ff182a53b89f53c3cee7c64e30353"
+    },
+    {
+      "name": "App.c2-to-proposed.diff",
+      "sha256": "bdce205d1dac796dc05b76286b02385aafb3b29eba4b3e030be0893455103b1a"
+    },
+    {
+      "name": "workbench-app.proposed.diff",
+      "sha256": "34ab602a91c0d2d53c4af36e512dbfa672d0a5f70a1594100095685c8a3c0234"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "previousHead": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "intermediateCommit": "364d3f552c23668c3894d04f4a6443808cc2b17a",
+  "targetCommit": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "verifiedPriorPreservation": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/publication-cut-03/archive-manifest.json",
+      "sha256": "5b89a48b085ee56548a21ee5844f129dff8fcc4c9f3245b75d111673ce9584f2",
+      "files": 18
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-0f487aa/archive-manifest.json",
+      "sha256": "7252082ac746d3e29ac9c46e57a1e170b9cfa95804864c7236e114c3f31338db",
+      "files": 34
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-external-preservation-01.json",
+      "sha256": "c10f26186d5e93de271090f1500424cc384038a44246d952e113f3edaf5d721c",
+      "receiptVersions": 20
+    }
+  ],
+  "archives": [
+    {
+      "commit": "364d3f552c23668c3894d04f4a6443808cc2b17a",
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-364d3f5/archive-manifest.json",
+      "files": 20,
+      "sha256": "04702cfe543ae77e6b796d423c3b9259a64beea5683ced5301c37f7a87fb7531"
+    },
+    {
+      "commit": "082264877e3bb61e8c87f257ccd831b5c1438472",
+      "path": "docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/archive-manifest.json",
+      "files": 22,
+      "sha256": "d5105e5f03a2ed111ddde60746070c97b3ce9423d4afb8cc6fd1740168ab26e6"
+    }
+  ],
+  "priorFullNormalization": {
+    "sourceCommit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+    "rawReceipt": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-full-vitest/c308ee76e3586cde/reconcile-full-vitest.json",
+    "rawReceiptSha256": "c308ee76e3586cde4dfc76f2ca30e5dd832a58aa5258f12be4ffe12f4d564fc4",
+    "admittedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-c308ee76e3.json",
+    "admittedReceiptSha256": "c1f50db79f6d052954b9228445e354cef76f9e4ac8d973a9ad8bf1d42aa5ec84",
+    "log": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-c308ee76e3.log",
+    "logSha256": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d",
+    "changedFields": [
+      "boundedLogRef"
+    ],
+    "status": "FAIL"
+  },
+  "scope": "Preserve exact external evidence attempts and fixture admission. These source-cut histories do not validate current C4 work or relabel failed commands."
+}

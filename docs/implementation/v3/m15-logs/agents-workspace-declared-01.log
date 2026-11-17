@@ -1,0 +1,304 @@
+argv: ["node","--import","tsx","scripts/test-browser.ts","--suite","agents-workspace"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d
+
+Browser suite: agents-workspace (1 spec files)
+[2m[WebServer] [22m(node:39) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1440 (11ms)
+(node:103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:103) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1024 (9ms)
+(node:116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 768 (5ms)
+(node:129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:129) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/e2e/agents-workspace.spec.ts:333:1 › missing history remains reachable after offscreen bursts without moving the message being read (8ms)
+(node:142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/agents-workspace.spec.ts:386:1 › project rows expose working parent and nested child transcripts before any details click (11ms)
+(node:155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/agents-workspace.spec.ts:417:1 › all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization (7ms)
+(node:168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/agents-workspace.spec.ts:454:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts (14ms)
+(node:181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/agents-workspace.spec.ts:486:1 › filtered children retain their completed owning parent and local reading state (6ms)
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/agents-workspace.spec.ts:522:1 › the actual App candidate opens and restores compact routing without mounting snapshot bootstrap (9ms)
+(node:207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/agents-workspace.spec.ts:539:1 › child follow-up uses the published parent/run target and current ticket through handled (17ms)
+(node:220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/agents-workspace.spec.ts:582:1 › output while reading earlier retains position and exposes an explicit new-output action (12ms)
+(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 1440x900 at 1 (9ms)
+(node:246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 1024x768 at 1.25 (6ms)
+(node:259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:259) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 640x520 at 1.5 (3ms)
+(node:272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 390x700 at 1 (8ms)
+
+
+  1) tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1440 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1024 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-bf5f7-arent-conversations-at-1024/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-bf5f7-arent-conversations-at-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 768 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-88489-parent-conversations-at-768/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-first-age-88489-parent-conversations-at-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/agents-workspace.spec.ts:333:1 › missing history remains reachable after offscreen bursts without moving the message being read 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-missing-h-031a0-ving-the-message-being-read/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-missing-h-031a0-ving-the-message-being-read/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/agents-workspace.spec.ts:386:1 › project rows expose working parent and nested child transcripts before any details click 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-project-r-f25eb-ts-before-any-details-click/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-project-r-f25eb-ts-before-any-details-click/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/agents-workspace.spec.ts:417:1 › all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-all-horiz-99b63-afts-survive-virtualization/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-all-horiz-99b63-afts-survive-virtualization/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/agents-workspace.spec.ts:454:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/agents-workspace.spec.ts:486:1 › filtered children retain their completed owning parent and local reading state 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-filtered--0a467-ent-and-local-reading-state/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-filtered--0a467-ent-and-local-reading-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/agents-workspace.spec.ts:522:1 › the actual App candidate opens and restores compact routing without mounting snapshot bootstrap 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-the-actua-f2eb4-mounting-snapshot-bootstrap/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-the-actua-f2eb4-mounting-snapshot-bootstrap/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/agents-workspace.spec.ts:539:1 › child follow-up uses the published parent/run target and current ticket through handled 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/agents-workspace.spec.ts:582:1 › output while reading earlier retains position and exposes an explicit new-output action 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-output-wh-65c8c--explicit-new-output-action/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-output-wh-65c8c--explicit-new-output-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 1440x900 at 1 ──────────────
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 1024x768 at 1.25 ──────────
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 640x520 at 1.5 ─────────────
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 390x700 at 1 ──────────────
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407399-74de8a2a-5676-4e42-9fe5-54e943d5fa7d/agents-workspace/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1440 
+    tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 1024 
+    tests/e2e/agents-workspace.spec.ts:285:40 › first agent reads reserve project rows and parent conversations at 768 
+    tests/e2e/agents-workspace.spec.ts:333:1 › missing history remains reachable after offscreen bursts without moving the message being read 
+    tests/e2e/agents-workspace.spec.ts:386:1 › project rows expose working parent and nested child transcripts before any details click 
+    tests/e2e/agents-workspace.spec.ts:417:1 › all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization 
+    tests/e2e/agents-workspace.spec.ts:454:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts 
+    tests/e2e/agents-workspace.spec.ts:486:1 › filtered children retain their completed owning parent and local reading state 
+    tests/e2e/agents-workspace.spec.ts:522:1 › the actual App candidate opens and restores compact routing without mounting snapshot bootstrap 
+    tests/e2e/agents-workspace.spec.ts:539:1 › child follow-up uses the published parent/run target and current ticket through handled 
+    tests/e2e/agents-workspace.spec.ts:582:1 › output while reading earlier retains position and exposes an explicit new-output action 
+    tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 1440x900 at 1 ────────────────
+    tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 1024x768 at 1.25 ────────────
+    tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry dark 640x520 at 1.5 ───────────────
+    tests/e2e/agents-workspace.spec.ts:621:3 › readable geometry light 390x700 at 1 ────────────────
+
+Failed browser suites: agents-workspace (exit 1)

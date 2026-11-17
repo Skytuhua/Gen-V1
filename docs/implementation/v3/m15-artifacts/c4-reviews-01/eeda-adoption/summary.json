@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "kind": "EXACT_EEDA_ADOPTION_SUMMARY",
+  "sourceParent": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "adoptedHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "adoptedTree": "12678a8f6c7db2718b02c99846bcdb02a1dee631",
+  "receipt": "docs/implementation/v3/m15-logs/c4-incoming-ux-adoption-01.json",
+  "logSha256": "874d7bbbb0d11e41d5b7f6f33f8cb04cffb0b2c7d5ea0b5f92e7ba646e04b2bd",
+  "applicationSha256": "b5b0372cecd2714a39320940c7c0248fa8f7773c76d3b1b908e37f374de88b5f",
+  "status": "PASS_OBSERVED_ROOT_APPLICATION",
+  "payloads": [
+    {
+      "baseBlob": "a75c0d641f050d22fbec7d4dd694125712f20e8e",
+      "baseSha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+      "beforeSha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+      "candidateBytes": 9531,
+      "candidateSha256": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+      "incomingBlob": "23af71981dc0165e61b131adf232cdc6be6f07f8",
+      "incomingSha256": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+      "localEdit": false,
+      "mode": 420,
+      "path": "apps/web/src/SourceSelectionActions.tsx"
+    },
+    {
+      "baseBlob": "26786c8e3072e8dd7b0a991b40516f4d61498eb0",
+      "baseSha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+      "beforeSha256": "1b515e343591ddcfce17b79805feed2bca4dabe82f2f2015107b5c4f8f99f5db",
+      "candidateBytes": 22799,
+      "candidateSha256": "de0cac5c3f3575621a12822d8c1b963932bc47911591f78ffbead2a61cd34965",
+      "incomingBlob": "f67db02df093ead6b6b52cba21c98d9ef63db18e",
+      "incomingSha256": "b7f379cd4480cf875df04a92aeef93b8e96549582abb961bb44a077caa0b2917",
+      "localEdit": true,
+      "mode": 420,
+      "path": "apps/web/src/SourceWorkbench.tsx"
+    },
+    {
+      "baseBlob": "8873575026a0dff51ed05e64f11fdb876bf12f77",
+      "baseSha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+      "beforeSha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+      "candidateBytes": 2034,
+      "candidateSha256": "bc727719ad556ae68bfc555ff7410a8e51b01625ba3c1086445da26ee5dffcd7",
+      "incomingBlob": "d05b22862908ebcdde25b3d80d00e35b9633f87e",
+      "incomingSha256": "bc727719ad556ae68bfc555ff7410a8e51b01625ba3c1086445da26ee5dffcd7",
+      "localEdit": false,
+      "mode": 420,
+      "path": "apps/web/src/source-workbench.css"
+    },
+    {
+      "baseBlob": "1dc47273892f721d8eee18b7acf22c9bf37cc8af",
+      "baseSha256": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
+      "beforeSha256": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
+      "candidateBytes": 1603,
+      "candidateSha256": "513002e5cb95b9cac3912c90ac0e62046f6223da25fbee7bf1850e28705913c2",
+      "incomingBlob": "d08e4a7a79c037cca9ef2704ebfdf6bfc5da8516",
+      "incomingSha256": "513002e5cb95b9cac3912c90ac0e62046f6223da25fbee7bf1850e28705913c2",
+      "localEdit": false,
+      "mode": 420,
+      "path": "apps/web/src/workbench-output.css"
+    }
+  ],
+  "preservedOtherIndexEntries": 6060,
+  "preservedOtherMeasuredPaths": 6484,
+  "indexSha256After": "6d512a0b7346e4a43d0b61a4f2b3f81d490598bbab41e17ccb51e685e08080a7",
+  "patches": {
+    "source-workbench-union.patch": {
+      "bytes": 3057,
+      "sha256": "f7ce809a243f0215e3dd54008baff6c1c4d224e3ec700f21ff7e9bf5408b1d39"
+    },
+    "incoming.patch": {
+      "bytes": 7418,
+      "sha256": "bcb2b01d382862d2c8224c68211e96686495720146b902c6d1f4ff8f9104f391"
+    }
+  },
+  "immediateIndependentReadback": "All four candidate files, all6060 other index entries and6484 other measured paths matched. Only receipt/log/source-cut were new. Original gen-v1 checkout was clean. The check preceded later source/test edits.",
+  "limits": [
+    "Preservation/adoption result is not UX validation.",
+    "The incoming selection cleanup concern and subsequent diagnostic/fix evidence are separately identified in this admission.",
+    "No complete index, broad inventory or copied source payload is included."
+  ]
+}

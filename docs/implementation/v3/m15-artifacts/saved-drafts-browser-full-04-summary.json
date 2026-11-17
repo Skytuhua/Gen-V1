@@ -1,0 +1,93 @@
+{
+  "stats": {
+    "startTime": "2026-11-15T22:18:38.319Z",
+    "duration": 161607.248,
+    "expected": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/results.json",
+  "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04-results.json",
+  "sha256": "32b496c6e19ac452f97dcfb11f1fb5ae1653bb7fe6590720d65686f90afe4018",
+  "screenshots": [
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1024.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1024.png",
+      "sha256": "8fd8e4cb63f9b41a27e5a55bba79c0fe70a0f41151684a3ff217903a88a091e2",
+      "bytes": 61984
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1440.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-1440.png",
+      "sha256": "c12bec899fd20e4e1383abe25741f28ccc5d7b18bb2cd695a1d3701037fd4af3",
+      "bytes": 71683
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-768.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/2-after-768.png",
+      "sha256": "c00121b5c7a47d8a1cbb6ce09ceaf1f28b9cff10148c39fb7bd7618e88993aca",
+      "bytes": 60457
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/save-error.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/save-error.png",
+      "sha256": "f45a260678481e94f3ba788ef8b4cd361a53b1a83e34ab75fee6da5f02187760",
+      "bytes": 58156
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/stress-list.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-approved-list-931be-024-768-with-reduced-motion/stress-list.png",
+      "sha256": "046ece31d87d036565b4a2e86865e2912c738318ba8205bb9298aab3f890f5c8",
+      "bytes": 76887
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/restore-conflict-1440.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/restore-conflict-1440.png",
+      "sha256": "b077bf9693729ca3e38f09b18c45e03755e5cff19f70547aaa8a7c140c0099f4",
+      "bytes": 62786
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/restore-abort-1440.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/restore-abort-1440.png",
+      "sha256": "3f134d4474771045d2b3e2b87b8f45f5716e3572fb858e720906eee409774563",
+      "bytes": 58796
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1024.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1024.png",
+      "sha256": "a66db09f5fbec59b7dd59a83f46781accf93c143e5dc840877235e50cf25939c",
+      "bytes": 54971
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1440.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-1440.png",
+      "sha256": "555a42fecc527f640cf1aebe290c80cf957b51cfb5b1552bd450f0192d1ce3e6",
+      "bytes": 58609
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-768.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/restore-quota-768.png",
+      "sha256": "c32c693ff8e28fb703d1267797f5ddd3d300030ad85a2ed5317f3655edce1615",
+      "bytes": 54273
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1024.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1024.png",
+      "sha256": "b898fb229aad9f9e24bd297d270e2cd66530c1474df60fb0177cb6893c2e4c3a",
+      "bytes": 78717
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1440.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-1440.png",
+      "sha256": "75a94f0e9daff35b71a07cd5b34629af03eb39629cae3553916bf3e5010d1b57",
+      "bytes": 82844
+    },
+    {
+      "source": "test-results/browser/run-1794781116510-49f05189-6669-4be0-b335-7022ef3217d5/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-768.png",
+      "artifact": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-04/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/reference-review-768.png",
+      "sha256": "29f8d96b22a14ed8aa175119e4857d2bcae4d9de0c3b5a57de46297d5473fd09",
+      "bytes": 74668
+    }
+  ]
+}

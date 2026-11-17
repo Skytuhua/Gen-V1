@@ -1,0 +1,110 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/chat-view-modes.playwright.config.ts","--grep","active drag","--output","test-results/browser/chat-drag-escape-red-01"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/e2e/chat-view-modes.spec.ts:243:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership
+[1A[2K  1) tests/e2e/chat-view-modes.spec.ts:243:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('main', { name: 'Chat', exact: true })
+    Expected: [32m"[7mfals[27me"[39m
+    Received: [31m"[7mtru[27me"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('main', { name: 'Chat', exact: true })[22m
+    [2m    9 × locator resolved to <main aria-label="Chat" data-detached="true" data-tracking="true" data-chat-mode="popup" class="workspace chat-view-surface">…</main>[22m
+    [2m      - unexpected value "true"[22m
+
+
+      88 |  // the drag. Its document capture listener must not swallow cancellation.
+      89 |  await page.keyboard.press('Tab');const tooltip=page.getByRole('tooltip');await expect(tooltip).toBeVisible();
+    > 90 |  await page.keyboard.press('Escape');await expect(panel(page)).toHaveAttribute('data-tracking','false');
+         |                                                                ^
+      91 |  const cancelled=await bounds(page);for(const key of ['x','y','width','height'] as const)expect(cancelled[key]).toBeCloseTo(before[key],0);
+      92 |  await page.mouse.up();await page.keyboard.press('Escape');await expect(tooltip).not.toBeVisible();
+      93 | });
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:90:64
+
+    Error Context: test-results/browser/chat-drag-escape-red-01/chat-view-modes-active-dra-7c5d9-releases-keyboard-ownership/error-context.md
+
+
+[1A[2K(node:169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:169) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/3] tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME composition flag
+[1A[2K  2) tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME composition flag 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mfalse[39m
+    Received: [31mtrue[39m
+
+       99 |   document.activeElement!.dispatchEvent(event);return event.defaultPrevented;
+      100 |  },composition);
+    > 101 |  expect(prevented).toBe(false);await expect(panel(page)).toHaveAttribute('data-tracking','true');
+          |                    ^
+      102 |  expect((await bounds(page)).x).toBeCloseTo(before.x-64,0);expect(await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY)).toBe(saved);
+      103 |  await page.keyboard.press('Escape');await expect(panel(page)).toHaveAttribute('data-tracking','false');await page.mouse.up();
+      104 |  expect((await bounds(page)).x).toBeCloseTo(before.x,0);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:101:20
+
+    Error Context: test-results/browser/chat-drag-escape-red-01/chat-view-modes-active-dra-3cdad-e-with-IME-composition-flag/error-context.md
+
+
+[1A[2K(node:253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/3] tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME legacy key 229
+[1A[2K  3) tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME legacy key 229 ──
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mfalse[39m
+    Received: [31mtrue[39m
+
+       99 |   document.activeElement!.dispatchEvent(event);return event.defaultPrevented;
+      100 |  },composition);
+    > 101 |  expect(prevented).toBe(false);await expect(panel(page)).toHaveAttribute('data-tracking','true');
+          |                    ^
+      102 |  expect((await bounds(page)).x).toBeCloseTo(before.x-64,0);expect(await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY)).toBe(saved);
+      103 |  await page.keyboard.press('Escape');await expect(panel(page)).toHaveAttribute('data-tracking','false');await page.mouse.up();
+      104 |  expect((await bounds(page)).x).toBeCloseTo(before.x,0);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:101:20
+
+    Error Context: test-results/browser/chat-drag-escape-red-01/chat-view-modes-active-dra-ecb0e-ape-with-IME-legacy-key-229/error-context.md
+
+
+[1A[2K  3 failed
+    tests/e2e/chat-view-modes.spec.ts:243:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership 
+    tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME composition flag ─
+    tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME legacy key 229 ───

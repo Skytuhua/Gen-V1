@@ -1,0 +1,65 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/desktop-surfaces.playwright.config.ts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-desktop-final-02/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 31 tests using 1 worker
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/31] tests/e2e/desktop-surfaces.spec.ts:116:1 › desktop context and usage minimize in the workspace while thread detachment stays available
+[1A[2K[2/31] tests/e2e/desktop-surfaces.spec.ts:183:1 › authoritative detached plan ignores URL descriptors and restores its owning thread
+[1A[2K[3/31] tests/e2e/desktop-surfaces.spec.ts:206:1 › an artifact stays editable in the main window with no new-detachment entry
+[1A[2K[4/31] tests/e2e/desktop-surfaces.spec.ts:225:1 › browser clients expose no native window controls
+[1A[2K[5/31] tests/e2e/desktop-surfaces.spec.ts:239:1 › native workspace notifications refresh authenticated state without opening renderer event streams
+[1A[2K[6/31] tests/e2e/desktop-surfaces.spec.ts:309:1 › close acknowledgment freezes editing until native cancellation resumes the same draft
+[1A[2K[7/31] tests/e2e/desktop-surfaces.spec.ts:338:1 › desktop draft import preserves collisions and blocks stale artifact revisions
+[1A[2K[8/31] tests/e2e/desktop-surfaces.spec.ts:410:1 › browser draft export is explicit and does not clear the source
+[1A[2K[9/31] tests/e2e/desktop-surfaces.spec.ts:447:1 › native close saves the latest edit and lease before acknowledgment, retaining source DOM
+[1A[2K[10/31] tests/e2e/desktop-surfaces.spec.ts:469:1 › native close freezes the same workspace editor alias after acknowledged saving
+[1A[2K[11/31] tests/e2e/desktop-surfaces.spec.ts:495:1 › sidebar detaches a thread into its own window and the main workspace stays usable
+[1A[2K[12/31] tests/e2e/desktop-surfaces.spec.ts:581:1 › detached workspace selection does not acquire an unacknowledged second artifact editor
+[1A[2K[13/31] tests/e2e/desktop-surfaces.spec.ts:622:1 › navigation windows never mount hidden editable artifacts or a composer
+[1A[2K[14/31] tests/e2e/desktop-surfaces.spec.ts:648:1 › native close acknowledges an unrecovered composer workspace without detaching
+[1A[2K[15/31] tests/e2e/desktop-surfaces.spec.ts:677:1 › upload preprocessing blocks native close before the canonical PNG is journaled
+[1A[2K[16/31] tests/e2e/desktop-surfaces.spec.ts:719:1 › compatible browser draft import restores the live composer and survives reload
+[1A[2K[17/31] tests/e2e/desktop-surfaces.spec.ts:771:1 › imported artifact draft updates the already mounted editor before another edit
+[1A[2K[18/31] tests/e2e/desktop-surfaces.spec.ts:823:1 › export refuses pending signature assets instead of silently omitting the mark
+[1A[2K[19/31] tests/e2e/desktop-surfaces.spec.ts:868:1 › source editor recovers a durable satellite draft when editing ownership returns
+[1A[2K[20/31] tests/e2e/desktop-surfaces.spec.ts:928:1 › desktop sign-in uses the fixed native launcher without requiring pnpm
+[1A[2K[21/31] tests/e2e/desktop-surfaces.spec.ts:962:1 › desktop readiness does not wait for slow model discovery
+[1A[2K[22/31] tests/e2e/desktop-surfaces.spec.ts:997:1 › review: startup does not expose an ownerless composer before the initial snapshot
+[1A[2K[2m[WebServer] [22m2:05:41 PM [vite] http proxy error: /api/split-workspace/commands
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m2:05:41 PM [vite] http proxy error: /api/workbench/threads/task-thread/inputs
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[23/31] tests/e2e/desktop-surfaces.spec.ts:1041:39 › review: clearing an enum omits the optional response
+[1A[2K[2m[WebServer] [22m2:05:48 PM [vite] http proxy error: /api/snapshot
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[24/31] tests/e2e/desktop-surfaces.spec.ts:1041:39 › review: clearing an enum retains required validation
+[1A[2K[25/31] tests/e2e/desktop-surfaces.spec.ts:1100:1 › review: an existing native browser action remains visible and retryable
+[1A[2K[26/31] tests/e2e/desktop-surfaces.spec.ts:1126:1 › review: a failed detached workspace close retains the editable surface
+[1A[2K[27/31] tests/e2e/desktop-surfaces.spec.ts:1155:1 › review: standalone workspace uses native sizing instead of inactive panel maximize controls
+[1A[2K[28/31] tests/e2e/desktop-surfaces.spec.ts:1178:1 › review: detached browser follows saved theme and subsequent system changes
+[1A[2K[29/31] tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control
+[1A[2K[30/31] tests/e2e/desktop-surfaces.spec.ts:1256:1 › M15 panel opener: a pinned native thread retains its workspace control
+[1A[2K[31/31] tests/e2e/desktop-surfaces.spec.ts:1271:1 › native close waits for a source backup to finish parsing and retains a failed import until retry
+[1A[2K  31 passed (2.3m)

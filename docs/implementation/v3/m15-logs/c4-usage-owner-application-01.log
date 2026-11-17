@@ -1,0 +1,42 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/usage-owner-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "kind": "REVIEWED_USAGE_OWNER_PATCH_APPLICATION",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "patchSha256": "34c331588970e8ed447f18db772674932151121989d63540c9c7481d14ca98dd",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "beforeSha256": "932c29c2db7d6fe8ae072c3b0b6c219db2551c41ddaa1212eaee64f354ee2ae8",
+      "afterSha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d",
+      "beforeBytes": 160453,
+      "afterBytes": 161958
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "beforeSha256": "e8c532841c6ffd223b7d5a18aa806c5e87c3284a23b2152889dfba7737266c19",
+      "afterSha256": "00b5ac2bb4a69c4ee99acdf4fb5c1767879af5b62c51eba82a29cb98b41845f5",
+      "beforeBytes": 28381,
+      "afterBytes": 28963
+    },
+    {
+      "path": "tests/e2e/shell-error-ownership.spec.ts",
+      "beforeSha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+      "afterSha256": "ef2a116baf70fa683e8f4c77398540717be64b5900de7c2f717272eee7ea1f36",
+      "beforeBytes": 6061,
+      "afterBytes": 6092
+    },
+    {
+      "path": "tests/e2e/usage-app-integration.spec.ts",
+      "beforeSha256": "c2595840613b47d8354c437c3e2a588005bdf7df410ce424af6ae166d93ccf5d",
+      "afterSha256": "ab979ea53493ae763521c829a1571776432966ce2122ef9b500ed22c03f4f440",
+      "beforeBytes": 12954,
+      "afterBytes": 13254
+    }
+  ],
+  "indexUnchanged": true,
+  "originalCheckoutClean": true,
+  "testCredit": "No runtime result is conferred by applying this patch."
+}

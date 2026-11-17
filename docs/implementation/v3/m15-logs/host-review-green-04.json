@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-selection-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/service-workspace-admission.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:58:31.803Z",
+  "endedAt": "2026-11-15T21:58:48.997Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/host-review-green-04.log",
+  "logDigest": "0bc40f8d2336af36eae0ca4ec71b4fd4964bc0061da0485945e0de4f71daeb31"
+}

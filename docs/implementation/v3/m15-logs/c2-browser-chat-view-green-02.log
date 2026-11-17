@@ -1,0 +1,64 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/chat-view-modes.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership (3.2s)
+  ✓  2 tests/e2e/chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag (2.5s)
+  ✓  3 tests/e2e/chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 (1.9s)
+  ✘  4 tests/e2e/chat-view-modes.spec.ts:24:1 › the conversation lives in the split plane with its messages, composer and attachments (5.6s)
+(node:211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/e2e/chat-view-modes.spec.ts:36:1 › draft, selection and reading position survive the workspace panel opening (2.9s)
+  ✓  6 tests/e2e/chat-view-modes.spec.ts:78:1 › reduced motion settles instantly and keyboard focus stays in the composer (2.5s)
+
+
+  1) tests/e2e/chat-view-modes.spec.ts:24:1 › the conversation lives in the split plane with its messages, composer and attachments 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-split-view="thread:task-thread"]').getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-split-view="thread:task-thread"]').getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       9 | const view=(page:Page)=>page.locator('[data-split-view="thread:task-thread"]');
+      10 | const input=(page:Page)=>view(page).getByRole('textbox',{name:'Message',exact:true});
+    > 11 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+      12 |
+      13 | test('the conversation lives in the split plane with its messages, composer and attachments',async({page})=>{
+      14 |  await open(page,true);
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:11:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:14:2
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/chat-view-modes.spec.ts:24:1 › the conversation lives in the split plane with its messages, composer and attachments 
+  5 passed (24.3s)

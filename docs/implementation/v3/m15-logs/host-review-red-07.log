@@ -1,0 +1,156 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (21 tests | 6 failed | 1 skipped) 2291ms
+   × measures selected references through M04 without replacing its original prompt claim 76ms
+   × preserves a terminal newline in a complete 100000-line authorized output 141ms
+   × does not commit a capture or disclose retained text after its account owner changes 28ms
+   × rechecks the workbench flag before committing a source-free queued send after model discovery 13ms
+   × returns the accepted receipt for a concurrent retry that finishes model discovery after dispatch 21ms
+   × drains multiple persisted NOW inputs through ordinary follow-up delivery when M04 is disabled 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > measures selected references through M04 without replacing its original prompt claim
+AssertionError: expected 'sha256:1e4810876a2813065c23fc9b6bc2b8…' to be 'sha256:9ce7a5e9a76159a34372b29760d4aa…' // Object.is equality
+
+Expected: "sha256:9ce7a5e9a76159a34372b29760d4aa1f7e95a807cbcfad31a258d686afa7b6e5"
+Received: "sha256:1e4810876a2813065c23fc9b6bc2b865c4dd75cba3d3b49c0e758130f2ae4f82"
+
+ ❯ tests/source-workbench-host-v3.test.ts:117:120
+    115|   expect(input.requestContext?.budget.utf8Bytes).toBe(Buffer.byteLengt…
+    116|   const sourceStart = input.prompt.indexOf('\n\nSelected source eviden…
+    117|   expect(input.requestContext?.segments.find(segment => segment.source…
+       |                                                                                                                        ^
+    118|   expect(f.store.get('outbox', 'm04-send')).toMatchObject({content: 'E…
+    119| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > preserves a terminal newline in a complete 100000-line authorized output
+HarnessError: The complete output exceeds the read line limit. Narrow the selected activity group.
+ ❯ SourceWorkbench.readOutput packages/core/source-workbench.ts:313:66
+    311|       let start = 0, line = 0;
+    312|       while (start <= message.content.length) {
+    313|         if (rows.length >= WORKBENCH_LIMITS.maxOutputRows) throw new H…
+       |                                                                  ^
+    314|         const end = message.content.indexOf('\n', start);
+    315|         rows.push({id: message.id + ':' + line++, text: message.conten…
+ ❯ tests/source-workbench-host-v3.test.ts:182:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > does not commit a capture or disclose retained text after its account owner changes
+AssertionError: promise resolved "{ ref: { …(3) }, …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "label": "Assistant message",
++   "preview": "😀",
++   "previewTruncated": false,
++   "ref": {
++     "captureId": "cc9260e3-60b9-4599-b702-0f996e5d1d2a",
++     "keepCaptured": false,
++     "source": {
++       "capturedAt": "2026-11-15T21:56:17.937Z",
++       "contentDigest": "8a6b0f4ee867786ea0080714e408859659db1f00a00a8c9e499aa91b6518e54b",
++       "kind": "MESSAGE",
++       "logicalOwner": {
++         "projectId": null,
++         "threadId": "thread-a",
++         "workspaceId": null,
++       },
++       "range": {
++         "encoding": "UTF16",
++         "end": 3,
++         "selectedTextDigest": "f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
++         "start": 1,
++       },
++       "sourceId": "message-a",
++       "sourceRevision": "8a6b0f4ee867786ea0080714e408859659db1f00a00a8c9e499aa91b6518e54b",
++     },
++   },
++   "retained": true,
++   "selectedBytes": 4,
++   "state": "CURRENT",
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:191:23
+    189|   const pending = workbench.capture({commandId: 'capture-account-race'…
+    190|   f.store.internal('fixture.account-replace', f.thread.id, () => f.sto…
+    191|   await expect(pending).rejects.toMatchObject({code: 'CAPABILITY_DENIE…
+       |                       ^
+    192|   expect(f.store.all('sourceCapture', f.thread.id)).toEqual([]);
+    193| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > rechecks the workbench flag before committing a source-free queued send after model discovery
+AssertionError: promise resolved "{ commandId: 'disabled-queue', …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "commandId": "disabled-queue",
++   "eventSeq": 2,
++   "result": {
++     "inputId": "disabled-queue",
++     "messageId": "58001215-9959-47da-b865-b87e0513e4dd",
++   },
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:198:61
+    196|   const f = fixture(); f.workbench(); const models = f.runtime.models;
+    197|   vi.spyOn(f.runtime, 'models').mockImplementationOnce(async options =…
+    198|   await expect(f.send('disabled-queue', [], 'AFTER_CURRENT')).rejects.…
+       |                                                             ^
+    199|   expect(f.store.all('outbox', f.thread.id)).toEqual([]);
+    200| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > returns the accepted receipt for a concurrent retry that finishes model discovery after dispatch
+HarnessError: The task changed while validating the selected sources.
+ ❯ Service.sendMessage packages/core/service.ts:893:192
+
+ ❯ Service.command packages/core/service.ts:580:116
+ ❯ tests/source-workbench-host-v3.test.ts:207:113
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > drains multiple persisted NOW inputs through ordinary follow-up delivery when M04 is disabled
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/source-workbench-host-v3.test.ts:217:57
+    215|   });
+    216|   await f.service.deliverOutbox(f.thread.id);
+    217|   expect(f.starts).toHaveLength(1); expect(f.followUps).toHaveLength(1…
+       |                                                         ^
+    218| });
+    219|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  6 failed | 21 passed | 1 skipped (28)
+   Start at  05:56:14
+   Duration  4.78s (transform 2.22s, setup 0ms, import 1.87s, tests 2.43s, environment 0ms)
+

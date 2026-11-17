@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/e2e/saved-drafts.playwright.config.ts",
+    "--grep",
+    "source-only named metadata",
+    "--reporter=line,json",
+    "--output",
+    "test-results/m15-saved-source-ui"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T21:52:43.709Z",
+  "endedAt": "2026-11-15T21:52:56.889Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/saved-source-ui-01.log",
+  "logDigest": "edd5fbcaf792be0ad0f62293c28a86bc981cffa305d035de66140ee2dd7fa5c9"
+}

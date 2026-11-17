@@ -1,0 +1,304 @@
+argv: ["node","--import","tsx","scripts/test-browser.ts","--suite","scoped-conversation"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1
+
+Browser suite: scoped-conversation (1 spec files)
+[2m[WebServer] [22m(node:39) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:76) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/scoped-conversation.spec.ts:151:1 › uses the actual module with a supplied composer and real epoch, with no global reads (34ms)
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/scoped-conversation.spec.ts:166:1 › preserves an earlier reading anchor and composer focus on refresh, with a jump hint (7ms)
+(node:109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/e2e/scoped-conversation.spec.ts:186:1 › prepends older pages without moving the visible message or losing keyboard focus (7ms)
+(node:122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/e2e/scoped-conversation.spec.ts:206:1 › keeps hidden chat mounted and invalidates the parent context on resync and revocation (5ms)
+(node:135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:135) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/scoped-conversation.spec.ts:228:1 › follows new messages only while already at the bottom (4ms)
+(node:148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/scoped-conversation.spec.ts:237:1 › stays within short narrow light and dark panes at 200% zoom with reduced motion (4ms)
+(node:161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/scoped-conversation.spec.ts:266:1 › delivers invalidation while reacquisition is still pending and removes stale transcript (6ms)
+(node:174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/scoped-conversation.spec.ts:282:1 › automatically polls owner status while chat is hidden and keeps the same supplied node (7ms)
+(node:187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/scoped-conversation.spec.ts:300:1 › renders bounded Unicode continuation exactly and restores keyboard focus (9ms)
+(node:200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/scoped-conversation.spec.ts:315:1 › clears context and transcript on explicit close (11ms)
+(node:213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/scoped-conversation.spec.ts:323:1 › shows concise loading, error, retry and empty states using real API failures (7ms)
+(node:226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/scoped-conversation.spec.ts:361:1 › fences the rendered owner during canonical navigation, then uses the next exact real epoch (7ms)
+(node:239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=false) (12ms)
+(node:252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=true) (4ms)
+(node:265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/scoped-conversation.spec.ts:447:1 › automatic refresh does not take focus back from the supplied composer (5ms)
+
+
+  1) tests/e2e/scoped-conversation.spec.ts:151:1 › uses the actual module with a supplied composer and real epoch, with no global reads 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-uses-t-0c7d4--epoch-with-no-global-reads/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-uses-t-0c7d4--epoch-with-no-global-reads/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/scoped-conversation.spec.ts:166:1 › preserves an earlier reading anchor and composer focus on refresh, with a jump hint 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-preser-c7371-on-refresh-with-a-jump-hint/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-preser-c7371-on-refresh-with-a-jump-hint/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/scoped-conversation.spec.ts:186:1 › prepends older pages without moving the visible message or losing keyboard focus 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-prepen-a03fe-ge-or-losing-keyboard-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-prepen-a03fe-ge-or-losing-keyboard-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/scoped-conversation.spec.ts:206:1 › keeps hidden chat mounted and invalidates the parent context on resync and revocation 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-keeps--6cf5d-xt-on-resync-and-revocation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-keeps--6cf5d-xt-on-resync-and-revocation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/scoped-conversation.spec.ts:228:1 › follows new messages only while already at the bottom 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-follow-78e10-while-already-at-the-bottom/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-follow-78e10-while-already-at-the-bottom/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/scoped-conversation.spec.ts:237:1 › stays within short narrow light and dark panes at 200% zoom with reduced motion 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/scoped-conversation.spec.ts:266:1 › delivers invalidation while reacquisition is still pending and removes stale transcript 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-delive-942c3-nd-removes-stale-transcript/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-delive-942c3-nd-removes-stale-transcript/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/scoped-conversation.spec.ts:282:1 › automatically polls owner status while chat is hidden and keeps the same supplied node 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-c4208-eeps-the-same-supplied-node/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-c4208-eeps-the-same-supplied-node/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/scoped-conversation.spec.ts:300:1 › renders bounded Unicode continuation exactly and restores keyboard focus 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-render-4c1cc-and-restores-keyboard-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-render-4c1cc-and-restores-keyboard-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/scoped-conversation.spec.ts:315:1 › clears context and transcript on explicit close 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-clears-a9839-ranscript-on-explicit-close/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-clears-a9839-ranscript-on-explicit-close/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/scoped-conversation.spec.ts:323:1 › shows concise loading, error, retry and empty states using real API failures 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-shows--dddeb-tes-using-real-API-failures/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-shows--dddeb-tes-using-real-API-failures/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/scoped-conversation.spec.ts:361:1 › fences the rendered owner during canonical navigation, then uses the next exact real epoch 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-fences-8d642-s-the-next-exact-real-epoch/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-fences-8d642-s-the-next-exact-real-epoch/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=false) 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-04f10-message-focus-strict-false-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-04f10-message-focus-strict-false-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=true) 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-e83e5--message-focus-strict-true-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-e83e5--message-focus-strict-true-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/scoped-conversation.spec.ts:447:1 › automatic refresh does not take focus back from the supplied composer 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-300e4--from-the-supplied-composer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794781407765-90b564f8-a15b-46c9-b66a-c3d0b902b0e1/scoped-conversation/artifacts/scoped-conversation-automa-300e4--from-the-supplied-composer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    tests/e2e/scoped-conversation.spec.ts:151:1 › uses the actual module with a supplied composer and real epoch, with no global reads 
+    tests/e2e/scoped-conversation.spec.ts:166:1 › preserves an earlier reading anchor and composer focus on refresh, with a jump hint 
+    tests/e2e/scoped-conversation.spec.ts:186:1 › prepends older pages without moving the visible message or losing keyboard focus 
+    tests/e2e/scoped-conversation.spec.ts:206:1 › keeps hidden chat mounted and invalidates the parent context on resync and revocation 
+    tests/e2e/scoped-conversation.spec.ts:228:1 › follows new messages only while already at the bottom 
+    tests/e2e/scoped-conversation.spec.ts:237:1 › stays within short narrow light and dark panes at 200% zoom with reduced motion 
+    tests/e2e/scoped-conversation.spec.ts:266:1 › delivers invalidation while reacquisition is still pending and removes stale transcript 
+    tests/e2e/scoped-conversation.spec.ts:282:1 › automatically polls owner status while chat is hidden and keeps the same supplied node 
+    tests/e2e/scoped-conversation.spec.ts:300:1 › renders bounded Unicode continuation exactly and restores keyboard focus 
+    tests/e2e/scoped-conversation.spec.ts:315:1 › clears context and transcript on explicit close ──
+    tests/e2e/scoped-conversation.spec.ts:323:1 › shows concise loading, error, retry and empty states using real API failures 
+    tests/e2e/scoped-conversation.spec.ts:361:1 › fences the rendered owner during canonical navigation, then uses the next exact real epoch 
+    tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=false) 
+    tests/e2e/scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=true) 
+    tests/e2e/scoped-conversation.spec.ts:447:1 › automatic refresh does not take focus back from the supplied composer 
+
+Failed browser suites: scoped-conversation (exit 1)
