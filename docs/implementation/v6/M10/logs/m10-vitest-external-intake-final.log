@@ -1,13 +1,18 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1674869) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1686376) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 2901[2mms[22m[39m
-     [33m[2m✓[22m[39m pages past a PR-only first page until real issues are inspected [33m 357[2mms[22m[39m
+ [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 4299[2mms[22m[39m
+     [33m[2m✓[22m[39m polls only the configured numeric repository through the authenticated connection [33m 341[2mms[22m[39m
+     [33m[2m✓[22m[39m never retries after cancellation [33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m wrong-repository records are rejected and never proposed or executed [33m 399[2mms[22m[39m
+     [33m[2m✓[22m[39m a transient repository lookup failure defers instead of permanently rejecting [33m 464[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes no webhook listener or push ingestion surface [33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m routes approval through thread.create and message.send on the real Service [33m 303[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m19 passed[39m[22m[90m (19)[39m
-[2m   Start at [22m 14:47:44
-[2m   Duration [22m 9.48s[2m (transform 4.34s, setup 0ms, import 6.25s, tests 2.90s, environment 0ms)[22m
+[2m      Tests [22m [1m[32m21 passed[39m[22m[90m (21)[39m
+[2m   Start at [22m 15:10:22
+[2m   Duration [22m 10.22s[2m (transform 4.06s, setup 0ms, import 5.58s, tests 4.30s, environment 0ms)[22m
 

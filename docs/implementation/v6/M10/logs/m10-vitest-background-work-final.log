@@ -1,13 +1,19 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1674493) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1685889) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m38 tests[22m[2m)[22m[33m 7518[2mms[22m[39m
-     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 2462[2mms[22m[39m
+ [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m41 tests[22m[2m)[22m[33m 12766[2mms[22m[39m
+     [33m[2m✓[22m[39m an auto-resumed schedule keeps an operator pause [33m 624[2mms[22m[39m
+     [33m[2m✓[22m[39m a scheduled firing during an in-flight manual start waits instead of blocking [33m 448[2mms[22m[39m
+     [33m[2m✓[22m[39m a direct start on a revoked owner blocks instead of launching [33m 571[2mms[22m[39m
+     [33m[2m✓[22m[39m an answer after the owner run changed is denied before any follow-up [33m 429[2mms[22m[39m
+     [33m[2m✓[22m[39m host-event wakeups deliver when the host publishes an allowlisted event [33m 618[2mms[22m[39m
+     [33m[2m✓[22m[39m admits background work through Service.command with host-derived ownership [33m 342[2mms[22m[39m
+     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 4426[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m38 passed[39m[22m[90m (38)[39m
-[2m   Start at [22m 14:47:18
-[2m   Duration [22m 12.21s[2m (transform 3.12s, setup 0ms, import 4.46s, tests 7.52s, environment 0ms)[22m
+[2m      Tests [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m   Start at [22m 15:09:55
+[2m   Duration [22m 16.71s[2m (transform 2.64s, setup 0ms, import 3.64s, tests 12.77s, environment 0ms)[22m
 

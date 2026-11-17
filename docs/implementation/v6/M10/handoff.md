@@ -177,3 +177,19 @@ capy-ai[bot] and devin-ai-integration[bot] review comments on PR #501 flagged te
 Regression tests added (8): concurrent start idempotency, busy clearing after exit, parked-during-human-wait → resume → run, blocked AT_UTC re-arm, revoked-owner direct start, revoked-owner answer rejection, host-event delivery + dedup, concurrent approve → single task.
 
 Evidence regenerated on `3678adbf`: the four M10 vitest suites (73 tests), typecheck, lint, build all PASS; **`pnpm test:browser --suite background-work` now records a real PASS (11/11) on this host via bundled Chromium** — the U-cases upgrade from environmental absence to verified. `pnpm test` and full `pnpm test:browser` remain recorded environmental FAILs; `bundleStatus` stays honest `FAIL`, validator issues: 0. `reviewerApproval` remains false.
+
+## Session 7 continued — round-2 review findings fixed on `82e9349f`
+
+A second automated-review pass on `316ad2a5` flagged seven further defects, several inside the round-1 fixes themselves. All triaged as genuine and fixed in `82e9349f`:
+
+- **Pagination early-exit** (`external-intake.ts`): the `sawIssue` break still starved a 99-PRs-plus-1-issue page — polling now continues while pages are full (same 3-page bound, still stops on a short page).
+- **Transient repository lookup**: `repository_url` resolution now retries transients with the bounded retry policy; an indeterminate lookup defers the record to a later poll (no dedup key, no permanent `WRONG_REPOSITORY`), while a resolved-mismatch or non-transient failure still rejects.
+- **Host-event deferral** (`durable-wakeups.ts`): a `WAITING_HUMAN` block now returns the claimed occurrence to `PENDING` (pre-admission dispatch state, original occurrence key preserved) instead of `CANCELLED`; `deliverHeld` re-claims and dispatches it on resume, so a run-correlated `runtime.settled` firing held during a human wait delivers without a second event.
+- **Operator pause preserved**: `resumeBlockedForWork` unblocks without clearing `paused` and skips held redelivery while paused; only the explicit `resume` command clears it.
+- **Lifecycle vs display bound**: `pauseAll`/`cancelWorkInternal` use the new unbounded `allSchedules()`; `schedules()` stays a display read capped at the UI schema limit. `humanSteps()` ranks `PENDING` first inside its cap.
+- **Overlapping start outcome**: `starting` now holds the in-flight launch promise, so a concurrent scheduled firing awaits the same admission and records its real outcome rather than a spurious `BLOCKED`.
+- **Output tail**: a `close` listener flushes buffered output once stdio drains, so chunks delivered inside the append throttle window are not lost.
+
+New regression coverage: human-deferred host-event delivery, operator-pause preservation through auto-resume, overlapping-start wait semantics, held-occurrence state assertions, transient-lookup deferral + retry, mixed-page pagination, non-transient rejection. **78 M10 tests pass; typecheck/lint/build clean; background-work browser suite re-run PASS (11/11).**
+
+Evidence note: one receipt row for `m10-browser-background-work-final.log` recorded `FAIL` at 23:15Z from a stale vite dev server holding port 5821 (leftover from a killed run, not a gate verdict); the row was removed and the suite re-run to a real PASS. Validator: 0 issues; `bundleStatus` remains honest `FAIL` on the unchanged full-repo environmental gates. `reviewerApproval` remains false.
