@@ -273,6 +273,11 @@ export class ToolEffectLedger {
     });
     const invocationId = String(call.args.commandId ?? call.args.invocationId ?? "");
     const prior = invocationId ? this.get(invocationId) : undefined;
+    // Dedupe does not grant access to cached output after current authority is
+    // revoked. Preserve the original receipt rather than overwriting its history
+    // with a new denial under the same invocation ID.
+    if (prior && decision.kind === "DENY")
+      throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason);
     if (prior) {
       if (matchesInvocation(prior, owner, definition, privateArgumentCommitment(call))) {
         // Reusing a receipt is still a read under today's authority. Refusal
