@@ -91,7 +91,7 @@ function useGraphGeometry(target: Geometry, key: string, surface: RefObject<HTML
 }
 
 const tooltipOwnerBlocked = (element: HTMLElement) => Boolean(element.closest('[inert], [hidden], [aria-hidden="true"]')) || element.matches(':disabled');
-function GraphTooltip({ id, children, wide = false, compact = false }: { id: string; children: ReactNode; wide?: boolean; compact?: boolean }) {
+function GraphTooltip({ id, children, wide = false, compact = false, dismissOnSelect = false }: { id: string; children: ReactNode; wide?: boolean; compact?: boolean; dismissOnSelect?: boolean }) {
   const marker = useRef<HTMLSpanElement>(null), anchor = useRef<HTMLElement>(null), popup = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false), [present, setPresent] = useState(false), [body, setBody] = useState<HTMLDivElement | null>(null), [height, setHeight] = useState(260), [layoutRevision, setLayoutRevision] = useState(0);
   const ownerAvailable = Boolean(anchor.current && !tooltipOwnerBlocked(anchor.current)), visible = open && ownerAvailable;
@@ -101,8 +101,10 @@ function GraphTooltip({ id, children, wide = false, compact = false }: { id: str
   useLayoutEffect(() => {
     const element = marker.current!.parentElement!; anchor.current = element;
     const allowed = () => {const blocked = tooltipOwnerBlocked(element); interaction.setBlocked(blocked); return !blocked;};
+    let pointerDownAt = -Infinity;
+    const down = () => { if (!dismissOnSelect) return; pointerDownAt = performance.now(); interaction.dismiss(); };
     const enter = () => {if (allowed()) interaction.pointerEnter('trigger');}, leave = () => interaction.pointerLeave('trigger');
-    const focus = () => {if (allowed()) interaction.focus(true);}, blur = (event: FocusEvent) => {if (!popup.current?.contains(event.relatedTarget as Node | null)) interaction.focus(false);};
+    const focus = () => {if (allowed() && performance.now() - pointerDownAt > 500) interaction.focus(true);}, blur = (event: FocusEvent) => {if (!popup.current?.contains(event.relatedTarget as Node | null)) interaction.focus(false);};
     const key = (event: KeyboardEvent) => {
       if (!shown.current || event.isComposing || event.keyCode === 229) return;
       if (event.key === 'Escape') {event.preventDefault(); event.stopPropagation(); interaction.dismiss();}
@@ -110,9 +112,9 @@ function GraphTooltip({ id, children, wide = false, compact = false }: { id: str
     };
     const move = () => {if (shown.current) setLayoutRevision(value => value + 1);};
     const graph = element.closest('.task-graph'); graph?.addEventListener('task-graph-layout', move);
-    element.addEventListener('mouseenter', enter); element.addEventListener('mouseleave', leave); element.addEventListener('focus', focus); element.addEventListener('blur', blur); element.addEventListener('keydown', key);
-    return () => {graph?.removeEventListener('task-graph-layout', move); element.removeEventListener('mouseenter', enter); element.removeEventListener('mouseleave', leave); element.removeEventListener('focus', focus); element.removeEventListener('blur', blur); element.removeEventListener('keydown', key);};
-  }, [interaction]);
+    element.addEventListener('pointerdown', down); element.addEventListener('mouseenter', enter); element.addEventListener('mouseleave', leave); element.addEventListener('focus', focus); element.addEventListener('blur', blur); element.addEventListener('keydown', key);
+    return () => {graph?.removeEventListener('task-graph-layout', move); element.removeEventListener('pointerdown', down); element.removeEventListener('mouseenter', enter); element.removeEventListener('mouseleave', leave); element.removeEventListener('focus', focus); element.removeEventListener('blur', blur); element.removeEventListener('keydown', key);};
+  }, [interaction, dismissOnSelect]);
   useLayoutEffect(() => {marker.current?.toggleAttribute('data-graph-tooltip-active', visible);}, [visible]);
   useLayoutEffect(() => {
     if (visible) {setPresent(true); return;}
@@ -147,12 +149,14 @@ function GraphTooltip({ id, children, wide = false, compact = false }: { id: str
 function Excerpts({ node }: { node: SourceNode }) {
   return <>{node.detail && <span className="task-node-context-detail">{node.detail}</span>}{node.excerpts?.length ? <span className="task-node-excerpts">{node.excerpts.map((excerpt, index) => <span key={index}><small>{excerpt.label}</small><code>{excerpt.text}</code></span>)}</span> : null}</>;
 }
-function NodeContext({ node, related, id }: { node: SourceNode; related: string[]; id: string }) {
-  return <GraphTooltip id={id}><strong>{node.label}</strong>{(node.hash || node.author || node.time) && <span className="task-node-context-meta">{node.hash && <code>{node.hash}</code>}{node.author}{node.time}</span>}<Excerpts node={node} />
+function NodeDetailContent({ node, related }: { node: SourceNode; related: string[] }) {
+  return <><strong>{node.label}</strong>{(node.hash || node.author || node.time) && <span className="task-node-context-meta">{node.hash && <code>{node.hash}</code>}{node.author}{node.time}</span>}<Excerpts node={node} />
     {node.conflictCount !== undefined && <span>{node.conflictCount} source conflicts</span>}
     {node.checks?.map((check, index) => <span key={index} className={`task-node-check status-${check.status}`}><StatusIcon status={check.status} /><span>{check.label}{check.detail && <small>{check.detail}</small>}</span></span>)}
-    {related.length > 0 && <small className="task-node-context-detail">{related.join(' · ')}</small>}
-  </GraphTooltip>;
+    {related.length > 0 && <small className="task-node-context-detail">{related.join(' · ')}</small>}</>;
+}
+function NodeContext({ node, related, id, selectable }: { node: SourceNode; related: string[]; id: string; selectable?: boolean }) {
+  return <GraphTooltip id={id} dismissOnSelect={selectable}><NodeDetailContent node={node} related={related} /></GraphTooltip>;
 }
 
 export function RelationshipGraph({ element: { props }, children }: ComponentRenderProps) {
@@ -222,6 +226,11 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
   if (!parsed.success) return <p className="task-unavailable">Relationship data is unavailable. Connect nodes and edges from a source to inspect them.</p>;
   const { summary, source, branchLabels, tone } = parsed.data;
   const selected = typeof props.stateKey === 'string' ? store.get(statePath(props.stateKey)) : undefined;
+  const relatedFor = (node: SourceNode) => edges.filter(edge => edge.from === node.id || edge.to === node.id).map(edge => {
+    const other = nodes.find(item => item.id === (edge.from === node.id ? edge.to : edge.from));
+    return `${edge.from === node.id ? 'To' : 'From'} ${other?.label}${edge.label ? `: ${edge.label}` : ''}`;
+  });
+  const selectedNode = selected ? nodes.find(node => node.id === selected) : undefined;
   const positions = new Map(nodes.map(node => [node.id, geometry.positions.get(node.id) ?? targetPositions.get(node.id)!]));
   const nodeTone = (node: SourceNode): Tone => { const value = node.tone ?? branchLabels?.find(branch => branch.lane === (node.lane ?? 0))?.tone ?? 'neutral'; return tone === 'merged' && value === 'blue' ? 'purple' : value; };
   const width = geometry.width, height = geometry.height;
@@ -239,25 +248,21 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
         {horizontal && branchLabels?.map((branch, index) => { const branchId = `${branch.label}-${index}`, point = geometry.labels.get(branchId) ?? targetLabels.get(branchId)!; return <span key={branchId} data-branch-id={branchId} className={`task-graph-branch-label tone-${tone === 'merged' && branch.tone === 'blue' ? 'purple' : branch.tone ?? 'neutral'}`} style={{ left: point.x, top: point.y }}>{branch.label}</span>; })}
         <ol>{nodes.map(node => {
           const position = positions.get(node.id)!, status = node.status ?? 'neutral', compact = horizontal && (schematic || node.kind === 'point' || node.kind === 'endpoint');
-          const related = edges.filter(edge => edge.from === node.id || edge.to === node.id).map(edge => {
-            const other = nodes.find(item => item.id === (edge.from === node.id ? edge.to : edge.from));
-            return `${edge.from === node.id ? 'To' : 'From'} ${other?.label}${edge.label ? `: ${edge.label}` : ''}`;
-          });
+          const related = relatedFor(node);
           const tip = `${id}-${encodeURIComponent(node.id)}`, visualTone = nodeTone(node);
           const content = <>
             <span className={`task-graph-dot status-${status} tone-${visualTone}`} style={horizontal ? undefined : { left: position.x }} />
-            <span className="task-node-copy"><span className="task-node-label"><span className="task-node-title">{node.label}</span>{node.branch && <span className={`task-node-branch tone-${visualTone}`}>{node.branch}</span>}</span>{node.detail && <small>{node.detail}</small>}</span>
-            {node.conflictCount !== undefined && node.conflictCount > 0 && <span className="task-node-conflicts">{node.conflictCount}<span className="sr-only"> conflicts</span></span>}
+            <span className="task-node-copy"><span className="task-node-label"><span className="task-node-title">{node.label}</span>{node.branch && <span className={`task-node-branch tone-${visualTone}`}>{node.branch}</span>}{node.conflictCount !== undefined && node.conflictCount > 0 && <span className="task-node-conflicts">{node.conflictCount}<span className="sr-only"> conflicts</span></span>}<span className={`task-node-status status-${status}`}><StatusIcon status={status} /><span className="sr-only">{status}</span></span></span>{node.detail && <small>{node.detail}</small>}</span>
             {(node.hash || node.author || node.time) && <span className="task-node-meta">{node.hash && <code className="task-node-hash">{node.hash}</code>}{node.author && <span className="task-node-author">{node.author}</span>}{node.time && <span className="task-node-time">{node.time}</span>}</span>}
-            <span className={`task-node-status status-${status}`}><StatusIcon status={status} /><span className="sr-only">{status}</span></span>
             {horizontal && node.kind === 'endpoint' && <span className={`task-node-endpoint-label status-${status}`}>{node.label}</span>}
-            <NodeContext node={node} related={related} id={tip} />
+            <NodeContext node={node} related={related} id={tip} selectable={typeof props.stateKey === 'string'} />
           </>;
           const className = `task-node ${horizontal ? 'task-node-horizontal' : ''} ${compact ? 'task-node-point' : ''} ${node.dimmed ? 'task-node-dimmed' : ''} ${mergePulse && (visualTone === 'purple' || status === 'merged') ? 'task-node-merge-pulse' : ''}`;
           return <li key={node.id} data-node-id={node.id} data-kind={node.kind ?? 'commit'} className={compact ? 'task-point-position' : undefined} style={{ transform: horizontal ? `translate3d(${position.x}px,${position.y}px,0) translateX(-50%)` : `translate3d(0,${position.y - ROW_HEIGHT / 2}px,0)`, opacity: Math.min(1, Math.max(0, geometry.opacity?.get(node.id) ?? (geometry.positions.has(node.id) ? 1 : 0))) }}>{typeof props.stateKey === 'string' ? <button type="button" className={className} aria-label={node.label} aria-describedby={tip} aria-pressed={selected === node.id} onClick={() => store.set(statePath(props.stateKey), node.id)}>{content}</button> : <div className={className} tabIndex={0} aria-label={node.label} aria-describedby={tip}>{content}</div>}</li>;
         })}</ol>
       </div>
     </div>
+    {selectedNode && <div className="task-graph-selection" role="region" aria-label={`${selectedNode.label} details`}><div className="task-node-details"><NodeDetailContent node={selectedNode} related={relatedFor(selectedNode)} /></div></div>}
     <MotionRegion open={Boolean(checkView.items.length || summary || conflictCount || hasActions)} duration={TASK_MOTION.status} className="task-graph-footer">
       {checkView.items.length ? <div className={`task-graph-checks${checkView.leaving ? ' is-leaving' : ''}`} aria-label="Source check summaries" aria-hidden={checkView.leaving || undefined} inert={checkView.leaving}>{checkView.items.map((check, index) => <span key={check.label} className={`task-graph-check status-${check.status}`} tabIndex={0} style={{ animationDelay: `${index * TASK_MOTION.check}ms` }} aria-describedby={`${id}-check-${index}`}><StatusIcon status={check.status} /><span>{check.label}</span>{check.detail && <GraphTooltip id={`${id}-check-${index}`} compact>{check.detail}</GraphTooltip>}</span>)}</div> : null}
       <div className="task-graph-footer-row">
