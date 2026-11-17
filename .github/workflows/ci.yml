@@ -12,7 +12,10 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A superseded pull-request push has nothing left to prove, so it cancels.
+  # Pushes to a protected branch are the post-merge verification of commits that
+  # already landed: cancelling those meant no push run on main ever completed.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GIT_CONFIG_COUNT: 1
