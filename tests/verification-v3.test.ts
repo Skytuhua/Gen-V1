@@ -100,6 +100,53 @@ it('recipe registration requires an exact M02 approval for this recipe and owner
  expect(code(()=>service.registerRecipe(r,ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
 });
 
+it.each([{runId:'r2'},{epoch:2},{projectId:'project-other'},{workspaceId:'workspace-other'},{accountBinding:'account-other'}])('recipe approval cannot cross the owner binding %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe(r,ap.approvalId,{...o,...changed}))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ expect(service.recipe(r.recipeId)).toBeNull();
+});
+
+it.each([{recipeId:'recipe-other'},{revision:2}])('recipe approval binds the exact recipe identity %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe({...r,...changed},ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('recipe registration preserves the exact approved next revision',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),first=approval(store,r,o);
+ service.registerRecipe(r,first.approvalId,o);
+ const skipped={...r,revision:7},ap=approval(store,skipped,o);
+ expect(code(()=>service.registerRecipe(skipped,ap.approvalId,o))).toBe('RECIPE_REVISION');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ const next={...r,revision:2},nextApproval=approval(store,next,o);
+ expect(service.registerRecipe(next,nextApproval.approvalId,o).revision).toBe(2);
+});
+
+it('one thread cannot replace another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const originalOwner=owner(),r=await recipe(root);
+ service.registerRecipe(r,approval(store,r,originalOwner).approvalId,originalOwner);
+ const foreign=owner('t2'),replacement={...r,revision:2},ap=approval(store,replacement,foreign);
+ expect(code(()=>service.registerRecipe(replacement,ap.approvalId,foreign))).toBe('CAPABILITY_DENIED');
+ expect(service.recipe(r.recipeId)?.revision).toBe(1);
+ expect(store.all<VerificationRecipeV1>('verificationRecipe','t1')).toHaveLength(1);
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('one thread cannot execute another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const launched=launcher([{exitCode:0}]);
+ expect(await codeAsync(service.runRecipe(owner('t2'),request(r.recipeId),launched.fn))).toBe('NOT_FOUND');
+ expect(launched.launched).toHaveLength(0);
+ expect(service.observations('t2')).toEqual([]);
+});
+
 it('an approved recipe runs the fixed phase order and records bound observations',async()=>{
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
