@@ -61,7 +61,8 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
   let sawCodeChange = false;
   let forcedFull = false;
   const selectFor = (sourcePath: string) => {
-    const mapped = mapping[sourcePath] ?? [];
+    // Only explicit own entries are reviewed mappings, never Object.prototype.
+    const mapped = Object.hasOwn(mapping, sourcePath) ? (mapping[sourcePath] ?? []) : [];
     const live = mapped.filter(test => {
       if (!TEST_NAME.test(test)) { issues.push({ path: sourcePath, code: 'UNSAFE_NAME', message: `Mapping lists an unsafe test name: ${test}` }); return false; }
       if (!existing.has(test)) { issues.push({ path: sourcePath, code: 'STALE_MAPPING', message: `Mapped test is absent: ${test}` }); return false; }
