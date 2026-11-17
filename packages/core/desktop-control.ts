@@ -39,6 +39,9 @@ export interface QueuedControlAction {
   generation: number;
   outcome: 'QUEUED' | 'DISPATCHED' | 'REJECTED' | 'CANCELLED' | 'UNCERTAIN';
   reason?: string;
+  /** Set once the action has been handed to the driver; only such an action
+   * can be UNCERTAIN under Stop — a waiting one was never dispatched. */
+  reachedDispatch?: boolean;
 }
 
 export interface ControlDispatcherOptions {
@@ -145,7 +148,6 @@ export class ControlDispatcher {
       // Account for the item as in flight immediately: an enqueue during the
       // rate-limit wait must still count it against the queue cap.
       this.inFlight = item;
-      let reachedDispatch = false;
       try {
         const wait = CONTROL_MIN_DISPATCH_INTERVAL_MS - (this.now() - this.lastDispatchAt);
         if (wait > 0) await this.sleep(wait);
@@ -160,7 +162,7 @@ export class ControlDispatcher {
             item.outcome = 'CANCELLED';
             item.reason = 'grant_revoked';
           } else {
-            reachedDispatch = true;
+            item.reachedDispatch = true;
             // Rate-limit spacing binds dispatch attempts, not only successes.
             this.lastDispatchAt = this.now();
             const result = await driver.dispatch(item.action);
@@ -171,14 +173,19 @@ export class ControlDispatcher {
             // post-observation stays null rather than mislabelling the
             // pre-dispatch observation as the resulting state.
             let postObservationRef: string | null = null;
-            try { postObservationRef = (await driver.observe(item.grant.target)).observationId; } catch { postObservationRef = null; }
+            try {
+              const post = await driver.observe(item.grant.target);
+              // An observation of a different target is not evidence for this
+              // action; only a matching post-observation is recorded.
+              if (sameTargetIdentity(post.target, item.grant.target)) postObservationRef = post.observationId;
+            } catch { postObservationRef = null; }
             item.action = { ...item.action, postObservationRef, effectReceipt: result.receipt };
           }
         }
       } catch (error) {
         // Only failures before the dispatch attempt are clean rejections; a
         // rejection at or after dispatch may postdate delivered input.
-        if (item.outcome === 'QUEUED') item.outcome = reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
+        if (item.outcome === 'QUEUED') item.outcome = item.reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
         item.reason = error instanceof HarnessError ? error.code : 'DRIVER_ERROR';
       } finally {
         if (this.inFlight === item) this.inFlight = null;
@@ -198,7 +205,9 @@ export class ControlDispatcher {
     this.generation += 1;
     const pending = this.queue.splice(0);
     for (const item of pending) { item.outcome = 'CANCELLED'; item.reason = 'stopped'; this.dispatched.push(item); }
-    if (this.inFlight && this.inFlight.outcome === 'QUEUED') { this.inFlight.outcome = 'UNCERTAIN'; this.inFlight.reason = 'stopped_in_flight'; }
+    // Only an action already handed to the driver is uncertain; one still
+    // waiting for rate spacing was never dispatched and stays a clean cancel.
+    if (this.inFlight && this.inFlight.outcome === 'QUEUED' && this.inFlight.reachedDispatch) { this.inFlight.outcome = 'UNCERTAIN'; this.inFlight.reason = 'stopped_in_flight'; }
     try { await this.options.driver?.cancelInput((this.inFlight ?? pending[0])?.grant.target ?? { kind: 'APPLICATION', creationIdentity: 'none', sessionIdentity: 'none', origin: null }); }
     catch { /* Stop must still finish: cancellation is best-effort after generation revocation. */ }
     // Deliberately not awaiting this.draining: a hung driver dispatch must
