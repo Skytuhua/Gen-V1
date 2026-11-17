@@ -83,7 +83,9 @@ it('refuses external dispatch when the approving run settles after admission com
     expect(await x.externalEffects()).toEqual([]);
     const effect = x.store.get('toolEffect', invocationId);
     expect(effect.owner).toEqual(admittedOwner);
-    expect(effect.state).not.toBe('SUCCEEDED');
+    expect(effect.state).toBe('FAILED');
+    expect(effect.outcome.error).toMatch(/before dispatch/);
+    expect(x.store.get('operation', x.operation.id).status).toBe('failed');
     expect(x.store.all('approval', x.thread.id).find(value => value.operationId === x.operation.id).remainingUses).toBe(0);
   } finally { unsubscribe(); }
 });
