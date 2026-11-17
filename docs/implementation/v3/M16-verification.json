@@ -380,6 +380,7 @@
     "packages/core/service.ts",
     "packages/storage/store.ts",
     "run_m16_bounded.py",
+    "scripts/public-source-files.json",
     "tests/browser-consent-v3.test.ts",
     "tests/desktop-control-v3.test.ts",
     "tests/interactive-control-decisions-v6.test.ts"
