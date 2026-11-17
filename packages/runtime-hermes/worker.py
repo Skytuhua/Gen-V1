@@ -1273,12 +1273,18 @@ class Worker:
         if method == "agent.cancelBackground":
             return self.cancel_background()
         if method == "agent.history":
-            return {"messages": copy.deepcopy(self.history)}
+            return {"messages": copy.deepcopy(self.history),
+                    "historySha256": hashlib.sha256(json.dumps(self.history, sort_keys=True, default=str).encode("utf8")).hexdigest()}
         if method == "agent.compact":
             CHECKPOINT.assert_checkpoint_capability(params.get("memoryCheckpoint"), self.memory_checkpoint_capability)
             self.bind_maintenance(params)
             try:
                 self.guard_home()
+                expected = params.get("expectedHistorySha256")
+                if expected is not None:
+                    actual = hashlib.sha256(json.dumps(self.history, sort_keys=True, default=str).encode("utf8")).hexdigest()
+                    if expected != actual:
+                        return {"compacted": False, "mismatch": True, "historySha256": actual, "messages": copy.deepcopy(self.history)}
                 if getattr(self.agent, "client", None):
                     self.agent.client.close()
                 before = copy.deepcopy(self.history)

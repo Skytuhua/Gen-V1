@@ -221,6 +221,28 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
         self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
 
+    def test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest(self):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"CAS fixture segment {index}: the worker must refuse a stale digest and only replace the exact approved history. " * 8)} for index in range(12)]
+        params = {"ctx": {"threadId": "compact-cas", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "history": history, "hostTools": [], "maxIterations": 2, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("compact-cas")}
+        self.request("agent.start", params)
+        self.until_settled()
+        snapshot = self.request("agent.history", {})
+        self.assertIn("historySha256", snapshot)
+        expected = hashlib.sha256(json.dumps(snapshot["messages"], sort_keys=True, default=str).encode("utf8")).hexdigest()
+        self.assertEqual(snapshot["historySha256"], expected)
+        stale = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": hashlib.sha256(b"stale-source-cut").hexdigest()})
+        self.assertFalse(stale["compacted"])
+        self.assertTrue(stale["mismatch"])
+        self.assertEqual(stale["historySha256"], expected)
+        self.assertEqual(self.request("agent.history", {})["messages"], snapshot["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], snapshot["messages"])
+        applied = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": expected})
+        errors = Path(self.tmp.name) / "logs/errors.log"
+        self.assertTrue(applied["compacted"], errors.read_text(encoding="utf8")[-6000:] if errors.exists() else applied)
+        self.assertLess(len(applied["messages"]), len(snapshot["messages"]))
+        self.assertEqual(applied["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
+
     def test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate(self):
         self.hello()
         project = Path(self.tmp.name) / "project"
