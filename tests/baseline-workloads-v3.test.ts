@@ -41,7 +41,7 @@ function emit(record: BenchmarkRecord, observations: Record<string, unknown>) {
       expect(run.measurement[field]).toBeNull();
   }
   const receipt = {
-    scope: 'OFFLINE_CORE_ONLY', remainingBenchmarkScenarios: ['oversized-output', 'memory-conflict', 'cancellation', 'concurrent-edits'], workflowSha: process.env.GITHUB_SHA ?? null,
+    scope: 'OFFLINE_CORE_ONLY', scenariosOutsideThisReceipt: ['oversized-output', 'memory-conflict', 'cancellation', 'concurrent-edits'], workflowSha: process.env.GITHUB_SHA ?? null,
     runtime: { node: process.version, platform: process.platform, architecture: process.arch },
     record, observations,
   };
