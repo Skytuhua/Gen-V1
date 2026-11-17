@@ -105,5 +105,6 @@
 .settings-row[data-setting-id="harness-draft-transfer"] .settings-row-control { width:100%;max-width:100%;margin-top:12px; }
 
 :root[data-density="touch"] .settings-navigation nav button { min-height:44px; }
+:root[data-density="touch"] .settings-runtime-details>summary { min-height:44px;padding-block:10px; }
 
-@media(pointer:coarse) { :root .settings-layout .settings-navigation nav button,:root .settings-layout .settings-search,:root .settings-layout .settings-content :is(button,.ui-select-trigger,input:not([type="range"])),:root .settings-layout .settings-section-select .ui-select-trigger { min-height:44px; } }
+@media(pointer:coarse) { :root .settings-layout .settings-navigation nav button,:root .settings-layout .settings-search,:root .settings-layout .settings-content :is(button,.ui-select-trigger,input:not([type="range"])),:root .settings-layout .settings-section-select .ui-select-trigger,:root .ui-modal.settings-dialog .ui-control-popup .ui-control-option { min-height:44px; } :root .settings-runtime-details>summary { min-height:44px;padding-block:10px; } }
