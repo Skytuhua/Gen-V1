@@ -14,11 +14,10 @@ import { getAccountAuth, signOutAccount, cancelAccountPredictions, type AccountA
 import {accountTargetKey} from './account-login-monitor';
 import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
-import { getPreferences } from '../../../packages/contracts/preferences';
-import { formatLocalClock, type TimeFormat } from './time-format';
 import { useDesktop } from './desktop-context';
 import './connections.css';
-function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthChanged, timeFormat }: { target: AccountAuthTarget; flow?: AccountLoginFlow; desktop: ReturnType<typeof useDesktop>; login: () => void; label:string; busy:boolean; onAuthChanged:AccountAuthChanged; timeFormat:TimeFormat }) {
+const AUTH_LABELS: Record<string, string> = {error: 'Status unavailable', checking: 'Checking connection…', cancelling: 'Stopping sign-in', configured: 'Saved, not verified', authenticated: 'Signed in', 'signed-out': 'Not signed in', blocked: 'Connection blocked', 'signing-in': 'Sign-in in progress', unavailable: 'Unavailable', unknown: 'Status unknown'};
+function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthChanged }: { target: AccountAuthTarget; flow?: AccountLoginFlow; desktop: ReturnType<typeof useDesktop>; login: () => void; label:string; busy:boolean; onAuthChanged:AccountAuthChanged }) {
   const [auth, setAuth] = useState<AccountAuthStatus | null>(null), [checking, setChecking] = useState(()=>!flow||!['opening','waiting','cancelling','blocked'].includes(flow.state)), [error, setError] = useState('');
   const generation = useRef(0), pending = useRef(false), read = useRef<AbortController|null>(null);
   const check = useCallback(async () => {
@@ -42,18 +41,18 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
   };
   const identityBound=target.providerId==='claude-code'&&(auth?.state==='authenticated'||auth?.state==='blocked');
   const blocked=auth?.state==='blocked'||flow?.state==='blocked'||auth?.state==='signing-in';
-  return <div className="connection-account-auth" aria-busy={checking || !!active} data-state={error?'error':checking?'checking':blocked?'blocked':active?'signing-in':auth?.state??'unknown'}>
-    {checking&&<p role="status">Checking connection…</p>}
-    <p aria-live="polite">{auth ? `${auth.state === 'configured' ? 'Credential configured' : auth.state.replaceAll('-', ' ')}. ${auth.message}` : 'Connection status not checked. Identity unavailable.'}</p>
-    {auth?.identity.availability !== 'unavailable' && auth?.identity && <p>{auth.identity.availability === 'verified' ? `Verified provider user ${auth.identity.subject}` : 'Authenticated account metadata (immutable identity unavailable)'}{auth.identity.email ? ` | ${auth.identity.email}` : ''}{auth.identity.organization ? ` | ${auth.identity.organization}` : ''}{auth.identity.subscription ? ` | ${auth.identity.subscription}` : ''}</p>}
-    {auth?.identity.availability === 'unavailable' && <small>Authenticated identity unavailable.</small>}
-    {auth?.lastCheckedAt && <small>Last checked {formatLocalClock(auth.lastCheckedAt, timeFormat)}</small>}
-    {flow && <p aria-live="polite">{flow.message}</p>}
+  const connectionState=error?'error':checking?'checking':auth?.state==='blocked'||flow?.state==='blocked'?'blocked':flow?.state==='cancelling'?'cancelling':active||auth?.state==='signing-in'?'signing-in':auth?.state??'unknown';
+  const identity=auth?.identity.availability==='unavailable'?'':[auth?.identity.email??auth?.identity.subject,auth?.identity.organization,auth?.identity.subscription].filter(Boolean).join(' · ');
+  return <div className="connection-account-auth" aria-busy={checking || !!active} data-state={connectionState}>
+    <p className="connection-auth-summary" role="status"><strong>{AUTH_LABELS[connectionState] ?? connectionState.replaceAll('-', ' ')}</strong></p>
+    {auth&&['blocked','unavailable'].includes(auth.state)&&<p role="status">{auth.message}</p>}
+    {identity&&<p>{identity}</p>}
+    {flow && <p className="connection-flow-message" data-flow-state={flow.state} aria-live="polite">{flow.message}</p>}
     {error && <p className="error-text" role="status">{error}</p>}
-    {target.providerId==='claude-code'&&<p>Claude connections stay bound to their authenticated identity. To change users, add a new named account. Reconnect and local sign-out are unavailable for an authenticated connection.</p>}
-    <div className="connection-account-actions">{desktop?<button className="secondary" disabled={busy||checking||!!active||blocked||identityBound} onClick={login}><LogIn size={14}/>{flow&&['failed','cancelled'].includes(flow.state)?'Retry sign-in':`Connect ${label}`}</button>:<code>pnpm agent:login --provider {target.providerId}{target.accountId?` --account-id ${target.accountId}`:''}</code>}<button className="quiet" disabled={checking || !!active || flow?.state==='blocked'} onClick={() => void check()}>Check connection</button>
+    <div className="connection-account-actions">{desktop?<button className="secondary connection-account-primary" disabled={busy||checking||!!active||blocked||identityBound} onClick={login}><LogIn size={14}/>{flow&&['failed','cancelled'].includes(flow.state)?'Retry sign-in':`Connect ${label}`}</button>:null}<button className={desktop ? 'quiet' : 'secondary connection-account-primary'} disabled={checking || !!active || flow?.state==='blocked'} onClick={() => void check()}>Check connection</button>
     {active && desktop?.bridge.cancelSignIn && <button className="quiet" disabled={flow.state === 'cancelling'} onClick={() => {const version=generation.current;void desktop.cancelSignIn(flow.id).catch(() => {if(version===generation.current)setError('Native shutdown could not be confirmed. Check connection status.');}); }}>Cancel sign-in</button>}
     {auth?.localSignout && <button className="quiet" disabled={checking || !!active || blocked || auth.state === 'signed-out'} onClick={() => void signout()}>Sign out locally</button>}</div>
+    {!desktop && <details className="connection-terminal"><summary>Connect from a terminal</summary><p>Run this on the computer hosting Gen V1, then check the connection.</p><code>pnpm agent:login --provider {target.providerId}{target.accountId?` --account-id ${target.accountId}`:''}</code></details>}
   </div>;
 }
 
@@ -82,7 +81,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, selectedMethod
     if (await run(editing?.id ? 'account.rename' : 'account.create', editing?.id ? { accountId: editing.id, label: label.trim() } : { providerId: connection.id, label: label.trim() })) { setEditing(null); setLabel(''); }
   };
   return <div className="connection-accounts" aria-busy={!!busy}>
-    {providerAccounts.length > 0 && <><p className="connection-account-default">Default for new tasks: {selected?.enabled ? selected.label : 'Legacy connection'}</p>
+    {providerAccounts.length > 0 && <><p className="connection-account-default"><span>Default for new tasks:</span>{' '}<strong>{selected?.enabled ? selected.label : 'Legacy connection'}</strong></p>
     <fieldset disabled={!!busy} className="connection-account-options"><legend className="sr-only">{connection.label} account for new tasks</legend>
       <div className="connection-account-row" data-chosen={selectedMethodId === LEGACY}><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label="Legacy connection" checked={selectedMethodId === LEGACY} onChange={() => select(LEGACY)} /><span>Legacy connection</span>{defaultMethodId === LEGACY && <small className="connection-account-badge"><Check size={11} aria-hidden="true" />Default</small>}</label></div>
       {providerAccounts.map(account => <div className={`connection-account-row${account.enabled ? '' : ' connection-account-inactive'}`} key={account.id} data-account-id={account.id} data-chosen={selectedMethodId === account.id}>
@@ -91,15 +90,13 @@ function AccountPicker({ connection, accounts, selectedAccountId, selectedMethod
       </div>)}
     </fieldset></>}
     <div className="connection-account-toolbar">{providerAccounts.length > 0 && <button className="secondary" disabled={!!busy || !changed} onClick={() => void useAccount()}>{savingDefault ? 'Saving default…' : 'Use account'}</button>}<button className="quiet" disabled={!!busy} onClick={() => { setEditing({}); setLabel(''); }}>Add account</button></div>
-    {providerAccounts.length > 0 && <p role="status" className={changed ? 'connection-account-selection' : 'sr-only'}>{savingDefault ? `Saving ${choiceLabel} as the default for new tasks…` : changed ? `${choiceLabel} is selected. Use account to make it the default for new tasks.` : `${choiceLabel} is the default for new tasks.`}</p>}
+    {providerAccounts.length > 0 && <p role="status" className="sr-only">{savingDefault ? `Saving ${choiceLabel} as the default for new tasks…` : changed ? `${choiceLabel} is selected. Use account to make it the default for new tasks.` : `${choiceLabel} is the default for new tasks.`}</p>}
     {editing && <form className="connection-account-form" onSubmit={event => { event.preventDefault(); void save(); }}><label>Account label<input autoFocus aria-label="Account label" value={label} maxLength={80} disabled={!!busy} placeholder="e.g. Personal or Work" onChange={event => setLabel(event.target.value)} /></label><button className="secondary" disabled={!!busy || !label.trim()}>Save account</button><button type="button" className="quiet" disabled={!!busy} onClick={() => { setEditing(null); setLabel(''); }}>Cancel</button></form>}
-    {providerAccounts.length > 0 && <p className="connection-account-help">Labels are local. Remove disables new selection and keeps the private profile. Existing tasks keep this account; restore it to select it again.</p>}
   </div>;
 }
 
 export function Connections({ snapshot, refresh, loadModels, onAuthChanged, providerId, onProviderChange }: { snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; onAuthChanged:AccountAuthChanged; providerId:string; onProviderChange:(id:string)=>void }) {
   const desktop = useDesktop();
-  const timeFormat = getPreferences(snapshot.settings).timeFormat;
   const [busy, setBusy] = useState(''), [notice, setNotice] = useState(''), [error, setError] = useState('');
   const pending = useRef(false);
   const [choices,setChoices]=useState<Record<string,string>>({});
@@ -122,20 +119,20 @@ export function Connections({ snapshot, refresh, loadModels, onAuthChanged, prov
     if (!desktop || pending.current || !isConnectionProviderId(id)) return;
     pending.current = true; setBusy(`login:${accountId ?? id}`); setError(''); setNotice('');
     const key=accountTargetKey(id,accountId);
-    try { await cancelAccountPredictions(); const flow = await desktop.signIn(id, accountId); if(latestTarget.current===key)setNotice(flow?.message ?? 'Connection console opened. Complete setup in that console, then check connection status.'); }
+    try { await cancelAccountPredictions(); const flow = await desktop.signIn(id, accountId); if(latestTarget.current===key)setNotice(flow ? '' : 'Connection console opened. Complete setup in that console, then check connection status.'); }
     catch (cause) { if(latestTarget.current===key)setError(cause instanceof Error ? cause.message : 'The sign-in console could not open.'); }
     finally { pending.current = false; setBusy(''); }
   };
-  return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, then connect it. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>
+  return <section className="connection-list" aria-label="AI subscription connections">
     <nav className="connection-providers" aria-label="Subscription providers">{rows.map(row=><button type="button" key={row.id} aria-pressed={row.id===connection?.id} onClick={()=>{onProviderChange(row.id);setError('');setNotice('');}}>{row.label}</button>)}</nav>
     {otherFlow&&<p role="status">A sign-in still owns {SUBSCRIPTION_CONNECTIONS.find(row=>row.id===ownedFlow.providerId)?.label}. <button className="quiet" onClick={()=>{onProviderChange(ownedFlow.providerId);setChoices(current=>({...current,[ownedFlow.providerId]:ownedFlow.accountId??LEGACY}));setError('');setNotice('');}}>View sign-in</button></p>}
     {notice && <p role="status">{notice}</p>}{error && <p role="status" className="error-text">{error}</p>}
     {connection&&<article className="connection-row" data-provider={connection.id} data-setting-id={`provider-${connection.id}`}><header><strong>{connection.label}</strong></header>
       {isConnectionProviderId(connection.id)?<>
-        <AccountReadiness key={accountTargetKey(connection.id,accountId)} target={{providerId:connection.id,accountId}} label={selectedAccount?.label??connection.label} busy={!!busy||!!otherFlow} flow={desktop?.flows[accountTargetKey(connection.id,accountId)]} desktop={desktop} login={()=>void login(connection.id,accountId??undefined)} onAuthChanged={onAuthChanged} timeFormat={timeFormat}/>
+        <AccountReadiness key={accountTargetKey(connection.id,accountId)} target={{providerId:connection.id,accountId}} label={selectedAccount?.label??connection.label} busy={!!busy||!!otherFlow} flow={desktop?.flows[accountTargetKey(connection.id,accountId)]} desktop={desktop} login={()=>void login(connection.id,accountId??undefined)} onAuthChanged={onAuthChanged}/>
         <AccountPicker key={connection.id} connection={connection} accounts={snapshot.accounts??[]} selectedAccountId={snapshot.settings.selectedAccounts?.[connection.id]} selectedMethodId={selectedMethodId} select={id=>{setChoices(current=>({...current,[connection.id]:id}));setNotice('');setError('');}} busy={busy} run={run}/>
       </>:<p>Unavailable. {connection.status==='runtime-pending'?'Runtime integration is pending.':'This connection has not been verified for the harness.'}</p>}
-      <details><summary>Runtime and setup details</summary><p>{connection.description}</p><a href={connection.sources[0]} target="_blank" rel="noreferrer">Connection details<ExternalLink size={12}/></a></details>
+      <details><summary>Runtime and setup details</summary><p>{connection.description}</p><p className="connection-policy">No automatic account switching or API billing fallback. Provider Extra Usage settings still apply.</p><a href={connection.sources[0]} target="_blank" rel="noreferrer">Connection details<ExternalLink size={12}/></a></details>
     </article>}
   </section>;
 }
