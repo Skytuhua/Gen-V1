@@ -44,10 +44,11 @@ import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
-import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
+import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
+import { ownerFor } from './tool-effects.ts';
 import { recoverEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
@@ -75,6 +76,12 @@ const object = (value: unknown): Record<string, unknown> => {
 };
 const now = () => new Date().toISOString();
 interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
+export interface HostToolContext {
+  readonly authenticatedApprovals:boolean;
+  prepareOperation(kind:string,args:Record<string,unknown>,resourceIds:string[],preconditions:Record<string,string>,description:string):Operation;
+}
+export interface HostOperationContext { readonly signal:AbortSignal; readonly owner:Readonly<ToolOwner>; readonly authenticatedApprovals:boolean }
+export type HostOperationExecutor = (operation:Readonly<Operation>,context:HostOperationContext)=>Promise<unknown>;
 export interface ServiceOptions {
   canonicalPlanJobs?:CanonicalPlanJobProvider;
   approvedWriteHooks?:boolean;
@@ -89,7 +96,9 @@ export interface ServiceOptions {
   requestContextHooks?:RequestContextHooks;
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
-  additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  additionalTool?:(call:ToolCall,ctx:RunContext,host:HostToolContext)=>Promise<unknown>;
+  /** Constructor-owned integration bindings; ordinary capability kinds cannot be replaced. */
+  hostOperationExecutors?:Readonly<Record<string,HostOperationExecutor>>;
 }
 export class Service {
   readonly sourceWorkbench: SourceWorkbench;
@@ -162,7 +171,12 @@ export class Service {
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
+  private readonly hostOperationExecutors:ReadonlyMap<string,HostOperationExecutor>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    const hostExecutors=Object.entries(options.hostOperationExecutors??{});
+    if(hostExecutors.length>32||hostExecutors.some(([kind,executor])=>!/^integration\.[a-z][a-z0-9._-]{0,79}$/.test(kind)||typeof executor!=='function'))
+      throw new HarnessError('INVALID_HOST_OPERATION','Host operations require explicit integration executor bindings.');
+    this.hostOperationExecutors=new Map(hostExecutors);
     this.requestCustody=new RequestContextCustody(store,{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
@@ -1482,7 +1496,12 @@ export class Service {
     if(call.name==='integration_list'||call.name==='integration_call'){
       if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
       const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
-      const result=await this.options.additionalTool(call,{...ctx}),current=this.assertRun(ctx);
+      const context=this.context(ctx.threadId,controller?.signal,undefined,{...ctx});
+      const host=Object.freeze<HostToolContext>({authenticatedApprovals:this.effectFlags.enabled('security.authorityV1'),prepareOperation:(kind,args,resourceIds,preconditions,description)=>{
+        if(!this.hostOperationExecutors.has(kind))throw new HarnessError('HOST_OPERATION_UNAVAILABLE','This host operation is unavailable.');
+        return context.prepareOperation(kind,args,resourceIds,preconditions,description);
+      }});
+      const result=await this.options.additionalTool(call,{...ctx},host),current=this.assertRun(ctx);
       if(current.modelId!==selected.modelId||(current.accountId??null)!==selected.accountId||current.projectId!==selected.projectId)throw new HarnessError('CANCELLED_RUN','The integration scope changed during execution.');return result;
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
@@ -1688,7 +1707,10 @@ export class Service {
           throw new HarnessError("AUTHORITY_DENIED", "The admitted owner changed before dispatch");
       }
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
+      const hostExecutor=this.hostOperationExecutors.get(op.kind),running={...op,status:'running' as const};
+      const result = hostExecutor
+        ? await hostExecutor(running,Object.freeze({signal:control.signal,owner:Object.freeze(ownerFor(this.thread(op.threadId))),authenticatedApprovals:this.effectFlags.enabled('security.authorityV1')}))
+        : await domain.executeDomainOperation(running, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
