@@ -3148,5 +3148,86 @@
     "exitCode": 0,
     "startedAt": "2026-11-16T19:16:54.460Z",
     "endedAt": "2026-11-16T19:16:55.763Z"
+  },
+  {
+    "id": "v6pm-gate-build",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-build.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:20:28.737Z",
+    "endedAt": "2026-11-17T07:20:53.266Z"
+  },
+  {
+    "id": "v6pm-gate-lint",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-lint.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:19:24.541Z",
+    "endedAt": "2026-11-17T07:20:28.736Z"
+  },
+  {
+    "id": "v6pm-gate-test-browser",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-test-browser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": null,
+    "startedAt": "2026-11-17T07:35:39.350Z",
+    "endedAt": "2026-11-17T09:09:20.357Z"
+  },
+  {
+    "id": "v6pm-gate-test",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-test.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-17T07:26:04.911Z",
+    "endedAt": "2026-11-17T07:34:28.942Z"
+  },
+  {
+    "id": "v6pm-gate-typecheck",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-gate-typecheck.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:17:27.717Z",
+    "endedAt": "2026-11-17T07:19:24.537Z"
+  },
+  {
+    "id": "v6pm-vitest-source-selection-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-vitest-source-selection-v3.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:17:11.563Z",
+    "endedAt": "2026-11-17T07:17:14.366Z"
+  },
+  {
+    "id": "v6pm-vitest-workbench-continuation-v6",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-vitest-workbench-continuation-v6.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:17:20.351Z",
+    "endedAt": "2026-11-17T07:17:27.716Z"
+  },
+  {
+    "id": "v6pm-vitest-workbench-performance-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-vitest-workbench-performance-v3.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:17:14.371Z",
+    "endedAt": "2026-11-17T07:17:17.336Z"
+  },
+  {
+    "id": "v6pm-vitest-workbench-recovery-v3",
+    "receipt": "docs/implementation/v3/m15-logs/v6pm-vitest-workbench-recovery-v3.json",
+    "phase": "V6_POSTMERGE_LINUX",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-17T07:17:17.337Z",
+    "endedAt": "2026-11-17T07:17:20.351Z"
   }
 ]
