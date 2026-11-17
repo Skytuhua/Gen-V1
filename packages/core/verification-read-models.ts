@@ -1,4 +1,5 @@
 import type { Store } from '../storage/store.ts';
+import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
   VerificationDeclarationV1, VisualObservationV1,
@@ -44,8 +45,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   // The current source cut describes the workspace at READ time, not when an
   // assessment was saved: with a declaration, re-digest the declared inputs
   // live. Unavailable inputs make freshness indeterminate — never verified.
-  let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null;
-  let recomputed: DeliverableAssessmentV1 | null = null;
+  let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null = null;
   if (declaration) {
     try {
       current = {
@@ -56,45 +56,48 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     } catch {
       current = null;
     }
-    // The stored assessment is immutable; the displayed label/summary is
-    // recomputed against the live cut so a source edit cannot keep a green
-    // Verified badge.
-    recomputed = computeAssessment({
+  }
+  // Completion snapshots cannot attest today's source or external effects.
+  // Recompute the projection without rewriting any saved observation/assessment.
+  const unresolvedEffects = store.all<ToolEffectRecord>('toolEffect', threadId)
+    .filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state))
+    .map(effect => effect.invocationId);
+  const recomputed = declaration || latest ? computeAssessment({
       threadId,
       sourceCut: {
         headSha: latest?.sourceCut.headSha ?? null,
         codeDigest: current?.codeDigest ?? '0'.repeat(64),
         dependencyDigest: current?.dependencyDigest ?? '0'.repeat(64),
-        environmentId: declaration.environmentId,
+        environmentId: declaration?.environmentId ?? latest!.sourceCut.environmentId,
       },
-      requirements: declaration.requirements,
+      requirements: declaration?.requirements ?? latest!.requirements,
       observations,
-      unresolvedEffects: latest?.unresolvedEffects ?? [],
+      unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',
-    });
-  } else {
-    current = latest
-      ? { codeDigest: latest.sourceCut.codeDigest, dependencyDigest: latest.sourceCut.dependencyDigest, environmentId: latest.sourceCut.environmentId }
-      : observations.length
-        ? { codeDigest: observations.at(-1)!.codeDigest, dependencyDigest: observations.at(-1)!.dependencyDigest, environmentId: observations.at(-1)!.environmentId }
-        : null;
+    }) : null;
+  if (!current && recomputed) {
+    // A fallback digest is serialization plumbing, never evidence that a live
+    // source matches. Even a matching historical value cannot establish this.
+    for (const requirement of recomputed.requirements) {
+      if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+      requirement.missing = [...requirement.missing, declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
+    }
+    if (recomputed.label === 'VERIFIED') recomputed.label = 'COMPLETED_UNVERIFIED';
   }
 
-  const byRef = new Map<string, CheckObservationV1>();
-  for (const obs of observations) {
-    byRef.set(obs.checkId, obs);
-    byRef.set(obs.executionId, obs);
-  }
+  const matches = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
   const freshnessOf = (obs: CheckObservationV1) => (current ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
   const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
   if (declaration) {
     for (const req of declaration.requirements) {
-      const bound = req.checkRefs.map(ref => byRef.get(ref)).filter((obs): obs is CheckObservationV1 => Boolean(obs));
+      const bound = observations.filter(obs => req.checkRefs.some(ref => matches(obs, ref)));
       const state = assessed.get(req.id);
-      if (!bound.length) {
+      const missingRefs = req.checkRefs.filter(ref => !observations.some(obs => matches(obs, ref)));
+      for (const ref of missingRefs) rows.push({requirement: req.id, checkId: null, check: ref, phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: [`no observation bound to ${ref} for ${req.id}`]});
+      if (!bound.length && !missingRefs.length) {
         rows.push({ requirement: req.id, checkId: null, check: '—', phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: state?.missing ?? [`no observation bound to ${req.id}`] });
         continue;
       }
@@ -102,7 +105,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
         const freshness = freshnessOf(obs);
         rows.push({
           requirement: req.id, checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
-          sourceRevision: short(obs.codeDigest), outcome: freshness === 'STALE' ? 'STALE' : obs.outcome,
+          sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
           freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
         });
       }
@@ -116,7 +119,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     const freshness = freshnessOf(obs);
     rows.push({
       requirement: '—', checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
-      sourceRevision: short(obs.codeDigest), outcome: freshness === 'STALE' ? 'STALE' : obs.outcome,
+      sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
       freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
     });
   }
