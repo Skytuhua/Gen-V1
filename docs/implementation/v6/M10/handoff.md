@@ -137,3 +137,13 @@ Docs commit `c6611f1a` (README contribution/issue guidance + org-URL fixes) was 
 Contributor issues filed covering the remaining milestone holds and adjacent gaps: #575 (HOLD_SUPERVISOR), #576 (HOLD_FORK_API), #577 (live intake polling), #578 (m08-restore flake), #579–#590 (UI/UX/frontend: a11y passes, mixed-DPI acceptance, skipped agents-grid evidence job, reduced-motion audit, shortcut reference, theme contrast, zoom resilience, minimized-tool affordances).
 
 Milestone status unchanged: **PARTIAL** — external-authority holds now tracked as issues #575/#576/#577 plus HOLD_EXECUTION_PROFILE; local full `pnpm test`/`test:browser` environmental limits stand as recorded; `reviewerApproval` remains false.
+
+### Live intake validation (session 6, goal continuation)
+
+A real authenticated `pollOnce` ran against repository `1442565952` (`skytuhua-org/Gen-V1`) on 2026-11-17 using the host's stored GitHub credential — first live-polling evidence for the external intake path:
+
+- Authenticated GET `repositories/{id}/issues` → `OK`, 1 attempt, zero errors.
+- All 30 records in the returned page were `pull_request` records; the intake's PR filter correctly skipped every one → 0 proposals, 0 rejected, 0 executions (`createTask` calls: 0 — polling is GET-only; task creation exists only inside `approve()`).
+- Delivery dedup verified trivially (second poll: 0 new).
+
+The same run exposed a real limitation, filed as [#644](https://github.com/skytuhua-org/Gen-V1/issues/644): on a PR-heavy repository the single `per_page=30&sort=updated` page starves real issues indefinitely — the poll never paginates. Proposal/dedup logic remains fixture-verified; the live run proves auth, request shape, payload parsing, and the PR exclusion rule against production GitHub responses.
