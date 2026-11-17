@@ -407,9 +407,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});
    await draft.fill('Keep this docked drag draft');
    await page.evaluate(()=>{(window as any).dockedDragInput=document.querySelector('[data-split-view="thread:thread-a"] textarea');window.addEventListener('pointerdown',event=>{(window as any).dockedPointer=event.pointerId;},{once:true,capture:true});});
-   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2,target=(await page.locator('[data-split-pane="right"]').boundingBox())!,targetX=target.x+target.width*.4,targetY=target.y+target.height/2;
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2,slot=(await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox())!,targetX=slot.x+slot.width/2,targetY=slot.y+slot.height/2;
    await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(targetX-20,targetY);
    await pw(surface).toHaveAttribute('data-floating','true');
+   // Stay inside the area's center so owner release finishes a float move, not an async dock.
    await page.mouse.move(targetX,targetY);const before=(await surface.boundingBox())!;
    await page.evaluate(type=>window.dispatchEvent(new PointerEvent(type,{pointerId:(window as any).dockedPointer+100,isPrimary:false,bubbles:true})),terminal);
    await page.mouse.move(targetX+40,targetY);
@@ -420,6 +421,8 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,'harness:conversation-placement:v1:'+host.layout.id)).toBeNull();
    const completed=(await surface.boundingBox())!;
    await page.mouse.move(targetX+80,targetY);expect((await surface.boundingBox())!.x).toBeCloseTo(completed.x,1);
+   await pw(surface).toHaveAttribute('data-floating','true');
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.pane.split')).toHaveLength(0);
    expect(await draft.inputValue()).toBe('Keep this docked drag draft');
    expect(await page.evaluate(()=>(window as any).dockedDragInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
    expect(host.errors).toEqual([]);
@@ -444,7 +447,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw(surface).not.toHaveAttribute('data-floating','true');
    const completed=(await surface.boundingBox())!;
    await page.mouse.move(target.x+40,target.y+40);expect((await surface.boundingBox())!.x).toBeCloseTo(completed.x,1);
-   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(1);
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(0);
    expect(host.splitCommands.filter(command=>command.type==='split-workspace.pane.split')).toHaveLength(1);
    expect(await draft.inputValue()).toBe('Retain the draft through acknowledged docking');
    expect(await page.evaluate(()=>(window as any).dockedDragInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
