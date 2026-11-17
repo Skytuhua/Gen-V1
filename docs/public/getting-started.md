@@ -50,7 +50,7 @@ Development starts the backend on loopback port 4317 and the generated-app recei
 
 ## Connect an account
 
-1. Open **Settings → Providers** and add a local account label.
+1. Open **Settings → Models & Accounts** and add a local account label.
 2. Choose **Connect** for that account and complete its native sign-in flow.
 3. Check readiness, refresh models and choose one available to your account.
 4. Start a new conversation and send a small task you can verify.
