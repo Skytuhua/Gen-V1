@@ -268,17 +268,17 @@
     },
     {
       "id": "v6.native-compaction",
-      "status": "BLOCKED",
+      "status": "PASS",
       "requiredCases": [
         {
           "id": "M04-S11-native-apply-proof",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_NATIVE_COMPACTION resolved by inspection: worker.py agent.compact (1277-1292) is unconditional _compress_context summary persistence \u2014 no exact-source-cut CAS, no binding/generation verification, no rollback witness. UNSUPPORTED_COMPACTION retained; deterministic candidate verdict now surfaced in usage.compaction."
+          "status": "PASS",
+          "evidence": "Exact-source-cut CAS implemented end to end: agent.history returns worker-computed historySha256; agent.compact accepts expectedHistorySha256 and verifies sha256(self.history) inside the native process immediately before compression - mismatch returns compacted:false/mismatch:true without mutating history (rollback witness: self.history only assigned after _compress_context returns; before-snapshot retained until apply). Host chain: Service.applyLossAwareCompaction -> runtime.nativeHistoryDigest -> runtime.compact(expectedHistorySha256) -> applyCompactionCandidate gate; generation increments and usageObservationRef (compactionUsage entity with measured before/after bytes) required on success. Tests: tests/hermes_source_worker.py test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (Windows CI; deps not provisioned on linux-arm64), tests/context-request-observation.test.ts CAS apply/mismatch/unsupported cases."
         },
         {
           "id": "M04-U03-compaction-preview-result-views",
           "status": "PASS",
-          "evidence": "CompactionProjectionV1 added to RuntimeUsage; Service.recordCompactionCandidate mints/evaluates a registry candidate bound to the latest admitted receipt on flag-gated run.compact and projects candidates+accounting into the Compaction tab. Measured before/after remain null-honest (no native apply)."
+          "evidence": "CompactionProjectionV1 in RuntimeUsage surfaces verdict plus measured before/after bytes from the persisted compactionUsage entity on applied native compaction; candidates without an apply stay null-honest."
         },
         {
           "id": "unsupported-native-guard-refuses-legacy-compact",
@@ -689,9 +689,10 @@
     }
   ],
   "remainingGates": [
-    "HOLD_NATIVE_COMPACTION (final, spec-compliant): worker.py agent.compact is unconditional summary persistence without exact-source-cut CAS; UNSUPPORTED_COMPACTION is the required end state until a CAS-capable native API ships.",
+    "Native compaction apply: exact-source-cut CAS implemented end to end (worker.py agent.compact expectedHistorySha256 precondition verified inside the native process before mutation + agent.history historySha256; service applyLossAwareCompaction -> adapter nativeHistoryDigest -> runtime.compact digest precondition; measured before/after bytes in compactionUsage). Adapters without nativeHistoryDigest still refuse via UNSUPPORTED_COMPACTION.",
     "Platform: linux-arm64 local gates have documented environment-limited failures (Python 3.14 Windows-x64 pin, sandbox launcher, native engines); windows-latest CI on the merge commit covers browser/Windows/Python evidence (Hermes contracts and Windows checks PASS at 764a395f).",
     "All four M04 flags remain default false; no production enablement or native history mutation; reviewerApproval stays false."
+
   ],
   "reviewerApproval": false
 }

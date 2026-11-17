@@ -40,8 +40,10 @@ export interface RuntimeAdapter {
   start(input: StartRun): Promise<void>;
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;
-  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1): Promise<void>;
+  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1, expectedHistorySha256?: string): Promise<void>;
   history(sessionPath: string, accountId?: string | null): Promise<string[]>;
+  /** Live native history digest for exact-source-cut compare-and-swap compaction; absent when the adapter has no CAS channel. */
+  nativeHistoryDigest?(ctx: RunContext, sessionPath: string, accountId?: string | null): Promise<{ sha256: string; messages: unknown[] } | null>;
   dispose(): Promise<void>;
 }
 export interface Capability { name: string; category: string; description: string; props: Record<string, unknown>; example?: unknown }
