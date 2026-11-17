@@ -22,6 +22,8 @@ splitLayout = applySplitWorkspaceCommand(splitLayout, 'pane.split', { paneId: 'p
 let singleLayout = createSplitWorkspaceLayout();
 singleLayout = applySplitWorkspaceCommand(singleLayout, 'view.open', { view: { id: 'thread:solo', kind: 'thread', binding: { authority: { kind: 'local' }, threadId: 'solo' } } });
 const floatingLayout = applySplitWorkspaceCommand(singleLayout, 'view.park', { viewId: 'thread:solo' });
+window.floatCommits=[]; window.lastFloatPointer=0;
+window.addEventListener('pointerdown',event=>{window.lastFloatPointer=event.pointerId;},true);
 function Fixture() {
   const [width, setWidth] = useState(300);
   const params = new URLSearchParams(location.search);
@@ -40,7 +42,7 @@ function Fixture() {
     {cornerWidth > 0 && <div style={{ height: 300, width: cornerWidth }}>
       <WorkspaceSplitLayout layout={singleLayout} onCommand={async () => {}} renderView={view => <div style={{ padding: 8 }}>{view.id}</div>} />
     </div>}
-    {params.has('float') && <div style={{ height: 500, width: 900 }}><WorkspaceSplitLayout layout={floatingLayout} floating={{'thread:solo':{x:100,y:80,width:400,height:260}}} onMoveFloat={()=>{}} onCommand={async()=>{}} renderView={view=><div>{view.id}</div>}/></div>}
+    {params.has('float') && <div style={{ height: 500, width: 900, display: 'flex' }}><WorkspaceSplitLayout layout={floatingLayout} floating={{'thread:solo':{x:100,y:80,width:400,height:params.has('terminal')?340:260}}} onMoveFloat={(viewId,rect)=>window.floatCommits.push({viewId,rect})} onCommand={async()=>{}} renderView={view=><input aria-label={'Float draft '+view.id} defaultValue="Retained float draft"/>}/></div>}
     {cornerWidth === 0 && <FloatingWindow id="gesture-window" title="Gesture" anchor="top-right" defaultSize={{ width: 300, height: 200 }} focusOnOpen={false}>
       <p>window body</p>
     </FloatingWindow>}
@@ -244,6 +246,31 @@ describe('gesture cleanup', () => {
     await grip.dispatchEvent(type, { pointerId: 77, bubbles: true });
     expect((await surface.boundingBox())![property] - start[property]).toBeGreaterThan(40);
     await page.mouse.up(); await page.close();
+  });
+
+
+  for (const mode of ['move', 'resize'] as const) for (const delta of [60, 0, 9999]) it(`floating ${mode} commits final pointer bounds (${delta}) and retains its draft`, async () => {
+    const page = await openPage('?float&terminal'), surface = page.locator('[data-split-view="thread:solo"]');
+    try {
+      const grip = page.getByRole('button', {name: mode === 'move' ? 'Placement and move for Conversation' : 'Resize Conversation'});
+      const input = surface.getByRole('textbox', {name: 'Float draft thread:solo'});
+      await input.fill('Unsent terminal-position draft');
+      await page.evaluate(() => { (window as any).originalFloatInput = document.querySelector('[data-split-view="thread:solo"] input'); });
+      await grip.scrollIntoViewIfNeeded(); const box = (await grip.boundingBox())!;
+      const viewport = await page.locator('.split-workspace').evaluate(node => ({width: node.clientWidth, height: node.clientHeight}));
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
+      await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 20, y + 10);
+      await pw.poll(async () => (await surface.boundingBox())![mode === 'move' ? 'x' : 'width']).toBeGreaterThan(mode === 'move' ? 110 : 410);
+      const pointerId = await page.evaluate(() => (window as any).lastFloatPointer as number), dy = delta === 60 ? 30 : delta;
+      await grip.dispatchEvent('pointerup', {pointerId, button: 0, clientX: x + delta, clientY: y + dy});
+      await page.mouse.up();
+      const rect = mode === 'move' ? {x: Math.min(100 + delta, viewport.width - 20 - 400), y: Math.min(80 + dy, viewport.height - 20 - 340), width: 400, height: 340} : {x: delta === 9999 ? 20 : 100, y: delta === 9999 ? 20 : 80, width: Math.min(400 + delta, viewport.width - 40), height: Math.min(340 + dy, viewport.height - 40)};
+      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual([{viewId: 'thread:solo', rect}]);
+      const painted = await surface.evaluate(node => {const el = node as HTMLElement; return {x: parseFloat(el.style.left), y: parseFloat(el.style.top), width: parseFloat(el.style.width), height: parseFloat(el.style.height)};});
+      expect(painted).toEqual(rect);
+      expect(await input.inputValue()).toBe('Unsent terminal-position draft');
+      expect(await page.evaluate(() => (window as any).originalFloatInput === document.querySelector('[data-split-view="thread:solo"] input'))).toBe(true);
+    } finally {await page.close();}
   });
 
   it('AUD-04: an impossible edge split shows no preview; a fitting one does', async () => {
