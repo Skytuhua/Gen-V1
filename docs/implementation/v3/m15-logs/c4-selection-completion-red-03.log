@@ -1,0 +1,112 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","M15 completed selection action","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action clears its unchanged own range
+[1A[2K[2/3] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range
+[1A[2K  1) tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 5[39m
+    [31m+ Received  + 5[39m
+
+    [2m  Object {[22m
+    [32m-   "end": 25,[39m
+    [32m-   "ranges": 1,[39m
+    [32m-   "start": 2,[39m
+    [32m-   "text": "newer foreign selection",[39m
+    [32m-   "withinTarget": true,[39m
+    [31m+   "end": null,[39m
+    [31m+   "ranges": 0,[39m
+    [31m+   "start": null,[39m
+    [31m+   "text": "",[39m
+    [31m+   "withinTarget": false,[39m
+    [2m  }[22m
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');
+      28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);
+    > 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});
+         |   ^
+      30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);
+      31 |  });
+      32 |  test('M15 completed selection action preserves a newer range and toolbar in the same source',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts/workbench-M15-selection-ac-21afd-erves-a-newer-foreign-range/error-context.md
+
+
+[1A[2K(node:179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:179) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/3] tests/e2e/workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source
+[1A[2K  2) tests/e2e/workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 7[39m
+    [31m+ Received  + 7[39m
+
+    [2m  Object {[22m
+    [32m-   "attachEnabled": true,[39m
+    [31m+   "attachEnabled": false,[39m
+    [2m    "selection": Object {[22m
+    [32m-     "end": 7,[39m
+    [32m-     "ranges": 1,[39m
+    [32m-     "start": 0,[39m
+    [32m-     "text": "Visible",[39m
+    [32m-     "withinTarget": true,[39m
+    [31m+     "end": null,[39m
+    [31m+     "ranges": 0,[39m
+    [31m+     "start": null,[39m
+    [31m+     "text": "",[39m
+    [31m+     "withinTarget": false,[39m
+    [2m    },[22m
+    [32m-   "toolbarVisible": true,[39m
+    [31m+   "toolbarVisible": false,[39m
+    [2m  }[22m
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      52 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');
+      53 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);
+    > 54 |   await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:true});
+         |   ^
+      55 |  });
+      56 | });
+      57 | test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:54:3
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts/workbench-M15-selection-ac-c3988--toolbar-in-the-same-source/error-context.md
+
+
+[1A[2K  2 failed
+    tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range 
+    tests/e2e/workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source 
+  1 passed (19.1s)

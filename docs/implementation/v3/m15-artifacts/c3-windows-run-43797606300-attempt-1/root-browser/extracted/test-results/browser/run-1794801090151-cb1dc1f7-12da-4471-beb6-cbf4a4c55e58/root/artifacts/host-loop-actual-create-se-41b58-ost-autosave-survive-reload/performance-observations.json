@@ -1,0 +1,7 @@
+{
+  "fixture": "Host contract fixture (no model inference)",
+  "browser": "Chromium",
+  "scope": "Single local fixture run; measurements are not model latency or a performance benchmark.",
+  "createSendAndSseVisibleMs": 1067.5022999999999,
+  "structuredAutosaveMs": 907.9697000000001
+}

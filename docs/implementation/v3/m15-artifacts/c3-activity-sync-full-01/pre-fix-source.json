@@ -1,0 +1,10 @@
+{
+  "kind": "Exact spec before proven activity navigation synchronization correction",
+  "capturedAt": "2026-11-16T02:45:17.686752+00:00",
+  "source": "tests/e2e/workbench-app.spec.ts",
+  "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+  "bytes": 37558,
+  "copy": "/workspace/scratch/1b47eb428672/m15-publication/c3/activity-sync-01/pre-fix-workbench-app.spec.ts",
+  "failureEvidence": "c3-native-return-diagnostic-01",
+  "originalProductSource": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+}

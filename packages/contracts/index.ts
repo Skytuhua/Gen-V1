@@ -1,7 +1,7 @@
 export type TaskStatus = "ready" | "working" | "awaiting_input" | "stopped" | "interrupted" | "completed" | "failed";
 export interface ModelInfo { id: string; provider: string; name: string; thinkingLevels?: string[] }
 export interface Thread { id: string; title: string; projectName: string | null; createdAt: string; updatedAt: string; status: TaskStatus; epoch: number; runId: string | null; modelId: string | null; sessionPath: string | null; accountId?: string | null; mode?: 'plan' | 'build'; kind?:'main'|'side'|'delegate'; parentThreadId?:string;jobId?:string;projectId?:string;workspaceId?:string;sideParentId?:string; thinkingLevel?:string|null; error?: string | null; presentation?: { pinned?: boolean; unread?: boolean; settled?: boolean; order?: number } }
-export interface Message { id: string; threadId: string; role: "user" | "assistant" | "activity"; content: string; createdAt: string; runId: string | null }
+export interface Message { id: string; threadId: string; role: "user" | "assistant" | "activity"; content: string; createdAt: string; runId: string | null; sourceRefs?: import('./source-selection.ts').SourceRefV1[]; sendMode?: import('./source-selection.ts').SendModeV1 }
 export interface TaskMemory { id: string; threadId: string; key: string; content: string; revision: number; author: 'user' | 'agent'; updatedAt: string }
 export interface ElementSpec { type: string; props: Record<string, unknown>; children?: string[] }
 export interface SurfaceSpec { root: string; elements: Record<string, ElementSpec> }
@@ -31,7 +31,7 @@ export interface CommandReceipt { commandId: string; eventSeq: number; result: u
 export interface ToolCall { name: string; args: Record<string, unknown> }
 export interface RuntimeEvent { type: string; threadId: string; runId: string; epoch: number; [key: string]: unknown }
 export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown>; onMemoryCheckpoint?: (request: import('./memory-checkpoint.ts').MemoryCheckpointRequestV1) => Promise<import('./memory-checkpoint.ts').MemoryCheckpointAckV1> }
-export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1 }
+export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1; sourceRefs?:import('./source-selection.ts').SourceRefV1[] }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
   models(options?: { refresh?: boolean; accountId?: string | null; providerId?: import('./connections.ts').ConnectionProviderId }): Promise<ModelInfo[]>;

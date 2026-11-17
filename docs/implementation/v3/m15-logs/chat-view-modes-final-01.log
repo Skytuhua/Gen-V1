@@ -1,0 +1,44 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","chat-view-modes"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781205767-297e0dfb-30e8-41bf-b281-acd2f60f02d2
+
+Browser suite: chat-view-modes (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 24 tests using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/chat-view-modes.spec.ts:61:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll (10.9s)
+  ✓   2 tests/e2e/chat-view-modes.spec.ts:61:3 › full → popup keeps the live composer, draft, selection, messages, attachments and scroll (4.7s)
+  ✓   3 tests/e2e/chat-view-modes.spec.ts:61:3 › drawer → full keeps the live composer, draft, selection, messages, attachments and scroll (4.2s)
+  ✓   4 tests/e2e/chat-view-modes.spec.ts:61:3 › drawer → popup keeps the live composer, draft, selection, messages, attachments and scroll (4.7s)
+  ✓   5 tests/e2e/chat-view-modes.spec.ts:61:3 › popup → full keeps the live composer, draft, selection, messages, attachments and scroll (4.2s)
+  ✓   6 tests/e2e/chat-view-modes.spec.ts:61:3 › popup → drawer keeps the live composer, draft, selection, messages, attachments and scroll (6.2s)
+  ✓   7 tests/e2e/chat-view-modes.spec.ts:101:1 › keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat (2.7s)
+  ✓   8 tests/e2e/chat-view-modes.spec.ts:130:1 › rapid switching retargets from the visible rect and reduced motion settles instantly, including mid-flight (5.6s)
+  ✓   9 tests/e2e/chat-view-modes.spec.ts:166:42 › drawer edge/corner resize tracks via transform, clamps, and remembers its own size (8.5s)
+  ✓  10 tests/e2e/chat-view-modes.spec.ts:166:42 › popup edge/corner resize tracks via transform, clamps, and remembers its own size (9.0s)
+  ✓  11 tests/e2e/chat-view-modes.spec.ts:205:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target (7.7s)
+  ✓  12 tests/e2e/chat-view-modes.spec.ts:243:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership (3.2s)
+  ✓  13 tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME composition flag (3.6s)
+  ✓  14 tests/e2e/chat-view-modes.spec.ts:272:5 › active drag ignores Escape with IME legacy key 229 (4.7s)
+  ✓  15 tests/e2e/chat-view-modes.spec.ts:302:1 › detach/dock button and keyboard paths preserve the live draft and drawer size (4.9s)
+  ✓  16 tests/e2e/chat-view-modes.spec.ts:333:40 › every mode fits 1440px and stays usable after viewport shrink (6.4s)
+  ✓  17 tests/e2e/chat-view-modes.spec.ts:333:40 › every mode fits 1024px and stays usable after viewport shrink (6.0s)
+  ✓  18 tests/e2e/chat-view-modes.spec.ts:333:40 › every mode fits 768px and stays usable after viewport shrink (5.4s)
+  ✓  19 tests/e2e/chat-view-modes.spec.ts:361:1 › a resized docked drawer keeps its right margin as the viewport grows and reloads (5.7s)
+  ✓  20 tests/e2e/chat-view-modes.spec.ts:386:1 › a saved docked drawer from a narrow window restores at the wider right edge (2.2s)
+  ✓  21 tests/e2e/chat-view-modes.spec.ts:405:1 › a pointer transition retargets exactly from its visible bounds and animates only transform (3.2s)
+  ✓  22 tests/e2e/chat-view-modes.spec.ts:453:1 › pointer cancellation rolls back a resize and writes no in-flight preference (3.3s)
+  ✓  23 tests/e2e/chat-view-modes.spec.ts:474:1 › dragging the docked header detaches it and the dock button restores its right anchor (3.8s)
+  ✓  24 tests/e2e/chat-view-modes.spec.ts:496:1 › blocked preference storage keeps every mode and resize usable (3.9s)
+
+  24 passed (2.2m)

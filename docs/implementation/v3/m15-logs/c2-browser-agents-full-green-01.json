@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:31:33.910Z",
+  "endedAt": "2026-11-16T00:32:30.937Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-01.log",
+  "logDigest": "5b21f77e55d4ce8cad5d34087e79da4ebe96ce76bdb36794e2405c8ea6416b11"
+}

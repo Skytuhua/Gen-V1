@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "node",
+    "scripts/m15-evidence-probe.mjs"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:44:57.779Z",
+  "endedAt": "2026-11-15T22:45:18.875Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/evidence-controller-red-02.log",
+  "logDigest": "6827bb5634bbc05e0013c6cf5660b781f429dd91f5ee92bc2d9269d8be22730e"
+}

@@ -1,0 +1,251 @@
+argv: ["C:\\Program Files\\PowerShell\\7\\pwsh.exe","-NoLogo","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'\r\npnpm test --maxWorkers=2 --shard=2/4 --reporter=default --reporter=json --outputFile=test-results/m15/full-results.json\r\nexit $LASTEXITCODE"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 test D:\a\Gen-V1\Gen-V1
+> pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=2/4" "--reporter=default" "--reporter=json" "--outputFile=test-results/m15/full-results.json"
+
+
+> gen-v1@0.6.5 build:credential-lease D:\a\Gen-V1\Gen-V1
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+windows-credential-lease.cc
+   Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+Windows credential lease built.
+
+> gen-v1@0.6.5 build:widgets D:\a\Gen-V1\Gen-V1
+> node scripts/build-widgets.mjs
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/a/Gen-V1/Gen-V1[39m
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ [32m✓[39m tests/cursor-worker.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 1475[2mms[22m[39m
+     [33m[2m✓[22m[39m discovery never creates an agent and history never authenticates or enables tools [33m 401[2mms[22m[39m
+     [33m[2m✓[22m[39m reads actual installed SDK local history with fetch forbidden and without native auth or agent creation [33m 436[2mms[22m[39m
+ [32m✓[39m tests/artifact-settle.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 27438[2mms[22m[39m
+     [33m[2m✓[22m[39m deliberate collapse shrinks the whole artifact and lifts following content, reopen restores the saved input [33m 4912[2mms[22m[39m
+     [33m[2m✓[22m[39m restoration reserves final layout while held and keeps following content fixed (split stability invariant) [33m 1732[2mms[22m[39m
+     [33m[2m✓[22m[39m journal restoration gates the entrance: nothing plays while held, one body reveal after release [33m 1420[2mms[22m[39m
+     [33m[2m✓[22m[39m one body entrance keeps outer geometry stable and cleans up when publication is interrupted [33m 1291[2mms[22m[39m
+     [33m[2m✓[22m[39m nested disclosures, sibling evidence and focus safety shrink without blank slots [33m 2822[2mms[22m[39m
+     [33m[2m✓[22m[39m a Steps panel inside a disclosure collapses and restores its saved step input [33m 2754[2mms[22m[39m
+     [33m[2m✓[22m[39m an inline artifact body keeps no empty reserve below its content [33m 1819[2mms[22m[39m
+     [33m[2m✓[22m[39m reduced and off motion collapse instantly and rapid reversal settles the last state [33m 3527[2mms[22m[39m
+     [33m[2m✓[22m[39m streaming answer growth moves following content down in flow without a gap [33m 2336[2mms[22m[39m
+     [33m[2m✓[22m[39m a failed disclosure action keeps error and retry truthful [33m 997[2mms[22m[39m
+     [33m[2m✓[22m[39m journal reload restores the bound disclosure state without replaying the entrance [33m 2424[2mms[22m[39m
+ [32m✓[39m tests/scoped-conversation-reader.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m tests/agent-follow-up.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 5649[2mms[22m[39m
+   [33m[2m✓[22m[39m marks processing and handled only from exact child executor input identities [33m 317[2mms[22m[39m
+   [33m[2m✓[22m[39m denies later resource rebinding and update freeze without changing the existing run grants [33m 529[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a binding revoked after queuing before any inference call, with an honest rejected ticket [33m 449[2mms[22m[39m
+   [33m[2m✓[22m[39m exposes exact active target and ticket metadata through authenticated no-store reads without a global snapshot [33m 365[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds pending follow-ups and does not deliver queued work after Stop [33m 408[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers persisted queued and processing tickets without resending or losing their transcript [33m 314[2mms[22m[39m
+   [33m[2m✓[22m[39m retains proven processing across a later transport error and accepts the exact response [33m 394[2mms[22m[39m
+   [33m[2m✓[22m[39m publishes handled only atomically with its durable answer, even when the observer immediately Stops [33m 323[2mms[22m[39m
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ [32m✓[39m tests/research-baseline.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 3220[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hung child and kills its process tree [33m 1635[2mms[22m[39m
+     [33m[2m✓[22m[39m reproduce identical control actions and effect counts per fixed seed [33m 587[2mms[22m[39m
+ [32m✓[39m tests/plan-key-connections.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 7534[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps healthy model discovery available when another plan connection has expired [33m 698[2mms[22m[39m
+     [33m[2m✓[22m[39m validates Kimi credentials against bounded authenticated coding models and intersects the installed catalog [33m 337[2mms[22m[39m
+     [33m[2m✓[22m[39m stops Kimi model validation after HTTP 429 without fallback [33m 305[2mms[22m[39m
+     [33m[2m✓[22m[39m captures openai-completions Go SDK transport through the fixed plan boundary [33m 365[2mms[22m[39m
+     [33m[2m✓[22m[39m requires a stable Go session before any inference transport [33m 452[2mms[22m[39m
+     [33m[2m✓[22m[39m never resolves a foreign command credential during native provider background refresh [33m 649[2mms[22m[39m
+ [32m✓[39m tests/review-regressions.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 5677[2mms[22m[39m
+   [33m[2m✓[22m[39m retains an undelivered follow-up when an earlier response settles [33m 318[2mms[22m[39m
+   [33m[2m✓[22m[39m cancels the original context when runtime failure clears its run identity [33m 314[2mms[22m[39m
+   [33m[2m✓[22m[39m parks input arriving after a completion claim and requires a fresh claim for it [33m 424[2mms[22m[39m
+   [33m[2m✓[22m[39m stores immutable submitted values and displayed data with accepted actions [33m 349[2mms[22m[39m
+   [33m[2m✓[22m[39m requires the edit owner before accepting replacement submitted state [33m 311[2mms[22m[39m
+   [33m[2m✓[22m[39m reopens a completed task when an agent action is accepted [33m 317[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps completed task state when a separate compaction run settles [33m 327[2mms[22m[39m
+   [33m[2m✓[22m[39m queues input during compaction for a fresh task run after maintenance settles [33m 348[2mms[22m[39m
+   [33m[2m✓[22m[39m drops late process progress after Stop without throwing from an event callback [33m 309[2mms[22m[39m
+   [33m[2m✓[22m[39m protects physical credentials when storage was selected through a junction [33m 408[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects explicitly stale decision bindings and historical actions without a revision [33m 314[2mms[22m[39m
+ [32m✓[39m tests/capture-ui/helpers.test.ts [2m([22m[2m45 tests[22m[2m | [22m[33m6 skipped[39m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m tests/service.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 4582[2mms[22m[39m
+     [33m[2m✓[22m[39m records a completed effect arriving after Stop without reviving its run [33m 1233[2mms[22m[39m
+     [33m[2m✓[22m[39m a generated operation button leads to native approval and cannot approve by its label [33m 595[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 405[2mms[22m[39m
+ [32m✓[39m tests/accounts.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 3598[2mms[22m[39m
+   [33m[2m✓[22m[39m does not forward natural settlement until the native adapter has stopped using credentials [33m 339[2mms[22m[39m
+   [33m[2m✓[22m[39m retains account use when a native error revokes thread authority before cancellation finishes [33m 319[2mms[22m[39m
+   [33m[2m✓[22m[39m holds account use throughout model probes and keeps failed probe teardown fail-closed [33m 348[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-hermes-v3.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 12103[2mms[22m[39m
+   [33m[2m✓[22m[39m retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport] [33m 12101[2mms[22m[39m
+ [32m✓[39m tests/workspace-action-outcome-authority.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 3327[2mms[22m[39m
+ [32m✓[39m tests/runtime-router.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 3364[2mms[22m[39m
+   [33m[2m✓[22m[39m lazily isolates account adapters, pins routing and denies cross-account sessions [33m 965[2mms[22m[39m
+   [33m[2m✓[22m[39m scopes named-account model discovery to its provider and blocks a profile being signed in [33m 465[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected named-account directories before any auth or session adapter call [33m 925[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a resolver that changes the provider of an already acquired account profile [33m 467[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a descendant Pi junction before actual session validation can resolve another account history [33m 460[2mms[22m[39m
+ [32m✓[39m tests/task-memory-recovery.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 3421[2mms[22m[39m
+   [33m[2m✓[22m[39m reopens SQLite and restores only current owning notes with revision history across deletion [33m 445[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery [33m 1333[2mms[22m[39m
+   [33m[2m✓[22m[39m injects restored notes once into an installed Pi SDK session and refreshes them after disk restoration and reload [33m 1641[2mms[22m[39m
+ [32m✓[39m tests/tool-effects-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1689[2mms[22m[39m
+ [32m✓[39m tests/browser-verification-v3.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1426[2mms[22m[39m
+ [32m✓[39m tests/source-draft-transfer-v3.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 474[2mms[22m[39m
+ [32m✓[39m tests/cursor-driver.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2081[2mms[22m[39m
+     [33m[2m✓[22m[39m starts the actual fixed worker and exits it on startup cancellation without SDK login [33m 708[2mms[22m[39m
+     [33m[2m✓[22m[39m starts and closes the actual discovery worker without accepting an unproven private credential file [33m 665[2mms[22m[39m
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ [32m✓[39m tests/plugin-frame-custody.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 5428[2mms[22m[39m
+   [33m[2m✓[22m[39m restricts parent frames to installed plug-in documents and the explicit widget destination [33m 1804[2mms[22m[39m
+   [33m[2m✓[22m[39m never gives a replacement document the bridge, pending results or a successful flush, even with the old session [33m 852[2mms[22m[39m
+   [33m[2m✓[22m[39m revokes an unexpected same-URL reload and recovers only through a fresh parent remount [33m 1106[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a redirected replacement before the initial trusted bootstrap can connect [33m 338[2mms[22m[39m
+ [32m✓[39m tests/credential-store.test.ts [2m([22m[2m34 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 305[2mms[22m[39m
+ [32m✓[39m tests/workbench-recovery-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+ [32m✓[39m tests/model-transport-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 428[2mms[22m[39m
+ [32m✓[39m tests/operation-queue.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1292[2mms[22m[39m
+ [32m✓[39m tests/workspace-canvas-layout.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m tests/packaged-providers.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1665[2mms[22m[39m
+     [33m[2m✓[22m[39m imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper [33m 1434[2mms[22m[39m
+ [32m✓[39m tests/official-runtime-cursor-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 812[2mms[22m[39m
+   [33m[2m✓[22m[39m owns discovery children before awaiting SDK results and waits for their cancellation on dispose [33m 332[2mms[22m[39m
+ [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 3445[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 525[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 1198[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 369[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 1095[2mms[22m[39m
+ [32m✓[39m tests/managed-git-family.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 12953[2mms[22m[39m
+   [33m[2m✓[22m[39m requires host attestation for linked worktrees and retains ordinary repositories [33m 1675[2mms[22m[39m
+   [33m[2m✓[22m[39m snapshots the attested worktree HEAD, index and source, without other worktrees or hooks [33m 1569[2mms[22m[39m
+   [33m[2m✓[22m[39m passes only the host-resolved family for the granted domain repository root [33m 1636[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects unsupported common config even when the worktree provides a config override [33m 815[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses an unrelated linked worktree even with another trusted binding [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed identity [33m 803[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed common identity [33m 812[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed git identity [33m 843[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed pointer [33m 814[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed backref [33m 804[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed commondir [33m 1062[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed config [33m 814[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed alternates [33m 837[2mms[22m[39m
+ [32m✓[39m tests/capture-ui/outputs.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m tests/context-efficiency.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 700[2mms[22m[39m
+   [33m[2m✓[22m[39m never constructs a workspace snapshot or leaks another thread during inspection [33m 548[2mms[22m[39m
+ [32m✓[39m tests/windows-credential-lease.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 968[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a pre-existing writable mapping after its originating file stream closes [33m 304[2mms[22m[39m
+ [32m✓[39m tests/source-composer-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m tests/account-profile.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 5557[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects an accounts junction and holds the acquired namespace against replacement [33m 900[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects native descendant directory redirects and hardlinked credential files before entry [33m 920[2mms[22m[39m
+   [33m[2m✓[22m[39m pins native directories while allowing legitimate atomic credential replacement [33m 457[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps each writable account directory nonempty with a pinned ordinary marker [33m 1307[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a missing writable account directory before entering native work [33m 477[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects missing and file-valued writable directories without an explicit ancestor scope [33m 898[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps official home namespaces pinned while native credential files remain atomically replaceable [33m 592[2mms[22m[39m
+ [32m✓[39m tests/usage-context.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-follow-up.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m tests/hermes-original-integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 10535[2mms[22m[39m
+   [33m[2m✓[22m[39m runs original Python and ACP through the native broker, persists a skill and finishes through the real Service [33m 10533[2mms[22m[39m
+ [32m✓[39m tests/docked-browser-open.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/hermes-acp-server.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1564[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects native MCP/client filesystem surfaces and refuses a substituted model [33m 361[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a broker response whose ACP wrapper would exceed the wire bound without truncating content [33m 423[2mms[22m[39m
+ [32m✓[39m tests/tool-authority-v3.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m tests/research-service-integration.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 857[2mms[22m[39m
+   [33m[2m✓[22m[39m composes actual Service.command research ownership without a direct HTTP Store writer (T05: retired research routes removed) [33m 321[2mms[22m[39m
+ [32m✓[39m tests/usage-accounting-v3.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 294[2mms[22m[39m
+ [32m✓[39m tests/compact-draft-transfer.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/thread-messages-owner.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/runtime-model-only.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1497[2mms[22m[39m
+   [33m[2m✓[22m[39m configures the installed Pi SDK as a text model with no ambient or host tools [33m 1333[2mms[22m[39m
+ [32m✓[39m tests/compact-settings.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m tests/cursor-mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 591[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves supported host-operation lifetime without a shorter proxy deadline or late header writes [33m 340[2mms[22m[39m
+ [32m✓[39m tests/plan-timeline-review-regressions.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1163[2mms[22m[39m
+ [32m✓[39m tests/workspace-native-panels.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/account-auth-http.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 2113[2mms[22m[39m
+   [33m[2m✓[22m[39m uses existing session/CSRF protection and requires a provider plus explicit legacy or named target [33m 301[2mms[22m[39m
+   [33m[2m✓[22m[39m awaits prediction teardown before exclusive local signout and never accepts credentials [33m 1587[2mms[22m[39m
+ [32m✓[39m tests/github-device-policy.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/tooltip-escape.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/hermes-multi-original.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 9755[2mms[22m[39m
+   [33m[2m✓[22m[39m runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls [33m 9754[2mms[22m[39m
+ [32m✓[39m tests/official-runtime-mcp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 185[2mms[22m[39m
+ [32m✓[39m tests/terminal-excerpts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m tests/task-composition.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/copy-button-ownership.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/resource-tree.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1134[2mms[22m[39m
+   [33m[2m✓[22m[39m lists one granted directory lazily, omits unsafe leaves and denies traversal [33m 1132[2mms[22m[39m
+ [32m✓[39m tests/bootstrap-launch-token.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 437[2mms[22m[39m
+ [32m✓[39m tests/layout-profile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/preferences-appearance.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m tests/split-tool-placement.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m tests/workspace-host-agents.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m tests/capture-ui/review-coverage.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/composer-prediction-client.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m tests/floating-layout.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/summary-collapse-state.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/plugin-frame.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/proactive-presentation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m tests/composer-commands.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/ui-focus-retention.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/activity-output-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 454[2mms[22m[39m
+ [32m✓[39m tests/workspace-action-outcomes.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 188916[2mms[22m[39m
+   [33m[2m✓[22m[39m commits intent before local write and private result before event, then replays after Store restart [33m 13326[2mms[22m[39m
+   [33m[2m✓[22m[39m retains interrupted remote write as uncertain across restart without submitting it again [33m 12126[2mms[22m[39m
+   [33m[2m✓[22m[39m serializes same-ID attempts across separate Store connections without a double write [33m 14217[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed payload [33m 6959[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed type [33m 6604[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed threadId [33m 6619[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed projectId [33m 6602[2mms[22m[39m
+   [33m[2m✓[22m[39m inspects original payload/revision without current diff, review reads, or any write [33m 8349[2mms[22m[39m
+   [33m[2m✓[22m[39m returns revoked after working copy or account access changes, including confirmed receipts [33m 13041[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps private intent, result, credentials and errors out of events, receipts and snapshots [33m 6657[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps missing and legacy records uncertain without adopting unbound receipts [33m 7209[2mms[22m[39m
+   [33m[2m✓[22m[39m records not-applied only after host rejection before starting and never restarts that ID [33m 9913[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps failures after started uncertain even when there is no receipt [33m 5867[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps completed external write uncertain if durable result commit fails [33m 11527[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers a confirmed review when the remote branch name differs from the managed local branch [33m 8218[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps an active prepared reservation uncertain until its owner durably proves no execution began [33m 10935[2mms[22m[39m
+   [33m[2m✓[22m[39m pins profile access while GitHubTools is awaiting remote validation [33m 6612[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a profile replaced between inspection identity capture and credential read [33m 8114[2mms[22m[39m
+   [33m[2m✓[22m[39m supports local unstage and commit through the original revision and replays a commit without a second write [33m 26013[2mms[22m[39m
+ [32m✓[39m tests/browser-action.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/settings-search-filter.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/desktop-host-ipc.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/desktop-host-controls.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/desktop-preload-accounts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/desktop-backend-handoff.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/granted-resource-api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 195[2mms[22m[39m
+ [32m✓[39m tests/process.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 235[2mms[22m[39m
+ [32m✓[39m tests/shell-shortcut-roundtrip.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/document-window.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/composer-evidence.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/task-status.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/ui-numeric-children.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m86 passed[39m[22m[90m (86)[39m
+[2m      Tests [22m [1m[32m888 passed[39m[22m[2m | [22m[33m7 skipped[39m[90m (895)[39m
+[2m   Start at [22m 03:38:13
+[2m   Duration [22m 195.12s[2m (transform 6.19s, setup 0ms, import 29.44s, tests 342.47s, environment 13ms)[22m
+
+JSON report written to D:/a/Gen-V1/Gen-V1/test-results/m15/full-results.json

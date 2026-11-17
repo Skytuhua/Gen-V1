@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, expect, it, vi} from 'vitest';
 const records = vi.hoisted(() => new Map<string, {value: unknown; generation: string}>());
 vi.mock('../apps/web/src/journal', () => ({
+ journalEntries: async () => [...records].map(([key,record])=>({key,record})),
  journalReadRecord: async (key: string) => records.get(key),
  journalWrite: async (key: string, value: unknown) => {records.set(key, {value, generation:'generation'});},
  journalGeneration: (key: string) => records.get(key)?.generation,

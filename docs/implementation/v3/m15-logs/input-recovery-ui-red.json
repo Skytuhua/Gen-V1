@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "workbench-app",
+    "--grep",
+    "accepted stale input|rollback permits cancellation"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:15:01.843Z",
+  "endedAt": "2026-11-15T22:15:02.492Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-ui-red.log",
+  "logDigest": "f7e2db37a46a4776b22d0229689b396eb43a1d799ec1d44cdfdee5be91031351"
+}

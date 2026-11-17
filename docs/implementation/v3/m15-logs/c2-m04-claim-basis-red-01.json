@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/request-preparation-service-v3.test.ts",
+    "-t",
+    "undoes a rolled-back lifecycle advance",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-claim-basis-red-01-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:47:23.311Z",
+  "endedAt": "2026-11-16T00:47:26.477Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-m04-claim-basis-red-01.log",
+  "logDigest": "d826b94a8d33a9a376365c42afd387db1cc6793214d1561b361d91ee5b50289b"
+}

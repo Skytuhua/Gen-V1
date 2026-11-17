@@ -1,0 +1,1056 @@
+{
+  "kind": "C4_BROWSER_TEST_PROPOSAL_AND_READONLY_PRODUCT_REVIEW",
+  "status": "PROPOSED_NOT_APPLIED_NOT_EXECUTED",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+    "sha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+    "bytes": 547943
+  },
+  "repositorySourceUnchangedVerified": {
+    "files": 2390,
+    "bytes": 55412423,
+    "head": "0f487aa82fba616131d7f9e547076d3a14d67f48"
+  },
+  "testPatch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-test-proposal-02/tests.patch",
+    "sha256": "3446a347445bfd3f46bc4e7e075ca6701e1c23e4a31fd0fc882c98833da03fe6",
+    "bytes": 10211
+  },
+  "manifest": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-test-proposal-02/manifest.json",
+    "sha256": "6e1d73f67d345b9309e8acc79fbaa81b53730d9ad8357c1b529f3c1fd83887d8",
+    "bytes": 2577
+  },
+  "supersededProposal": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-test-proposal-01/tests.patch",
+    "sha256": "bbbc0c15ec17512765107efd22ce094ebaa07c67d8264f26f6987b4521649301",
+    "reason": "Static SummaryDock review found the proposed caption assertion ran while expanded; explicitly collapse and reopen the summary around its exact visible value assertion."
+  },
+  "runs": [
+    {
+      "id": "c4-workbench-app-regression-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-regression-01.json",
+        "sha256": "63ce8d52fed75e7cb165717915ddfd707a9ae2ebd7d815388a0bf937f1a1138d",
+        "bytes": 773
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workbench-app-regression-01.log",
+        "sha256": "1c2ba6dff1270338c2b0c610181ee994b2f810351703ca91364fb00a13e2a2a8",
+        "bytes": 4871
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/workbench-app.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workbench-app-regression-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:02:11.276Z",
+      "endedAt": "2026-11-16T04:04:20.307Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "scope": "Declared Linux Chromium fixture",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-regression-01/results.json",
+        "sha256": "d573cdd46fdd902345d62fe0bf7abcaeba7ad288b513a2d456d372660cf88d22",
+        "bytes": 66173
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:02:13.134Z",
+        "duration": 127130.93400000001,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [],
+      "failureArtifacts": []
+    },
+    {
+      "id": "c4-project-memory-regression-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-project-memory-regression-01.json",
+        "sha256": "5800c2dbda87473494f310e740f921704bcb919f85d1ab0c88f57298f8fc7cce",
+        "bytes": 776
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-project-memory-regression-01.log",
+        "sha256": "8bdb463506ae46974d1bae2c7f8a776deda8fe0060d7ef4d1ea17b3a4595670d",
+        "bytes": 3174
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/project-memory.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-project-memory-regression-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:05:00.070Z",
+      "endedAt": "2026-11-16T04:05:24.951Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "scope": "Declared Linux Chromium fixture",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-project-memory-regression-01/results.json",
+        "sha256": "376a45c60ff979227d0927bbe455f8f6876f4734fe775c89e03be310056c90b4",
+        "bytes": 17968
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:05:02.189Z",
+        "duration": 22698.115,
+        "expected": 15,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [],
+      "failureArtifacts": []
+    },
+    {
+      "id": "c4-desktop-regression-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.json",
+        "sha256": "76590bb6c5d2092d6176ebdc43ac5e4bb66a7200a4388185f4f73c9275d4b439",
+        "bytes": 764
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.log",
+        "sha256": "68ce9cf53bdce1e5fb9b3267a4fa2755ff9d509de93776edf4d7277c7c481015",
+        "bytes": 28006
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:05:45.699Z",
+      "endedAt": "2026-11-16T04:07:21.037Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "scope": "Declared Linux Chromium fixture",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/results.json",
+        "sha256": "5a10663614775f94f4a0cb5f5193092ea7249601abdb443952a4e27e91efb729",
+        "bytes": 74272
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:05:47.526Z",
+        "duration": 93424.65599999999,
+        "expected": 26,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [
+        {
+          "title": "detached workspace selection does not acquire an unacknowledged second artifact editor",
+          "status": "failed",
+          "durationMs": 6632,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Open this artifact from the main workspace. Your current editor is kept open.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Open this artifact from the main workspace. Your current editor is kept open.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:91:753",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts",
+              "column": 753,
+              "line": 91
+            },
+            "snippet": "  89 |  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();\n  90 | });\n> 91 | test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Open this artifact from the main workspace. Your current editor is kept open.');await expect(page.locator('[data-artifact-id=\"second-artifact\"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  92 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});\n  93 |\n  94 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});"
+          }
+        },
+        {
+          "title": "native close acknowledges an unrecovered composer workspace without detaching",
+          "status": "failed",
+          "durationMs": 2448,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:94:801",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts",
+              "column": 801,
+              "line": 94
+            },
+            "snippet": "  92 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});\n  93 |\n> 94 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  95 | test('upload preprocessing blocks native close before the canonical PNG is journaled',async({page})=>{await bridge(page);await page.addInitScript(()=>{const original=File.prototype.arrayBuffer;File.prototype.arrayBuffer=function(){const file=this;return new Promise<ArrayBuffer>(resolve=>{(window as any).__releaseUpload=()=>void original.call(file).then(resolve);});};});const s=fixture();s.artifacts[0].spec={root:'signature',elements:{signature:{type:'SignaturePad',props:{stateKey:'signature',initialMode:'upload'}}}};await serveTaskFixture(page,s);await page.goto('/');await page.getByLabel('Upload PNG signature',{exact:true}).setInputFiles({name:'mark.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64')});expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(false);await expect(page.getByRole('alert')).toContainText('signature mark');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach').length)).toBe(0);await expect(page.getByLabel('Upload PNG signature',{exact:true})).toBeEnabled();});\n  96 |\n  97 | test('compatible browser draft import restores the live composer and survives reload',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('');await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const backup={app:'generative-harness-drafts',version:1,entries:[{key:'draft:task-thread',record:{value:'Continue from browser backup',generation:'browser-original',updatedAt:1}}]};await page.getByLabel('Draft backup file',{exact:true}).setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('.draft-transfer [role=\"status\"]')).toContainText('1 drafts imported');await page.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Continue from browser backup');await page.reload();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Continue from browser backup');});"
+          }
+        },
+        {
+          "title": "export refuses pending signature assets instead of silently omitting the mark",
+          "status": "failed",
+          "durationMs": 7802,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.draft-transfer [role=\"alert\"]')\nExpected substring: \u001b[32m\"signature\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.draft-transfer [role=\"alert\"]')\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.draft-transfer [role=\"alert\"]')\nExpected substring: \u001b[32m\"signature\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.draft-transfer [role=\"alert\"]')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:101:972",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts",
+              "column": 972,
+              "line": 101
+            },
+            "snippet": "   99 | test('imported artifact draft updates the already mounted editor before another edit',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('');await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const backup={app:'generative-harness-drafts',version:1,entries:[{key:'state:task-state',record:{value:{baseRevision:0,values:{name:'Imported artifact value'}},generation:'browser-state',updatedAt:1}}]};await page.getByLabel('Draft backup file',{exact:true}).setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('.draft-transfer [role=\"status\"]')).toContainText('1 drafts imported');await page.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Imported artifact value');});\n  100 |\n> 101 | test('export refuses pending signature assets instead of silently omitting the mark',async({page})=>{await bridge(page);await page.addInitScript(()=>{File.prototype.arrayBuffer=function(){return new Promise<ArrayBuffer>(()=>{});};});const value=fixture();value.artifacts[0].spec={root:'signature',elements:{signature:{type:'SignaturePad',props:{stateKey:'signature',initialMode:'upload'}}}};await serveTaskFixture(page,value);await page.goto('/');await page.getByLabel('Upload PNG signature',{exact:true}).setInputFiles({name:'mark.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64')});await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();await page.getByRole('button',{name:'Export local drafts',exact:true}).click();await expect(page.locator('.draft-transfer [role=\"alert\"]')).toContainText('signature');});\n      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  102 |\n  103 | test('source editor recovers a durable satellite draft when editing ownership returns',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await expect(input).toBeEnabled();const node=await input.elementHandle();await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false},{id:'existing-artifact',surface:{kind:'artifact',threadId:'task-thread',artifactId:'task-surface'},ready:true,minimized:false}]}));await expect(page.getByText('Editing in a detached window.',{exact:true})).toBeVisible();await expect.poll(()=>node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);await page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);await journal.journalWrite('state:task-state',{baseRevision:0,values:{name:'Recovered after satellite failure'}});(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}]});});await expect(input).toHaveValue('Recovered after satellite failure');await expect(input).toBeEnabled();expect(await node!.evaluate(element=>element.isConnected)).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});\n  104 |"
+          }
+        },
+        {
+          "title": "review: a failed detached workspace close retains the editable surface",
+          "status": "failed",
+          "durationMs": 6560,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Dock destination is unavailable\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Dock destination is unavailable\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:136:40",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts",
+              "column": 40,
+              "line": 136
+            },
+            "snippet": "  134 | test('review: a failed detached workspace close retains the editable surface',async({page})=>{\n  135 |  await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();\n> 136 |  await expect(page.getByRole('alert')).toContainText('Dock destination is unavailable');await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();\n      |                                        ^\n  137 | });\n  138 |\n  139 | test('review: standalone workspace uses native sizing instead of inactive panel maximize controls',async({page})=>{"
+          }
+        }
+      ],
+      "failureArtifacts": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/error-context.md",
+          "sha256": "10e3aea007f672134ad8159cf67e60e9dc338c129fecbdb4a9e44942c5c8789f",
+          "bytes": 1906
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/trace.zip",
+          "sha256": "c02f462320aa3d5ddd33d142fc35cff60136101007816329ffc418ac307c3649",
+          "bytes": 380208
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/error-context.md",
+          "sha256": "d124700ac0a24cb4fd552fa97ef9731bb766154d354a10fece8d4444ca466b45",
+          "bytes": 13481
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/trace.zip",
+          "sha256": "569c9298fef6fcba5250c987d6ba0bf035d443cab5d2a835bd37f4bcc5ce61d3",
+          "bytes": 1197657
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/error-context.md",
+          "sha256": "223c9ea78103528b83fadaf673cbd61d74c8dcac68fec0b3ba47f600f6a7a6f7",
+          "bytes": 8440
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/trace.zip",
+          "sha256": "ccbca2ee4510578f21c0db27b0f3bb519dccb567a46f0d0fa0e3451aae8a8ed7",
+          "bytes": 613476
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/error-context.md",
+          "sha256": "1337a4464d99d55bd588b26a9b0e45d3f0f1fa003a11f6ed1cef1241bab063bf",
+          "bytes": 1862
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/trace.zip",
+          "sha256": "0341e9df1fe2bb6d3c51050cb7a95a35d209b0c7700f65f2e46fec25cc9a71e3",
+          "bytes": 267049
+        }
+      ]
+    },
+    {
+      "id": "c4-usage-chromium-initial-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-01.json",
+        "sha256": "e08e5b65c7e95f79aa962c29958da7d83541ed6feaf5a9bd1f991318d3ea3cbf",
+        "bytes": 858
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-01.log",
+        "sha256": "e2ddd2fc451d022366cc12c14d42a35d4509d019ce87c7287ab1a97b027a687e",
+        "bytes": 3394
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-01/usage-app-integration.chromium.playwright.config.ts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:07:58.355Z",
+      "endedAt": "2026-11-16T04:08:00.756Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "scope": "Private Linux Chromium override of unchanged declared msedge config; not Edge evidence",
+      "collectedTests": 0,
+      "classification": "Config loader failed before collection; external .ts wrapper resolved as CJS. Preserved and superseded only by explicit .mts loader correction under a fresh ID."
+    },
+    {
+      "id": "c4-usage-chromium-initial-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-02.json",
+        "sha256": "1b22e6a3aaa060916660dfb96dd4ee73081966b177941bba259e5ae0c0fbabbf",
+        "bytes": 859
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-initial-02.log",
+        "sha256": "2a0aaa408cde900338f7e89d97e590e74a8afa6adf1e3aa0bd6d96ac2fc722df",
+        "bytes": 23543
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:10:08.706Z",
+      "endedAt": "2026-11-16T04:11:29.951Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "scope": "Private Linux Chromium override of unchanged declared msedge config; not Edge evidence",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/results.json",
+        "sha256": "63119bf40db522142cc4b1fb0e7e486b804db6b94d6c896beff52d457bcda0b1",
+        "bytes": 53094
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:10:11.214Z",
+        "duration": 78668.843,
+        "expected": 9,
+        "skipped": 0,
+        "unexpected": 6,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [
+        {
+          "title": "mobile navigation backdrop remains clickable after a nested Settings dialog closes",
+          "status": "failed",
+          "durationMs": 5843,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts:9:184",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts",
+              "column": 184,
+              "line": 9
+            },
+            "snippet": "   7 |  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];\n   8 |  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};\n>  9 |  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');\n     |                                                                                                                                                                                        ^\n  10 |  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);\n  11 |  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);\n  12 |  await scrim.click({position:{x:590,y:100}});await expect(scrim).toHaveCount(0);await expect(opener).toBeFocused();await expect(draft).toHaveValue('Keep this mobile draft');"
+          }
+        },
+        {
+          "title": "failed handoffs have one dismissible shell presenter and keep drafts and commands guarded",
+          "status": "failed",
+          "durationMs": 8093,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:16:156",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+              "column": 156,
+              "line": 16
+            },
+            "snippet": "  14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');\n  15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);\n> 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);\n     |                                                                                                                                                            ^\n  17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);\n  18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);\n  19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');"
+          }
+        },
+        {
+          "title": "the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection",
+          "status": "failed",
+          "durationMs": 8075,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:33:195",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+              "column": 195,
+              "line": 33
+            },
+            "snippet": "  31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);\n  32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});\n> 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();\n     |                                                                                                                                                                                                   ^\n  34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);\n  35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();\n  36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();"
+          }
+        },
+        {
+          "title": "split conversation launchers control the shared summary for the active pane and start closed after reload",
+          "status": "failed",
+          "durationMs": 7717,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:62:97",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+              "column": 97,
+              "line": 62
+            },
+            "snippet": "  60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();\n  61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');\n> 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');\n     |                                                                                                 ^\n  63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');\n  64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();\n  65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();"
+          }
+        },
+        {
+          "title": "actual App restores the old single Usage route to modal and leaves saved Thread memory reachable",
+          "status": "failed",
+          "durationMs": 6919,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:93:45",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+              "column": 45,
+              "line": 93
+            },
+            "snippet": "  91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{\n  92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));\n> 93 |  await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');\n     |                                             ^\n  94 |  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');\n  95 |  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);\n  96 |  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');"
+          }
+        },
+        {
+          "title": "review: an open restored Usage tab resolves its loaded conversation scope",
+          "status": "failed",
+          "durationMs": 6551,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:106:45",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+              "column": 45,
+              "line": 106
+            },
+            "snippet": "  104 | test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{\n  105 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));\n> 106 |  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();\n      |                                             ^\n  107 |  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');\n  108 | });\n  109 |"
+          }
+        }
+      ],
+      "failureArtifacts": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/error-context.md",
+          "sha256": "59902967c737a62194449840b38ea4667f88c777d2fc6c29cf18882d928db2ec",
+          "bytes": 44
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/trace.zip",
+          "sha256": "354368946d808990540c980a1f7ef718d059ffc854abcb6090031407fb8bb866",
+          "bytes": 106360
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/error-context.md",
+          "sha256": "b69ea622fb63a1937f723f366694bdd8d14b4eec479c131f6eb5535c0477d1c6",
+          "bytes": 6234
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip",
+          "sha256": "0e70973249c155bfa9a67aa76c6f12aefe650fceac7974cd8105bb10a935d889",
+          "bytes": 981836
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md",
+          "sha256": "3df0c39f808a5df98b6368ae4b4340f028973e07832b5225227fd5f37c520ab6",
+          "bytes": 2650
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip",
+          "sha256": "f793a3f447ff92e7a509a14035e38d293f49c152579ba8416289c63b018d2e7f",
+          "bytes": 552185
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/error-context.md",
+          "sha256": "41677b1a4a08f7a54963bf1f8993e679eb09d087a0ed2c9b0a5d0aa6324b90c6",
+          "bytes": 7656
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/trace.zip",
+          "sha256": "a140b23731ab3fa2af0b381ed20d377f4fc498d78119c2ae4f79d78704148c0a",
+          "bytes": 749932
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/error-context.md",
+          "sha256": "f99e8ad2f2c873f4cbbce641a0cf0232afc1af9909cacaced70e01f2f454df75",
+          "bytes": 7908
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/trace.zip",
+          "sha256": "c240ad40c2dfbf030cc56a624ce36168b4a6773799963391016e654ed843bbe6",
+          "bytes": 773698
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md",
+          "sha256": "6f4d12d49a19ad04c8bd33fb37245831ac3ed98922896e6f49cd5acbc8a76018",
+          "bytes": 10490
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip",
+          "sha256": "7813c42b91917b8539671251847f4235c506f5f11d839c1aedd8d29f770f7b8d",
+          "bytes": 2190400
+        }
+      ]
+    },
+    {
+      "id": "c4-workspace-chromium-initial-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workspace-chromium-initial-01.json",
+        "sha256": "2418c74d7b05a25b235641276e3783511570917599443637cb13da411642f071",
+        "bytes": 860
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workspace-chromium-initial-01.log",
+        "sha256": "1540f33f6c5ff12e2e10c4532b37b332261bb077c424a9aa37a57f59b330a019",
+        "bytes": 11724
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:11:44.753Z",
+      "endedAt": "2026-11-16T04:13:57.385Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "scope": "Private Linux Chromium override of unchanged declared msedge config; not Edge evidence",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/results.json",
+        "sha256": "35fc702bf75763d59aba775cb4616c390b4875d31c0bec697322eb527119a488",
+        "bytes": 57043
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:11:46.931Z",
+        "duration": 130378.339,
+        "expected": 47,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [
+        {
+          "title": "review: returning through All Agents retains the latest conversation selection",
+          "status": "timedOut",
+          "durationMs": 20223,
+          "error": {
+            "message": "\u001b[31mTest timeout of 20000ms exceeded.\u001b[39m",
+            "stack": "\u001b[31mTest timeout of 20000ms exceeded.\u001b[39m"
+          }
+        }
+      ],
+      "failureArtifacts": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/artifacts/workspace-host-review-retu-4efea-test-conversation-selection/error-context.md",
+          "sha256": "30e9f264da209bc97a15e639a46222c1b23da100689cba3831c9d44cf53051e8",
+          "bytes": 6306
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/artifacts/workspace-host-review-retu-4efea-test-conversation-selection/trace.zip",
+          "sha256": "ba8e7b45f2b10ab7a84a9d57f1242fa73b538d642a2e4912c27aee9209616c87",
+          "bytes": 634978
+        }
+      ]
+    },
+    {
+      "id": "c4-layout-chromium-initial-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-layout-chromium-initial-01.json",
+        "sha256": "37afbbb9a2d8159acb4d2c4e18a97014ecddec97fa44ced82d7333733f61f43c",
+        "bytes": 860
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-layout-chromium-initial-01.log",
+        "sha256": "29c98888a6d0a015dfccc551daacee85b9e59d713b4b71c7e5f50762ab556a83",
+        "bytes": 13709
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:14:21.397Z",
+      "endedAt": "2026-11-16T04:14:49.950Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "scope": "Private Linux Chromium override of unchanged declared msedge config; not Edge evidence",
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/results.json",
+        "sha256": "4fc09a6561f9dbf563123c3ed571aae1911246c5316c3b8237be27dcab6bf1d8",
+        "bytes": 36936
+      },
+      "stats": {
+        "startTime": "2026-11-16T04:14:24.204Z",
+        "duration": 25678.662,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "reportErrorCount": 0,
+      "failures": [
+        {
+          "title": "short narrow dark chooser scrolls with row gaps, keyboard access and distinct states",
+          "status": "failed",
+          "durationMs": 757,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.99517059326172\u001b[39m",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.99517059326172\u001b[39m\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts:57:1383",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts",
+              "column": 1383,
+              "line": 57
+            },
+            "snippet": "  55 | });\n  56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{\n> 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  58 | });\n  59 |"
+          }
+        },
+        {
+          "title": "short narrow light chooser scrolls with row gaps, keyboard access and distinct states",
+          "status": "failed",
+          "durationMs": 952,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.999969482421875\u001b[39m",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m32\u001b[39m\nReceived:    \u001b[31m31.999969482421875\u001b[39m\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts:57:1383",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts",
+              "column": 1383,
+              "line": 57
+            },
+            "snippet": "  55 | });\n  56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{\n> 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^\n  58 | });\n  59 |"
+          }
+        }
+      ],
+      "failureArtifacts": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/error-context.md",
+          "sha256": "94a9b7b0f46c6f48f13f56bb00fb88b2d1ce52a76205001400dc2584fb8ac319",
+          "bytes": 14380
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/trace.zip",
+          "sha256": "820019eeedd4f64ed98e40873d0e96b38383e6947b0eb7923b88bb87fefe1e3e",
+          "bytes": 188810
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/error-context.md",
+          "sha256": "94a9b7b0f46c6f48f13f56bb00fb88b2d1ce52a76205001400dc2584fb8ac319",
+          "bytes": 14380
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/trace.zip",
+          "sha256": "22018c406b68d212f73a89cd187ba3715e305f381acf6f4b1bfae0ce1697c888",
+          "bytes": 167280
+        }
+      ]
+    }
+  ],
+  "traceExtracts": {
+    "mobile": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/trace.zip",
+        "sha256": "354368946d808990540c980a1f7ef718d059ffc854abcb6090031407fb8bb866",
+        "bytes": 106360
+      },
+      "events": [
+        {
+          "type": "before",
+          "callId": "call@16",
+          "startTime": 6173.639,
+          "class": "Frame",
+          "method": "goto",
+          "params": {
+            "url": "/",
+            "timeout": 0,
+            "waitUntil": "load"
+          },
+          "stepId": "pw:api@43",
+          "pageId": "page@b4f36b7508a0b5d64d6969da3a0b9194",
+          "beforeSnapshot": "before@call@16"
+        },
+        {
+          "type": "after",
+          "callId": "call@16",
+          "endTime": 6466.089,
+          "result": {
+            "response": "<Response>"
+          },
+          "afterSnapshot": "after@call@16"
+        },
+        {
+          "type": "before",
+          "callId": "call@18",
+          "startTime": 6488.135,
+          "title": "Expect \"toBeEnabled\"",
+          "class": "Frame",
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=textbox[name=\"Message\"s]",
+            "expression": "to.be.enabled",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          },
+          "stepId": "expect@44",
+          "pageId": "page@b4f36b7508a0b5d64d6969da3a0b9194",
+          "beforeSnapshot": "before@call@18"
+        },
+        {
+          "type": "after",
+          "callId": "call@18",
+          "endTime": 11491.807,
+          "error": {
+            "name": "Expect",
+            "message": "Expect failed"
+          },
+          "result": {
+            "matches": false,
+            "log": [
+              "  - Expect \"toBeEnabled\" with timeout 5000ms",
+              "  - waiting for getByRole('textbox', { name: 'Message', exact: true })"
+            ],
+            "errorMessage": "Error: element(s) not found",
+            "timedOut": true
+          },
+          "afterSnapshot": "after@call@18"
+        }
+      ],
+      "requestCount": 279,
+      "apiRequests": [],
+      "appModule": [
+        {
+          "startMs": 6636.555,
+          "durationMs": 2327.041,
+          "status": 200,
+          "url": "http://127.0.0.1:5623/src/App.tsx"
+        }
+      ]
+    },
+    "workspace": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/artifacts/workspace-host-review-retu-4efea-test-conversation-selection/trace.zip",
+        "sha256": "ba8e7b45f2b10ab7a84a9d57f1242fa73b538d642a2e4912c27aee9209616c87",
+        "bytes": 634978
+      },
+      "fillStart": [
+        {
+          "type": "before",
+          "callId": "call@15451",
+          "startTime": 57565.121,
+          "class": "Frame",
+          "method": "fill",
+          "params": {
+            "selector": "internal:role=textbox[name=\"Message\"s]",
+            "strict": true,
+            "value": "Draft belongs to latest B",
+            "timeout": 0
+          },
+          "stepId": "pw:api@355",
+          "pageId": "page@b2cb0802a5dc3ad0faf51f6ac5f19510",
+          "beforeSnapshot": "before@call@15451"
+        }
+      ],
+      "placements": [
+        {
+          "startMs": 57207.345,
+          "endMs": 57213.58,
+          "status": 200,
+          "commandType": "split-workspace.view.open",
+          "payload": {
+            "workspaceId": "workspace",
+            "baseRevision": 0,
+            "paneId": "pane-main",
+            "view": {
+              "id": "thread:parent-a",
+              "kind": "thread",
+              "binding": {
+                "authority": {
+                  "kind": "local"
+                },
+                "threadId": "parent-a",
+                "projectId": "project-a"
+              }
+            }
+          },
+          "resultRevision": 1
+        },
+        {
+          "startMs": 57572.402,
+          "endMs": 57577.455,
+          "status": 200,
+          "commandType": "split-workspace.view.open",
+          "payload": {
+            "workspaceId": "workspace",
+            "baseRevision": 1,
+            "paneId": "pane-main",
+            "view": {
+              "id": "thread:empty-draft",
+              "kind": "thread",
+              "binding": {
+                "authority": {
+                  "kind": "local"
+                },
+                "threadId": "empty-draft",
+                "projectId": "project-a"
+              }
+            }
+          },
+          "resultRevision": 2
+        }
+      ],
+      "markedInputs": [
+        {
+          "snapshotMs": 57579.568,
+          "targets": [
+            {
+              "attributes": {
+                "__playwright_value_": "",
+                "__playwright_target__": "call@15451",
+                "aria-label": "Message",
+                "placeholder": "Ask anything…",
+                "rows": "1",
+                "style": "height: 26px;"
+              },
+              "owners": [
+                {
+                  "class": "split-surface",
+                  "data-split-view": "thread:parent-a",
+                  "data-pane-id": "pane-main",
+                  "aria-hidden": "false",
+                  "style": "left: 1px; top: 35px; width: 1030px; height: 575px;"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "snapshotMs": 57706.917,
+          "targets": [
+            {
+              "attributes": {
+                "__playwright_value_": "",
+                "__playwright_target__": "call@15451",
+                "aria-label": "Message",
+                "placeholder": "Ask anything…",
+                "rows": "1",
+                "style": "height: 0px;"
+              },
+              "owners": [
+                {
+                  "class": "split-surface",
+                  "data-split-view": "thread:parent-a",
+                  "aria-hidden": "true",
+                  "style": "display: none;",
+                  "inert": ""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "layout": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/trace.zip",
+        "sha256": "22018c406b68d212f73a89cd187ba3715e305f381acf6f4b1bfae0ce1697c888",
+        "bytes": 167280
+      },
+      "events": [
+        {
+          "type": "before",
+          "callId": "call@2124",
+          "startTime": 25220.473,
+          "class": "Frame",
+          "method": "press",
+          "params": {
+            "selector": "internal:role=button[name=\"Layouts\"s]",
+            "strict": true,
+            "key": "ArrowDown",
+            "timeout": 0
+          },
+          "stepId": "pw:api@97",
+          "pageId": "page@c26d7bd260a9f5fbd60001da050198e9",
+          "beforeSnapshot": "before@call@2124"
+        },
+        {
+          "type": "after",
+          "callId": "call@2124",
+          "endTime": 25294.303,
+          "afterSnapshot": "after@call@2124"
+        },
+        {
+          "type": "before",
+          "callId": "call@2142",
+          "startTime": 25392.173,
+          "title": "Evaluate",
+          "class": "Frame",
+          "method": "waitForSelector",
+          "params": {
+            "selector": "internal:role=dialog[name=\"Saved layouts\"s]",
+            "strict": true,
+            "timeout": 0,
+            "state": "attached"
+          },
+          "stepId": "pw:api@109",
+          "pageId": "page@c26d7bd260a9f5fbd60001da050198e9",
+          "beforeSnapshot": "before@call@2142"
+        },
+        {
+          "type": "after",
+          "callId": "call@2142",
+          "endTime": 25398.178,
+          "result": {
+            "element": "<ElementHandle>"
+          },
+          "afterSnapshot": "after@call@2142"
+        }
+      ],
+      "snapshotTimes": [
+        {
+          "snapshot": "input@call@2124",
+          "ms": 25225.482
+        },
+        {
+          "snapshot": "after@call@2124",
+          "ms": 25301.954
+        },
+        {
+          "snapshot": "after@call@2142",
+          "ms": 25400.313
+        }
+      ],
+      "observedRowHeightsPx": {
+        "dark": 31.99517059326172,
+        "light": 31.999969482421875
+      },
+      "requiredMinimumPx": 32,
+      "sourceAnimation": {
+        "durationMs": 180,
+        "fromScale": 0.98,
+        "tokens": {
+          "path": "packages/ui-shell/tokens.css",
+          "sha256": "92f4d06b982aec3104484142bb305b8c570631e14d953fdf50abbf1a31b19c6e",
+          "bytes": 3247
+        },
+        "rows": {
+          "path": "apps/web/src/saved-layout-chooser.css",
+          "sha256": "6c741a06e7347886387e3ab676feb3149d546bed2ab8d035eb95e11455d6fe3d",
+          "bytes": 2872
+        }
+      },
+      "qualification": "Timing and source support measurement during entrance animation; computed transform is not recorded. No settled undersizing claim."
+    }
+  },
+  "productReview": {
+    "patch": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-product-proposal-01/product.patch",
+      "sha256": "cee80a2273fcca1065184adae23bce9af4b970a351df8613de08f3d5b8f9b408",
+      "bytes": 22037
+    },
+    "manifest": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-product-proposal-01/manifest.json",
+      "sha256": "d7a2667640fbb7aa2a25f60bfa4eb7aa5e76a3e9f439aa9f119a30d4c407d39c",
+      "bytes": 1435
+    },
+    "files": [
+      {
+        "path": "apps/web/src/App.tsx",
+        "beforeSha256": "f3941173ffdb488278162a168b7e3eb83b1f8175d1d7e5c95a11b8262a211d06",
+        "afterSha256": "932c29c2db7d6fe8ae072c3b0b6c219db2551c41ddaa1212eaee64f354ee2ae8",
+        "beforeBytes": 160347,
+        "afterBytes": 160453,
+        "preservesCRLFCount": true
+      },
+      {
+        "path": "apps/web/src/DesktopEntry.tsx",
+        "beforeSha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+        "afterSha256": "da0b285af5b935f26ecf69fb891f8e216d95918710ec4a02a5a1af6bbd157ee8",
+        "beforeBytes": 10077,
+        "afterBytes": 10076,
+        "preservesCRLFCount": true
+      },
+      {
+        "path": "apps/web/src/DraftTransfer.tsx",
+        "beforeSha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191",
+        "afterSha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+        "beforeBytes": 2836,
+        "afterBytes": 2835,
+        "preservesCRLFCount": true
+      }
+    ],
+    "disposition": "No blocking defect found in proposed Usage ownership/mode guard or narrow local error-role edits.",
+    "ownerReason": "App mainPlacement/resolvedMainId/candidateThread/thread are computed synchronously from convSplitState.layout in the same render. pinnedThreadId includes embeddedThreadId.",
+    "limits": [
+      "Static review only; proposed product bytes have no new browser receipt.",
+      "Native-close journal custody repair is independently owned and is not part of this three-file proposal."
+    ]
+  },
+  "additionalSourceReferences": [
+    {
+      "path": "apps/web/src/UsageFooter.tsx",
+      "sha256": "7af4af9362009073d6a12c042a2ab34bb0d1434fb24e0ecf30ef85f499e23b8b",
+      "bytes": 1602
+    },
+    {
+      "path": "packages/ui-shell/SummaryDock.tsx",
+      "sha256": "d5da9ec97faf486826dad49ee0e35d87e2051dbc3252e587ab5224701a153594",
+      "bytes": 5602
+    },
+    {
+      "path": "tests/e2e/usage-app-integration.playwright.config.ts",
+      "sha256": "d9537fb08383c2d0bff2ce90db83d6a4e98a40a57d2e573595be67ed1a8a1673",
+      "bytes": 654
+    },
+    {
+      "path": "tests/e2e/workspace-host.playwright.config.ts",
+      "sha256": "00ed403cf5ff103af97519e45e910c0003db11e7062bf6f49bc2b948cb13c30e",
+      "bytes": 592
+    },
+    {
+      "path": "tests/e2e/saved-layout-chooser.playwright.config.ts",
+      "sha256": "43898e25e3781aaeaa659a786281c384b3db7ef7bf2ee7ee34d4d0d6d888b037",
+      "bytes": 554
+    }
+  ],
+  "wrapperProvenance": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-01/configs.json",
+      "sha256": "081b959114f6c544f0be382525f8f62d141223c69446540c28f23c540a3cecf5",
+      "bytes": 3052
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/configs.json",
+      "sha256": "00a17c233123c8c1c4e3d53831892ddee63e45046dd6625827ce46ccd327ba12",
+      "bytes": 4345
+    }
+  ],
+  "limits": [
+    "Initial failures remain failures. No retry, skip, threshold increase, timeout increase, production edit or active-repository artifact write was performed for this proposal.",
+    "No local result in this report establishes Windows Edge or installed desktop behavior.",
+    "Mobile change is an explicit initialization precondition within the unchanged fifteen-second test budget, not a claim of meeting the original five-second whole-startup threshold.",
+    "New negative Usage case and proposed corrections are unexecuted."
+  ]
+}

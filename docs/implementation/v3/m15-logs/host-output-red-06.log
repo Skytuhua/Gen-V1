@@ -1,0 +1,43 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (16 tests | 2 failed | 1 skipped) 1478ms
+   × reads complete authorized activity beyond the mounted window and rejects stale or foreign rows 11ms
+   × rejects missing, duplicate and oversized full activity reads rather than returning partial copy data 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reads complete authorized activity beyond the mounted window and rejects stale or foreign rows
+AssertionError: expected SourceWorkbench{ …(3) } to have property "readOutput"
+ ❯ tests/source-workbench-host-v3.test.ts:154:21
+    152| it('reads complete authorized activity beyond the mounted window and r…
+    153|   const f = fixture(), workbench = f.workbench();
+    154|   expect(workbench).toHaveProperty('readOutput');
+       |                     ^
+    155|   const messages = [{id: 'log-a', content: Array.from({length: 100000}…
+    156|   f.store.internal('fixture.output', f.thread.id, () => {for (const me…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > rejects missing, duplicate and oversized full activity reads rather than returning partial copy data
+AssertionError: expected SourceWorkbench{ …(3) } to have property "readOutput"
+ ❯ tests/source-workbench-host-v3.test.ts:169:69
+    167|
+    168| it('rejects missing, duplicate and oversized full activity reads rathe…
+    169|   const f = fixture(), workbench = f.workbench(); expect(workbench).to…
+       |                                                                     ^
+    170|   const payload = {logicalOwner: f.owner, messageIds: ['log-missing'],…
+    171|   expect(() => workbench.readOutput(payload)).toThrowError(expect.obje…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 20 passed | 1 skipped (23)
+   Start at  05:52:04
+   Duration  8.95s (transform 5.90s, setup 0ms, import 6.64s, tests 1.63s, environment 0ms)
+

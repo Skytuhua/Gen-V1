@@ -1,0 +1,43 @@
+{
+  "stats": {
+    "startTime": "2026-11-15T22:12:36.884Z",
+    "duration": 138305.218,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "source": "test-results/browser/run-1794780755520-959ea6bf-4d68-4b75-9b10-6c7046d0e65c/saved-drafts/results.json",
+  "target": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-results.json",
+  "sha256": "3de427dd28d62499d50a55eebf79436480898553c92617e5844f8d4e679b1aaa",
+  "failures": [
+    {
+      "title": "replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 529,
+            "line": 61
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Message', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    9 \u00d7 locator resolved to <textarea aria-label=\"Message\" placeholder=\"Ask anything...\">RESTORED</textarea>\u001b[22m\n\u001b[2m      - unexpected value \"inactive\"\u001b[22m\n\n\n  59 | });\n  60 | test('replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input',async({page})=>{\n> 61 |  await setup(page);await save(page,'RESTORED','Named prompt');await draft(page).fill('Current draft');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Current draft');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();await page.getByRole('button',{name:'Replace text'}).click();await expect(draft(page)).toHaveValue('RESTORED');await expect(draft(page)).toBeFocused();await open(page);await expect(page.getByText(/Before replacing \u00b7/)).toBeVisible();await page.keyboard.press('Escape');await draft(page).fill('abcd');await draft(page).evaluate((el:HTMLTextAreaElement)=>el.setSelectionRange(2,3));await open(page);await page.getByRole('button',{name:'Restore',exact:true}).last().click();await page.getByRole('button',{name:'Insert text'}).click();await expect(draft(page)).toHaveValue('abRESTOREDcd');expect(await draft(page).evaluate((el:HTMLTextAreaElement)=>el.selectionStart)).toBe(10);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  62 | });\n  63 | test('stale restore is rejected atomically after a concurrent window edit',async({page,context})=>{\n  64 |  await setup(page);await save(page,'Saved text','Named prompt');await draft(page).fill('Original current');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();const other=await context.newPage();await setup(other);await draft(other).fill('Concurrent edit');await expect(draft(page)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Replace text'}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft'}).getByRole('alert')).toContainText('current draft changed');await expect(draft(other)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Cancel',exact:true}).click();await open(page);await expect(page.getByText(/Before replacing \u00b7/)).toHaveCount(0);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:61:529"
+        }
+      ]
+    },
+    {
+      "title": "quota failure and corrupt records keep the active draft and offer retry",
+      "status": "unexpected",
+      "errors": [
+        {
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+            "column": 13,
+            "line": 50
+          },
+          "message": "Error: page.evaluate: Execution context was destroyed, most likely because of a navigation.\n\n  48 | }\n  49 | async function seed(page:Page,kind:'rich'|'full'|'corrupt'){\n> 50 |  await page.evaluate(async({owner,kind})=>{const path='/apps/web/src/saved-drafts.ts',journalPath='/apps/web/src/journal.ts',excerptPath='/apps/web/src/terminal-excerpts.ts';const s=await import(path),j=await import(journalPath),e=await import(excerptPath);const ref={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'review',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};\n     |             ^\n  51 |  const excerpt=e.captureTerminalExcerpt({terminalId:'saved-terminal',projectId:owner.projectId,threadId:owner.threadId,selection:'Saved output'});\n  52 |  const records=kind==='rich'?[s.createSavedDraft(owner,'With references','Recovered text',{resourceRefs:[{resourceId:'revoked-resource'}],skills:[ref],excerpts:[excerpt]})]:Array.from({length:20},(_,i)=>s.createSavedDraft(owner,`Long named prompt ${i} `+'unbroken-project-name-'.repeat(4),'Compare details. '.repeat(3)));\n  53 |  await j.journalWrite(s.savedDraftLibraryKey(owner),kind==='corrupt'?{version:999}:{version:1,owner,records});\n    at seed (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:50:13)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:857"
+        }
+      ]
+    }
+  ]
+}

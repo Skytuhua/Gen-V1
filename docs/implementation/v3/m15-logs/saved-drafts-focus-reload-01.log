@@ -1,0 +1,24 @@
+argv: ["node","node_modules/@playwright/test/cli.js","test","--config","tests/e2e/saved-drafts.playwright.config.ts","--grep","replace keeps recoverable text|quota failure and corrupt records","--reporter=line,json","--output","test-results/m15-saved-drafts-focus-reload-01"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:26) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:38) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+[1A[2K(node:61) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:61) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/2] tests/e2e/saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input
+[1A[2K[2/2] tests/e2e/saved-drafts.spec.ts:442:1 › quota failure and corrupt records keep the active draft and offer retry
+[1A[2K  2 passed (19.8s)

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python",
+    "-c",
+    "import hashlib,json,subprocess\nfrom pathlib import Path\nroot=Path.cwd()\noriginal=root.parent/'gen-v1'\ndef git(*args,cwd=root):\n return subprocess.check_output(['git',*args],cwd=cwd)\nhead='fd17d9f1b3931eb2b974b86ccc5a3892da47ba33'\nbase='138b1356495bb3a2c9b35020240513f8faa84964'\nassert git('rev-parse','HEAD').decode().strip()==head\nassert git('rev-parse','MERGE_HEAD').decode().strip()==base\nassert not git('ls-files','-u')\nassert git('rev-parse','HEAD',cwd=original).decode().strip()=='399cde39ff4ee82272c7a7700944325c44b36070'\nassert not git('status','--porcelain',cwd=original)\nlock=hashlib.sha256(Path('pnpm-lock.yaml').read_bytes()).hexdigest()\nassert lock=='2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9'\na=json.loads(Path('docs/implementation/v3/m15-artifacts/publication-cut-01/archive-manifest.json').read_text())\nassert a['publishedCommit']==head\nassert a['publishedTree']==git('rev-parse',head+'^{tree}').decode().strip()\nassert len(a['files'])==16\nfor f in a['files']:\n b=Path(f['archive']).read_bytes()\n assert len(b)==f['bytes']\n assert hashlib.sha256(b).hexdigest()==f['sha256']\n assert b==git('show',head+':'+f['path'])\nsubprocess.run(['git','-c','core.whitespace=cr-at-eol','diff','--check',base,'--','.',':(exclude)docs/implementation/v3/m15-logs/**',':(exclude)docs/implementation/v3/m15-artifacts/**'],check=True)\nprint(json.dumps({'originalCheckout':'clean','originalHead':'399cde39ff4ee82272c7a7700944325c44b36070','publishedParent':head,'acceptedBase':base,'unmergedPaths':0,'archivedFilesVerified':len(a['files']),'lockfileSha256':lock,'authoredWhitespace':'PASS'},indent=2))\n"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T01:55:00.425Z",
+  "endedAt": "2026-11-16T01:55:00.660Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-custody-01.log",
+  "logDigest": "c96500b610b8044060560f2d7d4b325809ffe487f9058b55a27132cc79f598f4"
+}

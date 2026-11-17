@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "root"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T21:40:29.677Z",
+  "endedAt": "2026-11-15T21:49:20.716Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.log",
+  "logDigest": "c0c0c1d55695a1410087b8ffc378be396a5daa5c2e25c79f67b456f6668ba3c1"
+}

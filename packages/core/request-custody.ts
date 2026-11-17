@@ -139,10 +139,22 @@ export class RequestContextCustody {
     if (entry.preparation.threadId !== threadId || entry.phase !== 'ready') fail('This request preparation is not available for changes.');
     this.assertEntry(entry, current(entry.preparation)); return entry.preparation;
   }
-  claim(requestId: string, inputId: string, prompt: string, basis: RequestContextBasis): void {
+  claim(requestId: string, inputId: string, prompt: string, basis: RequestContextBasis): (() => void) | undefined {
     const entry = this.entry(requestId); this.assertEntry(entry, basis);
     if (entry.preparation.promptDigest !== requestPromptDigest(prompt) || entry.phase !== 'ready' && !(entry.phase === 'claimed' && entry.inputId === inputId)) fail('This request preparation was already used or belongs to a different draft.');
+    if (entry.phase === 'claimed') return;
+    const before = entry.basis;
     entry.inputId = inputId; entry.phase = 'claimed';
+    // Only the caller that acquired this claim can undo it, after proving its
+    // synchronous input transaction did not commit. Undo admission advances
+    // first; a different basis belongs to a newer custody transition.
+    let pending = true;
+    return () => {
+      if (!pending) return;
+      pending = false;
+      if (this.entries.get(requestId) !== entry || entry.phase !== 'claimed' || entry.inputId !== inputId || entry.basis !== before) return;
+      entry.phase = 'ready'; delete entry.inputId;
+    };
   }
   assertClaim(requestId: string, inputId: string, prompt: string, basis: RequestContextBasis): RequestPreparationV1 {
     const entry = this.entry(requestId); this.assertEntry(entry, basis);
@@ -154,10 +166,21 @@ export class RequestContextCustody {
   }
   /** Only the Service's synchronous accepted-input transaction may advance
    * claimed requests across its own model/epoch/plan lifecycle transition. */
-  advanceAdmission(before: RequestContextBasis, after: RequestContextBasis): void {
+  advanceAdmission(before: RequestContextBasis, after: RequestContextBasis): () => void {
     const stable = (basis: RequestContextBasis) => { const { admissionDigest: _admission, sourceCutDigest: _cut, ...binding } = basis; return digest(binding); };
     if (stable(before) !== stable(after)) fail('The request binding or grants changed during admission.');
-    for (const entry of this.entries.values()) if (entry.phase === 'claimed' && sameBasis(entry.basis, before)) entry.basis = freezeRequestValue(after);
+    const advanced = freezeRequestValue(after), changes: {entry: Entry; previous: RequestContextBasis; inputId?: string}[] = [];
+    for (const entry of this.entries.values()) if (entry.phase === 'claimed' && sameBasis(entry.basis, before)) {
+      changes.push({entry, previous: entry.basis, inputId: entry.inputId}); entry.basis = advanced;
+    }
+    // A failed input transaction can have advanced other accepted claims too.
+    // Undo only this exact advance; accepted claims never return to ready.
+    let pending = true;
+    return () => {
+      if (!pending) return;
+      pending = false;
+      for (const {entry, previous, inputId} of changes) if (this.entries.get(entry.preparation.requestId) === entry && entry.phase === 'claimed' && entry.inputId === inputId && entry.basis === advanced) entry.basis = previous;
+    };
   }
   async finalize(requestId: string, input: StartRun, sources: readonly RequestTextSource[], current: () => RequestContextBasis): Promise<Readonly<StartRun>> {
     const entry = this.entry(requestId); this.assertEntry(entry, current());

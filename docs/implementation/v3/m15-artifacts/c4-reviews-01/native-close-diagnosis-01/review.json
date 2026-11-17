@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "status": "SOURCE_ATTRIBUTED_DIAGNOSIS_AND_UNAPPLIED_DESIGN",
+  "execution": "READ_ONLY_RETAINED_EVIDENCE_AND_SOURCE_ANALYSIS; NO_TESTS_OR_REMOTE_ACTIONS",
+  "candidateHead": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+    "bytes": 547943,
+    "sha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a"
+  },
+  "attempt": "c4-desktop-regression-01",
+  "attemptStatus": "FAIL",
+  "suiteCounts": {
+    "passed": 26,
+    "failed": 4,
+    "skipped": 0,
+    "flaky": 0
+  },
+  "assignedFailure": {
+    "title": "native close acknowledges an unrecovered composer workspace without detaching",
+    "status": "failed",
+    "durationMs": 2448,
+    "timeoutMs": 30000,
+    "expectedCloseAcknowledgment": true,
+    "actualCloseAcknowledgment": false,
+    "traceCall": "call@86",
+    "traceStartMs": 45277.644,
+    "traceEndMs": 45348.718,
+    "closeDurationMs": 71.074,
+    "testTraceSourceMember": "resources/src@ca3b1b0b0d1bcc0b4e334686400a9cb9bd387d48.txt"
+  },
+  "establishedCause": [
+    "App composer-journal guard calls prepareSourceJournal, which performs readSourceDraft for every mounted thread before ordinary journalFlush.",
+    "SourceWorkbench registers a second independent guard that also calls readSourceDraft for every owner, without any feature or recovery participation check.",
+    "Both source reads call journalReadRecord, whose uncached/unstaged path opens IndexedDB. The retained fixture makes indexedDB.open synchronously throw IDB unavailable and never performs an authoring or source action.",
+    "prepareEditorHandoff waits every guard and rejects if any fails. DesktopProvider converts that rejection to false and restores editing state."
+  ],
+  "evidenceLimits": [
+    "The trace records the false acknowledgment, storage fault injection, successful disabled/recovery-alert assertions, 404 workbench reads and a successful edit.end command. It does not record which rejecting guard was selected first by Promise.allSettled.",
+    "The ordinary fixture does not mock authenticated enabled:false. Its workbench catalogue and input reads return404. Do not label this as an executed host flag-off contract or installed desktop result.",
+    "Accepted b4aa has journalFlush-only composer guard and prepareWorkspace. That source comparison establishes the added I/O path; no new accepted-base execution was performed.",
+    "The other three failures are alert-role assertions assigned to root and are outside this repair."
+  ],
+  "rejectedShortcuts": [
+    "Removing only App read leaves the SourceWorkbench guard rejection.",
+    "Feature flag bypass could omit retained sources when new actions are disabled.",
+    "journalGeneration alone ignores cold recovery, first CAS/Many until oncomplete, and independently recovered agents-pending.",
+    "A broad catch on source/IDB failures could turn malformed/foreign data or failed owned writes into permission to close."
+  ],
+  "sources": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 160347,
+      "sha256": "f3941173ffdb488278162a168b7e3eb83b1f8175d1d7e5c95a11b8262a211d06"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "bytes": 22578,
+      "sha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe"
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "bytes": 10722,
+      "sha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8"
+    },
+    {
+      "path": "apps/web/src/journal.ts",
+      "bytes": 11172,
+      "sha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c"
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "bytes": 600,
+      "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3"
+    },
+    {
+      "path": "apps/web/src/desktop-context.tsx",
+      "bytes": 7359,
+      "sha256": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/composer.ts",
+      "bytes": 23502,
+      "sha256": "cb45da090074eb8b84dec3223644c6295a220f8a2355f8424c7e2389d4bb5c23"
+    },
+    {
+      "path": "apps/web/src/Artifact.tsx",
+      "bytes": 18789,
+      "sha256": "c2b8a3b4d9bb38e4d578f9cc9561db7a74b55d088460101c78ede72f5cb11921"
+    },
+    {
+      "path": "apps/web/src/artifact-state.ts",
+      "bytes": 9943,
+      "sha256": "1d8ca23724eb71b9593d3f570842517b9ea02a288fbdf48bf7862b8744e48436"
+    },
+    {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "bytes": 28096,
+      "sha256": "f64334af613f794a3798fb49a73a6bc6fc1846fa4bf40096d934b54c5706325f"
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "bytes": 12050,
+      "sha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13"
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "bytes": 2836,
+      "sha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191"
+    },
+    {
+      "path": "tests/e2e/desktop-surfaces.spec.ts",
+      "bytes": 32877,
+      "sha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13802,
+      "sha256": "adc55dd5ef0139db13b2e4c6174e1a4c1a50aa40851d0e51c2942dc344909753"
+    },
+    {
+      "path": "tests/e2e/desktop-surfaces.playwright.config.ts",
+      "bytes": 459,
+      "sha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+      "bytes": 547943,
+      "sha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.json",
+      "bytes": 764,
+      "sha256": "76590bb6c5d2092d6176ebdc43ac5e4bb66a7200a4388185f4f73c9275d4b439"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.log",
+      "bytes": 28006,
+      "sha256": "68ce9cf53bdce1e5fb9b3267a4fa2755ff9d509de93776edf4d7277c7c481015"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/results.json",
+      "bytes": 74272,
+      "sha256": "5a10663614775f94f4a0cb5f5193092ea7249601abdb443952a4e27e91efb729"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/trace.zip",
+      "bytes": 613476,
+      "sha256": "ccbca2ee4510578f21c0db27b0f3bb519dccb567a46f0d0fa0e3451aae8a8ed7"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/error-context.md",
+      "bytes": 8440,
+      "sha256": "223c9ea78103528b83fadaf673cbd61d74c8dcac68fec0b3ba47f600f6a7a6f7"
+    }
+  ],
+  "proposal": "proposal.md",
+  "proposalStatus": "DESIGN_ONLY_NOT_APPLIED_NOT_EXECUTED",
+  "independentReview": "m15_regression_setup separately confirmed generation-only gate misses first CAS/Many, cold recovery and independently hydrated pending input; no jobs or edits."
+}

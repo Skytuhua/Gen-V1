@@ -1,0 +1,8 @@
+argv: ["pnpm","build:widgets"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 build:widgets /workspace/scratch/1b47eb428672/m15-v3
+> node scripts/build-widgets.mjs
+

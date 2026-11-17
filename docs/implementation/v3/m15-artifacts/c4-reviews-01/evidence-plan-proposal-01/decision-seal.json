@@ -1,0 +1,24 @@
+{
+  "state": "HISTORICAL_5F_PROPOSAL_NOT_APPLIED",
+  "deliverables": [
+    {
+      "path": "M15-evidence-plan.proposed.json",
+      "bytes": 27423,
+      "sha256": "612330ecab300549189dd04a8de686eddc199c79fb752328421f31872316d407"
+    },
+    {
+      "path": "decision.md",
+      "bytes": 3113,
+      "sha256": "35d3a0cdced437a30ccf51364c96d17c96b374b9190bf5c2d07f5cad4553de54"
+    },
+    {
+      "path": "additional-public-admissions.json",
+      "bytes": 3691,
+      "sha256": "61a16ec549f942d5b87f8e0624fff32c822c1f19818ac2d63eebaa3a98b304de"
+    }
+  ],
+  "supportingPreparationFilesNotProposedForAdmission": true,
+  "testsExecuted": false,
+  "controllerExecuted": false,
+  "repositoryMutated": false
+}

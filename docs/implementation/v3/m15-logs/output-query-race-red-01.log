@@ -1,0 +1,47 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--output","test-results/browser/m15-query-race-red-01","--grep","query changes"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench.spec.ts:244:1 › M15 discards a delayed search result when its query changes (6.0s)
+
+
+  1) tests/e2e/workbench.spec.ts:244:1 › M15 discards a delayed search result when its query changes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByText('1 of 1 matching lines', { exact: true })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByText('1 of 1 matching lines', { exact: true })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      84 |   await settleOutput(page);
+      85 |   await expect(search).toHaveValue('a different query');
+    > 86 |   await expect(page.getByText('1 of 1 matching lines', {exact:true})).toHaveCount(0);
+         |                                                                       ^
+      87 |   await expect(page.getByRole('button', {name:'Search full result',exact:true})).toBeEnabled();
+      88 | });
+      89 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:86:71
+
+    Error Context: test-results/browser/m15-query-race-red-01/workbench-M15-discards-a-d-d8ff4-sult-when-its-query-changes/error-context.md
+
+  1 failed
+    tests/e2e/workbench.spec.ts:244:1 › M15 discards a delayed search result when its query changes 

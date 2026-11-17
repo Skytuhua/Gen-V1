@@ -1,0 +1,249 @@
+import {createHash} from 'node:crypto';
+import {test,expect,type Locator,type Page} from '@playwright/test';
+import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
+import {serveWorkbenchNativeReturnFixture} from './workbench-native-return-fixture';
+import type {CapturedSourceV1,LogicalOwnerV1,SelectedSourceV1,SourceRefV1,WorkbenchInputV1} from '../../packages/contracts/source-selection';
+const digest=(text:string)=>createHash('sha256').update(text).digest('hex');
+/** Production App, API client, journal and composer. Only host HTTP is a labeled
+ * deterministic fixture; host authorization is exercised in the separate host suite. */
+async function fixture(page:Page,enabled=true){
+ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'unused'}}}});
+ snapshot.artifacts=[];snapshot.data=[];snapshot.userStates=[];snapshot.settings.preferences={showUsageFooter:true,showComposerContext:true};
+ snapshot.messages[0].content='Visible exact source sentence for the workbench.';
+ const host=await serveTaskFixture(page,snapshot), captures=new Map<string,CapturedSourceV1>();
+ await serveTaskSplitLayout(page,'task-thread');
+ let pause:Promise<void>|undefined;
+ const recoveries:Record<string,unknown>[]=[];
+ const state={enabled,denied:false,omitMessage:false,captureCount:0,inputs:[] as WorkbenchInputV1[],dropRecovery:false,dropAcceptedRecovery:false,descriptionPause:()=>pause,pauseDescriptions:(value?:Promise<void>)=>{pause=value;}};
+ const owner=():LogicalOwnerV1=>({threadId:'task-thread',projectId:snapshot.threads[0].projectId??null,workspaceId:snapshot.threads[0].workspaceId??null});
+ await page.route('**/api/workbench/**',async route=>{
+  const path=new URL(route.request().url()).pathname,body=route.request().method()==='POST'?route.request().postDataJSON():undefined;
+  const reply=(value:unknown)=>route.fulfill({json:value});
+  if(state.denied)return route.fulfill({status:503,json:{error:{code:'FIXTURE_OFFLINE',message:'Synthetic host disconnected. Draft retained.'}}});
+  if(path.endsWith('/inputs'))return reply({logicalOwner:owner(),inputs:state.inputs});
+  if(path.endsWith('/inputs/recover')){recoveries.push(body);if(state.dropRecovery){state.dropRecovery=false;return route.abort('failed');}if(body.action==='CANCEL')state.inputs=state.inputs.filter(input=>input.inputId!==body.inputId);else state.inputs=state.inputs.map(input=>input.inputId===body.inputId?{...input,state:'BLOCKED',reason:'Retained capture selected. Explicit run resume is required.'}:input);if(state.dropAcceptedRecovery){state.dropAcceptedRecovery=false;return route.abort('failed');}return reply({commandId:body.commandId,eventSeq:++snapshot.seq,result:{inputId:body.inputId,action:body.action,resumeRequired:body.action==='KEEP_CAPTURED'}});}
+  if(path.endsWith('/evidence'))return reply({logicalOwner:owner(),items:[{id:'claim',kind:'CLAIM',label:'Fixture reported claim',grade:'REPORTED',freshness:'UNKNOWN',outcome:null,sourceRevision:null,command:null,logRefs:[],screenshotRefs:[]},{id:'check',kind:'CHECK',label:'Fixture recorded check',grade:'OBSERVED',freshness:'STALE',outcome:'FAIL',sourceRevision:'old-revision',command:['node','check.mjs'],logRefs:['retained-check.log'],screenshotRefs:[],parentId:'claim'}],modules:[{id:'M14',title:'Delegation',state:'UNSUPPORTED',reason:'No public contract in this fixture.',href:null,readOnly:true}]});
+  if(path.endsWith('/task-thread'))return reply({logicalOwner:owner(),enabled:state.enabled,sources:state.enabled&&!state.omitMessage?[{locator:{kind:'MESSAGE',sourceId:'reply'},label:'Assistant message'}]:[],sourceCapabilities:[{kind:'MESSAGE',state:'AVAILABLE',reason:null},{kind:'FILE_RANGE',state:'UNSUPPORTED',reason:'No native file reader in this fixture.'},{kind:'DIFF_HUNK',state:'UNSUPPORTED',reason:'No native diff reader in this fixture.'},{kind:'ARTIFACT_REGION',state:'AVAILABLE',reason:null}]});
+  if(path.endsWith('/context'))return reply({logicalOwner:owner(),state:'EMPTY',requestContext:null});
+  if(path.endsWith('/output/read')){const messages=(body.messageIds as string[]).map(id=>snapshot.messages.find(message=>message.id===id)!);const revision=digest(JSON.stringify(messages.map(({id,content})=>({id,content}))));if(revision!==body.sourceRevision)return route.fulfill({status:409,json:{error:{code:'STALE_SOURCE',message:'The output changed.'}}});return reply({logicalOwner:owner(),sourceId:messages[0].id,sourceRevision:revision,rows:messages.flatMap(message=>message.content.split('\n').map((text,index)=>({id:`${message.id}:${index}`,text}))),complete:true});}
+  if(path.endsWith('/describe')){const capturedOwner=owner(),text=snapshot.messages[0].content;if(pause)await pause;return reply({logicalOwner:capturedOwner,locator:body.locator,label:'Assistant message',text,sourceRevision:digest(text),contentDigest:digest(text)});}
+  if(path.endsWith('/capture')){
+   state.captureCount++;const source=body.source as SelectedSourceV1;
+   const captured:CapturedSourceV1={ref:{captureId:`capture-${state.captureCount}`,source,keepCaptured:false},label:'Assistant message',preview:source.kind==='MESSAGE'?snapshot.messages[0].content.slice(source.range.start,source.range.end):'',previewTruncated:false,selectedBytes:source.kind==='MESSAGE'?source.range.end-source.range.start:0,retained:true,state:'CURRENT'};
+   captures.set(captured.ref.captureId,captured);return reply(captured);
+  }
+  if(path.endsWith('/open')){const captured=captures.get((body.ref as SourceRefV1).captureId);if(!captured)return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'Fixture capture unavailable'}}});return reply({...captured,ref:body.ref,text:captured.preview,state:captured.ref.source.sourceRevision===digest(snapshot.messages[0].content)?'CURRENT':'STALE'});}
+  if(path.endsWith('/refresh')){const old=captures.get(body.ref.captureId)!;state.captureCount++;const text=snapshot.messages[0].content;const ref={...old.ref,captureId:`capture-${state.captureCount}`,source:{...old.ref.source,sourceRevision:digest(text),contentDigest:digest(text)},keepCaptured:false};const next={...old,ref};captures.set(ref.captureId,next);return reply(next);}
+  return route.fulfill({status:404});
+ });
+ await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+ return {...host,state,captures,owner,recoveries};
+}
+const editor=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+const delivery=(page:Page)=>page.getByRole('combobox',{name:'Source delivery mode',exact:true});
+async function setDelivery(page:Page,mode:'NOW'|'AFTER_CURRENT'){
+ await delivery(page).click();
+ await page.getByRole('listbox',{name:'Source delivery mode',exact:true}).getByRole('option',{name:mode==='NOW'?'Now':'After current run',exact:true}).click();
+}
+async function select(page:Page){
+ const text=page.locator('[data-message-id="reply"] .source-selection-text');await text.focus();
+ await text.evaluate(element=>{const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);const node=walker.nextNode()!;const range=document.createRange();range.setStart(node,0);range.setEnd(node,20);const selection=getSelection()!;selection.removeAllRanges();selection.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+ await expect(page.getByRole('toolbar',{name:'Selected source'})).toBeVisible();
+}
+async function attach(page:Page){await select(page);await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();}
+test('default-off App retains its ordinary composer and hides source actions',async({page})=>{
+ const optionalRequests:string[]=[];
+ page.on('request',request=>{if(/\/Workbench(?:PanelContent|Panels|InputsPanel|Output|Activity)\.tsx(?:\?|$)/.test(new URL(request.url()).pathname))optionalRequests.push(request.url());});
+ const h=await fixture(page,false);await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toHaveCount(0);await editor(page).fill('Ordinary input');await page.getByRole('button',{name:'Send message',exact:true}).click();await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);expect(h.commands.find(c=>c.type==='message.send')?.payload).not.toHaveProperty('sourceRefs');expect(optionalRequests).toEqual([]);
+});
+test('selection attaches bounded immutable context, survives reload and uses the existing durable send',async({page})=>{
+ const h=await fixture(page);await editor(page).fill('Keep this prompt');await attach(page);expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(0);await expect(editor(page)).toHaveValue('Keep this prompt');await page.reload();await expect(editor(page)).toHaveValue('Keep this prompt');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.getByRole('button',{name:'Send message',exact:true}).click();await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);
+ const command=h.commands.find(c=>c.type==='message.send')!;expect(command.payload.content).toBe('Keep this prompt');expect(command.payload.sourceRefs).toEqual([h.captures.get('capture-1')!.ref]);expect(command.payload.sendMode).toBe('NOW');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toHaveCount(0);
+});
+test('ask supplies a question only for an empty draft and never dispatches',async({page})=>{
+ const h=await fixture(page);await select(page);await page.getByRole('button',{name:'Ask about this',exact:true}).click();await expect(editor(page)).toHaveValue('Explain this selected source.');expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(0);
+});
+test('stale capture remains exact until explicit keep or refresh and opens retained output',async({page},info)=>{
+ const h=await fixture(page);await attach(page);const captured=h.captures.get('capture-1')!;h.snapshot.messages[0].content+=' A later revision.';await h.publish();await page.reload();await expect(page.getByText('The source has changed.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Keep captured source',exact:true}).click();await expect(page.getByText('Using the retained capture.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('exact retained capture');await expect(dialog).toContainText(captured.ref.source.sourceRevision);await expect(dialog.locator('[data-output-row-id]').first()).toContainText(captured.preview);
+ await page.screenshot({path:info.outputPath('retained-source.png'),fullPage:true});
+});
+test('late source descriptions cannot attach to a replacement workspace',async({page})=>{
+ const h=await fixture(page);let release=()=>{};h.state.pauseDescriptions(new Promise<void>(resolve=>{release=resolve;}));await select(page);await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();h.snapshot.threads[0].workspaceId='replacement';await h.publish();await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeVisible();release();await expect.poll(()=>h.state.captureCount).toBe(0);await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);
+});
+test('after-current mode is explicit and queues through message.send while the task is working',async({page})=>{
+ const h=await fixture(page);await attach(page);await editor(page).fill('Continue after the current run');
+ h.snapshot.threads[0].runId='active-run';h.snapshot.threads[0].status='working';await h.publish();
+ const hint=page.locator('.composer-hint');await expect(hint).toBeVisible();await expect(hint).toContainText('/btw');
+ await expect(page.getByRole('button',{name:'Queue after current',exact:true})).toHaveCount(0);
+ await setDelivery(page,'AFTER_CURRENT');await expect(hint).toHaveCount(0);
+ await expect(editor(page)).toHaveValue('Continue after the current run');
+ expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(0);
+ await page.getByRole('button',{name:'Queue after current',exact:true}).click();
+ await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);
+ const command=h.commands.find(c=>c.type==='message.send')!;
+ expect(command.threadId).toBe('task-thread');expect(command.payload.content).toBe('Continue after the current run');
+ expect(command.payload.sourceRefs).toEqual([h.captures.get('capture-1')!.ref]);expect(command.payload.sendMode).toBe('AFTER_CURRENT');
+ expect(h.commands.filter(c=>c.type==='run.stop')).toHaveLength(0);expect(h.commands.filter(c=>c.type==='thread.create')).toHaveLength(0);
+ await expect(editor(page)).toHaveValue('');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toHaveCount(0);
+ expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(1);
+});
+test('evidence preserves reported and observed grades, freshness and unsupported module state',async({page},info)=>{
+ await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await dialog.getByRole('button',{name:'Evidence',exact:true}).click();await expect(dialog).toContainText('REPORTED');await expect(dialog).toContainText('OBSERVED');await expect(dialog).toContainText('STALE');await expect(dialog).toContainText('retained-check.log');await expect(dialog).toContainText('UNSUPPORTED');await expect(dialog).not.toContainText('VERIFIED');await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
+ await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();await page.getByRole('dialog',{name:'Sources and evidence'}).getByRole('button',{name:'Evidence',exact:true}).click();await page.screenshot({path:info.outputPath('evidence-drawer.png'),fullPage:true});
+});
+test('rollback leaves retained source inspection and removal reachable',async({page})=>{
+ const h=await fixture(page);await attach(page);h.state.enabled=false;h.snapshot.threads[0].epoch++;await h.publish();await expect(page.getByText('New source actions are disabled.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toBeVisible();await page.keyboard.press('Escape');await page.getByRole('button',{name:'Remove source',exact:true}).click();await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toHaveCount(0);
+});
+
+test('context and run views use recorded or explicit unavailable states without invented metrics',async({page})=>{
+ await fixture(page);await page.getByRole('button',{name:'Inspect context usage',exact:true}).click();await page.getByRole('dialog',{name:'Context inspector'}).getByRole('button',{name:'Last request',exact:true}).click();const panel=page.getByRole('dialog',{name:'Sources and evidence'});await expect(panel).toContainText('No prepared request has been recorded');await panel.getByRole('button',{name:'Run',exact:true}).click();await expect(panel.getByRole('region',{name:'Current run'})).toContainText('Not reported');await expect(panel).toContainText('No queue position reported');await expect(panel).toContainText('Unsupported:');
+});
+test('real activity integration bounds mounted rows and searches the authorized full read',async({page})=>{
+ const h=await fixture(page);h.snapshot.messages.push({id:'activity',threadId:'task-thread',role:'activity',content:Array.from({length:1200},(_,index)=>`retained line ${index+1}`).join('\n'),createdAt:'2026-11-15T00:00:00.000Z',runId:null});await h.publish();await page.locator('details.activity summary').click();const output=page.getByRole('region',{name:'Retained work activity',exact:true});await expect(output.getByRole('button',{name:'Copy full result',exact:true})).toBeEnabled();expect(await output.locator('[data-output-row-id]').count()).toBeLessThanOrEqual(300);await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1199');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output).toContainText('1 of 1 matching lines');await expect(output.locator('[data-output-row-id="activity:1198"]')).toBeVisible();
+ await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1200');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
+ h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await page.reload();await expect(editor(page)).toBeEnabled();await page.locator('details.activity summary').click();await expect(page.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
+});
+test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{
+ const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toBeEnabled({timeout:15000});await expect(editor(page)).toHaveValue('Retain this source-aware draft');
+});
+
+test('pointing mode does not consume another pane focus or Escape',async({page})=>{
+ const h=await fixture(page);await select(page);await editor(page).focus();await expect(page.getByRole('toolbar',{name:'Selected source'})).toBeHidden();await page.keyboard.press('Escape');await expect(editor(page)).toBeFocused();expect(h.state.captureCount).toBe(0);expect(h.commands.filter(c=>c.type==='message.send')).toHaveLength(0);
+});
+test('selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar',async({page})=>{
+ await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await dialog.getByRole('button',{name:'MESSAGE: Assistant message',exact:true}).click();const content=dialog.locator('.source-selection-text');await content.focus();await content.evaluate(element=>{const text=element.querySelector('pre')!.firstChild!,range=document.createRange();range.setStart(text,0);range.setEnd(text,12);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});const toolbar=dialog.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();await page.keyboard.press('Shift+F10');await expect(toolbar.getByRole('button',{name:'Ask about this',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(dialog).toBeVisible();
+});
+
+test('rollback retains a mode-only draft and permits returning to ordinary delivery',async({page})=>{
+ const h=await fixture(page);await editor(page).fill('Ordinary after rollback');await setDelivery(page,'AFTER_CURRENT');h.state.enabled=false;h.snapshot.threads[0].epoch++;await h.publish();await expect(delivery(page)).toHaveText('After current run');await delivery(page).click();const options=page.getByRole('listbox',{name:'Source delivery mode',exact:true});await expect(options.getByRole('option',{name:'After current run',exact:true})).toHaveAttribute('aria-selected','true');await expect(options.getByRole('option',{name:'After current run',exact:true})).toBeDisabled();await options.getByRole('option',{name:'Now',exact:true}).click();await expect(delivery(page)).toHaveCount(0);await page.getByRole('button',{name:'Send message',exact:true}).click();await expect.poll(()=>h.commands.filter(c=>c.type==='message.send').length).toBe(1);expect(h.commands.find(c=>c.type==='message.send')?.payload).not.toHaveProperty('sendMode');
+});
+
+test('accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment',async({page})=>{
+ const h=await fixture(page);await attach(page);await editor(page).fill('Accepted source input');await setDelivery(page,'AFTER_CURRENT');
+ h.state.inputs=[{inputId:'accepted-input',state:'BLOCKED',sourceCount:1,canKeepCaptured:true,canCancel:true,reason:'The captured source changed before dispatch.',sourceRefs:[h.captures.get('capture-1')!.ref]}];
+ await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);
+ await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();const panel=page.getByRole('dialog',{name:'Sources and evidence'});await expect(panel).toContainText('captured source changed');
+ h.state.dropRecovery=true;await panel.getByRole('button',{name:'Keep captured sources',exact:true}).click();await expect(panel.getByRole('alert')).toContainText(/fetch|network/i);await page.reload();
+ await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();await page.getByRole('dialog',{name:'Sources and evidence'}).getByRole('button',{name:'Keep captured sources',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toContainText('Resume the run explicitly');expect(h.recoveries).toHaveLength(2);expect(h.recoveries[1]).toEqual(h.recoveries[0]);expect(h.commands.filter(command=>command.type==='run.resume')).toHaveLength(0);
+});
+test('rollback permits cancellation of an undispatched accepted input without exposing revoked sources',async({page})=>{
+ const h=await fixture(page,false);h.state.inputs=[{inputId:'blocked-input',state:'BLOCKED',sourceCount:1,canKeepCaptured:false,canCancel:true,reason:'Retained sources cannot be authorized.'}];h.snapshot.threads[0].epoch++;await h.publish();
+ await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();const panel=page.getByRole('dialog',{name:'Sources and evidence'});await expect(panel.getByRole('button',{name:'Keep captured sources',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:/Inspect retained source/})).toHaveCount(0);await panel.getByRole('button',{name:'Cancel undispatched input',exact:true}).click();await expect(panel).toContainText('Cancelled the undispatched input');expect(h.recoveries[0]).toMatchObject({inputId:'blocked-input',action:'CANCEL'});expect(h.commands.filter(command=>command.type==='run.resume')).toHaveLength(0);
+});
+test('definitive precommit source rejection unlocks removal and ordinary resubmission',async({page})=>{
+ const h=await fixture(page);await attach(page);await editor(page).fill('Retain rejected text');let reject=true;
+ await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(reject&&command.type==='message.send'){reject=false;return route.fulfill({status:409,json:{error:{code:'STALE_SOURCE',message:'Source changed before admission.',details:{sendAccepted:false}}}});}return route.fallback();});
+ await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByRole('button',{name:'Remove source',exact:true})).toBeEnabled();await expect(editor(page)).toHaveValue('Retain rejected text');await page.getByRole('button',{name:'Remove source',exact:true}).click();await page.getByRole('button',{name:'Send message',exact:true}).click();await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);expect(h.commands.find(command=>command.type==='message.send')?.payload).not.toHaveProperty('sourceRefs');
+});
+
+test('lost cancellation receipt stays retryable after its input disappears and the App reloads',async({page})=>{
+ const h=await fixture(page,false);h.state.inputs=[{inputId:'cancelled-input',state:'BLOCKED',sourceCount:1,canKeepCaptured:false,canCancel:true,reason:'Undispatched input.'}];h.snapshot.threads[0].epoch++;await h.publish();h.state.dropAcceptedRecovery=true;
+ await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();await page.getByRole('button',{name:'Cancel undispatched input',exact:true}).click();await expect(page.getByRole('button',{name:'Retry CANCEL',exact:true})).toBeEnabled();await page.reload();await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();await page.getByRole('button',{name:'Retry CANCEL',exact:true}).click();await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toContainText('Cancelled the undispatched input');expect(h.recoveries).toHaveLength(2);expect(h.recoveries[1]).toEqual(h.recoveries[0]);await expect(page.getByRole('button',{name:'Retry CANCEL',exact:true})).toHaveCount(0);
+});
+
+test('formatted assistant text opens its exact canonical source even outside the bounded catalogue',async({page})=>{
+ const h=await fixture(page);const canonical='| Column |\n| --- |\n| left\\|right |\n\nPlain later left|right';h.snapshot.messages[0].content=canonical;h.state.omitMessage=true;h.snapshot.threads[0].epoch++;await h.publish();
+ await page.getByRole('button',{name:'Select canonical source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('No supported sources are available');const content=dialog.locator('.source-selection-text');await expect(content).toHaveText(canonical);await content.focus();await content.evaluate((element,text)=>{const node=element.querySelector('pre')!.firstChild!,range=document.createRange(),start=text.indexOf('left\\|right');range.setStart(node,start);range.setEnd(node,start+'left\\|right'.length);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));},canonical);await dialog.getByRole('toolbar',{name:'Selected source'}).getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toContainText('left\\|right');expect(h.captures.get('capture-1')?.ref.source.range).toMatchObject({encoding:'UTF16',start:canonical.indexOf('left\\|right'),end:canonical.indexOf('left\\|right')+'left\\|right'.length});expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+});
+
+
+test('deferred source view failure retains the mounted composer and restores focus',async({page})=>{
+ const h=await fixture(page);await editor(page).fill('Retain this prompt when source views cannot load');
+ const original=await editor(page).elementHandle();expect(original).not.toBeNull();
+ await page.route('**/WorkbenchPanelContent.tsx*',route=>route.abort('failed'));
+ await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();
+ const panel=page.getByRole('dialog',{name:'Sources and evidence'});
+ await expect(panel.getByRole('alert')).toContainText('The source views could not be loaded.');
+ await expect(panel.getByRole('button',{name:'Close dialog',exact:true})).toBeFocused();
+ await page.keyboard.press('Escape');await expect(panel).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
+ expect(await original!.evaluate(element=>element.isConnected)).toBe(true);
+ await expect(editor(page)).toHaveValue('Retain this prompt when source views cannot load');
+ expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+ await page.reload();await expect(editor(page)).toHaveValue('Retain this prompt when source views cannot load');
+});
+
+test('actual source modal and shared controls remain within the viewport at 200 percent zoom',async({page},info)=>{
+ await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});
+ const h=await fixture(page);await editor(page).fill('Retain the authored draft at 200 percent zoom');
+ await page.evaluate(()=>{document.body.style.zoom='2';});
+ await setDelivery(page,'AFTER_CURRENT');await expect(delivery(page)).toHaveText('After current run');
+ const withinViewport=async(locator:Locator)=>{
+  await locator.scrollIntoViewIfNeeded();await expect(locator).toBeVisible();const bounds=await locator.boundingBox();expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(1280);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(800);
+ };
+ const opener=page.getByRole('button',{name:'Sources and evidence',exact:true});await opener.click();
+ const panel=page.getByRole('dialog',{name:'Sources and evidence',exact:true}),close=panel.getByRole('button',{name:'Close dialog',exact:true});
+ await withinViewport(panel);await withinViewport(close);
+ const navigation=panel.getByRole('navigation',{name:'Workbench views',exact:true});
+ const geometry=()=>panel.evaluate(element=>{const bounds=(target:Element)=>target.getBoundingClientRect().toJSON();const style=getComputedStyle(element);return {viewport:{width:innerWidth,height:innerHeight},zoom:getComputedStyle(document.body).zoom,panel:bounds(element),close:bounds(element.querySelector('[aria-label="Close dialog"]')!),navigation:bounds(element.querySelector('[aria-label="Workbench views"]')!),height:style.height,maxHeight:style.maxHeight,clientHeight:element.clientHeight,scrollHeight:element.scrollHeight,scrollTop:element.scrollTop};});
+ await withinViewport(navigation);const sourcesGeometry=await geometry();await navigation.getByRole('button',{name:'Evidence',exact:true}).click();await expect(panel).toContainText('Fixture reported claim');
+ await info.attach('source-modal-zoom-geometry.json',{body:Buffer.from(JSON.stringify({sources:sourcesGeometry,evidence:await geometry()},null,2)),contentType:'application/json'});
+ await withinViewport(panel);await withinViewport(close);await withinViewport(navigation);
+ await navigation.getByRole('button',{name:'Sources',exact:true}).click();await withinViewport(panel.getByRole('button',{name:'MESSAGE: Assistant message',exact:true}));
+ await close.click();await expect(panel).toHaveCount(0);await expect(opener).toBeFocused();await expect(editor(page)).toHaveValue('Retain the authored draft at 200 percent zoom');
+ await opener.click();await panel.getByRole('button',{name:'MESSAGE: Assistant message',exact:true}).click();
+ const attachSource=panel.getByRole('button',{name:'Attach to prompt',exact:true});await withinViewport(attachSource);await attachSource.click();
+ await expect(panel).toHaveCount(0);await expect(opener).toBeFocused();await expect(editor(page)).toHaveValue('Retain the authored draft at 200 percent zoom');
+ expect(h.state.captureCount).toBe(1);expect(h.captures.get('capture-1')?.ref.source).toMatchObject({kind:'MESSAGE',range:{encoding:'UTF16',start:0,end:h.snapshot.messages[0].content.length}});
+ expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+});
+
+test('native return waits for canonical placement and keeps delayed source work isolated between owners',async({page},info)=>{
+ const h=await serveWorkbenchNativeReturnFixture(page);
+ const view=(threadId:string)=>page.locator(`[data-split-view="thread:${threadId}"]`);
+ const input=(threadId:string)=>view(threadId).getByRole('textbox',{name:'Message',exact:true});
+ const selectSource=async(threadId:string,messageId:string)=>{
+  const source=view(threadId).locator(`[data-message-id="${messageId}"] .source-selection-text`);await source.focus();
+  await source.evaluate(element=>{const node=document.createTreeWalker(element,NodeFilter.SHOW_TEXT).nextNode()!,range=document.createRange();range.setStart(node,0);range.setEnd(node,20);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+  await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toBeVisible();
+ };
+ const readDrafts=()=>page.evaluate(async owners=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return Promise.all([recovery.composeDraftContext(owners.a),recovery.composeDraftContext(owners.b)]);},h.owners);
+ const expectDrafts=async()=>{
+  const drafts=await readDrafts();
+  expect(drafts[0]).toMatchObject({logicalOwner:h.owners.a,text:'Authored draft owned by A',sourceRefs:[h.captures.get('native-capture-1')!.ref],sendMode:'NOW'});
+  expect(drafts[1]).toMatchObject({logicalOwner:h.owners.b,text:'Different authored draft owned by B',sourceRefs:[h.captures.get('native-capture-2')!.ref],sendMode:'NOW'});
+  expect(drafts[0].sourceRefs).toHaveLength(1);expect(drafts[1].sourceRefs).toHaveLength(1);return drafts;
+ };
+ try{
+  await page.goto('/');await expect(input(h.owners.a.threadId)).toBeEnabled({timeout:15000});
+  await input(h.owners.a.threadId).fill('Authored draft owned by A');await selectSource(h.owners.a.threadId,'reply');
+  await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toBeVisible();
+  const delayed=h.holdNextDescription(h.owners.a.threadId);await selectSource(h.owners.a.threadId,'reply');
+  await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await delayed.arrived;
+  await page.getByRole('button',{name:'Options for Native return A',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();
+  await expect.poll(h.nativeCalls).toContainEqual({type:'detach',surface:{kind:'thread',threadId:h.owners.a.threadId}});
+  await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);
+  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await expect(page.getByRole('tab',{name:'Native return B',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(input(h.owners.b.threadId)).toBeVisible();await input(h.owners.b.threadId).fill('Different authored draft owned by B');
+  await selectSource(h.owners.b.threadId,'reply-b');await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toBeVisible();
+  delayed.release();await delayed.completed;
+  expect(h.captures.size).toBe(2);const beforeReturn=await expectDrafts();
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toHaveCount(0);
+  const layout=h.holdLayoutReads(),commandsBeforeReturn=h.splitCommands.length;
+  await page.reload({waitUntil:'domcontentloaded'});await layout.arrived;
+  await h.returnThread(h.owners.a.threadId);
+  expect(h.splitCommands).toHaveLength(commandsBeforeReturn);
+  layout.release();
+  await expect(page.getByRole('tab',{name:'Native return A',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(input(h.owners.a.threadId)).toHaveValue('Authored draft owned by A');
+  await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(false);
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner A message',exact:true})).toBeVisible();
+  await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toHaveCount(0);
+  expect(h.splitCommands.slice(commandsBeforeReturn)).toContainEqual(expect.objectContaining({type:'split-workspace.view.open',payload:expect.objectContaining({view:expect.objectContaining({kind:'thread',binding:expect.objectContaining({threadId:h.owners.a.threadId})})})}));
+  const afterReturn=await expectDrafts();expect(h.captures.size).toBe(2);
+  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await expect(input(h.owners.b.threadId)).toHaveValue('Different authored draft owned by B');
+  await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toBeVisible();
+  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(1);
+  const finalDrafts=await expectDrafts();
+  expect(h.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toHaveLength(0);
+  await info.attach('native-return-source-isolation.json',{body:Buffer.from(JSON.stringify({scope:'Real App with scripted browser desktop bridge and owner-bound source HTTP; no installed desktop execution',delayedDescriptionOutcome:delayed.outcome(),beforeReturn,afterReturn,finalDrafts,captures:[...h.captures.values()],events:h.events,commands:h.commands},null,2)),contentType:'application/json'});
+ }finally{h.releaseAll();}
+});

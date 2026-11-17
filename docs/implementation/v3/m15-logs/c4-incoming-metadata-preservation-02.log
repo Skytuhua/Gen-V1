@@ -1,0 +1,5 @@
+argv: ["python3","/workspace/scratch/1b47eb428672/m15-publication/c4/preserve-incoming-98db97d-v2.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{"status": "PASS", "incomingCommit": "98db97d1d0a1910f47879f0e3d54477bcc59feed", "incomingTree": "19d92af279985a059bbda7a9be4f5bb95b70f842", "archivedFiles": 2, "productSourceDelta": 0, "localHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c", "manifest": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json", "manifestSha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954", "changedHistoricalSourceIdentities": ["apps/web/src/SourceSelectionActions.tsx", "apps/web/src/SourceWorkbench.tsx", "apps/web/src/source-workbench.css", "apps/web/src/workbench-output.css"], "historicalSummary": {"validatedAt": "2026-11-16T05:53:49.188Z", "integrityStatus": "PASS", "bundleStatus": "FAIL", "commandRecords": 225, "artifactHashes": 910, "implementationFiles": 73, "changedFiles": 2188, "sourceLockDigest": "23e52f6a6453b21658491e4019ae4fdea0217620e53f561029394eb270b73ac2", "reviewerApproval": false, "issues": []}}

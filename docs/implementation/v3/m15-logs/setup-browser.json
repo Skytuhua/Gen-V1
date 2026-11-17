@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "install",
+    "chromium"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:32:06.772Z",
+  "endedAt": "2026-11-15T21:32:46.213Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/setup-browser.log",
+  "logDigest": "54d1c2f0d7f2822cf60790a5e3021ae83674507ad5831cbbf90a0575cd8840bf"
+}

@@ -1,0 +1,58 @@
+argv: ["node","scripts/m15-evidence-probe.mjs"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+{
+  "scope": "Actual controller with disposable copies of this bundle; originals restored in finally.",
+  "cases": [
+    {
+      "id": "unchanged-bundle",
+      "accepted": true,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:00.147Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    },
+    {
+      "id": "omit-failed-and-blocked-phases",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:01.813Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"PASS\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    },
+    {
+      "id": "alter-command-index",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:03.570Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    },
+    {
+      "id": "malformed-command-receipt",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:07.562Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 121,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\nfatal: path 'packages/contracts/implementation-evidence.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/contracts/tool-effects.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/capability-flags.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/effect-recovery.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/tool-authority.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/tool-effects.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\n"
+    },
+    {
+      "id": "alter-legacy-renderer-exception",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:13.721Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\nfatal: path 'packages/contracts/implementation-evidence.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/contracts/tool-effects.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/capability-flags.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/effect-recovery.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/tool-authority.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\nfatal: path 'packages/core/tool-effects.ts' exists on disk, but not in 'a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54'\n"
+    },
+    {
+      "id": "alter-source-cut-metadata",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:16.821Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"d66916ce12047e205f0106ec1f5c837b546d46c66cedc8cb6454cc864432f0b8\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    },
+    {
+      "id": "alter-dependency-contract",
+      "rejected": false,
+      "exitCode": 0,
+      "termination": null,
+      "output": "{\n  \"validatedAt\": \"2026-11-15T22:45:18.483Z\",\n  \"integrityStatus\": \"PASS\",\n  \"bundleStatus\": \"FAIL\",\n  \"commandRecords\": 122,\n  \"artifactHashes\": 354,\n  \"implementationFiles\": 53,\n  \"changedFiles\": 413,\n  \"sourceLockDigest\": \"51e8c5ff2a1bfa8bc8721adad79bb04907a70601097fc750789e97c9733d0a99\",\n  \"reviewerApproval\": false,\n  \"issues\": []\n}\n"
+    }
+  ]
+}

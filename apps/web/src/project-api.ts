@@ -2,8 +2,8 @@ import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {authenticated,csrfToken,read} from './api.ts';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 
-export function useProjectContext(projectId?:string,threadId?:string){
- const owner=projectId?JSON.stringify([projectId,threadId]):'';
+export function useProjectContext(projectId?:string,threadId?:string,workspaceId?:string){
+ const owner=projectId?JSON.stringify([projectId,threadId,workspaceId]):'';
  const [state,setState]=useState<{owner:string;context:ProjectContext|null;loading:boolean;error:string}>({owner:'',context:null,loading:false,error:''}),generation=useRef(0);
  const pending=useRef<AbortController|null>(null);
  const activeLoad=useRef<(()=>Promise<void>)|null>(null);

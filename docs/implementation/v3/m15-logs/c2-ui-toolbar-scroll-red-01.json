@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "--grep",
+    "M15 internal toolbar scrolling retains",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-ui-toolbar-scroll-red-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:10:36.808Z",
+  "endedAt": "2026-11-16T01:10:41.892Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-toolbar-scroll-red-01.log",
+  "logDigest": "39f0151865227ad2a29e87c1cba1945bc124277acdaf5673bdfb83dd0e4b6d97"
+}

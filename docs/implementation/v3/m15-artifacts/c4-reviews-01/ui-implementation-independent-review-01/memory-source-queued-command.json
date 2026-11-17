@@ -1,0 +1,142 @@
+{
+  "scope": "Real App and typed deterministic source/memory HTTP; host admission is separate",
+  "preparation": {
+    "body": {
+      "threadId": "task-thread",
+      "prompt": "Use this source after the current run",
+      "modelId": "test/model",
+      "thinkingLevel": null
+    },
+    "request": {
+      "scope": {
+        "projectId": "memory-project",
+        "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "threadId": "task-thread",
+        "accountId": "memory-account-a",
+        "bindingDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "requestId": "prepared-source-queue-1",
+      "contextGeneration": 1,
+      "phase": "PREPARING",
+      "recall": {
+        "requestId": "prepared-source-queue-1",
+        "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "contextGeneration": 1,
+        "queryDigest": "74c5b0f1388c4fbfeda0faded025e4b34e775bf9f5410514233438bbb224397e",
+        "candidateIds": [
+          "accepted"
+        ],
+        "selectedRevisions": [
+          {
+            "itemId": "accepted",
+            "revision": 1
+          }
+        ],
+        "scores": [],
+        "exclusions": [],
+        "budgetBytes": 4096,
+        "producedAt": "2026-11-16T00:00:00.000Z",
+        "status": "COMPLETE"
+      },
+      "items": [
+        {
+          "id": "accepted",
+          "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "PROJECT",
+          "kind": "CONSTRAINT",
+          "text": "Fixture accepted memory revision 1.",
+          "revision": 1,
+          "state": "ACCEPTED",
+          "sourceRefs": [
+            {
+              "ownerThreadId": "task-thread",
+              "sourceKind": "MESSAGE",
+              "sourceId": "memory-source-accepted",
+              "sourceRevision": "memory-r1",
+              "capturedSeq": 4,
+              "digest": "261e7c262464c4d7dfcdf854e5beb8fc0c3d43919db2ee39b23ec64c9f13913d",
+              "observedStatus": "REPORTED"
+            }
+          ],
+          "assertedBy": {
+            "kind": "AGENT",
+            "id": "fixture-agent"
+          },
+          "observedAt": "2026-11-16T00:00:00.000Z",
+          "expiresAt": null,
+          "supersedes": [],
+          "sensitivity": "NORMAL",
+          "reviewDecision": null
+        }
+      ],
+      "injectedBytes": 240,
+      "expiresAt": "2026-11-16T03:59:59.255Z"
+    }
+  },
+  "captured": {
+    "ref": {
+      "captureId": "capture-1",
+      "source": {
+        "kind": "MESSAGE",
+        "sourceId": "reply",
+        "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+        "logicalOwner": {
+          "threadId": "task-thread",
+          "projectId": "memory-project",
+          "workspaceId": "memory-working-copy"
+        },
+        "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+        "capturedAt": "2026-11-16T03:58:58.338Z",
+        "range": {
+          "encoding": "UTF16",
+          "start": 0,
+          "end": 20,
+          "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+        }
+      },
+      "keepCaptured": false
+    },
+    "label": "Assistant message",
+    "preview": "Visible exact source",
+    "previewTruncated": false,
+    "selectedBytes": 20,
+    "retained": true,
+    "state": "CURRENT"
+  },
+  "command": {
+    "id": "6a2fd633-da7e-48c0-9ca9-ab2fc505db54",
+    "type": "message.send",
+    "payload": {
+      "content": "Use this source after the current run",
+      "modelId": "test/model",
+      "thinkingLevel": null,
+      "sourceRefs": [
+        {
+          "captureId": "capture-1",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": "memory-project",
+              "workspaceId": "memory-working-copy"
+            },
+            "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "capturedAt": "2026-11-16T03:58:58.338Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+            }
+          },
+          "keepCaptured": false
+        }
+      ],
+      "sendMode": "AFTER_CURRENT",
+      "requestContextId": "prepared-source-queue-1"
+    },
+    "threadId": "task-thread"
+  }
+}

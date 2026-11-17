@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/native-close-application-01/apply-phase-b.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T04:56:49.974Z",
+  "endedAt": "2026-11-16T04:56:50.224Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-native-close-phase-b-application-01.log",
+  "logDigest": "f2b2c5b456c5568e9a92a56a7904bde9e0ece0681a05b4ba58a9dc4856c4a00f"
+}

@@ -1,0 +1,53 @@
+{
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "label": "after",
+  "viewport": 768,
+  "slots": [
+    {
+      "slotW": 720,
+      "cardW": 720
+    },
+    {
+      "slotW": 720,
+      "cardW": 720
+    },
+    {
+      "slotW": 720,
+      "cardW": 720
+    },
+    {
+      "slotW": 720,
+      "cardW": null
+    },
+    {
+      "slotW": 720,
+      "cardW": null
+    },
+    {
+      "slotW": 720,
+      "cardW": null
+    },
+    {
+      "slotW": 720,
+      "cardW": null
+    },
+    {
+      "slotW": 720,
+      "cardW": null
+    }
+  ],
+  "allSlotsFilled": false,
+  "colors": {
+    "cardBg": "rgb(15, 15, 15)",
+    "titleColor": "rgb(230, 230, 230)",
+    "mutedColor": "rgb(160, 160, 160)"
+  },
+  "contrastRatios": {
+    "titleVsCard": 15.36,
+    "mutedVsCard": 7.33
+  },
+  "keyboard": {
+    "label": "Agent parent-00",
+    "outline": "solid"
+  }
+}

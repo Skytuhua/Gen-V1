@@ -17,7 +17,7 @@ export function clampChatRect(rect:ChatRect,view:ChatViewport):ChatRect{
 }
 export function chatPanelRect(layout:ChatLayout,view:ChatViewport):ChatRect{
  const area=chatBounds(view),mode=layout.mode==='full'?'popup':layout.mode;
- const width=mode==='drawer'?clamp(view.width/3,360,520):350,height=mode==='drawer'?area.bottom-area.top:500;
+ const width=mode==='drawer'?clamp(view.width/3,360,520):clamp(view.width/4,400,560),height=mode==='drawer'?area.bottom-area.top:Math.min(760,area.bottom-area.top-16);
  const saved=layout[mode],rect=clampChatRect(saved??{x:area.right-width,y:mode==='drawer'?area.top:area.bottom-height,width,height},view);
  return mode==='drawer'&&!layout.detached?{...rect,x:area.right-rect.width}:rect;
 }

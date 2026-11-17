@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_SOURCE_AND_RETAINED_RESULT_REVIEW",
+  "outcome": "NO_MATERIAL_DEFECT_FOUND_IN_NARROW_FIX",
+  "reviewerExecution": "No browser/test jobs for this review; parent-executed retained results were read. Separate released final28 run has its own receipt.",
+  "sources": {
+    "before": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-fix-proposal-01/before.tsx",
+      "sha256": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+      "bytes": 9531
+    },
+    "proposed": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-fix-proposal-01/proposed.tsx",
+      "sha256": "25ff6913518ae694ec629802d0ba4ca17cb5a4f56feed13e050d74d6764f02e5",
+      "bytes": 9971
+    },
+    "patch": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-fix-proposal-01/source.patch",
+      "sha256": "cfbf672945376079bdd20ceacb84ffa1c9bb226b31837245af230187f0ed8469",
+      "bytes": 1466
+    },
+    "product": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/apps/web/src/SourceSelectionActions.tsx",
+      "sha256": "25ff6913518ae694ec629802d0ba4ca17cb5a4f56feed13e050d74d6764f02e5",
+      "bytes": 9971
+    },
+    "fixture": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-fixture.tsx",
+      "sha256": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9",
+      "bytes": 13804
+    },
+    "spec": {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+      "sha256": "568eb7e4f773fc40bd18d064a7a77d2fadd955908752b75783cbd29b3c46cb3f",
+      "bytes": 30019
+    }
+  },
+  "sourceCutSha256": "5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "parent": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "evidence": [
+    {
+      "id": "c4-selection-completion-red-01",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "receiptSha256": "33f4004df5fe8ac738b39d2baf20cfac1e489f651444f6fac9e986b9445591b4",
+      "logDigest": "5df7800386449e5a750494c16ecb1474f42e774e322bcae08efb3881c17264cd",
+      "resultsSha256": "de9953ba0a0cc4040f5d522159f7a19976bd33560fa27ec8370fcfcb997cddab",
+      "stats": {
+        "startTime": "2026-11-16T05:23:10.286Z",
+        "duration": 3939.3360000000002,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "topLevelErrorCount": 2,
+      "cases": []
+    },
+    {
+      "id": "c4-selection-completion-red-02",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "receiptSha256": "3de008b59d6035d9828f18e6ca59c4432170f3e227ce2ecd18f2924db5798741",
+      "logDigest": "0aacbc1ae8d6f6a15d194abf6f91422d716fbb63b2181252972cbd565a62be0f",
+      "resultsSha256": "bc4f151e96cdc354b2d5a8bd3172064d503688dd27aaa72d972bd780df998103",
+      "stats": {
+        "startTime": "2026-11-16T05:23:46.334Z",
+        "duration": 12643.896,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "topLevelErrorCount": 0,
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "passed",
+          "retry": 0
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "failed",
+          "retry": 0
+        }
+      ]
+    },
+    {
+      "id": "c4-selection-completion-red-03",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "receiptSha256": "662952377329807cf185ba2ab832c6aa57e854f3a1aad85b0bfcafc029cf676a",
+      "logDigest": "52e37438a4dab1a1e8be879165b3d3558c6a6c88c5bf36c711d6cd8c58fcf5fb",
+      "resultsSha256": "ccb167f2e15119372b21f331619ea8a80cce5f58ed797e538e26369faca840fe",
+      "stats": {
+        "startTime": "2026-11-16T05:26:36.694Z",
+        "duration": 19117.664999999997,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "topLevelErrorCount": 0,
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "passed",
+          "retry": 0
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "failed",
+          "retry": 0
+        },
+        {
+          "title": "M15 completed selection action preserves a newer range and toolbar in the same source",
+          "status": "failed",
+          "retry": 0
+        }
+      ]
+    },
+    {
+      "id": "c4-selection-completion-green-01",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "receiptSha256": "70d19e80125051a3ce090473218dec39774358fe426403033c8e5a9696132e02",
+      "logDigest": "30c34c77ed597f47aee148d6f2b5a49e7b81a38e329606892454df89089e7a1a",
+      "resultsSha256": "c60e7fef78836343b635d4855f15a995bae64abb59e0a354eff224793ffb74d7",
+      "stats": {
+        "startTime": "2026-11-16T05:27:56.917Z",
+        "duration": 9009.425000000001,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "topLevelErrorCount": 0,
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "passed",
+          "retry": 0
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "passed",
+          "retry": 0
+        },
+        {
+          "title": "M15 completed selection action preserves a newer range and toolbar in the same source",
+          "status": "passed",
+          "retry": 0
+        }
+      ]
+    }
+  ],
+  "sameComponentFollowThrough": {
+    "addedLines": 7,
+    "removingExactBlockReproducesRed03SpecSha256": "e57edc4b1f2f58132f75aeb391adc0499a4b0fa86dfdefeee898da305997efa2",
+    "purpose": "Verify preserved candidate dispatches exact B range, remains disabled until its own acknowledgment, and clears only on that acknowledgment."
+  },
+  "findings": [],
+  "limitations": [
+    "Focused Chromium component fixture with a held scripted onAction, not real host capture or native Windows/Edge proof.",
+    "No full App/workbench suite approval from these three cases.",
+    "No new rejection/error/IME/focus/owner-lifetime behavior was executed in the selected group; corresponding code is unchanged.",
+    "Boundary identity treats the same DOM nodes/offsets as the same selected range; a distinct selection-attempt generation is not introduced.",
+    "Prior setup and behavioral failures remain actual FAIL evidence."
+  ]
+}

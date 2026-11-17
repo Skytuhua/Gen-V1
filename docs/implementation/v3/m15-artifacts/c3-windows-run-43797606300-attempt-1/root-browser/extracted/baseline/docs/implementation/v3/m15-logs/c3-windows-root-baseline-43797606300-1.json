@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "root"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1\\baseline",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-16T03:34:40.628Z",
+  "endedAt": "2026-11-16T03:51:29.658Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-windows-root-baseline-43797606300-1.log",
+  "logDigest": "07404ca823c449f1a28c2666d1c3f62f9c018feb2c3c9fd79dbf3ab9e48a4942"
+}

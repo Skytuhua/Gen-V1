@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/lint-ui.ts",
+    "--check"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T05:58:22.224Z",
+  "endedAt": "2026-11-16T05:59:15.057Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-ui-policy-final-02.log",
+  "logDigest": "8060b73a95555edd9808371268a9693222c53b798306d8a73245966faabdf7d3"
+}

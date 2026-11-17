@@ -1,0 +1,67 @@
+argv: ["pnpm","exec","vitest","run","tests/request-preparation-service-v3.test.ts","-t","undoes a rolled-back lifecycle advance","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-claim-basis-red-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/request-preparation-service-v3.test.ts (34 tests | 1 failed | 33 skipped) 36ms
+   ↓ retains the same immutable preparation identity through the actual admitted request
+   ↓ rejects a preview token used with a changed prompt before accepting the draft
+   ↓ rejects a preview token used with a changed model before accepting the draft
+   ↓ rejects a preview token used with a changed owner before accepting the draft
+   ↓ rejects a removed grant and changed task note before accepting a prepared draft
+   ↓ checks physical project identity again after preview
+   ↓ checks current account selection and model binding again after preview
+   ↓ prevents token reuse while preserving a retry of the accepted command
+   ↓ retries an explicit preparation after a synchronous projection failure rolls back admission
+   ↓ retries an explicit preparation after a synchronous commit failure rolls back admission
+   ↓ keeps a committed preparation claimed when its acknowledgement fails after commit
+   ↓ keeps the original owner fence after an uncommitted preparation claim rolls back
+   ↓ keeps the original epoch fence after an uncommitted preparation claim rolls back
+   ↓ keeps the original grant fence after an uncommitted preparation claim rolls back
+   ↓ rolls back a later failed claim without releasing another accepted request
+   ↓ keeps an accepted queued request dispatchable after a later input fails at COMMIT
+   × undoes a rolled-back lifecycle advance for every exactly touched claimed preparation 34ms
+   ↓ fails preparation before message admission when the trusted preparation hook fails
+   ↓ fails dispatch when the trusted finalization hook fails and retains the accepted input
+   ↓ revalidates after asynchronous finalization when stop changes
+   ↓ revalidates after asynchronous finalization when note changes
+   ↓ revalidates after asynchronous finalization when grant changes
+   ↓ revalidates after asynchronous finalization when hook assertion changes
+   ↓ dispatches queued token-bound follow-ups separately without losing later outbox inputs
+   ↓ allocates default-send identity but leaves the default-off path unchanged
+   ↓ rejects attached skills in preview exactly as the existing send path does
+   ↓ increments the durable owner generation after Service replacement and rejects the old token
+   ↓ expires abandoned previews, calls cleanup, and never resurrects the same identity
+   ↓ preserves an accepted queued token across the prior native session lifecycle event
+   ↓ preserves an accepted queued token across the prior native settled lifecycle event
+   ↓ preserves separately accepted previews queued before the first epoch is admitted
+   ↓ bounds abandoned preparations and retains only the newest 128 metadata receipts
+   ↓ keeps expired, hung preparation jobs in the admission bound until they actually settle
+   ↓ resolves the source learn expansion once and dispatches the same captured text
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > undoes a rolled-back lifecycle advance for every exactly touched claimed preparation
+HarnessError: The request owner, sources, or grants changed. Prepare the current draft again.
+ ❯ fail packages/core/request-custody.ts:68:82
+     66|   freeze(value); return value;
+     67| }
+     68| const fail = (message: string, code = 'STALE_REQUEST_CONTEXT'): never …
+       |                                                                                  ^
+     69| const sameBasis = (left: RequestContextBasis, right: RequestContextBas…
+     70|
+ ❯ RequestContextCustody.assertEntry packages/core/request-custody.ts:114:41
+ ❯ RequestContextCustody.assertClaim packages/core/request-custody.ts:160:47
+ ❯ tests/request-preparation-service-v3.test.ts:237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 33 skipped (34)
+   Start at  08:47:24
+   Duration  1.86s (transform 1.11s, setup 0ms, import 1.57s, tests 36ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-m04-claim-basis-red-01-results.json

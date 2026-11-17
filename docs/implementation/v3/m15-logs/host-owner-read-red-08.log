@@ -1,0 +1,159 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (23 tests | 2 failed | 1 skipped) 10200ms
+   × reads only request receipts bound to the current logical owner and account 481ms
+   × denies evidence assembled across an account change and excludes prior-account check metadata 148ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reads only request receipts bound to the current logical owner and account
+AssertionError: expected SourceWorkbench{ …(3) } to have property "context"
+ ❯ tests/source-workbench-host-v3.test.ts:232:21
+    230|   const f = fixture({requestContextEnabled: true}), workbench = f.work…
+    231|   await f.send('context-owner-send', []); await vi.waitFor(() => expec…
+    232|   expect(workbench).toHaveProperty('context');
+       |                     ^
+    233|   expect(workbench.context(f.thread.id)).toMatchObject({logicalOwner: …
+    234|   f.store.internal('fixture.context-account', f.thread.id, () => f.sto…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > denies evidence assembled across an account change and excludes prior-account check metadata
+AssertionError: promise resolved "{ logicalOwner: { …(3) }, …(2) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "items": [
++     {
++       "command": null,
++       "freshness": "CURRENT",
++       "grade": "REPORTED",
++       "id": "76e41df5-94e7-42b5-8605-edab865246c1",
++       "kind": "SOURCE",
++       "label": "Assistant message",
++       "logRefs": [],
++       "outcome": "CURRENT",
++       "screenshotRefs": [],
++       "sourceRef": {
++         "captureId": "76e41df5-94e7-42b5-8605-edab865246c1",
++         "keepCaptured": true,
++         "source": {
++           "capturedAt": "2026-11-15T22:01:54.596Z",
++           "contentDigest": "8a6b0f4ee867786ea0080714e408859659db1f00a00a8c9e499aa91b6518e54b",
++           "kind": "MESSAGE",
++           "logicalOwner": {
++             "projectId": null,
++             "threadId": "thread-a",
++             "workspaceId": null,
++           },
++           "range": {
++             "encoding": "UTF16",
++             "end": 3,
++             "selectedTextDigest": "f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
++             "start": 1,
++           },
++           "sourceId": "message-a",
++           "sourceRevision": "8a6b0f4ee867786ea0080714e408859659db1f00a00a8c9e499aa91b6518e54b",
++         },
++       },
++       "sourceRevision": "8a6b0f4ee867786ea0080714e408859659db1f00a00a8c9e499aa91b6518e54b",
++     },
++   ],
++   "logicalOwner": {
++     "projectId": null,
++     "threadId": "thread-a",
++     "workspaceId": null,
++   },
++   "modules": [
++     {
++       "href": "/api/workbench/threads/thread-a/context",
++       "id": "M04",
++       "readOnly": true,
++       "reason": "Context custody is not enabled by this host.",
++       "state": "DISABLED",
++       "title": "Context and tools",
++     },
++     {
++       "href": null,
++       "id": "M05",
++       "readOnly": true,
++       "reason": "No tested typed memory-review contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Memory review",
++     },
++     {
++       "href": "/api/threads/thread-a/verification",
++       "id": "M06",
++       "readOnly": true,
++       "reason": "The verification workflow is disabled; saved evidence remains readable.",
++       "state": "DISABLED",
++       "title": "Verification",
++     },
++     {
++       "href": null,
++       "id": "M08",
++       "readOnly": true,
++       "reason": "Checkpoint capture and restore have separate host gates.",
++       "state": "DISABLED",
++       "title": "Checkpoints and review",
++     },
++     {
++       "href": null,
++       "id": "M09",
++       "readOnly": true,
++       "reason": "Typed agent work is disabled.",
++       "state": "DISABLED",
++       "title": "Task tree",
++     },
++     {
++       "href": null,
++       "id": "M10",
++       "readOnly": true,
++       "reason": "No tested background-work read contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Background work",
++     },
++     {
++       "href": "/api/snapshot",
++       "id": "M11",
++       "readOnly": true,
++       "reason": "Measured request timings are disabled. Unknown timings remain unknown.",
++       "state": "DISABLED",
++       "title": "Request timings",
++     },
++     {
++       "href": null,
++       "id": "M14",
++       "readOnly": true,
++       "reason": "No tested conversation-branch contract is registered for this panel.",
++       "state": "UNSUPPORTED",
++       "title": "Conversation branches",
++     },
++   ],
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:246:47
+    244|     return result;
+    245|   });
+    246|   await expect(workbench.evidence(f.thread.id)).rejects.toMatchObject(…
+       |                                               ^
+    247| });
+    248|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 20 passed | 1 skipped (23)
+   Start at  06:01:43
+   Duration  15.76s (transform 7.15s, setup 0ms, import 5.16s, tests 10.20s, environment 0ms)
+

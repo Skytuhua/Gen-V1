@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport hashlib,subprocess\np=Path('/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-02/apply-fixed-admission.py')\nassert hashlib.sha256(p.read_bytes()).hexdigest()=='7071179c0f8cb561b803acedec0e881097bd30c821ca3dee049ad39dbc0ecced'\nsubprocess.run(['python3',str(p),'--apply'],check=True)\n"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:17:48.320Z",
+  "endedAt": "2026-11-16T06:17:49.728Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-review-evidence-admission-02.log",
+  "logDigest": "eb11297220fef06ab3f28a969f77266cc3f6ebb3815c4fa975535b7e4708f37e"
+}

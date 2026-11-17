@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-03/apply-current-ledger.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:14:44.752Z",
+  "endedAt": "2026-11-16T06:14:44.817Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-current-ledger-application-02.log",
+  "logDigest": "cc043c88371f6a1a95359c980820b1f5bf9f829e15388e1ed8f94f4b0e687157"
+}

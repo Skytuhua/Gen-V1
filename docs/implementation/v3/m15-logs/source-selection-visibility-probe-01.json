@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {chromium} from '@playwright/test';\nconst browser=await chromium.launch();\ntry {\n const page=await browser.newPage({viewport:{width:1280,height:800}});\n await page.setContent('<div id=\"root\" tabindex=\"0\"><span id=\"start\">Visible start </span><div id=\"hidden\" style=\"content-visibility:hidden;contain-intrinsic-size:auto 30px\">UNPAINTED SOURCE</div><span id=\"end\"> Visible end</span></div>');\n const result=await page.evaluate(()=>{\n  const root=document.querySelector('#root'),range=document.createRange();\n  range.setStart(document.querySelector('#start').firstChild,0);range.setEnd(document.querySelector('#end').firstChild,12);\n  getSelection().removeAllRanges();getSelection().addRange(range);\n  return {canonical:root.textContent,selected:getSelection().toString(),rectangles:[...range.getClientRects()].map(r=>({x:r.x,y:r.y,width:r.width,height:r.height})),hiddenStyle:{contentVisibility:getComputedStyle(document.querySelector('#hidden')).contentVisibility,display:getComputedStyle(document.querySelector('#hidden')).display,visibility:getComputedStyle(document.querySelector('#hidden')).visibility}};\n });\n console.log(JSON.stringify(result));\n} finally {await browser.close();}"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:14:00.693Z",
+  "endedAt": "2026-11-15T22:14:01.707Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/source-selection-visibility-probe-01.log",
+  "logDigest": "32a8b0bb5be74762bfbb6f0ea08dad4cfa27c0d5ef427527f752d940183b4214"
+}

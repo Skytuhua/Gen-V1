@@ -1,0 +1,12 @@
+{
+  "fixture": "Host contract fixture (no model inference)",
+  "browser": "Chromium",
+  "scope": "Single local fixture run; measurements are not model latency or a performance benchmark.",
+  "loop": "while(true) in a dedicated worker; trusted iframe localhost, host127.0.0.1",
+  "capabilityRequirementOnFailure": "Disable generated-app execution unless a separate renderer/process watchdog keeps the host responsive.",
+  "hostHttpHealth": 200,
+  "hostMainFrameJavaScriptMs": 15.80789999999979,
+  "settingsOpenMs": 104.83180000000084,
+  "outcome": "FAIL: generated-app responsiveness capability is not established; disable capability until isolated/watchdog execution is verified.",
+  "error": "locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Close settings', exact: true })\u001b[22m\n"
+}

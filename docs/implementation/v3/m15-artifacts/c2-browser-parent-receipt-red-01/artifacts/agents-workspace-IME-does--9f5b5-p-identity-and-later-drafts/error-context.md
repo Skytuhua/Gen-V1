@@ -1,0 +1,624 @@
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - generic [ref=e4]: Synthetic agent workspace fixture
+  - region "Agent workspace" [ref=e5]:
+    - toolbar "Agent filters" [ref=e6]:
+      - generic [ref=e7]:
+        - combobox "Project filter" [ref=e8] [cursor=pointer]:
+          - generic [ref=e9]: All projects
+          - img [ref=e10]
+        - combobox [ref=e12]
+      - generic [ref=e13]:
+        - combobox "Status filter" [ref=e14] [cursor=pointer]:
+          - generic [ref=e15]: All statuses
+          - img [ref=e16]
+        - combobox [ref=e18]
+      - button "Search agents" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+      - status "Reconnecting to the agent service" [ref=e23]: Reconnecting…
+    - generic [ref=e27]:
+      - region "Project Alpha" [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: A
+          - heading "Alpha" [level=2] [ref=e31]
+          - generic [ref=e32]: 34 working
+        - region "Alpha agents" [ref=e34]:
+          - group "Agent parent-00" [ref=e36]:
+            - generic [ref=e37]:
+              - generic [ref=e38]:
+                - heading "parent-00" [level=3] [ref=e39]
+                - generic [ref=e40]: working
+              - button "Open conversation parent-00" [ref=e41] [cursor=pointer]:
+                - img [ref=e42]
+            - generic [ref=e46]:
+              - generic [ref=e47]: test/model
+              - paragraph [ref=e48]: Reading project sources
+              - progressbar "parent-00 progress" [ref=e49]
+            - log "parent-00 messages" [ref=e51]:
+              - button "Load earlier messages" [ref=e52] [cursor=pointer]
+              - generic [ref=e54]:
+                - article [ref=e55]:
+                  - generic [ref=e56]: assistant
+                  - paragraph [ref=e58]: "parent-00: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e59]:
+                  - generic [ref=e60]: assistant
+                  - paragraph [ref=e62]: "parent-00: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e63]:
+                  - generic [ref=e64]: assistant
+                  - paragraph [ref=e66]: "parent-00: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e67]:
+                  - generic [ref=e68]: assistant
+                  - paragraph [ref=e70]: "parent-00: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e71]:
+                  - generic [ref=e72]: assistant
+                  - paragraph [ref=e74]: "parent-00: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e75]:
+                  - generic [ref=e76]: assistant
+                  - paragraph [ref=e78]: "parent-00: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e79]:
+                  - generic [ref=e80]: assistant
+                  - paragraph [ref=e82]: "parent-00: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e83]:
+                  - generic [ref=e84]: assistant
+                  - paragraph [ref=e86]: "parent-00: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e87]:
+                  - generic [ref=e88]: assistant
+                  - paragraph [ref=e90]: "parent-00: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e91]:
+                  - generic [ref=e92]: assistant
+                  - paragraph [ref=e94]: "parent-00: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e95]:
+                  - generic [ref=e96]: assistant
+                  - paragraph [ref=e98]: "parent-00: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e99]:
+                  - generic [ref=e100]: assistant
+                  - paragraph [ref=e102]: "parent-00: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e104]:
+              - textbox "Message to parent-00" [ref=e105]:
+                - /placeholder: Message…
+                - text: Later
+              - status [ref=e106]: Retry keeps the original message and skill selections, including selections removed from this draft.
+              - generic [ref=e107]:
+                - status
+                - button "Stop parent-00" [ref=e108] [cursor=pointer]:
+                  - img [ref=e109]
+                  - text: Stop
+                - button "Retry send to parent-00" [ref=e111] [cursor=pointer]:
+                  - img [ref=e112]
+                  - text: Retry send
+              - alert [ref=e115]:
+                - img [ref=e116]
+                - paragraph [ref=e118]: The host returned an unexpected response.
+            - generic [ref=e119]:
+              - button "Subagents · 2" [expanded] [ref=e120] [cursor=pointer]:
+                - img [ref=e121]
+                - text: Subagents · 2
+              - generic [ref=e123]:
+                - group "Agent child-active" [ref=e124]:
+                  - generic [ref=e126]:
+                    - heading "child-active" [level=3] [ref=e127]
+                    - generic [ref=e128]: working
+                  - generic [ref=e129]:
+                    - generic [ref=e130]: test/model
+                    - paragraph [ref=e131]: Reading project sources
+                    - progressbar "child-active progress" [ref=e132]
+                  - log "child-active messages" [ref=e134]:
+                    - button "Load earlier messages" [ref=e135] [cursor=pointer]
+                    - generic [ref=e137]:
+                      - article [ref=e138]:
+                        - generic [ref=e139]: assistant
+                        - paragraph [ref=e141]: "child-active: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e142]:
+                        - generic [ref=e143]: assistant
+                        - paragraph [ref=e145]: "child-active: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e146]:
+                        - generic [ref=e147]: assistant
+                        - paragraph [ref=e149]: "child-active: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e150]:
+                        - generic [ref=e151]: assistant
+                        - paragraph [ref=e153]: "child-active: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e154]:
+                        - generic [ref=e155]: assistant
+                        - paragraph [ref=e157]: "child-active: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e158]:
+                        - generic [ref=e159]: assistant
+                        - paragraph [ref=e161]: "child-active: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e162]:
+                        - generic [ref=e163]: assistant
+                        - paragraph [ref=e165]: "child-active: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e166]:
+                        - generic [ref=e167]: assistant
+                        - paragraph [ref=e169]: "child-active: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e170]:
+                        - generic [ref=e171]: assistant
+                        - paragraph [ref=e173]: "child-active: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e174]:
+                        - generic [ref=e175]: assistant
+                        - paragraph [ref=e177]: "child-active: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e178]:
+                        - generic [ref=e179]: assistant
+                        - paragraph [ref=e181]: "child-active: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                      - article [ref=e182]:
+                        - generic [ref=e183]: assistant
+                        - paragraph [ref=e185]: "child-active: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                  - generic [ref=e187]:
+                    - textbox "Message to child-active" [ref=e188]:
+                      - /placeholder: Follow up…
+                    - generic [ref=e189]:
+                      - status
+                      - button "Send to child-active" [disabled] [ref=e190]:
+                        - img [ref=e191]
+                        - text: Send
+                - group "Agent child-done" [ref=e194]:
+                  - generic [ref=e196]:
+                    - heading "child-done" [level=3] [ref=e197]
+                    - generic [ref=e198]: completed
+                  - generic [ref=e199]:
+                    - generic [ref=e200]: test/model
+                    - paragraph [ref=e201]: Reading project sources
+                    - progressbar "child-done progress" [ref=e202]
+                  - log "child-done messages" [ref=e204]:
+                    - paragraph [ref=e207]: Messages load as they come into view.
+                  - paragraph [ref=e208]: Read-only
+          - group "Agent parent-01" [ref=e210]:
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - heading "parent-01" [level=3] [ref=e213]
+                - generic [ref=e214]: working
+              - button "Open conversation parent-01" [ref=e215] [cursor=pointer]:
+                - img [ref=e216]
+            - generic [ref=e220]:
+              - generic [ref=e221]: test/model
+              - paragraph [ref=e222]: Reading project sources
+              - progressbar "parent-01 progress" [ref=e223]
+            - log "parent-01 messages" [ref=e225]:
+              - button "Load earlier messages" [ref=e226] [cursor=pointer]
+              - generic [ref=e228]:
+                - article [ref=e229]:
+                  - generic [ref=e230]: assistant
+                  - paragraph [ref=e232]: "parent-01: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e233]:
+                  - generic [ref=e234]: assistant
+                  - paragraph [ref=e236]: "parent-01: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e237]:
+                  - generic [ref=e238]: assistant
+                  - paragraph [ref=e240]: "parent-01: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e241]:
+                  - generic [ref=e242]: assistant
+                  - paragraph [ref=e244]: "parent-01: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e245]:
+                  - generic [ref=e246]: assistant
+                  - paragraph [ref=e248]: "parent-01: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e249]:
+                  - generic [ref=e250]: assistant
+                  - paragraph [ref=e252]: "parent-01: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e253]:
+                  - generic [ref=e254]: assistant
+                  - paragraph [ref=e256]: "parent-01: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e257]:
+                  - generic [ref=e258]: assistant
+                  - paragraph [ref=e260]: "parent-01: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e261]:
+                  - generic [ref=e262]: assistant
+                  - paragraph [ref=e264]: "parent-01: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e265]:
+                  - generic [ref=e266]: assistant
+                  - paragraph [ref=e268]: "parent-01: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e269]:
+                  - generic [ref=e270]: assistant
+                  - paragraph [ref=e272]: "parent-01: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e273]:
+                  - generic [ref=e274]: assistant
+                  - paragraph [ref=e276]: "parent-01: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e278]:
+              - textbox "Message to parent-01" [ref=e279]:
+                - /placeholder: Message…
+              - generic [ref=e280]:
+                - status
+                - button "Stop parent-01" [ref=e281] [cursor=pointer]:
+                  - img [ref=e282]
+                  - text: Stop
+                - button "Send to parent-01" [disabled] [ref=e284]:
+                  - img [ref=e285]
+                  - text: Send
+          - group "Agent parent-02" [ref=e289]:
+            - generic [ref=e290]:
+              - generic [ref=e291]:
+                - heading "parent-02" [level=3] [ref=e292]
+                - generic [ref=e293]: working
+              - button "Open conversation parent-02" [ref=e294] [cursor=pointer]:
+                - img [ref=e295]
+            - generic [ref=e299]:
+              - generic [ref=e300]: test/model
+              - paragraph [ref=e301]: Reading project sources
+              - progressbar "parent-02 progress" [ref=e302]
+            - log "parent-02 messages" [ref=e304]:
+              - button "Load earlier messages" [ref=e305] [cursor=pointer]
+              - generic [ref=e307]:
+                - article [ref=e308]:
+                  - generic [ref=e309]: assistant
+                  - paragraph [ref=e311]: "parent-02: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e312]:
+                  - generic [ref=e313]: assistant
+                  - paragraph [ref=e315]: "parent-02: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e316]:
+                  - generic [ref=e317]: assistant
+                  - paragraph [ref=e319]: "parent-02: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e320]:
+                  - generic [ref=e321]: assistant
+                  - paragraph [ref=e323]: "parent-02: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e324]:
+                  - generic [ref=e325]: assistant
+                  - paragraph [ref=e327]: "parent-02: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e328]:
+                  - generic [ref=e329]: assistant
+                  - paragraph [ref=e331]: "parent-02: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e332]:
+                  - generic [ref=e333]: assistant
+                  - paragraph [ref=e335]: "parent-02: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e336]:
+                  - generic [ref=e337]: assistant
+                  - paragraph [ref=e339]: "parent-02: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e340]:
+                  - generic [ref=e341]: assistant
+                  - paragraph [ref=e343]: "parent-02: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e344]:
+                  - generic [ref=e345]: assistant
+                  - paragraph [ref=e347]: "parent-02: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e348]:
+                  - generic [ref=e349]: assistant
+                  - paragraph [ref=e351]: "parent-02: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e352]:
+                  - generic [ref=e353]: assistant
+                  - paragraph [ref=e355]: "parent-02: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e357]:
+              - textbox "Message to parent-02" [ref=e358]:
+                - /placeholder: Message…
+              - generic [ref=e359]:
+                - status
+                - button "Stop parent-02" [ref=e360] [cursor=pointer]:
+                  - img [ref=e361]
+                  - text: Stop
+                - button "Send to parent-02" [disabled] [ref=e363]:
+                  - img [ref=e364]
+                  - text: Send
+          - group "Agent parent-03" [ref=e368]:
+            - generic [ref=e369]:
+              - generic [ref=e370]:
+                - heading "parent-03" [level=3] [ref=e371]
+                - generic [ref=e372]: working
+              - button "Open conversation parent-03" [ref=e373] [cursor=pointer]:
+                - img [ref=e374]
+            - generic [ref=e378]:
+              - generic [ref=e379]: test/model
+              - paragraph [ref=e380]: Reading project sources
+              - progressbar "parent-03 progress" [ref=e381]
+            - log "parent-03 messages" [ref=e383]:
+              - button "Load earlier messages" [ref=e384] [cursor=pointer]
+              - generic [ref=e386]:
+                - article [ref=e387]:
+                  - generic [ref=e388]: assistant
+                  - paragraph [ref=e390]: "parent-03: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e391]:
+                  - generic [ref=e392]: assistant
+                  - paragraph [ref=e394]: "parent-03: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e395]:
+                  - generic [ref=e396]: assistant
+                  - paragraph [ref=e398]: "parent-03: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e399]:
+                  - generic [ref=e400]: assistant
+                  - paragraph [ref=e402]: "parent-03: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e403]:
+                  - generic [ref=e404]: assistant
+                  - paragraph [ref=e406]: "parent-03: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e407]:
+                  - generic [ref=e408]: assistant
+                  - paragraph [ref=e410]: "parent-03: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e411]:
+                  - generic [ref=e412]: assistant
+                  - paragraph [ref=e414]: "parent-03: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e415]:
+                  - generic [ref=e416]: assistant
+                  - paragraph [ref=e418]: "parent-03: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e419]:
+                  - generic [ref=e420]: assistant
+                  - paragraph [ref=e422]: "parent-03: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e423]:
+                  - generic [ref=e424]: assistant
+                  - paragraph [ref=e426]: "parent-03: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e427]:
+                  - generic [ref=e428]: assistant
+                  - paragraph [ref=e430]: "parent-03: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e431]:
+                  - generic [ref=e432]: assistant
+                  - paragraph [ref=e434]: "parent-03: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e436]:
+              - textbox "Message to parent-03" [ref=e437]:
+                - /placeholder: Message…
+              - generic [ref=e438]:
+                - status
+                - button "Stop parent-03" [ref=e439] [cursor=pointer]:
+                  - img [ref=e440]
+                  - text: Stop
+                - button "Send to parent-03" [disabled] [ref=e442]:
+                  - img [ref=e443]
+                  - text: Send
+          - group "Agent parent-04" [ref=e447]:
+            - generic [ref=e448]:
+              - generic [ref=e449]:
+                - heading "parent-04" [level=3] [ref=e450]
+                - generic [ref=e451]: working
+              - button "Open conversation parent-04" [ref=e452] [cursor=pointer]:
+                - img [ref=e453]
+            - generic [ref=e457]:
+              - generic [ref=e458]: test/model
+              - paragraph [ref=e459]: Reading project sources
+              - progressbar "parent-04 progress" [ref=e460]
+            - log "parent-04 messages" [ref=e462]:
+              - button "Load earlier messages" [ref=e463] [cursor=pointer]
+              - generic [ref=e465]:
+                - article [ref=e466]:
+                  - generic [ref=e467]: assistant
+                  - paragraph [ref=e469]: "parent-04: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e470]:
+                  - generic [ref=e471]: assistant
+                  - paragraph [ref=e473]: "parent-04: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e474]:
+                  - generic [ref=e475]: assistant
+                  - paragraph [ref=e477]: "parent-04: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e478]:
+                  - generic [ref=e479]: assistant
+                  - paragraph [ref=e481]: "parent-04: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e482]:
+                  - generic [ref=e483]: assistant
+                  - paragraph [ref=e485]: "parent-04: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e486]:
+                  - generic [ref=e487]: assistant
+                  - paragraph [ref=e489]: "parent-04: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e490]:
+                  - generic [ref=e491]: assistant
+                  - paragraph [ref=e493]: "parent-04: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e494]:
+                  - generic [ref=e495]: assistant
+                  - paragraph [ref=e497]: "parent-04: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e498]:
+                  - generic [ref=e499]: assistant
+                  - paragraph [ref=e501]: "parent-04: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e502]:
+                  - generic [ref=e503]: assistant
+                  - paragraph [ref=e505]: "parent-04: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e506]:
+                  - generic [ref=e507]: assistant
+                  - paragraph [ref=e509]: "parent-04: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e510]:
+                  - generic [ref=e511]: assistant
+                  - paragraph [ref=e513]: "parent-04: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e515]:
+              - textbox "Message to parent-04" [ref=e516]:
+                - /placeholder: Message…
+              - generic [ref=e517]:
+                - status
+                - button "Stop parent-04" [ref=e518] [cursor=pointer]:
+                  - img [ref=e519]
+                  - text: Stop
+                - button "Send to parent-04" [disabled] [ref=e521]:
+                  - img [ref=e522]
+                  - text: Send
+          - group "Agent parent-05" [ref=e526]:
+            - generic [ref=e527]:
+              - generic [ref=e528]:
+                - heading "parent-05" [level=3] [ref=e529]
+                - generic [ref=e530]: working
+              - button "Open conversation parent-05" [ref=e531] [cursor=pointer]:
+                - img [ref=e532]
+            - generic [ref=e536]:
+              - generic [ref=e537]: test/model
+              - paragraph [ref=e538]: Reading project sources
+              - progressbar "parent-05 progress" [ref=e539]
+            - log "parent-05 messages" [ref=e541]:
+              - button "Load earlier messages" [ref=e542] [cursor=pointer]
+              - generic [ref=e544]:
+                - article [ref=e545]:
+                  - generic [ref=e546]: assistant
+                  - paragraph [ref=e548]: "parent-05: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e549]:
+                  - generic [ref=e550]: assistant
+                  - paragraph [ref=e552]: "parent-05: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e553]:
+                  - generic [ref=e554]: assistant
+                  - paragraph [ref=e556]: "parent-05: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e557]:
+                  - generic [ref=e558]: assistant
+                  - paragraph [ref=e560]: "parent-05: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e561]:
+                  - generic [ref=e562]: assistant
+                  - paragraph [ref=e564]: "parent-05: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e565]:
+                  - generic [ref=e566]: assistant
+                  - paragraph [ref=e568]: "parent-05: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e569]:
+                  - generic [ref=e570]: assistant
+                  - paragraph [ref=e572]: "parent-05: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e573]:
+                  - generic [ref=e574]: assistant
+                  - paragraph [ref=e576]: "parent-05: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e577]:
+                  - generic [ref=e578]: assistant
+                  - paragraph [ref=e580]: "parent-05: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e581]:
+                  - generic [ref=e582]: assistant
+                  - paragraph [ref=e584]: "parent-05: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e585]:
+                  - generic [ref=e586]: assistant
+                  - paragraph [ref=e588]: "parent-05: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e589]:
+                  - generic [ref=e590]: assistant
+                  - paragraph [ref=e592]: "parent-05: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e594]:
+              - textbox "Message to parent-05" [ref=e595]:
+                - /placeholder: Message…
+              - generic [ref=e596]:
+                - status
+                - button "Stop parent-05" [ref=e597] [cursor=pointer]:
+                  - img [ref=e598]
+                  - text: Stop
+                - button "Send to parent-05" [disabled] [ref=e600]:
+                  - img [ref=e601]
+                  - text: Send
+          - group "Agent parent-06" [ref=e605]:
+            - generic [ref=e606]:
+              - generic [ref=e607]:
+                - heading "parent-06" [level=3] [ref=e608]
+                - generic [ref=e609]: working
+              - button "Open conversation parent-06" [ref=e610] [cursor=pointer]:
+                - img [ref=e611]
+            - generic [ref=e615]:
+              - generic [ref=e616]: test/model
+              - paragraph [ref=e617]: Reading project sources
+              - progressbar "parent-06 progress" [ref=e618]
+            - log "parent-06 messages" [ref=e620]:
+              - button "Load earlier messages" [ref=e621] [cursor=pointer]
+              - generic [ref=e623]:
+                - article [ref=e624]:
+                  - generic [ref=e625]: assistant
+                  - paragraph [ref=e627]: "parent-06: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e628]:
+                  - generic [ref=e629]: assistant
+                  - paragraph [ref=e631]: "parent-06: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e632]:
+                  - generic [ref=e633]: assistant
+                  - paragraph [ref=e635]: "parent-06: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e636]:
+                  - generic [ref=e637]: assistant
+                  - paragraph [ref=e639]: "parent-06: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e640]:
+                  - generic [ref=e641]: assistant
+                  - paragraph [ref=e643]: "parent-06: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e644]:
+                  - generic [ref=e645]: assistant
+                  - paragraph [ref=e647]: "parent-06: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e648]:
+                  - generic [ref=e649]: assistant
+                  - paragraph [ref=e651]: "parent-06: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e652]:
+                  - generic [ref=e653]: assistant
+                  - paragraph [ref=e655]: "parent-06: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e656]:
+                  - generic [ref=e657]: assistant
+                  - paragraph [ref=e659]: "parent-06: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e660]:
+                  - generic [ref=e661]: assistant
+                  - paragraph [ref=e663]: "parent-06: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e664]:
+                  - generic [ref=e665]: assistant
+                  - paragraph [ref=e667]: "parent-06: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e668]:
+                  - generic [ref=e669]: assistant
+                  - paragraph [ref=e671]: "parent-06: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e673]:
+              - textbox "Message to parent-06" [ref=e674]:
+                - /placeholder: Message…
+              - generic [ref=e675]:
+                - status
+                - button "Stop parent-06" [ref=e676] [cursor=pointer]:
+                  - img [ref=e677]
+                  - text: Stop
+                - button "Send to parent-06" [disabled] [ref=e679]:
+                  - img [ref=e680]
+                  - text: Send
+          - group "Agent parent-07" [ref=e684]:
+            - generic [ref=e685]:
+              - generic [ref=e686]:
+                - heading "parent-07" [level=3] [ref=e687]
+                - generic [ref=e688]: working
+              - button "Open conversation parent-07" [ref=e689] [cursor=pointer]:
+                - img [ref=e690]
+            - generic [ref=e694]:
+              - generic [ref=e695]: test/model
+              - paragraph [ref=e696]: Reading project sources
+              - progressbar "parent-07 progress" [ref=e697]
+            - log "parent-07 messages" [ref=e699]:
+              - button "Load earlier messages" [ref=e700] [cursor=pointer]
+              - generic [ref=e702]:
+                - article [ref=e703]:
+                  - generic [ref=e704]: assistant
+                  - paragraph [ref=e706]: "parent-07: Current transcript output 0. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e707]:
+                  - generic [ref=e708]: assistant
+                  - paragraph [ref=e710]: "parent-07: Current transcript output 1. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e711]:
+                  - generic [ref=e712]: assistant
+                  - paragraph [ref=e714]: "parent-07: Current transcript output 2. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e715]:
+                  - generic [ref=e716]: assistant
+                  - paragraph [ref=e718]: "parent-07: Current transcript output 3. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e719]:
+                  - generic [ref=e720]: assistant
+                  - paragraph [ref=e722]: "parent-07: Current transcript output 4. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e723]:
+                  - generic [ref=e724]: assistant
+                  - paragraph [ref=e726]: "parent-07: Current transcript output 5. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e727]:
+                  - generic [ref=e728]: assistant
+                  - paragraph [ref=e730]: "parent-07: Current transcript output 6. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e731]:
+                  - generic [ref=e732]: assistant
+                  - paragraph [ref=e734]: "parent-07: Current transcript output 7. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e735]:
+                  - generic [ref=e736]: assistant
+                  - paragraph [ref=e738]: "parent-07: Current transcript output 8. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e739]:
+                  - generic [ref=e740]: assistant
+                  - paragraph [ref=e742]: "parent-07: Current transcript output 9. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e743]:
+                  - generic [ref=e744]: assistant
+                  - paragraph [ref=e746]: "parent-07: Current transcript output 10. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+                - article [ref=e747]:
+                  - generic [ref=e748]: assistant
+                  - paragraph [ref=e750]: "parent-07: Current transcript output 11. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable. Source details remain readable."
+            - generic [ref=e752]:
+              - textbox "Message to parent-07" [ref=e753]:
+                - /placeholder: Message…
+              - generic [ref=e754]:
+                - status
+                - button "Stop parent-07" [ref=e755] [cursor=pointer]:
+                  - img [ref=e756]
+                  - text: Stop
+                - button "Send to parent-07" [disabled] [ref=e758]:
+                  - img [ref=e759]
+                  - text: Send
+          - button "Show parent-08" [ref=e763] [cursor=pointer]
+          - button "Show parent-09" [ref=e765] [cursor=pointer]
+          - button "Show parent-10" [ref=e767] [cursor=pointer]
+          - button "Show parent-11" [ref=e769] [cursor=pointer]
+          - button "Show parent-12" [ref=e771] [cursor=pointer]
+          - button "Show parent-13" [ref=e773] [cursor=pointer]
+          - button "Show parent-14" [ref=e775] [cursor=pointer]
+          - button "Show parent-15" [ref=e777] [cursor=pointer]
+          - button "Show parent-16" [ref=e779] [cursor=pointer]
+          - button "Show parent-17" [ref=e781] [cursor=pointer]
+          - button "Show parent-18" [ref=e783] [cursor=pointer]
+          - button "Show parent-19" [ref=e785] [cursor=pointer]
+          - button "Show parent-20" [ref=e787] [cursor=pointer]
+          - button "Show parent-21" [ref=e789] [cursor=pointer]
+          - button "Show parent-22" [ref=e791] [cursor=pointer]
+          - button "Show parent-23" [ref=e793] [cursor=pointer]
+          - button "Show parent-24" [ref=e795] [cursor=pointer]
+          - button "Show parent-25" [ref=e797] [cursor=pointer]
+          - button "Show parent-26" [ref=e799] [cursor=pointer]
+          - button "Show parent-27" [ref=e801] [cursor=pointer]
+          - button "Show parent-28" [ref=e803] [cursor=pointer]
+          - button "Show parent-29" [ref=e805] [cursor=pointer]
+          - button "Show parent-30" [ref=e807] [cursor=pointer]
+          - button "Show parent-31" [ref=e809] [cursor=pointer]
+          - button "Show parent-32" [ref=e811] [cursor=pointer]
+      - region "Project Beta" [ref=e812]:
+        - generic [ref=e813]:
+          - generic [ref=e814]: B
+          - heading "Beta" [level=2] [ref=e815]
+          - generic [ref=e816]: 1 working
+        - region "Beta agents" [ref=e818]:
+          - button "Show beta-parent" [ref=e820] [cursor=pointer]
+```

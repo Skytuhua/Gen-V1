@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T04:14:21.397Z",
+  "endedAt": "2026-11-16T04:14:49.950Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-layout-chromium-initial-01.log",
+  "logDigest": "29c98888a6d0a015dfccc551daacee85b9e59d713b4b71c7e5f50762ab556a83"
+}

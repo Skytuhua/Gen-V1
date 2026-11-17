@@ -1,0 +1,82 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--grep","accepted stale input|rollback permits cancellation","--reporter=list","--output=test-results/m15-input-recovery-red-02"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench-app.spec.ts:661:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (30.3s)
+(node:166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/e2e/workbench-app.spec.ts:716:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (30.3s)
+
+
+  1) tests/e2e/workbench-app.spec.ts:661:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Inspect queued source inputs', exact: true })[22m
+
+
+       96 |  h.state.inputs=[{inputId:'accepted-input',state:'BLOCKED',sourceCount:1,canKeepCaptured:true,canCancel:true,reason:'The captured source changed before dispatch.',sourceRefs:[h.captures.get('capture-1')!.ref]}];
+       97 |  await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);
+    >  98 |  await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();const panel=page.getByRole('dialog',{name:'Sources and evidence'});await expect(panel).toContainText('captured source changed');
+          |                                                                                  ^
+       99 |  h.state.dropRecovery=true;await panel.getByRole('button',{name:'Keep captured sources',exact:true}).click();await expect(panel.getByRole('alert')).toContainText(/fetch|network/i);await page.reload();
+      100 |  await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();await page.getByRole('dialog',{name:'Sources and evidence'}).getByRole('button',{name:'Keep captured sources',exact:true}).click();
+      101 |  await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toContainText('Resume the run explicitly');expect(h.recoveries).toHaveLength(2);expect(h.recoveries[1]).toEqual(h.recoveries[0]);expect(h.commands.filter(command=>command.type==='run.resume')).toHaveLength(0);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:98:82
+
+    Error Context: test-results/m15-input-recovery-red-02/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m15-input-recovery-red-02/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/m15-input-recovery-red-02/workbench-app-accepted-sta-948b8-an-uncertain-acknowledgment/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/workbench-app.spec.ts:716:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Inspect queued source inputs', exact: true })[22m
+
+
+      103 | test('rollback permits cancellation of an undispatched accepted input without exposing revoked sources',async({page})=>{
+      104 |  const h=await fixture(page,false);h.state.inputs=[{inputId:'blocked-input',state:'BLOCKED',sourceCount:1,canKeepCaptured:false,canCancel:true,reason:'Retained sources cannot be authorized.'}];h.snapshot.threads[0].epoch++;await h.publish();
+    > 105 |  await page.getByRole('button',{name:'Inspect queued source inputs',exact:true}).click();const panel=page.getByRole('dialog',{name:'Sources and evidence'});await expect(panel.getByRole('button',{name:'Keep captured sources',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:/Inspect retained source/})).toHaveCount(0);await panel.getByRole('button',{name:'Cancel undispatched input',exact:true}).click();await expect(panel).toContainText('Cancelled the undispatched input');expect(h.recoveries[0]).toMatchObject({inputId:'blocked-input',action:'CANCEL'});expect(h.commands.filter(command=>command.type==='run.resume')).toHaveLength(0);
+          |                                                                                  ^
+      106 | });
+      107 | test('definitive precommit source rejection unlocks removal and ordinary resubmission',async({page})=>{
+      108 |  const h=await fixture(page);await attach(page);await editor(page).fill('Retain rejected text');let reject=true;
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:105:82
+
+    Error Context: test-results/m15-input-recovery-red-02/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m15-input-recovery-red-02/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/m15-input-recovery-red-02/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/e2e/workbench-app.spec.ts:661:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment 
+    tests/e2e/workbench-app.spec.ts:716:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources 

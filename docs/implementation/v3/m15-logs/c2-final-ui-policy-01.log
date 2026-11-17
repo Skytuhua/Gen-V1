@@ -1,0 +1,13 @@
+argv: ["node","--import","tsx","scripts/lint-ui.ts","--check"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+apps/web/src/source-workbench.css:3:1 [ad-hoc-overlay] Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.
+apps/web/src/source-workbench.css:8:1 [ad-hoc-overlay] Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.
+apps/web/src/SourceSelectionActions.tsx:94:26 [ad-hoc-overlay] React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+apps/web/src/SourceWorkbench.tsx:160:20 [ad-hoc-overlay] native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+apps/web/src/SourceWorkbench.tsx:184:9 [ad-hoc-overlay] React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+apps/web/src/SourceWorkbench.tsx:184:22 [ad-hoc-overlay] overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+apps/web/src/SourceWorkbench.tsx:184:58 [ad-hoc-overlay] overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+apps/web/src/WorkbenchPanelContent.tsx:62:49 [ad-hoc-overlay] native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.
+UI guard: 542 sources; 8 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

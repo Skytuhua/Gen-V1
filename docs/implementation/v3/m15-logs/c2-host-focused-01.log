@@ -1,0 +1,70 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","tests/source-selection-v3.test.ts","tests/accounts.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/accounts.test.ts (16 tests | 2 failed) 571ms
+   × pins account discovery before awaits and rejects a default changed before first admission 21ms
+   × rechecks the login reservation after asynchronous model discovery before committing a message 28ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/accounts.test.ts > pins account discovery before awaits and rejects a default changed before first admission
+AssertionError: expected last "vi.fn()" call to have been called with [ Array(1) ]
+
+- Expected:
+[
+  {
+    "accountId": "34d0b186-1d8e-4139-a6fe-6ba0d53d19e6",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ tests/accounts.test.ts:59:27
+     57|  vi.mocked(f.runtime.models).mockImplementationOnce(()=>new Promise(do…
+     58|  const pending=f.send('message.send',{content:'First',modelId:'openai/…
+     59|  expect(f.runtime.models).toHaveBeenLastCalledWith({accountId:a.id});
+       |                           ^
+     60|  await f.send('account.select',{providerId:'openai',accountId:b.id});r…
+     61|  await expect(pending).rejects.toMatchObject({code:'ACCOUNT_SELECTION_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/accounts.test.ts > rechecks the login reservation after asynchronous model discovery before committing a message
+TypeError: release is not a function
+ ❯ tests/accounts.test.ts:109:143
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: Wait for account sign-in to finish before starting work.
+ ❯ packages/core/service.ts:569:92
+
+ ❯ processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ Service.command packages/core/service.ts:574:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ACCOUNT_SIGNING_IN', details: { sendAccepted: false } }
+This error originated in "tests/accounts.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not forward natural settlement until the native adapter has stopped using credentials". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 66 passed | 2 skipped (70)
+     Errors  1 error
+   Start at  08:25:24
+   Duration  7.39s (transform 2.56s, setup 0ms, import 3.62s, tests 3.10s, environment 0ms)
+

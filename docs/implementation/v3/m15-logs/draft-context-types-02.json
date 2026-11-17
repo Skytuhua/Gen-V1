@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:53:58.085Z",
+  "endedAt": "2026-11-15T21:55:01.430Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-types-02.log",
+  "logDigest": "e71f9ba9134388a5715fd3850d98ca95ae0651d30d79611ff93031699d75ea07"
+}

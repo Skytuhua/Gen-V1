@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "test",
+    "--maxWorkers=2",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c2-full-repository-test-01-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:53:39.421Z",
+  "endedAt": "2026-11-16T01:00:39.918Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-full-repository-test-01.log",
+  "logDigest": "be94231d1943b5932552c90c7a13f0c6b0e936ff394fa0782229f7c86abc36ae"
+}

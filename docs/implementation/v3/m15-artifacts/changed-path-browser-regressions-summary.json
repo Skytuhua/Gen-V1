@@ -1,0 +1,280 @@
+{
+  "declaredAttempts": [
+    {
+      "suite": "usage-context",
+      "status": "DECLARED_EDGE_UNAVAILABLE",
+      "recordedExitCode": 1,
+      "receipt": "docs/implementation/v3/m15-logs/usage-context-declared-01.json",
+      "logDigest": "9b61742966201144aeba91663992e6175352975378202dda3c87d8335cf6e87e",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/usage-context-declared-01-results.json",
+      "resultsDigest": "e6a523b04ac7a6ee395d2d9a0cd75cc85c41b3cd63c0296e605ebd2bb84323f0",
+      "stats": {
+        "startTime": "2026-11-15T22:23:29.254Z",
+        "duration": 34416.254,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 21,
+        "flaky": 0
+      },
+      "error": "Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge",
+      "originalConfig": "tests/e2e/usage-context.playwright.config.ts",
+      "originalConfigDigest": "42a248a6c340ebfdf6905643ec00c212f2a330b6f40a42465de7bd9c8035cb0b",
+      "originalSpec": "tests/e2e/usage-context.spec.ts",
+      "originalSpecDigest": "8f8a5d2c9da03e526a65991ee23bf9cee8f3392d5f3a3f69e5e345d45064cfaf",
+      "suiteEnvironment": {},
+      "originalInputsUnchangedAfterRuns": true
+    },
+    {
+      "suite": "agents-workspace",
+      "status": "DECLARED_EDGE_UNAVAILABLE",
+      "recordedExitCode": 1,
+      "receipt": "docs/implementation/v3/m15-logs/agents-workspace-declared-01.json",
+      "logDigest": "e8bf32b8e92150e354bac40a4d1e39908d4c80e5438ba339e2f734f0edc81a27",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/agents-workspace-declared-01-results.json",
+      "resultsDigest": "e720cc9d5c6fde16dbc3393c160ba279e03d2ccf426978e6d0540e11fd9bcac4",
+      "stats": {
+        "startTime": "2026-11-15T22:23:29.351Z",
+        "duration": 26923.107,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 15,
+        "flaky": 0
+      },
+      "error": "Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge",
+      "originalConfig": "tests/e2e/agents-workspace.playwright.config.ts",
+      "originalConfigDigest": "d3ebf8d76b33c0a32b16fafb8b4cb7b578cf4b6117370a4e5d2c5f8ac996ae0e",
+      "originalSpec": "tests/e2e/agents-workspace.spec.ts",
+      "originalSpecDigest": "cd435502066f628e3b234181b677c931af029d8eef0d1433c8a737fb6eb19d03",
+      "suiteEnvironment": {
+        "AGENTSUI_APP_CANDIDATE": "1"
+      },
+      "originalInputsUnchangedAfterRuns": true
+    },
+    {
+      "suite": "scoped-conversation",
+      "status": "DECLARED_EDGE_UNAVAILABLE",
+      "recordedExitCode": 1,
+      "receipt": "docs/implementation/v3/m15-logs/scoped-conversation-declared-01.json",
+      "logDigest": "d07722aa24d21fb21e4511597f2b603d8cc0376309a36857d5478500d7c36701",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/scoped-conversation-declared-01-results.json",
+      "resultsDigest": "6f42a5b89c6946d07fb27a9935f1fab033075d1bc1e84e887d7b4d7f20f94f8c",
+      "stats": {
+        "startTime": "2026-11-15T22:23:29.899Z",
+        "duration": 25454.692000000003,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 15,
+        "flaky": 0
+      },
+      "error": "Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge",
+      "originalConfig": "tests/e2e/scoped-conversation.playwright.config.ts",
+      "originalConfigDigest": "0fe83b29de917cee83d24a5cecd4f6f6d2977cf54d0a731ee3db3fed1f198cbc",
+      "originalSpec": "tests/e2e/scoped-conversation.spec.ts",
+      "originalSpecDigest": "0a3ce74b6e0d73df0915eb0da77381d9bb6cd4611427f57b76da482e6f8a02e1",
+      "suiteEnvironment": {},
+      "originalInputsUnchangedAfterRuns": true
+    }
+  ],
+  "chromiumEquivalents": [
+    {
+      "suite": "usage-context",
+      "status": "PASS",
+      "exitCode": 0,
+      "receipt": "docs/implementation/v3/m15-logs/usage-context-chromium-01.json",
+      "logDigest": "8170c21c8ca1419e9920eb3ec6ae6f0938d053f2d151d7036d5a9ac42162b330",
+      "adapter": "docs/implementation/v3/m15-artifacts/browser-adapters/usage-context.chromium.playwright.config.ts",
+      "adapterDigest": "fe3e96e5ef5c3da517f02927847f86bfaaed7a391447bc12a54e3678b2c4e772",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/usage-context-chromium-01-results.json",
+      "resultsDigest": "27bde25d12c9536eb80f7ff5d4386e4728d1f3675a0757dec6ffd9d667c05126",
+      "stats": {
+        "startTime": "2026-11-15T22:24:41.303Z",
+        "duration": 26158.395,
+        "expected": 21,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "environment": {
+        "GEN_E2E": "1",
+        "GEN_MEMORY_MODE": ""
+      },
+      "screenshots": [
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/context-light-short.png",
+          "sha256": "62bfb47b5a2f411f8643a7bf3eddf1ff37fc122770047c51205b9077baee1972",
+          "bytes": 20097
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/context-dark-short.png",
+          "sha256": "daf25796526d14592a70de700006be11110660f5fac9c60f439866b870055bf2",
+          "bytes": 19004
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/usage-light-short.png",
+          "sha256": "6cb4a27be253d0f42c3650cf0ad92e4af2089d9004f157330118045bc3c8b277",
+          "bytes": 16172
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/usage-context-chromium-01/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/usage-dark-short.png",
+          "sha256": "db515ee714e6d0393385e8ae7d02773b149cc5b7abd1a20103e1b0f1833e5e2c",
+          "bytes": 16197
+        }
+      ]
+    },
+    {
+      "suite": "agents-workspace",
+      "status": "FAIL",
+      "exitCode": 1,
+      "receipt": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json",
+      "logDigest": "26c197a5458ca52c8cc00b4685c560a680d1c6b93eeb9ebb25d41cf9563304d5",
+      "adapter": "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+      "adapterDigest": "7cf0fa13835a404083b454b4a902044e81c6c983b5def035494760625750d5ca",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01-results.json",
+      "resultsDigest": "8c566cb84e4b7bf57d6fb1516e6f488c9482d6f38b788ac23c6edad5ef5b6dac",
+      "stats": {
+        "startTime": "2026-11-15T22:25:41.138Z",
+        "duration": 63182.487,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "environment": {
+        "GEN_E2E": "1",
+        "GEN_MEMORY_MODE": "",
+        "AGENTSUI_APP_CANDIDATE": "1"
+      },
+      "artifacts": [
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-child-fol-030cb-rent-ticket-through-handled/error-context.md",
+          "sha256": "4520e248760acffeaa7bcb9f433f4c98cd8c0684b2cf94a6616bd67e0bf5ecc1",
+          "bytes": 35868
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip",
+          "sha256": "13e9921711d64b640ba26bc352529a9c8d300291fceb8263e9900512e75efad8",
+          "bytes": 1806865
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-first-age-596b1-arent-conversations-at-1440/error-context.md",
+          "sha256": "99a4df9d77a4c143fb347ce47449ecec83e09989ef9db139a9933397215a1709",
+          "bytes": 741
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip",
+          "sha256": "ecc38ef6648e959e06f0de00d4e1101e4a3b1dfc7aaee26d1ae8fbdb57b28849",
+          "bytes": 127984
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+          "sha256": "fdd68c1862261386480a301ab328469422a9cf0a6aeb04b68b1ab37a4fdec429",
+          "bytes": 87726
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+          "sha256": "5bd8a7312e8f540f05b0e468cbd5ea4ee31fd9974465c3de5f9905048ff42fcd",
+          "bytes": 35223
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+          "sha256": "2a1d260c77fe388f89c9e303b168a082b77a63e1e3b24c1ecc219dcb2af3f292",
+          "bytes": 63729
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/agents-workspace-chromium-01/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+          "sha256": "3a389362bf55a71bf3fad44762ca4d1226ef8e94b0c57ece25be56314018722d",
+          "bytes": 29429
+        }
+      ],
+      "failures": [
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status').filter({ hasText: 'Loading agents' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status').filter({ hasText: 'Loading agents' })\u001b[22m\n\n\n  52 |  const h = await setup(page, false, false, true);\n  53 |  try {\n> 54 |   await expect(page.getByRole('status').filter({hasText: 'Loading agents'})).toBeVisible();\n     |                                                                              ^\n  55 |   await expect(page.locator('.loading-agents .agents-project-header').first()).toBeVisible();\n  56 |   await expect(page.locator('.loading-agents .agents-transcript').first()).toBeVisible();\n  57 |   await expect(page.locator('.loading-agents .loading-composer').first()).toBeVisible();\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:54:78"
+          ]
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\nExpected: \u001b[32m\"processing\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\u001b[22m\n\u001b[2m    2 \u00d7 locator resolved to <span role=\"status\">Sending\u2026</span>\u001b[22m\n\u001b[2m      - unexpected value \"Sending\u2026\"\u001b[22m\n\u001b[2m    7 \u00d7 locator resolved to <span role=\"status\"></span>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n\n  146 |  await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});\n  147 |  await input.fill('Read the next source'); await expect(child.getByRole('button', {name: 'Send to child-active', exact: true})).toBeEnabled(); await input.press('Enter');\n> 148 |  await expect(child.getByRole('status')).toHaveText('processing'); expect(h.commands).toHaveLength(1);\n      |                                          ^\n  149 |  expect(h.commands[0]).toMatchObject({type: 'agent.followUp', threadId: 'parent-00', payload: {jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}, content: 'Read the next source'}});\n  150 |  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);\n  151 |  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:148:42"
+          ]
+        }
+      ],
+      "diagnosis": {
+        "readiness": "First 1440 case did not observe Loading agents within the unchanged five-second assertion deadline. No baseline attribution.",
+        "childFollowUp": "Captured request has the expected parent/run/content. Fixture receipt uses id/status/result, whereas the unchanged command client requires commandId/result/eventSeq-or-seq. The response is rejected before ticket read.",
+        "baselineExecution": "NOT_PERFORMED",
+        "unchangedSourceEvidence": [
+          {
+            "path": "apps/web/src/api.ts",
+            "baseBlob": "65d567ae8e591fa59ffa6fd72a1ffe775cac3abd",
+            "currentBlob": "65d567ae8e591fa59ffa6fd72a1ffe775cac3abd",
+            "unchanged": true
+          },
+          {
+            "path": "apps/web/src/agent-input-api.ts",
+            "baseBlob": "6f333eb3256e7e8797311cc497190c5beb44cb02",
+            "currentBlob": "6f333eb3256e7e8797311cc497190c5beb44cb02",
+            "unchanged": true
+          },
+          {
+            "path": "apps/web/src/agents-workspace/follow-up.ts",
+            "baseBlob": "c15166314fd02530068f7e2461434ca0951804f5",
+            "currentBlob": "c15166314fd02530068f7e2461434ca0951804f5",
+            "unchanged": true
+          },
+          {
+            "path": "tests/e2e/agents-workspace.spec.ts",
+            "baseBlob": "960d6b8de715c7dd496484c5cb57a377023571bb",
+            "currentBlob": "960d6b8de715c7dd496484c5cb57a377023571bb",
+            "unchanged": true
+          }
+        ]
+      }
+    },
+    {
+      "suite": "scoped-conversation",
+      "status": "PASS",
+      "exitCode": 0,
+      "receipt": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json",
+      "logDigest": "020ee22a2d89b0803f7d765f9ac3577b4abcca6984d63b65fb29d1e617898695",
+      "adapter": "docs/implementation/v3/m15-artifacts/browser-adapters/scoped-conversation.chromium.playwright.config.ts",
+      "adapterDigest": "e2e17f6b505ef64ed15234a08e4f1bec9652dcfc358b21bb3228a861d547ebfa",
+      "resultsArtifact": "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01-results.json",
+      "resultsDigest": "84f7a32d9ca4b366e51bf29741e3d9f20919eea542a0eaaa84d6664cb3724892",
+      "stats": {
+        "startTime": "2026-11-15T22:27:43.241Z",
+        "duration": 29343.875,
+        "expected": 15,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "environment": {
+        "GEN_E2E": "1",
+        "GEN_MEMORY_MODE": ""
+      },
+      "screenshots": [
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/01-dark-transcript.png",
+          "sha256": "9659b44007b77783a8818f0b5109aee594e2f1a84242fb3bda51b291cd5f21c4",
+          "bytes": 42445
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/02-light-short-zoom.png",
+          "sha256": "bebe7ae113b6826e8b4255cb100398d0cd237330c1df73d09315c09edbb61518",
+          "bytes": 24063
+        },
+        {
+          "artifact": "docs/implementation/v3/m15-artifacts/scoped-conversation-chromium-01/scoped-conversation-stays--2412a-00-zoom-with-reduced-motion/03-dark-short-zoom.png",
+          "sha256": "0502653749b5f9549b56a7ef0a057b9cd4aaae2dff485cacb56cad6067371fb2",
+          "bytes": 24029
+        }
+      ]
+    }
+  ],
+  "platformLimit": "Chromium equivalents do not establish Edge or Windows coverage.",
+  "outcome": "PARTIAL",
+  "acceptedBase": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "summary": "Declared Edge is unavailable. Unmodified Chromium-equivalent assertions: usage/context 21 passed; agents workspace 13 passed and 2 failed; scoped conversation 15 passed. Product code and suite assertions/deadlines were not changed for these runs."
+}

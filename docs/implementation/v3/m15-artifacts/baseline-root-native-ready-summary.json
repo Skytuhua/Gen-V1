@@ -1,0 +1,320 @@
+{
+  "stats": {
+    "startTime": "2026-11-15T21:40:31.340Z",
+    "duration": 528994.2969999999,
+    "expected": 79,
+    "skipped": 1,
+    "unexpected": 33,
+    "flaky": 0
+  },
+  "groups": {
+    "host-loop.spec.ts": 7,
+    "latency.spec.ts": 1,
+    "plan-timeline.spec.ts": 17,
+    "signing-motion.spec.ts": 1,
+    "skills.spec.ts": 7
+  },
+  "failures": [
+    {
+      "file": "host-loop.spec.ts",
+      "line": 46,
+      "title": "actual create/send, cookies/CSRF/SSE and structured host autosave survive reload",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:32:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 140,
+      "title": "durable decision validation and acceptance continue the same owning runtime once",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:72:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 252,
+      "title": "generated operation button requires native approval; restart restores without repeating effects",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:112:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 332,
+      "title": "stale structured action shows rejection and retains its local review UI",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:153:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 361,
+      "title": "generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:170:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 612,
+      "title": "cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:245:3"
+      ]
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "line": 708,
+      "title": "generated program startup failure preserves host controls and durable artifact state",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/host-loop.spec.ts:293:3"
+      ]
+    },
+    {
+      "file": "latency.spec.ts",
+      "line": 5,
+      "title": "records local, committed-event and specification latency independently of inference",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   at ../host-fixture.ts:156\n\n  154 | export async function openHost(page: Page) {\n  155 |   await page.goto(HOST_URL);\n> 156 |   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();\n      |                                                                             ^\n  157 |   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);\n  158 | }\n  159 | export async function sendFixture(page: Page, mode: string) {\n    at openHost (/workspace/scratch/1b47eb428672/gen-v1/tests/host-fixture.ts:156:77)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/latency.spec.ts:8:2"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 10,
+      "title": "does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 24,
+      "title": "all details are expanded and assigned branches nest and rejoin before the dependent step",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 44,
+      "title": "retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 64,
+      "title": "resets the snapshot fence on thread switch and retains the old plan during restart publication",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 92,
+      "title": "retains a valid plan when the latest canonical graph is malformed",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 105,
+      "title": "host replan preserves assignment, collapse and reading anchor when earlier details grow",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 138,
+      "title": "collapsed step identity survives returning from another thread and stale epochs never regress it",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 162,
+      "title": "deep nested agents and long output labels fit a 280px panel without hiding details",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 185,
+      "title": "manual collapse survives reopening the plan with the same exact thread and step identity",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "dark narrow/short 100% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "dark narrow/short 125% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "dark narrow/short 150% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "light narrow/short 100% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "light narrow/short 125% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 194,
+      "title": "light narrow/short 150% geometry and reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 233,
+      "title": "dark desktop parallel branches and join",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "line": 233,
+      "title": "light desktop parallel branches and join",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'.\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at eval (eval at predicate (eval at evaluate (:290:30)), <anonymous>:1:7)\n    at predicate (eval at evaluate (:290:30), <anonymous>:7:23)\n    at next (eval at evaluate (:290:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:290:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/plan-timeline.spec.ts:6:14"
+      ]
+    },
+    {
+      "file": "signing-motion.spec.ts",
+      "line": 335,
+      "title": "failed original-hash handoff clears retained source pixels",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.document-preview')\nExpected: \u001b[32m\"ready\"\u001b[39m\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('.document-preview')\u001b[22m\n\u001b[2m    2 \u00d7 locator resolved to <section aria-busy=\"true\" data-fit=\"width\" class=\"document-preview\" aria-label=\"Agreement.pdf\" data-preview-state=\"updating\">\u2026</section>\u001b[22m\n\u001b[2m      - unexpected value \"updating\"\u001b[22m\n\n\n  91 | });\n  92 | for (const failure of ['denied', 'hash', 'cross-thread', 'original-hash', 'original-grant', 'unapproved', 'unknown'] as const) test(`failed ${failure} handoff clears retained source pixels`, async ({ page }) => {\n> 93 |   const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview'); await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 });\n     |                                                                                                                                    ^\n  94 |   if (failure === 'denied') host.deny(); else if (failure === 'hash') host.corrupt(); else if (failure === 'cross-thread') host.snapshot.operations[0].threadId = 'another-thread'; else if (failure === 'original-hash') host.snapshot.operations[0].preconditions.sha256 = 'c'.repeat(64); else if (failure === 'original-grant') host.snapshot.resources.find(grant => grant.id === 'input')!.path = 'C:/changed/input'; else if (failure === 'unapproved') host.snapshot.operations[0].approved = false; else host.snapshot.operations[0].status = 'unknown';\n  95 |   await host.complete(); await expect(preview.getByRole('alert')).toBeVisible(); expect(await preview.locator('canvas').evaluate(node => (node as HTMLCanvasElement).width)).toBe(0);\n  96 | });\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/signing-motion.spec.ts:93:132"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 377,
+      "title": "retirement during a history read marks only that row and preserves a newer draft generation",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  57 |  const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep the open editor draft.');await page.getByRole('button',{name:'View revision 1',exact:true}).click();await held.started;\n  58 |  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();\n> 59 |  await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();\n     |                                        ^\n  60 |  await expect(input).toHaveValue('Keep the open editor draft.');expect(await readSkillDraft(page)).toEqual(newer);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(2);\n  61 |  await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Newer recovered instructions.');\n  62 | });\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:59:40"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 420,
+      "title": "retirement after historical detail rejects restore once and preserves the newer recovery draft",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The original source for this revision is no longer available.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  65 |  x.historyControl.beforeRestore=held.wait;await page.getByRole('button',{name:'Restore this revision',exact:true}).click();await held.started;\n  66 |  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();\n> 67 |  await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'Restore this revision',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();\n     |                                        ^\n  68 |  await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail(2).content);\n  69 |  expect(await readSkillDraft(page)).toEqual(newer);expect(x.snapshot.skills[0].revision).toBe(2);expect(x.saved.content).toBe(detail(2).content);expect(x.host.commands.filter(row=>row.type==='skill.manage')).toHaveLength(1);expect(x.reads).toBe(2);\n  70 | });\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:67:40"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 467,
+      "title": "ordinary history transport failures stay retryable and do not retire source rows",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected: \u001b[32m\"The canonical source is busy.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  71 | test('ordinary history transport failures stay retryable and do not retire source rows',async({page})=>{\n  72 |  const x=await fixture(page,{sourceHistory:true});x.historyControl.error={code:'HERMES_SOURCE_BUSY',message:'The canonical source is busy.'};await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();\n> 73 |  await expect(page.getByRole('alert')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);\n     |                                        ^\n  74 |  x.historyControl.error=undefined;await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(3);\n  75 | });\n  76 |\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:73:40"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 502,
+      "title": "empty libraries and automatic review controls work with old snapshots",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Skills & learning', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Skills & learning', exact: true })\u001b[22m\n\n\n  76 |\n  77 | test('empty libraries and automatic review controls work with old snapshots',async({page})=>{\n> 78 |  const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & learning',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);\n     |                                                                                                                                                                                                                                                                       ^\n  79 |  await page.getByRole('switch',{name:'Automatic learning reviews',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningEnabled:false});\n  80 |  await page.getByRole('switch',{name:'Require approval for agent writes',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningApproval:true});\n  81 |  await page.getByRole('spinbutton',{name:'Review after model iterations',exact:true}).fill('20');await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningInterval:20});\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:78:263"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 631,
+      "title": "a conflicting skill edit survives refresh and reload until the user chooses a saved version",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Your draft is retained\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  101 | });\n  102 | test('a conflicting skill edit survives refresh and reload until the user chooses a saved version',async({page})=>{\n> 103 |  const x=await fixture(page,{stale:true});await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep my local review of the procedure.');await page.getByRole('button',{name:'Save skill',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Your draft is retained');await expect(input).toHaveValue('Keep my local review of the procedure.');\n      |                                                                                                                                                                                                                                                                                                                                                                                                             ^\n  104 |  await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Keep my local review of the procedure.');\n  105 |  await page.getByRole('button',{name:'Review saved version',exact:true}).click();await expect(page.getByText(detail(2).content,{exact:true})).toBeVisible();await expect(input).toHaveValue('Keep my local review of the procedure.');await page.getByRole('button',{name:'Use saved version',exact:true}).click();await expect(input).toHaveValue(detail(2).content);\n  106 | });\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:103:397"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 811,
+      "title": "unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Runtime cleanup is unconfirmed.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  120 | test('unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry',async({page})=>{\n  121 |  const x=await fixture(page,{empty:true});x.snapshot.learning={supported:true,status:'blocked',lastReview:{sourceThreadId:'task-thread',sourceRunId:'review-1',modelId:'fixture-model',accountId:null,status:'failed',startedAt:now,toolCalls:0,inputBytes:0,appliedChanges:0,cleanupConfirmed:false,error:'Learning review could not stop. Runtime cleanup is unconfirmed.'}};\n> 122 |  await x.open();await expect(page.getByRole('alert')).toContainText('Runtime cleanup is unconfirmed.');await expect(page.getByText('Learning review is blocked.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Stop learning review',exact:true}).click();await expect.poll(()=>x.host.commands.some(command=>command.type==='learning.cancel')).toBe(true);\n      |                                                       ^\n  123 | });\n  124 | test('skill controls and editors fit desktop and narrow light and dark views',async({page},info)=>{\n  125 |  const x=await fixture(page);for(const width of [1440,390])for(const theme of ['dark','light'] as const){\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:122:55"
+      ]
+    },
+    {
+      "file": "skills.spec.ts",
+      "line": 845,
+      "title": "skill controls and editors fit desktop and narrow light and dark views",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+        "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Settings', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" title=\"Settings\" aria-label=\"Settings\">\u2026</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    43 \u00d7 waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n  31 |   snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{status:'applied',changes:[saved.skill]}}});\n  32 |  });\n> 33 |  const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();};\n     |                                                                                                                                                                                                                                               ^\n  34 |  return{snapshot,host,open,historyControl,get saved(){return saved;},get reads(){return reads;}};\n  35 | }\n  36 |\n    at Object.open (/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:33:239)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/skills.spec.ts:126:133"
+      ]
+    }
+  ],
+  "resultPath": "/workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794778830057-1c83ab01-4eb3-47fb-baa6-f023721cee40/root/results.json",
+  "sha256": "ef4f637c38b1e2271235945fecc1d82dc6f755517349baac187461193017c3a0",
+  "bytes": 269635
+}

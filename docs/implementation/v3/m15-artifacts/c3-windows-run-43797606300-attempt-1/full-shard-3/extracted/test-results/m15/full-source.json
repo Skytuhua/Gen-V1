@@ -1,0 +1,21 @@
+{
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "event": "push",
+  "ref": "refs/heads/agent/m15-v3",
+  "runId": "43797606300",
+  "runAttempt": "1",
+  "runner": "Windows-X64",
+  "image": "20261112.366.7",
+  "node": "v24.22.2",
+  "pnpm": "10.30.3",
+  "python": "Python 3.14.10",
+  "powershell": "7.6.10",
+  "shard": 3,
+  "shardCount": 4,
+  "maxWorkers": 2,
+  "selection": "all repository Vitest tests; no test-file or test-name filters",
+  "packageTestScript": "pnpm build:credential-lease && pnpm build:widgets && vitest run",
+  "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+  "startedAt": "2026-11-16T03:30:41.5336213Z"
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/preserve-incoming-98db97d-v2.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:13:39.234Z",
+  "endedAt": "2026-11-16T06:13:39.391Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-incoming-metadata-preservation-02.log",
+  "logDigest": "baa3f570f0542c212c61f725163f65a2ad57dda2445ec0d763bec34a04a58a9f"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "UNAPPLIED_NATIVE_HANDOFF_SELECTION_PROPOSAL",
+  "nativeFiles": 37,
+  "newTest": "tests/source-handoff-v3.test.ts",
+  "workflowBeforeSha256": "05819a7992e6c9933ebbf95b1ef7736265efc07eefde2eba3cd65d6f1f29d250",
+  "workflowAfterSha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44",
+  "ingesterBeforeSha256": "bfef87043ae4ca8ef358194fa5f4268deb5855ccaf5af16e0833febe97db274f",
+  "ingesterAfterSha256": "47171717386ab1fdfd662207f05f9a1802bf5ecb33b06f99c854faf6b223c9c2",
+  "changes": [
+    "Add the new source handoff regression file immediately after its existing recovery helper suite in the Windows focused selection and exact ingester argv/file membership.",
+    "Advance the ingester evidence revision to c4-v4."
+  ],
+  "unchanged": [
+    "Seven jobs and every job deadline",
+    "18 browser commands, four unfiltered full shards and accepted b4aa root comparison",
+    "Ordinary ci.yml, lockfile and runner setup",
+    "All receipt/log/source/ZIP validation rules and accepted base/tree"
+  ],
+  "execution": "No source or workflow file has been changed and no test has run."
+}

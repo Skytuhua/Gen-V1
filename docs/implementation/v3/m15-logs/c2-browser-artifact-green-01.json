@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "playwright.config.ts",
+    "tests/e2e/artifact-acknowledgment.spec.ts",
+    "--trace",
+    "on",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:27:12.498Z",
+  "endedAt": "2026-11-16T00:27:24.908Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-01.log",
+  "logDigest": "87cedb1d6906b804e4e7f1690d186d0b08aa0a1d3ee64ed89c69b8ce2fb74485"
+}

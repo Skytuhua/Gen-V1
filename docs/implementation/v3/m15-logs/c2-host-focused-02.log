@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","tests/source-selection-v3.test.ts","tests/accounts.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  3 passed (3)
+      Tests  68 passed | 2 skipped (70)
+   Start at  08:27:07
+   Duration  6.23s (transform 1.97s, setup 0ms, import 2.28s, tests 3.25s, environment 0ms)
+

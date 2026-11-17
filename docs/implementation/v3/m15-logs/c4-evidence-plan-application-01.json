@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport hashlib,json\ns=Path('/workspace/scratch/1b47eb428672/m15-publication/c4/evidence-plan-proposal-02/M15-evidence-plan.proposed.json')\nd=Path('docs/implementation/v3/M15-evidence-plan.json')\ndata=s.read_bytes()\nassert hashlib.sha256(data).hexdigest()=='9be5676222a2a7972ee625f64ca172c971577bc67502d62b04d9328c8c97b3ca'\nbefore=hashlib.sha256(d.read_bytes()).hexdigest()\nvalue=json.loads(data)\nassert value['executionBaseSha']=='b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'\nassert len(value['phases'])==15\nd.write_bytes(data)\nassert d.read_bytes()==data\nprint(json.dumps({'status':'PASS','beforeSha256':before,'afterSha256':hashlib.sha256(data).hexdigest(),'phases':15,'currentLocalSelection':'PASS','currentWindows':'NOT_RUN','packagingCustodyController':'NOT_RUN','priorFailuresRetained':True,'newTestExecution':False}))\n"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:17:24.285Z",
+  "endedAt": "2026-11-16T06:17:24.355Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-evidence-plan-application-01.log",
+  "logDigest": "82ab01c331888a59c1cdbf1eb5f425158f55bfa1f79ef11dcb29e073418553b7"
+}

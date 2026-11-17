@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/empty-owner-diagnostic-01/diagnostic.mts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T05:48:24.716Z",
+  "endedAt": "2026-11-16T05:48:25.478Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-empty-owner-diagnostic-01.log",
+  "logDigest": "79799610a35ab463e85f506bc54f755db69d847118c79301d0e7b9ff2b8a0fb9"
+}

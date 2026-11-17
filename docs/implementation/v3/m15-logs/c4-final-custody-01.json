@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2.py",
+    "--parent",
+    "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+    "--published-parent",
+    "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+    "--tested-cut",
+    "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+    "--tested-cut-sha256",
+    "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+    "--tested-public-manifest",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/public-admission-01/public-source-files.before.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:26:38.741Z",
+  "endedAt": "2026-11-16T06:26:41.654Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-final-custody-01.log",
+  "logDigest": "58867b460e9473d9eb85b41273d94b159968516b3b4eabd09cf52c85093f184c"
+}

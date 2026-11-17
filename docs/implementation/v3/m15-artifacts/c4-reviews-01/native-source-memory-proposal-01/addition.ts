@@ -1,0 +1,137 @@
+
+// Combined M05/M15 execution uses the original Python/ACP worker. The seeded
+// project policy admits source-thread memory while the separate recipient is
+// not an extraction source, so no background model transport is required.
+it.runIf(process.platform === 'win32')('delivers prepared M05 memory and retained M15 file evidence through one real Hermes history [Windows, scripted model transport]', async () => {
+  const modelId = 'openai/m15-memory-source-proof', nativeInputs: StartRun[] = [], dispatches: StartRun[] = [], events: HermesEvent[] = [], sourceErrors: unknown[] = [];
+  const replies = ['The SQLite decision and selected file are both retained.', 'The same conversation keeps both exact evidence frames.'];
+  let fixture: Awaited<ReturnType<typeof memoryFixture>> | undefined, service: Service | undefined, disposed = false, storeClosed = false;
+  try {
+    __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true);
+    __setCapabilityFlagForTests('memory.projectV1', true);
+    __setCapabilityFlagForTests('context.compilerV1', false);
+    fixture = await memoryFixture(store => store.internal('fixture.native-combined-owner', null, () => {
+      for (const id of ['thread', 'other']) store.put('thread', id, id, {...store.get<Thread>('thread', id)!, accountId: null, modelId, status: 'ready'});
+      store.put('settings', 'global', null, {theme: 'dark', modelId, preferences: {learningEnabled: false, composerPredictions: false}});
+    }));
+    const {store, path: projectPath} = fixture, accepted = fixture.accept('SQLite project persistence preserves the reviewed source identity.');
+    const native = (): RuntimeAdapter => {
+      let callbacks!: RuntimeCallbacks;
+      return {
+        configure(value) {callbacks = value;},
+        models: async () => [{id: modelId, provider: 'openai', name: 'Scripted native combined transport'}],
+        start: async input => {
+          nativeInputs.push(structuredClone(input));
+          const content = replies[nativeInputs.length - 1];
+          if (!content) throw new Error('The combined fixture received an unexpected model request.');
+          callbacks.onEvent({...input, type: 'input.processing', inputIds: [input.inputId]});
+          callbacks.onEvent({...input, type: 'assistant.message', content});
+          callbacks.onEvent({...input, type: 'usage', usage: {inputTokens: 100, outputTokens: 20, contextTokens: 120, contextWindow: 200000, cost: null}});
+          callbacks.onEvent({...input, type: 'settled'});
+        },
+        followUp: async () => {throw new Error('Model completions must use their own model-only runtime.');},
+        cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {},
+      };
+    };
+    const runtime = createHermesRuntime({dataDir: store.dataDir, nativeCatalog: native(), settings: async input => {
+      const settings = await hermesSettings(store, input);
+      return {...settings, config: {...settings.config, auxiliary: {background_review: {enabled: false}}}, skillPolicy: {...settings.skillPolicy, backgroundReview: false}};
+    }, onSourceEvent: event => {
+      events.push(structuredClone(event));
+      const data = event.data as {error?: unknown; result?: {error?: unknown; failed?: boolean}} | undefined;
+      if (data?.error || data?.result?.error || data?.result?.failed) sourceErrors.push(data.error ?? data.result);
+      service?.sourceEvent(event);
+    }}, {createNativeRuntime: options => {expect(options?.modelOnly).toBe(true); return native();}});
+    // Observe the actual host dispatch without rewriting any field or replacing
+    // the real Hermes client, worker, history or authenticated ACP broker.
+    const start = runtime.start.bind(runtime), followUp = runtime.followUp.bind(runtime);
+    runtime.start = async input => {dispatches.push(structuredClone(input)); await start(input);};
+    runtime.followUp = async input => {dispatches.push(structuredClone(input)); await followUp(input);};
+    const library = new HermesSourceLibrary({store, source: {request: (method, params) => runtime.sourceRequest(method, params)}});
+    service = new Service(store, runtime, {source: {runtime, library}, requestContextEnabled: false});
+    await service.recover();
+    const owner = service.sourceWorkbench.owner('other'), thread = service.thread('other');
+    expect(owner).toEqual({threadId: 'other', projectId: 'project', workspaceId: null});
+    expect(store.all('message', owner.threadId)).toEqual([]);
+    const selectedText = 'SQLite file excerpt: "quoted" \\ path café.\nSecond retained line: <value>& stays data.';
+    const originalText = 'UNSELECTED_COMBINED_BEFORE\n' + selectedText + '\nUNSELECTED_COMBINED_AFTER\n';
+    const sourcePath = join(projectPath, 'combined-source.txt'); await writeFile(sourcePath, originalText);
+    const grant = (await service.command({id: 'combined-native-grant', threadId: owner.threadId, type: 'resource.grant', payload: {kind: 'file', path: sourcePath, writable: false}})).result as ResourceGrant;
+    const descriptor = await service.sourceWorkbench.describe({logicalOwner: owner, locator: {kind: 'FILE_RANGE', sourceId: grant.id}});
+    const captured = await service.sourceWorkbench.capture({commandId: 'combined-native-capture', source: {...descriptor.locator, logicalOwner: owner, sourceRevision: descriptor.sourceRevision, contentDigest: descriptor.contentDigest, capturedAt: thread.createdAt, range: {encoding: 'LINES_1_BASED', startLine: 2, endLine: 3}}});
+    const originalCapture = store.get('sourceCapture', captured.ref.captureId);
+    expect(captured.preview).toBe(selectedText); expect(captured.ref.source.contentDigest).toBe(sha(originalText));
+    const readFrames = (prompt: string, ref: SourceRefV1) => {
+      const sourceLines = prompt.split('\n').filter(line => line.startsWith('{"captureId":'));
+      expect(sourceLines).toHaveLength(1);
+      expect(JSON.parse(sourceLines[0])).toEqual({captureId: ref.captureId, source: ref.source, version: ref.keepCaptured ? 'captured version explicitly retained' : 'current captured version', text: selectedText});
+      const memoryStart = prompt.indexOf(SUPPLEMENTAL_EVIDENCE_HEADER);
+      expect(memoryStart).toBeGreaterThan(prompt.indexOf(evidencePrefix));
+      const memoryText = prompt.slice(memoryStart + SUPPLEMENTAL_EVIDENCE_HEADER.length);
+      expect(JSON.parse(memoryText)).toEqual({kind: 'project-memory-evidence', authority: 'CONTEXT_ONLY', projectIdentity: accepted.projectIdentity, items: [{id: accepted.id, revision: accepted.revision, kind: accepted.kind, text: accepted.text, sourceRefs: accepted.sourceRefs}]});
+      return {selected: prompt.slice(prompt.indexOf('\n\nSelected source evidence'), memoryStart), memoryText};
+    };
+    const settle = async (id: string, count: number) => {
+      await vi.waitFor(() => {
+        const diagnostic = JSON.stringify({thread: store.get('thread', owner.threadId), nativeCalls: nativeInputs.length, sourceErrors, events: events.map(event => event.event)});
+        expect(store.get<WorkbenchQueuedInput>('outbox', id), diagnostic).toMatchObject({id, threadId: owner.threadId, status: 'handled', enteredRuntime: true});
+        expect(service!.thread(owner.threadId), diagnostic).toMatchObject({status: 'ready', runId: null});
+        expect(events.filter(event => event.event === 'settled'), diagnostic).toHaveLength(count);
+        expect(runtime.sourceBusy || runtime.reviewBusy, diagnostic).toBe(false);
+      }, {timeout: 60000, interval: 100});
+      await library.refresh(); expect(sourceErrors).toEqual([]);
+    };
+    const commands: HostCommand[] = [], receipts: unknown[] = [], preparedIds: string[] = [];
+    for (const [index, ref] of [captured.ref, {...captured.ref, keepCaptured: true}].entries()) {
+      if (index) {
+        await writeFile(sourcePath, 'CHANGED_COMBINED_CURRENT_FILE\nDo not substitute these bytes.\n');
+        expect(await service.sourceWorkbench.open({logicalOwner: owner, ref: captured.ref})).toMatchObject({ref: captured.ref, state: 'STALE', text: selectedText});
+      }
+      const prompt = index ? 'Continue SQLite project persistence using the explicitly retained file.' : 'Explain SQLite project persistence with this selected file.';
+      const prepared = await service.prepareProjectMemory('project', owner.threadId, prompt, {modelId});
+      expect(prepared).not.toBeNull(); expect(prepared!.items).toEqual([accepted]); preparedIds.push(prepared!.requestId);
+      const command: HostCommand = {id: 'combined-native-turn-' + (index + 1), type: 'message.send', threadId: owner.threadId, payload: {content: prompt, modelId, sourceRefs: [ref], requestContextId: prepared!.requestId, sendMode: 'NOW'}};
+      commands.push(command); const receipt = await service.command(command); receipts.push(receipt); await settle(command.id, index + 1);
+      expect(nativeInputs).toHaveLength(index + 1); expect(dispatches).toHaveLength(index + 1);
+      const dispatched = dispatches[index];
+      expect(dispatched).toMatchObject({threadId: owner.threadId, accountId: null, modelId, inputId: command.id, sourceRefs: [ref], memoryCheckpoint: {apiVersion: 2, required: true}, requestContext: {requestId: prepared!.requestId, contextGeneration: prepared!.contextGeneration}});
+      const payload = readFrames(dispatched.prompt, ref), frames = inputEnvelopes(nativeInputs[index].prompt);
+      expect(frames).toHaveLength(index + 1); expect(frames[index].marker).toMatchObject({threadId: owner.threadId, inputId: command.id, inputIds: [command.id]});
+      expect(frames[index].prompt).toBe(dispatched.prompt); readFrames(frames[index].prompt, ref);
+      expect(dispatched.requestContext!.segments.filter(segment => segment.category === 'REFERENCE')).toEqual([expect.objectContaining({sourceId: 'selected-sources:' + command.id, sourceRevision: 1, contentRef: 'sha256:' + sha(payload.selected), utf8Bytes: Buffer.byteLength(payload.selected)})]);
+      expect(dispatched.requestContext!.segments.filter(segment => segment.category === 'MEMORY')).toEqual([expect.objectContaining({sourceId: 'project-memory:' + prepared!.requestId, sourceRevision: prepared!.contextGeneration, contentRef: 'sha256:' + sha(payload.memoryText), utf8Bytes: prepared!.injectedBytes})]);
+      expect(await service.latestProjectMemory('project', owner.threadId)).toMatchObject({requestId: prepared!.requestId, contextGeneration: prepared!.contextGeneration, phase: 'CAPTURED', items: [accepted]});
+      expect(await service.command(command)).toEqual(receipt); expect(nativeInputs).toHaveLength(index + 1);
+    }
+    const sessionPath = service.thread(owner.threadId).sessionPath; expect(sessionPath).toBeTypeOf('string');
+    const session = JSON.parse(await readFile(sessionPath!, 'utf8')) as SourceSession, frames = inputEnvelopes(nativeInputs[1].prompt);
+    expect(session).toMatchObject({format: 'hermes-source-session-v1', sourceCommit, sessionId: owner.threadId, ownership: {threadId: owner.threadId, accountId: null, sessionPath, sourceCommit}});
+    expect(session.messages.filter(message => message.role === 'user').flatMap(message => inputEnvelopes(message.content))).toEqual(frames);
+    expect(frames[0]).toEqual(inputEnvelopes(nativeInputs[0].prompt)[0]);
+    for (const reply of replies) expect(session.messages).toContainEqual(expect.objectContaining({role: 'assistant', content: reply}));
+    for (const marker of ['UNSELECTED_COMBINED_BEFORE', 'UNSELECTED_COMBINED_AFTER', 'CHANGED_COMBINED_CURRENT_FILE']) expect(nativeInputs[1].prompt).not.toContain(marker);
+    const starts = events.filter(event => event.event === 'started'); expect(starts).toHaveLength(2);
+    expect(starts[0].data).toMatchObject({engineClass: 'run_agent.AIAgent', agentInstance: expect.any(String)});
+    expect(starts[1].data).toMatchObject({engineClass: 'run_agent.AIAgent', agentInstance: (starts[0].data as {agentInstance: string}).agentInstance});
+    expect(await runtime.history(sessionPath!, null)).toEqual(commands.map(command => command.id));
+    expect(store.get('sourceCapture', captured.ref.captureId)).toEqual(originalCapture); expect(store.all('resource', owner.threadId)).toEqual([grant]);
+    expect(store.all('projectMemoryAuxiliaryUsage', owner.threadId)).toEqual([]);
+    const inputs = store.all<WorkbenchQueuedInput>('outbox', owner.threadId); expect(inputs.map(input => input.requestContextId)).toEqual(preparedIds);
+    expect(store.all('projectMemoryRequestUsage')).toHaveLength(2);
+    await service.dispose(); disposed = true; store.close(); storeClosed = true;
+    const reopened = new Store(store.dataDir);
+    try {
+      expect(reopened.all<WorkbenchQueuedInput>('outbox', owner.threadId)).toEqual(inputs);
+      expect(reopened.get('sourceCapture', captured.ref.captureId)).toEqual(originalCapture);
+      for (const [index, command] of commands.entries()) expect(reopened.receipt(command)).toEqual(receipts[index]);
+      expect(reopened.get<Thread>('thread', owner.threadId)).toMatchObject({sessionPath, accountId: null});
+      expect(reopened.all('projectMemoryRequestUsage')).toHaveLength(2);
+    } finally {reopened.close();}
+  } finally {
+    __setCapabilityFlagForTests('ui.sourceWorkbenchV1', undefined);
+    __setCapabilityFlagForTests('memory.projectV1', undefined);
+    __setCapabilityFlagForTests('context.compilerV1', undefined);
+    try {if (service && !disposed) await service.dispose();}
+    finally {if (fixture) {if (!storeClosed) fixture.store.close(); await rm(fixture.root, {recursive: true, force: true, maxRetries: 10, retryDelay: 100});}}
+  }
+}, 180000);

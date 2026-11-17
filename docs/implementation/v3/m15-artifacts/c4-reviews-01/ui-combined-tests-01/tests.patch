@@ -1,0 +1,232 @@
+--- a/tests/source-composer-v3.test.ts
++++ b/tests/source-composer-v3.test.ts
+@@ -65,3 +65,39 @@
+  await composer.prepare(target);await composer.edit(target,'Explain');await updateSourceDraft(logicalOwner,state=>({...state,sourceRefs:[source('scoped')]}));await composer.submit({...target,workspaceId:undefined});
+  expect(send).not.toHaveBeenCalled();expect(composer.getSnapshot(target).error).toContain('source-aware composer');composer.dispose();
+ });
++
++it('pins a prepared memory token with source custody and after-current mode through reload and later edits', async () => {
++ const queuedTarget = {...target, working: true}, stop = vi.fn(async () => {});
++ const send = vi.fn(async (_input: ParentSend): Promise<void> => {throw Error('Connection lost after dispatch');});
++ let composer = createSharedAgentComposers({sendParent: send, stopParent: stop});
++ let release = () => {};
++ try {
++  await composer.prepare(queuedTarget); await composer.edit(queuedTarget, 'Original queued draft');
++  await updateSourceDraft(logicalOwner, state => ({...state, sourceRefs: [source('first')], sendMode: 'AFTER_CURRENT'}));
++  const before = await readSourceDraft(logicalOwner);
++  await composer.submit(queuedTarget, {sourceContextVisible: true, requestContextId: 'prepared-original'});
++  expect(send).toHaveBeenCalledOnce();
++  const original = send.mock.calls[0][0];
++  expect(original).toMatchObject({threadId: logicalOwner.threadId, content: 'Original queued draft', sourceRefs: [source('first')], sendMode: 'AFTER_CURRENT', requestContextId: 'prepared-original'});
++  expect(records.get('agents-pending:task')?.value).toMatchObject({commandId: original.commandId, sourceOwner: logicalOwner, sourceGeneration: before.generation, sourceRefs: [source('first')], sendMode: 'AFTER_CURRENT', requestContextId: 'prepared-original'});
++  expect((await readSourceDraft(logicalOwner)).sourceRefs).toEqual([source('first')]);
++  await composer.edit(queuedTarget, 'Later authored draft');
++  await updateSourceDraft(logicalOwner, state => ({...state, sourceRefs: [source('later')], sendMode: 'NOW'}));
++  const later = await readSourceDraft(logicalOwner);
++  composer.dispose();
++  const accepted = new Promise<void>(resolve => {release = resolve;});
++  send.mockImplementation(async () => accepted);
++  composer = createSharedAgentComposers({sendParent: send, stopParent: stop});
++  await composer.prepare(queuedTarget);
++  const retry = composer.submit(queuedTarget, {sourceContextVisible: true, requestContextId: 'prepared-new-preview'});
++  await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
++  expect(send.mock.calls[1][0]).toEqual(original);
++  expect(composer.getSnapshot(queuedTarget).draft).toBe('Later authored draft');
++  expect(await readSourceDraft(logicalOwner)).toEqual(later);
++  release(); await retry;
++  expect(records.get('agents-pending:task')?.value).toBeNull();
++  expect(composer.getSnapshot(queuedTarget)).toMatchObject({draft: 'Later authored draft', retry: false});
++  expect(await readSourceDraft(logicalOwner)).toEqual(later);
++  expect(stop).not.toHaveBeenCalled();
++ } finally {release(); composer.dispose();}
++});
+--- a/tests/e2e/workbench-app.spec.ts
++++ b/tests/e2e/workbench-app.spec.ts
+@@ -1,15 +1,19 @@
+ import {createHash} from 'node:crypto';
+ import {test,expect,type Locator,type Page} from '@playwright/test';
++import type {HostCommand,Snapshot} from '../../packages/contracts';
++import type {ProjectContext} from '../../packages/contracts/workspace';
++import {memoryPreparedRequestSchema,memorySourceDetailSchema,projectMemoryViewSchema,type MemoryItemV1,type MemoryPreparedRequest,type MemoryScope,type ProjectMemoryView} from '../../packages/contracts/project-memory';
+ import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture';
+ import {serveWorkbenchNativeReturnFixture} from './workbench-native-return-fixture';
+ import type {CapturedSourceV1,LogicalOwnerV1,SelectedSourceV1,SourceRefV1,WorkbenchInputV1} from '../../packages/contracts/source-selection';
+ const digest=(text:string)=>createHash('sha256').update(text).digest('hex');
+ /** Production App, API client, journal and composer. Only host HTTP is a labeled
+  * deterministic fixture; host authorization is exercised in the separate host suite. */
+-async function fixture(page:Page,enabled=true){
++async function fixture(page:Page,enabled=true,setup:{configure?:(snapshot:Snapshot)=>void;routes?:(snapshot:Snapshot)=>Promise<void>}={}){
+  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'unused'}}}});
+  snapshot.artifacts=[];snapshot.data=[];snapshot.userStates=[];snapshot.settings.preferences={showUsageFooter:true,showComposerContext:true};
+  snapshot.messages[0].content='Visible exact source sentence for the workbench.';
++ setup.configure?.(snapshot);
+  const host=await serveTaskFixture(page,snapshot), captures=new Map<string,CapturedSourceV1>();
+  await serveTaskSplitLayout(page, snapshot);
+  let pause:Promise<void>|undefined;
+@@ -36,6 +40,7 @@
+   if(path.endsWith('/refresh')){const old=captures.get(body.ref.captureId)!;state.captureCount++;const text=snapshot.messages[0].content;const ref={...old.ref,captureId:`capture-${state.captureCount}`,source:{...old.ref.source,sourceRevision:digest(text),contentDigest:digest(text)},keepCaptured:false};const next={...old,ref};captures.set(ref.captureId,next);return reply(next);}
+   return route.fulfill({status:404});
+  });
++ await setup.routes?.(snapshot);
+  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+  return {...host,state,captures,owner,recoveries};
+ }
+@@ -256,3 +261,158 @@
+   await info.attach('native-return-source-isolation.json',{body:Buffer.from(JSON.stringify({scope:'Real App with scripted browser desktop bridge and owner-bound source HTTP; no installed desktop execution',delayedDescriptionOutcome:delayed.outcome(),beforeReturn,afterReturn,finalDrafts,captures:[...h.captures.values()],events:h.events,commands:h.commands},null,2)),contentType:'application/json'});
+  }finally{h.releaseAll();}
+ });
++
++// Real App and existing M05 HTTP client. These typed host responses are fixture
++// data; host admission, memory selection and source custody have separate tests.
++async function memoryFixture(page:Page){
++ const stamp='2026-11-16T00:00:00.000Z',projectId='memory-project',projectIdentity='a'.repeat(64);
++ let snapshot!:Snapshot;
++ const scope=():MemoryScope=>({projectId,projectIdentity,threadId:'task-thread',accountId:snapshot.threads[0].accountId??null,bindingDigest:'b'.repeat(64)});
++ const sourceText=(id:string,revision:number)=>`<script>window.m15MemoryExecuted=true</script>\nPinned fixture source ${id} revision ${revision}.`;
++ const item=(id:string,state:MemoryItemV1['state'],revision=1):MemoryItemV1=>({id,projectIdentity,scope:'PROJECT',kind:'CONSTRAINT',text:`Fixture ${id} memory revision ${revision}.`,revision,state,sourceRefs:[{ownerThreadId:'task-thread',sourceKind:'MESSAGE',sourceId:`memory-source-${id}`,sourceRevision:`memory-r${revision}`,capturedSeq:4,digest:digest(sourceText(id,revision)),observedStatus:'REPORTED'}],assertedBy:{kind:'AGENT',id:'fixture-agent'},observedAt:stamp,expiresAt:null,supersedes:[],sensitivity:'NORMAL',reviewDecision:null});
++ const accepted=item('accepted','ACCEPTED'),proposal=item('proposal','PROPOSED'),conflict=item('conflict','CONFLICT',3),olderConflict=item('conflict','CONFLICT',2);
++ const rows:ProjectMemoryView['items']=[{item:accepted,lastUsedAt:stamp,conflictRevisions:[]},{item:proposal,lastUsedAt:null,conflictRevisions:[]},{item:conflict,lastUsedAt:null,conflictRevisions:[olderConflict,conflict]}];
++ const memory={moduleState:'AVAILABLE' as 'AVAILABLE'|'DISABLED'|'EMPTY',available:true,enabled:true,empty:false,nextView:undefined as ProjectMemoryView|undefined,actions:[] as unknown[],reads:[] as string[],sources:[] as Record<string,unknown>[],events:[] as Record<string,unknown>[],preparations:[] as {body:Record<string,unknown>;request:MemoryPreparedRequest}[]};
++ const view=():ProjectMemoryView=>projectMemoryViewSchema.parse({scope:scope(),projectName:'Fixture memory project',available:memory.available,disabledReason:memory.available?null:'Project memory is disabled by the fixture host.',enabled:memory.enabled,configRevision:1,sourceThreadIds:memory.enabled?['task-thread']:[],eligibleThreads:[{id:'task-thread',title:'Owning source conversation'}],items:memory.empty?[]:rows,tombstones:[]});
++ const deferred=()=>{let resolve=()=>{};const promise=new Promise<void>(accept=>{resolve=accept;});return {promise,resolve};};
++ type Hold={arrived:ReturnType<typeof deferred>;released:ReturnType<typeof deferred>;completed:ReturnType<typeof deferred>};
++ let sourceHold:Hold|undefined,preparationHold:Hold|undefined;
++ const held=new Set<()=>void>();
++ const hold=(kind:'source'|'preparation')=>{
++  if(kind==='source'?sourceHold:preparationHold)throw Error('That memory request is already held.');
++  const value={arrived:deferred(),released:deferred(),completed:deferred()};held.add(value.released.resolve);
++  if(kind==='source')sourceHold=value;else preparationHold=value;
++  return {arrived:value.arrived.promise,completed:value.completed.promise,release:value.released.resolve};
++ };
++ const h=await fixture(page,true,{
++  configure(value){snapshot=value;Object.assign(value.threads[0],{projectId,projectName:'Fixture memory project',workspaceId:'memory-working-copy',accountId:'memory-account-a'});},
++  async routes(){
++   await page.route('**/api/workbench/threads/task-thread/evidence',route=>route.fulfill({json:{logicalOwner:{threadId:'task-thread',projectId,workspaceId:'memory-working-copy'},items:[],modules:[{id:'M05',title:'Memory review',state:memory.moduleState,reason:memory.moduleState==='DISABLED'?'The module is disabled; retained reads remain available.':memory.moduleState==='EMPTY'?'No memory is recorded.':null,href:`/api/projects/${projectId}/memory?threadId=task-thread`,readOnly:true}]}}));
++   await page.route(`**/api/projects/${projectId}/**`,async route=>{
++    const url=new URL(route.request().url());
++    if(url.pathname.endsWith('/context')){
++     const context:ProjectContext={project:{id:projectId,name:'Fixture memory project',rootPath:'/synthetic/memory-project',authority:{kind:'local'},createdAt:stamp},workingCopy:{id:'memory-working-copy',path:'/synthetic/memory-project-copy'},threadId:'task-thread',machineName:'Fixture',editor:{available:false,label:'Editor'},branch:null,head:null,changes:{added:null,removed:null,files:null},lineage:[],scripts:[],capabilities:{git:false,terminal:false,pullRequests:false}};
++     return route.fulfill({json:context});
++    }
++    if(!url.pathname.includes('/memory'))return route.fulfill({status:404});
++    memory.reads.push(url.pathname+url.search);
++    if(url.pathname.endsWith('/memory')){const value=memory.nextView??view();memory.nextView=undefined;return route.fulfill({json:value});}
++    if(url.pathname.endsWith('/source')){
++     const requestedId=url.searchParams.get('itemId'),revision=Number(url.searchParams.get('revision'));
++     const requested=[accepted,proposal,conflict,olderConflict].find(value=>value.id===requestedId&&value.revision===revision);
++     if(!requested)return route.fulfill({status:404});
++     const ref=JSON.parse(url.searchParams.get('sourceRef')??'null') as unknown;
++     expect(url.searchParams.get('threadId')).toBe('task-thread');expect(ref).toEqual(requested.sourceRefs[0]);expect(url.searchParams.get('sourceDigest')).toBe(requested.sourceRefs[0].digest);
++     memory.sources.push({threadId:'task-thread',itemId:requested.id,revision,sourceDigest:url.searchParams.get('sourceDigest'),sourceRef:ref});
++     const response=memorySourceDetailSchema.parse({scope:scope(),ref,content:sourceText(requested.id,requested.revision),label:'Exact pinned fixture memory source'});
++     const waiting=sourceHold;if(waiting){sourceHold=undefined;waiting.arrived.resolve();await waiting.released.promise;}
++     try{await route.fulfill({json:response});}
++     catch(cause){if(!waiting||!route.request().failure())throw cause;}
++     finally{if(waiting){memory.events.push({kind:'source-response-settled',scope:response.scope,requestFailure:route.request().failure()});waiting.completed.resolve();}}
++     return;
++    }
++    if(url.pathname.endsWith('/requests/prepare')){
++     expect(route.request().headers()['x-harness-csrf']).toBe('fixture-csrf');const body=route.request().postDataJSON() as Record<string,unknown>;
++     const requestId=`prepared-source-queue-${memory.preparations.length+1}`,contextGeneration=memory.preparations.length+1;
++     const request=memoryPreparedRequestSchema.parse({scope:scope(),requestId,contextGeneration,phase:'PREPARING',items:[accepted],injectedBytes:240,expiresAt:new Date(Date.now()+60000).toISOString(),recall:{requestId,contextGeneration,projectIdentity,queryDigest:digest(String(body.prompt)),candidateIds:[accepted.id],selectedRevisions:[{itemId:accepted.id,revision:accepted.revision}],scores:[],exclusions:[],budgetBytes:4096,producedAt:stamp,status:'COMPLETE'}});
++     memory.preparations.push({body,request});const waiting=preparationHold;
++     if(waiting){preparationHold=undefined;waiting.arrived.resolve();await waiting.released.promise;}
++     try{return await route.fulfill({json:request});}finally{waiting?.completed.resolve();}
++    }
++    if(url.pathname.endsWith('/requests/latest'))return route.fulfill({json:null});
++    if(route.request().method()!=='GET'){memory.actions.push({path:url.pathname,body:route.request().postDataJSON()});return route.fulfill({status:403,json:{error:{code:'FIXTURE_READ_ONLY',message:'This read-only fixture does not accept memory changes.'}}});}
++    return route.fulfill({status:404});
++   });
++  },
++ });
++ await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeEnabled();
++ return {...h,memory,scope,view,accepted,proposal,conflict,olderConflict,sourceText,holdSource:()=>hold('source'),holdPreparation:()=>hold('preparation'),releaseAll:()=>{for(const release of held)release();}};
++}
++const memoryPanel=(page:Page)=>page.getByRole('dialog',{name:'Project memory',exact:true});
++async function openMemory(page:Page){
++ await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();
++ const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});
++ await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();
++ const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();
++ await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};
++}
++const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);
++
++test('prepared memory and selected sources queue together while working and clear only after acknowledgment',async({page},info)=>{
++ const h=await memoryFixture(page),preparation=h.holdPreparation();let releaseSend=()=>{};
++ const acknowledgment=new Promise<void>(resolve=>{releaseSend=resolve;}),attempts:HostCommand[]=[];
++ try{
++  await attach(page);await editor(page).fill('Use this source after the current run');await setDelivery(page,'AFTER_CURRENT');
++  await page.getByRole('button',{name:'Inspect context usage',exact:true}).click();await preparation.arrived;
++  const inspector=page.getByRole('dialog',{name:'Context inspector',exact:true});await expect(inspector).toContainText('Preparing project memory');
++  h.snapshot.threads[0].runId='memory-active-run';h.snapshot.threads[0].status='working';await h.publish();
++  const queue=page.getByRole('button',{name:'Queue after current',exact:true});await expect(queue).toBeVisible();await expect(queue).toBeDisabled();
++  preparation.release();await preparation.completed;
++  await expect(inspector).toContainText('Prepared for the current draft.');await expect(inspector).toContainText(h.accepted.text);await expect(inspector.getByRole('navigation',{name:'Context views',exact:true}).getByRole('button',{name:'Sources',exact:true})).toBeEnabled();
++  await expect(queue).toBeEnabled();await page.keyboard.press('Escape');
++  await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type==='message.send'){attempts.push(command);await acknowledgment;}return route.fallback();});
++  expect(h.commands).toHaveLength(0);await queue.click();await expect.poll(()=>attempts.length).toBe(1);
++  const sent=attempts[0];expect(sent.threadId).toBe('task-thread');expect(sent.payload).toMatchObject({content:'Use this source after the current run',modelId:'test/model',requestContextId:h.memory.preparations[0].request.requestId,sourceRefs:[h.captures.get('capture-1')!.ref],sendMode:'AFTER_CURRENT'});
++  expect(h.memory.preparations).toHaveLength(1);expect(h.memory.preparations[0].body).toEqual({threadId:'task-thread',prompt:'Use this source after the current run',modelId:'test/model',thinkingLevel:null});
++  await expect(editor(page)).toHaveValue('Use this source after the current run');await expect(page.getByRole('article',{name:'Selected source Assistant message',exact:true})).toBeVisible();expect(h.commands).toHaveLength(0);
++  releaseSend();await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);
++  await expect(editor(page)).toHaveValue('');await expect(page.getByRole('article',{name:'Selected source Assistant message',exact:true})).toHaveCount(0);
++  expect(attempts).toHaveLength(1);expect(h.commands).toEqual([sent]);expect(h.memory.actions).toEqual([]);
++  await expect(page.getByRole('button',{name:'Stop agent',exact:true})).toBeVisible();
++  await info.attach('memory-source-queued-command.json',{body:Buffer.from(JSON.stringify({scope:'Real App and typed deterministic source/memory HTTP; host admission is separate',preparation:h.memory.preparations[0],captured:h.captures.get('capture-1'),command:sent},null,2)),contentType:'application/json'});
++ }finally{releaseSend();h.releaseAll();}
++});
++
++test('M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft',async({page},info)=>{
++ const h=await memoryFixture(page);await attach(page);await editor(page).fill('Retain authored text while reviewing memory');const before=await readDraftContext(page,h.owner());
++ const {workbench,launch}=await openMemory(page),panel=memoryPanel(page);
++ await expect(panel).toContainText(h.accepted.text);
++ await panel.getByText('Source conversations (1)',{exact:true}).click();
++ await expect(panel.getByRole('checkbox',{name:'Owning source conversation',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:'Save source scope',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:'Disable for this project',exact:true})).toBeDisabled();
++ for(const name of ['Edit accepted','Expire accepted','Forget accepted'])await expect(panel.getByRole('button',{name,exact:true})).toBeDisabled();
++ await panel.getByRole('button',{name:'View source accepted 1',exact:true}).click();
++ await expect(panel.getByRole('region',{name:'Supporting source',exact:true})).toContainText(h.sourceText('accepted',1));
++ expect(h.memory.sources[0]).toEqual({threadId:'task-thread',itemId:'accepted',revision:1,sourceDigest:h.accepted.sourceRefs[0].digest,sourceRef:h.accepted.sourceRefs[0]});
++ expect(await page.evaluate(()=>(window as unknown as {m15MemoryExecuted?:boolean}).m15MemoryExecuted)).toBeUndefined();
++ await panel.getByRole('tab',{name:'Proposals',exact:true}).click();await expect(panel).toContainText(h.proposal.text);
++ for(const name of ['Accept proposal','Edit proposal','Reject proposal','Forget proposal'])await expect(panel.getByRole('button',{name,exact:true})).toBeDisabled();
++ await expect(panel.getByRole('button',{name:'View source proposal 1',exact:true})).toBeEnabled();
++ await panel.getByRole('tab',{name:'Conflicts',exact:true}).click();await expect(panel).toContainText(h.conflict.text);await expect(panel).toContainText(h.olderConflict.text);
++ for(const revision of [2,3])await expect(panel.getByRole('checkbox',{name:`Keep revision ${revision}`,exact:true})).toBeDisabled();
++ await expect(panel.getByRole('textbox',{name:'Resolution note',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:'Resolve conflict',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:'Forget conflict',exact:true})).toBeDisabled();
++ const oldSource=panel.getByRole('button',{name:'View source for revision 2',exact:true});await expect(oldSource).toBeEnabled();await oldSource.click();
++ await expect(panel.getByRole('region',{name:'Supporting source',exact:true})).toContainText(h.sourceText('conflict',2));expect(h.memory.sources[1]).toMatchObject({itemId:'conflict',revision:2,sourceRef:h.olderConflict.sourceRefs[0]});
++ await page.keyboard.press('Escape');await expect(panel).toHaveCount(0);await expect(workbench).toBeVisible();await expect(launch).toBeFocused();
++ await page.keyboard.press('Escape');await expect(workbench).toHaveCount(0);await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
++ await expect(editor(page)).toHaveValue('Retain authored text while reviewing memory');expect(await readDraftContext(page,h.owner())).toEqual(before);expect(h.state.captureCount).toBe(1);expect(h.commands).toEqual([]);expect(h.memory.actions).toEqual([]);
++ await info.attach('memory-read-only-review.json',{body:Buffer.from(JSON.stringify({scope:'Real App with typed fixture memory and source HTTP; no host authorization claim',before,after:await readDraftContext(page,h.owner()),sourceRequests:h.memory.sources,memoryActions:h.memory.actions,ordinaryCommands:h.commands},null,2)),contentType:'application/json'});
++});
++
++test('M15 memory review opens retained disabled records and an empty current-owner module',async({page})=>{
++ const h=await memoryFixture(page);await editor(page).fill('Retain this draft across module states');
++ for(const state of ['DISABLED','EMPTY'] as const){
++  h.memory.moduleState=state;h.memory.available=state!=='DISABLED';h.memory.enabled=state!=='DISABLED';h.memory.empty=state==='EMPTY';
++  const {workbench,launch}=await openMemory(page),panel=memoryPanel(page);await expect(panel).toContainText('Fixture memory project');
++  if(state==='DISABLED'){
++   await expect(panel).toContainText(h.accepted.text);await expect(panel.getByRole('button',{name:'Enable for this project',exact:true})).toBeDisabled();await expect(panel.getByRole('button',{name:'View source accepted 1',exact:true})).toBeEnabled();
++  }else await expect(panel).toContainText('No accepted memories.');
++  await page.keyboard.press('Escape');await expect(panel).toHaveCount(0);await expect(launch).toBeFocused();await page.keyboard.press('Escape');await expect(workbench).toHaveCount(0);
++ }
++ await expect(editor(page)).toHaveValue('Retain this draft across module states');expect(h.commands).toEqual([]);expect(h.memory.actions).toEqual([]);
++});
++
++test('M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner',async({page},info)=>{
++ const h=await memoryFixture(page);await attach(page);await editor(page).fill('Account transition retains my source and draft');const before=await readDraftContext(page,h.owner()),oldView=structuredClone(h.view());
++ const held=h.holdSource();
++ try{
++  await openMemory(page);await memoryPanel(page).getByRole('button',{name:'View source accepted 1',exact:true}).click();await held.arrived;
++  h.snapshot.threads[0].accountId='memory-account-b';await h.publish();
++  await expect(memoryPanel(page)).toHaveCount(0);await expect(page.getByRole('dialog',{name:'Sources and evidence',exact:true})).toHaveCount(0);await expect(editor(page)).toHaveValue('Account transition retains my source and draft');
++  held.release();await held.completed;await expect(page.getByText(h.sourceText('accepted',1),{exact:true})).toHaveCount(0);
++  h.memory.nextView=oldView;const {workbench,launch}=await openMemory(page),panel=memoryPanel(page);
++  await expect(panel.getByRole('alert')).toContainText('Project memory changed owner, source or revision');await expect(panel.getByRole('article',{name:'Memory accepted',exact:true})).toHaveCount(0);
++  await page.keyboard.press('Escape');await expect(launch).toBeFocused();await page.keyboard.press('Escape');await expect(workbench).toHaveCount(0);
++  expect(await readDraftContext(page,h.owner())).toEqual(before);expect(h.commands).toEqual([]);expect(h.memory.actions).toEqual([]);
++  await info.attach('memory-owner-transition.json',{body:Buffer.from(JSON.stringify({scope:'Actual M05 client owner validation in real App with typed fixture HTTP; old in-flight cancellation is distinct from wrong-owner response rejection',oldOwner:oldView.scope,currentOwner:h.scope(),events:h.memory.events,before,after:await readDraftContext(page,h.owner()),sourceRequests:h.memory.sources,memoryActions:h.memory.actions,ordinaryCommands:h.commands},null,2)),contentType:'application/json'});
++ }finally{h.releaseAll();}
++});

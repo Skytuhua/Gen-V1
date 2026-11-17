@@ -1,0 +1,23 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/chat-view-modes.playwright.config.ts","--trace","on","--output","docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership (2.6s)
+  ✓  2 tests/e2e/chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag (1.8s)
+  ✓  3 tests/e2e/chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 (1.7s)
+  ✓  4 tests/e2e/chat-view-modes.spec.ts:24:1 › the conversation lives in the split plane with its messages, composer and attachments (5.4s)
+  ✓  5 tests/e2e/chat-view-modes.spec.ts:36:1 › draft, selection and reading position survive the workspace panel opening (2.8s)
+  ✓  6 tests/e2e/chat-view-modes.spec.ts:78:1 › reduced motion settles instantly and keyboard focus stays in the composer (2.8s)
+
+  6 passed (21.9s)

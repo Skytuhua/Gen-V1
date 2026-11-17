@@ -1,0 +1,83 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","saved-layout-chooser"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 1
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61
+
+Browser suite: saved-layout-chooser (1 spec files)
+
+Running 15 tests using 1 worker
+
+  ok  1 tests\e2e\saved-layout-chooser.spec.ts:13:1 › saved rows replace the name/action bank and apply only on explicit activation (2.0s)
+  ok  2 tests\e2e\saved-layout-chooser.spec.ts:41:1 › save asks for a name on demand, selects its exact ID, and reports current then modified (2.2s)
+  ok  3 tests\e2e\saved-layout-chooser.spec.ts:86:1 › same-task repeated activation is locked, and an already current row does not apply twice (2.0s)
+  ok  4 tests\e2e\saved-layout-chooser.spec.ts:109:1 › failed apply keeps the chooser, arrangement, current identity and conversation draft (981ms)
+  ok  5 tests\e2e\saved-layout-chooser.spec.ts:129:1 › row overflow updates, renames and confirms deletion without applying on focus (2.9s)
+  ok  6 tests\e2e\saved-layout-chooser.spec.ts:214:1 › cancel and IME keys preserve the name draft and unwind one overlay at a time (1.5s)
+  ok  7 tests\e2e\saved-layout-chooser.spec.ts:254:1 › empty, loading and failed lists stay distinct and offer retry (1.7s)
+  ok  8 tests\e2e\saved-layout-chooser.spec.ts:293:1 › historical records are explicit recovery rows and never inferred as the current split (1.1s)
+  ok  9 tests\e2e\saved-layout-chooser.spec.ts:316:1 › a stale metadata failure from the old workspace cannot replace the new workspace state (748ms)
+  ok 10 tests\e2e\saved-layout-chooser.spec.ts:362:1 › keyboard users can reach row overflow with Tab and Escape returns through both layers (619ms)
+  ok 11 tests\e2e\saved-layout-chooser.spec.ts:386:1 › externally changed saved metadata invalidates an observed current badge (972ms)
+  ok 12 tests\e2e\saved-layout-chooser.spec.ts:408:1 › reopening reveals and focuses the observed selected row (922ms)
+  ok 13 tests\e2e\saved-layout-chooser.spec.ts:426:1 › pending layout application cannot race a workspace preset change (1.6s)
+  x  14 tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states (980ms)
+  x  15 tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states (1.6s)
+
+
+  1) tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m32[39m
+    Received:    [31m31.995159149169922[39m
+
+      55 | });
+      56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{
+    > 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      58 | });
+      59 |
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\saved-layout-chooser.spec.ts:57:1383
+
+    Error Context: test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-07f37--access-and-distinct-states\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-07f37--access-and-distinct-states\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-07f37--access-and-distinct-states\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m32[39m
+    Received:    [31m31.998329162597656[39m
+
+      55 | });
+      56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{
+    > 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      58 | });
+      59 |
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\saved-layout-chooser.spec.ts:57:1383
+
+    Error Context: test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-072e8--access-and-distinct-states\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-072e8--access-and-distinct-states\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800467641-a5e02144-1c24-41ee-9304-cb773d8edf61\saved-layout-chooser\artifacts\saved-layout-chooser-short-072e8--access-and-distinct-states\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states 
+    tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states 
+  13 passed (26.0s)
+
+Failed browser suites: saved-layout-chooser (exit 1)

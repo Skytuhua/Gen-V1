@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-16T05:01:46.051821+00:00",
+  "reviewStatus": "NO_REMAINING_ACTIONABLE_STATIC_FINDING_IN_REVIEWED_CUT",
+  "scope": "Independent read-only review of Phase A metadata observation/strict extraction, Phase B owner recovery policy, original 20 boundary cases, two added same-owner registry cases, and the proposed mounted-App import/close fixture. Existing recorded results were inspected; this reviewer ran no tests, browser, typecheck or native commands.",
+  "acceptance": "NARROW_SOURCE_REVIEW_ONLY_NOT_FULL_C4_OR_NATIVE_APPROVAL",
+  "reviewedInputs": [
+    {
+      "path": "native-close-proposal-02/phase-a-manifest.json",
+      "bytes": 2424,
+      "sha256": "93d4ec819d74ed536a102ddc5ebb756575b81ea671ac470e83f1d258bd5b959d"
+    },
+    {
+      "path": "native-close-proposal-02/phase-b-manifest.json",
+      "bytes": 3556,
+      "sha256": "d0268b597ca2008a8b4c39e9c28b5fe5d22ec90121541f17f1aca91702be8a04"
+    },
+    {
+      "path": "native-close-proposal-02/phase-a.patch",
+      "bytes": 22146,
+      "sha256": "b6f9a7c54e76fb2a75d156a5c1f2c3a604fc7bf363d76dcdf536bfc115bc2026"
+    },
+    {
+      "path": "native-close-proposal-02/phase-b.patch",
+      "bytes": 12834,
+      "sha256": "2b1ad03c07dd9c0604dcf42cb52c5c56f6442ea442391235432fb28e8b282f8f"
+    },
+    {
+      "path": "native-close-proposal-02/boundary-tests.patch",
+      "bytes": 23757,
+      "sha256": "6007a5d1d3b11a5c786344795c2e57ccb7444a8aab6f25f89c26c835ddb4ecd8"
+    },
+    {
+      "path": "native-close-proposal-02/source-handoff-v3.test.ts",
+      "bytes": 23223,
+      "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df"
+    },
+    {
+      "path": "native-close-concurrent-guards-01/manifest.json",
+      "bytes": 721,
+      "sha256": "40cb5c7643a8f76f311024f27f6077ef1dc6d84b295e814e63a92dbbeface778"
+    },
+    {
+      "path": "native-close-concurrent-guards-01/tests.patch",
+      "bytes": 4829,
+      "sha256": "8cbba0c8979fd9d57ab689a25114e42f56ee12d900b8d60568b28d15af8af43c"
+    },
+    {
+      "path": "native-close-browser-proposal-01/manifest.json",
+      "bytes": 776,
+      "sha256": "fe0d00b2e03cf29149e2aa41baf5669e9296bd6ce1703688ac3648265ef5f866"
+    },
+    {
+      "path": "native-close-browser-proposal-01/addition.ts",
+      "bytes": 6636,
+      "sha256": "ac488f308074e8206309232b293dc61e310de22a2fdeb7acf82f4293dbd9edbf"
+    },
+    {
+      "path": "native-close-browser-proposal-01/desktop-surfaces.base.ts",
+      "bytes": 32877,
+      "sha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2"
+    },
+    {
+      "path": "native-close-browser-proposal-01/desktop-surfaces.proposed.ts",
+      "bytes": 39513,
+      "sha256": "07f9b179504a44fc6297f4050663630dd95fd240a58fac756d5eccb9daef773d"
+    },
+    {
+      "path": "native-close-browser-proposal-01/tests.patch",
+      "bytes": 7112,
+      "sha256": "a9f5106e8b78f1af5efaa1218f6e7637655b1ee47631273225a39d284550df39"
+    }
+  ],
+  "productionSources": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "base": {
+        "sha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+        "bytes": 11172
+      },
+      "phase-a": {
+        "sha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+        "bytes": 17089
+      },
+      "phase-b": {
+        "sha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+        "bytes": 17089
+      }
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "base": {
+        "sha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+        "bytes": 10722
+      },
+      "phase-a": {
+        "sha256": "bb3bf735759b8cda44163d353d604ffb8ebbdcce9fea2a270cca07cf9f244237",
+        "bytes": 11529
+      },
+      "phase-b": {
+        "sha256": "43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed",
+        "bytes": 12976
+      }
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "base": {
+        "sha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe",
+        "bytes": 22578
+      },
+      "phase-a": {
+        "sha256": "2b2487818ec1badfc9df9cb5a27c01b907f32c83a3532216aa94701aa2fb315d",
+        "bytes": 22277
+      },
+      "phase-b": {
+        "sha256": "1b515e343591ddcfce17b79805feed2bca4dabe82f2f2015107b5c4f8f99f5db",
+        "bytes": 22419
+      }
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "base": {
+        "sha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d",
+        "bytes": 161958
+      },
+      "phase-a": {
+        "sha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+        "bytes": 161584
+      },
+      "phase-b": {
+        "sha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+        "bytes": 161584
+      }
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "base": {
+        "sha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+        "bytes": 2835
+      },
+      "phase-a": {
+        "sha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+        "bytes": 2835
+      },
+      "phase-b": {
+        "sha256": "9b6efa9a20e4c5aa0d50d00e1f4df60c18ffd7954ee818f81d8cb6718fbcb52e",
+        "bytes": 3099
+      }
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "base": {
+        "sha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13",
+        "bytes": 12050
+      },
+      "phase-a": {
+        "sha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13",
+        "bytes": 12050
+      },
+      "phase-b": {
+        "sha256": "11cf401b6c4eef64ef0dadedaf939180423592ced7f94865c2adbd7dce5f2b43",
+        "bytes": 12084
+      }
+    }
+  ],
+  "currentBoundarySource": {
+    "path": "tests/source-handoff-v3.test.ts",
+    "sha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd",
+    "declaredCases": 22
+  },
+  "invariants": [
+    {
+      "area": "First operation",
+      "assessment": "Each read, write, single CAS and multi-key CAS registers its settle-only barrier before invoking its body. A first CAS is visible before a memory generation exists. Multi-key observations cover written keys. Existing storage values, owner/generation checks, atomic commit and journalFlush persistence ownership remain authoritative."
+    },
+    {
+      "area": "Cold predicate",
+      "assessment": "All three exact owner keys must have settled failed reads, no successful read, acquired record or local work, followed by a successful ordinary journalFlush. Successful empty recovery, source actions, writes, CAS attempts, staged records, broadcast and enumeration acquisition remove the allowance. Foreign owner metadata still rejects."
+    },
+    {
+      "area": "Failure retirement",
+      "assessment": "A false CAS, ordinary read, automatic accepted-source cleanup, or older successful operation cannot retire a newer source failure. Explicit committed source edit/import retries acknowledge earlier operations only for their written keys. An exact persisted ordinary generation retains journalFlush retry ownership."
+    },
+    {
+      "area": "Import preprocessing",
+      "assessment": "journalRecoveryOperation installs a global renderer recovery barrier before file parsing/reference lookup. Source handoff settles it before inspecting source failures; its revision forces another inspection if import begins during an await. DraftTransfer uses the wrapper on the actual action and a settle-only registry guard for ownerless transfers. No registry recursion."
+    },
+    {
+      "area": "Owner transitions",
+      "assessment": "Metadata obligations remain keyed to full thread/project/workspace identity across A to B to A. Existing render epoch/current-owner and abort checks remain. Attach and refresh mark current source editing work; source Open remains readonly."
+    },
+    {
+      "area": "Canonical ownership",
+      "assessment": "Only metadata and settling promises are added. The original journal remains the draft/source value owner. No new host grant, request authority, duplicate composer or persisted ownership record is introduced."
+    }
+  ],
+  "investigatedFindings": [
+    {
+      "id": "IMPORT_PREPROCESSING_GAP",
+      "disposition": "CLOSED_IN_REVIEWED_PHASE_B",
+      "origin": "An earlier unsealed transfer guard could settle after a failed imported CAS while a concurrent source guard had already approved before that CAS.",
+      "resolution": "The global metadata barrier is registered before preprocessing and source handoff drains/rechecks it. Real registry/import/CAS fixtures cover held preprocessing success and failure. The failure case is red under Phase A and green under Phase B.",
+      "limit": "Focused tests invoke the actual wrapper but do not mount DraftTransfer; the separate browser fixture is not yet executed at review."
+    },
+    {
+      "id": "SAME_OWNER_READ_LIVENESS",
+      "disposition": "INVESTIGATED_NOT_REPRODUCED",
+      "origin": "Concurrent App/provider helper reads contribute pending/revision observations, raising a possible repeated-read concern.",
+      "evidence": "Both appended tests passed on unchanged Phase B: retained same-owner source/text, and held pending hydration while a new source generation commits. Each delegates real journalHandoffState snapshots and has a 64-inspection non-progress sentinel.",
+      "conclusion": "No observed loop or actionable production defect established. No coalescing or timeout change was made or is justified by these results. The bounded fixtures do not prove every scheduling pattern."
+    }
+  ],
+  "browserFixture": {
+    "status": "STATIC_REVIEW_ONLY_NOT_RUN",
+    "path": "tests/e2e/desktop-surfaces.spec.ts",
+    "sha256": "07f9b179504a44fc6297f4050663630dd95fd240a58fac756d5eccb9daef773d",
+    "additionSha256": "ac488f308074e8206309232b293dc61e310de22a2fdeb7acf82f4293dbd9edbf",
+    "assessment": "No material static fixture defect found. Actual File.text is held before component parsing; actual journal barrier is read; actual DesktopProvider close callback enters the shared registry. Source-key IDB put failure aborts the bundle. The test requires false close, retained input DOM, no committed text/source, another blocked close, then exact explicit import retry and true close. Task/split and native bridge remain scripted.",
+    "sourceVerification": "Proposed file equals preserved base bytes plus the new addition. Existing tests and deadlines are unchanged.",
+    "authorityLimit": "Source identities in this backup are inert fixture records. No real host source grant, installed desktop or native platform claim."
+  },
+  "recordedExecution": [
+    {
+      "run": "c4-source-handoff-initial-01",
+      "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+      "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-16T04:51:27.616Z",
+      "endedAt": "2026-11-16T04:51:29.757Z",
+      "actualFileCount": 2,
+      "passed": 11,
+      "failed": 12,
+      "skipped": 0,
+      "total": 23,
+      "artifacts": [
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.json",
+          "bytes": 796,
+          "sha256": "80ac4eafcd898e2710f8230959bc598fb3f8c6f7f7780afc5e73a7233f3d9aba"
+        },
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.log",
+          "bytes": 12178,
+          "sha256": "c66134bb95a99e050c92585600f048e4a3024d0813432995375c3148255e4d4c"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json",
+          "bytes": 17272,
+          "sha256": "99017e4a9c4c74b211db0031c1f7e7619e440c33f7be206c4ff144e5d97af135"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/source-cut.json",
+          "bytes": 548158,
+          "sha256": "fe8a782f2a48c0a359042c54bce38e1b2003fce00a0e639292a9e283aacad0ae"
+        }
+      ],
+      "testSource": {
+        "path": "tests/source-handoff-v3.test.ts",
+        "kind": "regular",
+        "mode": "0o644",
+        "bytes": 23223,
+        "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df"
+      },
+      "cases": [
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff retains every editor with the same artifact key and unregisters each independently",
+          "status": "passed",
+          "durationMs": 5.903671000000031,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff waits for every mounted editor before reporting a failed save",
+          "status": "passed",
+          "durationMs": 2.5182290000000194,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff invokes the current guards on every handoff without retaining unmounted editors",
+          "status": "passed",
+          "durationMs": 1.0958120000000235,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations acknowledges only an untouched owner whose source, text and pending recovery all failed",
+          "status": "failed",
+          "durationMs": 253.43235900000002,
+          "failureHeadlines": [
+            "Error: promise rejected \"Error: IDB unavailable\" instead of resolving"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not treat an unobserved owner as a failed, untouched recovery",
+          "status": "passed",
+          "durationMs": 11.075769000000037,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains the strict read after an earlier successful empty recovery",
+          "status": "passed",
+          "durationMs": 8.925232999999935,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations keeps a locally begun source action blocking before its first journal write",
+          "status": "passed",
+          "durationMs": 13.234739999999988,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not reset attempted source work across an A to B to A owner transition",
+          "status": "failed",
+          "durationMs": 5.257019000000014,
+          "failureHeadlines": [
+            "Error: promise rejected \"Error: Owner recovery unavailable\" instead of resolving"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations drains pending source hydration before judging an independently recovered pending send",
+          "status": "failed",
+          "durationMs": 16.010140999999976,
+          "failureHeadlines": [
+            "AssertionError: expected true to be false // Object.is equality"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits for a first single CAS before a generation exists",
+          "status": "failed",
+          "durationMs": 6.359258000000068,
+          "failureHeadlines": [
+            "AssertionError: expected true to be false // Object.is equality"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits for a first many CAS before a generation exists",
+          "status": "failed",
+          "durationMs": 14.356989999999996,
+          "failureHeadlines": [
+            "AssertionError: expected true to be false // Object.is equality"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains a failed first source CAS even when an empty read and false retry succeed",
+          "status": "failed",
+          "durationMs": 5.59839199999999,
+          "failureHeadlines": [
+            "Error: promise resolved \"undefined\" instead of rejecting"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not let accepted old-source cleanup retire a failed newer attachment",
+          "status": "failed",
+          "durationMs": 8.106585999999993,
+          "failureHeadlines": [
+            "Error: promise resolved \"undefined\" instead of rejecting"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retires an earlier failed attachment only after an explicit source edit commits",
+          "status": "failed",
+          "durationMs": 6.272324000000026,
+          "failureHeadlines": [
+            "Error: promise resolved \"undefined\" instead of rejecting"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not let an older explicit commit acknowledge a newer failed source operation",
+          "status": "failed",
+          "durationMs": 5.9209769999999935,
+          "failureHeadlines": [
+            "Error: promise resolved \"undefined\" instead of rejecting"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations keeps failed source imports blocked until an atomic import retry commits the exact bundle",
+          "status": "failed",
+          "durationMs": 153.709516,
+          "failureHeadlines": [
+            "Error: promise resolved \"undefined\" instead of rejecting"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits through import preprocessing before the same registry handoff (commit fails: false)",
+          "status": "passed",
+          "durationMs": 27.751210000000015,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits through import preprocessing before the same registry handoff (commit fails: true)",
+          "status": "failed",
+          "durationMs": 18.28999500000009,
+          "failureHeadlines": [
+            "AssertionError: expected { ok: true, value: undefined } to deeply equal { ok: false, …(1) }"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains an ordinary failed draft write until its exact staged generation persists",
+          "status": "failed",
+          "durationMs": 4.473791000000006,
+          "failureHeadlines": [
+            "AssertionError: expected undefined to match object { Object (value, generation) }"
+          ]
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not classify a recovered staging record with failed replay as cold",
+          "status": "passed",
+          "durationMs": 4.2725359999999455,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains the obligation of source metadata acquired through broadcast after initial failure",
+          "status": "passed",
+          "durationMs": 8.017231000000038,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains a record observed by entry enumeration even without a cached generation",
+          "status": "passed",
+          "durationMs": 8.529864999999972,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations rejects a foreign-owner source record instead of granting the cold-owner allowance",
+          "status": "passed",
+          "durationMs": 9.646354999999971,
+          "failureHeadlines": []
+        }
+      ]
+    },
+    {
+      "run": "c4-source-handoff-policy-01",
+      "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+      "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-16T04:56:52.948Z",
+      "endedAt": "2026-11-16T04:56:57.074Z",
+      "actualFileCount": 2,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "total": 25,
+      "artifacts": [
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.json",
+          "bytes": 794,
+          "sha256": "d089c5211b33b287ba7408c41232ddedae10d5242c44889de9ecdd0df2398dc3"
+        },
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.log",
+          "bytes": 1021,
+          "sha256": "489602ab47e2987d6dc4a2f021b3fac4f698a448bb684488d8efd52413e27bf0"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json",
+          "bytes": 10073,
+          "sha256": "95f2ef1d5178e976c5e0e46a8dbe9f74b877bb63b2151ad2db512b8d1e4b3b99"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/source-cut.json",
+          "bytes": 548158,
+          "sha256": "4ce32ce11edfac8cfaf89728f783266e67adc17f42a9338ab9d8e48842cc53ed"
+        }
+      ],
+      "testSource": {
+        "path": "tests/source-handoff-v3.test.ts",
+        "kind": "regular",
+        "mode": "0o644",
+        "bytes": 27654,
+        "sha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd"
+      },
+      "cases": [
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff retains every editor with the same artifact key and unregisters each independently",
+          "status": "passed",
+          "durationMs": 4.326850000000036,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff waits for every mounted editor before reporting a failed save",
+          "status": "passed",
+          "durationMs": 1.6761400000000322,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/editor-handoff.test.ts",
+          "name": "shared renderer editor handoff invokes the current guards on every handoff without retaining unmounted editors",
+          "status": "passed",
+          "durationMs": 0.31800399999997353,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations acknowledges only an untouched owner whose source, text and pending recovery all failed",
+          "status": "passed",
+          "durationMs": 645.457786,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not treat an unobserved owner as a failed, untouched recovery",
+          "status": "passed",
+          "durationMs": 10.542515000000094,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains the strict read after an earlier successful empty recovery",
+          "status": "passed",
+          "durationMs": 13.33138299999996,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations keeps a locally begun source action blocking before its first journal write",
+          "status": "passed",
+          "durationMs": 34.325100999999904,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not reset attempted source work across an A to B to A owner transition",
+          "status": "passed",
+          "durationMs": 11.116644999999835,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations drains pending source hydration before judging an independently recovered pending send",
+          "status": "passed",
+          "durationMs": 19.26910100000009,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits for a first single CAS before a generation exists",
+          "status": "passed",
+          "durationMs": 15.46490300000005,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits for a first many CAS before a generation exists",
+          "status": "passed",
+          "durationMs": 13.927740999999969,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains a failed first source CAS even when an empty read and false retry succeed",
+          "status": "passed",
+          "durationMs": 35.73540800000001,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not let accepted old-source cleanup retire a failed newer attachment",
+          "status": "passed",
+          "durationMs": 20.202007999999978,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retires an earlier failed attachment only after an explicit source edit commits",
+          "status": "passed",
+          "durationMs": 6.0115310000001045,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not let an older explicit commit acknowledge a newer failed source operation",
+          "status": "passed",
+          "durationMs": 4.684402000000091,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations keeps failed source imports blocked until an atomic import retry commits the exact bundle",
+          "status": "passed",
+          "durationMs": 529.7787800000001,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits through import preprocessing before the same registry handoff (commit fails: false)",
+          "status": "passed",
+          "durationMs": 68.24694499999987,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations waits through import preprocessing before the same registry handoff (commit fails: true)",
+          "status": "passed",
+          "durationMs": 20.832322000000204,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains an ordinary failed draft write until its exact staged generation persists",
+          "status": "passed",
+          "durationMs": 4.19061899999997,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations does not classify a recovered staging record with failed replay as cold",
+          "status": "passed",
+          "durationMs": 3.047743999999966,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains the obligation of source metadata acquired through broadcast after initial failure",
+          "status": "passed",
+          "durationMs": 5.662565000000086,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations retains a record observed by entry enumeration even without a cached generation",
+          "status": "passed",
+          "durationMs": 11.102737000000161,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations rejects a foreign-owner source record instead of granting the cold-owner allowance",
+          "status": "passed",
+          "durationMs": 11.241250000000036,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations settles both same-owner App and SourceWorkbench guards without changing retained input",
+          "status": "passed",
+          "durationMs": 20.01197400000001,
+          "failureHeadlines": []
+        },
+        {
+          "file": "tests/source-handoff-v3.test.ts",
+          "name": "M15 source handoff recovery obligations rechecks a new source generation after both same-owner guards wait for recovery",
+          "status": "passed",
+          "durationMs": 25.90558800000008,
+          "failureHeadlines": []
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Phase A is deliberately strict: 11 passed and 12 failed across two actual files. Its failed receipt remains retained, not reclassified as a baseline pass.",
+    "Phase B has 25 passed, zero failed and zero skipped across two actual files: 22 source cases and three existing registry cases. JSON suite totals include nested describes and are not file counts.",
+    "Focused IndexedDB, localStorage and BroadcastChannel are scripted. Actual journal, recovery, parsing, generations, CAS, import and registry execute. This is not real browser storage, installed desktop or Windows proof.",
+    "The A to B to A case checks metadata persistence and the owner-fence helper, not a full React/native-window lifecycle.",
+    "Source action marking excludes the cold allowance; it does not add a new barrier around the entire host capture/refresh request when storage is healthy.",
+    "Mounted DraftTransfer browser validation, broader regression, and exact-head target execution remain separate gates."
+  ],
+  "reviewerMutations": "Only this outside-repository review directory was written. No repository/index/ref/remote mutations or test execution."
+}

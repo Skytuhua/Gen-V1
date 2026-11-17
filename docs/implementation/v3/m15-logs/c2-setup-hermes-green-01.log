@@ -1,0 +1,18 @@
+argv: ["pnpm","exec","vitest","run","tests/hermes-client-startup.test.ts","tests/hermes-runtime.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-setup-hermes-green-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/hermes-runtime.test.ts (39 tests) 3549ms
+   ✓ passes only a matching idle receipt through the optional host channel and rejects stale delivery  330ms
+   ✓ launches the actual ACP server with an absolute loader from an isolated working directory  902ms
+ ✓ tests/hermes-client-startup.test.ts (4 tests) 111ms
+
+ Test Files  2 passed (2)
+      Tests  43 passed (43)
+   Start at  08:24:04
+   Duration  5.94s (transform 910ms, setup 0ms, import 1.63s, tests 3.66s, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-setup-hermes-green-01-results.json

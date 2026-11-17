@@ -1,0 +1,5 @@
+argv: ["node","--import","tsx","scripts/lint-ui.ts","--check"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+UI guard: 527 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

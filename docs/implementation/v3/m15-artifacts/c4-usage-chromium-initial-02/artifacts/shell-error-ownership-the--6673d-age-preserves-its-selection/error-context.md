@@ -1,0 +1,70 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [active] [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e31]:
+        - button "Source-bound task fixture Ready" [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: RT
+              - generic [ref=e36]: Reusable task surfaces
+            - time [ref=e38]: 17d
+          - generic [ref=e39]: Source-bound task fixture
+          - generic [ref=e40]: Ready
+        - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+    - navigation "Installed plug-ins" [ref=e47]:
+      - button "Sample visuals" [ref=e48] [cursor=pointer]
+    - generic "App controls" [ref=e49]:
+      - button "Settings" [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - generic [ref=e54]: Settings
+      - button "Pull requests" [ref=e55] [cursor=pointer]:
+        - img [ref=e56]
+        - generic [ref=e60]: PRs
+      - button "Usage" [ref=e61] [cursor=pointer]:
+        - img [ref=e62]
+        - generic [ref=e64]: Usage
+      - button "Update" [disabled] [ref=e65]:
+        - img [ref=e66]
+        - generic [ref=e69]: Update
+  - separator "Resize sidebar" [ref=e70]
+  - generic [ref=e71]:
+    - generic "Workspace layouts" [ref=e73]:
+      - button "Workspace" [ref=e74] [cursor=pointer]
+      - button "All Agents" [ref=e75] [cursor=pointer]
+      - button "Studio" [pressed] [ref=e76] [cursor=pointer]
+      - button "Open workspace panel" [ref=e77] [cursor=pointer]:
+        - img [ref=e78]
+      - button "Layouts" [disabled] [ref=e81]:
+        - img [ref=e82]
+        - text: Layouts
+        - img [ref=e86]
+    - status [ref=e88]:
+      - text: Source edits must be confirmed before leaving.
+      - button "Refresh" [ref=e89] [cursor=pointer]
+      - button "Dismiss error" [ref=e90] [cursor=pointer]:
+        - img [ref=e91]
+    - region "Studio" [ref=e94]:
+      - iframe [ref=e95]:
+        - generic [active] [ref=f1e1]: Scoped plug-in fixture
+  - region "Notifications"
+```

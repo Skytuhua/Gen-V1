@@ -1,0 +1,297 @@
+{
+  "version": 1,
+  "kind": "M15_M04_ADMISSION_ROLLBACK_REVIEW",
+  "sealedAt": "2026-11-16T00:49:32.422964+00:00",
+  "sourceIdentity": {
+    "kind": "working-tree-file-sha256",
+    "appliesToAttempt": "c2-m04-admission-final-green-01",
+    "gitHeadForContext": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+    "note": "The working tree includes the merged continuation. These file digests bind this local source cut; the contextual Git HEAD is not presented as the exact tested published commit.",
+    "files": [
+      {
+        "path": "packages/core/request-custody.ts",
+        "sha256": "0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94"
+      },
+      {
+        "path": "packages/core/service.ts",
+        "sha256": "27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81"
+      },
+      {
+        "path": "packages/core/source-workbench.ts",
+        "sha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925"
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae"
+      },
+      {
+        "path": "tests/request-preparation-service-v3.test.ts",
+        "sha256": "4335431f23905e4bf0dd9f4c4ea7025e65316c95c6702b956c9e7d83d755c35e"
+      },
+      {
+        "path": "tests/source-workbench-host-v3.test.ts",
+        "sha256": "ecbe0e1ec4810cbd31812944416c0140a55594efe1e91c334486673b1f0104c8"
+      },
+      {
+        "path": "tests/source-selection-v3.test.ts",
+        "sha256": "d7c7a9791b7fdee2a814977b807f0d7265af59294995756a3d513f9e96efcff2"
+      },
+      {
+        "path": "tests/accounts.test.ts",
+        "sha256": "dcd14700910ab5c693b164c08e5195d27c0e77cb91967ff1ac0203c59cefbbe3"
+      }
+    ]
+  },
+  "implementation": {
+    "filesChangedForThisFix": [
+      "packages/core/request-custody.ts",
+      "packages/core/service.ts",
+      "tests/request-preparation-service-v3.test.ts",
+      "tests/source-workbench-host-v3.test.ts"
+    ],
+    "scope": "Service.sendMessage consumes the rollback callbacks after proving absence of both a matching command receipt and the command outbox row. Other admission/lifecycle callers are unchanged.",
+    "rollbackOrder": [
+      "Undo only exact entry/input/basis references advanced by the failed transaction; accepted claims remain claimed.",
+      "Undo only the newly acquired claim if entry, phase, input and original basis references still match."
+    ],
+    "invariants": [
+      "No asynchronous callback was introduced into Store.command.",
+      "Existing accepted-command receipt and pending-command idempotency remain intact.",
+      "Original owner/account/epoch/grant basis is retained, never replaced with current authority after failure.",
+      "Source captures, source refs, selected bytes and grants are not changed by rollback.",
+      "Removed/replaced, finalizing/finalized or more recently advanced custody is not reopened."
+    ]
+  },
+  "independentReview": {
+    "reviewer": "/root/m15_host_gates",
+    "method": "read-only source and regression review",
+    "requestCustodySha256": "0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94",
+    "outcome": "No remaining actionable defect found in the narrow change.",
+    "resolvedFindings": [
+      "Rollback originally covered only the newly claimed entry, leaving other advanced entries stale after a late COMMIT failure.",
+      "A fresh unconsumed claim undo originally lacked an exact original-basis guard and could rewind a newer admission transition."
+    ]
+  },
+  "cases": [
+    {
+      "name": "Explicit first-source account admission",
+      "coverage": "M04 enabled, explicit requestContextId, forced sourceAccountAdmission persistence failure; no message/outbox/account/witness commit, unchanged capture, same command/preparation retry dispatches once."
+    },
+    {
+      "name": "Early projection failure",
+      "coverage": "A synchronous message projection failure leaves the original preparation retryable after proven rollback."
+    },
+    {
+      "name": "Late COMMIT failure",
+      "coverage": "SQLite COMMIT fails after the input callback and advanceAdmission; the original preparation identity and basis remain usable on retry."
+    },
+    {
+      "name": "Committed acknowledgement failure",
+      "coverage": "A matching durable receipt acknowledges the accepted command; no claim is reopened and dispatch remains valid."
+    },
+    {
+      "name": "Original authority fences",
+      "coverage": "After rollback, changing logical owner, epoch, or resource grant still rejects the old preparation."
+    },
+    {
+      "name": "Other accepted request",
+      "coverage": "A later failed claim and retry leave an already accepted request consumed and deliver each accepted input once."
+    },
+    {
+      "name": "Queued Service integration",
+      "coverage": "An accepted pre-epoch queued input remains dispatchable after a later same-model message fails at COMMIT. This integration case already passed before shared-basis undo because its before/after basis values are equal."
+    },
+    {
+      "name": "Shared custody lifecycle rollback",
+      "coverage": "A RequestContextCustody plus real SQLite transaction fixture explicitly changes admissionDigest. Late COMMIT failure must restore every exactly touched claimed basis while keeping the older accepted preparation claimed. This owner-contract case reproduced the shared-basis defect."
+    },
+    {
+      "name": "Stale callback and newer advance",
+      "coverage": "An unused newly acquired claim undo and an earlier advance undo cannot rewind a newer basis. Consumed callbacks cannot undo a subsequent claim with the same input ID. Finalized custody remains intact."
+    }
+  ],
+  "attempts": [
+    {
+      "id": "c2-m04-admission-red-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-red-01.json",
+      "receiptSha256": "168454d1c341c7d43de2e8158af28e188a8f26b51764fa3e87c7b8102afaba1f",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-admission-red-01-results.json",
+      "resultsSha256": "4ffa25fab41a60832613d82cf94a4d043f14bf61a5d42274ba9e59b237102615",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-admission-red-01.log",
+      "logSha256": "34f71793fa0cb692e5639928fa97ec5cd2e8628a34de954099ee41e2829aa0d2",
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-red-01-results.json"
+      ],
+      "passed": 73,
+      "failed": 4,
+      "pending": 2,
+      "pendingClassification": "two genuine Windows-only source-file guard cases"
+    },
+    {
+      "id": "c2-m04-admission-green-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-green-01.json",
+      "receiptSha256": "4e7c0ac04c60c2f3c94ef199f36f4b4558454ccb2d5d606b5956ad97d24e3955",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-admission-green-01-results.json",
+      "resultsSha256": "bc7c28c991e1657d74cdb893f9fc00989886806b8e92b3af513abc0bf264d840",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-admission-green-01.log",
+      "logSha256": "1fa7afbbdb3df0720d2e4875eca56723241e7cbbf5c9e61b43cb2ae4fc87a3b1",
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/source-selection-v3.test.ts",
+        "tests/accounts.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-green-01-results.json"
+      ],
+      "passed": 101,
+      "failed": 0,
+      "pending": 2,
+      "pendingClassification": "two genuine Windows-only source-file guard cases"
+    },
+    {
+      "id": "c2-m04-shared-admission-red-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-red-01.json",
+      "receiptSha256": "548b0eaf3263f520e7caa2adbdae2f2d4390d4b8b33f30d2272141cc9c1787df",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-red-01-results.json",
+      "resultsSha256": "84134cb36481aac31fb32fdbc09093ded120f6a241d6292c24cfcf9134912024",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-red-01.log",
+      "logSha256": "285735c07dbe698b5d8dd351ce66c16912d0ee3df3f32288086199234b508659",
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-red-01-results.json"
+      ],
+      "passed": 33,
+      "failed": 1,
+      "pending": 0,
+      "pendingClassification": "none"
+    },
+    {
+      "id": "c2-m04-shared-admission-green-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-green-01.json",
+      "receiptSha256": "1b3a708c34215b7de52244c23777e44d721d18c7d3abd30adb41ed4486b076b6",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-green-01-results.json",
+      "resultsSha256": "173a373e116a39b81b109b25dfadc0e934e3a4f0a005c5a62f101edb6da1d9fb",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-green-01.log",
+      "logSha256": "5920bbe98ba7ba3d0ac71e9d878750f6654f44371c42c293005001a4ff54ba2d",
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/source-selection-v3.test.ts",
+        "tests/accounts.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-green-01-results.json"
+      ],
+      "passed": 103,
+      "failed": 0,
+      "pending": 2,
+      "pendingClassification": "two genuine Windows-only source-file guard cases"
+    },
+    {
+      "id": "c2-m04-claim-basis-red-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-claim-basis-red-01.json",
+      "receiptSha256": "695f4ed1be97c784f6c10db7d0c266a9c3d3cb497a57388db01beddb71ed1a10",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-claim-basis-red-01-results.json",
+      "resultsSha256": "a1cd750f451492ea2fc9d569a35e7ac7e8ef792d3b7309cb3da7afd4e62cceb3",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-claim-basis-red-01.log",
+      "logSha256": "d826b94a8d33a9a376365c42afd387db1cc6793214d1561b361d91ee5b50289b",
+      "status": "FAIL",
+      "exitCode": 1,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "-t",
+        "undoes a rolled-back lifecycle advance",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-claim-basis-red-01-results.json"
+      ],
+      "passed": 0,
+      "failed": 1,
+      "pending": 33,
+      "pendingClassification": "33 excluded by explicit test-name filter"
+    },
+    {
+      "id": "c2-m04-admission-final-green-01",
+      "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.json",
+      "receiptSha256": "e79d512f7bdb4e192cfb3ce02350f9b9bd9bc7f9868176ac911e83691eb60de1",
+      "results": "docs/implementation/v3/m15-artifacts/c2-m04-admission-final-green-01-results.json",
+      "resultsSha256": "ce7a66dbae46aabd2f564ecdad5960c4b9c90c1454f2757c5d4e984915523fdd",
+      "log": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.log",
+      "logSha256": "3d57e6d7b3ce241e43d2bdc5181eaee2ae06a156b788551bb0f2986f2a733394",
+      "status": "PASS",
+      "exitCode": 0,
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/source-selection-v3.test.ts",
+        "tests/accounts.test.ts",
+        "--maxWorkers=1",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-final-green-01-results.json"
+      ],
+      "passed": 103,
+      "failed": 0,
+      "pending": 2,
+      "pendingClassification": "two genuine Windows-only source-file guard cases"
+    }
+  ],
+  "finalResult": {
+    "attempt": "c2-m04-admission-final-green-01",
+    "filesPassed": 4,
+    "testsPassed": 103,
+    "testsFailed": 0,
+    "windowsOnlyTestsSkipped": 2,
+    "runnerReportedUnhandledErrors": 0,
+    "gitDiffCheck": "PASS"
+  },
+  "limits": [
+    "The two Windows native file-guard cases remain unexecuted by these Linux runs and are selected by the exact-head Windows workflow.",
+    "The explicit epoch-basis shared rollback reproduction is a custody-owner transaction test. It is not reported as a naturally changing second same-model Service.sendMessage admission.",
+    "These focused local results do not replace the full Windows regression, actual original-engine integration, or browser gates."
+  ]
+}

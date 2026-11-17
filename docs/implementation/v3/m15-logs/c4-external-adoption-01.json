@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/external-adoption-01/adopt.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T03:51:17.449Z",
+  "endedAt": "2026-11-16T03:51:22.243Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-external-adoption-01.log",
+  "logDigest": "0718dc634135c3e2a3d85398e29a26d7b284823abe7b04007dad55f59a2b0dc3"
+}

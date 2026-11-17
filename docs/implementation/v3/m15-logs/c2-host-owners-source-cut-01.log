@@ -1,0 +1,12 @@
+argv: ["git","ls-tree","-r","138b1356495bb3a2c9b35020240513f8faa84964","--","packages/core/file-access.ts","packages/core/linux-path-guard.ts","packages/contracts/code-review.ts","packages/workspace/tools.ts","packages/workspace/github.ts","packages/core/task-memory.ts","packages/contracts/verification.ts","packages/core/verification-read-models.ts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+100644 blob 75bac9a59c79270f1f9eb0cd311379e15f0a4f27	packages/contracts/code-review.ts
+100644 blob a3fdecb89d7ac6825018f8d6a0efa604cadaede4	packages/contracts/verification.ts
+100644 blob d4e0a59c6f2418a869cc1aac18f0dad42036c412	packages/core/file-access.ts
+100644 blob 13322b69419c9ab1bcc7d6850109b7cd82770686	packages/core/linux-path-guard.ts
+100644 blob df7c09ef7ae3ed277b0cb8298afd950f2eea934d	packages/core/task-memory.ts
+100644 blob b5f0a01c8cdbc14d864b9a8dcd0539987b7b683c	packages/core/verification-read-models.ts
+100644 blob dfcf9303025e2cbd03b62ccc3f6c502f6c265745	packages/workspace/github.ts
+100644 blob 3f404cbbbb08842fad8e191a98055dc42f52159f	packages/workspace/tools.ts

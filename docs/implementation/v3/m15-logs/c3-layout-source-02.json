@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/source-workbench-host-v3.test.ts",
+    "--testNamePattern",
+    "preserves artifact source custody through retained legacy layout apply/select",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c3-layout-source-02-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T02:11:03.604Z",
+  "endedAt": "2026-11-16T02:11:06.620Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-layout-source-02.log",
+  "logDigest": "4df7fb4e68dc52de32ae591fb96b5ad08e83748c6edf9e8ac0ea559144d27736"
+}

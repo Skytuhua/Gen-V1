@@ -1,0 +1,194 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary "Thread navigation" [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - strong [ref=e9]: Gen V1
+        - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - textbox "Search threads" [ref=e19]:
+            - /placeholder: Search
+        - button "Filter threads" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - button "Connect project" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+        - button "New thread" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+      - navigation "Threads" [ref=e29]:
+        - generic [ref=e31]:
+          - button "Source-bound task fixture Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: RT
+                - generic [ref=e36]: Reusable task surfaces
+              - time [ref=e38]: 16d
+            - generic [ref=e39]: Source-bound task fixture
+            - generic [ref=e40]: Ready
+          - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+      - generic "App controls" [ref=e47]:
+        - button "Settings" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+          - generic [ref=e52]: Settings
+        - button "Pull requests" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e58]: PRs
+        - button "Usage" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+          - generic [ref=e62]: Usage
+        - button "Update" [disabled] [ref=e63]:
+          - img [ref=e64]
+          - generic [ref=e67]: Update
+    - separator "Resize sidebar" [ref=e68]
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - status [ref=e71]:
+          - generic [ref=e72]: Plug-ins could not be loaded.
+          - button "Retry" [ref=e73] [cursor=pointer]
+        - generic "Workspace layouts" [ref=e74]:
+          - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+          - button "All Agents" [ref=e76] [cursor=pointer]
+          - button "Code Review" [ref=e77] [cursor=pointer]
+          - button "Research" [ref=e78] [cursor=pointer]
+          - button "Custom" [ref=e79] [cursor=pointer]
+          - button "Layouts" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - text: Layouts
+            - img [ref=e86]
+          - button "Panels" [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+            - text: Panels
+            - img [ref=e95]
+      - generic [ref=e100]:
+        - generic [ref=e102]:
+          - main "Chat" [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - img [ref=e106]
+                - generic [ref=e108]: Reusable task surfaces
+                - generic [ref=e109]: /
+                - strong [ref=e110]: Source-bound task fixture
+              - generic [ref=e111]:
+                - button "Find in conversation" [ref=e113] [cursor=pointer]:
+                  - img [ref=e114]
+                - button "Open workspace panel" [ref=e117] [cursor=pointer]:
+                  - img [ref=e118]
+                - generic [ref=e120]:
+                  - generic "Switch layout (Ctrl/⌘+Shift+L)" [ref=e121]:
+                    - button "Switch layout" [ref=e122] [cursor=pointer]:
+                      - img [ref=e123]
+                  - button "Detach chat" [ref=e125] [cursor=pointer]:
+                    - img [ref=e126]
+            - generic "Conversation" [ref=e134]:
+              - generic [ref=e137]:
+                - generic [ref=e138]: Assistant
+                - generic [ref=e139]:
+                  - button "Copy message" [ref=e140] [cursor=pointer]:
+                    - img [ref=e141]
+                  - status [ref=e144]
+                  - paragraph [ref=e146]: Synthetic local source data for the reusable renderer.
+                - region "Task surface" [ref=e147]:
+                  - generic [ref=e148]:
+                    - strong [ref=e150]: Task surface
+                    - generic [ref=e151]:
+                      - button "Saved" [ref=e152] [cursor=pointer]:
+                        - img [ref=e153]
+                        - generic [ref=e155]: Saved
+                      - generic [ref=e156]:
+                        - button "View artifact source" [ref=e157] [cursor=pointer]:
+                          - img [ref=e158]
+                        - button "Pin artifact" [ref=e162] [cursor=pointer]:
+                          - img [ref=e163]
+                        - button "Archive artifact" [ref=e165] [cursor=pointer]:
+                          - img [ref=e166]
+                      - button "Expand artifact" [ref=e169] [cursor=pointer]:
+                        - img [ref=e170]
+                      - button "Open artifact in workspace" [ref=e175] [cursor=pointer]:
+                        - img [ref=e176]
+                  - generic [ref=e181]:
+                    - generic [ref=e182]:
+                      - generic [ref=e183]: 1 of 1 row
+                      - generic [ref=e185]:
+                        - img [ref=e186]
+                        - textbox "Filter rows" [ref=e189]
+                    - region "Review records" [ref=e190]:
+                      - table "Review records" [ref=e191]:
+                        - caption [ref=e192]: Review records
+                        - rowgroup [ref=e196]:
+                          - row "Selected Move Name column Sort Name Resize Name column" [ref=e197]:
+                            - columnheader "Selected" [ref=e198]:
+                              - generic [ref=e199]: Selected
+                            - columnheader "Move Name column Sort Name Resize Name column" [ref=e200]:
+                              - generic [ref=e201]:
+                                - button "Move Name column" [ref=e202]:
+                                  - img [ref=e203]
+                                - button "Sort Name" [ref=e210] [cursor=pointer]:
+                                  - generic [ref=e211]: Name
+                              - separator "Resize Name column" [ref=e212]
+                        - rowgroup [ref=e213]:
+                          - row "Select row 1 First record" [ref=e214]:
+                            - cell "Select row 1" [ref=e215]:
+                              - checkbox "Select row 1" [checked] [ref=e216]
+                            - cell "First record" [ref=e217]:
+                              - generic [ref=e218]: First record
+                    - generic [ref=e219]: Drag or use Alt+Left/Right to move
+                    - status [ref=e220]: 1 of 1 row shown.
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - textbox "Message" [ref=e227]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e228]:
+                  - button "Inspect changes" [ref=e229] [cursor=pointer]:
+                    - img [ref=e230]
+                    - generic [ref=e232]: Changes
+                  - button "Create PR" [ref=e233] [cursor=pointer]:
+                    - img [ref=e234]
+                    - generic [ref=e239]: Create PR
+              - status [ref=e240]
+              - generic [ref=e242]:
+                - group "Project and runtime" [ref=e243]:
+                  - button "Saved drafts" [ref=e244] [cursor=pointer]
+                  - button "Attach files" [ref=e245] [cursor=pointer]:
+                    - img [ref=e246]
+                  - button "Select project" [ref=e247] [cursor=pointer]:
+                    - img [ref=e248]
+                    - generic [ref=e250]: Reusable task surfaces
+                  - generic "Local workspace" [ref=e251]:
+                    - img [ref=e252]
+                    - text: Local
+                  - button "Task mode" [ref=e254] [cursor=pointer]:
+                    - img [ref=e255]
+                    - generic [ref=e258]: Build
+                  - button "Show live usage" [ref=e259] [cursor=pointer]:
+                    - img [ref=e260]
+                - group "Model and voice" [ref=e262]:
+                  - combobox "Model" [ref=e263] [cursor=pointer]:
+                    - img [ref=e264]
+                    - generic [ref=e267]: Fixture
+                    - img [ref=e268]
+                  - button "Inspect context usage" [ref=e271] [cursor=pointer]:
+                    - img [ref=e272]
+                  - button "Start voice input" [ref=e273] [cursor=pointer]:
+                    - img [ref=e274]
+                  - button "Send message" [disabled] [ref=e278]:
+                    - img [ref=e279]
+          - generic:
+            - img
+            - generic: Dock chat
+        - complementary "Conversation summaries" [ref=e282]:
+          - region "Project overview window" [ref=e283]:
+            - button "Expand Project overview" [ref=e285] [cursor=pointer]:
+              - strong [ref=e286]: Project overview
+              - img [ref=e287]
+    - region "Notifications"
+  - status [ref=e289]:
+    - generic [ref=e290]: Plug-ins could not be loaded. Check the host connection, then retry.
+    - button "Dismiss notification" [ref=e291] [cursor=pointer]:
+      - img [ref=e292]
+```

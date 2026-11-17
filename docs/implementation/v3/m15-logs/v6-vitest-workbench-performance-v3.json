@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/workbench-performance-v3.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+  "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+  "startedAt": "2026-11-16T19:16:53.147Z",
+  "endedAt": "2026-11-16T19:16:54.397Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-performance-v3.log",
+  "logDigest": "acc82620496c85dd760a1aef766b3a70f67a807f939e42f0b12693ef86c79b65"
+}

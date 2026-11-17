@@ -1,0 +1,34 @@
+{
+  "kind": "C4_FINAL_BROWSER_PLAN_SEAL",
+  "state": "PREPARED_NOT_EXECUTED",
+  "files": [
+    {
+      "name": "commands.json",
+      "bytes": 10523,
+      "sha256": "8c162372c286df30b4f1faa4bbf723f05931ed54d1bd7c88aaff2dc92c29273c"
+    },
+    {
+      "name": "commands.md",
+      "bytes": 2263,
+      "sha256": "4b3c4f951c9e1c5560afd494f434e12307560ef13289812fa449cab9e2c1045c"
+    },
+    {
+      "name": "external-082-linux-addendum.md",
+      "bytes": 1262,
+      "sha256": "ab8680ab60951ea4c284d3c1cb9262a5e162efeef42a8e39434a7397a753ece8"
+    },
+    {
+      "name": "external-082-linux-evidence.json",
+      "bytes": 1962,
+      "sha256": "676c88c1e069017af3579591722307e128b63fdea0bf659310738fade0929937"
+    }
+  ],
+  "checks": {
+    "draft01HashesUnchanged": true,
+    "unitReceiptLogDigestMatches": true,
+    "threeUniqueOutputIdsUnused": true,
+    "absoluteJsonOutputs": true,
+    "noFilterRetryTimeoutOrChannelOverride": true,
+    "noRepositoryEditsOrExecutionJobs": true
+  }
+}

@@ -1,0 +1,64 @@
+diff --git a/tests/source-handoff-v3.test.ts b/tests/source-handoff-v3.test.ts
+--- a/tests/source-handoff-v3.test.ts
++++ b/tests/source-handoff-v3.test.ts
+@@ -361,4 +361,60 @@
+     await expect(recovery.prepareSourceOwnerHandoff(owner)).rejects.toThrow(/owner|workspace/i);
+     expect(local.rows.get(sourceKey)).toEqual(before);
+   });
++
++  it('settles both same-owner App and SourceWorkbench guards without changing retained input', async () => {
++    const local = storage(); const sourceBefore = local.put(sourceKey, metadata), textBefore = local.put('draft:thread-a', 'Retain the same-owner prompt');
++    const journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const {prepareEditorHandoff, registerEditorHandoff} = await import('../apps/web/src/editor-handoff');
++    await Promise.all(keys.map(key => journal.journalReadRecord(key)));
++    // A progress sentinel prevents a read-only microtask livelock from starving
++    // Vitest's ordinary timer. It does not replace any owner, value or CAS result.
++    const observe = journal.journalHandoffState; let inspections = 0;
++    const sentinel = vi.spyOn(journal, 'journalHandoffState').mockImplementation(names => {
++      if (++inspections > 64) throw Error('Same-owner guards did not settle after 64 metadata inspections.');
++      return observe(names);
++    });
++    const started: string[] = [], finished: string[] = [];
++    const guard = (name: string) => async () => {started.push(name); await recovery.prepareSourceOwnerHandoff(owner); finished.push(name);};
++    const removeApp = registerEditorHandoff('composer-journal:thread-a', guard('App'));
++    const removeWorkbench = registerEditorHandoff('source-workbench:owner-a', guard('SourceWorkbench'));
++    try {
++      await expect(prepareEditorHandoff()).resolves.toBeUndefined();
++      expect(started).toEqual(['App', 'SourceWorkbench']); expect(finished.sort()).toEqual(['App', 'SourceWorkbench']);
++      expect(local.rows.get(sourceKey)).toEqual(sourceBefore); expect(local.rows.get('draft:thread-a')).toEqual(textBefore);
++      expect(await recovery.composeDraftContext(owner)).toMatchObject({...contextFields, text: 'Retain the same-owner prompt'});
++      expect(local.rows.has('agents-pending:thread-a')).toBe(false);
++    } finally {sentinel.mockRestore(); removeApp(); removeWorkbench();}
++  });
++
++  it('rechecks a new source generation after both same-owner guards wait for recovery', async () => {
++    const local = storage(); const sourceBefore = local.put(sourceKey, metadata); local.put('draft:thread-a', 'Keep text while source changes');
++    const journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const {prepareEditorHandoff, registerEditorHandoff} = await import('../apps/web/src/editor-handoff');
++    await Promise.all([journal.journalReadRecord(sourceKey), journal.journalReadRecord('draft:thread-a')]);
++    const held = local.holdRead('agents-pending:thread-a'), hydrating = journal.journalReadRecord('agents-pending:thread-a');
++    await held.entered;
++    const observe = journal.journalHandoffState; let inspections = 0;
++    const sentinel = vi.spyOn(journal, 'journalHandoffState').mockImplementation(names => {
++      if (++inspections > 64) throw Error('Changed-generation guards did not settle after 64 metadata inspections.');
++      return observe(names);
++    });
++    const removeApp = registerEditorHandoff('composer-journal:thread-a', () => recovery.prepareSourceOwnerHandoff(owner));
++    const removeWorkbench = registerEditorHandoff('source-workbench:owner-a', () => recovery.prepareSourceOwnerHandoff(owner));
++    const handing = watch(prepareEditorHandoff()), nextRef = {...sourceRef, captureId: 'capture-new-during-handoff'};
++    try {
++      await turn(); expect(handing.settled).toBe(false);
++      const changed = await recovery.updateSourceDraft(owner, state => ({...state, sourceRefs: [...state.sourceRefs, nextRef]}));
++      expect(changed.generation).not.toBe(sourceBefore.generation);
++      expect(handing.settled).toBe(false);
++      held.release(); await hydrating;
++      expect(await handing.result).toEqual({ok: true, value: undefined});
++      expect(await recovery.composeDraftContext(owner)).toMatchObject({logicalOwner: owner, text: 'Keep text while source changes', sourceRefs: [sourceRef, nextRef], sendMode: 'AFTER_CURRENT'});
++      expect(await recovery.clearAcceptedSourceDraft(owner, sourceBefore.generation)).toBe(false);
++      expect((await recovery.readSourceDraft(owner)).sourceRefs).toEqual([sourceRef, nextRef]);
++    } finally {held.release(); await Promise.all([hydrating, handing.result]); sentinel.mockRestore(); removeApp(); removeWorkbench();}
++  });
++
+ });
