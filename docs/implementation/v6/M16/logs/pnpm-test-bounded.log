@@ -1,0 +1,611 @@
+argv: ["pnpm","test"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 1
+termination: NONE
+placed between inspection identity capture and credential read 60127ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 60043ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 65 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/67]⎯
+
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+    102|  await x.select('openai',a.id);await x.send('message.send',{content:'I…
+    103|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    104|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    105|  await x.select('openai',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/67]⎯
+
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+    124|  await x.select('gemini-cli',a.id);await x.send('message.send',{conten…
+    125|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    126|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    127|  await x.select('gemini-cli',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/67]⎯
+
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:58:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/67]⎯
+
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/capabilities.test.ts:241:3
+    239|
+    240| describe("disposable fixtures and held-out evaluations", () => {
+    241|   it("creates fixtures only at an exclusive new destination including …
+       |   ^
+    242|     const s = await sandbox(); const destination = join(s.root, "fixtu…
+    243|     const manifest = await createFixtures(destination);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/67]⎯
+
+ FAIL  tests/code-review-comparisons.test.ts > reads index and worktree overlap separately and binds selected patches to the complete revision
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/code-review-comparisons.test.ts:63:1
+     61| }
+     62|
+     63| it("reads index and worktree overlap separately and binds selected pat…
+       | ^
+     64|   const { tools, projectId, path } = await fixture();
+     65|   expect(tools.gitComparison).toBeTypeOf("function");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/67]⎯
+
+ FAIL  tests/desktop-host.test.ts > launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token
+ FAIL  tests/desktop-host.test.ts > does not leave its backend running after the owning IPC channel disconnects
+Error: Desktop host reported a startup error before harness.ready
+ ❯ ChildProcess.message tests/desktop-host-ipc.ts:13:12
+     11|     clear();
+     12|     // Report the lifecycle failure without printing raw IPC, paths, o…
+     13|     reject(new Error('Desktop host reported a startup error before '+t…
+       |            ^
+     14|    }
+     15|   };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/67]⎯
+
+ FAIL  tests/dev-plugin-runtime.test.ts > prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children
+AssertionError: expected [ 503, 503 ] to deeply equal [ 200, 200 ]
+
+- Expected
++ Received
+
+  [
+-   200,
+-   200,
++   503,
++   503,
+  ]
+
+ ❯ tests/dev-plugin-runtime.test.ts:106:52
+    104|     responses.push({status:response.status,bytes:(await response.text(…
+    105|   }
+    106|   expect(responses.map(response=>response.status)).toEqual([200,200]);
+       |                                                    ^
+    107|   for(const response of responses)expect(response.bytes).toBeGreaterTh…
+    108|   for(const launch of launches)expect(launch.assets.every(bytes=>bytes…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/67]⎯
+
+ FAIL  tests/hermes-acp-server.test.ts > rejects a broker response whose ACP wrapper would exceed the wire bound without truncating content
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/hermes-acp-server.test.ts:9:706
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/67]⎯
+
+ FAIL  tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ vi.waitFor.timeout tests/hermes-client.test.ts:53:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/67]⎯
+
+ FAIL  tests/hermes-client.test.ts > treats a denied host callback as an ordinary tool result during teardown
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ vi.waitFor.timeout tests/hermes-client.test.ts:63:46
+     61|  let release!:()=>void;const gate=new Promise<void>(done=>{release=don…
+     62|  const {client}=await fixture({onHostCall}),pending=client.request('ho…
+     63|  try{await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce(),{t…
+       |                                              ^
+     64|  finally{release();await client.dispose();await pending;}
+     65| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/67]⎯
+
+ FAIL  tests/hermes-host.test.ts > serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host
+ FAIL  tests/hermes-multi-original.test.ts > runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls
+ FAIL  tests/hermes-original-integration.test.ts > runs original Python and ACP through the native broker, persists a skill and finishes through the real Service
+ FAIL  tests/source-workbench-hermes-v3.test.ts > retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport]
+ FAIL  tests/source-workbench-hermes-v3.test.ts > delivers prepared M05 memory and retained M15 file evidence through one real Hermes history [Windows, scripted model transport]
+HarnessError: The Hermes source worker stopped before completing its request.
+ ❯ HermesClient.fail packages/runtime-hermes/client.ts:103:37
+    101|  }
+    102|  private fail(code:string):void {
+    103|   if(this.closed)return;const error=new HarnessError(code,'The Hermes …
+       |                                     ^
+    104|   this.closed=true;for(const pending of this.pending.values()){clearTi…
+    105|   try{this.options.onFailure?.(error);}catch{/* An observer cannot pre…
+ ❯ ChildProcess.<anonymous> packages/runtime-hermes/client.ts:58:48
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/67]⎯
+
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/hermes-service.test.ts:55:1
+     53|  expect(x.store.get('data',op.id)).toMatchObject({value:{postEditHook:…
+     54| });
+     55| it('bounds hook admission while preserving every successful write and …
+       | ^
+     56|  const x=await preparedWrite(),operations=[x.op],resourceId=x.store.ge…
+     57|  for(let index=0;index<33;index++){
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/67]⎯
+
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+AssertionError: expected { …(11) } to match object { status: 'failed' }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "failed",
++   "status": "running",
+  }
+
+ ❯ tests/hermes-service.test.ts:85:197
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/67]⎯
+
+ FAIL  tests/integration-host.test.ts > keeps Biome write proposals and Spec Kit initialization unavailable in plan mode
+AssertionError: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/plan mode/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\\Users\\Administrator\\repos\\Gen-V1-m16-v6\\.harness-integrations-python-deps\\specify_cli'"
+
+ ❯ tests/integration-host.test.ts:67:63
+     65|  const scope={authority:{kind:'local'} as const,threadId:thread.id};
+     66|  await expect(host.manager.command('biome','format',{paths:['.'],write…
+     67|  await expect(host.manager.command('spec-kit','init',{},scope)).reject…
+       |                                                               ^
+     68| });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/67]⎯
+
+ FAIL  tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\Users\Administrator\repos\Gen-V1-m16-v6\.harness-integrations-python-deps\graphify'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:39:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/67]⎯
+
+ FAIL  tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\Users\Administrator\repos\Gen-V1-m16-v6\.harness-integrations-python-deps\specify_cli'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:55:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/67]⎯
+
+ FAIL  tests/integration-mcp.test.ts > refuses linked Graphify graph input and linked export directories inside the owned fixture
+AssertionError: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/link|guard|resource|access/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\\Users\\Administrator\\repos\\Gen-V1-m16-v6\\.harness-integrations-python-deps\\graphify'"
+
+ ❯ tests/integration-mcp.test.ts:92:66
+     90|  // Both ends of each junction belong to this disposable fixture.
+     91|  await symlink(other,join(dataRoot,'graphify-out'),'junction');
+     92|  await expect(manager.callTool('graphify','graph_stats',{},scope)).rej…
+       |                                                                  ^
+     93|  await rm(join(dataRoot,'graphify-out'));await mkdir(join(dataRoot,'gr…
+     94|  await writeFile(join(dataRoot,'graphify-out/graph.json'),'{}');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/67]⎯
+
+ FAIL  tests/integrations.test.ts > admits exactly the ten bundled integrations without starting their MCP services
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/integrations.test.ts:23:84
+     21|  const {manager}=await setup();try{
+     22|   const statuses=await manager.inventory(local);expect(statuses).toHav…
+     23|   expect(statuses.every(item=>item.installed&&item.enabled&&item.state…
+       |                                                                                    ^
+     24|   expect(statuses.find(item=>item.id==='humanizer')?.capabilities.mcp)…
+     25|   expect(statuses.find(item=>item.id==='context7')?.capabilities.mcp).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/67]⎯
+
+ FAIL  tests/private-git-family.test.ts > imports once into protected private bare storage and creates three independent native worktrees
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/private-git-family.test.ts:29:1
+     27|  return{root,path,store,tools,git,projectId,add};
+     28| }
+     29| it('imports once into protected private bare storage and creates three…
+       | ^
+     30|  const f=await fixture(),bindings=await Promise.all(['one','two','thre…
+     31|  expect(new Set(bindings.map(x=>x.path)).size).toBe(3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/67]⎯
+
+ FAIL  tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/project-search-host.test.ts:178:1
+    176| });
+    177|
+    178| it('stops at 10,000 ordinary files, without visiting the next file', a…
+       | ^
+    179|   const f = await fixture({ now: () => 0, monotonic: () => 0 });
+    180|   for (let batch = 0; batch < 101; batch++) await Promise.all(Array.fr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/67]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged host and worker entries using only admitted runtime sources
+Error: Build failed with 1 error:
+packages/core/service.ts:59:60: ERROR: Could not resolve "./browser-consent.ts"
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/67]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged browser entry using only admitted public sources
+Error: Build failed with 1 error:
+apps/web/src/App.tsx:32:36: ERROR: Could not resolve "./ControlConsentPanel"
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/67]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > admits the local import closure of exported TypeScript and JavaScript inputs
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/web/src/App.tsx -> ./ControlConsentPanel",
++   "packages/core/service.ts -> ./browser-consent.ts",
++ ]
+
+ ❯ tests/public-source.test.ts:96:33
+     94|       }
+     95|     }
+     96|     expect([...missing].sort()).toEqual([]);
+       |                                 ^
+     97|   });
+     98|   it('admits only enumerated inputs and rejects an unexpected payload …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/67]⎯
+
+ FAIL  tests/review-host.test.ts > isolated actual-host recording fixtures > shows actual before/after SQLite rows and valid row-change annotations
+AssertionError: expected 'working' to match /^(ready|completed|failed|interrupted)$/
+
+- Expected:
+/^(ready|completed|failed|interrupted)$/
+
++ Received:
+"working"
+
+ ❯ settled tests/review-host.test.ts:40:113
+     38|   const command = (scenario: Scenario, type: string, payload: Record<s…
+     39|   async function settled(scenario: Scenario) {
+     40|     await expect.poll(() => host.service.thread(thread(scenario).id).s…
+       |                                                                                                                 ^
+     41|     const current = host.service.thread(thread(scenario).id);
+     42|     expect(current.error ?? null).toBeNull();
+ ❯ send tests/review-host.test.ts:45:182
+ ❯ tests/review-host.test.ts:94:5
+
+Caused by: Error: Matcher did not succeed in time.
+ ❯ settled tests/review-host.test.ts:40:5
+ ❯ send tests/review-host.test.ts:45:176
+ ❯ tests/review-host.test.ts:94:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/67]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/skills-integration.test.ts:53:70
+     51|  const x=await fixture(),a=await x.account(providerId,'Current task'),…
+     52|  await x.send('account.select',{providerId,accountId:a.id});await x.se…
+     53|  await waitFor(()=>expect(x.started('primary',a,providerId)?.starts).t…
+       |                                                                      ^
+     54|  expect(input).toMatchObject({threadId:thread.id,modelId,accountId:a.i…
+     55|  expect(await primary.tool(input,'skill_manage',{operations:[createOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/67]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > admits one create-PR effect when the original command is repeated before acknowledgment
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:55:1
+     53| import {registerWorkspaceHost} from '../apps/server/workspace-host.ts';
+     54| import type {Service} from '../packages/core/service.ts';
+     55| it('admits one create-PR effect when the original command is repeated …
+       | ^
+     56|  const f=await fixture(),status=await f.projects.gitStatus(f.projectId…
+     57|  registerWorkspaceHost(service,{projects:f.projects,github:f.github,te…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/67]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > routes supported writes through durable identity and keeps inspection read-only
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:66:1
+     64|  finally{release();await Promise.allSettled(second?[first,second]:[fir…
+     65| });
+     66| it('routes supported writes through durable identity and keeps inspect…
+       | ^
+     67|  const f=await fixture(),{input,operation}=await f.operation('review-p…
+     68|  remote(f,async()=>{writes++;return{id:77,body:'private remote respons…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/67]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > an exact local stale-head preflight is not-applied before entering a mutation
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:82:28
+     80|
+     81|
+     82| it.each(['head','worktree'])('an exact local stale-%s preflight is not…
+       |                            ^
+     83|  const f=await fixture(),{input,operation}=await f.operation();
+     84|  await writeFile(join(f.binding.path,'one.txt'),'advance the managed h…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/67]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > valid Unicode review text fits submission and exact read-only inspection
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:96:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > a create preflight refusal is not-applied and permits a fresh reviewed intent
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:160:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > retains an uncertain create command across restart without repeating its effect
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:167:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps a post-push create failure uncertain without pushing the original intent again
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:173:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > commits intent before local write and private result before event, then replays after Store restart
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:211:1
+    209| }
+    210|
+    211| it('commits intent before local write and private result before event,…
+       | ^
+    212|   const f = await fixture();
+    213|   await writeFile(join(f.binding.path, 'one.txt'), 'private staged con…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > retains interrupted remote write as uncertain across restart without submitting it again
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:239:1
+    237| }, 60000);
+    238|
+    239| it('retains interrupted remote write as uncertain across restart witho…
+       | ^
+    240|   const f = await fixture(),
+    241|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:263:1
+    261| }, 60000);
+    262|
+    263| it('serializes same-ID attempts across separate Store connections with…
+       | ^
+    264|   const f = await fixture(),
+    265|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+Error: EBUSY: resource busy or locked, rmdir 'C:\Users\Administrator\AppData\Local\Temp\gen-action-outcome-Q91UFS'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > inspects original payload/revision without current diff, review reads, or any write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:320:1
+    318| );
+    319|
+    320| it('inspects original payload/revision without current diff, review re…
+       | ^
+    321|   const f = await fixture(),
+    322|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:342:1
+    340| }, 60000);
+    341|
+    342| it('returns revoked after working copy or account access changes, incl…
+       | ^
+    343|   const f = await fixture(),
+    344|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > records not-applied only after host rejection before starting and never restarts that ID
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:397:1
+    395| }, 60000);
+    396|
+    397| it('records not-applied only after host rejection before starting and …
+       | ^
+    398|   const f = await fixture(),
+    399|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps completed external write uncertain if durable result commit fails
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:425:1
+    423| }, 60000);
+    424|
+    425| it('keeps completed external write uncertain if durable result commit …
+       | ^
+    426|   const f = await fixture(),
+    427|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:452:1
+    450| }, 60000);
+    451|
+    452| it('keeps an active prepared reservation uncertain until its owner dur…
+       | ^
+    453|   const f = await fixture(),
+    454|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+Error: EBUSY: resource busy or locked, rmdir 'C:\Users\Administrator\AppData\Local\Temp\gen-action-outcome-N6IpbN'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > rejects a profile replaced between inspection identity capture and credential read
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:503:1
+    501| }, 60000);
+    502|
+    503| it('rejects a profile replaced between inspection identity capture and…
+       | ^
+    504|   const f = await fixture(),
+    505|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/67]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:518:1
+    516| }, 60000);
+    517|
+    518| it('supports local unstage and commit through the original revision an…
+       | ^
+    519|   const f = await fixture();
+    520|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/67]⎯
+
+
+ Test Files  24 failed | 381 passed | 2 skipped (407)
+      Tests  65 failed | 4325 passed | 49 skipped (4439)
+   Start at  06:05:07
+   Duration  1385.99s (transform 49.29s, setup 0ms, import 173.19s, tests 6641.27s, environment 38ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

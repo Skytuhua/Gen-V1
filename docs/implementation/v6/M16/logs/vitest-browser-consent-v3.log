@@ -1,0 +1,13 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/browser-consent-v3.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m16-v6
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  06:31:13
+   Duration  1.01s (transform 186ms, setup 0ms, import 354ms, tests 406ms, environment 0ms)
+

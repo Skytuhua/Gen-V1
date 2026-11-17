@@ -1,0 +1,13 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/desktop-control-v3.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m16-v6
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  06:31:17
+   Duration  539ms (transform 148ms, setup 0ms, import 278ms, tests 15ms, environment 0ms)
+

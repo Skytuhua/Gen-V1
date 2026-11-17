@@ -1,0 +1,166 @@
+argv: ["pnpm","test:browser"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 1
+termination: NONE
+=== pnpm test:browser bounded log (run dir test-results/browser/run-1794896949329-e728a9b0-bb4b-4b5d-a09f-9eb32447a180) ===
+5941:Browser suite: compact-tools-cleanup (1 spec files)
+5943:Running 9 tests using 1 worker
+6215:  8 failed
+6224:  1 passed (1.7m)
+6226:Browser suite: composer-commands (1 spec files)
+6228:Running 12 tests using 1 worker
+6243:  12 passed (44.0s)
+6245:Browser suite: composer-prediction (1 spec files)
+6247:Running 12 tests using 1 worker
+6378:  5 failed
+6384:  7 passed (1.6m)
+6386:Browser suite: composer-press (1 spec files)
+6388:Running 22 tests using 1 worker
+6414:  22 passed (34.7s)
+6416:Browser suite: context-connections (1 spec files)
+6418:Running 6 tests using 1 worker
+6427:  6 passed (41.0s)
+6429:Browser suite: desktop-surfaces (1 spec files)
+6431:Running 37 tests using 1 worker
+6571:  3 failed
+6575:  34 passed (1.8m)
+6577:Browser suite: everyday (1 spec files)
+6579:Running 11 tests using 1 worker
+6593:  11 passed (39.8s)
+6595:Browser suite: floating (1 spec files)
+6597:Running 12 tests using 1 worker
+6761:  5 failed
+6767:  7 passed (3.6m)
+6769:Browser suite: inline-surfaces (1 spec files)
+6771:Running 10 tests using 1 worker
+6811:  1 failed
+6813:  9 passed (53.8s)
+6815:Browser suite: native-browser-bounds (1 spec files)
+6817:Running 3 tests using 1 worker
+6823:  3 passed (6.7s)
+6825:Browser suite: pdf (1 spec files)
+6827:Running 21 tests using 1 worker
+6851:  21 passed (2.7m)
+6853:Browser suite: plan-presentation (1 spec files)
+6855:Running 3 tests using 1 worker
+6861:  3 passed (16.5s)
+6863:Browser suite: project-app-integration (1 spec files)
+6865:Running 10 tests using 1 worker
+6878:  10 passed (27.5s)
+6880:Browser suite: project-picker (1 spec files)
+6882:Running 13 tests using 1 worker
+6898:  13 passed (24.5s)
+6900:Browser suite: project-search (1 spec files)
+6902:Running 38 tests using 1 worker
+6943:  38 passed (1.6m)
+6945:Browser suite: project-memory (1 spec files)
+6947:Running 15 tests using 1 worker
+6965:  15 passed (24.3s)
+6967:Browser suite: wo5-app-integration (1 spec files)
+6969:Running 10 tests using 1 worker
+7322:  10 failed
+7334:Browser suite: runtime-presentation (1 spec files)
+7336:Running 9 tests using 1 worker
+7348:  9 passed (25.7s)
+7350:Browser suite: shared-panels (1 spec files)
+7352:Running 39 tests using 1 worker
+7422:  1 failed
+7424:  38 passed (1.4m)
+7426:Browser suite: shell (1 spec files)
+7428:Running 73 tests using 1 worker
+7727:  7 failed
+7735:  2 skipped
+7736:  64 passed (5.5m)
+7738:Browser suite: short-tool-overflow (1 spec files)
+7740:Running 12 tests using 1 worker
+7814:  2 failed
+7817:  10 passed (42.1s)
+7819:Browser suite: side-chat (1 spec files)
+7821:Running 18 tests using 1 worker
+7842:  18 passed (58.9s)
+7844:Browser suite: chat-view-modes (2 spec files)
+7846:Running 6 tests using 1 worker
+7943:  3 failed
+7947:  3 passed (1.8m)
+7949:Browser suite: smooth-operational (1 spec files)
+7951:Running 7 tests using 1 worker
+7988:  1 failed
+7990:  6 passed (27.2s)
+7992:Browser suite: smooth-pdf (1 spec files)
+7994:Running 11 tests using 1 worker
+8079:  2 failed
+8082:  9 passed (47.2s)
+8084:Browser suite: snapshot-performance (1 spec files)
+8086:Running 4 tests using 1 worker
+8093:  4 passed (2.8m)
+8095:Browser suite: summary-dock (1 spec files)
+8097:Running 21 tests using 1 worker
+8121:  21 passed (28.4s)
+8123:Browser suite: t3-centered (1 spec files)
+8125:Running 7 tests using 1 worker
+8255:  4 failed
+8260:  3 passed (33.4s)
+8262:Browser suite: tabs-identity (1 spec files)
+8264:Running 4 tests using 1 worker
+8271:  4 passed (18.6s)
+8273:Browser suite: table-controls (1 spec files)
+8275:Running 22 tests using 1 worker
+8301:  22 passed (1.3m)
+8303:Browser suite: task-design (1 spec files)
+8305:Running 6 tests using 1 worker
+8314:  6 passed (22.2s)
+8316:Browser suite: task-interface (1 spec files)
+8318:Running 7 tests using 1 worker
+8328:  1 skipped
+8329:  6 passed (27.9s)
+8331:Browser suite: ui-shell-controls (1 spec files)
+8333:Running 19 tests using 1 worker
+8355:  19 passed (27.3s)
+8357:Browser suite: usage-context (1 spec files)
+8359:Running 25 tests using 1 worker
+8387:  25 passed (30.4s)
+8389:Browser suite: wo8 (1 spec files)
+8391:Running 24 tests using 1 worker
+8418:  24 passed (56.0s)
+8420:Failed browser suites: workbench-app (exit 1), agents-workspace (exit 1), browser-action (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), settings-leaf-selects (exit 1), sidebar-shared-menu (exit 1), terminal-read (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), workspace (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-prediction (exit 1), desktop-surfaces (exit 1), floating (exit 1), inline-surfaces (exit 1), wo5-app-integration (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), chat-view-modes (exit 1), smooth-operational (exit 1), smooth-pdf (exit 1), t3-centered (exit 1)
+=== tail ===
+  ok 22 tests\e2e\usage-context.spec.ts:515:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (771ms)
+  ok 23 tests\e2e\usage-context.spec.ts:539:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (892ms)
+  ok 24 tests\e2e\usage-context.spec.ts:559:1 › last request shows observed broker bytes, then drops them on a new epoch (1.1s)
+  ok 25 tests\e2e\usage-context.spec.ts:597:1 › Requests can filter measured providers even when no usage report exists (1.2s)
+
+  25 passed (30.4s)
+
+Browser suite: wo8 (1 spec files)
+
+Running 24 tests using 1 worker
+
+  ok  1 tests\e2e\wo8.spec.ts:18:3 › thread diff dark 1440 (4.5s)
+  ok  2 tests\e2e\wo8.spec.ts:67:3 › usage and context dark 1440 (1.4s)
+  ok  3 tests\e2e\wo8.spec.ts:18:3 › thread diff dark 1024 (2.4s)
+  ok  4 tests\e2e\wo8.spec.ts:67:3 › usage and context dark 1024 (1.3s)
+  ok  5 tests\e2e\wo8.spec.ts:18:3 › thread diff light 1440 (2.7s)
+  ok  6 tests\e2e\wo8.spec.ts:67:3 › usage and context light 1440 (1.4s)
+  ok  7 tests\e2e\wo8.spec.ts:18:3 › thread diff light 1024 (2.7s)
+  ok  8 tests\e2e\wo8.spec.ts:67:3 › usage and context light 1024 (1.5s)
+  ok  9 tests\e2e\wo8.spec.ts:136:3 › right-aligned stats and full-width numeric tables dark (1.8s)
+  ok 10 tests\e2e\wo8.spec.ts:219:3 › rendered semantic pairs pass AA dark (595ms)
+  ok 11 tests\e2e\wo8.spec.ts:136:3 › right-aligned stats and full-width numeric tables light (1.8s)
+  ok 12 tests\e2e\wo8.spec.ts:219:3 › rendered semantic pairs pass AA light (610ms)
+  ok 13 tests\e2e\wo8.spec.ts:247:40 › inline numeric table preserves full numbers dark (2.4s)
+  ok 14 tests\e2e\wo8.spec.ts:247:40 › inline numeric table preserves full numbers light (2.6s)
+  ok 15 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible dark 1440 (1.6s)
+  ok 16 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible dark 1024 (2.3s)
+  ok 17 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible dark 768 (2.5s)
+  ok 18 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible light 1440 (2.6s)
+  ok 19 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible light 1024 (2.5s)
+  ok 20 tests\e2e\wo8.spec.ts:296:79 › long metric values stay visible light 768 (2.5s)
+  ok 21 tests\e2e\wo8.spec.ts:387:3 › numeric precision survives metric and table rendering dark (1.9s)
+  ok 22 tests\e2e\wo8.spec.ts:493:3 › numeric metric grid contains every value and unit dark (2.7s)
+  ok 23 tests\e2e\wo8.spec.ts:387:3 › numeric precision survives metric and table rendering light (2.3s)
+  ok 24 tests\e2e\wo8.spec.ts:493:3 › numeric metric grid contains every value and unit light (3.9s)
+
+  24 passed (56.0s)
+
+Failed browser suites: workbench-app (exit 1), agents-workspace (exit 1), browser-action (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), settings-leaf-selects (exit 1), sidebar-shared-menu (exit 1), terminal-read (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), workspace (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-prediction (exit 1), desktop-surfaces (exit 1), floating (exit 1), inline-surfaces (exit 1), wo5-app-integration (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), chat-view-modes (exit 1), smooth-operational (exit 1), smooth-pdf (exit 1), t3-centered (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
