@@ -53,7 +53,7 @@ function trackedBlob(root: string, head: string, path: string): string {
   requireValue(lstatSync(absolute).isFile(), 'A regular working file is required: ' + path);
   const inside = relative(root, realpathSync(absolute));
   requireValue(inside !== '..' && !inside.startsWith('..' + sep) && !isAbsolute(inside), 'Path escapes checkout: ' + path);
-  requireValue(git(root, 'hash-object', '--path=' + path, '--', absolute) === match[2], 'Working source differs from locked source: ' + path);
+  requireValue(git(root, 'hash-object', '--no-filters', '--', absolute) === match[2], 'Working source differs from locked source: ' + path);
   return match[2]!;
 }
 function sourceReceipt(root: string, lock: SourceLockV3, lockBytes: string, testIds: string[]): SourceReceipt {

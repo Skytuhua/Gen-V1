@@ -31,7 +31,7 @@ function fixture(body = passingTest) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), text);
   };
-  for (const file of ['package.json', 'pnpm-lock.yaml', 'vitest.config.ts'])
+  for (const file of ['.gitattributes', 'package.json', 'pnpm-lock.yaml', 'vitest.config.ts'])
     copyFileSync(join(repository, file), join(root, file));
   put('.gitignore', 'node_modules\nignored-output\n');
   put('packages/contracts/index.ts', 'export const value = 42;\n');
@@ -177,6 +177,21 @@ describe('M01 current dependency compatibility execution', () => {
     expect(receipt.status).toBe('BLOCKED');
     expect(receipt.commands).toEqual([]);
     expect(receipt.issues.map(issue => issue.code)).toContain('COMPATIBILITY_SETUP_BLOCKED');
+  });
+
+  it('requires exact working bytes even when local Git attributes normalize them to the locked blob', async () => {
+    const value = fixture();
+    writeFileSync(join(value.root, '.git/info/attributes'), 'packages/contracts/index.ts text eol=lf\n');
+    value.put('packages/contracts/index.ts', 'export const value = 42;\r\n');
+    expect(value.git('status', '--porcelain', '--untracked-files=all')).toBe('');
+    expect(value.git('hash-object', '--path=packages/contracts/index.ts', '--', join(value.root, 'packages/contracts/index.ts')))
+      .toBe(value.lock.publicContracts[0]!.version);
+    expect(value.git('hash-object', '--no-filters', '--', join(value.root, 'packages/contracts/index.ts')))
+      .not.toBe(value.lock.publicContracts[0]!.version);
+    const receipt = await value.run();
+    expect(receipt.status).toBe('BLOCKED');
+    expect(receipt.commands).toEqual([]);
+    expect(receipt.issues.some(issue => issue.message.includes('Working source differs from locked source'))).toBe(true);
   });
 
   it('blocks an external-looking output junction that resolves into the checkout', async () => {
