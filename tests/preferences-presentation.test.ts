@@ -37,4 +37,13 @@ describe('compact settings and unified context presentation', () => {
     expect(html).not.toContain('Side conversations');
     expect(html).not.toContain('plan-steps');
   });
+
+  it('hides the duplicated current step once the full plan is already visible', () => {
+    const snapshot = { threads: [], data: [{ id: 'plan:thread-a', threadId: 'thread-a', provenance: 'harness:plan', revision: 2, value: { version: 1, title: 'Inspect changes', agents: [], steps: [{ id: 'check', title: 'Run checks', status: 'working', requirements: [] }] } }] } as unknown as Snapshot;
+    const html = renderToStaticMarkup(createElement(ProjectContextCard, { snapshot, threadId: 'thread-a', threadTitle: 'Current conversation', onOpenDetailedPlan: () => {}, fullPlanVisible: true }));
+    expect(html).toContain('aria-label="Plan summary"');
+    expect(html).toContain('0 of 1 tasks complete');
+    expect(html).not.toContain('Run checks');
+    expect(html).not.toContain('Open full plan');
+  });
 });
