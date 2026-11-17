@@ -1,0 +1,32 @@
+[2m[WebServer] [22m(node:23) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt (1.2s)
+  ✓   2 tests/e2e/usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session (982ms)
+  ✓   3 tests/e2e/usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context (798ms)
+  ✓   4 tests/e2e/usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger (538ms)
+  ✓   5 tests/e2e/usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges (482ms)
+  ✓   6 tests/e2e/usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns (550ms)
+  ✓   7 tests/e2e/usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart (587ms)
+  ✓   8 tests/e2e/usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow (652ms)
+  ✓   9 tests/e2e/usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success (465ms)
+  ✓  10 tests/e2e/usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work (1.1s)
+  ✓  11 tests/e2e/usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values (593ms)
+  ✓  12 tests/e2e/usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (821ms)
+  ✓  13 tests/e2e/usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (756ms)
+  ✓  14 tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark (536ms)
+  ✓  15 tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light (536ms)
+  ✓  16 tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark (1.4s)
+  ✓  17 tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light (1.4s)
+  ✓  18 tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (737ms)
+  ✓  19 tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (490ms)
+  ✓  20 tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (650ms)
+  ✓  21 tests/e2e/usage-context.spec.ts:499:1 › last request shows observed broker bytes, then drops them on a new epoch (703ms)
+
+  21 passed (18.0s)

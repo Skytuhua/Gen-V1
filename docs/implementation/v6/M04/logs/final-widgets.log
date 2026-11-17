@@ -1,0 +1,4 @@
+
+> gen-v1@0.6.5 build:widgets /home/piadmin/Gen-V1-m04-v6
+> node scripts/build-widgets.mjs
+

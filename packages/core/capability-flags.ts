@@ -44,6 +44,11 @@ export function createCapabilityFlags<K extends string>(definitions: readonly Ca
 export const M02_FLAG_KEYS = ["audit.effectsV1", "security.authorityV1"] as const;
 export type M02FlagKey = (typeof M02_FLAG_KEYS)[number];
 
+// M04 flag set: context compiler observation, progressive tool disclosure and
+// loss-aware compaction gates.
+export const M04_FLAG_KEYS = ["context.compilerV1", "tools.deferredV1", "context.lossAwareCompactionV1", "context.precomputeExperimentV1"] as const;
+export type M04FlagKey = (typeof M04_FLAG_KEYS)[number];
+
 // M08 flag set: managed-workspace lifecycle. All default false and only the
 // host that owns this registry can enable one — the provenance journal,
 // checkpoint provider/restore protocol, and the write-delegate child
@@ -82,7 +87,7 @@ export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
 export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey;
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
@@ -100,6 +105,9 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
   { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
   { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
+  { key: "tools.deferredV1", owner: "m04", description: "Progressive tool schema disclosure." },
+  { key: "context.lossAwareCompactionV1", owner: "m04", description: "Loss-aware native compaction." },
+  { key: "context.precomputeExperimentV1", owner: "m04", description: "Experimental summary precomputation." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {

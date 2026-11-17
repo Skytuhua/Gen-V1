@@ -18,7 +18,7 @@ export function applyRuntimeEvent(snapshot: Snapshot, event: WorkspaceEvent): Sn
     // replaces the window and can change how many older rows are hidden.
     return { ...snapshot, seq: event.seq, messages };
   }
-  if (event.type === 'runtime.usage' || event.type === 'runtime.compaction.start' || event.type === 'runtime.compaction.end') {
+  if (event.type === 'runtime.usage' || event.type === 'runtime.context.request' || event.type === 'runtime.context.host' || event.type === 'runtime.compaction.start' || event.type === 'runtime.compaction.end') {
     const usage = (result as { usage?: RuntimeUsage }).usage;
     if (!usage || typeof usage !== 'object') return null;
     return { ...snapshot, seq: event.seq, usage: { ...snapshot.usage, [event.threadId]: usage } };
