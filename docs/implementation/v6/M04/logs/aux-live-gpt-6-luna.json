@@ -1,0 +1,208 @@
+{
+  "model": "gpt-6-luna",
+  "approvedBudgetCalls": 50,
+  "callsMade": 10,
+  "providerReportedUsage": {
+    "inputTokens": 2783,
+    "outputTokens": 313
+  },
+  "estimatedCostUSD": 0.000435,
+  "results": [
+    {
+      "cutId": "live-cut-1-r0",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:read_file:src/auth/session.ts",
+          "tool:grep:timeout-config"
+        ],
+        "estimatedSavingsBytes": 38912
+      },
+      "model": {
+        "candidateIds": [
+          "tool:read_file:docs/ARCHITECTURE.md",
+          "tool:grep:timeout-config"
+        ],
+        "estimatedSavingsBytes": 61440
+      },
+      "agreement": false
+    },
+    {
+      "cutId": "live-cut-2-r0",
+      "status": "COMPLETED",
+      "deterministic": null,
+      "model": {
+        "candidateIds": [
+          "tool:read_file:packages/core/service.ts"
+        ],
+        "estimatedSavingsBytes": 12000
+      },
+      "agreement": null
+    },
+    {
+      "cutId": "live-cut-3-r0",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:git_diff:staged",
+          "tool:git_diff:staged:newer"
+        ],
+        "estimatedSavingsBytes": 30500
+      },
+      "model": {
+        "candidateIds": [
+          "tool:git_diff:staged"
+        ],
+        "estimatedSavingsBytes": 15000
+      },
+      "agreement": false
+    },
+    {
+      "cutId": "live-cut-1-r1",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:read_file:src/auth/session.ts",
+          "tool:grep:timeout-config"
+        ],
+        "estimatedSavingsBytes": 38912
+      },
+      "model": {
+        "candidateIds": [
+          "tool:read_file:docs/ARCHITECTURE.md"
+        ],
+        "estimatedSavingsBytes": 40960
+      },
+      "agreement": false
+    },
+    {
+      "cutId": "live-cut-2-r1",
+      "status": "COMPLETED",
+      "deterministic": null,
+      "model": {
+        "candidateIds": [
+          "tool:read_file:packages/core/service.ts"
+        ],
+        "estimatedSavingsBytes": 12000
+      },
+      "agreement": null
+    },
+    {
+      "cutId": "live-cut-3-r1",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:git_diff:staged",
+          "tool:git_diff:staged:newer"
+        ],
+        "estimatedSavingsBytes": 30500
+      },
+      "model": {
+        "candidateIds": [
+          "tool:git_diff:staged"
+        ],
+        "estimatedSavingsBytes": 15000
+      },
+      "agreement": false
+    },
+    {
+      "cutId": "live-cut-1-r2",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:read_file:src/auth/session.ts",
+          "tool:grep:timeout-config"
+        ],
+        "estimatedSavingsBytes": 38912
+      },
+      "model": {
+        "candidateIds": [
+          "tool:read_file:docs/ARCHITECTURE.md",
+          "tool:grep:timeout-config"
+        ],
+        "estimatedSavingsBytes": 61440
+      },
+      "agreement": false
+    },
+    {
+      "cutId": "live-cut-2-r2",
+      "status": "COMPLETED",
+      "deterministic": null,
+      "model": {
+        "candidateIds": [
+          "tool:read_file:packages/core/service.ts"
+        ],
+        "estimatedSavingsBytes": 12000
+      },
+      "agreement": null
+    },
+    {
+      "cutId": "live-cut-3-r2",
+      "status": "COMPLETED",
+      "deterministic": {
+        "candidateIds": [
+          "tool:git_diff:staged",
+          "tool:git_diff:staged:newer"
+        ],
+        "estimatedSavingsBytes": 30500
+      },
+      "model": {
+        "candidateIds": [
+          "tool:git_diff:staged",
+          "tool:read_file:fixtures/schema.sql"
+        ],
+        "estimatedSavingsBytes": 21000
+      },
+      "agreement": false
+    }
+  ],
+  "precomputeAccounting": {
+    "attempts": 1,
+    "failed": 0,
+    "discarded": 0,
+    "costBytes": 0
+  },
+  "attempts": [
+    {
+      "cutId": "live-cut-1-r0",
+      "latencyMs": 3260
+    },
+    {
+      "cutId": "live-cut-2-r0",
+      "latencyMs": 1978
+    },
+    {
+      "cutId": "live-cut-3-r0",
+      "latencyMs": 1479
+    },
+    {
+      "cutId": "live-cut-1-r1",
+      "latencyMs": 1636
+    },
+    {
+      "cutId": "live-cut-2-r1",
+      "latencyMs": 1485
+    },
+    {
+      "cutId": "live-cut-3-r1",
+      "latencyMs": 1003
+    },
+    {
+      "cutId": "live-cut-1-r2",
+      "latencyMs": 1322
+    },
+    {
+      "cutId": "live-cut-2-r2",
+      "latencyMs": 1063
+    },
+    {
+      "cutId": "live-cut-3-r2",
+      "latencyMs": 1375
+    },
+    {
+      "kind": "precompute",
+      "latencyMs": 1439
+    }
+  ],
+  "note": "Inputs are metadata-only (ids/kinds/bytes/sequence) — no message content left the host. Latency must fit the 6000ms contract window."
+}

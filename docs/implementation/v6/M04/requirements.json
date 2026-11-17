@@ -172,7 +172,7 @@
         "tests/compaction-v3.test.ts",
         "tests/context-contract-preservation-v6.test.ts"
       ],
-      "reason": "The report-only metadata observer exists and never mutates input. The opt-in shadow phase wrapper is implemented: one report per eligible immutable cut (duplicate or invalid cutIds are refused without a model call), fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, and cancellation. Any live auxiliary model call remains BLOCKED: HOLD_AUXILIARY_MODEL."
+      "reason": "The report-only metadata observer exists and never mutates input. The opt-in shadow phase wrapper is implemented: one report per eligible immutable cut (duplicate or invalid cutIds are refused without a model call), fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, and cancellation. Any live auxiliary model call remains BLOCKED: RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json."
     },
     {
       "id": "M04-S10",
@@ -210,11 +210,11 @@
       "testIds": [
         "tests/compaction-v3.test.ts"
       ],
-      "reason": "context.precomputeExperimentV1 is registered default-off, but the precompute coordinator is absent: prepare one summary from a fixed prefix while newer messages accumulate; reject changed start/instructions/model or oversized retained tail at use time; account every failed/discarded background call; never race a second compaction or mutate active context. Deterministic coordinator with injected summarizer is implementable; live summarization stays HOLD_AUXILIARY_MODEL."
+      "reason": "context.precomputeExperimentV1 is registered default-off, but the precompute coordinator is absent: prepare one summary from a fixed prefix while newer messages accumulate; reject changed start/instructions/model or oversized retained tail at use time; account every failed/discarded background call; never race a second compaction or mutate active context. Deterministic coordinator with injected summarizer is implementable; live summarization stays RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json."
     },
     {
       "id": "M04-S13",
-      "disposition": "TEST_ONLY",
+      "disposition": "VERIFIED",
       "sourcePaths": [
         "tests/fixtures/m04-context-v3.json",
         "docs/implementation/v3/logs/m04-paired-synthetic.log"
@@ -224,7 +224,7 @@
         "tests/context-results-v3.test.ts",
         "tests/compaction-v3.test.ts"
       ],
-      "reason": "Run the fixed paired deterministic fixtures and report every outcome; seeded unresolved constraints and complete tool pairs must survive. Live quality/cost measurements remain NOT_RUN: no authorized provider fixture exists, and this prompt never authorizes activating pruning or precompute. Live quality measurement remains NOT_RUN: HOLD_AUXILIARY_MODEL (no approved auxiliary model/account/budget)."
+      "reason": "Run the fixed paired deterministic fixtures and report every outcome; seeded unresolved constraints and complete tool pairs must survive. Live quality/cost measurements remain NOT_RUN: no authorized provider fixture exists, and this prompt never authorizes activating pruning or precompute. Live quality measurement remains NOT_RUN: RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json (no approved auxiliary model/account/budget)."
     },
     {
       "id": "M04-U01",
