@@ -1694,7 +1694,7 @@ export class Service {
   }
   async verificationPanel(threadId: string): Promise<VerificationPanelModel> {
     const basis = await this.readVerificationBasis(threadId);
-    return verificationPanelModel(this.store, threadId, basis);
+    return {...verificationPanelModel(this.store, threadId, basis), workflow: this.verificationRepair.view(threadId, this.verificationQa.available())};
   }
   async prepareVerification(threadId: string, input: unknown, ctx?: RunContext, command?: HostCommand, repair?: PreparedRepair): Promise<Operation> {
     const duplicate = command && this.store.receipt(command); if (duplicate) return duplicate.result as Operation;

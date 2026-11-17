@@ -3,7 +3,7 @@ import {HarnessError, type Operation, type Thread} from '../contracts/index.ts';
 import type {ApprovalV1, ToolEffectRecord, ToolOwner} from '../contracts/tool-effects.ts';
 import type {CheckObservationV1, VisualObservationV1} from '../contracts/verification.ts';
 import {verificationIntentSchema, type VerificationIntent, type VerificationPrepareInput} from '../contracts/verification-workflow.ts';
-import {verificationRepairNextSchema, verificationRepairPlanSchema, verificationRepairStartSchema, type VerificationRepairPlan, type VerificationRepairStop} from '../contracts/verification-repair.ts';
+import {verificationRepairNextSchema, verificationRepairPlanSchema, verificationRepairStartSchema, type VerificationRepairPlan, type VerificationRepairStop, type VerificationWorkflowView} from '../contracts/verification-repair.ts';
 import {digest, type Store} from '../storage/store.ts';
 import {assertVerificationSourceRoot, sourceDigestSync, type RecipeExecutionResult} from './project-verification.ts';
 import {observationMatchesThreadOwner, verificationFailureIdentity} from './verification-gate.ts';
@@ -59,20 +59,59 @@ export class VerificationRepair {
     const parsed = verificationRepairPlanSchema.parse(plan); this.store.put('verificationRepair', plan.planId, plan.owner.threadId, parsed);
     this.store.put('verificationRepairCurrent', plan.owner.threadId, plan.owner.threadId, {planId: plan.planId});
   }
+
+  private isExecutedFailure(thread: Thread, managed: ManagedVerificationRecord, intent: VerificationIntent): boolean {
+    const operation = this.store.get<Operation>('operation', managed.operationId), effect = operation && this.store.get<ToolEffectRecord>('toolEffect', `operation:${operation.id}@${operation.revision}`);
+    const approval = effect?.approvalId ? this.store.get<ApprovalV1>('approval', effect.approvalId) : null;
+    return Boolean(managed.status === 'failed' && managed.outcome === 'FAIL' && operation?.approved && operation.status === 'failed' && digest(operation.args) === digest({intent}) &&
+      effect?.state === 'FAILED' && digest(effect.owner) === digest(intent.owner) && approval && approval.remainingUses === 0 && digest(approval.owner) === digest(intent.owner) &&
+      approval.actionCommitment === actionCommitment(operation, {...thread, runId: intent.owner.runId, epoch: intent.owner.epoch}) && this.observations(intent).some(value => value.outcome === 'FAIL'));
+  }
+  view(threadId: string, qaAvailable: boolean): VerificationWorkflowView | null {
+    const thread = this.store.get<Thread>('thread', threadId), managed = this.store.get<ManagedVerificationRecord>('verificationManaged', threadId);
+    if (!thread || !managed) return null;
+    const parsed = verificationIntentSchema.safeParse(managed.intent);
+    if (!parsed.success || !observationMatchesThreadOwner(parsed.data, thread)) return null;
+    const intent = parsed.data, owner = ownerFor(thread);
+    let unavailableReason: string | null = null;
+    try {
+      this.workflow.rerunInput(owner, {executionId: intent.executionId});
+      if (intent.qa && !qaAvailable) throw denied('QA_UNAVAILABLE', 'This host has no enabled restricted QA runtime.');
+      if (intent.qa && (!owner.runId || !thread.modelId)) throw denied('QA_UNAVAILABLE', 'Resume this task before preparing checks that include QA. The approved QA review remains required.');
+      if (this.store.all<Operation>('operation', threadId).some(operation => operation.kind === 'verification.run' && ['prepared', 'running', 'unknown'].includes(operation.status)))
+        throw denied('VERIFICATION_BUSY', 'Resolve the outstanding verification operation before preparing another.');
+    } catch (error) {unavailableReason = error instanceof Error ? error.message.slice(0, 500) : 'Verification preparation is unavailable.';}
+    const plan = this.store.all<VerificationRepairPlan>('verificationRepair', threadId).find(value => value.recipeId === intent.recipe.recipeId && observationMatchesThreadOwner(value, thread));
+    let repair: VerificationWorkflowView['repair'] = null;
+    if (plan) {
+      const stopped = this.stopped(plan), running = plan.attempts.some(attempt => attempt.outcome === 'RUNNING');
+      const expectedExecutionId = plan.attempts.at(-1)?.executionId ?? plan.baselineExecutionId;
+      const reason = scopeOf(intent) !== plan.scopeDigest || intent.executionId !== expectedExecutionId
+        ? 'A separate verification replaced this repair plan. Its previous attempts and budget remain recorded.' : unavailableReason;
+      const reservedTokens = plan.attempts.filter(attempt => attempt.outcome === 'RUNNING').reduce((total, attempt) => total + attempt.reservedTokens, 0);
+      repair = {planId: plan.planId, revision: plan.revision, attempts: plan.attempts.length, maxAttempts: 3,
+        state: stopped ? running ? 'STOPPING' : 'STOPPED' : plan.pendingOperationId ? running ? 'RUNNING' : 'AWAITING_APPROVAL' : reason ? 'BLOCKED' : 'READY',
+        remainingTokens: Math.max(0, plan.budget.tokens - plan.chargedTokens - reservedTokens), reservedTokens, remainingMs: Math.max(0, Date.parse(plan.deadline) - Date.now()), deadline: plan.deadline,
+        stopped, stopDetail: plan.stopDetail ?? (stopped === 'BUDGET' ? 'The repair deadline, token allocation or attempt limit is exhausted.' : null), unavailableReason: reason,
+        canContinue: !stopped && !plan.pendingOperationId && !reason,
+        canStop: !plan.stopped && thread.mode !== 'plan' && thread.kind !== 'delegate' && thread.kind !== 'side' && !thread.sideParentId && !this.store.get('archivedThread', threadId)};
+    }
+    return {ownerKey: digest(owner), executionId: intent.executionId, recipeId: intent.recipe.recipeId, qa: Boolean(intent.qa),
+      canRerun: !unavailableReason, canStartRepair: !unavailableReason && !plan && this.isExecutedFailure(thread, managed, intent), unavailableReason,
+      suggestedBudget: {tokens: intent.qa ? Math.min(300_000, (intent.qa.admission.budget.tokens ?? 1000) * 3) : 0, ms: 900_000}, repair};
+  }
   prepare(owner: ToolOwner, kind: 'start' | 'next', raw: unknown): PreparedRepair {
     const thread = this.current(owner); let plan: VerificationRepairPlan, executionId: string;
     if (kind === 'start') {
       const request = verificationRepairStartSchema.parse(raw); executionId = request.executionId;
       this.workflow.rerunInput(owner, {executionId});
       const managed = this.store.get<ManagedVerificationRecord>('verificationManaged', owner.threadId)!, intent = verificationIntentSchema.parse(managed.intent);
-      const operation = this.store.get<Operation>('operation', managed.operationId), effect = operation && this.store.get<ToolEffectRecord>('toolEffect', `operation:${operation.id}@${operation.revision}`);
-      const approval = effect?.approvalId ? this.store.get<ApprovalV1>('approval', effect.approvalId) : null, observed = this.observations(intent);
-      if (managed.status !== 'failed' || managed.outcome !== 'FAIL' || !operation?.approved || operation.status !== 'failed' || digest(operation.args) !== digest({intent}) || effect?.state !== 'FAILED' || digest(effect.owner) !== digest(intent.owner) || !approval || approval.remainingUses !== 0 || digest(approval.owner) !== digest(intent.owner) || approval.actionCommitment !== actionCommitment(operation, {...thread, runId: intent.owner.runId, epoch: intent.owner.epoch}) || !observed.some(value => value.outcome === 'FAIL'))
+      if (!this.isExecutedFailure(thread, managed, intent))
         throw denied('REPAIR_REQUIRES_FAILURE', 'Start repair from the current settled executed failure.');
       if (this.store.all<VerificationRepairPlan>('verificationRepair', owner.threadId).some(value => value.recipeId === intent.recipe.recipeId && observationMatchesThreadOwner(value, thread))) throw denied('REPAIR_STOPPED', 'This recipe already has a bounded repair plan. Its history and budget cannot be reset.');
       const createdAt = now();
       plan = {version: 1, planId: `repair-${randomUUID()}`, owner, recipeId: intent.recipe.recipeId, scopeDigest: scopeOf(intent), baselineExecutionId: executionId,
-        baselineFailureDigest: failureDigest(observed), budget: request.budget, deadline: new Date(Date.now() + request.budget.ms).toISOString(), revision: 1,
+        baselineFailureDigest: failureDigest(this.observations(intent)), budget: request.budget, deadline: new Date(Date.now() + request.budget.ms).toISOString(), revision: 1,
         chargedTokens: 0, pendingOperationId: null, attempts: [], stopped: null, stopDetail: null, createdAt, updatedAt: createdAt};
     } else {
       const request = verificationRepairNextSchema.parse(raw); plan = this.load(request.planId, owner.threadId);

@@ -666,3 +666,65 @@ it('the workflow cannot register a recipe outside the durable M02 dispatch trans
   expect(f.store.all('verificationRecipe')).toHaveLength(0);
   expect(f.store.all<ApprovalV1>('approval').every(value => value.remainingUses === 1)).toBe(true); expect(f.launched).toHaveLength(0);
 });
+
+
+it('projects repair availability only from a current consumed executed failure', async () => {
+  const f = await fixture({exitCodes: [1]}), baseline = await f.execute(), intent = baseline.args.intent as VerificationIntent;
+  expect((await f.service.verificationPanel(f.thread.id)).workflow).toMatchObject({executionId: intent.executionId, canRerun: true, canStartRepair: true, qa: false, repair: null, suggestedBudget: {tokens: 0}});
+  const effectId = `operation:${baseline.id}@${baseline.revision}`, effect = f.store.get<ToolEffectRecord>('toolEffect', effectId)!;
+  f.store.internal('fixture.unverified-approval', f.thread.id, () => f.store.put('toolEffect', effectId, f.thread.id, {...effect, approvalId: null}));
+  expect((await f.service.verificationPanel(f.thread.id)).workflow).toMatchObject({canStartRepair: false});
+  expect(f.store.all('verificationRepair')).toEqual([]);
+});
+
+it('projects approved repair progress and reservations while retaining every previous check', async () => {
+  let pause = false, release!: () => void;
+  const paused = new Promise<void>(resolve => {release = resolve;});
+  const qa = qaRuntime(async (callbacks, ctx) => {
+    await callbacks.onTool({name: 'qa_run', args: {}}, ctx);
+    if (pause) await paused;
+    await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  const f = await fixture({exitCodes: [1, 2, 0], qaRuntimeFactory: qa.factory}); f.input.qa = qaRequest;
+  const baseline = await f.execute(), before = f.store.all<CheckObservationV1>('checkObservation', f.thread.id);
+  const command = (type: string, payload: Record<string, unknown>) => f.service.command({id: randomUUID(), type, threadId: f.thread.id, payload});
+  const first = (await command('verification.repair.start', {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 3000, ms: 60_000}})).result as Operation;
+  expect((await f.service.verificationPanel(f.thread.id)).workflow).toMatchObject({canRerun: false, repair: {state: 'AWAITING_APPROVAL', attempts: 0, maxAttempts: 3, canContinue: false, canStop: true, remainingTokens: 3000}});
+  pause = true; await f.approve(first);
+  const running = f.service.dispatchOperation(first.id);
+  try {
+    await vi.waitFor(() => expect(f.store.all<VerificationRepairPlan>('verificationRepair')[0]?.attempts[0]?.outcome).toBe('RUNNING'));
+    expect((await f.service.verificationPanel(f.thread.id)).workflow?.repair).toMatchObject({state: 'RUNNING', attempts: 1, remainingTokens: 2000, reservedTokens: 1000, canContinue: false, canStop: true});
+  } finally {release(); await running;}
+  pause = false;
+  const ready = (await f.service.verificationPanel(f.thread.id)).workflow!;
+  expect(ready.repair).toMatchObject({state: 'READY', attempts: 1, maxAttempts: 3, remainingTokens: 2000, reservedTokens: 0, canContinue: true, stopped: null});
+  const next = (await command('verification.repair.next', {planId: ready.repair!.planId, revision: ready.repair!.revision})).result as Operation;
+  await f.approve(next); await f.service.dispatchOperation(next.id);
+  expect((await f.service.verificationPanel(f.thread.id)).workflow?.repair).toMatchObject({state: 'STOPPED', attempts: 2, stopped: 'PASSED', remainingTokens: 1000, canContinue: false, canStop: false});
+  for (const observation of before) expect(f.store.get('checkObservation', observation.checkId)).toEqual(observation);
+  expect((await f.service.verificationPanel(f.thread.id)).rows.filter(row => row.phase === 'TEST').map(row => row.outcome).sort()).toEqual(['FAIL', 'FAIL', 'PASS']);
+});
+
+it('projects a cancelled pending repair without consuming an attempt or resetting its limit', async () => {
+  const f = await fixture({exitCodes: [1]}), baseline = await f.execute();
+  const prepared = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id, payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
+  const plan = (await f.service.verificationPanel(f.thread.id)).workflow!.repair!;
+  await f.service.command({id: randomUUID(), type: 'verification.repair.stop', threadId: f.thread.id, payload: {planId: plan.planId, revision: plan.revision}});
+  expect((await f.service.verificationPanel(f.thread.id)).workflow).toMatchObject({canStartRepair: false, repair: {state: 'STOPPED', stopped: 'CANCELLED', attempts: 0, maxAttempts: 3, canContinue: false, canStop: false}});
+  expect(f.store.get<Operation>('operation', prepared.id)).toMatchObject({status: 'cancelled', approved: false});
+  expect(f.store.all('approval')).toHaveLength(1); expect(f.launched).toHaveLength(1);
+});
+
+it('keeps QA required while its parent is idle and hides actions after a durable owner replacement', async () => {
+  const qa = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);});
+  const f = await fixture({exitCodes: [1], qaRuntimeFactory: qa.factory}); f.input.qa = qaRequest; await f.execute();
+  const original = (await f.service.verificationPanel(f.thread.id)).workflow!;
+  f.store.internal('fixture.idle-parent', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.thread, runId: null, status: 'completed'}));
+  const idle = (await f.service.verificationPanel(f.thread.id)).workflow!;
+  expect(idle).toMatchObject({qa: true, canRerun: false, canStartRepair: false, unavailableReason: expect.stringContaining('Resume this task')});
+  expect(idle.ownerKey).not.toBe(original.ownerKey);
+  f.store.internal('fixture.other-owner', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.thread, accountId: 'another-account'}));
+  const replaced = await f.service.verificationPanel(f.thread.id);
+  expect(replaced.workflow).toBeNull(); expect(replaced.rows.length).toBeGreaterThan(0);
+});
