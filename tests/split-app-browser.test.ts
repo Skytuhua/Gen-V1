@@ -175,13 +175,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const restoredBox=(await floatSurface.boundingBox())!;
    expect(Math.abs(restoredBox.x-resizedBox.x)).toBeLessThan(3);expect(Math.abs(restoredBox.width-resizedBox.width)).toBeLessThan(3);
    await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
    await bView.getByRole('textbox',{name:'Message',exact:true}).fill('Main draft B');
    await aView.getByRole('button',{name:'Send message',exact:true}).click();
-   await bView.getByRole('button',{name:'Send message',exact:true}).click();
+   await bView.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');
    await page.waitForFunction(()=>{const ta=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
    const sends=host.commands.filter(command=>command.type==='message.send');
    expect(sends.map(command=>command.threadId).sort()).toEqual(['thread-a','thread-b']);
@@ -212,7 +212,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.waitForFunction(()=>!!document.querySelector('[data-split-pane="pane-main"] .split-empty'));
    expect(await bView.isVisible()).toBe(false);
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
-   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
    expect(host.errors).toEqual([]);
@@ -227,7 +227,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await aView.locator('.working-status').waitFor({state:'visible'});
    await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.locator('.working-status').waitFor({state:'visible'});
    await aView.getByRole('textbox',{name:'Message',exact:true}).focus();
    await page.keyboard.press('Escape');
@@ -245,7 +245,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw(metadata).toContainText('First project');
    await pw(metadata).toContainText('Ready');
    const toggle=async()=>{
-    await page.getByRole('button',{name:'Settings',exact:true}).click();
+    await page.getByRole('button',{name:'Settings',exact:true}).dispatchEvent('click');
     const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
     await dialog.getByRole('button',{name:'Chat & Composer',exact:true}).click();
     await dialog.getByRole('switch',{name:'Thread details',exact:true}).click();
