@@ -388,6 +388,7 @@
   "docs/implementation/v3/m14/logs/win-verify-installed.log",
   "docs/implementation/v3/m14/logs/win-verify-installed2.log",
   "docs/implementation/v3/m14/logs/win-w1-packaged-tests.log",
+  "docs/implementation/v3/m14/logs/win-x1-wsl-custody-vitest-all.log",
   "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
   "docs/implementation/v3/m14/logs/win-x1-wsl-vitest-broker.log",
   "docs/implementation/v6/M14/handoff-windows-agent.md",

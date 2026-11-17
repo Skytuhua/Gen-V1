@@ -111,7 +111,7 @@
     {
      "id": "win-x1-wsl2-custody-vitest",
      "status": "FAIL",
-     "evidence": "First real broker-wrapped vitest run on WSL2 x86_64: the test process itself is spawned as a broker child (fd3 socket + fd4 root dir) inside a state-root holding the repo copy. linux-path-guard.test.ts 23/23 PASS and memory-storage-boundary-v3.test.ts 9/9 PASS under live custody. capabilities.test.ts: 11/24 pass; the 13 failures all request readOnly/tree/leaf/empty/gitMetadataImport grants that validateLinuxDirectoryPaths denies by contract, where the Windows path guard admits them \u2014 an honest Linux/Windows guard-contract asymmetry surfaced for the orchestrator, not relaxed to pass."
+     "evidence": "Broker-wrapped vitest on WSL2 x86_64 (each test process itself spawned as a broker child inside /custody2): 27 of 42 custody-adjacent files fully pass under live custody \u2014 including linux-path-guard 23/23, memory-storage-boundary-v3 9/9, session-branch-v3 11/11, history-import-v3 12/12, hermes-client 13/13, service-workspace-admission 14/14. 16 files retain failures: all trace to the same class \u2014 grant types the Linux contract denies (readOnly/tree/leaf/empty/gitMetadataImport) which the Windows path guard admits \u2014 surfacing as CAPABILITY_DENIED or as empty-fixture downstream failures (skill-catalog 19/23, skill-invocation 36/36 list() returns no skills under custody). Largest residual files: selective-commit-v3 13/13, code-review-comparisons 12/12, path-access 12/32, private-git-family 12/19, checkpoint-restore-v3 11/14, capabilities 13/24, account-profile 4/10. Contract asymmetry surfaced for the orchestrator \u2014 not relaxed to pass. No failure implicates M14 code."
     }
    ],
    "commands": [
@@ -324,6 +324,37 @@
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-vitest-broker.log",
      "logDigest": "f98c74707f17d9a1ce08ee8a8ac5780e5d7a4b6b88953ef67eceadcca3f2181b"
+    },
+    {
+     "argv": [
+      "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+      "/custody2/packages/core/linux-path-guard.py",
+      "--uid",
+      "62153",
+      "--gid",
+      "62153",
+      "--state-root",
+      "/custody2",
+      "--",
+      "/opt/node24/bin/node",
+      "--import",
+      "file:///custody2/node_modules/tsx/dist/esm/index.mjs",
+      "/custody2/node_modules/vitest/vitest.mjs",
+      "run",
+      "<one test file at a time>",
+      "--root",
+      "/custody2",
+      "--pool=threads"
+     ],
+     "cwdIdentity": "/custody2 (WSL2 Ubuntu x86_64, ext4, TMPDIR=/custody2, repo copy owned uid 2000 mode 0700)",
+     "executableIdentity": "python3.14 (broker) -> node v24.22.2; 40 custody-adjacent test files each run as a broker child",
+     "startedAt": "2026-11-17T09:55:00Z",
+     "endedAt": "2026-11-17T10:45:00Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody-vitest-all.log",
+     "logDigest": "33cf4a223e47fe6f268674a21cc5fdf5f62608e2cb35c5bdcf984cc647576367"
     }
    ],
    "artifactRefs": []

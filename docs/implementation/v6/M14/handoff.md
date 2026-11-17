@@ -129,16 +129,23 @@ on `agent/m14-v3` at `30b5d649`.
   (x86_64 + euid 0 + ext4 state-root owned by a third uid) —
   idmapped custody, credential-alias qualification, negative control,
   nested account profile. The aarch64 arch pin does not apply.
-- X1 custody, vitest level: first real broker-wrapped vitest run —
-  the test process is itself spawned as a broker child (fd3 socket +
-  fd4 root dir) inside `/custody2`, a repo copy owned by a third uid.
-  `linux-path-guard.test.ts` 23/23 and `memory-storage-boundary-v3.test.ts`
-  9/9 PASS under live custody. `capabilities.test.ts`: 11/24 pass; the
-  13 failures all request `readOnly`/`tree`/`leaf`/`empty`/
-  `gitMetadataImport` grants that `validateLinuxDirectoryPaths` denies
-  by contract while the Windows path guard admits them — a guard-contract
+- X1 custody, vitest level: broker-wrapped vitest — each test process
+  is itself spawned as a broker child (fd3 socket + fd4 root dir)
+  inside `/custody2`, a repo copy owned by a third uid. **27 of 42
+  custody-adjacent files fully pass** under live custody, including
+  `linux-path-guard` 23/23, `memory-storage-boundary-v3` 9/9,
+  `session-branch-v3` 11/11, `history-import-v3` 12/12,
+  `hermes-client` 13/13, `service-workspace-admission` 14/14. The 16
+  files retaining failures all trace to one class: grant types the
+  Linux contract denies (`readOnly`/`tree`/`leaf`/`empty`/
+  `gitMetadataImport`) which the Windows path guard admits — surfacing
+  as `CAPABILITY_DENIED` or as empty-fixture downstream failures
+  (skill-catalog/skill-invocation `list()` returns no skills under
+  custody). Largest residual files: selective-commit-v3 13/13,
+  code-review-comparisons 12/12, path-access 12/32, private-git-family
+  12/19, checkpoint-restore-v3 11/14, capabilities 13/24. Guard-contract
   asymmetry surfaced for the orchestrator, not relaxed to pass
-  (`win-x1-wsl-vitest-broker.log`).
+  (`win-x1-wsl-vitest-broker.log`, `win-x1-wsl-custody-vitest-all.log`).
 - W1 packaged tests: 27/27 PASS (packaged-providers/rg.exe,
   desktop-packaging, cursor-offline-executor, cursor-sdk-mcp-metadata).
 - W4 hermes bundle: CPython 3.14.9 provisioned via nuget; `py -3.14`

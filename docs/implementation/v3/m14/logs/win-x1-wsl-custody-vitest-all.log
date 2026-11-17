@@ -1,0 +1,51 @@
+== per-file broker-wrapped vitest results (WSL2 x86_64, /custody2, uid 62153)
+RESULT tests/account-storage-boundary.test.ts ::  Test Files  1 passed (1)       Tests  1 passed (1) 
+RESULT tests/agent-follow-up.test.ts ::  Test Files  1 passed (1)       Tests  18 passed (18) 
+RESULT tests/agent-work-v3.test.ts ::  Test Files  1 passed (1)       Tests  29 passed (29) 
+RESULT tests/browser-verification-v3.test.ts ::  Test Files  1 passed (1)       Tests  12 passed (12) 
+RESULT tests/checkpoint-restore-v3.test.ts :: ⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯  Test Files  1 failed (1)       Tests  11 failed | 3 passed (14) 
+RESULT tests/code-review-comparisons.test.ts ::  Test Files  1 failed (1)       Tests  12 failed (12) 
+RESULT tests/conversation-read-models.test.ts ::  Test Files  1 passed (1)       Tests  29 passed (29) 
+RESULT tests/generated-ui-endurance-v3.test.ts ::  Test Files  1 passed (1)       Tests  7 passed (7) 
+RESULT tests/hermes-client.test.ts ::  Test Files  1 passed (1)       Tests  13 passed (13) 
+RESULT tests/history-import-v3.test.ts ::  Test Files  1 passed (1)       Tests  12 passed (12) 
+RESULT tests/managed-git-family.test.ts ::  Test Files  1 failed (1)       Tests  3 failed | 12 passed (15) 
+RESULT tests/memory-consolidation-v3.test.ts ::  Test Files  1 passed (1)       Tests  73 passed (73) 
+RESULT tests/path-access.test.ts ::  Test Files  1 failed (1)       Tests  12 failed | 20 passed (32) 
+RESULT tests/planning-service.test.ts ::  Test Files  1 passed (1)       Tests  4 passed (4) 
+RESULT tests/private-git-family.test.ts ::  Test Files  1 failed (1)       Tests  12 failed | 7 passed (19) 
+RESULT tests/project-memory-ui.test.ts ::  Test Files  1 passed (1)       Tests  17 passed (17) 
+RESULT tests/project-search-host.test.ts :: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯  Test Files  1 failed (1)       Tests  1 failed | 50 passed (51) 
+RESULT tests/project-search-routes.test.ts ::  Test Files  1 passed (1)       Tests  38 passed (38) 
+RESULT tests/public-source.test.ts ::  Test Files  1 passed (1)       Tests  11 passed (11) 
+RESULT tests/research-service-integration.test.ts ::  Test Files  1 passed (1)       Tests  2 passed (2) 
+RESULT tests/review-regressions.test.ts ::  Test Files  1 passed (1)       Tests  18 passed (18) 
+RESULT tests/selective-commit-v3.test.ts ::  Test Files  1 failed (1)       Tests  13 failed (13) 
+RESULT tests/service-workspace-admission.test.ts ::  Test Files  1 passed (1)       Tests  14 passed (14) 
+RESULT tests/service.test.ts :: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯  Test Files  1 failed (1)       Tests  2 failed | 17 passed (19) 
+RESULT tests/session-branch-v3.test.ts ::  Test Files  1 passed (1)       Tests  11 passed (11) 
+RESULT tests/skill-catalog.test.ts ::  Test Files  1 failed (1)       Tests  19 failed | 4 passed (23) 
+RESULT tests/skill-invocation.test.ts ::  Test Files  1 failed (1)       Tests  36 failed (36) 
+RESULT tests/task-memory-recovery.test.ts :: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯  Test Files  1 failed (1)       Tests  1 failed | 2 passed (3) 
+RESULT tests/verification-v3.test.ts ::  Test Files  1 passed (1)       Tests  19 passed (19) 
+RESULT tests/workspace-action-outcome-authority.test.ts ::  Test Files  1 passed (1)       Tests  24 passed (24) 
+RESULT tests/workspace-journal-v3.test.ts ::  Test Files  1 passed (1)       Tests  7 passed (7) 
+RESULT tests/workspace-linked-pr.test.ts ::  Test Files  1 passed (1)       Tests  14 passed (14) 
+DIAG tests/account-profile.test.ts ::       3 HarnessError: File access check failed;      3 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/checkpoint-restore-v3.test.ts ::       4 ref;      1 HarnessError: File access check failed;      1 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/code-review-comparisons.test.ts ::       2 HarnessError: File access check failed;      2 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/git-metadata-guard.test.ts ::       1 HarnessError: File access check failed;      1 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/managed-git-family.test.ts ::      11 ref;      2 HarnessError: File access check failed;      1 HarnessError('CAPABILITY_DENIED','File;      1 CAPABILITY_DENIED;
+DIAG tests/path-access.test.ts ::       3 HarnessError: File access check failed;      3 HarnessError('CAPABILITY_DENIED','File;      2 CAPABILITY_DENIED;      1 HarnessError;
+DIAG tests/private-git-family.test.ts ::      11 ref;      2 HarnessError: File access check failed;      2 HarnessError('CAPABILITY_DENIED','File;      1 HarnessError;
+DIAG tests/project-search-host.test.ts ::       1 AssertionError: expected { owner: {;
+DIAG tests/project-trust-v3.test.ts ::       1 ref;      1 HarnessError: File access check failed;      1 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/runtime-router.test.ts ::       3 HarnessError: File access check failed;      3 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/selective-commit-v3.test.ts ::       2 ref;      2 HarnessError: File access check failed;      2 HarnessError('CAPABILITY_DENIED','File;
+DIAG tests/service.test.ts ::       2 HarnessError: File access check failed;      2 HarnessError('CAPABILITY_DENIED','File;      1 ref;
+DIAG tests/skill-catalog.test.ts ::      13 ref;      3 TypeError: Cannot read properties of;      2 AssertionError: expected { status: 'unavailable',;      2 AssertionError: expected [] to have;
+DIAG tests/skill-invocation.test.ts ::      47 ref;     15 TypeError: Cannot read properties of;
+DIAG tests/task-memory-recovery.test.ts ::       1 ref;      1 HarnessError: File access check failed;      1 HarnessError('CAPABILITY_DENIED','File;
+
+== batch-run context (partial, tail-bounded)
+5
