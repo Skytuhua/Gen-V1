@@ -112,8 +112,17 @@ export async function recordWindow(_server: BrowserServer, page: Page, filename:
   let stopping: Promise<Record<string, unknown>> | undefined;
   return () => stopping ??= (async () => {
     clearInterval(timer); sample(); const elapsedSeconds = (performance.now() - started) / 1000;
-    await session.send('Page.stopScreencast'); await session.detach(); capture.stdin?.end();
-    const failure = await complete; if (failure) throw failure;
+    const errors: unknown[] = [];
+    try { await session.send('Page.stopScreencast'); }
+    catch (error) { errors.push(error); }
+    try { await session.detach(); }
+    catch (error) { errors.push(error); }
+    // The encoder must receive EOF even after the browser has disconnected.
+    capture.stdin?.end();
+    const failure = await complete;
+    if (failure) errors.push(failure);
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1) throw new AggregateError(errors, 'Recording teardown failed');
     const probe = JSON.parse(await run('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_name,width,height,r_frame_rate,avg_frame_rate:format=duration,size', '-of', 'json', filename]));
     return { ...probe, capture: { method: 'Chromium compositor JPEG frames sampled against wall time at 30fps; unchanged or delayed frames held; no interpolation', sourceFrames, writtenFrames, elapsedSeconds, startedWallTimeMilliseconds, firstTimestamp: timestamps[0], lastTimestamp: timestamps.at(-1) } };
   })();
