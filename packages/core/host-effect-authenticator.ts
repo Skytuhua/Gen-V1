@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { HarnessError } from '../contracts/index.ts';
 import { digest } from '../storage/store.ts';
 import { windowsSecretCodec, type SecretCodec } from './environment-settings.ts';
-import { readBoundFile, withPathGuard } from './file-access.ts';
+import { readBoundFile, withOwnedPathGuard, withPathGuard } from './file-access.ts';
 
 const domains = ['arguments', 'action', 'grant', 'operation-definition'] as const;
 export type EffectAuthenticationDomain = typeof domains[number];
@@ -97,7 +97,7 @@ export async function openEffectKey(dataDir: string, options: KeyOptions = {}): 
     const released = new Promise<void>(resolveRelease => { release = resolveRelease; });
     const ready = new Promise<EffectKeyCustody>((resolveReady, rejectReady) => { accept = resolveReady; reject = rejectReady; });
     const revoke = () => { lost = true; signer?.revoke(); release(); };
-    const lifetime = withPathGuard([{
+    const lifetime = withOwnedPathGuard([{
       path, leaf: true, readOnly: true, allowChildWrites: true, childWriteRoot: profile, dev: identity.dev, ino: identity.ino,
     }], new AbortController().signal, async () => {
       let bytes: Buffer | undefined;

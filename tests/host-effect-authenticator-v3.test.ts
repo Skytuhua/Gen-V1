@@ -10,6 +10,7 @@ import {
 } from '../packages/core/host-effect-authenticator.ts';
 import { assertNotStorage } from '../packages/core/security.ts';
 import type { SecretCodec } from '../packages/core/environment-settings.ts';
+import { withPathGuard } from '../packages/core/file-access.ts';
 
 const keyId = '00000000-0000-4000-8000-000000000001';
 const otherId = '00000000-0000-4000-8000-000000000002';
@@ -121,6 +122,18 @@ describe.runIf(process.platform === 'win32')('real Windows effect-key custody', 
     await expect(openEffectKey(root, { codec })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
     // Failure has released the guard before rejecting, so cleanup can own the file.
     await unlink(keyFile(root));
+  });
+
+  it('owns custody independently after an ambient native guard closes', async () => {
+    const root = await directory(), initialized = owned(await initializeEffectKey(root, { codec }));
+    await initialized.close();
+    const custody = owned(await withPathGuard([{ path: root, leaf: false, allowChildWrites: true }],
+      new AbortController().signal, () => openEffectKey(root, { codec })));
+    const tag = custody.authenticator.commit('action', { revision: 1 });
+    await expect(writeFile(keyFile(root), 'replacement')).rejects.toThrow();
+    expect(custody.authenticator.verify('action', { revision: 1 }, tag)).toBe(true);
+    await custody.close();
+    await writeFile(keyFile(root), 'now-owned-by-the-test');
   });
 
   it('refuses lost keys and refuses to recreate a partially initialized profile', async () => {
