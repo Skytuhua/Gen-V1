@@ -17,6 +17,7 @@ export interface VerificationExecutorBinding {
   readonly backendId: string;
   readonly platformProofRef: string;
   readonly environmentId: string;
+  readonly browserRequired: boolean;
   readonly rootIdentity: RootIdentity;
   readonly executables: readonly { readonly id: string; readonly canonicalPath: string; readonly sha256: string }[];
 }
@@ -31,17 +32,22 @@ export interface VerificationBackendScope extends VerificationExecutionFence {
   readonly binding: VerificationExecutorBinding;
   readonly approvedOrigins: readonly string[];
 }
+export interface ManagedVerificationBrowserDriver extends BrowserDriver { readonly profileDir: string; close(): Promise<void> }
 export interface ObservedVerificationBackend extends ExecutionBackend {
   /** The approved backend owns atomic confinement, the observed handle and
    * tree cleanup. It repeats assertCurrent immediately before native spawn. */
   launchObserved(request: ApprovedLaunch & {
     environment: Readonly<Record<string, string>>; timeoutMs: number;
+    rootIdentities: readonly RootIdentity[]; executableIdentity: { dev: string; ino: string };
     signal: AbortSignal; assertCurrent: () => void;
   }): Promise<LaunchedProcess>;
   probeListener?: ListenerProbe['probe'];
-  /** The backend owns the browser process and its exact private profile scope.
-   * That scope must never be added to ordinary build/test write roots. */
-  openBrowserDriver?: (scope: VerificationBackendScope) => Promise<BrowserDriver>;
+  /** Prepare only the capability and exact private profile scope, without
+   * starting a browser process or navigating. BrowserDriver.launch performs
+   * native startup only when the consumer reaches its admitted BROWSER step
+   * after build/test/readiness. The backend owns that process and profile;
+   * its scope must never be added to ordinary build/test write roots. */
+  openBrowserDriver?: (scope: VerificationBackendScope) => Promise<ManagedVerificationBrowserDriver>;
 }
 export interface VerificationExecutorHostConfig {
   readonly approvedBackendId: string | null;
@@ -62,6 +68,7 @@ export interface DescribeVerificationExecutor extends VerificationExecutionFence
   readonly profileId: string;
   readonly executableIds: readonly string[];
   readonly approvedOrigins: readonly string[];
+  readonly browserRequired?: boolean;
 }
 export const executorDenied = (code: string, message: string) => new HarnessError(code, message);
 export function assertExecutionFence(input: VerificationExecutionFence): void {
@@ -124,7 +131,9 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       throw executorDenied('INVALID_INPUT', 'Verification origins must be unique and bounded.');
     const permitted = profile.networkPolicy.mode === 'allowlist' ? profile.networkPolicy.origins.map(exactOrigin) : [];
     if (origins.some(origin => !permitted.includes(origin))) throw executorDenied('CAPABILITY_DENIED', 'Browser origins exceed the approved execution profile.');
-    if (origins.length && !backend.openBrowserDriver) throw executorDenied('UNSUPPORTED_BACKEND', 'The approved backend has no managed browser driver.');
+    if (input.browserRequired !== undefined && typeof input.browserRequired !== 'boolean') throw executorDenied('INVALID_INPUT', 'Browser admission must be an explicit boolean.');
+    const browserRequired = input.browserRequired === true;
+    if (browserRequired && (!origins.length || !backend.openBrowserDriver)) throw executorDenied('UNSUPPORTED_BACKEND', 'The approved backend has no admitted managed browser scope.');
     const root = await checkedExecution(input, () => canonicalRootIdentity(input.rootPath));
     const roots: RootIdentity[] = [];
     for (const path of [...profile.readRoots, ...profile.writeRoots]) {
@@ -163,12 +172,12 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       throw executorDenied('EXECUTION_BINDING_CHANGED', 'Execution authority changed during verification preparation.');
     const profileDigest = digest(profile);
     const binding: VerificationExecutorBinding = freeze({
-      profile, profileDigest, backendId: backend.backendId, platformProofRef: profile.platformProofRef!, rootIdentity: root,
+      profile, profileDigest, backendId: backend.backendId, platformProofRef: profile.platformProofRef!, rootIdentity: root, browserRequired,
       executables: executables.map(({ id, canonicalPath, sha256 }) => ({ id, canonicalPath, sha256 })),
       environmentId: digest({ platform: process.platform, arch: process.arch, hostRuntime: process.version, root, roots, trust, proof: backend.proof, profileDigest, executables, origins, environment: config.environment, secretRefs }),
     });
     assertExecutionFence(input);
-    return { binding, backend, trust, origins };
+    return { binding, backend, trust, origins, roots, executables, authorityAtStart, trustId: registration.trustId, trustDigest: digest(envelope) };
   }
   return {
     async describe(input: DescribeVerificationExecutor): Promise<VerificationExecutorBinding> {
@@ -182,14 +191,21 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       if (!record || record.used || digest(record.input.owner) !== digest(fence.owner))
         throw executorDenied('CAPABILITY_DENIED', 'The verification binding is foreign, spent or belongs to another owner.');
       record.used = true;
+      let admitted: Awaited<ReturnType<typeof inspect>>;
+      const assertCurrent = () => {
+        assertExecutionFence(fence);
+        if (!admitted || !config.backends.includes(record.backend) || record.backend.launchObserved !== record.launch || record.backend.probeListener !== record.probe || record.backend.openBrowserDriver !== record.browser || hostState() !== admitted.authorityAtStart || digest(config.trust.get(admitted.trustId)) !== admitted.trustDigest)
+          throw executorDenied('EXECUTION_BINDING_CHANGED', 'Execution authority changed before native dispatch.');
+      };
       const revalidate = async () => {
         const current = await inspect({ ...record.input, ...fence });
         if (digest(current.binding) !== digest(binding) || current.backend !== record.backend || current.backend.launchObserved !== record.launch || current.backend.probeListener !== record.probe || current.backend.openBrowserDriver !== record.browser)
           throw executorDenied('EXECUTION_BINDING_CHANGED', 'The approved verification environment changed.');
+        admitted = current;
         return current;
       };
       const current = await revalidate();
-      return { ...current, revalidate };
+      return { ...current, revalidate, assertCurrent };
     },
   };
 }
