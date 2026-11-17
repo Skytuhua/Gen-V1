@@ -111,14 +111,14 @@ export function environmentId(recipe: VerificationRecipeV1): string {
  * ApprovalV1 whose actionCommitment binds this recipe's digest and workspace
  * identity, with remaining uses and a live expiry, owned by this thread. */
 export function recipeApprovalCommitment(recipe: VerificationRecipeV1): string {
-  return digest({ kind: 'verification.recipe.register', recipeDigest: recipeDigest(recipe), workspaceIdentity: recipe.workspaceIdentity });
+  return digest({ kind: 'verification.recipe.register', recipeId: recipe.recipeId, version: recipe.version, revision: recipe.revision, recipeDigest: recipeDigest(recipe), workspaceIdentity: recipe.workspaceIdentity });
 }
 
 function consumeRecipeApproval(store: Store, approvalId: string, recipe: VerificationRecipeV1, owner: ToolOwner): void {
   const raw = store.get<ApprovalV1>('approval', approvalId);
   let approval: ApprovalV1;
   try { approval = approvalSchema.parse(raw); } catch { throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval is unavailable or malformed'); }
-  if (approval.owner.threadId !== owner.threadId) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval belongs to another owner');
+  if (digest(approval.owner) !== digest(owner)) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval belongs to another owner binding');
   if (approval.remainingUses < 1 || approval.expiresAt <= now()) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval expired or was already consumed');
   if (approval.actionCommitment !== recipeApprovalCommitment(recipe)) throw new HarnessError('APPROVAL_REQUIRED', 'The approved recipe changed; approve the current recipe again');
   store.put('approval', approvalId, approval.owner.threadId, { ...approval, remainingUses: 0 });
@@ -166,10 +166,12 @@ export class ProjectVerificationService {
     let recorded!: VerificationRecipeV1;
     this.store.internal('verification.recipe.registered', owner.threadId, () => {
       const prior = this.store.get<VerificationRecipeV1>('verificationRecipe', parsed.recipeId);
-      if (prior && recipeDigest(prior) !== committed && parsed.revision <= prior.revision)
-        throw new HarnessError('RECIPE_REVISION', 'A changed recipe needs a new revision and a new approval');
+      if (prior && !this.store.all<VerificationRecipeV1>('verificationRecipe', owner.threadId).some(value => value.recipeId === parsed.recipeId))
+        throw new HarnessError('CAPABILITY_DENIED', 'A recipe belongs to another thread');
       consumeRecipeApproval(this.store, approvalId, parsed, owner);
-      recorded = { ...parsed, revision: (prior?.revision ?? 0) + 1 };
+      if (parsed.revision !== (prior?.revision ?? 0) + 1)
+        throw new HarnessError('RECIPE_REVISION', 'A recipe registration must approve the exact next revision');
+      recorded = parsed;
       this.store.put('verificationRecipe', parsed.recipeId, owner.threadId, recorded);
       return { recipeId: parsed.recipeId, revision: recorded.revision };
     });
@@ -208,7 +210,7 @@ export class ProjectVerificationService {
    * recipe launched and is recorded separately. */
   async runRecipe(owner: ToolOwner, request: RecipeExecutionRequest, launcher: VerificationLauncher, probe?: ListenerProbe): Promise<RecipeExecutionResult> {
     this.assertEnabled();
-    const recipe = this.recipe(request.recipeId);
+    const recipe = this.store.all<VerificationRecipeV1>('verificationRecipe', owner.threadId).find(value => value.recipeId === request.recipeId);
     if (!recipe) throw new HarnessError('NOT_FOUND', 'Verification recipe is unavailable');
     const executionId = request.executionId ?? `exec-${randomUUID()}`;
     const root = await canonical(recipe.workspaceIdentity.canonicalPath);
