@@ -38,7 +38,7 @@
 .task-table-resizer { margin:0; border:0; position:absolute; z-index:3; right:-12px; top:0; width:24px; height:34px; cursor:col-resize; touch-action:none; }
 .task-table-resizer::after { content:''; position:absolute; top:0; bottom:0; left:11px; width:1px; }
 .task-table-resizer:is(:hover,:focus-visible)::after { background:var(--accent-fg,var(--accent)); }
-.task-table :is(button,input,[tabindex]):focus-visible { outline:2px solid var(--accent-fg,var(--accent)); outline-offset:2px; }
+.task-table :is(button,input,[tabindex]):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .task-table th[data-moving=true] .task-table-heading { opacity:.42; }
 .task-table[data-column-controls=true] .task-table-number { text-align:right; font-variant-numeric:tabular-nums; }
 .task-table .task-table-select { width:40px; min-width:40px; max-width:40px; padding:8px 11px; }

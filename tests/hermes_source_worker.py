@@ -50,6 +50,10 @@ def scripted_acp() -> None:
             elif "AUTO_SKILL_FIXTURE" in prompt and "Review the conversation above and update the skill library." in prompt and '"success": true' not in prompt:
                 skill = "---\nname: auto-source\ndescription: Reuse verified source-backed workflows.\n---\n\n# Source-backed workflows\n\nRun the original source and retain its behavior.\n"
                 content = '<tool_call>' + json.dumps({"id": "auto-create", "type": "function", "function": {"name": "skill_manage", "arguments": json.dumps({"operations": [{"action": "create", "name": "auto-source", "content": skill}]})}}) + '</tool_call>'
+            elif "M04_EXPOSURE_FIXTURE" in prompt:
+                direct = '"name": "m04_direct_fixture"' in prompt
+                deferred = '"name": "m04_deferred_fixture"' in prompt
+                content = "M04 visibility: direct=" + str(int(direct)) + ", deferred=" + str(int(deferred))
             elif "PLAIN_REPLY_ONLY" in prompt:
                 content = "A plain source reply."
             elif '"success": true' in prompt or '"success":true' in prompt:
@@ -75,6 +79,7 @@ class WorkerFixture(unittest.TestCase):
         threading.Thread(target=lambda: [self.stderr.append(line) for line in self.proc.stderr], daemon=True).start()
         self.counter = 0
         self.host_calls = []
+        self.m04_snapshot = None
 
     def tearDown(self):
         self.proc.terminate()
@@ -97,7 +102,8 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             elif frame.get("id") == self.counter:
                 if error_code is not None:
@@ -119,7 +125,8 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             else:
                 events.append(frame)
@@ -177,6 +184,28 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(saved["messages"], self.request("agent.history", {})["messages"])
         self.assertEqual(saved["format"], "hermes-source-session-v1")
 
+    def test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary(self):
+        self.hello(config={"tools": {"tool_search": {"enabled": "off"}}, "auxiliary": {"background_review": {"enabled": False}}})
+        self.m04_snapshot = {"names": ["m04_direct_fixture"]}
+        names = ["m04_direct_fixture", "m04_deferred_fixture"]
+        params = {
+            "ctx": {"threadId": "m04-exposure", "runId": "m04-first", "epoch": 1},
+            "sessionId": "m04-exposure", "modelId": "fixture-model", "accountId": None,
+            "prompt": "M04_EXPOSURE_FIXTURE", "hostTools": [
+                {"name": name, "description": "Synthetic host tool", "parameters": {"type": "object"}} for name in names
+            ], "progressiveTools": True, "maxIterations": 2,
+            "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-exposure"),
+        }
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertIn("$context.tools.snapshot", self.host_calls)
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=0")
+        self.m04_snapshot = {"names": names}
+        params["ctx"] = {"threadId": "m04-exposure", "runId": "m04-second", "epoch": 2}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=1")
+
     def test_original_summary_compaction_executes_with_the_retained_dependency_subset(self):
         self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
         history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"Declared synthetic checkpoint {index}: approved edits retain their reviewed SHA and stale work needs new review. " * 8)} for index in range(12)]
@@ -191,6 +220,28 @@ class WorkerFixture(unittest.TestCase):
         self.assertLess(len(result["messages"]), len(before))
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
         self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
+
+    def test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest(self):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"CAS fixture segment {index}: the worker must refuse a stale digest and only replace the exact approved history. " * 8)} for index in range(12)]
+        params = {"ctx": {"threadId": "compact-cas", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "history": history, "hostTools": [], "maxIterations": 2, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("compact-cas")}
+        self.request("agent.start", params)
+        self.until_settled()
+        snapshot = self.request("agent.history", {})
+        self.assertIn("historySha256", snapshot)
+        expected = hashlib.sha256(json.dumps(snapshot["messages"], sort_keys=True, default=str).encode("utf8")).hexdigest()
+        self.assertEqual(snapshot["historySha256"], expected)
+        stale = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": hashlib.sha256(b"stale-source-cut").hexdigest()})
+        self.assertFalse(stale["compacted"])
+        self.assertTrue(stale["mismatch"])
+        self.assertEqual(stale["historySha256"], expected)
+        self.assertEqual(self.request("agent.history", {})["messages"], snapshot["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], snapshot["messages"])
+        applied = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": expected})
+        errors = Path(self.tmp.name) / "logs/errors.log"
+        self.assertTrue(applied["compacted"], errors.read_text(encoding="utf8")[-6000:] if errors.exists() else applied)
+        self.assertLess(len(applied["messages"]), len(snapshot["messages"]))
+        self.assertEqual(applied["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
 
     def test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate(self):
         self.hello()

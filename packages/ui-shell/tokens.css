@@ -9,6 +9,7 @@
   --ui-content-inset: 16px;
   --ui-dialog-inset: 24px;
   --ui-nav-gap: 4px;
+  --ui-focus-ring: var(--muted, #808080);
   --ui-row-compact: 32px;
   --ui-row-comfortable: 36px;
   --ui-row-touch: 44px;

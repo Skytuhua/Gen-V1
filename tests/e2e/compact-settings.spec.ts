@@ -105,7 +105,7 @@ test('actual compact draft export preserves the signature guard and sends only e
     localStorage.setItem('harness:signature-assets:v1:signature-only:state', JSON.stringify([{id: 'mark', stateKey: 'signature', base64: 'mark'}]));
   });
   await host.dialog.getByRole('button', {name: 'Export local drafts', exact: true}).click();
-  await expect(host.dialog.getByRole('alert')).toContainText('pending signature'); expect(requested).toEqual([{keys: ['draft:new']}]);
+  await expect(host.dialog.getByRole('status').filter({hasText:'pending signature'})).toContainText('pending signature'); expect(requested).toEqual([{keys: ['draft:new']}]);
   await page.evaluate(() => localStorage.removeItem('harness:signature-assets:v1:signature-only:state'));
   const download = page.waitForEvent('download'); await host.dialog.getByRole('button', {name: 'Export local drafts', exact: true}).click();
   expect((await download).suggestedFilename()).toBe('harness-drafts.json');

@@ -1,0 +1,11 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+(node:1255923) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  7 passed (7)
+      Tests  78 passed (78)
+   Start at  18:31:15
+   Duration  28.16s (transform 18.15s, setup 0ms, import 32.52s, tests 38.55s, environment 2ms)
+

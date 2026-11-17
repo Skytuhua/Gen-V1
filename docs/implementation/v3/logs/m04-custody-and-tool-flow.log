@@ -1,0 +1,11 @@
+
+ RUN  v4.1.12 <isolated-worktree>
+
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+ Test Files  15 passed (15)
+      Tests  127 passed (127)
+   Start at  20:14:38
+   Duration  3.59s (transform 3.13s, setup 0ms, import 5.46s, tests 6.44s, environment 2ms)

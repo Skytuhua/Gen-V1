@@ -1,6 +1,0 @@
-{
-  "fixture": "Host contract fixture (no model inference)",
-  "browser": "Chromium",
-  "scope": "Single local fixture run; measurements are not model latency or a performance benchmark.",
-  "decisionAcceptanceToFollowUpVisibleMs": 332.9214000000002
-}

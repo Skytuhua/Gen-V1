@@ -1,0 +1,446 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M04",
+  "baseSha": "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+  "sourceLockDigest": "c35159c34016afab1acb7ce4f900242436998580c988874f2797b4fbdbbdbe92",
+  "platform": "linux-x64",
+  "nodeVersion": "v24.22.1",
+  "packageManagerVersion": "10.30.3",
+  "dependencyContracts": [
+    {
+      "name": "implementation-evidence",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts"
+      ]
+    },
+    {
+      "name": "capability-flags",
+      "version": "812a5094356145651b4f5f3c187d2b3cd05e0394",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "tool-effects",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "apps/web/src/ContextInspector.tsx",
+    "apps/web/src/context-inspector.css",
+    "apps/web/src/snapshot-events.ts",
+    "docs/implementation/v3/M04-verification.json",
+    "docs/implementation/v3/logs/m04-context-tabs-browser.log",
+    "docs/implementation/v3/logs/m04-core-tests.log",
+    "docs/implementation/v3/logs/m04-custody-and-tool-flow.log",
+    "docs/implementation/v3/logs/m04-host-projection-browser.log",
+    "docs/implementation/v3/logs/m04-host-projection.log",
+    "docs/implementation/v3/logs/m04-observation-browser.log",
+    "docs/implementation/v3/logs/m04-observation-tests.log",
+    "docs/implementation/v3/logs/m04-original-worker-progressive.log",
+    "docs/implementation/v3/logs/m04-paired-synthetic.log",
+    "docs/implementation/v3/logs/m04-progressive-and-draft-tests.log",
+    "docs/implementation/v3/logs/m04-progressive-browser.log",
+    "packages/contracts/index.ts",
+    "packages/contracts/request-context.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/context-compaction.ts",
+    "packages/core/context-compiler.ts",
+    "packages/core/context-draft-sources.ts",
+    "packages/core/context-progressive-tools.ts",
+    "packages/core/context-relevance.ts",
+    "packages/core/context-result-custody.ts",
+    "packages/core/context-result-tool.ts",
+    "packages/core/context-results.ts",
+    "packages/core/context-tool-discovery.ts",
+    "packages/core/host-context-projection.ts",
+    "packages/core/instruction-manifest.ts",
+    "packages/core/service.ts",
+    "packages/core/tool-authority.ts",
+    "packages/runtime-hermes/broker.ts",
+    "packages/runtime-hermes/index.ts",
+    "packages/runtime-hermes/worker.py",
+    "packages/workspace/repo-map.ts",
+    "scripts/public-source-files.json",
+    "tests/compaction-v3.test.ts",
+    "tests/context-compiler-v3.test.ts",
+    "tests/context-discovery-v3.test.ts",
+    "tests/context-draft-sources.test.ts",
+    "tests/context-request-observation.test.ts",
+    "tests/context-result-custody.test.ts",
+    "tests/context-results-v3.test.ts",
+    "tests/e2e/usage-context-fixture.tsx",
+    "tests/e2e/usage-context.spec.ts",
+    "tests/fixtures/m04-context-v3.json",
+    "tests/hermes-broker.test.ts",
+    "tests/hermes-runtime.test.ts",
+    "tests/hermes_source_worker.py"
+  ],
+  "flags": [
+    {
+      "key": "context.compilerV1",
+      "enabled": false
+    },
+    {
+      "key": "tools.deferredV1",
+      "enabled": false
+    },
+    {
+      "key": "context.lossAwareCompactionV1",
+      "enabled": false
+    },
+    {
+      "key": "context.precomputeExperimentV1",
+      "enabled": false
+    }
+  ],
+  "reviewerApproval": false,
+  "phases": [
+    {
+      "id": "core.offline-projection",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "compiler-tail-and-rebuild",
+          "status": "PASS"
+        },
+        {
+          "id": "byte-only-and-next-budget",
+          "status": "PASS"
+        },
+        {
+          "id": "result-preview-and-authorized-range",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-compaction-and-unsupported-native",
+          "status": "PASS"
+        },
+        {
+          "id": "instruction-manifest-and-repo-map",
+          "status": "PASS"
+        },
+        {
+          "id": "100-and-500-tool-schema-disclosure",
+          "status": "PASS"
+        },
+        {
+          "id": "m01-m02-focused-contracts",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-compiler-v3.test.ts",
+            "tests/context-results-v3.test.ts",
+            "tests/compaction-v3.test.ts",
+            "tests/context-discovery-v3.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts"
+          ],
+          "cwdIdentity": "isolated Gen-V1 worktree",
+          "executableIdentity": "Node.js v24.22.1",
+          "startedAt": "2026-11-15T03:29:45Z",
+          "endedAt": "2026-11-15T03:29:49Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m04-core-tests.log",
+          "logDigest": "ce04142bf5cead94ddd9cd5fdc4b5a3d0e3282223ddccfda6b2f44748a3e7c88"
+        }
+      ],
+      "artifactRefs": [
+        "logs/m04-core-tests.log"
+      ]
+    },
+    {
+      "id": "integration.read-only-request-observation",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "hermes-owned-broker-counts",
+          "status": "PASS"
+        },
+        {
+          "id": "default-off-and-owned-store-projection",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-or-malformed-observation-rejected",
+          "status": "PASS"
+        },
+        {
+          "id": "context-inspector-chromium",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "logs/m04-observation-tests.log",
+        "logs/m04-observation-browser.log"
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-request-observation.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/hermes-broker.test.ts",
+            "tests/context-compiler-v3.test.ts",
+            "tests/context-results-v3.test.ts",
+            "tests/compaction-v3.test.ts",
+            "tests/context-discovery-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts"
+          ],
+          "cwdIdentity": "isolated Gen-V1 worktree",
+          "executableIdentity": "Node.js v24.22.1",
+          "startedAt": "2026-11-15T03:56:52Z",
+          "endedAt": "2026-11-15T03:56:54Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m04-observation-tests.log",
+          "logDigest": "68da3657fb7c90f2591981407daa81814da15c47ee905a8da1519ba42c8a2aae"
+        }
+      ]
+    },
+    {
+      "id": "integration.result-custody-and-inspector",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "disk-custody-reopen-and-retention",
+          "status": "PASS"
+        },
+        {
+          "id": "same-owner-catalog-result-retrieval-through-m02",
+          "status": "PASS"
+        },
+        {
+          "id": "report-only-relevance",
+          "status": "PASS"
+        },
+        {
+          "id": "public-source-inventory",
+          "status": "PASS"
+        },
+        {
+          "id": "context-inspector-tabs-chromium",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "logs/m04-custody-and-tool-flow.log",
+        "logs/m04-context-tabs-browser.log"
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/public-source.test.ts",
+            "tests/context-result-custody.test.ts",
+            "tests/context-request-observation.test.ts",
+            "tests/context-compiler-v3.test.ts",
+            "tests/context-results-v3.test.ts",
+            "tests/compaction-v3.test.ts",
+            "tests/context-discovery-v3.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/hermes-broker.test.ts",
+            "tests/usage-context.test.ts"
+          ],
+          "cwdIdentity": "isolated Gen-V1 worktree",
+          "executableIdentity": "Node.js v24.22.1",
+          "startedAt": "2026-11-15T04:14:38Z",
+          "endedAt": "2026-11-15T04:14:42Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m04-custody-and-tool-flow.log",
+          "logDigest": "6de6c037de52700c60b19808725606e80f17927153bd1adf876182528ad8fec5"
+        }
+      ]
+    },
+    {
+      "id": "integration.observed-host-sources",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "app-source-provenance-and-no-model-input-change",
+          "status": "PASS"
+        },
+        {
+          "id": "inspector-source-revisions-chromium",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "logs/m04-host-projection.log",
+        "logs/m04-host-projection-browser.log"
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-request-observation.test.ts",
+            "tests/context-compiler-v3.test.ts",
+            "tests/context-result-custody.test.ts",
+            "tests/context-results-v3.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/public-source.test.ts",
+            "tests/hermes-broker.test.ts"
+          ],
+          "cwdIdentity": "isolated Gen-V1 worktree",
+          "executableIdentity": "Node.js v24.22.1",
+          "startedAt": "2026-11-15T04:34:49Z",
+          "endedAt": "2026-11-15T04:34:51Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m04-host-projection.log",
+          "logDigest": "c0a57263779a4f90460b105b8cc2ca4a207a701cc7f2745a1c75b8cd75b3f938"
+        }
+      ]
+    },
+    {
+      "id": "integration.progressive-owned-tool-view",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "next-request-schema-and-raw-denial",
+          "status": "PASS"
+        },
+        {
+          "id": "four-admitted-read-limit",
+          "status": "PASS"
+        },
+        {
+          "id": "original-acp-worker-filter",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-host-schema-measurement",
+          "status": "PASS"
+        },
+        {
+          "id": "pinned-draft-keep-refresh-remove-core",
+          "status": "PASS"
+        },
+        {
+          "id": "explicit-no-cas-native-guard",
+          "status": "PASS"
+        },
+        {
+          "id": "synthetic-paired-schema-bytes",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "logs/m04-progressive-and-draft-tests.log",
+        "logs/m04-original-worker-progressive.log",
+        "logs/m04-progressive-browser.log",
+        "logs/m04-paired-synthetic.log"
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-draft-sources.test.ts",
+            "tests/context-discovery-v3.test.ts",
+            "tests/context-request-observation.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "tests/hermes-broker.test.ts",
+            "tests/context-result-custody.test.ts",
+            "tests/context-compiler-v3.test.ts",
+            "tests/context-results-v3.test.ts",
+            "tests/compaction-v3.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/public-source.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/review-regressions.test.ts"
+          ],
+          "cwdIdentity": "isolated Gen-V1 worktree",
+          "executableIdentity": "Node.js v24.22.1",
+          "startedAt": "2026-11-15T05:12:38Z",
+          "endedAt": "2026-11-15T05:12:43Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m04-progressive-and-draft-tests.log",
+          "logDigest": "442fb417fd22685b874f4e5e65b5ada754a8741d1e4466d7cc282d392cbfb708"
+        }
+      ]
+    },
+    {
+      "id": "integration.runtime-and-ui",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "draft-source-chips-and-host-resolution",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "history-level-incremental-adapter-coverage",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "full-retention-and-platform-verification",
+          "status": "NOT_RUN"
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    },
+    {
+      "id": "platform.native-and-evaluation",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "native-compaction-cas-or-explicit-unsupported",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "paired-native-evaluation-and-windows-ci",
+          "status": "NOT_RUN"
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    }
+  ],
+  "remainingGates": [
+    "Independent review of this patch must be recorded outside this manifest.",
+    "All four M04 flags are registered in the shared M01/M02 capability registry and remain off. Only the owned Hermes broker currently reports observed prompt bytes; no provider role or token measurement is inferred.",
+    "The default-off host flow spills oversized catalog results only and rechecks same-run account, workspace, model and flag scope. Broader tool and draft source admission remains unverified.",
+    "The default-off Hermes path now filters admitted schemas at the original ACP boundary, freezes per-request view and rechecks at dispatch. Other adapters, complete pinned source chips and history-level incremental integration are not wired.",
+    "Chromium usage-context and the new original Hermes worker fixture pass locally. Edge/Windows CI and paired live quality/cost evidence remain unverified. Absence of native compare-and-swap explicitly refuses loss-aware compaction; precompute remains unimplemented and off.",
+    "Project execution requires separate M03 platform acceptance. No migration or runtime activation was performed; original native history is unchanged.",
+    "Pinned Python 3.14.10 runs the native Hermes worker suite on Linux: 15 of 16 pass. The remaining Impeccable test consumes a Windows PE executable and fails the same way on unchanged main; exact Windows CI remains required."
+  ]
+}

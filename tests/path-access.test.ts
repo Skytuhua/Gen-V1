@@ -222,12 +222,10 @@ it('retains a user save made after the final capability read but before replacem
 
 it('does not bypass another read-only destination lease during conditional replacement',async()=>{
  const f=await fixture(),source=join(f.root,'replace.tmp'),destination=join(f.root,'note.txt'),other=join(f.root,'other.tmp');await writeFile(source,'approved');await writeFile(destination,'before');await writeFile(other,'other');const identity=await stat(source,{bigint:true}),hash=(text:string)=>createHash('sha256').update(text).digest('hex'),signal=new AbortController().signal;
- // A request-level denial reports as data and leaves the shared guard alive:
- // the failed replacement cannot tear down this operation's own lease.
- await withPathGuard([{path:destination,leaf:true,readOnly:true}],signal,async()=>{
+ await expect(withPathGuard([{path:destination,leaf:true,readOnly:true}],signal,async()=>{
   await expect(writeFile(destination,'late edit')).rejects.toBeDefined();await expect(rename(other,destination)).rejects.toBeDefined();
   await expect(replaceOwnedFile(source,destination,identity,hash('approved'),signal,hash('before'))).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
- });
+ })).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
  expect(await readFile(destination,'utf8')).toBe('before');expect(await readFile(source,'utf8')).toBe('approved');expect(await readFile(other,'utf8')).toBe('other');
 });
 
