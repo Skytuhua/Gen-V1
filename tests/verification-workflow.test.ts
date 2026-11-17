@@ -114,6 +114,57 @@ it('runs a restricted QA child through the exact approved M02 execution and reta
   expect((await f.finish()).label).toBe('VERIFIED'); expect((await f.service.verificationPanel(f.thread.id)).label).toBe('VERIFIED');
 });
 
+it('rejects QA source reads and structured findings outside the exact approved source inputs', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    await expect(callbacks.onTool({name: 'qa_context', args: {path: 'not-approved.ts'}}, ctx)).rejects.toMatchObject({code: 'QA_SCOPE_CHANGED'});
+    await expect(callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'outside', path: 'not-approved.ts', line: null, observation: 'Claim', impact: 'Claim', reproduction: null}}}, ctx)).rejects.toMatchObject({code: 'QA_SCOPE_CHANGED'});
+    await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation); await f.service.dispatchOperation(operation.id);
+  expect(f.store.get<Operation>('operation', operation.id)?.status).toBe('succeeded'); expect(f.store.all('securityFinding')).toEqual([]);
+});
+
+it.skipIf(process.platform === 'win32')('keeps the native QA source leaf guard unavailable instead of using a portable read fallback', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    await expect(callbacks.onTool({name: 'qa_context', args: {path: 'app.ts'}}, ctx)).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+    await expect(callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'review', path: 'app.ts', line: 1, observation: 'Claim', impact: 'Claim', reproduction: null}}}, ctx)).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+    await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation); await f.service.dispatchOperation(operation.id);
+  expect(f.store.get<Operation>('operation', operation.id)?.status).toBe('succeeded'); expect(f.store.all('securityFinding')).toEqual([]);
+});
+
+it('rejects a QA finding when its approved source changes before capture', async () => {
+  let f!: Awaited<ReturnType<typeof fixture>>;
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    writeFileSync(join(f.root, 'app.ts'), 'changed after approved source capture\n');
+    await expect(callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'stale', path: 'app.ts', line: 1, observation: 'Claim', impact: 'Claim', reproduction: null}}}, ctx)).rejects.toMatchObject({code: 'BLOCKED_SOURCE_DRIFT'});
+    await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  f = await fixture({qaRuntimeFactory: runtime.factory}); const operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(f.store.all('securityFinding')).toEqual([]); expect(f.launched).toEqual([]);
+});
+
+it.skipIf(process.platform !== 'win32')('records a source-bound advisory through the actual Windows file guard and approved fixture QA execution', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    const source = await callbacks.onTool({name: 'qa_context', args: {path: 'app.ts', maxBytes: 16_384}}, ctx);
+    expect(source).toMatchObject({path: 'app.ts', text: 'export const ready = true;\n', byteOffset: 0, omittedBytes: 0, lineCount: 1});
+    for (const field of ['status', 'evidenceQuality', 'provenance', 'authorizedScope', 'source'])
+      await expect(callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'review', path: 'app.ts', line: 1, observation: 'Advisory review', impact: 'Review impact', reproduction: null, [field]: 'forged'}}}, ctx)).rejects.toThrow();
+    await expect(callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'review', path: 'app.ts', line: 2, observation: 'Advisory review', impact: 'Review impact', reproduction: null}}}, ctx)).rejects.toMatchObject({code: 'INVALID_INPUT'});
+    expect(await callbacks.onTool({name: 'qa_observe', args: {finding: {findingId: 'review', path: 'app.ts', line: 1, observation: 'Advisory review', impact: 'Review impact', reproduction: null}}}, ctx)).toMatchObject({finding: {findingId: 'review', evidenceQuality: 'ADVISORY', status: 'OPEN', blobSha: (source as {blobSha: string}).blobSha}});
+    await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: {...qaRequest, budget: {...qaRequest.budget, ms: 180_000}}}); await f.approve(operation); await f.service.dispatchOperation(operation.id);
+  const intent = operation.args.intent as VerificationIntent;
+  expect(f.store.all('securityFinding')).toEqual([expect.objectContaining({status: 'OPEN', evidenceQuality: 'ADVISORY', source: {path: 'app.ts', line: 1, blobSha: expect.stringMatching(/^[0-9a-f]{40}$/)}, provenance: {owner: intent.owner, executionId: intent.executionId, ...intent.sourceCut}})]);
+  expect(f.store.all('resource')).toEqual([]);
+  expect((await f.service.verificationPanel(f.thread.id)).securityFindings?.items).toEqual([expect.objectContaining({evidenceQuality: 'ADVISORY', freshness: 'CURRENT', scopeAuthority: 'HOST_RECORDED'})]);
+  writeFileSync(join(f.root, 'app.ts'), 'new source\n');
+  expect((await f.service.verificationPanel(f.thread.id)).securityFindings?.items[0]?.freshness).toBe('STALE');
+}, 180_000);
+
 it('denies missing QA runtime and missing approval before a worker can be created', async () => {
   const missing = await fixture(); await expect(missing.prepare({...missing.input, qa: qaRequest})).rejects.toMatchObject({code: 'QA_UNAVAILABLE'});
   const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
