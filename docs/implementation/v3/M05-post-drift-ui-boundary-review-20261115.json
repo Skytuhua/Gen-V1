@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_POST_RUN_UI_BOUNDARY_REVIEW",
+  "reviewedAt": "2026-11-15T23:26:15.065512+00:00",
+  "baseCommit": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+  "baseTree": "005a5cb318f1ffdbb14381dfb470c1de6f6dedd8",
+  "workingDiff": {
+    "bytes": 15531,
+    "sha256": "62948d085dfee096fee64b95cc8b2ca86259c11e2376d93ff9d9f0f36cbbd365",
+    "blobSha": "a0d16531f8490427ff5e785e4766ff2c6ddc221e"
+  },
+  "workingSourceBindings": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "workingBytes": {
+        "bytes": 155211,
+        "sha256": "b4f5b0ad66accace517bdac34eda4ad2a840b5b6d129bf320b301756dbc9a58a",
+        "blobSha": "d5766fae8b5e493a169d6ad06157e31a177e537c"
+      },
+      "base": {
+        "path": "apps/web/src/App.tsx",
+        "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+        "bytes": 155173,
+        "sha256": "64d2bc115dcda75156b5dcb26d5b84fdcc59967b4ea1f190c518c62606a1acf0",
+        "blobSha": "a0ed6009a0fb5fa2746a7fd3ec93daa2b4ac6be4"
+      }
+    },
+    {
+      "path": "apps/web/src/workspace-integration.css",
+      "workingBytes": {
+        "bytes": 2281,
+        "sha256": "ecd446688fd7147c2d7ad8841be0eece4b0bda17b87c7a939f49738ec4988fd4",
+        "blobSha": "543c13202f693d564afa7ab533b0c760cc257dd3"
+      },
+      "base": {
+        "path": "apps/web/src/workspace-integration.css",
+        "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+        "bytes": 2286,
+        "sha256": "7da373995028d4d1f1ac7115dd559ad6fdd5bc3b1dd935540cbc6a8ea5610295",
+        "blobSha": "416bd4b3c28d3e390a16513ed7fe88dddc3b7865"
+      }
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "workingBytes": {
+        "bytes": 13070,
+        "sha256": "c71378cbb53bfe1e6e209cb4430bb99a5a186aa0c8dd1929229114a437c8bd79",
+        "blobSha": "67a7609a54f37fdb5fed4ec2fb050b0c46f86f8a"
+      },
+      "base": {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+        "bytes": 10966,
+        "sha256": "2b2947b181000d9aaf1af1ea4b5ad6fffcaaa10543b0561e318a048d046d9379",
+        "blobSha": "2fc60c907d2a8a4e0165d39c43a909d56f20a9ea"
+      }
+    },
+    {
+      "path": "vite.config.ts",
+      "workingBytes": {
+        "bytes": 1072,
+        "sha256": "42e4cce3e9ccb52ee15256c06cb652ed0902bc472eb6b2a89f07eb3838431c62",
+        "blobSha": "e9a0f5d5fb457401deae3586e9476c24a4ca7d0e"
+      },
+      "base": {
+        "path": "vite.config.ts",
+        "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+        "bytes": 913,
+        "sha256": "eb0239431e3ddd7e2b302697a4bfd7996c699557e5935388ab7bb03c7620aef5",
+        "blobSha": "137e702c96cf5f12d1f48e2657354becdd41af69"
+      }
+    }
+  ],
+  "unchangedAuthoritySources": [
+    {
+      "path": "apps/web/src/ProjectContextSurface.tsx",
+      "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "bytes": 2824,
+      "sha256": "7cbb9068f912d51e604cbda4c9fe4b010f47dbe89023432ccf8bc02015343c53",
+      "blobSha": "9f1674e6ed50072662668286a0204629e5801719"
+    },
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "bytes": 21955,
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+      "blobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+      "blobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "commitSha": "c4d82ef44abbeee58bedffbf1b6f115612944181",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+      "blobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+    }
+  ],
+  "findings": [],
+  "observations": [
+    "App changes only the main split-root usage-summary visibility and summary-layout reservation while a right-side surface is open. ProjectContextSurface receives the same thread, snapshot and owner-bound callbacks.",
+    "The memory launcher still requires a local project matching the current main-thread/project/account key; owner changes close the keyed review session. No capability flag or recall/extraction path changed.",
+    "Embedded composer CSS changes horizontal padding only, including the mobile override. No memory disclosure, source, request, action or disabled-state selector changed.",
+    "The task fixture extracts the existing production split-reducer setup into a helper and optionally seeds the same exact active thread/project binding. It remains synthetic fixture behavior and does not supply a native or authorization proof.",
+    "Vite adds the existing PDF module to dependency pre-optimization without altering the production entry, build root or memory code."
+  ],
+  "scope": "Static review of the exact listed working bytes. No implementation test was rerun by this review; these post-run bytes are not attributed to CI43771171183.",
+  "memoryFlags": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false
+  },
+  "conclusion": "No concrete memory-owner or feature-flag boundary regression found in the reviewed App/CSS/fixture delta."
+}

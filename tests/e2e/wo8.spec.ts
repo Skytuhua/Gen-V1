@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import {resolve} from 'node:path';
 import { taskFixture, serveTaskFixture } from './task-interface-fixture';
+const fixtureUrl = (path: string) => '/@fs/' + encodeURI(resolve(process.env.WO8_SOURCE_ROOT??'.',path).replaceAll('\\','/'));
 
 test.beforeEach(async ({page})=>{
-  await page.route('**/wo8-pairing',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="dark"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('/@fs/${resolve(process.env.WO8_SOURCE_ROOT??'.','tests/e2e/wo8-pairing-fixture.tsx')}');</script></body></html>`}));
+  await page.route('**/wo8-pairing',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="dark"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureUrl('tests/e2e/wo8-pairing-fixture.tsx')}');</script></body></html>`}));
 });
 const stage = process.env.WO8_STAGE === 'before' ? 'before' : 'after';
 for (const theme of ['dark', 'light'] as const) for (const width of [1440, 1024]) {
@@ -25,7 +26,7 @@ for (const theme of ['dark', 'light'] as const) for (const width of [1440, 1024]
   });
   test(`usage and context ${theme} ${width}`, async ({ page }, info) => {
     await page.setViewportSize({ width, height: 900 });
-    const fixture = '/@fs/'+resolve(process.env.WO8_SOURCE_ROOT??'.','tests/e2e/usage-context-fixture.tsx');
+    const fixture = fixtureUrl('tests/e2e/usage-context-fixture.tsx');
     await page.route('**/api/bootstrap', route => route.fulfill({ json: { csrfToken: 'synthetic' } }));
     await page.route('**/wo8-usage', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="${theme}"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixture}');</script></body></html>` }));
     await page.goto('/wo8-usage');

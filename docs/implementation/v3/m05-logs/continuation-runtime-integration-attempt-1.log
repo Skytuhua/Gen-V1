@@ -1,0 +1,179 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (21 tests | 3 failed) 882ms
+   × carries the same prepared memory request identity through actual Service send and final dispatch 63ms
+   × automatically recalls into the first send of a new unbound thread without borrowing an older request identity 14ms
+   × cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals 74ms
+ ❯ tests/project-memory-request-http-v3.test.ts (10 tests | 3 failed) 497ms
+   × fences exclusion by exact route project, owner scope, context generation and selected revision 28ms
+   × dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable 77ms
+   × returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request 80ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > fences exclusion by exact route project, owner scope, context generation and selected revision
+AssertionError: expected 400 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 400
+
+ ❯ tests/project-memory-request-http-v3.test.ts:107:100
+    105|   const url = f.prefix + '/' + prepared.requestId + '/exclude';
+    106|   expect((await f.post(url, { ...body, scope: { ...body.scope, account…
+    107|   expect((await f.post(url, { ...body, scope: { ...body.scope, threadI…
+       |                                                                                                    ^
+    108|   expect((await f.post('/api/projects/other-project/memory/requests/' …
+    109|   expect((await f.post(url, { ...body, contextGeneration: body.context…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable
+ZodError: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received null"
+  }
+]
+ ❯ tests/project-memory-request-http-v3.test.ts:133:48
+    131|   expect(input.prompt).not.toContain(f.excluded.text); expect(input.pr…
+    132|   const latest = await f.latest(); expect(latest.statusCode).toBe(200)…
+    133|   const captured = memoryPreparedRequestSchema.parse(latest.json());
+       |                                                ^
+    134|   expect(captured).toMatchObject({
+    135|     phase: 'CAPTURED', scope: selected.scope, requestId: selected.requ…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/project-memory-request-http-v3.test.ts > returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request
+ZodError: [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received null"
+  }
+]
+ ❯ tests/project-memory-request-http-v3.test.ts:169:48
+    167|   const sent = await f.command('message.send', { content: f.prompt, mo…
+    168|   expect(sent.statusCode).toBe(200); await vi.waitFor(() => expect(f.s…
+    169|   const captured = memoryPreparedRequestSchema.parse((await f.latest(t…
+       |                                                ^
+    170|   expect(captured).toMatchObject({ phase: 'CAPTURED', scope: { threadI…
+    171|   expect(captured.requestId).toBe(f.starts[0].requestContext!.requestI…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > carries the same prepared memory request identity through actual Service send and final dispatch
+AssertionError: expected null to match object { …(3) }
+
+- Expected:
+{
+  "contextGeneration": 1,
+  "phase": "CAPTURED",
+  "requestId": "request:ccac73e6-2ef5-456a-a6e1-fcc659603bc4",
+}
+
++ Received:
+null
+
+ ❯ tests/project-memory-service-v3.test.ts:70:20
+     68|   expect(input.requestContext).toMatchObject({ requestId: prepared!.re…
+     69|   expect(input.prompt).toContain(SUPPLEMENTAL_EVIDENCE_HEADER); expect…
+     70|   expect(captured).toMatchObject({ requestId: prepared!.requestId, con…
+       |                    ^
+     71|   expect(input.memoryCheckpoint).toEqual({ apiVersion: 2, required: tr…
+     72| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > automatically recalls into the first send of a new unbound thread without borrowing an older request identity
+AssertionError: expected null to match object { …(4) }
+
+- Expected:
+{
+  "contextGeneration": 1,
+  "phase": "CAPTURED",
+  "requestId": "request:ab8c77f7-1486-4b81-a860-cd578b0daabb",
+  "scope": {
+    "accountId": null,
+    "threadId": "338344ae-7653-47d2-a53d-9f78e827c4e3",
+  },
+}
+
++ Received:
+null
+
+ ❯ tests/project-memory-service-v3.test.ts:154:70
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals
+AssertionError: expected [ { …(12) }, { …(14) } ] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
++     "accountId": null,
++     "finishedAt": "2026-11-15T12:01:21.063Z",
++     "id": "memory-schedule:4f4deeb525df749afcee8868f011de44aed999506d91b1dce2e1ea2eece4c534",
++     "phase": "EXTRACTION",
++     "profileId": "c4c0b17212b8d80e08c73c312164b5ee05d33d5b0c00d6cf39f8cc00e729f4da",
++     "projectId": "project",
++     "projectIdentity": "8d4a12344f3580c9e87e2164ef5c84741408addb34da5aafc90fa4ca342cd1e1",
++     "settled": true,
++     "sourceRunId": "03d475c2-41ed-44a5-b1e8-b43e6306f1c8",
++     "startedAt": "2026-11-15T12:01:21.011Z",
++     "status": "CANCELLED",
++     "usage": {
++       "cost": 0,
++       "inputBytes": 0,
++       "inputTokens": 0,
++       "modelCalls": 0,
++       "outputBytes": 0,
++       "outputTokens": 0,
++     },
++   },
++   {
++     "accountId": null,
++     "finishedAt": "2026-11-15T12:01:21.063Z",
++     "id": "2a7ea057-6370-4a87-9cab-61af4083b06a",
++     "modelId": "test/model",
+      "phase": "EXTRACTION",
++     "profileId": "c4c0b17212b8d80e08c73c312164b5ee05d33d5b0c00d6cf39f8cc00e729f4da",
++     "projectId": "project",
++     "projectIdentity": "8d4a12344f3580c9e87e2164ef5c84741408addb34da5aafc90fa4ca342cd1e1",
++     "providerId": "test",
+      "settled": true,
++     "sourceRunId": "03d475c2-41ed-44a5-b1e8-b43e6306f1c8",
++     "startedAt": "2026-11-15T12:01:21.013Z",
+      "status": "CANCELLED",
+      "usage": {
+        "cost": 0.001,
++       "inputBytes": 2321,
+        "inputTokens": 5,
++       "modelCalls": 1,
++       "outputBytes": 0,
+        "outputTokens": 3,
+      },
+    },
+  ]
+
+ ❯ tests/project-memory-service-v3.test.ts:237:56
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 25 passed (31)
+   Start at  20:01:18
+   Duration  4.61s (transform 1.95s, setup 0ms, import 2.99s, tests 1.38s, environment 0ms)

@@ -1,0 +1,49 @@
+{
+  "sourceBaseHead": "ba9918bd47f30ba8c4c5d22361adabec6eed3ad9",
+  "sourceBaseTree": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "workingDiffSha256": "4e4733168d567c29cef4974c355eacefb72f64cb6c811979c944648914117f28",
+  "files": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "blobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "bytes": 57407,
+      "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+      "blobSha": "f33ec5d099b6345dc9c38d72cf94dd54e1d2a513"
+    },
+    {
+      "path": "apps/server/main.ts",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "blobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 46360,
+      "sha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+      "blobSha": "b87c4271a4f5a1fde468e18e5667aeecd85eb377"
+    },
+    {
+      "path": "tests/desktop-backend-handoff.test.ts",
+      "bytes": 2441,
+      "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+      "blobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "bytes": 24494,
+      "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+      "blobSha": "672db4b716bdcfd4f088324b49592dd843106436"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "bytes": 31253,
+      "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+      "blobSha": "b4b847a5503ef4c6d3768d8f0656339e99905b6d"
+    }
+  ]
+}

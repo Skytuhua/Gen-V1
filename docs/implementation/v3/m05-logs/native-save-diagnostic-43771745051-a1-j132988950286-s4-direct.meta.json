@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "diagnostics/native-save/run.ts",
+      "direct"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T22:54:14Z",
+    "endedAt": "2026-11-15T22:55:06Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43771745051-a1-j132988950286-s4-direct.log",
+    "logDigest": "9fe65c244d82b49746e86eae931d0eac296578b99c99b6aab8bfdbee47f48f33"
+  },
+  "runId": 43771745051,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "1c1e24b5cc018bd0b0baae6f70a341eaa88da756",
+  "testedCheckout": {
+    "commitSha": "1c1e24b5cc018bd0b0baae6f70a341eaa88da756",
+    "treeSha": "5908a5827304ed6e546f1714cd3998f077bb62d4",
+    "parents": [
+      "9e2d8261754c15f549e8b594c12e4fdc66e63dd6"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/1c1e24b5cc018bd0b0baae6f70a341eaa88da756",
+    "rawResponseSha256": "a79f2dfe26387e16ae22322004d9954f2c76c0ad91bdb9cada8e62ae67ac0777"
+  },
+  "job": {
+    "id": 132988950286,
+    "name": "Native Save diagnostic (direct)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43771745051/job/132988950286",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001739,
+      "name": "GitHub Actions 1000001739",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run the actual native Save lane",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 4,
+    "started_at": "2026-11-15T22:54:14Z",
+    "completed_at": "2026-11-15T22:55:06Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-native-save-diagnostic-43771745051.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132988950286/logs",
+  "rawJobLogDigest": "300c4345f910ad936b0e28860ac450aa201ae32f6330aab4db6df52e34973d69",
+  "rawJobLogBytes": 149536,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained in scratch and agent memory. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      327,
+      344
+    ]
+  ],
+  "excerptInputSha256": "2b1ca0da77789fdc149eb64bb8306c8c7e5acb7f525573fa3c741cf53e400e62",
+  "excerptInputBytes": 115075,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Timestamps are jobs-API execution-step bounds. A separate native process or dialog duration is not inferred from them.",
+  "exitBasis": "The exact selected command group reports Process completed with exit code 1 and the corresponding jobs-API step concludes failure.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked pnpm command name; no resolved launcher executable path is claimed.",
+  "cwdBasis": "Observed checkout working directory; the selected script contains no directory change.",
+  "observedScript": "pnpm exec tsx diagnostics/native-save/run.ts direct",
+  "interpretation": {
+    "kind": "Actual diagnostic-only destination relations with unchanged helper8d08 and production policy. Both real native Save actions retained the default basename at another parent; exact fixed-target readback failed. Both bounded observers completed. No installed acceptance.",
+    "expectedNegativeRelabelledAsPass": false,
+    "nativeSaveDispatched": true,
+    "nativeResult": "running",
+    "scope": "Direct native Save and reviewed helper; not production export admission."
+  },
+  "receiptSha256": "35dc7f12569e04575eecefa140e2024a4a41bf534fb3227b89aa673d3266dc73"
+}

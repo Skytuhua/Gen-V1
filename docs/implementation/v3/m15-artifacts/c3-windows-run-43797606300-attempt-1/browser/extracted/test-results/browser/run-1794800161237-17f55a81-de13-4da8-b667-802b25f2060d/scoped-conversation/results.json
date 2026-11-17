@@ -1,0 +1,634 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\scoped-conversation.playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/browser/run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d/scoped-conversation/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "scoped-conversation.spec.ts"
+        ],
+        "timeout": 20000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/scoped-conversation.vite.config.ts",
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "url": "http://127.0.0.1:5576/tests/e2e/fixtures/scoped-conversation.html",
+      "reuseExistingServer": false,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "scoped-conversation.spec.ts",
+      "file": "scoped-conversation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "uses the actual module with a supplied composer and real epoch, with no global reads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2630,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:04.555Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-e6960b4780670d08e86a",
+          "file": "scoped-conversation.spec.ts",
+          "line": 151,
+          "column": 1
+        },
+        {
+          "title": "preserves an earlier reading anchor and composer focus on refresh, with a jump hint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 957,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:07.608Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-2b246f715fb0a39a389c",
+          "file": "scoped-conversation.spec.ts",
+          "line": 166,
+          "column": 1
+        },
+        {
+          "title": "prepends older pages without moving the visible message or losing keyboard focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:08.583Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-bd588fcae2512ef1f6f7",
+          "file": "scoped-conversation.spec.ts",
+          "line": 186,
+          "column": 1
+        },
+        {
+          "title": "keeps hidden chat mounted and invalidates the parent context on resync and revocation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:09.250Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-5d3efd83451e9d5aa7d1",
+          "file": "scoped-conversation.spec.ts",
+          "line": 206,
+          "column": 1
+        },
+        {
+          "title": "follows new messages only while already at the bottom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:10.000Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-4c6cef2fa48be60b31a6",
+          "file": "scoped-conversation.spec.ts",
+          "line": 228,
+          "column": 1
+        },
+        {
+          "title": "stays within short narrow light and dark panes at 200% zoom with reduced motion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:10.613Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-6b7324ceafa7391d4d83",
+          "file": "scoped-conversation.spec.ts",
+          "line": 237,
+          "column": 1
+        },
+        {
+          "title": "delivers invalidation while reacquisition is still pending and removes stale transcript",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:11.478Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-5c316b867aaf02b39a6b",
+          "file": "scoped-conversation.spec.ts",
+          "line": 266,
+          "column": 1
+        },
+        {
+          "title": "automatically polls owner status while chat is hidden and keeps the same supplied node",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2549,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:12.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-625eb0240b7842e5ba98",
+          "file": "scoped-conversation.spec.ts",
+          "line": 282,
+          "column": 1
+        },
+        {
+          "title": "renders bounded Unicode continuation exactly and restores keyboard focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1214,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:14.730Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-87516ad7e05dd7a4b999",
+          "file": "scoped-conversation.spec.ts",
+          "line": 300,
+          "column": 1
+        },
+        {
+          "title": "clears context and transcript on explicit close",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 539,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:15.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-318a5bdecef69b77a46c",
+          "file": "scoped-conversation.spec.ts",
+          "line": 315,
+          "column": 1
+        },
+        {
+          "title": "shows concise loading, error, retry and empty states using real API failures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:16.517Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-17a74df68ab92648bb4d",
+          "file": "scoped-conversation.spec.ts",
+          "line": 323,
+          "column": 1
+        },
+        {
+          "title": "fences the rendered owner during canonical navigation, then uses the next exact real epoch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:17.318Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-4c0fc29a105724b17761",
+          "file": "scoped-conversation.spec.ts",
+          "line": 361,
+          "column": 1
+        },
+        {
+          "title": "automatic transcript refresh preserves keyboard message focus (strict=false)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:17.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-172b7216206b930f67bc",
+          "file": "scoped-conversation.spec.ts",
+          "line": 407,
+          "column": 37
+        },
+        {
+          "title": "automatic transcript refresh preserves keyboard message focus (strict=true)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 657,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:18.631Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-592f5969455e5bba4120",
+          "file": "scoped-conversation.spec.ts",
+          "line": 407,
+          "column": 37
+        },
+        {
+          "title": "automatic refresh does not take focus back from the supplied composer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 659,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:36:19.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9b58ca0b57c4971b14cc-972ab9d3a8f012ab5a76",
+          "file": "scoped-conversation.spec.ts",
+          "line": 447,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:36:02.313Z",
+    "duration": 18096.759,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

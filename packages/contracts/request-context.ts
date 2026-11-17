@@ -89,3 +89,23 @@ export interface HostRequestProjectionV1 {
   readonly sources: readonly { readonly category: ContextCategory; readonly revision: number; readonly utf8Bytes: number }[];
   readonly omittedSources: number;
 }
+
+/** Host-issued draft custody. Hashes attest a cut; they never authorize access. */
+export interface RequestPreparationV1 {
+  readonly version: 1;
+  readonly requestId: string;
+  readonly contextGeneration: number;
+  readonly profileId: string;
+  readonly threadId: string;
+  readonly projectId: string | null;
+  readonly workspaceId: string;
+  readonly modelId: string;
+  readonly accountId: string | null;
+  readonly thinkingLevel: string | null;
+  readonly promptDigest: string;
+  readonly bindingDigest: string;
+  readonly grantDigest: string;
+  readonly sourceCutDigest: string;
+  readonly createdAt: number;
+  readonly expiresAt: number;
+}

@@ -1,0 +1,234 @@
+2026-11-15T22:40:39.2844540Z Current runner version: '2.338.2'
+2026-11-15T22:40:39.2881377Z ##[group]Runner Image Provisioner
+2026-11-15T22:40:39.2882416Z Hosted Compute Agent
+2026-11-15T22:40:39.2882969Z Version: 20261103.629
+2026-11-15T22:40:39.2883559Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T22:40:39.2884321Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T22:40:39.2884976Z Worker ID: {e8e175d1-073c-4d76-bab7-22dc7d8f43a2}
+2026-11-15T22:40:39.2885648Z Region: centralus
+2026-11-15T22:40:39.2886617Z Cloud: Azure
+2026-11-15T22:40:39.2887160Z ##[endgroup]
+2026-11-15T22:40:39.2888657Z ##[group]Operating System
+2026-11-15T22:40:39.2889348Z Microsoft Windows Server 2025
+2026-11-15T22:40:39.2889988Z 10.0.26100
+2026-11-15T22:40:39.2890498Z Datacenter
+2026-11-15T22:40:39.2891026Z ##[endgroup]
+2026-11-15T22:40:39.2891531Z ##[group]Runner Image
+2026-11-15T22:40:39.2892238Z Image: windows-2025-vs2026
+2026-11-15T22:40:39.2892950Z Version: 20261103.298.1
+2026-11-15T22:40:39.2894748Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T22:40:39.2896437Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T22:40:39.2897395Z ##[endgroup]
+2026-11-15T22:40:39.2898488Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T22:40:39.2900434Z Contents: read
+2026-11-15T22:40:39.2901047Z Metadata: read
+2026-11-15T22:40:39.2901585Z ##[endgroup]
+2026-11-15T22:40:39.2903769Z Secret source: Actions
+2026-11-15T22:40:39.2904678Z Cache mode: write
+2026-11-15T22:40:39.2905351Z Prepare workflow directory
+2026-11-15T22:40:39.3356147Z Prepare all required actions
+2026-11-15T22:40:39.3404591Z Getting action download info
+2026-11-15T22:40:39.5658369Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T22:40:39.7061689Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-15T22:40:40.0407619Z Complete job name: UI Automation registration (compiled)
+2026-11-15T22:40:40.1873444Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T22:40:40.1874654Z with:
+2026-11-15T22:40:40.1875096Z   persist-credentials: false
+2026-11-15T22:40:40.1875608Z   repository: skytuhua-org/Gen-V1
+2026-11-15T22:40:40.1879577Z   token: ***
+2026-11-15T22:40:40.1879994Z   ssh-strict: true
+2026-11-15T22:40:40.1880412Z   ssh-user: git
+2026-11-15T22:40:40.1880801Z   clean: true
+2026-11-15T22:40:40.1881226Z   sparse-checkout-cone-mode: true
+2026-11-15T22:40:40.1881723Z   fetch-depth: 1
+2026-11-15T22:40:40.1882130Z   fetch-tags: false
+2026-11-15T22:40:40.1882561Z   show-progress: true
+2026-11-15T22:40:40.1882992Z   lfs: false
+2026-11-15T22:40:40.1883391Z   submodules: false
+2026-11-15T22:40:40.1883824Z   set-safe-directory: true
+2026-11-15T22:40:40.1884314Z   allow-unsafe-pr-checkout: false
+2026-11-15T22:40:40.1885054Z ##[endgroup]
+2026-11-15T22:40:40.3488699Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T22:40:40.3493909Z ##[group]Getting Git version info
+2026-11-15T22:40:40.3495532Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T22:40:40.4508507Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T22:40:40.8232418Z git version 2.56.0.windows.4
+2026-11-15T22:40:40.8300417Z ##[endgroup]
+2026-11-15T22:40:40.8324081Z Temporarily overriding HOME='D:\a\_temp\2a3b9308-3caa-4b9e-b3df-16051597c919' before making global git config changes
+2026-11-15T22:40:40.8326593Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T22:40:40.8337139Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T22:40:40.8997834Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T22:40:40.9004796Z ##[group]Determining repository object format
+2026-11-15T22:40:40.9008390Z ##[endgroup]
+2026-11-15T22:40:40.9012575Z ##[group]Initializing the repository
+2026-11-15T22:40:40.9018831Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T22:40:40.9847250Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T22:40:40.9897682Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T22:40:41.0618577Z ##[endgroup]
+2026-11-15T22:40:41.0619791Z ##[group]Disabling automatic garbage collection
+2026-11-15T22:40:41.0627403Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T22:40:41.1011883Z ##[endgroup]
+2026-11-15T22:40:41.1014116Z ##[group]Setting up auth
+2026-11-15T22:40:41.1015195Z Removing SSH command configuration
+2026-11-15T22:40:41.1024904Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T22:40:41.1411386Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T22:40:42.5863997Z Removing HTTP extra header
+2026-11-15T22:40:42.5873846Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T22:40:42.6261379Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T22:40:43.1857637Z Removing includeIf entries pointing to credentials config files
+2026-11-15T22:40:43.1868848Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T22:40:43.2266748Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T22:40:43.7907796Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T22:40:43.8320353Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:43.8709535Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:43.9176929Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:43.9575980Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:44.0015344Z ##[endgroup]
+2026-11-15T22:40:44.0016072Z ##[group]Fetching the repository
+2026-11-15T22:40:44.0031068Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +400553e4c2c5c86aae621f2c7245a8248e873066:refs/remotes/origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:46.7654516Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T22:40:46.7655802Z  * [new ref]         400553e4c2c5c86aae621f2c7245a8248e873066 -> origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:46.7720251Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:46.8238271Z   origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:46.8285706Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse refs/remotes/origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:46.8714244Z 400553e4c2c5c86aae621f2c7245a8248e873066
+2026-11-15T22:40:46.8754242Z ##[endgroup]
+2026-11-15T22:40:46.8754802Z ##[group]Determining the checkout info
+2026-11-15T22:40:46.8756246Z ##[endgroup]
+2026-11-15T22:40:46.8765699Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T22:40:46.9280364Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T22:40:46.9675605Z ##[group]Checking out the ref
+2026-11-15T22:40:46.9685259Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B agent/m05-native-save-proxy-registration-43769197860 refs/remotes/origin/agent/m05-native-save-proxy-registration-43769197860
+2026-11-15T22:40:48.0354011Z Updating files:  69% (2720/3935)
+2026-11-15T22:40:48.0467852Z Updating files:  70% (2755/3935)
+2026-11-15T22:40:48.0573744Z Updating files:  71% (2794/3935)
+2026-11-15T22:40:48.0680290Z Updating files:  72% (2834/3935)
+2026-11-15T22:40:48.0784183Z Updating files:  73% (2873/3935)
+2026-11-15T22:40:48.0895579Z Updating files:  74% (2912/3935)
+2026-11-15T22:40:48.1038888Z Updating files:  75% (2952/3935)
+2026-11-15T22:40:48.1213772Z Updating files:  76% (2991/3935)
+2026-11-15T22:40:48.1359742Z Updating files:  77% (3030/3935)
+2026-11-15T22:40:48.1485110Z Updating files:  78% (3070/3935)
+2026-11-15T22:40:48.1605490Z Updating files:  79% (3109/3935)
+2026-11-15T22:40:48.1725618Z Updating files:  80% (3148/3935)
+2026-11-15T22:40:48.1853832Z Updating files:  81% (3188/3935)
+2026-11-15T22:40:48.1988730Z Updating files:  82% (3227/3935)
+2026-11-15T22:40:48.2135546Z Updating files:  83% (3267/3935)
+2026-11-15T22:40:48.2285694Z Updating files:  84% (3306/3935)
+2026-11-15T22:40:48.2432377Z Updating files:  85% (3345/3935)
+2026-11-15T22:40:48.2569861Z Updating files:  86% (3385/3935)
+2026-11-15T22:40:48.2705471Z Updating files:  87% (3424/3935)
+2026-11-15T22:40:48.2847143Z Updating files:  88% (3463/3935)
+2026-11-15T22:40:48.2998988Z Updating files:  89% (3503/3935)
+2026-11-15T22:40:48.3137534Z Updating files:  90% (3542/3935)
+2026-11-15T22:40:48.3263781Z Updating files:  91% (3581/3935)
+2026-11-15T22:40:48.3398004Z Updating files:  92% (3621/3935)
+2026-11-15T22:40:48.3529710Z Updating files:  93% (3660/3935)
+2026-11-15T22:40:48.3687018Z Updating files:  94% (3699/3935)
+2026-11-15T22:40:48.4866150Z Updating files:  95% (3739/3935)
+2026-11-15T22:40:48.5030793Z Updating files:  96% (3778/3935)
+2026-11-15T22:40:48.5191643Z Updating files:  97% (3817/3935)
+2026-11-15T22:40:48.5306712Z Updating files:  98% (3857/3935)
+2026-11-15T22:40:48.5422434Z Updating files:  99% (3896/3935)
+2026-11-15T22:40:48.5426410Z Updating files: 100% (3935/3935)
+2026-11-15T22:40:48.5426845Z Updating files: 100% (3935/3935), done.
+2026-11-15T22:40:48.5622316Z Switched to a new branch 'agent/m05-native-save-proxy-registration-43769197860'
+2026-11-15T22:40:48.5717758Z branch 'agent/m05-native-save-proxy-registration-43769197860' set up to track 'origin/agent/m05-native-save-proxy-registration-43769197860'.
+2026-11-15T22:40:48.5844177Z ##[endgroup]
+2026-11-15T22:40:48.6542572Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T22:40:48.6896774Z 400553e4c2c5c86aae621f2c7245a8248e873066
+2026-11-15T22:40:48.6944038Z ##[group]Removing auth
+2026-11-15T22:40:48.6944375Z Removing SSH command configuration
+2026-11-15T22:40:48.6952559Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T22:40:48.7355823Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T22:40:49.3356537Z Removing HTTP extra header
+2026-11-15T22:40:49.3365748Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T22:40:49.3782029Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T22:40:49.9695471Z Removing includeIf entries pointing to credentials config files
+2026-11-15T22:40:49.9703630Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T22:40:50.0049456Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T22:40:50.0050170Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T22:40:50.0050824Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T22:40:50.0051927Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T22:40:50.0099285Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T22:40:50.0448102Z D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.0499146Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.0905549Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T22:40:50.1248776Z D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.1295196Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.1686166Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T22:40:50.2033785Z /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.2088315Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.2499588Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T22:40:50.2853679Z /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.2902554Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:50.3303567Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T22:40:50.9428419Z Removing credentials config 'D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config'
+2026-11-15T22:40:50.9441144Z ##[endgroup]
+2026-11-15T22:40:50.9837197Z ##[group]Run git rev-parse HEAD
+2026-11-15T22:40:50.9837620Z git rev-parse HEAD
+2026-11-15T22:40:50.9837877Z git rev-parse 'HEAD^{tree}'
+2026-11-15T22:40:50.9838359Z $worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+2026-11-15T22:40:50.9838979Z $script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'
+2026-11-15T22:40:50.9839621Z $probeArgs = @('-NoLogo','-NoProfile','-NonInteractive','-MTA','-File',$script,'-Mode','compiled')
+2026-11-15T22:40:50.9840384Z Write-Output ('M05_PROXY_REGISTRATION_ARGV=' + (@{executable=$worker;args=$probeArgs}|ConvertTo-Json -Depth 4 -Compress))
+2026-11-15T22:40:50.9840942Z & $worker @probeArgs
+2026-11-15T22:40:50.9841163Z exit $LASTEXITCODE
+2026-11-15T22:40:51.0482153Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T22:40:51.0482596Z ##[endgroup]
+2026-11-15T22:40:51.4527609Z 400553e4c2c5c86aae621f2c7245a8248e873066
+2026-11-15T22:40:51.4930502Z 7edfa30ee1b0f0e7ef15f1d2c159cf63b424c2eb
+2026-11-15T22:40:51.6286186Z M05_PROXY_REGISTRATION_ARGV={"args":["-NoLogo","-NoProfile","-NonInteractive","-MTA","-File","D:\\a\\Gen-V1\\Gen-V1\\diagnostics\\native-save\\proxy-registration.ps1","-Mode","compiled"],"executable":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"}
+2026-11-15T22:40:56.6158875Z M05_PROXY_REGISTRATION_HEADER={"sha256":"8319853e77b0319983ba316c41966e07d494117ce0c48942afd2b160a9ee8e77","schema":1,"bytes":1097,"mode":"compiled"}
+2026-11-15T22:40:56.6215067Z M05_PROXY_REGISTRATION_BODY=eyJ2ZXJzaW9uIjoxLCJtb2RlIjoiY29tcGlsZWQiLCJjcmVhdGVkQXQiOiIyMDI2LTExLTE1VDIyOjQwOjUzLjc0OTc0MTRaIiwicGFzc2VkIjp0cnVlLCJzY29wZSI6IlJlYWQtb25seSBVSSBBdXRvbWF0aW9uIGFzc2VtYmx5IHJlZ2lzdHJhdGlvbjsgbm8gbmF0aXZlIGRpYWxvZywgYWNjb3VudCwgcHJvdmlkZXIgcmVxdWVzdCBvciBjb250cm9sIGFjdGlvbi4iLCJzdGFnZSI6ImNvbXBsZXRlZCIsInNvdXJjZVNoYTI1NiI6ImQ2M2ZmMTg4YWY4MjE5OGJjZDAxZjliYjJmMmU0N2EyMTczY2M1MzFmZjJlYmZlMTFlYTVjMjliZTRhYmVhMTYiLCJwb3dlcnNoZWxsVmVyc2lvbiI6IjUuMS4yNjEwMC4zMzY0OCIsImNsclZlcnNpb24iOiI0LjAuMzAzMTkuNDIwMDAiLCJwcm9jZXNzQml0cyI6NjQsImNsaWVudCI6eyJuYW1lIjoiVUlBdXRvbWF0aW9uQ2xpZW50IiwidmVyc2lvbiI6IjQuMC4wLjAiLCJjdWx0dXJlIjoiIiwicHVibGljS2V5VG9rZW4iOiIzMWJmMzg1NmFkMzY0ZTM1IiwiY29kZUJhc2VQcmVzZW50Ijp0cnVlfSwicmVxdWVzdGVkIjp7Im5hbWUiOiJVSUF1dG9tYXRpb25DbGllbnRzaWRlUHJvdmlkZXJzIiwidmVyc2lvbiI6IjQuMC4wLjAiLCJjdWx0dXJlIjoiIiwicHVibGljS2V5VG9rZW4iOiIzMWJmMzg1NmFkMzY0ZTM1IiwiY29kZUJhc2VQcmVzZW50IjpmYWxzZX0sInJlZ2lzdGVyZWQiOnsibmFtZSI6IlVJQXV0b21hdGlvbkNsaWVudHNpZGVQcm92aWRlcnMiLCJ2ZXJzaW9uIjoiNC4wLjAuMCIsImN1bHR1cmUiOiIiLCJwdWJsaWNLZXlUb2tlbiI6IjMxYmYzODU2YWQzNjRlMzUiLCJjb2RlQmFzZVByZXNlbnQiOnRydWV9LCJwcm92aWRlclRhYmxlQ291bnQiOjQwLCJmb3JjZWREZWZhdWx0UHJvdmlkZXJzIjpmYWxzZSwib3duZWRUaHJlYWRKb2luQm91bmRNcyI6NTAwMCwibG9hZGVkUHJvdmlkZXJzIjpbeyJuYW1lIjoiVUlBdXRvbWF0aW9uQ2xpZW50c2lkZVByb3ZpZGVycyIsInZlcnNpb24iOiI0LjAuMC4wIiwiY3VsdHVyZSI6IiIsInB1YmxpY0tleVRva2VuIjoiMzFiZjM4NTZhZDM2NGUzNSIsImNvZGVCYXNlUHJlc2VudCI6dHJ1ZX1dLCJleGNlcHRpb25zIjpbXSwiZWxhcHNlZE1zIjoyMDI4fQo=
+2026-11-15T22:40:56.6242135Z M05_PROXY_REGISTRATION_END=8319853e77b0319983ba316c41966e07d494117ce0c48942afd2b160a9ee8e77
+2026-11-15T22:40:56.7409017Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-15T22:40:56.7409503Z with:
+2026-11-15T22:40:56.7409739Z   name: native-save-proxy-compiled-43770541154-1
+2026-11-15T22:40:56.7410068Z   include-hidden-files: true
+2026-11-15T22:40:56.7410298Z   if-no-files-found: error
+2026-11-15T22:40:56.7410501Z   retention-days: 14
+2026-11-15T22:40:56.7410733Z   path: .harness-native-save-proxy/compiled.json
+2026-11-15T22:40:56.7411016Z   compression-level: 6
+2026-11-15T22:40:56.7411223Z   overwrite: false
+2026-11-15T22:40:56.7411405Z ##[endgroup]
+2026-11-15T22:40:56.9413371Z (node:5672) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T22:40:56.9414090Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T22:40:56.9468795Z With the provided path, there will be 1 file uploaded
+2026-11-15T22:40:56.9474749Z Artifact name is valid!
+2026-11-15T22:40:56.9477011Z Root directory input is valid!
+2026-11-15T22:40:57.2339739Z Beginning upload of artifact content to blob storage
+2026-11-15T22:40:57.2549706Z (node:5672) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T22:40:57.3845202Z Uploaded bytes 617
+2026-11-15T22:40:57.4279791Z Finished uploading artifact content to blob storage!
+2026-11-15T22:40:57.4280990Z SHA256 digest of uploaded artifact zip is 3d898bb8981f525577f779de809a845a683329e48e53a83ed2e25ae34573621a
+2026-11-15T22:40:57.4283664Z Finalizing artifact upload
+2026-11-15T22:40:57.7764100Z Artifact native-save-proxy-compiled-43770541154-1.zip successfully finalized. Artifact ID 14183812354
+2026-11-15T22:40:57.7767839Z Artifact native-save-proxy-compiled-43770541154-1 has been successfully uploaded! Final size is 617 bytes. Artifact ID is 14183812354
+2026-11-15T22:40:57.7777076Z Artifact download URL: https://github.com/skytuhua-org/Gen-V1/actions/runs/43770541154/artifacts/14183812354
+2026-11-15T22:40:57.8171848Z Post job cleanup.
+2026-11-15T22:40:58.0223961Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T22:40:58.0610178Z git version 2.56.0.windows.4
+2026-11-15T22:40:58.0699655Z Temporarily overriding HOME='D:\a\_temp\92b2864d-a193-49b3-8917-0c3ba29c0924' before making global git config changes
+2026-11-15T22:40:58.0701024Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T22:40:58.0712332Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T22:40:58.1136032Z Removing SSH command configuration
+2026-11-15T22:40:58.1147593Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T22:40:58.1561869Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T22:40:58.7788519Z Removing HTTP extra header
+2026-11-15T22:40:58.7799050Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T22:40:58.8219556Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T22:40:59.4117481Z Removing includeIf entries pointing to credentials config files
+2026-11-15T22:40:59.4130218Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T22:40:59.4481116Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T22:40:59.4481919Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T22:40:59.4534242Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T22:40:59.4883469Z D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:59.4934659Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:59.5341796Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T22:40:59.5692865Z D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:59.5740556Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config
+2026-11-15T22:40:59.6130383Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T22:41:00.2239920Z Removing credentials config 'D:\a\_temp\git-credentials-4c51a8dc-39aa-4cb8-b247-2edd75f2448a.config'
+2026-11-15T22:41:00.2444346Z Cleaning up orphan processes
+2026-11-15T22:41:00.2551870Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

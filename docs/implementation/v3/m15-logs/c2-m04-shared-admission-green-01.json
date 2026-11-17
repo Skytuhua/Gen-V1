@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/source-selection-v3.test.ts",
+    "tests/accounts.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-green-01-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:43:34.830Z",
+  "endedAt": "2026-11-16T00:43:44.042Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-green-01.log",
+  "logDigest": "5920bbe98ba7ba3d0ac71e9d878750f6654f44371c42c293005001a4ff54ba2d"
+}

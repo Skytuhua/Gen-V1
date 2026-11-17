@@ -1,0 +1,575 @@
+{
+  "createdAt": "2026-11-16T00:12:56.528Z",
+  "setup": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+  "setupSha256": "cb59952c38a20307b6cf8369056210017a4090aa83b8300f9f3e73df4a45c031",
+  "expectedUnpacked": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+  "installDirectory": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-975c8c8906b7",
+  "nsisGuid": "f973205b-ac9b-56c0-baad-730abd2ca4b3",
+  "version": "0.6.5",
+  "scope": "Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.",
+  "inference": false,
+  "auth": false,
+  "memoryRetentionRequested": true,
+  "launches": [],
+  "passed": false,
+  "preflightObservations": [
+    {
+      "stage": "before-install",
+      "startedAt": "2026-11-16T00:12:56.532Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 25812,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 169
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 22,
+          "observedElapsedMs": 183
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 105,
+          "observedElapsedMs": 265
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 109,
+          "observedElapsedMs": 270
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 114,
+          "observedElapsedMs": 275
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 25617,
+          "observedElapsedMs": 25778
+        }
+      ]
+    },
+    {
+      "stage": "pre-install-recheck",
+      "startedAt": "2026-11-16T00:14:01.608Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 18416,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 167
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 21,
+          "observedElapsedMs": 180
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 40,
+          "observedElapsedMs": 199
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 45,
+          "observedElapsedMs": 204
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 51,
+          "observedElapsedMs": 209
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 18222,
+          "observedElapsedMs": 18381
+        }
+      ]
+    },
+    {
+      "stage": "after-install",
+      "startedAt": "2026-11-16T00:22:56.270Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 18167,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 163
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 27,
+          "observedElapsedMs": 182
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 45,
+          "observedElapsedMs": 200
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 49,
+          "observedElapsedMs": 204
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 54,
+          "observedElapsedMs": 210
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 17984,
+          "observedElapsedMs": 18139
+        }
+      ]
+    },
+    {
+      "stage": "before-uninstall",
+      "startedAt": "2026-11-16T00:24:21.732Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 18243,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 163
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 26,
+          "observedElapsedMs": 181
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 43,
+          "observedElapsedMs": 198
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 47,
+          "observedElapsedMs": 202
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 53,
+          "observedElapsedMs": 208
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 18060,
+          "observedElapsedMs": 18216
+        }
+      ]
+    },
+    {
+      "stage": "after-uninstall-poll",
+      "startedAt": "2026-11-16T00:26:14.283Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 18323,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 159
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 20,
+          "observedElapsedMs": 172
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 40,
+          "observedElapsedMs": 192
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 44,
+          "observedElapsedMs": 196
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 50,
+          "observedElapsedMs": 202
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 18140,
+          "observedElapsedMs": 18292
+        }
+      ]
+    },
+    {
+      "stage": "after-uninstall",
+      "startedAt": "2026-11-16T00:26:33.535Z",
+      "timeoutMs": 60000,
+      "elapsedMs": 18178,
+      "status": "completed",
+      "subphases": [
+        {
+          "phase": "script-start",
+          "scriptElapsedMs": 4,
+          "observedElapsedMs": 163
+        },
+        {
+          "phase": "registry-complete",
+          "scriptElapsedMs": 20,
+          "observedElapsedMs": 176
+        },
+        {
+          "phase": "shortcuts-complete",
+          "scriptElapsedMs": 38,
+          "observedElapsedMs": 194
+        },
+        {
+          "phase": "cache-complete",
+          "scriptElapsedMs": 43,
+          "observedElapsedMs": 198
+        },
+        {
+          "phase": "processes-complete",
+          "scriptElapsedMs": 48,
+          "observedElapsedMs": 203
+        },
+        {
+          "phase": "result-complete",
+          "scriptElapsedMs": 17992,
+          "observedElapsedMs": 18148
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "entries": [],
+    "shortcuts": [
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\Desktop\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\Desktop\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\Public\\Desktop\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\Public\\Desktop\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+      },
+      {
+        "present": false,
+        "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+      }
+    ],
+    "updaterCache": {
+      "present": false,
+      "path": "C:\\Users\\runneradmin\\AppData\\Local\\generative-harness-desktop-updater"
+    },
+    "runningAppPids": []
+  },
+  "expectedPayload": {
+    "files": 92880,
+    "bytes": 2567821715,
+    "sha256": "d6fee0528b1dcf6f623fcdef1ea635cd60283816a8a1e3263307ee7cbf0bfd38",
+    "maxInstalledPathLength": 240
+  },
+  "installerProgressSetup": "ready",
+  "installerObservation": {
+    "phase": "installer",
+    "startedAt": "2026-11-16T00:14:21.085Z",
+    "timeoutMs": 1200000,
+    "elapsedMs": 515184,
+    "status": "completed",
+    "pid": 6496,
+    "spawnElapsedMs": 14,
+    "exit": {
+      "elapsedMs": 515184,
+      "code": 0,
+      "signal": null
+    },
+    "close": {
+      "elapsedMs": 515184,
+      "code": 0,
+      "signal": null
+    },
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "failure": null,
+    "terminationRequested": false,
+    "pathProgress": [
+      {
+        "elapsedMs": 30016,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 120031,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 300034,
+        "durationMs": 5,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 11,
+        "sizeMatched": 5,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      }
+    ]
+  },
+  "installCommand": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": "",
+    "elapsedMs": 515184
+  },
+  "installedRegistry": [
+    {
+      "hive": "HKCU",
+      "view": 64,
+      "values": {
+        "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-975c8c8906b7"
+      },
+      "kind": "install"
+    },
+    {
+      "hive": "HKCU",
+      "view": 64,
+      "values": {
+        "DisplayVersion": "0.6.5",
+        "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-975c8c8906b7\\Uninstall Gen V1.exe\" /currentuser"
+      },
+      "kind": "uninstall"
+    },
+    {
+      "hive": "HKCU",
+      "view": 32,
+      "values": {
+        "InstallLocation": "D:\\a\\Gen-V1\\Gen-V1\\.harness-app-975c8c8906b7"
+      },
+      "kind": "install"
+    },
+    {
+      "hive": "HKCU",
+      "view": 32,
+      "values": {
+        "DisplayVersion": "0.6.5",
+        "UninstallString": "\"D:\\a\\Gen-V1\\Gen-V1\\.harness-app-975c8c8906b7\\Uninstall Gen V1.exe\" /currentuser"
+      },
+      "kind": "uninstall"
+    }
+  ],
+  "payloadCustody": {
+    "matches": true,
+    "files": 92880,
+    "bytes": 2567821715,
+    "sha256": "d6fee0528b1dcf6f623fcdef1ea635cd60283816a8a1e3263307ee7cbf0bfd38"
+  },
+  "providerVerification": {
+    "passed": true,
+    "receipt": "D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794788636289-a84de80b-57f7-49dd-a351-7a2bcd5c5c2a\\verification.json"
+  },
+  "memoryRetention": {
+    "version": 1,
+    "scope": "Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.",
+    "seed": {
+      "evidenceRoot": {
+        "path": "D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9",
+        "dev": "1419689957",
+        "ino": "281474977023946"
+      },
+      "profile": {
+        "path": "D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9\\host",
+        "dev": "1419689957",
+        "ino": "281474977125807"
+      },
+      "project": {
+        "path": "D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794787976524-0652364b-ed85-494b-8fa9-f8e1ca6bf4e9\\memory-project",
+        "dev": "1419689957",
+        "ino": "281474977125808"
+      },
+      "profileId": "b1041fcf53703da3fe1244d4fd2fc3424c491bfee8f54b3866bde57c9f7e6b1a",
+      "projectIdentity": "d5cd9d19ad5f0baccfe86c55e85286cfdde6e40806940650f7ecb7e5e2eb866c",
+      "projectId": "installed-memory-project",
+      "threadId": "installed-memory-thread",
+      "items": {
+        "edit": {
+          "id": "0b357eee-f4f1-42fb-9591-04ea52fccec1",
+          "revision": 2,
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-edit",
+            "sourceRevision": "64f195bf8c425d7a50a9bb71f0b0bd2240c37e70d7a6e47c4465778582914600",
+            "capturedSeq": 4,
+            "digest": "1cd9f1584c8176f2a0ff5d2e40c1eec62a41c430793ddbbc5be06b6d5b4d2c9a",
+            "observedStatus": "REPORTED"
+          }
+        },
+        "accept": {
+          "id": "d2a9ca85-f59a-49d2-b26d-831b43dfa4c2",
+          "revision": 1,
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-accept",
+            "sourceRevision": "3996b7e41430030476ce0ceec1dd166a02f8ba17a0fe6d95d4e804f92d2b7486",
+            "capturedSeq": 7,
+            "digest": "70b5714584f1bd5886f48e9eb15693ebc6fcea5c62c09ea305c616eb00a4b1ea",
+            "observedStatus": "REPORTED"
+          }
+        },
+        "reject": {
+          "id": "0afc81f1-f8b5-4487-874e-41a87496c73b",
+          "revision": 1,
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-reject",
+            "sourceRevision": "3541c65364226d8d1c74e7c41a4180a4c0b09be7d0d08cf3c70ba357c62e927c",
+            "capturedSeq": 9,
+            "digest": "4f9f7cb66fc380d8802ba930dfee0febb30f7cfb313780a058fa1a36b020f77e",
+            "observedStatus": "REPORTED"
+          }
+        },
+        "forget": {
+          "id": "7a2bca53-a5da-49b5-94a0-632f7e86190a",
+          "revision": 2,
+          "source": {
+            "ownerThreadId": "installed-memory-thread",
+            "sourceKind": "MESSAGE",
+            "sourceId": "installed-memory-source-forget",
+            "sourceRevision": "3f50ca7130bed340b1e03f465d9da0b23e729720fc9e3057c5789dc4e44556ab",
+            "capturedSeq": 11,
+            "digest": "6cfb671cd79688bf24b8e51973e17efa16e4b34c607c5512a8f20d7538a2f977",
+            "observedStatus": "REPORTED"
+          }
+        }
+      }
+    },
+    "hostDefaultOff": true,
+    "seedEnablement": "Constructor-local fixture creation only; project disabled before installed launch.",
+    "providerNetworkCalls": null,
+    "observations": []
+  },
+  "launchReadiness": [
+    {
+      "iteration": 1,
+      "pid": 1572,
+      "timeoutMs": 80000,
+      "status": "failed",
+      "observations": [
+        {
+          "phase": "waiting",
+          "elapsedMs": 0,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 0,
+            "ownedOrigin": 0,
+            "file": 0,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        },
+        {
+          "phase": "waiting",
+          "elapsedMs": 15201,
+          "process": {
+            "alive": true,
+            "exitCode": null,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 1,
+            "ownedOrigin": 0,
+            "file": 1,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          }
+        },
+        {
+          "phase": "failed",
+          "elapsedMs": 19488,
+          "process": {
+            "alive": false,
+            "exitCode": 1,
+            "signalCode": null
+          },
+          "pages": {
+            "total": 0,
+            "ownedOrigin": 0,
+            "file": 0,
+            "blank": 0,
+            "other": 0,
+            "closed": 0
+          },
+          "failure": "process-exit"
+        }
+      ]
+    }
+  ],
+  "error": "The installed application exited before its main page was ready.",
+  "cleanup": {
+    "status": "uninstalled-owned-installation",
+    "command": {
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "elapsedMs": 94305
+    },
+    "cache": {
+      "status": "removed-owned-exact-file",
+      "sha256": "cb59952c38a20307b6cf8369056210017a4090aa83b8300f9f3e73df4a45c031"
+    },
+    "shortcuts": "absent",
+    "installationKeys": "absent",
+    "nativeProcesses": "absent"
+  }
+}

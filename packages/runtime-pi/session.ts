@@ -3,6 +3,7 @@ import { mkdir, readFile, realpath, stat } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { HarnessError, type StartRun } from "../contracts/index.ts";
 import { loadSdk } from "./sdk.ts";
+import type { ModelPurpose } from "../runtime/model-only.ts";
 
 export function taskPaths(dataDir: string, threadId: string) {
   const agentDir = resolve(dataDir, "pi");
@@ -29,9 +30,13 @@ export async function validateSessionPath(dataDir: string, sessionPath: string, 
   return realFile;
 }
 
-export async function openTaskSession(dataDir: string, input: Pick<StartRun, "threadId" | "sessionPath">) {
+export async function openTaskSession(dataDir: string, input: Pick<StartRun, "threadId" | "sessionPath">, purpose?: ModelPurpose) {
   const sdk = await loadSdk();
   const paths = taskPaths(dataDir, input.threadId);
+  if (purpose === 'memory-extraction') {
+    if (input.sessionPath !== null) throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED', 'Memory extraction cannot resume or persist a native conversation.');
+    return sdk.SessionManager.inMemory(paths.taskDir);
+  }
   await mkdir(paths.sessionsDir, { recursive: true, mode: 0o700 });
   if (input.sessionPath) {
     const path = await validateSessionPath(dataDir, input.sessionPath, input.threadId);

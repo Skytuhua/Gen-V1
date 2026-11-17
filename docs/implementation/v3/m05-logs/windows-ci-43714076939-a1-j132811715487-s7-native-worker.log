@@ -1,0 +1,38 @@
+2026-11-15T12:31:39.9805443Z ##[group]Run python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T12:31:39.9805896Z python -B tests/memory_native_checkpoint_v3.py -v
+2026-11-15T12:31:39.9806230Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T12:31:39.9806559Z python -B tests/memory_native_checkpoint_worker_v3.py -v
+2026-11-15T12:31:39.9865387Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T12:31:39.9865669Z env:
+2026-11-15T12:31:39.9865891Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T12:31:39.9866250Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:39.9866632Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T12:31:39.9866990Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:39.9867316Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:39.9867649Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:39.9867989Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T12:31:39.9868298Z ##[endgroup]
+2026-11-15T12:31:45.4154438Z test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt) ... FAIL
+2026-11-15T12:31:49.9874866Z test_cancellation_while_persistence_is_pending_blocks_native_compaction (__main__.NativeCheckpointWorker.test_cancellation_while_persistence_is_pending_blocks_native_compaction) ... ok
+2026-11-15T12:31:54.4340196Z test_persistence_failure_prevents_native_inference_and_preserves_exact_history (__main__.NativeCheckpointWorker.test_persistence_failure_prevents_native_inference_and_preserves_exact_history) ... ok
+2026-11-15T12:31:54.4341030Z 
+2026-11-15T12:31:54.4342984Z ======================================================================
+2026-11-15T12:31:54.4344086Z FAIL: test_actual_native_summary_runs_after_the_matching_host_receipt (__main__.NativeCheckpointWorker.test_actual_native_summary_runs_after_the_matching_host_receipt)
+2026-11-15T12:31:54.4344749Z ----------------------------------------------------------------------
+2026-11-15T12:31:54.4345070Z Traceback (most recent call last):
+2026-11-15T12:31:54.4345635Z   File "D:\a\Gen-V1\Gen-V1\tests\memory_native_checkpoint_worker_v3.py", line 100, in test_actual_native_summary_runs_after_the_matching_host_receipt
+2026-11-15T12:31:54.4346340Z     self.assertEqual(json.loads(Path(params['sessionPath']).read_text())['messages'], result['messages'])
+2026-11-15T12:31:54.4346808Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-15T12:31:54.4349737Z AssertionError: Lists differ: [{'ro[40 chars]TION — REFERENCE ONLY] Earlier turns were co[11154 chars]rue}] != [{'ro[40 chars]TION � REFERENCE ONLY] Earlier turns were comp[11134 chars]rue}]
+2026-11-15T12:31:54.4350345Z 
+2026-11-15T12:31:54.4350460Z First differing element 0:
+2026-11-15T12:31:54.4350931Z {'rol[39 chars]TION — REFERENCE ONLY] Earlier turns were co[9811 chars]True}
+2026-11-15T12:31:54.4351431Z {'rol[39 chars]TION � REFERENCE ONLY] Earlier turns were comp[9791 chars]True}
+2026-11-15T12:31:54.4351670Z 
+2026-11-15T12:31:54.4351857Z Diff is 16790 characters long. Set self.maxDiff to None to see it.
+2026-11-15T12:31:54.4352077Z 
+2026-11-15T12:31:54.4352245Z ----------------------------------------------------------------------
+2026-11-15T12:31:54.4352522Z Ran 3 tests in 13.826s
+2026-11-15T12:31:54.4352641Z 
+2026-11-15T12:31:54.4352734Z FAILED (failures=1)
+2026-11-15T12:31:54.5336265Z ##[error]Process completed with exit code 1.

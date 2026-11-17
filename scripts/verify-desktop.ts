@@ -1,5 +1,6 @@
 import {_electron,expect,type ElectronApplication,type Page} from '@playwright/test';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdtemp,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
@@ -11,13 +12,14 @@ import {PLANNING_PROVENANCE,planDataId} from '../packages/contracts/planning.ts'
 import type {DesktopSurface} from '../packages/desktop-contract/index.ts';
 import {verificationPorts} from './portable-verification.ts';
 
-const root=resolve('.'),directory=resolve('.harness-desktop-native/run-'+Date.now()+'-'+randomUUID());await mkdir(directory,{recursive:true});
+// Keep the owned Chromium profile below Windows IndexedDB backing-store path limits.
+const root=resolve('.'),directory=await mkdtemp(join(tmpdir(),'gen-native-'));
 const [hostPort,widgetPort]=await verificationPorts();
 const store=new Store(join(directory,'host'));
 const fixture=taskFixture({root:'fields',elements:{fields:{type:'Input',props:{stateKey:'note',label:'Delivery note'}}}},{},{note:'Original native fixture'});
 fixture.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:new Date().toISOString(),value:{version:1,title:'Native window review',steps:[{id:'inspect',title:'Inspect the task boundary',status:'working',requirements:[{id:'one',label:'Keep one runtime owner',completed:true}],agentIds:['reader']}],agents:[{id:'reader',commandId:'batch',taskId:'inspect',reportedPercent:null,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),name:'Fixture investigator',task:'Review the supplied boundary',status:'completed',completedRequirementIds:['one'],requirements:[{id:'one',label:'Inspect the boundary'}]}]}});
 store.internal('desktop.fixture',null,()=>{for(const [key,kind]of Object.entries({threads:'thread',messages:'message',artifacts:'artifact',userStates:'userState',data:'data'})){for(const item of fixture[key as keyof typeof fixture] as {id:string;threadId?:string}[])store.put(kind,item.id,item.threadId??null,item);}store.put('settings','global',null,fixture.settings);});
-// Existing child windows can recover saved work. Creating new detached windows is unavailable.
+// Recover saved children before checking their independent state and editor handoff.
 const savedSurfaces:DesktopSurface[]=[{kind:'main'},{kind:'plan',threadId:'task-thread'},{kind:'usage',threadId:'task-thread'},{kind:'artifact',threadId:'task-thread',artifactId:'task-surface'}];
 new WorkspaceRepository(store).command({id:randomUUID(),type:'workspace.native.update',payload:{layout:{version:1,windows:savedSurfaces.map(surface=>({surface,bounds:{x:40,y:40,width:960,height:720},visible:true,alwaysOnTop:false}))}}});store.close();
 const env=Object.fromEntries(Object.entries({...process.env,HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_NODE_PATH:process.execPath,HARNESS_DESKTOP_HOST_ROOT:root,HARNESS_PLUGIN_DIR:join(directory,'plugins'),HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)}).filter((entry):entry is [string,string]=>typeof entry[1]==='string'));
@@ -42,9 +44,47 @@ try{
  await expect(main.locator('.workspace-header .breadcrumb strong')).toHaveText('Source-bound task fixture');
  await main.getByRole('textbox',{name:'Message',exact:true}).fill('Keep this native chat draft.');
  await expect.poll(()=>main.evaluate(()=>new Promise<string|undefined>((accept,reject)=>{const opened=indexedDB.open('generative-harness-journal',1);opened.onerror=()=>reject(opened.error);opened.onsuccess=()=>{const db=opened.result,read=db.transaction('entries').objectStore('entries').get('draft:task-thread');read.onsuccess=()=>{accept(read.result?.value);db.close();};read.onerror=()=>{reject(read.error);db.close();};};}))).toBe('Keep this native chat draft.');
+ await expect.poll(()=>main.evaluate(surfaces=>window.harnessDesktop!.list().then(windows=>windows.length===surfaces.length&&windows.every(window=>window.ready)),savedSurfaces),{timeout:30000}).toBe(true);await expect.poll(()=>app!.windows().length).toBe(savedSurfaces.length);
+ const displayGeometry=await app.evaluate(({screen})=>screen.getAllDisplays().map(display=>({id:display.id,scaleFactor:display.scaleFactor,bounds:display.bounds,workArea:display.workArea})));
+ const mainId=(await nativeState(main)).id;const zoomGeometry:{zoom:number;width:number;compact:boolean}[]=[];
+ for(const zoom of [1,1.25,1.5]){
+  await app.evaluate(({BrowserWindow},value)=>BrowserWindow.fromId(value.id)!.webContents.setZoomFactor(value.zoom),{id:mainId,zoom});await main.bringToFront();await main.evaluate(()=>new Promise<void>(accept=>requestAnimationFrame(()=>requestAnimationFrame(()=>accept()))));
+  const width=await main.evaluate(()=>innerWidth),compact=width<=700;zoomGeometry.push({zoom,width,compact});if(compact)await main.getByRole('button',{name:'Open navigation',exact:true}).click();
+  const collapse=main.getByRole('complementary',{name:'Thread navigation',exact:true}).getByRole('button',{name:compact?'Close navigation':'Collapse sidebar',exact:true});await collapse.click();
+  const expand=main.getByRole('button',{name:compact?'Open navigation':'Open sidebar',exact:true});await expect(expand).toBeVisible();
+  expect(await expand.evaluate(node=>{const r=node.getBoundingClientRect();return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})).toBe(true);
+  await expand.click();await expect(collapse).toBeVisible();await collapse.click();await expand.focus();await expand.press('Enter');await expect(collapse).toBeVisible();
+  if(compact)await collapse.click();else await expect(main.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed','false');
+  await expect(main.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep this native chat draft.');
+  await main.screenshot({path:join(directory,`repair-native-zoom-${Math.round(zoom*100)}.png`)});
+ }
+ await app.evaluate(({BrowserWindow},id)=>BrowserWindow.fromId(id)!.webContents.setZoomFactor(1),mainId);await main.evaluate(()=>new Promise<void>(accept=>requestAnimationFrame(()=>requestAnimationFrame(()=>accept()))));
+ checks.push({name:'Native sidebar pointer and keyboard expansion with draft retention at 100/125/150 percent app zoom',passed:true,details:{zoom:[1,1.25,1.5],actualViewportCases:zoomGeometry,actualDisplays:displayGeometry,physicalDpiChange:false,originalR15Reproduced:false}});
+ const composer=main.getByRole('textbox',{name:'Message',exact:true}),composerIdentity=await composer.elementHandle(),nativeCount=app.windows().length;
+ await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
+ await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
+ const float=main.locator('[data-split-view="thread:task-thread"][data-floating="true"]');await expect(float).toBeVisible();expect(app.windows().length).toBe(nativeCount);
+ const before=(await float.boundingBox())!,handle=(await float.getByRole('button',{name:'Resize Source-bound task fixture',exact:true}).boundingBox())!;
+ await main.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await main.mouse.down();
+ try{await main.mouse.move(handle.x+handle.width/2+28,handle.y+handle.height/2+20,{steps:3});await expect.poll(async()=>(await float.boundingBox())!.width).toBeGreaterThan(before.width+10);const measure=await float.evaluate(node=>{const r=node.getBoundingClientRect();return {layout:(node as HTMLElement).offsetWidth,display:r.width};});expect(Math.abs(measure.layout-measure.display)).toBeLessThanOrEqual(1);}finally{await main.mouse.up();}
+ await float.getByRole('button',{name:'Placement and move for Source-bound task fixture',exact:true}).click();await main.getByRole('menuitem',{name:'Return to main',exact:true}).click();await expect(float).toHaveCount(0);
+ await expect(composer).toHaveValue('Keep this native chat draft.');expect(await composer.evaluate((node,original)=>node===original,composerIdentity)).toBe(true);expect(await composer.evaluate(node=>({start:(node as HTMLTextAreaElement).selectionStart,end:(node as HTMLTextAreaElement).selectionEnd}))).toEqual({start:2,end:6});expect(app.windows().length).toBe(nativeCount);
+ checks.push({name:'Native canonical float/real resize/return preserves one composer, draft and caret without a new native window',passed:true});
+ const originalMainBounds=(await nativeState(main)).bounds,physicalTransitions:{displayId:number;scaleFactor:number;devicePixelRatio:number;x:number;y:number}[]=[];
+ try{for(const display of displayGeometry){
+  const bounds={x:display.workArea.x+40,y:display.workArea.y+40,width:Math.min(originalMainBounds.width,display.workArea.width-80),height:Math.min(originalMainBounds.height,display.workArea.height-80)};
+  await app.evaluate(({BrowserWindow},value)=>BrowserWindow.fromId(value.id)!.setBounds(value.bounds),{id:mainId,bounds});await main.bringToFront();
+  await expect.poll(()=>app!.evaluate(({BrowserWindow,screen},id)=>screen.getDisplayMatching(BrowserWindow.fromId(id)!.getBounds()).id,mainId)).toBe(display.id);
+  await expect.poll(()=>main.evaluate(()=>devicePixelRatio)).toBeCloseTo(display.scaleFactor,2);
+  const compact=await main.evaluate(()=>innerWidth<=700);if(compact)await main.getByRole('button',{name:'Open navigation',exact:true}).click();const collapse=main.getByRole('complementary',{name:'Thread navigation',exact:true}).getByRole('button',{name:compact?'Close navigation':'Collapse sidebar',exact:true});await collapse.click();const expand=main.getByRole('button',{name:compact?'Open navigation':'Open sidebar',exact:true});expect(await expand.evaluate(node=>{const r=node.getBoundingClientRect();return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})).toBe(true);await expand.click();if(compact)await collapse.click();
+  await expect(composer).toHaveValue('Keep this native chat draft.');expect(await composer.evaluate((node,original)=>node===original,composerIdentity)).toBe(true);
+  const current=(await nativeState(main)).bounds;physicalTransitions.push({displayId:display.id,scaleFactor:display.scaleFactor,devicePixelRatio:await main.evaluate(()=>devicePixelRatio),x:current.x,y:current.y});await main.screenshot({path:join(directory,`repair-native-display-${display.id}.png`)});
+ }}finally{await app.evaluate(({BrowserWindow},value)=>BrowserWindow.fromId(value.id)!.setBounds(value.bounds),{id:mainId,bounds:originalMainBounds});}
+ checks.push({name:'Native owned window crosses available physical displays with matching actual DPI and retained composer',passed:true,details:{physicalTransitions,negativeCoordinate:physicalTransitions.some(value=>value.x<0||value.y<0),mixedDpi:new Set(physicalTransitions.map(value=>value.scaleFactor)).size>1,osDisplaySettingsChanged:false,humanVisualAcceptance:false}});
+
  const plan=await focusRecovered(main,{kind:'plan',threadId:'task-thread'});await expect(plan.getByText('Native window review',{exact:true})).toBeVisible();
  const usage=await focusRecovered(main,{kind:'usage',threadId:'task-thread'});await expect(usage.getByText('Reported cost',{exact:true})).toBeVisible();
- const rejected=await main.evaluate(async()=>{try{await window.harnessDesktop!.detach({kind:'navigation'});return '';}catch(error){return String(error);}});expect(rejected).toContain('unavailable');expect((await main.evaluate(()=>window.harnessDesktop!.list())).length).toBe(savedSurfaces.length);checks.push({name:'Saved native children recover while new detachment remains unavailable',passed:true});
+ const recovered=await main.evaluate(()=>window.harnessDesktop!.list());expect(recovered.map(window=>window.surface)).toEqual(expect.arrayContaining(savedSurfaces));expect(recovered.length).toBe(savedSurfaces.length);checks.push({name:'Saved native children recover with their saved surface identities',passed:true});
  const old=await nativeState(plan);await app.evaluate(({BrowserWindow},arg)=>BrowserWindow.fromId(arg.id)!.setBounds({x:arg.x,y:arg.y,width:430,height:650}),{id:old.id,x:old.bounds.x+90,y:old.bounds.y+35});const moved=await nativeState(plan);expect(moved.bounds.x).toBe(old.bounds.x+90);
  await main.evaluate(()=>window.harnessDesktop!.minimize());await expect.poll(async()=>(await nativeState(main)).minimized).toBe(true);expect((await nativeState(plan)).visible).toBe(true);expect((await nativeState(usage)).visible).toBe(true);checks.push({name:'Native Plan/Usage move independently while chat minimizes',passed:true,details:{plan:moved,chat:await nativeState(main)}});
  await app.evaluate(({BrowserWindow},id)=>{const window=BrowserWindow.fromId(id)!;window.restore();window.focus();},(await nativeState(main)).id);await expect(main.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep this native chat draft.');
@@ -57,7 +97,7 @@ try{
  const browserId=await app.evaluate(({webContents})=>webContents.getAllWebContents().find(contents=>contents.getURL().startsWith('https://example.com'))!.id);
  await main.getByRole('button',{name:'Settings',exact:true}).click();
  const browserBounds=()=>app!.evaluate(({BrowserWindow},id)=>{for(const window of BrowserWindow.getAllWindows())for(const view of window.contentView.children)if('webContents'in view&&(view.webContents as Electron.WebContents).id===id)return view.getBounds();return null;},browserId);
- await expect.poll(async()=>{const bounds=await browserBounds();return bounds?.width===0&&bounds.height===0;}).toBe(true);await main.getByRole('button',{name:'Close settings',exact:true}).click();await expect.poll(async()=>(await browserBounds())?.width??0).toBeGreaterThan(0);checks.push({name:'Docked remote content hides under app dialogs and restores afterward',passed:true});
+ await expect.poll(async()=>{const bounds=await browserBounds();return bounds?.width===0&&bounds.height===0;}).toBe(true);await main.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await expect.poll(async()=>(await browserBounds())?.width??0).toBeGreaterThan(0);checks.push({name:'Docked remote content hides under app dialogs and restores afterward',passed:true});
  await main.evaluate(()=>window.harnessDesktop!.browser({type:'open'}));expect(await app.evaluate(({webContents},id)=>webContents.fromId(id)?.getURL(),browserId)).toMatch(/^https:\/\/example.com/);checks.push({name:'Opening the browser again preserves the same native page identity',passed:true});
  await main.screenshot({path:join(directory,'main.png')});await usage.screenshot({path:join(directory,'usage.png')});
  const recoveryId=(await nativeState(usage)).id;

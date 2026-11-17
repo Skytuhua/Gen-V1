@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T02:46:17.342Z",
+  "endedAt": "2026-11-16T02:48:16.032Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+  "logDigest": "150f5838ba3334eaabbdaf164102cd8e069a278da36057c195e46f8e867b5f0c"
+}

@@ -1,0 +1,77 @@
+{
+  "observedAt": "2026-11-16T05:52:48.280779+00:00",
+  "state": "PROPOSED_NOT_APPLIED",
+  "contentFiles": [
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-independent-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-independent-review-01/review.md",
+      "bytes": 3184,
+      "sha256": "080c9ed59e84ca8058b8697b468cd03f42ee448ecda0ec02e92b0f77a6effd92",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-independent-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-independent-review-01/review.json",
+      "bytes": 2976,
+      "sha256": "548f7ad288cc0f01b123f86a04f907f7c45d8019779f11cd714226eb0f725d2e",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-01/apply-fixed-call.py",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-01/apply-fixed-call.py",
+      "bytes": 906,
+      "sha256": "deb920a4e7f45f5d8672dbb13a7110b0ed71e12722a656524ac7b5c8131a7221",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-01/application.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-01/application.json",
+      "bytes": 506,
+      "sha256": "f18ef6fe1cfe52b6b60361211fc5de2b13e3f3ca7d1b7d55136908ed0041ed10",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/main5f-drift-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/review.md",
+      "bytes": 1107,
+      "sha256": "ade69cde68c216bb2db34c517d8858ffd1e6ee1ba34662b6a55b026243e459b1",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/main5f-drift-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/review.json",
+      "bytes": 1906,
+      "sha256": "6ecbfb71e3b9c2d1c8f7d67ce68b904531472a65c984f52c7185b6a8e816120b",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only",
+      "destinationAbsentAtSnapshot": true
+    },
+    {
+      "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/main5f-drift-01/incoming.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/incoming.patch",
+      "bytes": 18292,
+      "sha256": "147bb670d54452c45a1496b2d683fa9babe416ad403ace7fa1ca5f016e553d5f",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only",
+      "destinationAbsentAtSnapshot": true
+    }
+  ],
+  "contentBytes": 28877,
+  "existing134FileAdmissionUnchanged": true,
+  "excluded": [
+    "private Library identities, URLs and custody",
+    "raw ZIP archives",
+    "indexes and broad repository inventories",
+    "node_modules or Vite caches"
+  ]
+}

@@ -1,0 +1,76 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (14 tests | 2 failed | 1 skipped) 2829ms
+   × keeps diff capture disabled until its owning service supplies an atomic comparison witness 33ms
+   × labels quoted assistant claims as reported and leaves unmeasured evidence freshness unknown 36ms
+ ❯ tests/source-selection-v3.test.ts (7 tests | 1 failed) 576ms
+     × retains the existing 100000-character unsent draft limit independently of send budgets 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-selection-v3.test.ts > draft and presentation contracts > retains the existing 100000-character unsent draft limit independently of send budgets
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/source-selection-v3.test.ts:68:193
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > keeps diff capture disabled until its owning service supplies an atomic comparison witness
+AssertionError: expected undefined to deeply equal ArrayContaining{…}
+
+- Expected:
+ArrayContaining [
+  ObjectContaining {
+    "kind": "DIFF_HUNK",
+    "reason": StringContaining "atomic",
+    "state": "UNSUPPORTED",
+  },
+]
+
++ Received:
+undefined
+
+ ❯ tests/source-workbench-host-v3.test.ts:139:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > labels quoted assistant claims as reported and leaves unmeasured evidence freshness unknown
+AssertionError: expected { …(11) } to match object { grade: 'REPORTED', …(1) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "grade": "REPORTED",
+-   "sourceRef": {
++   "grade": "OBSERVED",
++   "sourceRef": ObjectContaining {
+      "captureId": "f677f651-1377-445b-bf92-f08d8a1e6ce7",
+    },
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:148:75
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 17 passed | 1 skipped (21)
+   Start at  05:50:13
+   Duration  8.27s (transform 4.25s, setup 0ms, import 3.94s, tests 3.41s, environment 0ms)
+

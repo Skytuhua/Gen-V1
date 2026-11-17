@@ -16,7 +16,7 @@ initial=applySplitWorkspaceCommand(initial,'view.open',{view:{id:'one',kind:'thr
 initial=applySplitWorkspaceCommand(initial,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'two',kind:'thread',binding:{authority:{kind:'local'},threadId:'two'}}});
 window.mounts={};window.commands=[];window.editorChoices=[];window.flushRejected=false;window.deferEditorChoice=false;
 function Editor({id,active}){const[value,setValue]=useState('');useEffect(()=>{window.mounts[id]=(window.mounts[id]||0)+1;},[]);return <div><label>{id}<input aria-label={'Draft '+id} value={value} onChange={e=>setValue(e.target.value)}/></label><iframe title={'Frame '+id} srcDoc='<input value="same renderer"/>'/><span>{active?'visible':'hidden'}</span></div>}
-function Fixture(){const[layout,setLayout]=useState(initial);window.currentLayout=layout;window.issue=(type,payload)=>setLayout(current=>applySplitWorkspaceCommand(current,type,payload));return <WorkspaceSplitLayout layout={layout} showHistory={false} editorOptions={[{id:'thread',title:'Conversation'},{id:'diff',title:'Diff'}]} onSelectEditor={async(kind,paneId)=>{window.editorChoices.push({kind,paneId});if(window.deferEditorChoice)await new Promise(resolve=>{window.finishEditorChoice=resolve;});}} onDropThread={async()=>{window.threadDrops=(window.threadDrops||0)+1;}} title={view=>view.id} prepare={async()=>{if(window.flushRejected)throw Error('Draft flush failed. Keep this view open.');}} onCommand={async(type,payload)=>{window.commands.push({type,payload});setLayout(current=>applySplitWorkspaceCommand(current,type,payload));}} renderView={(view,active)=><Editor id={view.id} active={active}/>}/>}
+function Fixture(){const[layout,setLayout]=useState(initial);window.currentLayout=layout;window.issue=(type,payload)=>setLayout(current=>applySplitWorkspaceCommand(current,type,payload));return <WorkspaceSplitLayout layout={layout} showHistory={false} emptyMainPaneId={window.emptyMain?'pane-main':undefined} editorOptions={[{id:'thread',title:'Conversation'},{id:'diff',title:'Diff'}]} onSelectEditor={async(kind,paneId)=>{window.editorChoices.push({kind,paneId});if(window.deferEditorChoice)await new Promise(resolve=>{window.finishEditorChoice=resolve;});}} onDropThread={async()=>{window.threadDrops=(window.threadDrops||0)+1;}} title={view=>view.id} prepare={async()=>{if(window.flushRejected)throw Error('Draft flush failed. Keep this view open.');}} onCommand={async(type,payload)=>{window.commands.push({type,payload});setLayout(current=>applySplitWorkspaceCommand(current,type,payload));}} renderView={(view,active)=><Editor id={view.id} active={active}/>}/>}
 createRoot(document.getElementById('root')).render(<Fixture/>);
 `;
 beforeAll(async()=>{
@@ -46,6 +46,19 @@ it('uses the shared area menu for keyboard editor selection, Escape and outside 
   await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.click();await tab.getByRole('menu').waitFor();await tab.getByRole('textbox',{name:'Draft two'}).click();await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]'));expect(await tab.getByRole('menu').count()).toBe(0);
+ }finally{await tab.close();}
+});
+
+it('mounts a tool view opened in the empty main pane',async()=>{
+ const tab=await page();try{
+  await tab.evaluate(()=>(window as any).emptyMain=true);
+  await issue(tab,'view.open',{paneId:'pane-main',view:{id:'tool:files',kind:'files',binding:{authority:{kind:'local'},projectId:'p1'}}});
+  await tab.locator('[data-split-view="tool:files"] span',{hasText:'visible'}).waitFor();
+  expect(await tab.locator('[data-split-view="tool:files"]').evaluate(node=>getComputedStyle(node).display)).not.toBe('none');
+  expect(await tab.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
+  await issue(tab,'view.activate',{paneId:'pane-main',viewId:'one'});
+  await tab.locator('[data-split-pane="pane-main"] .split-empty').waitFor();
+  expect(await tab.locator('[data-split-view="one"]').evaluate(node=>getComputedStyle(node).display)).toBe('none');
  }finally{await tab.close();}
 });
 

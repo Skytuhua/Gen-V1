@@ -1,6 +1,5 @@
 import {createRoot} from 'react-dom/client';
 import type {ComponentType} from 'react';
-import {App} from '../../apps/web/src/App';
 import {getShellSettings} from '../../apps/web/src/api';
 import {getWorkspace} from '../../apps/web/src/workspace-api';
 import type {AgentsWorkspaceProps} from '../../apps/web/src/agents-workspace/AgentsWorkspace';
@@ -17,6 +16,7 @@ const props: AgentsWorkspaceProps = {controller, composers, onOpenConversation: 
 async function mount() {
  let content;
  if (new URLSearchParams(location.search).has('candidate')) {
+  const {App} = await import('../../apps/web/src/App');
   const [workspace, settings] = await Promise.all([getWorkspace(), getShellSettings()]);
   document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark';
   if (workspace.state.canvases.find(canvas => canvas.id === workspace.state.activeCanvasId)?.preset !== 'all-agents') throw Error('Expected canonical All Agents route');

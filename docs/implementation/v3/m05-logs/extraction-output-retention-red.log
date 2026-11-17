@@ -1,0 +1,34 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts (8 tests | 2 failed | 6 skipped) 57ms
+   × stops retaining bytes immediately on output refusal while keeping teardown ownership and late usage 45ms
+   × stops retaining messages immediately on output refusal while keeping teardown ownership and late usage 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > stops retaining bytes immediately on output refusal while keeping teardown ownership and late usage
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > stops retaining messages immediately on output refusal while keeping teardown ownership and late usage
+AssertionError: expected undefined to be 'FAILED' // Object.is equality
+
+- Expected:
+"FAILED"
+
++ Received:
+undefined
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:56:28
+     54|     callbacks.onEvent({...captured, type: 'usage', usage: {inputTokens…
+     55|     await vi.advanceTimersByTimeAsync(0);
+     56|     expect(result?.status).toBe('FAILED');
+       |                            ^
+     57|     expect(result?.usage.outputBytes).toBeLessThanOrEqual(65536);
+     58|     expect(coordinator.busy).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 skipped (8)
+   Start at  19:44:45
+   Duration  561ms (transform 290ms, setup 0ms, import 385ms, tests 57ms, environment 0ms)

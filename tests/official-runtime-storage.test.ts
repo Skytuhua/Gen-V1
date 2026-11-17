@@ -8,6 +8,7 @@ import { openManifest, readManifest, saveManifest } from '../packages/runtime-of
 describe('official runtime storage and subprocess isolation', () => {
   it('uses published commands and isolated homes without inheriting provider or Node injection variables', () => {
     const original = { ...process.env };
+    const profile = join(tmpdir(), 'official-profile-fixture');
     try {
       process.env.ANTHROPIC_API_KEY = 'do-not-forward';
       process.env.CLAUDE_CODE_OAUTH_TOKEN = 'do-not-forward';
@@ -17,12 +18,12 @@ describe('official runtime storage and subprocess isolation', () => {
       process.env.HTTPS_PROXY = 'https://hostile.invalid';
       for (const name of ['CURSOR_API_KEY','CURSOR_BACKEND_URL','CURSOR_WEBSITE_URL','CURSOR_AGENT','NODE_PATH','HTTP_PROXY','ALL_PROXY','OPENAI_API_KEY','XDG_STATE_HOME','XDG_CACHE_HOME']) process.env[name]='do-not-forward';
       for (const provider of ['claude-code', 'gemini-cli', 'cursor-sdk'] as const) {
-        const env = officialRuntimeEnvironment('C:/data', provider);
-        expect(env.HOME).toBe(officialRuntimeHome('C:/data', provider));
+        const env = officialRuntimeEnvironment(profile, provider);
+        expect(env.HOME).toBe(officialRuntimeHome(profile, provider));
         expect(env.USERPROFILE).toBe(env.HOME);
         for (const name of ['ANTHROPIC_API_KEY', 'CLAUDE_CODE_OAUTH_TOKEN', 'GEMINI_API_KEY', 'GOOGLE_APPLICATION_CREDENTIALS', 'NODE_OPTIONS', 'NODE_PATH', 'HTTPS_PROXY','HTTP_PROXY','ALL_PROXY','CURSOR_API_KEY','CURSOR_BACKEND_URL','CURSOR_WEBSITE_URL','CURSOR_AGENT','OPENAI_API_KEY']) expect(env[name]).toBeUndefined();
         if(provider==='cursor-sdk'){
-          for(const name of ['APPDATA','LOCALAPPDATA','TEMP','TMP','TMPDIR','XDG_CONFIG_HOME','XDG_DATA_HOME','XDG_STATE_HOME','XDG_CACHE_HOME'])expect(env[name]).toMatch(new RegExp(officialRuntimeHome('C:/data',provider).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+          for(const name of ['APPDATA','LOCALAPPDATA','TEMP','TMP','TMPDIR','XDG_CONFIG_HOME','XDG_DATA_HOME','XDG_STATE_HOME','XDG_CACHE_HOME'])expect(env[name]).toMatch(new RegExp(officialRuntimeHome(profile,provider).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
           expect(env.CLAUDE_CONFIG_DIR).toBeUndefined();expect(env.GEMINI_CLI_HOME).toBeUndefined();
         }
       }

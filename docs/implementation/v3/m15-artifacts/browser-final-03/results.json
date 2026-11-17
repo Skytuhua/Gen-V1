@@ -1,0 +1,639 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "command": "pnpm exec vite --config tests/e2e/workbench.vite.config.ts",
+      "url": "http://127.0.0.1:5591/fixture",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench.spec.ts",
+      "file": "workbench.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "M15 selected visible text exposes explicit actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:16.933Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-ddf8ae4fb7463dfe92e0",
+          "file": "workbench.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "M15 forged DOM attributes cannot register a selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 701,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:18.219Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-52a97bc9efa803cc1f4b",
+          "file": "workbench.spec.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "M15 hidden and clipped source text is refused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:18.947Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-cb43ce4be275cd74710e",
+          "file": "workbench.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "M15 refuses a clipped interior span even when both selection endpoints are visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:19.543Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-f6063dd9c99745bb81c2",
+          "file": "workbench.spec.ts",
+          "line": 77,
+          "column": 1
+        },
+        {
+          "title": "M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1157,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:20.309Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-24891361816f317763b0",
+          "file": "workbench.spec.ts",
+          "line": 105,
+          "column": 1
+        },
+        {
+          "title": "M15 Escape respects IME and dismisses pointing without activating buttons",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 975,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:21.521Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-4957eb1eaa8edba87fdc",
+          "file": "workbench.spec.ts",
+          "line": 124,
+          "column": 1
+        },
+        {
+          "title": "M15 toolbar stays reachable at both viewports and 200 percent zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1042,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:22.541Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-6b747754506aecdb49d3",
+          "file": "workbench.spec.ts",
+          "line": 144,
+          "column": 1
+        },
+        {
+          "title": "M15 output window stays bounded while streaming preserves the logical anchor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1030,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:23.663Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-3b3d630b3c1a07c87cff",
+          "file": "workbench.spec.ts",
+          "line": 188,
+          "column": 1
+        },
+        {
+          "title": "M15 full copy and search use the declared reader fixture beyond mounted DOM",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1125,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:24.750Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-4da355beeb95f640f48c",
+          "file": "workbench.spec.ts",
+          "line": 221,
+          "column": 1
+        },
+        {
+          "title": "M15 delayed full-result response cannot write into a new owner view",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1027,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:25.895Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-3468268eda0057e6fb2b",
+          "file": "workbench.spec.ts",
+          "line": 258,
+          "column": 1
+        },
+        {
+          "title": "M15 discards a delayed search result when its query changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 920,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:26.937Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-2582caa28e44d7ba3188",
+          "file": "workbench.spec.ts",
+          "line": 291,
+          "column": 1
+        },
+        {
+          "title": "M15 real browser journal reload retains canonical draft, source refs and scroll anchor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2532,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:27.874Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-06e4408c55bfa0f5ad49",
+          "file": "workbench.spec.ts",
+          "line": 323,
+          "column": 1
+        },
+        {
+          "title": "M15 rapid presentation writes preserve the last acknowledged scroll anchor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2097,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:30.435Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-640287d5691601857a84",
+          "file": "workbench.spec.ts",
+          "line": 345,
+          "column": 1
+        },
+        {
+          "title": "M15 uncertain handoff and failed flush retain explicit conflict copies in the browser journal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1951,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:32.567Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-d571f4cd0cf466273305",
+          "file": "workbench.spec.ts",
+          "line": 358,
+          "column": 1
+        },
+        {
+          "title": "M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:40:34.530Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "921e070f285a8b470d11-d607c37829c56464ef4f",
+          "file": "workbench.spec.ts",
+          "line": 387,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "M15 controlled renderer benchmark",
+          "file": "workbench.spec.ts",
+          "line": 489,
+          "column": 6,
+          "specs": [
+            {
+              "title": "M15 measures paired controlled renderer latency with 100,000 retained lines",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 57027,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-15T22:40:37.551Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "m15-renderer-performance",
+                          "contentType": "application/json",
+                          "body": "ewogICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTVUMjI6NDE6MzQuNTU5WiIsCiAgInNjb3BlIjogIkNvbnRyb2xsZWQgUmVhY3QgcmVuZGVyZXIgZml4dHVyZSBvbmx5LiBVbndpbmRvd2VkIHJlZmVyZW5jZSBhbmQgY2FuZGlkYXRlIHVzZSB0aGUgc2FtZSBpbW11dGFibGUgcmV0YWluZWQgZGF0YS4gTm90IGZ1bGwgYXBwbGljYXRpb24sIGxpdmUgcHJvdmlkZXIsIGRlc2t0b3Agb3IgdW5pdmVyc2FsLWRldmljZSBwZXJmb3JtYW5jZS4iLAogICJyZWFkTW9kZWwiOiAiRXhwbGljaXQgZml4dHVyZSBzdHViLiBIb3N0IGF1dGhvcml6YXRpb24gaGFzIHNlcGFyYXRlIGhvc3QgaW50ZWdyYXRpb24gdGVzdHMuIiwKICAibWV0cmljIjogIlRydXN0ZWQgY2xpY2sgZXZlbnQgY2FwdHVyZSB0byBNdXRhdGlvbk9ic2VydmVyIGRlbGl2ZXJ5IGZvciBhIGxvY2FsIHNlbGVjdGVkLW1lc3NhZ2UgY29udHJvbDsgZXhjbHVkZXMgcGFpbnQgYW5kIHByZXNlbnRhdGlvbi4gVGhpcnR5IG1lYXN1cmVkIHNhbXBsZXMgcGVyIGNvbmRpdGlvbiBhZnRlciB0aHJlZSB3YXJtdXBzOyBzZXF1ZW50aWFsIHVud2luZG93ZWQgdGhlbiB3aW5kb3dlZCwgbm8gQ1BVIG9yIG5ldHdvcmsgdGhyb3R0bGluZzsgdHJhY2UgY2FwdHVyZSBkaXNhYmxlZCBmb3IgYm90aCBtZWFzdXJlZCBjb25kaXRpb25zLiIsCiAgImhhcmR3YXJlIjogewogICAgInBsYXRmb3JtIjogImxpbnV4IiwKICAgICJyZWxlYXNlIjogIjYuMTguNTciLAogICAgImNwdSI6ICJJTlRFTChSKSBYRU9OKFIpIFBMQVRJTlVNIDg1NzNDIiwKICAgICJsb2dpY2FsQ3B1cyI6IDksCiAgICAidG90YWxNZW1vcnlCeXRlcyI6IDEwNDUxNDIzMjMyCiAgfSwKICAicnVudGltZSI6IHsKICAgICJub2RlIjogInYyNC4yMi4xIiwKICAgICJicm93c2VyIjogIjE0MS4wLjczOTAuMzciLAogICAgInZpZXdwb3J0IjogewogICAgICAid2lkdGgiOiAxMjgwLAogICAgICAiaGVpZ2h0IjogODAwCiAgICB9LAogICAgImhlYWRsZXNzIjogdHJ1ZSwKICAgICJidWlsZCI6ICJWaXRlIGRldmVsb3BtZW50IGZpeHR1cmUgd2l0aCBSZWFjdCBkZXZlbG9wbWVudCBydW50aW1lIgogIH0sCiAgImZpeHR1cmUiOiB7CiAgICAibWVzc2FnZU1ldGFkYXRhIjogMTAwMDAsCiAgICAidGFza3MiOiA1MDAsCiAgICAicmV0YWluZWRPdXRwdXRMaW5lcyI6IDEwMDAwMAogIH0sCiAgInNvdXJjZURpZ2VzdHMiOiB7CiAgICAiYXBwcy93ZWIvc3JjL1dvcmtiZW5jaE91dHB1dC50c3giOiAiOTdhZjZiMjM0YmQ4NDJhZGE5MmVmMzcyNTg5NDIxMjgzNzBhY2IwN2NjNDUzNGMzMmRjOWE4YzI4NDhkNjNhMCIsCiAgICAiYXBwcy93ZWIvc3JjL3dvcmtiZW5jaC13aW5kb3cudHMiOiAiZjYwZTc0NDA3YjA5YzliZWE2OTU2MTUzZjY1YTkwZmMxMjRjMDA5ZDhiMDZjZjZkMTBmMmMzOTQzZTg1NmEyZCIsCiAgICAiYXBwcy93ZWIvc3JjL3dvcmtiZW5jaC1vdXRwdXQuY3NzIjogIjU2NDc0ZWYyZGU2NWE3MjhiYTU4YTQ0ODc3NWFlNWIyZDU2Y2IyZmZiNGQ3YzY5NmRhMGE5YzE0NTE3Nzc0ZjIiLAogICAgImFwcHMvd2ViL3NyYy93b3JrYmVuY2gtcmVjb3ZlcnkudHMiOiAiNjMyMDRmOWRlNGI2MmU1MmUyNzVhZDVjMzBmMGNiZjQxYTgwODJlZmUwOTA0MzBkZjFhMWZhMzU3YjEyM2FiOCIsCiAgICAiYXBwcy93ZWIvc3JjL2pvdXJuYWwudHMiOiAiODA2ODRhMTI0ZDUxYWFhZGU1ZDQ2NzRhNDgxZjgyOTE3NjBjZTEyMjBmNTExOTZhZDkzMjEzMjdjNDcyZmIxYyIsCiAgICAiYXBwcy93ZWIvc3JjL1NvdXJjZVNlbGVjdGlvbkFjdGlvbnMudHN4IjogIjk2ZjIxNDQ1OTVjN2JiZDVhNDI2OTZlOTZlNjE3MDc3NTMzNzMxZDBkZTdjYWU2ZmUyZDhkZmQyNDcwZDZjZWQiLAogICAgImFwcHMvd2ViL3NyYy9zb3VyY2Utd29ya2JlbmNoLmNzcyI6ICIzMmM4YTQyODRjMjI3ZjQyM2ExMmU4MDNhNzk2MGM3ZTI2NDljMGNlNDM5MzU4NzAxNmQzMDY0NDA3ZjJkNTM2IiwKICAgICJhcHBzL3dlYi9zcmMvTWFya2Rvd24udHN4IjogImI1OTBjODc0NjQ2OGZkN2QyZWViODk0Y2QyMjU5OWNiMTA3NWFlMzVmZjQ5YmNiNGI3ODcyODg0MjQ5MzgyOTciLAogICAgInBhY2thZ2VzL2NvbnRyYWN0cy9zb3VyY2Utc2VsZWN0aW9uLnRzIjogImU2M2NlNTc0OWJlNTQ2OGIxMjJkZjIxMWYyNjYzMjc1YmVjOGRlYjAxZDgzYjlmYjkwOGRjNjM2ZmI0YTdmMjUiLAogICAgInRlc3RzL2UyZS93b3JrYmVuY2gtZml4dHVyZS50c3giOiAiYTAzNDY3MGU5ZTM2MDg0Y2VmY2EzODFiZWQ5NDFjMGRhZWZkNmQ3Yzk4NWQyNmJjNDRjZjRjZGQ4ZjdiZWY3ZCIsCiAgICAidGVzdHMvZTJlL3dvcmtiZW5jaC5zcGVjLnRzIjogImE2ZTVmNTQ0NWRjODJmZmEwYjdiMmJlNzFiMjNmZjQ5ZmI0NGMzOGQyYjNkODgyYTk0NzJjYjEwZmNlNzU4MjEiCiAgfSwKICAibWVhc3VyZW1lbnRzIjogewogICAgInVud2luZG93ZWQiOiB7CiAgICAgICJtb3VudGVkUm93cyI6IDEwMDAwMCwKICAgICAgInNhbXBsZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxMzU0LjUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiNCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMTUzOS42MDAwMDAwMDA1NTg4LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjUiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDk5MS4yMDAwMDAwMDAxODYzLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjYiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDkxMi42MDAwMDAwMDA1NTg4LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjciCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDEwMzQuNjAwMDAwMDAwNTU4OCwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICI4IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxMDIyLjM5OTk5OTk5OTQ0MTIsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiOSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMTAyMS4yMDAwMDAwMDAxODYzLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjEwIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxNDgwLjA5OTk5OTk5OTYyNzUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTEiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDEwNDMuNzk5OTk5OTk5ODEzNywKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxMiIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogODU2LjE5OTk5OTk5OTI1NDksCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTMiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDk0My4yMDAwMDAwMDAxODYzLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjE0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA4NjAuNSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxNSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogODg0Ljg5OTk5OTk5OTQ0MTIsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTYiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDg2NS4yMDAwMDAwMDAxODYzLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjE3IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA4OTEuNSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxOCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogODU5LjU5OTk5OTk5OTYyNzUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTkiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDg3Mi42MDAwMDAwMDA1NTg4LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjIwIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA4MjIuMzAwMDAwMDAwNzQ1MSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIyMSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogODUwLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjIyIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA5MjgsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjMiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDgzMi4xMDAwMDAwMDA1NTg4LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA2MDEuNzk5OTk5OTk5ODEzNywKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIyNSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMTA4OS41OTk5OTk5OTk2Mjc1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI2IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA5OTkuOTAwMDAwMDAwMzcyNSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIyNyIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogOTIyLjUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjgiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDk5My40MDAwMDAwMDAzNzI1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI5IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA4NjQuNDAwMDAwMDAwMzcyNSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIzMCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMjUxNS43OTk5OTk5OTk4MTM3LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjMxIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAyMjMwLjA5OTk5OTk5OTYyNzUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMzIiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDIwNzkuNjk5OTk5OTk5MjU1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjMzIgogICAgICAgIH0KICAgICAgXSwKICAgICAgInA5NU1zIjogMjIzMC4wOTk5OTk5OTk2Mjc1CiAgICB9LAogICAgIndpbmRvd2VkIjogewogICAgICAibW91bnRlZFJvd3MiOiAyOSwKICAgICAgInNhbXBsZXMiOiBbCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxNSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICI0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAzLjI5OTk5OTk5OTgxMzczNTUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiNSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMywKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICI2IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAzLjkwMDAwMDAwMDM3MjUyOSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICI3IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAyLjc5OTk5OTk5OTgxMzczNTUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiOCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMy44OTk5OTk5OTk0NDEyMDY1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjkiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDMsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTAiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDIuNzAwMDAwMDAwMTg2MjY0NSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxMSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMTAuMjk5OTk5OTk5ODEzNzM1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjEyIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAzLjcwMDAwMDAwMDE4NjI2NDUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTMiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDMsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTQiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDcuNzAwMDAwMDAwMTg2MjY0NSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxNSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogNy44OTk5OTk5OTk0NDEyMDY1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjE2IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAzLjIwMDAwMDAwMDE4NjI2NDUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMTciCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDIuNzk5OTk5OTk5ODEzNzM1NSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIxOCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMy4xMDAwMDAwMDA1NTg3OTM1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjE5IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA0LjI5OTk5OTk5OTgxMzczNTUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjAiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDUuMjk5OTk5OTk5ODEzNzM1NSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIyMSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogNC4xMDAwMDAwMDA1NTg3OTM1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjIyIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxMS42OTk5OTk5OTkyNTQ5NDIsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjMiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDkuNzk5OTk5OTk5ODEzNzM1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI0IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA0LjI5OTk5OTk5OTgxMzczNTUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjUiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDIuOTAwMDAwMDAwMzcyNTI5LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI2IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiA0LjA5OTk5OTk5OTYyNzQ3MSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIyNyIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMy4zOTk5OTk5OTk0NDEyMDY1LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjI4IgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAzLjIwMDAwMDAwMDE4NjI2NDUsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMjkiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDMuMjAwMDAwMDAwMTg2MjY0NSwKICAgICAgICAgICJ0cnVzdGVkIjogdHJ1ZSwKICAgICAgICAgICJ2YWx1ZSI6ICIzMCIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJkdXJhdGlvbk1zIjogMTAuODAwMDAwMDAwNzQ1MDU4LAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjMxIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImR1cmF0aW9uTXMiOiAxMS4zMDAwMDAwMDA3NDUwNTgsCiAgICAgICAgICAidHJ1c3RlZCI6IHRydWUsCiAgICAgICAgICAidmFsdWUiOiAiMzIiCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICAiZHVyYXRpb25NcyI6IDQuMDk5OTk5OTk5NjI3NDcxLAogICAgICAgICAgInRydXN0ZWQiOiB0cnVlLAogICAgICAgICAgInZhbHVlIjogIjMzIgogICAgICAgIH0KICAgICAgXSwKICAgICAgInA5NU1zIjogMTEuNjk5OTk5OTk5MjU0OTQyCiAgICB9CiAgfSwKICAiYWNjZXB0YW5jZSI6IHsKICAgICJjYW5kaWRhdGVQOTVVbmRlcjEwMG1zIjogdHJ1ZSwKICAgICJjYW5kaWRhdGVNb3VudGVkUm93c0F0TW9zdDMwMCI6IHRydWUKICB9Cn0K"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "921e070f285a8b470d11-42fcd1d8488b28f06d70",
+              "file": "workbench.spec.ts",
+              "line": 490,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:40:11.969Z",
+    "duration": 82872.042,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

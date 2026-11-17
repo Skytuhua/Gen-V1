@@ -1,0 +1,12 @@
+cwd: C:\Users\Administrator\repos\Gen-V1-m11
+cmd: pnpm exec vitest run tests/model-transport-v3.test.ts tests/model-scheduling-v3.test.ts tests/usage-accounting-v3.test.ts
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m11
+
+
+ Test Files  3 passed (3)
+      Tests  19 passed (19)
+   Start at  10:54:09
+   Duration  837ms (transform 322ms, setup 0ms, import 708ms, tests 784ms, environment 1ms)
+
+exit: 0

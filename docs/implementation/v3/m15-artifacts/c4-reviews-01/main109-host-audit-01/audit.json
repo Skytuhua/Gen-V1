@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "STATIC_READ_ONLY_REVIEW",
+  "execution": "NOT_RUN",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "observedUnacceptedMain": "109797cb195b842d44dfc05dafaa6100531396df",
+  "acceptedBaseTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "observedMainTree": "5b7f0fb3aa3790f8da9b14c7bb44fec24f12ca6f",
+  "reviewedDelta": [
+    {
+      "path": "packages/contracts/research.ts",
+      "acceptedBase": {
+        "gitBlob": "341639f798dde03cadd0731e2ed77c8e32943c25",
+        "sha256": "c89176d0273fdaaef0e45ee03561e54eec1b8dd9ed1c2e2468c3f7249c04449d",
+        "bytes": 4587,
+        "declaredItCalls": null
+      },
+      "observedMain": {
+        "gitBlob": "333ec7755329a0473ca1b57fcda9a41d5f05a433",
+        "sha256": "a5123d4027663ddeaf157e56b41719e9d2a13c0dce3e63cb3aa6d3e0eb2d8354",
+        "bytes": 2797,
+        "declaredItCalls": null
+      }
+    },
+    {
+      "path": "packages/core/service.ts",
+      "acceptedBase": {
+        "gitBlob": "d15a6bfb9bbdf81018cf7756851cd3c233525cae",
+        "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451",
+        "bytes": 150475,
+        "declaredItCalls": null
+      },
+      "observedMain": {
+        "gitBlob": "619fbcad31cb69cb0218e3de0df07b3b0cd6542a",
+        "sha256": "bcd35ecdf3f2f081a9daafb352e3c4f5d10f5af1827e1a778b01097ac5550f0f",
+        "bytes": 149894,
+        "declaredItCalls": null
+      }
+    },
+    {
+      "path": "packages/research/capture.ts",
+      "acceptedBase": {
+        "gitBlob": "3ecb17c239ada4d36bbef532b3d0e17c8fd608c3",
+        "sha256": "b8d08e8aa7871a3d67a96d30e8484975753684efe107fc6b2508ef009e99f8f6",
+        "bytes": 4800,
+        "declaredItCalls": null
+      },
+      "observedMain": {
+        "gitBlob": "5c9ccbfc8b988cb281fd1c10d595f5b63c6d039b",
+        "sha256": "2660a3ee86a1660aa3f3d424ec26c722f1908a9dc1b592c1620e570817c160ea",
+        "bytes": 1255,
+        "declaredItCalls": null
+      }
+    },
+    {
+      "path": "packages/research/repository.ts",
+      "acceptedBase": {
+        "gitBlob": "c285e97b8acecbf46862c54163e8b038ec301092",
+        "sha256": "98efbf2993fcfef2592e873766af331a8d95ea7251db9e24327cc2a395359ccf",
+        "bytes": 17082,
+        "declaredItCalls": null
+      },
+      "observedMain": {
+        "gitBlob": "b9516e993670e8076431f5da3244f96f55d56cf2",
+        "sha256": "fb2567485b18f5f210c3a6a26dcf0128a46e7e59a8b464c250b5018d4be005e4",
+        "bytes": 8425,
+        "declaredItCalls": null
+      }
+    },
+    {
+      "path": "tests/research-fixture.ts",
+      "acceptedBase": {
+        "gitBlob": "037b294db1475e49ada7cf0433cc0890275add5f",
+        "sha256": "592401344d89b715456188869418c291bdb2e06fdf8934526054fe6f80e35fc9",
+        "bytes": 2725,
+        "declaredItCalls": null
+      },
+      "observedMain": {
+        "gitBlob": "004ae12a93ac2e0092c39138d217da830163c2db",
+        "sha256": "dd62ca1ca8c1786b4858bfe9523965cc85e895646290744018652f924940d29f",
+        "bytes": 2438,
+        "declaredItCalls": null
+      }
+    },
+    {
+      "path": "tests/research-service-integration.test.ts",
+      "acceptedBase": {
+        "gitBlob": "fe670db6b41bbbbffcdee099dd6f3b47c3bdc2ef",
+        "sha256": "37fcf58724f5f33916248933c516f8b042a2e2ef820ef9a89e7615db90a2fdf2",
+        "bytes": 5726,
+        "declaredItCalls": 4
+      },
+      "observedMain": {
+        "gitBlob": "107450288a553139e5d4dd2eae7f9566b4c0f465",
+        "sha256": "ce4670152eead7622aebb3c102d8b85710a16f0fbf618b2315fd86bb2dd45b32",
+        "bytes": 5946,
+        "declaredItCalls": 2
+      }
+    },
+    {
+      "path": "tests/research-artifacts.test.ts",
+      "acceptedBase": {
+        "gitBlob": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b",
+        "sha256": "384119eebd54b16b1b8accfabd70d488c14d95503a1821e312576663b2b88f65",
+        "bytes": 10457,
+        "declaredItCalls": 10
+      },
+      "observedMain": null
+    },
+    {
+      "path": "tests/research-capture.test.ts",
+      "acceptedBase": {
+        "gitBlob": "a40c93d6107b60fdcc97920458196367ea5ed0c2",
+        "sha256": "f16402d8b7ebfeeab0046b81065c45824df2e012205db98e82f839785e9d1be0",
+        "bytes": 8750,
+        "declaredItCalls": 9
+      },
+      "observedMain": null
+    },
+    {
+      "path": "tests/research-review-regressions.test.ts",
+      "acceptedBase": {
+        "gitBlob": "2e84171360c5c28aba64c74778828f6d38732b3b",
+        "sha256": "d66b33a24a77483b0106da2f600debc04788fd3565c9284c67e076af8b59b15e",
+        "bytes": 3027,
+        "declaredItCalls": 4
+      },
+      "observedMain": null
+    }
+  ],
+  "localReadSources": [
+    {
+      "path": "packages/core/service.ts",
+      "sha256": "c65007b5f1b181d4ee7e444400e70a2fbb76afd9fdf4803c769050b41fba1909",
+      "bytes": 160368
+    },
+    {
+      "path": "packages/core/source-workbench.ts",
+      "sha256": "9fc076adf608a620156fc39e49c34e92f4bb69ed58da6d8e7c4fc2d915fa0227",
+      "bytes": 52861
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+      "bytes": 63143
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "bytes": 12366
+    },
+    {
+      "path": "tests/research-service-integration.test.ts",
+      "sha256": "37fcf58724f5f33916248933c516f8b042a2e2ef820ef9a89e7615db90a2fdf2",
+      "bytes": 5726
+    },
+    {
+      "path": ".github/workflows/m15-evidence.yml",
+      "sha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44",
+      "bytes": 29046
+    }
+  ],
+  "unchangedAcrossIncomingRange": [
+    "packages/core/file-access.ts",
+    "packages/core/project-memory.ts",
+    "packages/contracts/index.ts",
+    "apps/server/server.ts"
+  ],
+  "currentResearchIntegrationMatchesAcceptedBase": true,
+  "outcome": "No concrete owning dependency found that invalidates current C4 or requires main109 adoption. Future merge requirements are conditional only.",
+  "limits": [
+    "No main109 merge/adoption, repository source/index edit or test execution by this review.",
+    "No full-main, frontend, browser, native-platform or runtime compatibility approval.",
+    "Candidate eeda UX adoption is separate from this immutable main comparison."
+  ]
+}

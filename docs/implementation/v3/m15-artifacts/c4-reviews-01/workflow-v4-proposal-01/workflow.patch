@@ -1,0 +1,10 @@
+--- a/.github/workflows/m15-evidence.yml
++++ b/.github/workflows/m15-evidence.yml
+@@ -107,6 +107,7 @@
+             'tests/workbench-input-recovery-v3.test.ts',
+             'tests/workbench-performance-v3.test.ts',
+             'tests/workbench-recovery-v3.test.ts',
++            'tests/source-handoff-v3.test.ts',
+             'tests/agents-workspace-composer.test.ts',
+             'tests/agents-workspace-dispatch.test.ts',
+             'tests/saved-drafts.test.ts',

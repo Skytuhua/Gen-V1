@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "kind": "M05_MAIN_DRIFT_READ_ONLY_REVIEW",
+  "status": "NO_MATERIAL_CONTRACT_DRIFT_NO_PATH_COLLISION",
+  "recordedAt": "2026-11-16T00:46:33.625807+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "acceptedBaseRemains": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "observedIncomingCommit": "bfd4247994674c5a60ed14b12ff2dda223b07879",
+  "incomingTree": "36ecd9a7dc2fba079378e9966fd921dc86ba0607",
+  "incomingParents": [
+    "138b1356495bb3a2c9b35020240513f8faa84964"
+  ],
+  "currentReviewedCommit": "c12965df7e90550dac0606752cb9f980387c2d3b",
+  "currentReviewedTree": "64504a5a4007461210c99d21f57fb438fdcf2116",
+  "localEquivalentCommit": "ba9918bd47f30ba8c4c5d22361adabec6eed3ad9",
+  "comparison": {
+    "status": "ahead",
+    "aheadBy": 1,
+    "behindBy": 0,
+    "mergeBase": "138b1356495bb3a2c9b35020240513f8faa84964",
+    "commitCount": 1,
+    "completeChangedFileCount": 3,
+    "rawApi": {
+      "path": "/workspace/scratch/36f66011d961/m05-main-drift-bfd424/compare.json",
+      "bytes": 24794,
+      "sha256": "378f22e279a60bc2f15bd2c276c1298f10b6486e9c2f2c3ee3879b0d8a109254"
+    }
+  },
+  "files": [
+    {
+      "path": "apps/web/src/agents-workspace/agents-workspace.css",
+      "baseAndCurrentCutBlob": "38884be8955d7d6329d921bbe8b8a1559d95ac01",
+      "incomingBlob": "06f8d745a9e087095463fbc73fd8189d5b291e29",
+      "bytes": 10114,
+      "sha256": "40ec639689095512a7dacbafcb99c4ed8efe1b2f08b734162feb5ef7b7892598",
+      "pathCollision": false,
+      "patch": "@@ -34,7 +34,7 @@\n .agents-activity { margin: 0 12px 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }\n .agents-activity p { line-height: 1.5; }\n .agents-model { display: block; margin-bottom: 4px; }\n-.agents-activity progress { width: 100%; height: 4px; display: block; margin-top: 8px; accent-color: var(--muted); }\n+.agents-activity progress { width: 100%; height: 4px; display: block; margin-top: 8px; accent-color: var(--accent); }\n .agents-transcript-wrap { position: relative; margin: 4px 12px; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }\n .agents-transcript { flex: 1 1 auto; height: auto; min-height: 120px; overflow: auto; padding: 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--canvas); overflow-anchor: none; overscroll-behavior: contain; scrollbar-gutter: stable; }\n .agents-child .agents-transcript { flex: 0 1 auto; max-height: 192px; min-height: 96px; }\n@@ -48,7 +48,7 @@\n .agents-earlier { width: 100%; margin-bottom: 8px; text-align: center; }\n .agents-new-output { position: absolute; bottom: 8px; right: 12px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--elevation); }\n .agents-workspace .agents-composer.composer { position: static; display: flex; flex-direction: column; gap: 4px; margin: 4px 12px 8px; padding: 0; width: auto; min-width: 0; border: 1px solid var(--border); border-radius: 6px; box-shadow: none; background: var(--surface); }\n-.agents-workspace .agents-composer textarea { width: 100%; min-height: 32px; max-height: 72px; border: 0; border-radius: 6px; padding: 6px 12px; font-size: 14px; line-height: 1.5; background: transparent; resize: vertical; field-sizing: content; overflow-y: auto; }\n+.agents-workspace .agents-composer textarea { width: 100%; min-height: 32px; max-height: 72px; border: 0; border-radius: 6px; padding: 6px 12px; font-size: 14px; line-height: 1.5; background: transparent; field-sizing: content; overflow-y: auto; }\n .agents-composer-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; padding: 0 8px 8px; }\n .agents-composer-actions > span { font-size: 12px; color: var(--muted); margin-right: auto; overflow-wrap: anywhere; min-width: 0; }\n .agents-composer-actions button { flex: 0 0 auto; }"
+    },
+    {
+      "path": "apps/web/src/plan-timeline/timeline.css",
+      "baseAndCurrentCutBlob": "a64b5d9caedd0cf5e406957a84a500a24d1ef16c",
+      "incomingBlob": "b1d87dfb05b1a82f6f2754e5911af4d7884974e6",
+      "bytes": 8205,
+      "sha256": "c9c05c46c09da12b277c2c89dc5048025979ab38795da48ab30e48a0e95e8d00",
+      "pathCollision": false,
+      "patch": "@@ -32,6 +32,8 @@\n .step-blocked>.plan-step-summary .plan-step-badge,.step-review_required>.plan-step-summary .plan-step-badge {color:var(--pending);}\n .step-accepted>.plan-step-summary .plan-step-node {color:var(--success);}\n .plan-step-summary>svg,.plan-agent-summary>svg:last-child {color:var(--muted);margin-top:4px;transition:transform var(--ui-motion-status) var(--ui-ease-enter);}\n+.plan-step-summary:hover,.plan-agent-summary:hover {background:var(--subtle);border-radius:6px;}\n+.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:var(--muted);}\n .plan-step-summary[aria-expanded=true]>svg,.plan-agent-summary[aria-expanded=true]>svg:last-child {transform:rotate(90deg);}\n .plan-step-details>.task-motion-inner {padding:8px 0 0 16px;}\n .plan-fact {font-size:12px;line-height:1.6;margin:0 0 12px;min-width:0;}"
+    },
+    {
+      "path": "apps/web/src/workspace-split.css",
+      "baseAndCurrentCutBlob": "0dac031ff3e91eb332f2afa4ee7f8ee8c9509d04",
+      "incomingBlob": "ece5f12e04faccc501f82b08335f0d8b2288ccb6",
+      "bytes": 7132,
+      "sha256": "e2c23d116a7acf958f8eed69b6d1f340339bcafcf9dde346b347e0d37ac89f09",
+      "pathCollision": false,
+      "patch": "@@ -10,7 +10,7 @@\n .split-corner{width:20px;min-width:20px;height:24px;opacity:.5;cursor:crosshair;touch-action:none}.split-corner:hover,.split-corner:focus-visible{opacity:1}.split-tab-strip{display:flex;flex:1;overflow:auto;min-width:0;scrollbar-width:none}.split-tab-strip::-webkit-scrollbar{display:none}.split-tab-strip button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;min-width:70px;font-size:12px;padding:5px 8px}.split-tab-strip button[aria-selected=true]{background:var(--selected,#252525)}\n .split-collapse{width:26px;height:26px;flex:none}.split-pane-slot{flex:1;min-height:0;min-width:0}.split-pane.is-collapsed .split-pane-header{border:0;padding:0;gap:0;height:100%;min-height:34px}.split-pane.is-collapsed .split-corner,.split-pane.is-collapsed .split-tab-strip,.split-pane.is-collapsed .split-area-controls{display:none}.split-pane.is-collapsed .split-collapse{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;min-height:32px;overflow:hidden}.split-collapsed-title{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.split-horizontal>.split-pane.is-collapsed .split-collapse{writing-mode:vertical-rl}\n .split-area-controls{flex:none}.split-area-controls .ui-action-trigger{width:32px;height:32px;min-height:32px;padding:4px;justify-content:center}\n-.split-divider{position:relative;background:var(--workspace-bg,#000);touch-action:none;z-index:5;outline:none}.split-horizontal>.split-divider{cursor:col-resize}.split-vertical>.split-divider{cursor:row-resize}.split-divider:hover,.split-divider:focus-visible,.split-divider.is-dragging{background:var(--focus,#8b97f5)}.split-divider span{position:absolute;left:50%;top:8px;transform:translateX(-50%);padding:4px 7px;border-radius:5px;background:#1c1c1c;color:#fff;font-size:11px;white-space:nowrap;pointer-events:none}.split-vertical>.split-divider span{top:50%;left:10px;transform:translateY(-50%)}\n+.split-divider{position:relative;background:var(--workspace-bg,#000);touch-action:none;z-index:5;outline:none}.split-horizontal>.split-divider{cursor:col-resize}.split-vertical>.split-divider{cursor:row-resize}.split-divider:hover,.split-divider:focus-visible,.split-divider.is-dragging{background:var(--focus,#8b97f5)}.split-divider span{position:absolute;left:50%;top:8px;transform:translateX(-50%);padding:4px 7px;border-radius:5px;background:var(--panel,#1c1c1c);color:var(--text,#fff);border:1px solid var(--border,#2a2a2a);font-size:11px;white-space:nowrap;pointer-events:none}.split-vertical>.split-divider span{top:50%;left:10px;transform:translateY(-50%)}\n .split-surface-plane{position:absolute;inset:0;pointer-events:none;z-index:1}.split-surface{position:absolute;pointer-events:auto;overflow:hidden;min-height:0;min-width:0;background:var(--panel,#0f0f0f);display:flex;flex-direction:column;contain:layout style}.split-surface>*{min-width:0;min-height:0}.split-surface .shell-workarea{height:100%;flex:1}.split-surface .canvas-thread-view{height:100%}\n .split-surface-float{z-index:6;padding-top:34px;padding-bottom:12px;border:1px solid var(--border,#2a2a2a);border-radius:8px;box-shadow:0 10px 32px -14px rgba(0,0,0,.45)}.split-float-header{position:absolute;top:0;left:0;right:0;height:34px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;border-bottom:1px solid var(--border,#2a2a2a);background:var(--subtle,#171717)}.split-float-header strong{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.split-float-grip{cursor:grab;touch-action:none;user-select:none;flex:1;min-width:0}.split-float-grip:active{cursor:grabbing}.split-float-grip:focus-visible{outline:2px solid var(--accent-fg,#3b5bdb);outline-offset:1px;border-radius:3px}.split-float-resize{position:absolute;bottom:1px;right:1px;width:14px;height:14px;padding:0;border:0;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 50%,var(--muted,#707070) 50%);border-radius:0 0 7px 0}.split-float-resize:focus-visible{outline:2px solid var(--accent-fg,#3b5bdb)}\n .split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--focus,#8f9cff);background:color-mix(in srgb,var(--focus,#8f9cff) 15%,transparent);display:grid;place-items:center}.split-drop-preview.edge-left{clip-path:inset(0 50% 0 0)}.split-drop-preview.edge-right{clip-path:inset(0 0 0 50%)}.split-drop-preview.edge-top{clip-path:inset(0 0 50% 0)}.split-drop-preview.edge-bottom{clip-path:inset(50% 0 0 0)}.split-drop-preview span{padding:7px 12px;background:var(--panel,#111);border-radius:6px;color:var(--text,#fff);font-size:12px}.split-drop-preview.edge-left span{transform:translateX(-70%)}.split-drop-preview.edge-right span{transform:translateX(70%)}.split-drop-preview.edge-top span{transform:translateY(-130%)}.split-drop-preview.edge-bottom span{transform:translateY(130%)}"
+    }
+  ],
+  "dependencyImplications": {
+    "inspectedBasePaths": 63,
+    "publicContracts": 16,
+    "changedLockedPaths": [],
+    "changedContractTestPaths": [],
+    "proofBoundary": "Exact one-parent, one-commit comparison contains only the three listed CSS files. All other paths, including the63 accepted base bindings and16 public contract bindings and their tests, remain unchanged by this commit. This review did not re-fetch every unchanged blob.",
+    "startupOrMemoryAuthorityChange": false,
+    "dependencyOrWorkflowChange": false
+  },
+  "mergeAssessment": {
+    "allIncomingBaseBlobsEqualCurrentReviewedCut": true,
+    "startupDiagnosticOwnedPathsOverlap": false,
+    "action": "Retain the reviewed incoming CSS identities for eventual merge compatibility. Accepted base138 remains frozen; no source lock or branch refresh is performed. Root decides any later merge or gate requirement, then recomputes its final source/evidence tree."
+  },
+  "behaviorScope": [
+    "Agent progress uses the existing accent token.",
+    "Agent textarea removes its local resize override; field sizing, max height and overflow rules remain.",
+    "Plan summaries receive hover background and node color treatment; no expansion, event or authority logic changes.",
+    "Split-divider display chip uses theme tokens and a1px border; its pointer-events none and divider input behavior remain."
+  ],
+  "validationBoundary": "Source-only review. The final merged Windows/browser run must bind the resulting tree. No extra test run, source/ref edit or ledger write was performed.",
+  "findings": []
+}

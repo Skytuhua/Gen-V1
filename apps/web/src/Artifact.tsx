@@ -35,6 +35,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const heldArtifact = useRef(incoming);
   const stateDirty = useRef<{ current: boolean } | null>(null);
   const [widgetDirty, setWidgetDirty] = useState(false);
+  const [widgetGeneration, setWidgetGeneration] = useState(0);
+  const widgetEdits = useRef(0);
   const holding = widgetDirty || stateDirty.current?.current;
   if (!holding) heldArtifact.current = incoming;
   const artifact = holding ? heldArtifact.current : incoming;
@@ -73,8 +75,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     return () => cancelAnimationFrame(frame);
   }, [restored, prepared]);
   useArtifactEntrance(section, animateEntry && ready, entranceBody);
-  useArtifactEntrance(section, animateEntry);
-  const placed = useRef({ expanded: false, inWorkspace: false });
+  const placed = useRef<{ expanded: boolean; inWorkspace: boolean } | null>(null);
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
@@ -84,7 +85,9 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   useLayoutEffect(() => {
     const element = section.current, before = placed.current;
     placed.current = { expanded, inWorkspace };
-    if (!element || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
+    // Initial mount is not a placement transition: a restored/docked artifact must
+    // stay quiet. Only a real expand/dock/return change animates.
+    if (!element || !before || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
     // Entering the docked panel slides in from the rail; returning inline settles like a new row.
     animateTask(element, inWorkspace || expanded
       ? [{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }]
@@ -121,8 +124,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if (result?.approvalRequired && expanded) await command('artifact.expand', { artifactId: artifact.id, expanded: false }, artifact.threadId);
     await refresh();
   };
-  const discardWidget = artifact.kind === 'widget' ? async () => { await widget.current?.releaseLease(); dirtyChanged(false); } : undefined;
-  const dirtyChanged = (value: boolean) => { setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value, discardWidget); };
+  const discardWidget = artifact.kind === 'widget' ? async () => { if (!widget.current) throw new Error('Keep the owning widget open until its edit lease can be released.'); const owner = widget.current, generation = widgetEdits.current; await owner.releaseLease(); if (widget.current !== owner || widgetEdits.current !== generation) throw new Error('The widget changed while discarding. Your newer edits are retained.'); setWidgetGeneration(value => value + 1); dirtyChanged(false); } : undefined;
+  const dirtyChanged = (value: boolean) => { widgetEdits.current++; setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value, discardWidget); };
   const discardAndArchive = async () => {
     if (archiving) return;
     setArchiving(true); setError('');
@@ -153,7 +156,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     {error && <div role="alert" className="notice">{error}<button className="icon-button" aria-label="Dismiss artifact error" onClick={() => setError('')}><X size={14} /></button></div>}
     {archiveGuard && <div className="notice" role="alert"><div>Checkpoint your widget edits before archiving, or explicitly discard them.<div className="decision-actions"><button className="secondary" onClick={() => { setArchiveGuard(false); section.current?.querySelector<HTMLElement>('.widget-container button, .widget-container iframe')?.focus(); }}>Return to checkpoint</button><button className="quiet" disabled={archiving} onClick={() => void discardAndArchive()}>Discard edits and archive</button></div></div></div>}
     {blockedRevision !== null && noticeRevision === blockedRevision && <p className="notice">An updated interface is ready. Save your edits to load it; this version remains open.</p>}
-    {detached&&<p className="notice">Editing in a detached window.</p>}<div ref={entranceBody} className="artifact-body" inert={editorHeld} aria-busy={!ready || undefined}><div className="artifact-content" inert={!ready} aria-hidden={!ready || undefined}><ArtifactTitle value={artifact.title}><ArtifactBoundary resetKey={`${artifact.id}:${artifact.revision}`}><ArtifactActions value={submit}>{artifact.kind === 'widget' ? <Widget ref={widget} onEscape={() => { if (expanded) void act('artifact.expand', { expanded: false }); }} artifact={artifact} inputs={inputs} values={effectiveRecord?.values ?? {}} stateRevision={effectiveRecord?.revision ?? 0} theme={theme} onAction={submit} onDirty={dirtyChanged} onAccepted={(values, revision) => { setWidgetRecord({ id: artifact.stateId, threadId: artifact.threadId, revision, schemaVersion: artifact.widget?.stateSchemaVersion ?? 1, values }); void refresh(); }} /> : <StateProvider store={state.store}><DocumentAssetProvider threadId={artifact.threadId} stateId={artifact.stateId} active={ready}><DocumentEvidenceProvider value={documentEvidence}><SecureArtifactProvider value={{artifactId:artifact.id,threadId:artifact.threadId,revision:artifact.revision,active:active&&ready,editable:!editorHeld&&ready,saveStatus:state.status}}><ArtifactPresentation spec={artifact.spec}/></SecureArtifactProvider></DocumentEvidenceProvider></DocumentAssetProvider></StateProvider>}</ArtifactActions></ArtifactBoundary></ArtifactTitle></div>{!ready && <div className="artifact-restoring"><PendingStatus pending label={`Restoring ${artifact.title}…`} /></div>}</div>
+    {detached&&<p className="notice">Editing in a detached window.</p>}<div ref={entranceBody} className="artifact-body" inert={editorHeld} aria-busy={!ready || undefined}><div className="artifact-content" inert={!ready} aria-hidden={!ready || undefined}><ArtifactTitle value={artifact.title}><ArtifactBoundary resetKey={`${artifact.id}:${artifact.revision}`}><ArtifactActions value={submit}>{artifact.kind === 'widget' ? <Widget key={widgetGeneration} ref={widget} onEscape={() => { if (expanded) void act('artifact.expand', { expanded: false }); }} artifact={artifact} inputs={inputs} values={effectiveRecord?.values ?? {}} stateRevision={effectiveRecord?.revision ?? 0} theme={theme} onAction={submit} onDirty={dirtyChanged} onAccepted={(values, revision) => { setWidgetRecord({ id: artifact.stateId, threadId: artifact.threadId, revision, schemaVersion: artifact.widget?.stateSchemaVersion ?? 1, values }); void refresh(); }} /> : <StateProvider store={state.store}><DocumentAssetProvider threadId={artifact.threadId} stateId={artifact.stateId} active={ready}><DocumentEvidenceProvider value={documentEvidence}><SecureArtifactProvider value={{artifactId:artifact.id,threadId:artifact.threadId,revision:artifact.revision,active:active&&ready,editable:!editorHeld&&ready,saveStatus:state.status}}><ArtifactPresentation spec={artifact.spec}/></SecureArtifactProvider></DocumentEvidenceProvider></DocumentAssetProvider></StateProvider>}</ArtifactActions></ArtifactBoundary></ArtifactTitle></div>{!ready && <div className="artifact-restoring"><PendingStatus pending label={`Restoring ${artifact.title}…`} /></div>}</div>
     {sourceOpen && <div className="artifact-source"><div>Immutable source · revision {artifact.revision}<button className="icon-button" aria-label="Close source" onClick={() => setSourceOpen(false)}><X size={14} /></button></div>{artifact.purpose && <p>{artifact.purpose}</p>}<pre>{artifact.widget?.html ?? JSON.stringify(artifact.spec, null, 2)}</pre></div>}
   </section></ArtifactInline>;
 }

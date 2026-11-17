@@ -1,0 +1,10 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 137
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+Killed
+ ELIFECYCLE  Command failed with exit code 137.

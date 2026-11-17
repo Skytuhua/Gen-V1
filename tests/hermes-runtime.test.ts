@@ -4,6 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawn} from 'node:child_process';
 import type {RuntimeAdapter,RuntimeCallbacks,RuntimeEvent,StartRun} from '../packages/contracts/index.ts';
+import type {MemoryCheckpointAckV1,MemoryCheckpointRequestV1} from '../packages/contracts/memory-checkpoint.ts';
 import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} from '../packages/runtime-hermes/index.ts';
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
@@ -24,10 +25,10 @@ it('passes only a matching idle receipt through the optional host channel and re
 });
 
 const run=(extra:Partial<StartRun>={}):StartRun=>({threadId:'thread',runId:'run',epoch:1,inputId:'input',modelId:'openai/model',accountId:null,sessionPath:null,prompt:'Original user prompt',resources:[],...extra});
-async function fixture(extra:Partial<HermesRuntimeOptions>={}){
+async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapability?:unknown){
  const dataDir=await mkdtemp(join(tmpdir(),'hermes-runtime-')),events:RuntimeEvent[]=[],sourceEvents:HermesEvent[]=[],sources:{options:ConstructorParameters<typeof HermesClient>[0];calls:{method:string;params:Record<string,unknown>}[];client:HermesSourceClient}[]=[],natives:{callbacks:RuntimeCallbacks;input:StartRun;runtime:RuntimeAdapter}[]=[];
  const accounts={get:()=>null,claimUse:vi.fn(()=>({id:'lease',nonce:'nonce'})),releaseUse:vi.fn()},catalog:RuntimeAdapter={configure(){},models:vi.fn(async()=>[]),start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:vi.fn(async()=>['old-receipt']),dispose:vi.fn(async()=>{})};
- const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7'} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
+ const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
  runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true}))});
  const source=()=>sources.at(-1)!,start=()=>source().calls.filter(call=>call.method==='agent.start').at(-1)!.params;
  const event=(name:string,data:Record<string,unknown>={},phase='foreground')=>source().options.onEvent?.({event:name,ctx:{...(start().ctx as Record<string,unknown>),phase},data});
@@ -71,6 +72,68 @@ it('rejects compaction of a different retained task, account or model',async()=>
  await f.runtime.compact(run({runId:'compact',epoch:2}),path,'openai/model',null);expect(f.source().calls.filter(call=>call.method==='agent.compact')).toHaveLength(1);
  }finally{await f.runtime.dispose();}
 });
+const requiredCheckpoint={apiVersion:2,required:true} as const;
+const checkpointAck=(request:MemoryCheckpointRequestV1):MemoryCheckpointAckV1=>({apiVersion:2,requestId:request.requestId,checkpointId:'pool-checkpoint',digest:'a'.repeat(64),persisted:true});
+function manualCheckpointSource(f:Awaited<ReturnType<typeof fixture>>){
+ const previous=f.source().client.request.bind(f.source().client),history=['Retained native source history'],calls:Record<string,unknown>[]=[];
+ f.source().client.request=async<T>(method:string,params:Record<string,unknown>={})=>{
+  if(method==='agent.compact'){
+   calls.push(params);
+   if(params.memoryCheckpoint){
+    const source=f.start(),ctx=source.ctx as Pick<StartRun,'threadId'|'runId'|'epoch'>;
+    await f.source().options.onHostCall!({id:'pool-checkpoint-call',name:'$memory.checkpoint',args:{apiVersion:2,requestId:'pool-manual-checkpoint',adapterId:'hermes',ctx:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch},sessionPath:source.sessionPath,modelId:source.modelId,accountId:source.accountId,reason:'manual'},ctx:source.ctx as Record<string,unknown>});
+   }
+   history.splice(0,history.length,'Compacted native source history');
+  }
+  return previous<T>(method,params);
+ };
+ return{history,calls};
+}
+it('production pool forwards required manual checkpoints and waits for host persistence before source compaction',async()=>{
+ const f=await fixture({},{apiVersion:2,hostOwned:true});let release!:(value:MemoryCheckpointAckV1)=>void;
+ const held=new Promise<MemoryCheckpointAckV1>(done=>{release=done;}),persist=vi.fn((_request:MemoryCheckpointRequestV1)=>held),maintenance={threadId:'thread',runId:'pool-maintenance',epoch:2};let work:Promise<void>|undefined;
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onMemoryCheckpoint:persist});
+ try{
+  await f.runtime.start(run({memoryCheckpoint:requiredCheckpoint}));const source=f.start();await f.settle();const scripted=manualCheckpointSource(f);
+  work=f.runtime.compact(maintenance,source.sessionPath as string,'openai/model',null,requiredCheckpoint);void work.catch(()=>{});
+  await vi.waitFor(()=>expect(persist).toHaveBeenCalledOnce());
+  expect(scripted.calls).toEqual([expect.objectContaining({memoryCheckpoint:requiredCheckpoint,ctx:source.ctx,modelId:'openai/model',accountId:null})]);
+  expect(persist.mock.calls[0][0]).toMatchObject({ctx:{threadId:maintenance.threadId,runId:maintenance.runId,epoch:maintenance.epoch},sessionPath:source.sessionPath,reason:'manual'});
+  expect(scripted.history).toEqual(['Retained native source history']);expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+  release(checkpointAck(persist.mock.calls[0][0]));await work;
+  expect(scripted.history).toEqual(['Compacted native source history']);expect(f.events).toContainEqual(expect.objectContaining({type:'compaction.end',runId:maintenance.runId,epoch:maintenance.epoch,aborted:false}));
+ }finally{release({apiVersion:2,requestId:'pool-manual-checkpoint',checkpointId:'pool-checkpoint',digest:'a'.repeat(64),persisted:true});await work?.catch(()=>{});await f.runtime.dispose();}
+});
+it.each(['missing host callback','unsupported source capability'])('production pool blocks required manual compaction with %s',async reason=>{
+ const f=await fixture({},reason==='unsupported source capability'?undefined:{apiVersion:2,hostOwned:true}),persist=vi.fn(async(request:MemoryCheckpointRequestV1)=>checkpointAck(request));
+ if(reason!=='missing host callback')f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onMemoryCheckpoint:persist});
+ try{
+  await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=manualCheckpointSource(f);
+  await expect(f.runtime.compact({threadId:'thread',runId:'pool-maintenance',epoch:2},path,'openai/model',null,requiredCheckpoint)).rejects.toMatchObject({code:'MEMORY_CHECKPOINT_UNSUPPORTED'});
+  expect(scripted.calls).toEqual([]);expect(scripted.history).toEqual(['Retained native source history']);expect(persist).not.toHaveBeenCalled();
+ }finally{await f.runtime.dispose();}
+});
+it.each(['rejected','unconfirmed'])('production pool preserves retained source history after a %s required checkpoint',async outcome=>{
+ const f=await fixture({},{apiVersion:2,hostOwned:true}),persist=vi.fn(async(request:MemoryCheckpointRequestV1)=>{if(outcome==='rejected')throw Error('Synthetic checkpoint persistence failed');return{...checkpointAck(request),persisted:false} as unknown as MemoryCheckpointAckV1;});
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onMemoryCheckpoint:persist});
+ try{
+  await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=manualCheckpointSource(f),work=f.runtime.compact({threadId:'thread',runId:'pool-maintenance',epoch:2},path,'openai/model',null,requiredCheckpoint);
+  if(outcome==='rejected')await expect(work).rejects.toThrow('Synthetic checkpoint persistence failed');else await expect(work).rejects.toMatchObject({code:'MEMORY_CHECKPOINT_UNCONFIRMED'});
+  expect(persist).toHaveBeenCalledOnce();expect(scripted.history).toEqual(['Retained native source history']);expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it.each(['main pool','borrowed task engine'])('production pool routes account catalog invalidation through the %s only to its shared catalog',async surface=>{
+ const f=await fixture(),models=new Map([['account-a',[{id:'openai/a',provider:'openai',name:'A'}]],['account-b',[{id:'openai/b',provider:'openai',name:'B'}]]]);
+ vi.mocked(f.catalog.models).mockImplementation(async query=>models.get(query?.accountId??'')??[]);
+ f.catalog.invalidateModels=vi.fn(async query=>{if(query?.accountId===undefined)models.clear();else models.delete(query.accountId??'');});
+ const owner=surface==='main pool'?f.runtime:f.runtime.createTaskRuntime();
+ try{
+  expect(await owner.models({accountId:'account-a'})).toHaveLength(1);expect(await f.runtime.models({accountId:'account-b'})).toHaveLength(1);
+  await owner.invalidateModels?.({accountId:'account-a'});
+  expect(f.catalog.invalidateModels).toHaveBeenCalledExactlyOnceWith({accountId:'account-a'});expect(await owner.models({accountId:'account-a'})).toEqual([]);expect(await f.runtime.models({accountId:'account-b'})).toEqual([{id:'openai/b',provider:'openai',name:'B'}]);
+  expect(f.natives).toEqual([]);expect(f.sources).toEqual([]);
+ }finally{if(owner!==f.runtime)await owner.dispose();await f.runtime.dispose();}
+});
 it('requires explicit canonical transcript migration for a legacy native session',async()=>{
  const canonical=[{role:'user',content:'Earlier canonical message'}],migration=vi.fn(async()=>canonical),f=await fixture({initialHistory:migration});try{await f.runtime.start(run({sessionPath:join(f.dataDir,'legacy-native.json')}));expect(migration).toHaveBeenCalledOnce();expect(f.start().history).toEqual(canonical);expect(f.events.find(event=>event.type==='session')?.migrated).toBe(true);await f.settle();}finally{await f.runtime.dispose();}
  const rejected=await fixture();try{await expect(rejected.runtime.start(run({sessionPath:join(rejected.dataDir,'legacy-native.json')}))).rejects.toMatchObject({code:'HERMES_SESSION_INVALID'});}finally{await rejected.runtime.dispose();}
@@ -92,6 +155,12 @@ it.each(['agent.compact','skills.curate'])('owns a fresh authenticated broker fo
  vi.spyOn(f.source().client,'request').mockImplementation(async(name,params={})=>{if(name!==method)return previous(name,params);captured=params;f.event('model_request',{sequence:42,inputIds:[]});const response=fetch(params.brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+params.jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'maintenance',modelId:params.modelId,prompt:'Original maintenance prompt'})});await vi.waitFor(()=>expect(f.natives[0]?.input).toBeDefined());const n=f.natives[0];n.callbacks.onEvent({...n.input,type:'input.processing',inputIds:[n.input.inputId]});n.callbacks.onEvent({...n.input,type:'assistant.message',content:'Original maintenance model text'});n.callbacks.onEvent({...n.input,type:'usage',usage:{inputTokens:31,outputTokens:4}});n.callbacks.onEvent({...n.input,type:'settled'});expect((await response).status).toBe(200);return{compacted:true,summary:'source curator result'} as any;});
  if(method==='agent.compact')await f.runtime.compact(run({runId:'maintenance',epoch:2}),originalJob.sessionPath as string,'openai/model',null);else expect(await f.runtime.sourceRequest('skills.curate',{consolidate:true})).toMatchObject({summary:'source curator result'});
  expect(captured).toMatchObject({modelId:'openai/model',accountId:null,sessionPath:originalJob.sessionPath});expect(captured?.jobKey).not.toBe(originalJob.jobKey);expect(f.events.filter(event=>event.type==='input.processing')).toHaveLength(0);expect(f.accounts.claimUse).toHaveBeenCalledTimes(2);expect(f.accounts.releaseUse).toHaveBeenCalledTimes(2);expect(f.source().options.timeoutMs).toBe(240_000);
+ // The native source retains its original session owner. Host observations
+ // must instead match the newly admitted maintenance run or Service rejects them.
+ expect(captured?.ctx).toEqual(originalJob.ctx);
+ const observationOwner={threadId:'thread',runId:method==='agent.compact'?'maintenance':'run',epoch:method==='agent.compact'?2:1};
+ const observations=f.events.filter(event=>event.type==='model.observation');expect(observations).toHaveLength(2);
+ for(const observation of observations)expect(observation).toMatchObject({...observationOwner,observation:{owner:{...observationOwner,sequence:42,inputIds:[],phase:'foreground'},binding:{providerId:'openai',modelId:'openai/model',accountId:null},usage:{inputTokens:31,outputTokens:4}}});
  }finally{await f.runtime.dispose();}
 });
 it('keeps deterministic curation available and refuses LLM curation without a selected retained owner',async()=>{

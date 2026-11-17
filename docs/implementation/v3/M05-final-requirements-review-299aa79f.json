@@ -1,0 +1,1082 @@
+{
+  "schemaVersion": 1,
+  "kind": "M05 final original-prompt requirements and exact-source delta review",
+  "status": "SOURCE_REVIEW_COMPLETE_NO_NEW_DEFECT_REQUIRED_PLATFORM_AND_LIVE_GATES_OPEN",
+  "recordedAt": "2026-11-16T02:10:39.561411+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "source": {
+    "commitSha": "299aa79fce281bacc370bd76373f760082046941",
+    "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+    "parentShas": [
+      "e0d64e3987675a270264ab5d34dd3543f75ee95e",
+      "49cd633273a3f61c14a4191a9877e99ab23ec88f"
+    ],
+    "acceptedBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "localEquivalentCommitSha": "215bca258ce7541647f5a9f37d8211cfaa9bcacd",
+    "bindingMethod": "Read immutable Git objects locally, verify both parents and exact local tree equality. No source, ref or ledger mutation and no new test execution by this reviewer."
+  },
+  "prompt": {
+    "upload": {
+      "ref": "/workspace/scratch/36f66011d961/upload/Pasted markdown(5).md",
+      "bytes": 32849,
+      "sha256": "1a2ddf83497f6e454c0982aa71c1a99df39df3cb4c0a4987da50c46f86bb8bbd",
+      "gitBlobSha": "63cd0a2b87fbff9c7455721553d06e77bcf3cf5f"
+    },
+    "storedM05Spec": {
+      "ref": "docs/implementation/v3/M05-spec.md",
+      "bytes": 15385,
+      "sha256": "f611df9e2e7bfa489c6202dae6d88c061a6ea4a080d8bc880986a4588f2fc2ee",
+      "gitBlobSha": "7eb69de5bd24057e4841d0418fba05c929e086ba"
+    },
+    "match": "The complete upload was read. Its M05 section including trailing newline equals the stored spec byte-for-byte; the complete M04 section was read for dependency scope."
+  },
+  "priorRequirementReview": {
+    "ref": "docs/implementation/v3/M05-final-requirements-review-95aae2f7.json",
+    "bytes": 39087,
+    "sha256": "3d7450ce7910ba36db468d5691322ee14df87620f39faff8d937390bc4833d94",
+    "gitBlobSha": "5678566d69370e49f930115963f50c44d6adf0ca"
+  },
+  "originalRequirementMatrix": {
+    "ref": "/workspace/scratch/36f66011d961/M05-final-requirements-review-3aa90a6e.json",
+    "bytes": 49043,
+    "sha256": "1c86046f7967d8b8ae286e3d8fc8973599a504bb898ee9cfcea7f999126191e7",
+    "gitBlobSha": "1286530bb2355b8c7264f0ffe471a94b2d4de1da"
+  },
+  "reuseProof": {
+    "priorBindings": 71,
+    "unchangedFrom95aae": 69,
+    "changedFrom95aae": 2,
+    "diagnosticSupplementalPaths": 5,
+    "diagnosticSupplementalPathsUnchanged": true,
+    "bindingListSha256": "39a5e3c0d350502d7ac3bb1473095b1dc6653b3e39fad94db1d6d5de21e8797a",
+    "method": "Read the complete M05 spec and prior12-step/four-UI matrix; compare every original71 immutable source blob at95aae and299. Re-read the exact changed App/server hunks, all5 unchanged diagnostics supplemental identities and the separately reviewed guard repair. No replacement test execution."
+  },
+  "acceptedDependencies": {
+    "baseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+    "lockedPaths": 63,
+    "publicContracts": 16,
+    "acceptedDependencyCommits": 15,
+    "ancestryChecksIncludingAudit": 16,
+    "sourceLock": {
+      "ref": "docs/implementation/v3/M05-source-lock.json",
+      "bytes": 24677,
+      "sha256": "6838e314f2062d545992ee2dda05afbf26caf01810ff1ac7c9f992a2a9d5bdbe",
+      "gitBlobSha": "af31dd402aaef73f7f8a55d42ef01451a99feb57"
+    },
+    "review": {
+      "ref": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+      "bytes": 70256,
+      "sha256": "d99e7fb99e837f1c0b48cec7f4b672f69a6e8a30361c20b08ea53e9ef7bf4e4d",
+      "gitBlobSha": "ae2069c624e8e750068d74f6d17284c83587a8f6"
+    },
+    "m04Scope": "Accepted PR351 core request-custody dependency only. Original M04 progressive tools/result handles/repository map/compaction bundle completion is not claimed; draftPR326 remains separate.",
+    "m04CurrentBoundary": "The accepted PR351 core request-custody source is unchanged by the56-path successor delta. Persistent owner generation, immutable preparation token/source cut, framing and final binding/source/grant checks remain. Full original M04 completion is not claimed.",
+    "m04Receipt": {
+      "ref": "docs/implementation/v3/M04-core-verification.json",
+      "bytes": 10015,
+      "sha256": "f6f501a6f69261d3780bded0800be925640c6e7315b354a3ea9d5da06102e8e1",
+      "gitBlobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d"
+    },
+    "contractTestBoundary": "Existing current-contract test paths and their historical actual executions remain retained; this source review executes no replacement test or newly expanded M04 suite."
+  },
+  "implementationSteps": [
+    {
+      "id": 1,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Separate host memory; task notes, learning and skills unchanged; Hermes global memory remains disabled."
+    },
+    {
+      "id": 2,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Physical profile/project/account binding, explicit project/source opt-in and authenticated project-only preference confirmation. Automatic global preferences and cross-project sharing remain disabled."
+    },
+    {
+      "id": 3,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Immutable revision rows and CAS edits preserve provenance and competing conflicts; resolution explicitly chooses one or two survivors with a note."
+    },
+    {
+      "id": 4,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Authorized current accepted nonexpired items, tombstone/source checks, project/symbol overlap then recency/stable ID, eight-item and complete serialized 4KiB cap."
+    },
+    {
+      "id": 5,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "M04 token/generation captures the source selection; unsent-only exclusion, owner/draft invalidation, final post-await synchronous authority assertion and 750ms bounded foreground wait."
+    },
+    {
+      "id": 6,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Explicitly disabled optional provider adapter has approved-provider/egress gates, per-profile/project/account/provider circuits, one pending request, bounded keys/capacity and occupancy retained until actual orphan settlement."
+    },
+    {
+      "id": 7,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Settled outbox-drained authorized source cut; exact references and secret rejection; decisions/facts/constraints/procedures and unresolved-work distinctions; production proposals only. Preferences require separate user confirmation. Ephemeral tool-free Pi session, shared account/provider scheduling, final dispatch fences and durable pending usage preserve scope and cost uncertainty."
+    },
+    {
+      "id": 8,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "One reference-only derived index per profile/project/account; accepted revision digest/output skip; lease token/expiry/watermark and current snapshot fences at provider dispatch and synchronous publication; cancellation retains actual-call capacity. Production consolidation is local."
+    },
+    {
+      "id": 9,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Host checkpoint persists accepted constraints/decisions and source references before native compaction. The public Hermes task pool now forwards the exact fifth checkpoint requirement into the real engine; capability, host-receipt, model/account/run/session and source-owner gates remain. Required failure blocks scripted compaction and retains history. The same pool and borrowed catalog now forward account-scoped invalidation. This corrects the prior review which missed the public pool adapter."
+    },
+    {
+      "id": 10,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Authenticated revision-bound Forget persists external sibling deletion fence before synchronous Store mutation, immediately excludes item/source and invalidates derived entries. Bounded seven-day local-copy purge records completion only after physical/WAL conditions; supported old DB/profile replays cannot resurrect claims. Original history remains; external deletion is NOT_SUPPORTED."
+    },
+    {
+      "id": 11,
+      "status": "OFFLINE_EVALUATOR_IMPLEMENTED_LIVE_STUDY_NOT_RUN",
+      "finding": "Ten offline cases cover all required topics. Study runner requires supplied host/model/project and fresh output, compares thread-note-only control with memory and records correctness/usefulness proxy, injection bytes, retrieval latency and all known auxiliary spend. Retained result is MANIFEST_ONLY with null quality/cost metrics."
+    },
+    {
+      "id": 12,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Personal session/origin/CSRF actions exclusively own review; agents propose only. Memory is CONTEXT_ONLY evidence, not permission. Both finite M05 flags default false; rollback retains reviewable records/tombstones and stops injection/extraction."
+    }
+  ],
+  "uiRequirements": [
+    {
+      "id": 1,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Four named tabs and row metadata; exact immutable source detail with server authority and client body-digest verification."
+    },
+    {
+      "id": 2,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Accept, Edit and accept, Reject; revision-bound editor and explicit conflict survivor/both-with-note resolution."
+    },
+    {
+      "id": 3,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Forget preview lists affected derived artifacts and immediate versus pending purge. Explicit host-redacted export uses browser Blob initiation or strict native one-use download; native saved status requires actual done/completed bytes, no silent fallback. Exact legitimate main/thread/plan/workspace bindings are admitted; plugin/browser surfaces denied.",
+      "proofUpdate": "Exact helper463d and unchanged production export policy6c61 passed both isolated actual Windows native Save lanes in43778860995. This supplements the earlier failure history; it does not admit complete installed retention."
+    },
+    {
+      "id": 4,
+      "status": "REVIEWED_IMPLEMENTATION_RETAINED",
+      "finding": "Why recalled exposes scope and source; exclusion changes only the current unsent preparation. Sending carries the same immutable request identity, and captured recall cannot be edited."
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 12556,
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "gitBlobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    },
+    {
+      "path": "apps/desktop/main.ts",
+      "bytes": 57407,
+      "sha256": "01c7a42f47e7312533654d6efeb158e430f40430bdb944284f4dc208ab08577c",
+      "gitBlobSha": "f33ec5d099b6345dc9c38d72cf94dd54e1d2a513"
+    },
+    {
+      "path": "apps/desktop/memory-export.ts",
+      "bytes": 8627,
+      "sha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+      "gitBlobSha": "49b5031cbc59fcdbf6a687f969a794cbf4c7fbbc"
+    },
+    {
+      "path": "apps/desktop/preload.ts",
+      "bytes": 3936,
+      "sha256": "8605e62156b2357871d33e8eb5de062d752c0d2fbe65e8944debe6fa847bdca0",
+      "gitBlobSha": "18c6d593e07c5f1d6703436b3b4d19619a9e6b24"
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "bytes": 4153,
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381",
+      "gitBlobSha": "c3c00cd567cc79f0ceb5a272bfc7c5518b3896af"
+    },
+    {
+      "path": "apps/server/project-memory-routes.ts",
+      "bytes": 5818,
+      "sha256": "60f6e4e9d6ff04fe35f6935cac902b917989c40fe96de6432851e9532b33cb02",
+      "gitBlobSha": "831de697aa0961028c5d91874a45a1d2dee51b3c"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "bytes": 28180,
+      "sha256": "e2cfcb9cc0989d4a081583f99511b76fad224d2f802d69be957df3988b81735b",
+      "gitBlobSha": "c4151c1eeb491eaca0d395d744077084e645fcbc"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 156966,
+      "sha256": "2c371849c93afa0b897fcdc82640ca0f4136f112ee6713c811689a8899c41dbb",
+      "gitBlobSha": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e"
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "bytes": 13617,
+      "sha256": "ac7553af4321cc87663e9e7b3bafe97515e4dea4d7233b90ee7d9bde5c204677",
+      "gitBlobSha": "0548641327ee0b0e728e3a8d031095e8cb5a658a"
+    },
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "bytes": 21955,
+      "sha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+      "gitBlobSha": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "bytes": 8205,
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0",
+      "gitBlobSha": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+    },
+    {
+      "path": "apps/web/src/project-memory-preparation.ts",
+      "bytes": 4656,
+      "sha256": "85bd333a0edff8fca8cba8135289ca022a4ddc49638027ed814faf927c635e46",
+      "gitBlobSha": "ea5a90610481baa1a1059700a79b2762a459506e"
+    },
+    {
+      "path": "apps/web/src/useProjectMemoryPreparation.ts",
+      "bytes": 2230,
+      "sha256": "9db725a05016eba31a564cde2209a824a62594b79f719116a945168155f018f9",
+      "gitBlobSha": "253a64d1b9a55fbfd84ad51683020c87329c7afe"
+    },
+    {
+      "path": "evals/fixtures/project-memory-v3.json",
+      "bytes": 7939,
+      "sha256": "741ef55807797f0d98e0514ccbf7fd79e5fc1955ef10829f8f9e7c2428559b3e",
+      "gitBlobSha": "23e79220aedd551b21e07b95aeebd96231bde728"
+    },
+    {
+      "path": "evals/project-memory-study.ts",
+      "bytes": 26188,
+      "sha256": "7ccdaddbee7532982ab41c0aedfcea2c8961b20a8ddffb7bffaedfabb809cbd0",
+      "gitBlobSha": "3964744bb135e52347813612ebd094b5d630907a"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "bytes": 9143,
+      "sha256": "254decb9702125a01815b4528d22836d9da042198b31713428bb09b61d78eefe",
+      "gitBlobSha": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+    },
+    {
+      "path": "packages/contracts/memory-checkpoint.ts",
+      "bytes": 665,
+      "sha256": "42583eb5b29457e93e99748e16227f67fc5b0ab7b573689ba65d06bcabf05eb0",
+      "gitBlobSha": "d3b87f20d8de8143cdf07b1e5509c44939c3e3c3"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9",
+      "gitBlobSha": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "bytes": 4120,
+      "sha256": "6f1dc5669b95a2697aa97df44a3d9c86d48ed15ec23bc75db4f20b257a1d2957",
+      "gitBlobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+      "gitBlobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "bytes": 5999,
+      "sha256": "c26065d87202b051faad3564db8d4a7912333496ef9de963b345336abbf1f423",
+      "gitBlobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b"
+    },
+    {
+      "path": "packages/core/learning.ts",
+      "bytes": 8958,
+      "sha256": "fd8f9c0300752a1bf4d6b90268e17b1802f693212910b4c03b31cab748a100a7",
+      "gitBlobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
+    },
+    {
+      "path": "packages/core/memory-consolidation.ts",
+      "bytes": 27956,
+      "sha256": "c27c22384b3739e3499922416c5d41818ea708c8fccae94228b591f9b14cb073",
+      "gitBlobSha": "845fadf4329da01e1c39c3cd85fd79daf5711439"
+    },
+    {
+      "path": "packages/core/memory-extraction.ts",
+      "bytes": 14935,
+      "sha256": "93cd4a69b00dedcc26a2afbe2a2025878256c5a24997885b964884ea74cef9ee",
+      "gitBlobSha": "f830401bc2e76e20105fa79a93287bc48c7cb8d6"
+    },
+    {
+      "path": "packages/core/memory-publication.ts",
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711",
+      "gitBlobSha": "fa9685412e5b8be70d0d1a0d86b49719a601bb31"
+    },
+    {
+      "path": "packages/core/memory-retrieval.ts",
+      "bytes": 26823,
+      "sha256": "e3f88f9bc94dfcad6404be75b64c2ffeb16b7978997683f660767ead71e73e83",
+      "gitBlobSha": "85b8ca85a57b5033cf5178ebb112d9ac809c4c79"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "bytes": 22162,
+      "sha256": "8a522f1ca2b33d1968f921e19b6d972cbaf5bf52ed781efc0e0ccc27f7ab5809",
+      "gitBlobSha": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "bytes": 63143,
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+      "gitBlobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "bytes": 16211,
+      "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee",
+      "gitBlobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "bytes": 150475,
+      "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451",
+      "gitBlobSha": "d15a6bfb9bbdf81018cf7756851cd3c233525cae"
+    },
+    {
+      "path": "packages/core/skills.ts",
+      "bytes": 20032,
+      "sha256": "6288dfc57a0520774c2e8c1826cef69162dbe5777ce94996a510648716776ef0",
+      "gitBlobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae"
+    },
+    {
+      "path": "packages/core/task-memory.ts",
+      "bytes": 2903,
+      "sha256": "e3f0ae02e787d0ec1463199014a39a5301e3ab5b60cecf6a02cf031b4fb44786",
+      "gitBlobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d"
+    },
+    {
+      "path": "packages/runtime-hermes/broker.ts",
+      "bytes": 12254,
+      "sha256": "1233d18dbb3505edd76bc30916d8c984121785642fb8d06e503ffc5b0134e668",
+      "gitBlobSha": "0256ce338f2e584166a61083c377e0e70dce30c1"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "bytes": 39125,
+      "sha256": "2204c8e4659ca79c30e6f5f09327f0d2327897120eb3005e10cf0038c7abc00d",
+      "gitBlobSha": "83d5d7856551b3d4a52d9a6a2cd8c1363c09abe1"
+    },
+    {
+      "path": "packages/runtime-hermes/memory_checkpoint.py",
+      "bytes": 4586,
+      "sha256": "a10ff9887305d977a2eb0ceb54b700373e43a15cc079905485a482e42f835cff",
+      "gitBlobSha": "e68ad8bab9fbf0eb0272b481e0a32cdacfd59300"
+    },
+    {
+      "path": "packages/runtime-hermes/task-pool.ts",
+      "bytes": 4635,
+      "sha256": "9ccd1fdc925f5bd70dc8e9190bd6812f3697d297a74a0b62c4e063d03c21e218",
+      "gitBlobSha": "44d1923add5fdd2b35829da9ce9c6da12a603448"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "bytes": 80043,
+      "sha256": "f8eaa6ee240226645f5c99c5e30d8fbd769da3a689cfad43ccbdbad1a5e8bc62",
+      "gitBlobSha": "c736b8a9165b8265b6de527021d50f8068900549"
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "bytes": 21660,
+      "sha256": "48964b6885ef4cc17e3ab5434614c2670651c659cf6d0f72a8d5d471aed378bb",
+      "gitBlobSha": "cba17f97199300997cf2decd69fa5605b9f55256"
+    },
+    {
+      "path": "packages/runtime-pi/index.ts",
+      "bytes": 16615,
+      "sha256": "d236cd1ffa604441dd753c531c5494691eb5a331180a44ad6e7414c65c6dcf1f",
+      "gitBlobSha": "0fb96b56571c852e1e46d3ea63523c5eec6057d5"
+    },
+    {
+      "path": "packages/runtime-pi/memory-checkpoint.ts",
+      "bytes": 2647,
+      "sha256": "5f430e0c87917ba6b66e5a4a02dfe8eb9caa8de0a144f18aec7935f7db558988",
+      "gitBlobSha": "eeb370eb8365200b13b06559da9ca3e04a18cce0"
+    },
+    {
+      "path": "packages/runtime-pi/session.ts",
+      "bytes": 2693,
+      "sha256": "9d97c4b84a4eb532a676a06742d4a4998374338e7d8209625df4a592a5f97da3",
+      "gitBlobSha": "045c142cbaad8d58499e21492ac901b5ee191f99"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "bytes": 17302,
+      "sha256": "eff0a53e24bbd0400310020696621289660daf289c882a9816e0d0943ea42ea4",
+      "gitBlobSha": "47c0e3464118863cd75d27db31431c2da0dd25c7"
+    },
+    {
+      "path": "packages/runtime/model-only.ts",
+      "bytes": 4354,
+      "sha256": "9f03722847039504ce4f36bd6c04b3f4abb9fcaa1265ffffe1b016605bc32ffe",
+      "gitBlobSha": "0a935e18dc10dc3f586967654829f351a7167b5d"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "bytes": 15079,
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "gitBlobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "bytes": 22553,
+      "sha256": "1fbcd0fec46b094c0e7a82c585ea7b9ad31045ae57d975ced6f0eac3a4c230eb",
+      "gitBlobSha": "5fad015874cf47115c62410015318452d16ea4f8"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25381,
+      "sha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+      "gitBlobSha": "a709a77a4fb926e21402d790ec516ddcf572fe75"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "bytes": 46360,
+      "sha256": "4582f623d0b15f6abbdedf4e25baa2682f0f8eb95f556947900363e7e0c46afc",
+      "gitBlobSha": "b87c4271a4f5a1fde468e18e5667aeecd85eb377"
+    },
+    {
+      "path": "tests/account-parity.test.ts",
+      "bytes": 11733,
+      "sha256": "d95e253dd706798d66fa61f0c17419418b056f662cb1283f317911bcae038dc2",
+      "gitBlobSha": "a1249944b3c65a976ab6a4c52bd954a3063c4968"
+    },
+    {
+      "path": "tests/desktop-memory-export.test.ts",
+      "bytes": 17324,
+      "sha256": "389b049e0783b6df391c44593a35dab41b47fc8c6bf2ac8b98657965e23d9f1f",
+      "gitBlobSha": "327a3c4e8a07411f0f5b5866597120b1078a4c24"
+    },
+    {
+      "path": "tests/e2e/project-memory.spec.ts",
+      "bytes": 23572,
+      "sha256": "e4d86fa4d01ff6e17ef886312af43bf0f4beed41e515144c39b79b5a64b60285",
+      "gitBlobSha": "2784d460b64476cee01dd2ee207923a881ffe0df"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 13385,
+      "sha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+      "gitBlobSha": "bafa11c3f144643d40ce046f34a2dfeb13392806"
+    },
+    {
+      "path": "tests/e2e/workspace-components-fixture.tsx",
+      "bytes": 6171,
+      "sha256": "18b15f6646baeac6bd2c0d84923df32adc86e77322880539301f74dbf67e0327",
+      "gitBlobSha": "2a49a18b1664ee0a3f15e69a8e1919b75a4880db"
+    },
+    {
+      "path": "tests/e2e/workspace-components.spec.ts",
+      "bytes": 6742,
+      "sha256": "fe66ea00271e4258fd7483fd7a6cfa129b77f979fa336f26fc5f3a2c1ba903d7",
+      "gitBlobSha": "f0a0adfb934f9280e144528dd021cfa3786d07d8"
+    },
+    {
+      "path": "tests/e2e/workspace-ui.spec.ts",
+      "bytes": 41360,
+      "sha256": "77b1631955f48708789a2bfdf29f753efb20d00d383b6567de3438bae83e18f0",
+      "gitBlobSha": "a7cbf2d0a010fba88f919b31669284ee81b8937b"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "bytes": 44415,
+      "sha256": "c272462d2400aa874c79a71ba9c8eded8e214dc3ec2eded2cc935b1de89f7be8",
+      "gitBlobSha": "2797ff95ecadfe97636b1c88a7c519219d5cc691"
+    },
+    {
+      "path": "tests/memory-consolidation-v3.test.ts",
+      "bytes": 34397,
+      "sha256": "fa54168474c033567b3ac65ca490bdc4c8abfbfc975b0d15406d2fc1d5f00b14",
+      "gitBlobSha": "9b8b37f5e35b5859664411665cbfe405eb8922c5"
+    },
+    {
+      "path": "tests/memory-export-client-v3.test.ts",
+      "bytes": 5349,
+      "sha256": "08601c7d6622b675fc6176add7954f9bd56d55a1fa918c005a4ac0f2cf0591d8",
+      "gitBlobSha": "a3a2104b6f02594dc5686805e6e3c9839ee02550"
+    },
+    {
+      "path": "tests/memory-extraction-native-v3.test.ts",
+      "bytes": 6600,
+      "sha256": "4205c095e7467f43d82b855b96cf9f07c34eb72fa16d791585b884fed212d4ec",
+      "gitBlobSha": "f4942b3e9f5368f3c8c798d55e6f80cd2cc9c9c8"
+    },
+    {
+      "path": "tests/memory-extraction-runtime-v3.test.ts",
+      "bytes": 14532,
+      "sha256": "d9453101c1f9a4cf1bc6b6e07dd44355b23abf4241ff392a02c48bab1d6b7dd3",
+      "gitBlobSha": "d88c161dc718d551807349147023917a28b861d8"
+    },
+    {
+      "path": "tests/memory-extraction-scheduler-v3.test.ts",
+      "bytes": 17066,
+      "sha256": "0ee0b1ba7685212252f89a17b9d87f0d8affd2c09b9c73109fd86d4212dc2e32",
+      "gitBlobSha": "7797be3ab599c8623a0110445086976bccf8d6ad"
+    },
+    {
+      "path": "tests/memory-forget-v3.test.ts",
+      "bytes": 15338,
+      "sha256": "fdcb400a721b1e7ca07632e5fc96ed396aedad131ebf0fffd7279197789b4851",
+      "gitBlobSha": "0ad7f99460947f22fc2ab2013948c7b17e090afd"
+    },
+    {
+      "path": "tests/memory-native-checkpoint-v3.test.ts",
+      "bytes": 16014,
+      "sha256": "f014d42f752a480fea6f103f17f41c697bdccacf0658ed1dd84c3f18f1d37b70",
+      "gitBlobSha": "296c0e2e7430b16352f24970126b207038b8b088"
+    },
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "bytes": 7623,
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5",
+      "gitBlobSha": "c2bc4a908a46e6daa454879b7ba3c11a99c73f69"
+    },
+    {
+      "path": "tests/memory-retrieval-v3.test.ts",
+      "bytes": 24620,
+      "sha256": "58dc7e453dd8132cae59509f6206c1685bd3722d59a72f0e35d7981687eb6225",
+      "gitBlobSha": "197a97a4384a7e812dbd2487c08b55ced89ce889"
+    },
+    {
+      "path": "tests/memory-storage-boundary-v3.test.ts",
+      "bytes": 6602,
+      "sha256": "0a90a4109dd7ad62bd985b85e04053cbb8c7fb92488eda37a8de81d101fa0919",
+      "gitBlobSha": "21b823f771d85e8cf0c57e0250350dbe7714e849"
+    },
+    {
+      "path": "tests/memory-study-v3.test.ts",
+      "bytes": 13344,
+      "sha256": "0cc14fa68aebb20b58f8171642204198d2a02465114a6101b540770acade1f4f",
+      "gitBlobSha": "348b6566c2fe4ca634c26acffd66f98cfe318bc5"
+    },
+    {
+      "path": "tests/project-memory-http-v3.test.ts",
+      "bytes": 5581,
+      "sha256": "d92c9a7006535e9b0c465736ba8da6451cb10ee77ffd397e018efb7456ec7ee6",
+      "gitBlobSha": "f455cbb6d24c5e5ef440ca80a278c6942929770e"
+    },
+    {
+      "path": "tests/project-memory-service-v3.test.ts",
+      "bytes": 36512,
+      "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0",
+      "gitBlobSha": "22f01ffc044f64ec1eb43df9d8467969a53c259f"
+    },
+    {
+      "path": "tests/project-memory-v3.test.ts",
+      "bytes": 9090,
+      "sha256": "ed593877bc75d583751099a8e8056cf7104a1314ca905e2c021e2aa7ee544969",
+      "gitBlobSha": "81d5c749ca1f322cddc1c0810fa2eb8d641f2b46"
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "bytes": 20640,
+      "sha256": "c798c6dca02c9ae558bab2fbd0082e360fb0ead30713b34895a5338743dde196",
+      "gitBlobSha": "aa26bcf8997e450de648ac26006770d745a0434c"
+    },
+    {
+      "path": "tests/task-memory.test.ts",
+      "bytes": 4912,
+      "sha256": "88700d6a8a8a2021b54527686c043315a58efd42e98ab7cc00a7db24d5ca5313",
+      "gitBlobSha": "2ada92f323eda1d39131c3a5a17835392f857cac"
+    }
+  ],
+  "changedRequirementBindings": [
+    {
+      "current": {
+        "path": "apps/server/server.ts",
+        "bytes": 28180,
+        "sha256": "e2cfcb9cc0989d4a081583f99511b76fad224d2f802d69be957df3988b81735b",
+        "gitBlobSha": "c4151c1eeb491eaca0d395d744077084e645fcbc"
+      },
+      "previous": {
+        "path": "apps/server/server.ts",
+        "bytes": 28344,
+        "sha256": "121b245641033ceae65184d1ebb801e2156e8dda14e7b4ac59f689751361d303",
+        "gitBlobSha": "cd788ed0412870fde971a0f62104203ff4b017d3"
+      }
+    },
+    {
+      "current": {
+        "path": "apps/web/src/App.tsx",
+        "bytes": 156966,
+        "sha256": "2c371849c93afa0b897fcdc82640ca0f4136f112ee6713c811689a8899c41dbb",
+        "gitBlobSha": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e"
+      },
+      "previous": {
+        "path": "apps/web/src/App.tsx",
+        "bytes": 156519,
+        "sha256": "56e64c8886c2f9f0e64043cd520e824995402ec79f9a6c7e88ce8e5771e5e81c",
+        "gitBlobSha": "16229011579cd7831bdefb909a6b5f34608466cb"
+      }
+    }
+  ],
+  "diagnosticSupplementalBindings": [
+    {
+      "path": "apps/desktop/backend-policy.ts",
+      "bytes": 11523,
+      "sha256": "545175f5dec51850bb2c683cb7a0472ce8044daf76815e4239ddb5e671388473",
+      "gitBlobSha": "128e03364029d97fddfa53be0a23bf3a5c735222"
+    },
+    {
+      "path": "apps/server/main.ts",
+      "bytes": 4041,
+      "sha256": "a92251473da0c090efe3b1eaf0c22acca0702a8633b2dfb1072e1d00c3263a30",
+      "gitBlobSha": "9e76d4dcef41e3ba02a439d63022ec99a1bfb9cd"
+    },
+    {
+      "path": "tests/desktop-backend-handoff.test.ts",
+      "bytes": 2441,
+      "sha256": "a409a883fe77909fba6aa9fe8417a6ff7b0468108ae666c122e5441602ebb8bb",
+      "gitBlobSha": "1d43af4e9499490865cb362ff5918e3ad14862b3"
+    },
+    {
+      "path": "tests/desktop-native.test.ts",
+      "bytes": 24494,
+      "sha256": "8c92a4850df5b27ce530e12422fb56ebd3937e75153483494e12f00a29fe2a9a",
+      "gitBlobSha": "672db4b716bdcfd4f088324b49592dd843106436"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "bytes": 31253,
+      "sha256": "612b90babf5e790a5d263eb05885c13e9478625d6904b716f86fd584025597e9",
+      "gitBlobSha": "b4b847a5503ef4c6d3768d8f0656339e99905b6d"
+    }
+  ],
+  "guardSupplementalBindings": [
+    {
+      "path": "packages/core/file-access.ts",
+      "bytes": 12366,
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "gitBlobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/runtime-hermes/home.ts",
+      "bytes": 2032,
+      "sha256": "9366285b50f98bde66076d3496aedcf74037672b4a8a7b6823c331cf9f09453a",
+      "gitBlobSha": "7179d1d8fd7151413e367c0acc772bf1a508a73b"
+    },
+    {
+      "path": "tests/path-access.test.ts",
+      "bytes": 27648,
+      "sha256": "e8fa6cbf0d67be5463811f891c7bd80b698b7a002a27ae714e3712ba7ccafff2",
+      "gitBlobSha": "b823cebc4e5f58cadf1f042a744a0c49bc750956"
+    },
+    {
+      "path": "tests/file-access-startup.test.ts",
+      "bytes": 7489,
+      "sha256": "9ebaedba62be835c61ca20338758606d670f143fc6f119325529adc0b8395797",
+      "gitBlobSha": "1db3faf1ff374665e11040a7b24b97cb34c03e7f"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 136421,
+      "sha256": "d79a2a2d34917a9298ac5c89b6308596087f1f87c08ebd27a4eb75cac5607f2f",
+      "gitBlobSha": "c189a34e04057e1548e7c399173abb3acfc53e47"
+    }
+  ],
+  "deltaFrom95aae": {
+    "pathCount": 56,
+    "paths": [
+      {
+        "status": "D",
+        "path": "apps/server/research-routes.ts"
+      },
+      {
+        "status": "M",
+        "path": "apps/server/server.ts"
+      },
+      {
+        "status": "M",
+        "path": "apps/web/src/App.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/CodeReviewHost.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/ResearchHost.tsx"
+      },
+      {
+        "status": "M",
+        "path": "apps/web/src/ViewSkeletons.tsx"
+      },
+      {
+        "status": "M",
+        "path": "apps/web/src/WorkspaceControls.tsx"
+      },
+      {
+        "status": "M",
+        "path": "apps/web/src/WorkspaceHost.tsx"
+      },
+      {
+        "status": "M",
+        "path": "apps/web/src/WorkspaceSplitLayout.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/code-review-host.css"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/code-review-workspace/CodeReviewWorkspace.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/code-review-workspace/client.ts"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/code-review-workspace/code-review-workspace.css"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/code-review-workspace/model.ts"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-host.css"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/PassageInspector.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/ResearchWorkspace.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/SourceImport.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/SourceReader.tsx"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/client.ts"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/drafts.ts"
+      },
+      {
+        "status": "D",
+        "path": "apps/web/src/research-workspace/research-workspace.css"
+      },
+      {
+        "status": "M",
+        "path": "packages/contracts/workspace.ts"
+      },
+      {
+        "status": "M",
+        "path": "packages/core/file-access.ts"
+      },
+      {
+        "status": "M",
+        "path": "packages/core/workspace-layout.ts"
+      },
+      {
+        "status": "M",
+        "path": "packages/runtime-hermes/home.ts"
+      },
+      {
+        "status": "M",
+        "path": "scripts/browser-suites.ts"
+      },
+      {
+        "status": "M",
+        "path": "scripts/capture-ui/screen-map.ts"
+      },
+      {
+        "status": "M",
+        "path": "scripts/public-source-files.json"
+      },
+      {
+        "status": "D",
+        "path": "tests/code-review-workspace.test.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/code-review-host.playwright.config.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/code-review-host.spec.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/code-review-workspace-fixture.tsx"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/code-review-workspace.playwright.config.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/code-review-workspace.spec.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/e2e/desktop-surfaces.spec.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-host.playwright.config.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-host.spec.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace-app-fixture.tsx"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace-app.spec.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace-fixture-server.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace-fixture.tsx"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace.playwright.config.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/e2e/research-workspace.spec.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/e2e/saved-layout-chooser.spec.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/e2e/shell-error-ownership.spec.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/e2e/workspace-host.spec.ts"
+      },
+      {
+        "status": "A",
+        "path": "tests/file-access-startup.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/path-access.test.ts"
+      },
+      {
+        "status": "A",
+        "path": "tests/plugin-visuals-retirement.test.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/research-routes.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/research-service-integration.test.ts"
+      },
+      {
+        "status": "D",
+        "path": "tests/research-workspace.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/split-workspace-renderer.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/view-loading-state.test.ts"
+      },
+      {
+        "status": "M",
+        "path": "tests/workspace-layout.test.ts"
+      }
+    ],
+    "acceptedMainPathCount": 52,
+    "diffSha256": "4e5ed59f3bf46067ecf2e7080fa1de40732d7e1b89e7b6f119563c3174985a47",
+    "bindingCoverage": "The accepted-base review binds all52 incoming main paths before/after, including explicit deletions. Current71 requirement bindings and five guard supplemental bindings below cover the M05 composition and four additional guard/test paths. Full incoming bindings are referenced rather than duplicated.",
+    "review": {
+      "ref": "docs/implementation/v3/M05-accepted-base-review-49cd6332.json",
+      "bytes": 70256,
+      "sha256": "d99e7fb99e837f1c0b48cec7f4b672f69a6e8a30361c20b08ea53e9ef7bf4e4d",
+      "gitBlobSha": "ae2069c624e8e750068d74f6d17284c83587a8f6"
+    },
+    "guardReview": {
+      "ref": "docs/implementation/v3/M05-guard-startup-repair-review-299aa79f.json",
+      "bytes": 26291,
+      "sha256": "1056f2e64954e9cb2409843a792f5055fd30a6b182428cbf4ff9f9c9c1fc6528",
+      "gitBlobSha": "a5450e72b7b9876182dee4d96b82ef22168349b5"
+    },
+    "findings": [
+      "The accepted retirement removes first-party Research/Code Review routes and views, not M05 memory entities or source contracts. Core research storage/commands remain. The finite supported-preset API refuses new retired layouts while saved legacy forms remain readable.",
+      "App changes only native returned-thread selection readiness; existing select() remains the operation. Project memory panel/preparation/exclusion integration is preserved.",
+      "Server changes only the retired Research HTTP registration. Authenticated M05 endpoints, source bindings and CSRF checks remain.",
+      "Inventory exactly applies accepted-main removals and additions while retaining all61 M05 source and12 runtime additions. The new guard test is declared.",
+      "The guard repair modifies a dedicated cold Hermes startup allowance. No memory activation, provider/account egress, grant, PS1 predicate or native Save policy is changed."
+    ]
+  },
+  "nativeSaveProof": {
+    "helperSha256": "463d776cdb75fd3aa9bfacefd267777bac4448086c9c247db8d2858bb88e1ab6",
+    "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+    "review": {
+      "ref": "/workspace/scratch/36f66011d961/M05-native-save-final-source-proof-0aacdacd.json",
+      "bytes": 44715,
+      "sha256": "19e6bde2c66564798e85b271cdb708e13999350a4789b50dd0debcb6dbd2adcc",
+      "gitBlobSha": "8cdf70c9185ff6b3caa91e877153d5e1cd8fb198"
+    },
+    "prior437769": "Production-policy command PASS; direct command FAIL from its read-only observer, although exact native fixed-file completion succeeded. Preserved unchanged.",
+    "actual437788": "Both direct and exact production-policy command PASS, six ordered events with the five strict keys, fixed634-byte readback SHA905d70a960f8c2703222f1b4d10a9a64a0ddd82c36115220957f1d26dd94b387, exact destination, observer exit0 and owned cleanup exit0.",
+    "scope": "Auxiliary synthetic ordinary native Save mechanism proof, with no provider/account code and no SavePath bypass. Complete installed M05 retention is a separate gate."
+  },
+  "observedScopedLocalEvidence": [
+    {
+      "purpose": "Actual final combined scoped regression: six files, 45 passed, including all nine guard behavior cases.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.meta.json",
+        "bytes": 1616,
+        "sha256": "43a1bc8d7fd6238c6ac74bfa492e029aee6064c3d43f011e4aab15dc895aa9cc",
+        "gitBlobSha": "91ce5fe9e8eb76279ce2214788c8305c51eb35c4"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+        "bytes": 233,
+        "sha256": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22",
+        "gitBlobSha": "5a277089c062208e91274ff8e59c3e4e9b799bd4"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/file-access-startup.test.ts",
+          "tests/public-source.test.ts",
+          "tests/workspace-layout.test.ts",
+          "tests/plugin-visuals-retirement.test.ts",
+          "tests/view-loading-state.test.ts",
+          "tests/project-context-owner.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:58:54.220746+00:00",
+        "endedAt": "2026-11-16T01:59:09.442013+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-main49-green-20261116.log",
+        "logDigest": "8eea38b99092fd05e3ee1450932acd4dc5476153821a75ddbe40496300e2bd22"
+      },
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiffSha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    },
+    {
+      "purpose": "Actual full typecheck of the same combined working diff, exit 0.",
+      "meta": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.meta.json",
+        "bytes": 1310,
+        "sha256": "65bc36319bcc4c529ad07ad7852a58a171e5d3341909b514b696311c311556c4",
+        "gitBlobSha": "d8c9051a23e38a4ebb99103d56df2f467dbe178f"
+      },
+      "log": {
+        "ref": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+        "gitBlobSha": "4776f5fc486a3b9dcc48d9c5c921c651071b1347"
+      },
+      "observedCommand": {
+        "argv": [
+          "pnpm",
+          "typecheck"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+        "startedAt": "2026-11-16T01:58:54.181844+00:00",
+        "endedAt": "2026-11-16T01:59:43.646800+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/windows-guard-main49-typecheck-20261116.log",
+        "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "committedTreeBefore": "dff44b0e76cd237b6c1aa4bdb4fd0e9373d2dac8",
+      "workingDiffSha256": "0216454e2a574a1f2f583c958a230e899e6d1fcec8a52a61ec8f3fa3d75a2b41",
+      "capture": "Actual restored Linux process output; no reconstructed CI step envelope"
+    }
+  ],
+  "observedRepairedWindowsGuardEvidence": {
+    "ref": "docs/implementation/v3/M05-guard-startup-repair-review-299aa79f.json",
+    "bytes": 26291,
+    "sha256": "1056f2e64954e9cb2409843a792f5055fd30a6b182428cbf4ff9f9c9c1fc6528",
+    "gitBlobSha": "a5450e72b7b9876182dee4d96b82ef22168349b5"
+  },
+  "historicalCorrection": {
+    "requirement": 9,
+    "finding": "Preserve the prior review correction: the Hermes task-pool omission was reproduced and fixed before3aa. Exact fifth checkpoint argument and invalidation forwarding remain unchanged in this cut, with the already retained fail-first/46-case composition evidence."
+  },
+  "activation": {
+    "memory.projectV1": false,
+    "memory.externalRecallExperimentV1": false,
+    "autoAcceptance": false,
+    "automaticCrossProjectOrUserWideSharing": false,
+    "proof": "Both finite M05 flags remain default false. The56-path successor delta adds no memory activation, provider/account/egress/grant or agent/plugin setter. The accepted Research/Code Review preset retirement is a separate main behavior change."
+  },
+  "remainingGates": [
+    {
+      "gate": "EXACT_FINAL_SOURCE_FULL_WINDOWS_CI",
+      "status": "PENDING_EXACT_SOURCE_EXECUTION",
+      "detail": "Immutable299/treea304 is the reviewed successor. New full nine-job Windows validation is required; prior de870 run437834 failed Browser and installed startup and remains an actual failure."
+    },
+    {
+      "gate": "DEFAULT_OFF_INSTALLED_RETENTION",
+      "status": "PENDING_ACTUAL_ARTIFACT_AND_STRICT_SOURCE_COMPATIBILITY_ADMISSION",
+      "detail": "No complete installed retention is admitted by this review. Prior437834 failed at guarded backend startup before memory actions. The new dedicated startup allowance requires actual installed validation and the full review/export/Forget/two-launch/post-exit/cleanup evidence. Auxiliary native Save, protocol timing and local mocks do not substitute."
+    },
+    {
+      "gate": "FULL_ENABLED_INSTALLED_MEMORY",
+      "status": "NOT_RUN",
+      "detail": "Extraction, injection and native checkpoint production activation require their own enabled installed evidence."
+    },
+    {
+      "gate": "LIVE_REPEATED_TASK_QUALITY_AND_TOTAL_AUXILIARY_COST",
+      "status": "NOT_RUN_MANIFEST_ONLY",
+      "detail": "Retained study has no configured host/model/account, zero provider calls/submissions, empty runs and all six outcome/cost metrics null. No live endpoint or account execution inferred."
+    },
+    {
+      "gate": "EXTERNAL_RECALL_EMBEDDING_EXPERIMENT",
+      "status": "DISABLED_UNPROVEN",
+      "detail": "Separate provider/egress/capacity approvals remain; external deletion is NOT_SUPPORTED."
+    },
+    {
+      "gate": "FINAL_EVIDENCE_INTEGRITY",
+      "status": "PENDING_FINAL_ASSEMBLY_AND_ACTUAL_VERIFIER",
+      "detail": "Bind final source/base/contracts, preserve all failures and actual argv/exit/logs, then run the real evidence verifier. No generated manifest counts as execution."
+    }
+  ],
+  "concreteNewImplementationFindings": [],
+  "newVerificationCommandsRunByThisReview": [],
+  "verdict": "No new requirement or guard regression found across the original12 M05 steps, four UI behaviors and accepted M04 core. All71 requirement bindings are verified:69 unchanged, two narrowly reviewed App/server updates. The five diagnostics supplements and exact native helper463d/export policy6c61 remain unchanged. Accepted-main49cd and the dedicated Hermes startup repair are source-compatible. New exact-source Windows, complete installed retention, enabled/live and final integrity gates remain explicit; flags remain false."
+}

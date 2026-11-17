@@ -103,3 +103,20 @@ it('reports a defer rather than an installation if close evidence changes at dis
  expect(controller.status()).toMatchObject({state:'deferred',version:'0.7.0'});
  controller.dispose();
 });
+
+it.each(['throws','emits an error'])('allows a fresh verified check after installer dispatch %s', async mode => {
+ const f=fixture();
+ const proof={activeWorkAtClose:false,osSessionEnding:false,savedStateFlushed:true,backendStoppedCleanly:true};
+ const attempt=vi.spyOn(f.updater,'quitAndInstall').mockImplementationOnce(()=>{const error=Error('Installer launch failed');if(mode==='throws')throw error;f.updater.emit('error',error);});
+ try {
+  await f.controller.check();
+  expect(await f.controller.installAfterClose(proof,true)).toBe(false);
+  expect(f.controller.status().state).toBe('failed');
+  // No installer can run again until a new verified download is ready.
+  expect(await f.controller.installAfterClose(proof,true)).toBe(false);
+  expect((await f.controller.check()).state).toBe('ready');
+  expect(f.updater.checks).toBe(2);
+  expect(await f.controller.installAfterClose(proof,true)).toBe(true);
+  expect(attempt).toHaveBeenCalledTimes(2);
+ } finally {f.controller.dispose();}
+});

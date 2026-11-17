@@ -1,0 +1,49 @@
+2026-11-16T00:59:15.0406024Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-16T00:59:15.0406506Z $ErrorActionPreference = 'Stop'
+2026-11-16T00:59:15.0407054Z $manifest = Get-Content -Raw -LiteralPath third-party/git-tools/manifest.json | ConvertFrom-Json
+2026-11-16T00:59:15.0407794Z $scratch = Join-Path $env:RUNNER_TEMP ('gen-installed-inputs-' + [guid]::NewGuid().ToString('N'))
+2026-11-16T00:59:15.0408389Z New-Item -ItemType Directory -Path $scratch | Out-Null
+2026-11-16T00:59:15.0408932Z foreach ($tool in @(@{name='git'; pin=$manifest.git}, @{name='gh'; pin=$manifest.github})) {
+2026-11-16T00:59:15.0409382Z   $pin = $tool.pin
+2026-11-16T00:59:15.0410043Z   if ($pin.url -notmatch '^https://github\.com/(git-for-windows/git|cli/cli)/releases/download/[^?#\s]+\.zip$' -or $pin.archiveSha256 -notmatch '^[0-9a-f]{64}$') {
+2026-11-16T00:59:15.0410800Z     throw 'Invalid declared Git packaging archive identity'
+2026-11-16T00:59:15.0411164Z   }
+2026-11-16T00:59:15.0412098Z   $archive = Join-Path $scratch ($tool.name + '.zip')
+2026-11-16T00:59:15.0412573Z   Invoke-WebRequest -Uri $pin.url -OutFile $archive -TimeoutSec 180
+2026-11-16T00:59:15.0413247Z   if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.archiveSha256) {
+2026-11-16T00:59:15.0413875Z     throw 'Declared Git packaging archive checksum mismatch'
+2026-11-16T00:59:15.0414214Z   }
+2026-11-16T00:59:15.0414439Z   $expanded = Join-Path $scratch $tool.name
+2026-11-16T00:59:15.0414854Z   Expand-Archive -LiteralPath $archive -DestinationPath $expanded
+2026-11-16T00:59:15.0415230Z   $source = $expanded
+2026-11-16T00:59:15.0415670Z   if ($tool.name -eq 'gh' -and -not (Test-Path -LiteralPath (Join-Path $source 'bin/gh.exe'))) {
+2026-11-16T00:59:15.0416268Z     $source = Join-Path $expanded ('gh_' + $pin.version + '_windows_amd64')
+2026-11-16T00:59:15.0416665Z   }
+2026-11-16T00:59:15.0416927Z   $prefix = '.harness-tool-bundles/' + $tool.name + '/'
+2026-11-16T00:59:15.0417642Z   $destination = Join-Path $PWD ('.harness-tool-bundles/' + $tool.name)
+2026-11-16T00:59:15.0418249Z   if (Test-Path -LiteralPath $destination) { throw 'Packaging input destination already exists' }
+2026-11-16T00:59:15.0419025Z   New-Item -ItemType Directory -Path $destination | Out-Null
+2026-11-16T00:59:15.0419580Z   foreach ($file in @($manifest.files | Where-Object { $_.path.StartsWith($prefix) })) {
+2026-11-16T00:59:15.0420072Z     $relative = $file.path.Substring($prefix.Length)
+2026-11-16T00:59:15.0420833Z     if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '(^|/)\.\.?(/|$)|[\\:]|^/|//|/$' -or $file.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid declared Git payload path' }
+2026-11-16T00:59:15.0421588Z     $payloadInput = Join-Path $source $relative
+2026-11-16T00:59:15.0421953Z     $payloadOutput = Join-Path $destination $relative
+2026-11-16T00:59:15.0422913Z     if ((Get-Item -LiteralPath $payloadInput).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $payloadInput -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw 'Declared Git payload checksum mismatch' }
+2026-11-16T00:59:15.0424023Z     New-Item -ItemType Directory -Path (Split-Path -Parent $payloadOutput) -Force | Out-Null
+2026-11-16T00:59:15.0424614Z     Copy-Item -LiteralPath $payloadInput -Destination $payloadOutput
+2026-11-16T00:59:15.0424987Z   }
+2026-11-16T00:59:15.0425157Z }
+2026-11-16T00:59:15.0426001Z node --import tsx --input-type=module -e "import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));"
+2026-11-16T00:59:15.0428766Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-16T00:59:15.0503000Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T00:59:15.0503362Z env:
+2026-11-16T00:59:15.0503635Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T00:59:15.0504064Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:15.0504546Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T00:59:15.0505011Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:15.0505448Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:15.0505856Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T00:59:15.0506315Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T00:59:15.0506893Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-8c461f68da824c63ad8617ba2cae0d01
+2026-11-16T00:59:15.0507343Z ##[endgroup]
+2026-11-16T00:59:19.8697094Z {"files":386,"bytes":147868460}

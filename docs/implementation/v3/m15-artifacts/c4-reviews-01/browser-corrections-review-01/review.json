@@ -1,0 +1,1612 @@
+{
+  "kind": "C4_BROWSER_CORRECTIONS_RESULTS_AND_FAILURE_ANALYSIS",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-browser-corrections-01/source-cut.json",
+    "sha256": "f542de949b162bf343058a77b2cbb6091d7f6ebb10ef1df1926776a3d3e5006a",
+    "bytes": 547943
+  },
+  "sourceVerification": {
+    "observedBeforeAndAfterEachRun": true,
+    "lastVerifiedFiles": 2390,
+    "lastVerifiedBytes": 55415853,
+    "head": "082264877e3bb61e8c87f257ccd831b5c1438472"
+  },
+  "runs": [
+    {
+      "id": "c4-desktop-error-roles-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-error-roles-01.json",
+        "sha256": "1f31353b29a6964b9c17cd1ce634479e3b24bec2d491417a3cdf6abb3be136d5",
+        "bytes": 923
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-desktop-error-roles-01.log",
+        "sha256": "992a1ace1172b0ee3a0f1df44487d142b0cc88f6487996de31d8b0c423ce5a65",
+        "bytes": 1673
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/results.json",
+        "sha256": "e6beacf4e656f40b28fa6e8ab82f570876f2c9c304ee3829b700638020f7391b",
+        "bytes": 5110
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--grep",
+        "detached workspace selection does not acquire|export refuses pending signature assets|review: a failed detached workspace close retains",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:28:42.794Z",
+      "endedAt": "2026-11-16T04:28:58.141Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "stats": {
+        "startTime": "2026-11-16T04:28:44.725Z",
+        "duration": 13385.519999999999,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": [],
+      "cases": [
+        {
+          "title": "detached workspace selection does not acquire an unacknowledged second artifact editor",
+          "status": "passed",
+          "durationMs": 5292,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "export refuses pending signature assets instead of silently omitting the mark",
+          "status": "passed",
+          "durationMs": 2775,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: a failed detached workspace close retains the editable surface",
+          "status": "passed",
+          "durationMs": 1292,
+          "error": null,
+          "attachments": []
+        }
+      ],
+      "scope": "Declared Linux Chromium scripted desktop bridge, three selected error-role cases",
+      "failureArtifacts": []
+    },
+    {
+      "id": "c4-usage-chromium-corrected-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-corrected-01.json",
+        "sha256": "dfaffde41dd5a1218975474b11a488591947008a73713a9b0152f3e2ee61e908",
+        "bytes": 863
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-usage-chromium-corrected-01.log",
+        "sha256": "7d0e1d849ab57e0749586a690f15f0b7fdc0674470858b594a45489150b90713",
+        "bytes": 13989
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/results.json",
+        "sha256": "324e5fdfac40260ae3eaa15ec32c594dd5f27438676153f74db239cbf9c72e42",
+        "bytes": 35982
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:29:28.412Z",
+      "endedAt": "2026-11-16T04:30:51.691Z",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "stats": {
+        "startTime": "2026-11-16T04:29:30.314Z",
+        "duration": 81097.282,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "reportErrors": [],
+      "cases": [
+        {
+          "title": "mobile navigation backdrop remains clickable after a nested Settings dialog closes",
+          "status": "passed",
+          "durationMs": 5183,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "failed handoffs have one dismissible shell presenter and keep drafts and commands guarded",
+          "status": "passed",
+          "durationMs": 3073,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection",
+          "status": "failed",
+          "durationMs": 7977,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTitle('Studio', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTitle('Studio', { exact: true })\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTitle('Studio', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTitle('Studio', { exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:34:132",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+              "column": 132,
+              "line": 34
+            },
+            "snippet": "  32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});\n  33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();\n> 34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);\n     |                                                                                                                                    ^\n  35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();\n  36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();\n  37 |  await expect(iframe).toBeVisible();await page.keyboard.press('Escape');await expect(iframe).toBeVisible();"
+          },
+          "attachments": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "actual App sidebar Usage opens canonical modal and retains the conversation draft",
+          "status": "passed",
+          "durationMs": 2291,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 375px",
+          "status": "passed",
+          "durationMs": 3451,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 768px",
+          "status": "passed",
+          "durationMs": 4523,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 1440px",
+          "status": "passed",
+          "durationMs": 5212,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App Live usage preference controls the composer launcher without opening the summary",
+          "status": "passed",
+          "durationMs": 2926,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "split conversation launchers control the shared summary for the active pane and start closed after reload",
+          "status": "failed",
+          "durationMs": 9293,
+          "error": {
+            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected substring: \u001b[32m\"Other synthetic owner\"\u001b[39m\nReceived string:    \u001b[31m\"UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to <dialog open=\"\" aria-labelledby=\"_r_a_\" data-escape-scope=\"true\" class=\"ui-modal usage-dialog\">…</dialog>\u001b[22m\n\u001b[2m      - unexpected value \"UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported\"\u001b[22m\n",
+            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected substring: \u001b[32m\"Other synthetic owner\"\u001b[39m\nReceived string:    \u001b[31m\"UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to <dialog open=\"\" aria-labelledby=\"_r_a_\" data-escape-scope=\"true\" class=\"ui-modal usage-dialog\">…</dialog>\u001b[22m\n\u001b[2m      - unexpected value \"UsageCostTokensLimitsRequestsAll scopesAll scopesSource-bound task fixtureAll providersAll providerstestRefreshtestSource-bound task fixtureInput tokens7Output tokensNot reportedCache read tokensNot reportedCache write tokensNot reported\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:69:98",
+            "location": {
+              "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+              "column": 98,
+              "line": 69
+            },
+            "snippet": "  67 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();\n  68 |  await summary.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(modal(page)).toBeVisible();\n> 69 |  await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('Other synthetic owner');await expect(modal(page)).toContainText('999');\n     |                                                                                                  ^\n  70 |  await page.keyboard.press('Escape');await page.reload();await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();\n  71 |  for(const pane of [first,second])await expect(pane.getByRole('button',{name:'Show live usage',exact:true})).toHaveAttribute('aria-pressed','false');\n  72 |  await expect(first.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep the first pane draft');"
+          },
+          "attachments": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip"
+            }
+          ]
+        },
+        {
+          "title": "actual App dock header remains a disclosure and its body opens the same Usage modal",
+          "status": "passed",
+          "durationMs": 2160,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App context portal protects IME, retains its owner command, and never infers a receipt",
+          "status": "passed",
+          "durationMs": 2666,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App captured usage scope does not switch to another thread on snapshots",
+          "status": "passed",
+          "durationMs": 2881,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "actual App restores the old single Usage route to modal and leaves saved Thread memory reachable",
+          "status": "passed",
+          "durationMs": 2410,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: a closed remembered Usage tab must not open a blocking dialog on launch",
+          "status": "passed",
+          "durationMs": 1343,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: an open restored Usage tab resolves its loaded conversation scope",
+          "status": "passed",
+          "durationMs": 2920,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: an open restored Usage tab stays closed in split workspace and keeps both composers available",
+          "status": "timedOut",
+          "durationMs": 15149,
+          "error": {
+            "message": "\u001b[31mTest timeout of 15000ms exceeded.\u001b[39m",
+            "stack": "\u001b[31mTest timeout of 15000ms exceeded.\u001b[39m"
+          },
+          "attachments": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/trace.zip"
+            }
+          ]
+        }
+      ],
+      "scope": "Complete declared suite through retained private Linux Chromium override; no Edge execution",
+      "failureArtifacts": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md",
+          "sha256": "f7a124839282ebfddf51193bf5759acfb2b74973d5214e52c78c1d1128569ddd",
+          "bytes": 2593
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip",
+          "sha256": "71abac1bada3d13b18c128a665197713258b910d228806d26e7905136f03994e",
+          "bytes": 567535
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/error-context.md",
+          "sha256": "6ba4f07632b4b5743e9bc6288eb80dec9cdb72cd2e1673346e5570a67383ef74",
+          "bytes": 7895
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/trace.zip",
+          "sha256": "4339e78d734368a189cb0b7a9e8b23594e285b0cc36d6a36029bfba0859ac04c",
+          "bytes": 878455
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md",
+          "sha256": "061d63991aa3ca1959eb4eeb7dbf2adea902255f338ad9d92aab5f7c56767d28",
+          "bytes": 12138
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip",
+          "sha256": "d1ee571705e6520e1a69c35f8e78a8ff7d0dea846637cd732c6213a4a16bc827",
+          "bytes": 2939050
+        }
+      ]
+    },
+    {
+      "id": "c4-workspace-chromium-corrected-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-workspace-chromium-corrected-01.json",
+        "sha256": "732e706aa26cf8009061ced3aab650e26694447f7cfe5516ea4729cf62989eea",
+        "bytes": 864
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-workspace-chromium-corrected-01.log",
+        "sha256": "6676c4f1a78c3e8eea1380b0f0908e121867d9efe6f7e4bd9e15bd09b6382fce",
+        "bytes": 8293
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/results.json",
+        "sha256": "cb2ed6d1c1751d6b2da3669dd7c2405807d9eb2ecadd11eebef5db2b2c1190c0",
+        "bytes": 53781
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:31:34.983Z",
+      "endedAt": "2026-11-16T04:33:25.985Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "stats": {
+        "startTime": "2026-11-16T04:31:37.048Z",
+        "duration": 108893.092,
+        "expected": 48,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": [],
+      "cases": [
+        {
+          "title": "cold restored monitor resolves its owner before any global conversation read",
+          "status": "passed",
+          "durationMs": 5126,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "native progress never installs the legacy snapshot refresh subscription in the monitor",
+          "status": "passed",
+          "durationMs": 1495,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "explicit conversation navigation preserves its draft and returns to the project-row monitor",
+          "status": "passed",
+          "durationMs": 2673,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a monitor model intent is scoped to its conversation and consumed once before another Composer mounts",
+          "status": "passed",
+          "durationMs": 2818,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "workspace resolution failure stays retryable without falling back to a global snapshot",
+          "status": "passed",
+          "durationMs": 1683,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "compact Settings reserves sections while metadata loads and retains its search on refresh",
+          "status": "passed",
+          "durationMs": 3157,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "Settings opens over the monitor with compact metadata and preserves the owner",
+          "status": "passed",
+          "durationMs": 2110,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "invalid restored owner reports recovery instead of an endless opening state",
+          "status": "passed",
+          "durationMs": 1413,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "one pending send owner survives opening the ordinary conversation and retains later text",
+          "status": "passed",
+          "durationMs": 2490,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a native attention destination opens its exact conversation from the monitor",
+          "status": "passed",
+          "durationMs": 2392,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "compact Settings Add resource opens the existing resource grant flow",
+          "status": "passed",
+          "durationMs": 2394,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "resource kind file uses the modal-owned shared selector and preserves exact grant",
+          "status": "passed",
+          "durationMs": 3197,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "resource kind database uses the modal-owned shared selector and preserves exact grant",
+          "status": "passed",
+          "durationMs": 3653,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "resource kind export uses the modal-owned shared selector and preserves exact grant",
+          "status": "passed",
+          "durationMs": 3585,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor preserves unpin confirmation with a shared dialog and cancellation",
+          "status": "passed",
+          "durationMs": 2175,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor honors disabled archive confirmation without creating an extra dialog",
+          "status": "passed",
+          "durationMs": 1500,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a consumed New thread intent is not replayed after returning through the monitor",
+          "status": "passed",
+          "durationMs": 3474,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "the Settings keyboard shortcut opens compact Settings in the monitor",
+          "status": "passed",
+          "durationMs": 1239,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a rejected overlapping handoff preserves the accepted New thread intent",
+          "status": "passed",
+          "durationMs": 1915,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "Settings close waits for an accepted preference save before applying monitor confirmation",
+          "status": "passed",
+          "durationMs": 2635,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "keyboard and status Stop share the ordinary composer pending owner",
+          "status": "passed",
+          "durationMs": 2288,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor Stop shortcut stops the focused working agent exactly once (AUD-06)",
+          "status": "passed",
+          "durationMs": 1405,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: returning through All Agents retains the latest conversation selection",
+          "status": "passed",
+          "durationMs": 2777,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "the workspace switcher offers only supported presets (T05/R12)",
+          "status": "passed",
+          "durationMs": 1285,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a saved code-review canvas resolves to Workspace without rewriting the retired record (T05/R12)",
+          "status": "passed",
+          "durationMs": 1330,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a saved custom canvas resolves to Workspace without rewriting the retired record (T05/R12)",
+          "status": "passed",
+          "durationMs": 1948,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12)",
+          "status": "passed",
+          "durationMs": 1123,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12)",
+          "status": "passed",
+          "durationMs": 3082,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: restored archived conversation becomes available in monitor navigation",
+          "status": "passed",
+          "durationMs": 2935,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "review: restored native thread owner keeps the monitor composer inert",
+          "status": "passed",
+          "durationMs": 1241,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "desktop ownership updates hold monitor send and Stop then preserve the draft on return",
+          "status": "passed",
+          "durationMs": 1503,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "desktop ownership change prevents a slash mode retry after authentication renewal",
+          "status": "passed",
+          "durationMs": 1451,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a native owner roundtrip before auth retry still rejects the stale mode",
+          "status": "passed",
+          "durationMs": 1502,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "unmounting the monitor before native takeover rejects a stale mode retry",
+          "status": "passed",
+          "durationMs": 1727,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "synchronous native owner roundtrip fences the pending mode retry and permits a later explicit attempt",
+          "status": "passed",
+          "durationMs": 1880,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "native takeover immediately before the mode callback prevents its initial dispatch",
+          "status": "passed",
+          "durationMs": 1384,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "unrelated native owner roundtrip preserves a pending mode retry and its command identity",
+          "status": "passed",
+          "durationMs": 1338,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "synchronous native owner roundtrip fences the pending message.send auth retry",
+          "status": "passed",
+          "durationMs": 1714,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "synchronous native owner roundtrip fences the pending run.stop auth retry",
+          "status": "passed",
+          "durationMs": 1370,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "Workspace artifact uses the shared chooser and retains the anchored chat draft",
+          "status": "passed",
+          "durationMs": 2600,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor Settings code loads only on open and remains reusable after closing during loading",
+          "status": "passed",
+          "durationMs": 3074,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor Settings chunk recovery retains assets before reloading",
+          "status": "passed",
+          "durationMs": 1970,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor Settings chunk recovery retains journal before reloading",
+          "status": "passed",
+          "durationMs": 1950,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "monitor Settings chunk recovery retains handoff before reloading",
+          "status": "passed",
+          "durationMs": 2244,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "plugin workspace tabs stay reachable from All Agents and open through the conversation owner",
+          "status": "passed",
+          "durationMs": 1833,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a failed plug-in catalog keeps a dismissible toast and a persistent inline retry in All Agents",
+          "status": "passed",
+          "durationMs": 1666,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "All Agents empty copy reconciles with existing conversations and shows a live status dot",
+          "status": "passed",
+          "durationMs": 1381,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "an unavailable main layout gives the user a retry without reloading the page",
+          "status": "passed",
+          "durationMs": 2153,
+          "error": null,
+          "attachments": []
+        }
+      ],
+      "scope": "Complete declared suite through retained private Linux Chromium override; no Edge execution",
+      "failureArtifacts": []
+    },
+    {
+      "id": "c4-layout-chromium-corrected-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-layout-chromium-corrected-01.json",
+        "sha256": "4cda4722480062f9ad59109f13a43a44916ffa63e8aec74797ff32f6e58165e4",
+        "bytes": 864
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-layout-chromium-corrected-01.log",
+        "sha256": "8cb265b441b1780f38315efcb1f69ec1f2b76375ba71bc78a08c1c6a688b38ac",
+        "bytes": 3351
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-layout-chromium-corrected-01/results.json",
+        "sha256": "84842668db694c4c3e2e451068addcc10e56f3220e25fecd1f824185705c8eae",
+        "bytes": 18091
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-layout-chromium-corrected-01/artifacts"
+      ],
+      "startedAt": "2026-11-16T04:33:49.030Z",
+      "endedAt": "2026-11-16T04:34:17.016Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "stats": {
+        "startTime": "2026-11-16T04:33:50.711Z",
+        "duration": 26232.495000000003,
+        "expected": 15,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "reportErrors": [],
+      "cases": [
+        {
+          "title": "saved rows replace the name/action bank and apply only on explicit activation",
+          "status": "passed",
+          "durationMs": 1623,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "save asks for a name on demand, selects its exact ID, and reports current then modified",
+          "status": "passed",
+          "durationMs": 2240,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "same-task repeated activation is locked, and an already current row does not apply twice",
+          "status": "passed",
+          "durationMs": 1971,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "failed apply keeps the chooser, arrangement, current identity and conversation draft",
+          "status": "passed",
+          "durationMs": 1520,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "row overflow updates, renames and confirms deletion without applying on focus",
+          "status": "passed",
+          "durationMs": 3076,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "cancel and IME keys preserve the name draft and unwind one overlay at a time",
+          "status": "passed",
+          "durationMs": 1364,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "empty, loading and failed lists stay distinct and offer retry",
+          "status": "passed",
+          "durationMs": 1594,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "historical records are explicit recovery rows and never inferred as the current split",
+          "status": "passed",
+          "durationMs": 1092,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "a stale metadata failure from the old workspace cannot replace the new workspace state",
+          "status": "passed",
+          "durationMs": 679,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "keyboard users can reach row overflow with Tab and Escape returns through both layers",
+          "status": "passed",
+          "durationMs": 504,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "externally changed saved metadata invalidates an observed current badge",
+          "status": "passed",
+          "durationMs": 993,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "reopening reveals and focuses the observed selected row",
+          "status": "passed",
+          "durationMs": 1149,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "pending layout application cannot race a workspace preset change",
+          "status": "passed",
+          "durationMs": 1485,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "short narrow dark chooser scrolls with row gaps, keyboard access and distinct states",
+          "status": "passed",
+          "durationMs": 1083,
+          "error": null,
+          "attachments": []
+        },
+        {
+          "title": "short narrow light chooser scrolls with row gaps, keyboard access and distinct states",
+          "status": "passed",
+          "durationMs": 1546,
+          "error": null,
+          "attachments": []
+        }
+      ],
+      "scope": "Complete declared suite through retained private Linux Chromium override; no Edge execution",
+      "failureArtifacts": []
+    }
+  ],
+  "usageFailures": {
+    "shell": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip",
+        "sha256": "71abac1bada3d13b18c128a665197713258b910d228806d26e7905136f03994e",
+        "bytes": 567535
+      },
+      "errorContext": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md",
+        "sha256": "f7a124839282ebfddf51193bf5759acfb2b74973d5214e52c78c1d1128569ddd",
+        "bytes": 2593
+      },
+      "calls": [
+        {
+          "type": "before",
+          "callId": "call@210",
+          "startTime": 15997.967,
+          "class": "Frame",
+          "method": "click",
+          "params": {
+            "selector": "internal:role=button[name=\"Studio\"s]",
+            "strict": true,
+            "timeout": 0
+          },
+          "stepId": "pw:api@51",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@210"
+        },
+        {
+          "type": "before",
+          "callId": "call@212",
+          "startTime": 16035.248,
+          "title": "Expect \"toBeVisible\"",
+          "class": "Frame",
+          "method": "expect",
+          "params": {
+            "selector": "internal:attr=[title=\"Studio\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          },
+          "stepId": "expect@52",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@212"
+        },
+        {
+          "type": "before",
+          "callId": "call@218",
+          "startTime": 16163.268,
+          "class": "Frame",
+          "method": "waitForSelector",
+          "params": {
+            "selector": "internal:attr=[title=\"Studio\"s]",
+            "strict": true,
+            "timeout": 0,
+            "state": "attached"
+          },
+          "stepId": "pw:api@55",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@218"
+        },
+        {
+          "type": "before",
+          "callId": "call@234",
+          "startTime": 16368.178,
+          "title": "Expect \"toBeVisible\"",
+          "class": "Frame",
+          "method": "expect",
+          "params": {
+            "selector": "internal:attr=[title=\"Studio\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          },
+          "stepId": "expect@63",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@234"
+        },
+        {
+          "type": "before",
+          "callId": "call@236",
+          "startTime": 16376.52,
+          "class": "Frame",
+          "method": "click",
+          "params": {
+            "selector": "internal:role=alert >> internal:has-text=\"Source edits must be confirmed before leaving.\"i >> internal:role=button[name=\"Dismiss error\"s]",
+            "strict": true,
+            "timeout": 0
+          },
+          "stepId": "pw:api@64",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@236"
+        },
+        {
+          "type": "before",
+          "callId": "call@240",
+          "startTime": 16481.757,
+          "title": "Expect \"toBeVisible\"",
+          "class": "Frame",
+          "method": "expect",
+          "params": {
+            "selector": "internal:attr=[title=\"Studio\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          },
+          "stepId": "expect@66",
+          "pageId": "page@939eeb46c696660c55ee04908562129e",
+          "beforeSnapshot": "before@call@240"
+        }
+      ],
+      "frames": [
+        {
+          "snapshot": "after@call@212",
+          "timeMs": 16158.399,
+          "iframes": [
+            {
+              "__playwright_bounding_rect__": "{\"left\":248,\"top\":47,\"right\":1440,\"bottom\":900}",
+              "__playwright_target__": "call@212",
+              "src": "",
+              "title": "Studio",
+              "referrerpolicy": "no-referrer"
+            }
+          ]
+        },
+        {
+          "snapshot": "after@call@218",
+          "timeMs": 16208.252,
+          "iframes": [
+            {
+              "__playwright_bounding_rect__": "{\"left\":248,\"top\":47,\"right\":1440,\"bottom\":900}",
+              "__playwright_target__": "call@212",
+              "src": "/snapshot/frame@de120c2ec4d4806266dcb036cb199f68",
+              "title": "Studio",
+              "referrerpolicy": "no-referrer"
+            }
+          ]
+        },
+        {
+          "snapshot": "after@call@230",
+          "timeMs": 16357.731,
+          "iframes": [
+            {
+              "__playwright_bounding_rect__": "{\"left\":248,\"top\":109,\"right\":1440,\"bottom\":900}",
+              "__playwright_target__": "call@212",
+              "src": "/snapshot/frame@de120c2ec4d4806266dcb036cb199f68",
+              "title": "Studio",
+              "referrerpolicy": "no-referrer"
+            }
+          ]
+        },
+        {
+          "snapshot": "after@call@234",
+          "timeMs": 16375.077,
+          "iframes": [
+            {
+              "__playwright_bounding_rect__": "{\"left\":248,\"top\":109,\"right\":1440,\"bottom\":900}",
+              "__playwright_target__": "call@234",
+              "src": "/snapshot/frame@de120c2ec4d4806266dcb036cb199f68",
+              "title": "Studio",
+              "referrerpolicy": "no-referrer"
+            }
+          ]
+        },
+        {
+          "snapshot": "after@call@236",
+          "timeMs": 16460.159,
+          "iframes": [
+            {
+              "__playwright_bounding_rect__": "{\"left\":248,\"top\":47,\"right\":1440,\"bottom\":900}",
+              "__playwright_target__": "call@234",
+              "src": "/snapshot/frame@de120c2ec4d4806266dcb036cb199f68",
+              "title": "",
+              "referrerpolicy": "no-referrer",
+              "data-tooltip": "Studio",
+              "data-tooltip-adopted": "",
+              "aria-label": "Studio",
+              "data-tooltip-named": ""
+            }
+          ]
+        }
+      ],
+      "conclusion": "Same retained frame and visible rectangle; title becomes empty while data-tooltip and aria-label remain Studio. Failure is a title-based locator assumption after tooltip adoption, not a missing frame."
+    },
+    "usage": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip",
+        "sha256": "d1ee571705e6520e1a69c35f8e78a8ff7d0dea846637cd732c6213a4a16bc827",
+        "bytes": 2939050
+      },
+      "errorContext": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md",
+        "sha256": "061d63991aa3ca1959eb4eeb7dbf2adea902255f338ad9d92aab5f7c56767d28",
+        "bytes": 12138
+      },
+      "calls": [
+        {
+          "id": "call@516",
+          "startMs": 41660.471,
+          "method": "expect",
+          "params": {
+            "selector": "textarea[aria-label=\"Message\"] >> nth=0",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 15000
+          }
+        },
+        {
+          "id": "call@534",
+          "startMs": 42739.148,
+          "method": "expect",
+          "params": {
+            "selector": ".composer-usage-launcher",
+            "expression": "to.have.count",
+            "expectedNumber": 2,
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@554",
+          "startMs": 43299.204,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s]",
+            "expression": "to.be.hidden",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@560",
+          "startMs": 43358.55,
+          "method": "expect",
+          "params": {
+            "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=button[name=\"Show live usage\"s]",
+            "expression": "to.have.attribute.value",
+            "expressionArg": "aria-pressed",
+            "expectedText": [
+              {
+                "string": "false"
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@562",
+          "startMs": 43384.932,
+          "method": "expect",
+          "params": {
+            "selector": "[data-split-view=\"thread:other\"] >> internal:role=button[name=\"Show live usage\"s]",
+            "expression": "to.have.attribute.value",
+            "expressionArg": "aria-pressed",
+            "expectedText": [
+              {
+                "string": "false"
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@564",
+          "startMs": 43401.024,
+          "method": "fill",
+          "params": {
+            "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+            "strict": true,
+            "value": "Keep the first pane draft",
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@566",
+          "startMs": 43453.08,
+          "method": "click",
+          "params": {
+            "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=button[name=\"Show live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@570",
+          "startMs": 43803.544,
+          "method": "expect",
+          "params": {
+            "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=button[name=\"Hide live usage\"s]",
+            "expression": "to.have.attribute.value",
+            "expressionArg": "aria-pressed",
+            "expectedText": [
+              {
+                "string": "true"
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@572",
+          "startMs": 43824.075,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@574",
+          "startMs": 43835.97,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s]",
+            "expression": "to.have.text",
+            "expectedText": [
+              {
+                "string": "7 input tokens",
+                "matchSubstring": true,
+                "normalizeWhiteSpace": true
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@576",
+          "startMs": 43849.142,
+          "method": "click",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s] >> internal:role=button[name=\"Inspect live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@578",
+          "startMs": 43997.015,
+          "method": "fill",
+          "params": {
+            "selector": "[data-split-view=\"thread:other\"] >> internal:role=textbox[name=\"Message\"s]",
+            "strict": true,
+            "value": "Keep the second pane draft",
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@582",
+          "startMs": 44151.49,
+          "method": "click",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s] >> internal:role=button[name=\"Minimize live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@584",
+          "startMs": 44339.486,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s] >> internal:text=\"999 input tokens\"s",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@586",
+          "startMs": 44352.952,
+          "method": "click",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s] >> internal:role=button[name=\"Inspect live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@588",
+          "startMs": 44425.541,
+          "method": "expect",
+          "params": {
+            "selector": "[data-split-view=\"thread:other\"] >> internal:role=button[name=\"Hide live usage\"s]",
+            "expression": "to.have.attribute.value",
+            "expressionArg": "aria-pressed",
+            "expectedText": [
+              {
+                "string": "true"
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@590",
+          "startMs": 44453.816,
+          "method": "click",
+          "params": {
+            "selector": "[data-split-view=\"thread:other\"] >> internal:role=button[name=\"Hide live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@596",
+          "startMs": 44741.134,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s]",
+            "expression": "to.be.hidden",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@598",
+          "startMs": 44794.257,
+          "method": "click",
+          "params": {
+            "selector": "[data-split-view=\"thread:other\"] >> internal:role=button[name=\"Show live usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@600",
+          "startMs": 44972.244,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@602",
+          "startMs": 44983.261,
+          "method": "click",
+          "params": {
+            "selector": "internal:role=region[name=\"Live usage\"s] >> internal:role=button[name=\"Open Usage\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@604",
+          "startMs": 45135.454,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=dialog[name=\"Usage\"s]",
+            "expression": "to.be.visible",
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        },
+        {
+          "id": "call@606",
+          "startMs": 45147.896,
+          "method": "click",
+          "params": {
+            "selector": "internal:role=dialog[name=\"Usage\"s] >> internal:role=tab[name=\"Tokens\"s]",
+            "strict": true,
+            "timeout": 0
+          }
+        },
+        {
+          "id": "call@608",
+          "startMs": 45389.984,
+          "method": "expect",
+          "params": {
+            "selector": "internal:role=dialog[name=\"Usage\"s]",
+            "expression": "to.have.text",
+            "expectedText": [
+              {
+                "string": "Other synthetic owner",
+                "matchSubstring": true,
+                "normalizeWhiteSpace": true
+              }
+            ],
+            "expectedValue": {
+              "value": {
+                "v": "undefined"
+              },
+              "handles": []
+            },
+            "isNot": false,
+            "timeout": 5000
+          }
+        }
+      ],
+      "network": [
+        {
+          "startMs": 42686.322,
+          "endMs": 42700.976,
+          "url": "http://127.0.0.1:5623/api/models",
+          "status": 200
+        },
+        {
+          "startMs": 42884.108,
+          "endMs": 42890.659,
+          "url": "http://127.0.0.1:5623/api/models?threadId=task-thread",
+          "status": 200
+        },
+        {
+          "startMs": 43112.122,
+          "endMs": 43125.003000000004,
+          "url": "http://127.0.0.1:5623/api/models?threadId=task-thread",
+          "status": 200
+        },
+        {
+          "startMs": 43112.249,
+          "endMs": 43124.752,
+          "url": "http://127.0.0.1:5623/api/models?threadId=other",
+          "status": 200
+        },
+        {
+          "startMs": 43671.809,
+          "endMs": 43747.166000000005,
+          "url": "http://127.0.0.1:5623/api/split-workspace/commands",
+          "status": 200,
+          "commandType": "split-workspace.pane.focus",
+          "payload": {
+            "paneId": "pane-main",
+            "baseRevision": 2,
+            "workspaceId": "workspace"
+          },
+          "resultRevision": 3,
+          "focusedPane": "pane-main"
+        },
+        {
+          "startMs": 44129.111,
+          "endMs": 44135.863999999994,
+          "url": "http://127.0.0.1:5623/api/models?threadId=other",
+          "status": 200
+        },
+        {
+          "startMs": 44536.698,
+          "endMs": 44576.933,
+          "url": "http://127.0.0.1:5623/api/split-workspace/commands",
+          "status": 200,
+          "commandType": "split-workspace.pane.focus",
+          "payload": {
+            "paneId": "pane-other",
+            "baseRevision": 3,
+            "workspaceId": "workspace"
+          },
+          "resultRevision": 4,
+          "focusedPane": "pane-other"
+        },
+        {
+          "startMs": 44731.656,
+          "endMs": 44739.419,
+          "url": "http://127.0.0.1:5623/api/models?threadId=task-thread",
+          "status": 200
+        }
+      ],
+      "conclusion": "B caption999 passed. After the B hide launcher sent pane.focus(other), root model read reverted to task-thread before the last B show launcher and Open Usage. The modal displayed task-thread/7. Root summary ownership is already A before click; forwarding the existing footer owner callback alone is not established as sufficient.",
+      "sourcePath": "convSendSplitCommand -> focusSplitOwner(B) -> publishMainSelection(next main pane A) -> readConversationPlacement stored main selection -> root thread A. Canonical main selection/provider custody must remain independent of a focused summary owner."
+    },
+    "negative": {
+      "trace": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/trace.zip",
+        "sha256": "4339e78d734368a189cb0b7a9e8b23594e285b0cc36d6a36029bfba0859ac04c",
+        "bytes": 878455
+      },
+      "errorContext": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts/usage-app-integration-revi-e7227-ps-both-composers-available/error-context.md",
+        "sha256": "6ba4f07632b4b5743e9bc6288eb80dec9cdb72cd2e1673346e5570a67383ef74",
+        "bytes": 7895
+      },
+      "conclusion": "Test times out inside existing host first-textarea readiness. Restored right panel narrows the conversation area; responsive split folding shows B and hides first A. Snapshot shows no Usage modal and a Thread memory panel, but explicit negative-case storage/draft/zero-send assertions were not reached.",
+      "sourcePath": "WorkspaceSplitLayout narrows when available width < minimumSplitSize or <700px, and hides all but the focused pane. A deliberate wider viewport can exercise the requested two-visible-composer restore boundary without changing production layout or deadlines."
+    }
+  },
+  "sourceReferences": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "sha256": "932c29c2db7d6fe8ae072c3b0b6c219db2551c41ddaa1212eaee64f354ee2ae8",
+      "bytes": 160453
+    },
+    {
+      "path": "apps/web/src/UsageFooter.tsx",
+      "sha256": "7af4af9362009073d6a12c042a2ab34bb0d1434fb24e0ecf30ef85f499e23b8b",
+      "bytes": 1602
+    },
+    {
+      "path": "apps/web/src/UsageDialog.tsx",
+      "sha256": "bcf441b708a127ff27b94358fcb754aa245fc0545af57539c75f642bf0bdec29",
+      "bytes": 9904
+    },
+    {
+      "path": "apps/web/src/conversation-placement.ts",
+      "sha256": "8988bc1ab876b26c0ed9f42619c91b8a741e46a876faeab0221da637e0fdbfb4",
+      "bytes": 14051
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "sha256": "e8c532841c6ffd223b7d5a18aa806c5e87c3284a23b2152889dfba7737266c19",
+      "bytes": 28381
+    },
+    {
+      "path": "packages/ui-shell/Tooltip.tsx",
+      "sha256": "7e8969bb96e4b2c0cae8b4511d40046cf30fb61fe9afff4c785c806f9235d549",
+      "bytes": 8640
+    },
+    {
+      "path": "packages/ui-shell/SummaryDock.tsx",
+      "sha256": "d5da9ec97faf486826dad49ee0e35d87e2051dbc3252e587ab5224701a153594",
+      "bytes": 5602
+    },
+    {
+      "path": "tests/e2e/shell-error-ownership.spec.ts",
+      "sha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+      "bytes": 6061
+    },
+    {
+      "path": "tests/e2e/usage-app-integration.spec.ts",
+      "sha256": "c2595840613b47d8354c437c3e2a588005bdf7df410ce424af6ae166d93ccf5d",
+      "bytes": 12954
+    },
+    {
+      "path": "tests/e2e/mobile-navigation.spec.ts",
+      "sha256": "cf0af397eab466d1ae4882b36b9b769a894822905b306ee0ac812d40a24a66ab",
+      "bytes": 2019
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "sha256": "3bcd00ac11265447989e86cb7b41a2f7c17b13b0196d7ab53762b1a19ece814f",
+      "bytes": 61459
+    },
+    {
+      "path": "tests/e2e/saved-layout-chooser.spec.ts",
+      "sha256": "f1bd163d59308658bd3f3374d492503a5a2a1c3fba75cc09e3ec96f07bf47a99",
+      "bytes": 13753
+    }
+  ],
+  "limits": [
+    "No source/test edits or retries occurred within this four-run cut.",
+    "Usage remains FAIL13/3; no skipped or historical case is promoted.",
+    "The selected desktop PASS covers three role cases only. Original native-close failure remains independently pending.",
+    "Workspace/layout/Usage are private Chromium runs, not actual Edge target proof.",
+    "Mobile now completes its interaction flow inside the original15s budget after a real first-snapshot precondition; this is not five-second cold-start performance proof."
+  ]
+}

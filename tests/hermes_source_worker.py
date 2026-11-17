@@ -219,7 +219,7 @@ class WorkerFixture(unittest.TestCase):
         self.assertTrue(result["compacted"], errors.read_text(encoding="utf8")[-6000:] if errors.exists() else result)
         self.assertLess(len(result["messages"]), len(before))
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
-        self.assertEqual(self.host_calls, ["$transport.usage", "$transport.usage"])
+        self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
 
     def test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate(self):
         self.hello()

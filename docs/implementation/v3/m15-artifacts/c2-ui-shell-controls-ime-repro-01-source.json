@@ -1,0 +1,47 @@
+{
+  "id": "c2-ui-shell-controls-ime-repro-01",
+  "scope": "Unchanged single-case reproduction of the retained controls timeout; inherited 15000 ms deadline and existing assertions; Chromium adapter on port 5394.",
+  "capturedAt": "2026-11-16T01:24:21.744888+00:00",
+  "files": [
+    {
+      "path": "tests/e2e/ui-shell-controls.spec.ts",
+      "bytes": 16889,
+      "sha256": "9a42065c096f99751d9d4c3c33fc6fc3ae054ef17a5f931e25c0dc002a6fc342"
+    },
+    {
+      "path": "tests/e2e/ui-shell-controls-fixture.tsx",
+      "bytes": 4168,
+      "sha256": "7e5dd7b25aab10dcdd2003a9df43820760c7023e1999e477eaf13ec1767a96b0"
+    },
+    {
+      "path": "tests/e2e/ui-shell-controls.playwright.config.ts",
+      "bytes": 576,
+      "sha256": "8cc1c1dbb71ec3248270895310a9cd705d7766cb069dc089e2a139da27621795"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts",
+      "bytes": 427,
+      "sha256": "fde0a6c87c6b32b8443fb5d5714d2f7ff864f2a694338ae38557162cd461aedb"
+    },
+    {
+      "path": "packages/ui-shell/Popover.tsx",
+      "bytes": 7266,
+      "sha256": "fb5c94be1a32ba8d77d0dd919fab3a2917d207cba8096e56f47622535c9b6b4a"
+    },
+    {
+      "path": "packages/ui-shell/Modal.tsx",
+      "bytes": 4451,
+      "sha256": "3b07a74846a4c15c9e7497ee8d8d1ffee8e17ea95d089d2db68026b018cba4eb"
+    },
+    {
+      "path": "packages/ui-shell/controls.css",
+      "bytes": 5970,
+      "sha256": "f9b0798408972e5b931a87dafb5cbfb92670d2cb0186484dfae221c0e9ff30d8"
+    },
+    {
+      "path": "apps/web/src/source-workbench.css",
+      "bytes": 1888,
+      "sha256": "61e90e24151b466536dab9a5803d4edf859efcfcdb3e2fd377027173364e2940"
+    }
+  ]
+}

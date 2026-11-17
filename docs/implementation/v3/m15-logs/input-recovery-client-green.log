@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-input-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  06:14:01
+   Duration  444ms (transform 122ms, setup 0ms, import 228ms, tests 17ms, environment 0ms)
+

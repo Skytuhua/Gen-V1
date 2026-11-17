@@ -1,0 +1,659 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/m15-agents-workspace-chromium-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "agents-workspace.spec.ts"
+        ],
+        "timeout": 20000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/agents-workspace.vite.config.ts --port 5636 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5636",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "agents-workspace.spec.ts",
+      "file": "agents-workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5425,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status').filter({ hasText: 'Loading agents' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status').filter({ hasText: 'Loading agents' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status').filter({ hasText: 'Loading agents' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status').filter({ hasText: 'Loading agents' })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:54:78",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                      "column": 78,
+                      "line": 54
+                    },
+                    "snippet": "  52 |  const h = await setup(page, false, false, true);\n  53 |  try {\n> 54 |   await expect(page.getByRole('status').filter({hasText: 'Loading agents'})).toBeVisible();\n     |                                                                              ^\n  55 |   await expect(page.locator('.loading-agents .agents-project-header').first()).toBeVisible();\n  56 |   await expect(page.locator('.loading-agents .agents-transcript').first()).toBeVisible();\n  57 |   await expect(page.locator('.loading-agents .loading-composer').first()).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                        "column": 78,
+                        "line": 54
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('status').filter({ hasText: 'Loading agents' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('status').filter({ hasText: 'Loading agents' })\u001b[22m\n\n\n  52 |  const h = await setup(page, false, false, true);\n  53 |  try {\n> 54 |   await expect(page.getByRole('status').filter({hasText: 'Loading agents'})).toBeVisible();\n     |                                                                              ^\n  55 |   await expect(page.locator('.loading-agents .agents-project-header').first()).toBeVisible();\n  56 |   await expect(page.locator('.loading-agents .agents-transcript').first()).toBeVisible();\n  57 |   await expect(page.locator('.loading-agents .loading-composer').first()).toBeVisible();\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:54:78"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:25:43.614Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/m15-agents-workspace-chromium-01/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/m15-agents-workspace-chromium-01/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                    "column": 78,
+                    "line": 54
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-b6848ccd0225fe08ed54",
+          "file": "agents-workspace.spec.ts",
+          "line": 285,
+          "column": 40
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1024",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3747,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:25:50.594Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-5429b11b5fbc64475d93",
+          "file": "agents-workspace.spec.ts",
+          "line": 285,
+          "column": 40
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3834,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:25:54.468Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-9171ad8840c1446381e5",
+          "file": "agents-workspace.spec.ts",
+          "line": 285,
+          "column": 40
+        },
+        {
+          "title": "missing history remains reachable after offscreen bursts without moving the message being read",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4747,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:25:58.324Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-e77423d73997f544fae4",
+          "file": "agents-workspace.spec.ts",
+          "line": 333,
+          "column": 1
+        },
+        {
+          "title": "project rows expose working parent and nested child transcripts before any details click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:03.086Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-f76c64bdcabde741a098",
+          "file": "agents-workspace.spec.ts",
+          "line": 386,
+          "column": 1
+        },
+        {
+          "title": "all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3737,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:05.321Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-f0e6b08e09d5d66d0c2f",
+          "file": "agents-workspace.spec.ts",
+          "line": 417,
+          "column": 1
+        },
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3324,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:09.081Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-133aa4fdbf2b8d52c2a0",
+          "file": "agents-workspace.spec.ts",
+          "line": 454,
+          "column": 1
+        },
+        {
+          "title": "filtered children retain their completed owning parent and local reading state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:12.438Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-706dcd1cf57baaf25475",
+          "file": "agents-workspace.spec.ts",
+          "line": 486,
+          "column": 1
+        },
+        {
+          "title": "the actual App candidate opens and restores compact routing without mounting snapshot bootstrap",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2410,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:15.364Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-0b2287e272440b750b28",
+          "file": "agents-workspace.spec.ts",
+          "line": 522,
+          "column": 1
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7050,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\nExpected: \u001b[32m\"processing\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\u001b[22m\n\u001b[2m    2 × locator resolved to <span role=\"status\">Sending…</span>\u001b[22m\n\u001b[2m      - unexpected value \"Sending…\"\u001b[22m\n\u001b[2m    7 × locator resolved to <span role=\"status\"></span>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\nExpected: \u001b[32m\"processing\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\u001b[22m\n\u001b[2m    2 × locator resolved to <span role=\"status\">Sending…</span>\u001b[22m\n\u001b[2m      - unexpected value \"Sending…\"\u001b[22m\n\u001b[2m    7 × locator resolved to <span role=\"status\"></span>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:148:42",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                      "column": 42,
+                      "line": 148
+                    },
+                    "snippet": "  146 |  await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});\n  147 |  await input.fill('Read the next source'); await expect(child.getByRole('button', {name: 'Send to child-active', exact: true})).toBeEnabled(); await input.press('Enter');\n> 148 |  await expect(child.getByRole('status')).toHaveText('processing'); expect(h.commands).toHaveLength(1);\n      |                                          ^\n  149 |  expect(h.commands[0]).toMatchObject({type: 'agent.followUp', threadId: 'parent-00', payload: {jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}, content: 'Read the next source'}});\n  150 |  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);\n  151 |  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                        "column": 42,
+                        "line": 148
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\nExpected: \u001b[32m\"processing\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('group', { name: 'Agent child-active', exact: true }).getByRole('status')\u001b[22m\n\u001b[2m    2 × locator resolved to <span role=\"status\">Sending…</span>\u001b[22m\n\u001b[2m      - unexpected value \"Sending…\"\u001b[22m\n\u001b[2m    7 × locator resolved to <span role=\"status\"></span>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n\n  146 |  await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});\n  147 |  await input.fill('Read the next source'); await expect(child.getByRole('button', {name: 'Send to child-active', exact: true})).toBeEnabled(); await input.press('Enter');\n> 148 |  await expect(child.getByRole('status')).toHaveText('processing'); expect(h.commands).toHaveLength(1);\n      |                                          ^\n  149 |  expect(h.commands[0]).toMatchObject({type: 'agent.followUp', threadId: 'parent-00', payload: {jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}, content: 'Read the next source'}});\n  150 |  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);\n  151 |  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:148:42"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:17.793Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/m15-agents-workspace-chromium-01/artifacts/agents-workspace-child-fol-030cb-rent-ticket-through-handled/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/m15-agents-workspace-chromium-01/artifacts/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                    "column": 42,
+                    "line": 148
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-991673e4233a6f2a16ba",
+          "file": "agents-workspace.spec.ts",
+          "line": 539,
+          "column": 1
+        },
+        {
+          "title": "output while reading earlier retains position and exposes an explicit new-output action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5866,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:26.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-95cba497c26927cf4a5e",
+          "file": "agents-workspace.spec.ts",
+          "line": 582,
+          "column": 1
+        },
+        {
+          "title": "readable geometry dark 1440x900 at 1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1429,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:32.197Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-5b151d2287d3726564a3",
+          "file": "agents-workspace.spec.ts",
+          "line": 621,
+          "column": 3
+        },
+        {
+          "title": "readable geometry light 1024x768 at 1.25",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2650,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:33.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-381ac5617980c28eaaad",
+          "file": "agents-workspace.spec.ts",
+          "line": 621,
+          "column": 3
+        },
+        {
+          "title": "readable geometry dark 640x520 at 1.5",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4235,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:36.314Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-80565226754c5e4b9e28",
+          "file": "agents-workspace.spec.ts",
+          "line": 621,
+          "column": 3
+        },
+        {
+          "title": "readable geometry light 390x700 at 1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3586,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:26:40.571Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-c658c4eec20b96cb49cb",
+          "file": "agents-workspace.spec.ts",
+          "line": 621,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:25:41.138Z",
+    "duration": 63182.487,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

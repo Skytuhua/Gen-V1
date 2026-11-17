@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "reviewedAt": "2026-11-15T23:09:34.744Z",
+  "scope": "Source-bound explanation of owned dialog discovery, client-provider registration, and the measured child-edit destination failure. This review does not admit a completed native Save or installed retention.",
+  "originalInstalledFailure": {
+    "runId": 43760736519,
+    "sourceHead": "013c044d66f40136752df4f1903132d601d57851",
+    "checkout": "484c2b5e3ed80df692f1a90ec9e41d55957243a7",
+    "helperSha256": "f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d",
+    "failure": "dialog-timeout",
+    "limitation": "The renderer screenshot did not establish whether an OS dialog existed."
+  },
+  "observedBoundaries": [
+    {
+      "runId": 43766345613,
+      "result": "FAIL",
+      "finding": "The exact-title same-process native dialog existed as a nested UIA window, while RootElement.Children omitted it. Bounded exact-PID EnumWindows followed by FromHandle addressed discovery without widening ownership or title admission.",
+      "reviewBlob": "f5b1cbe5394028c0c40e484541cadb48aa49a915"
+    },
+    {
+      "runId": 43768148129,
+      "result": "FAIL",
+      "finding": "The exact native Edit1001 and Save1 were visible and enabled, but the separate uninitialized managed client exposed Pane elements without Value/Invoke patterns through the late samples. Missing patterns were not accepted.",
+      "reviewBlob": "e500bcf45175709ac454ccc1cd931128e646d201"
+    },
+    {
+      "runIds": [
+        43769735863,
+        43770109555
+      ],
+      "result": "FAIL",
+      "finding": "Both copied and fresh provider AssemblyName variants failed with NullReferenceException during public registration. Fresh CodeBase=false did not correct the failure. A normal small compiled wrapper and forced default initialization also failed; retained frames identified LoadDefaultProxies.",
+      "correction": "Carried CodeBase was not established as the cause."
+    },
+    {
+      "runId": 43770541154,
+      "result": "3 PASS / 1 FAIL",
+      "finding": "The direct public call still failed at LoadDefaultProxies, IL offset61/native offset187. The NoInlining|NoOptimization compiled boundary, static initialization boundary, and owned MTA thread each registered 40 matching provider descriptors. The smallest nonthread boundary was selected.",
+      "scope": "Registration only, with no native dialog or control action."
+    },
+    {
+      "runId": 43771029999,
+      "result": "FAIL",
+      "finding": "The selected retained-boundary helper admitted the exact dialog and original Edit1001/Save1 controls, set the filename, invoked Save, and observed dialog closure in both lanes. Exact destination/readback completion did not pass.",
+      "helperSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67"
+    },
+    {
+      "runId": 43771745051,
+      "result": "FAIL",
+      "finding": "Both actual returned destinations had the original default basename in another parent. Exact, normalized, case-folded and extended-prefix comparisons all failed. The policy lane completed a 634-byte download but the fixed target lstat/readback failed ENOENT. This is not only a separator or casing difference.",
+      "policyReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43771745051/policy-receipt.json",
+      "directReceiptRef": "docs/implementation/v3/m05-native-save-diagnostic-43771745051/direct-receipt.json"
+    },
+    {
+      "runId": 43772551991,
+      "result": "FAIL",
+      "finding": "The strict native-parent ComboBox proposal was rejected at parent control admission in the policy lane, before any SetValue or Save. The direct lane failed the read-only observer's startup wait before native dispatch. The candidate is not accepted; matched-provider parent metadata is being measured without changing its gates.",
+      "candidateSha256": "f577218848cfe48de148024905f32c81d0e94d1fbc9b387e528f44289ca68bb2"
+    }
+  ],
+  "primarySources": [
+    {
+      "name": "proxyManager",
+      "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/MS/Internal/Automation/ProxyManager.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+      "bytes": 35978,
+      "sha256": "9508f6e46f94fbcc20c8f929278087db9bbca7d0c057b3e5eb8771134641384b"
+    },
+    {
+      "name": "clientSettings",
+      "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/System/Windows/Automation/ClientSettings.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+      "bytes": 1976,
+      "sha256": "b08e5c75373eb103a3c87cc0fbdf976527ffcde5fd6e41abdcc9c63f688675fb"
+    },
+    {
+      "name": "uiaCore",
+      "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClient/MS/Internal/Automation/UiaCoreApi.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+      "bytes": 73306,
+      "sha256": "33de2a8dd8704472e25321bdf260af802233f39d72df18ca9ff79dda05deef9a"
+    },
+    {
+      "name": "providerTable",
+      "url": "https://api.github.com/repos/dotnet/wpf/contents/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/Main.cs?ref=2dcaee7951ffd752dc11306e972297b35294a932",
+      "bytes": 8775,
+      "sha256": "ce5d1c6597f568631ac547e42764ce39cc7431f49c595a0903747a480f72b54f"
+    },
+    {
+      "name": "WindowsEditBox.cs",
+      "url": "https://raw.githubusercontent.com/dotnet/wpf/2dcaee7951ffd752dc11306e972297b35294a932/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/WindowsEditBox.cs",
+      "bytes": 38378,
+      "sha256": "f9e4a7ba0c722f52aa7ff521fa0c6e744b60cbf921ea3f05ca66bc828e74715d"
+    },
+    {
+      "name": "WindowsComboBox.cs",
+      "url": "https://raw.githubusercontent.com/dotnet/wpf/2dcaee7951ffd752dc11306e972297b35294a932/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/WindowsComboBox.cs",
+      "bytes": 35995,
+      "sha256": "29ba3eed166feebcd4ee69b70fd5f589b25e352350dfcbcd86889da77ba001d5"
+    },
+    {
+      "name": "WindowsButton.cs",
+      "url": "https://raw.githubusercontent.com/dotnet/wpf/2dcaee7951ffd752dc11306e972297b35294a932/src/Microsoft.DotNet.Wpf/src/UIAutomation/UIAutomationClientSideProviders/MS/Internal/AutomationProxies/WindowsButton.cs",
+      "bytes": 27470,
+      "sha256": "bdf597220bca2168a73182c0b445f043432b9b8b938a46c332993be64ae3d0d7"
+    }
+  ],
+  "sourceInterpretation": [
+    "The reviewed upstream ProxyManager source discovers default proxies by inspecting managed stack frames. This is consistent with the observed LoadDefaultProxies exception and retained-boundary repair; it is not a claim that the runner's .NET Framework binary byte-matches this upstream source.",
+    "WindowsEditBox.SetValue validates writability and sends WM_SETTEXT. WindowsComboBox.SetValue delegates to the edit and additionally sends CBN_EDITUPDATE to its parent. This supports the measured destination-propagation investigation; the strict parent candidate still requires actual native validation."
+  ],
+  "registrationObservations": [
+    {
+      "runId": 43769735863,
+      "headSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+      "jobId": 132982741312,
+      "mode": "fresh",
+      "actualStatus": "FAIL",
+      "sourceSha256": "2beefdcf175f0fb4f5772320d74a7ae9a84f645ce588967f29033391e683a3d0",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43769735863/fresh-receipt.json",
+      "receipt": {
+        "bytes": 909,
+        "sha256": "89f2a065fb3a818d49b6a2d66bda3db9d49638211d16a845744d7b9e213665e0"
+      },
+      "stage": "register-provider",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "type": "System.Management.Automation.MethodInvocationException",
+          "hresult": -2146233087
+        },
+        {
+          "type": "System.NullReferenceException",
+          "hresult": -2147467261
+        }
+      ],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43769735863,
+      "headSha": "3bde4a38aca263cc386acebfbacc61202328609c",
+      "jobId": 132982741634,
+      "mode": "copied",
+      "actualStatus": "FAIL",
+      "sourceSha256": "2beefdcf175f0fb4f5772320d74a7ae9a84f645ce588967f29033391e683a3d0",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43769735863/copied-receipt.json",
+      "receipt": {
+        "bytes": 909,
+        "sha256": "2afc063e8e3af81231cfe98c06c8654d0bc01fdfbf34a4b696eef0a69182106b"
+      },
+      "stage": "register-provider",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "type": "System.Management.Automation.MethodInvocationException",
+          "hresult": -2146233087
+        },
+        {
+          "type": "System.NullReferenceException",
+          "hresult": -2147467261
+        }
+      ],
+      "requestedCodeBasePresent": true
+    },
+    {
+      "runId": 43770109555,
+      "headSha": "5a3b4eb95eeb354336919ef76264df0dac3d4cf0",
+      "jobId": 132983887592,
+      "mode": "defaults",
+      "actualStatus": "FAIL",
+      "sourceSha256": "10a13a757993487f637695024b64d19082118e411efb41039a25a319b052a7da",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770109555/defaults-receipt.json",
+      "receipt": {
+        "bytes": 1151,
+        "sha256": "7135c10d77025cda9cc5b773f3179d0020cd7710600022290e63828f4be4985e"
+      },
+      "stage": "force-default-providers",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "frames": [],
+          "hresult": -2146233087,
+          "type": "System.Management.Automation.MethodInvocationException"
+        },
+        {
+          "frames": [
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "LoadDefaultProxies"
+            },
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "RegisterWindowHandlers"
+            }
+          ],
+          "hresult": -2147467261,
+          "type": "System.NullReferenceException"
+        }
+      ],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770109555,
+      "headSha": "5a3b4eb95eeb354336919ef76264df0dac3d4cf0",
+      "jobId": 132983887816,
+      "mode": "compiled",
+      "actualStatus": "FAIL",
+      "sourceSha256": "10a13a757993487f637695024b64d19082118e411efb41039a25a319b052a7da",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770109555/compiled-receipt.json",
+      "receipt": {
+        "bytes": 1359,
+        "sha256": "3dca0dd7b3f6158b4b4892d2c61f03e3b848d81cc9a7dec99c3bf5f179ee2da7"
+      },
+      "stage": "register-provider",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "frames": [],
+          "hresult": -2146233087,
+          "type": "System.Management.Automation.MethodInvocationException"
+        },
+        {
+          "frames": [
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "LoadDefaultProxies"
+            },
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "RegisterWindowHandlers"
+            },
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "RegisterProxyAssembly"
+            }
+          ],
+          "hresult": -2147467261,
+          "type": "System.NullReferenceException"
+        }
+      ],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770109555,
+      "headSha": "5a3b4eb95eeb354336919ef76264df0dac3d4cf0",
+      "jobId": 132983887821,
+      "mode": "direct",
+      "actualStatus": "FAIL",
+      "sourceSha256": "10a13a757993487f637695024b64d19082118e411efb41039a25a319b052a7da",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770109555/direct-receipt.json",
+      "receipt": {
+        "bytes": 1357,
+        "sha256": "3c97fe1f99d9a90cdd3ed4834ea8fd4f1c33efc5652706a2d0a439881585b0d5"
+      },
+      "stage": "register-provider",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "frames": [],
+          "hresult": -2146233087,
+          "type": "System.Management.Automation.MethodInvocationException"
+        },
+        {
+          "frames": [
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "LoadDefaultProxies"
+            },
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "RegisterWindowHandlers"
+            },
+            {
+              "type": "MS.Internal.Automation.ProxyManager",
+              "method": "RegisterProxyAssembly"
+            }
+          ],
+          "hresult": -2147467261,
+          "type": "System.NullReferenceException"
+        }
+      ],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770541154,
+      "headSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+      "jobId": 132985242844,
+      "mode": "direct",
+      "actualStatus": "FAIL",
+      "sourceSha256": "d63ff188af82198bcd01f9bb2f2e47a2173cc531ff2ebfe11ea5c29be4abea16",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770541154/direct-receipt.json",
+      "receipt": {
+        "bytes": 1485,
+        "sha256": "bd8172e6aa026fd2dc718b6f11e550a0020c4b273a079a4f8d882c1d01cc6566"
+      },
+      "stage": "register-provider",
+      "providerTableCount": null,
+      "exceptions": [
+        {
+          "frames": [],
+          "hresult": -2146233087,
+          "type": "System.Management.Automation.MethodInvocationException"
+        },
+        {
+          "frames": [
+            {
+              "method": "LoadDefaultProxies",
+              "nativeOffset": 187,
+              "type": "MS.Internal.Automation.ProxyManager",
+              "ilOffset": 61
+            },
+            {
+              "method": "RegisterWindowHandlers",
+              "nativeOffset": 29,
+              "type": "MS.Internal.Automation.ProxyManager",
+              "ilOffset": 0
+            },
+            {
+              "method": "RegisterProxyAssembly",
+              "nativeOffset": 219,
+              "type": "MS.Internal.Automation.ProxyManager",
+              "ilOffset": 196
+            }
+          ],
+          "hresult": -2147467261,
+          "type": "System.NullReferenceException"
+        }
+      ],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770541154,
+      "headSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+      "jobId": 132985243040,
+      "mode": "compiled",
+      "actualStatus": "PASS",
+      "sourceSha256": "d63ff188af82198bcd01f9bb2f2e47a2173cc531ff2ebfe11ea5c29be4abea16",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770541154/compiled-receipt.json",
+      "receipt": {
+        "bytes": 1097,
+        "sha256": "8319853e77b0319983ba316c41966e07d494117ce0c48942afd2b160a9ee8e77"
+      },
+      "stage": "completed",
+      "providerTableCount": 40,
+      "exceptions": [],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770541154,
+      "headSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+      "jobId": 132985243094,
+      "mode": "thread",
+      "actualStatus": "PASS",
+      "sourceSha256": "d63ff188af82198bcd01f9bb2f2e47a2173cc531ff2ebfe11ea5c29be4abea16",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770541154/thread-receipt.json",
+      "receipt": {
+        "bytes": 1095,
+        "sha256": "c6c21b2d0dcbcd6aaab0c1df3264e482721407d16e1a62ba0cf22142594e11da"
+      },
+      "stage": "completed",
+      "providerTableCount": 40,
+      "exceptions": [],
+      "requestedCodeBasePresent": false
+    },
+    {
+      "runId": 43770541154,
+      "headSha": "400553e4c2c5c86aae621f2c7245a8248e873066",
+      "jobId": 132985243144,
+      "mode": "static",
+      "actualStatus": "PASS",
+      "sourceSha256": "d63ff188af82198bcd01f9bb2f2e47a2173cc531ff2ebfe11ea5c29be4abea16",
+      "receiptRef": "docs/implementation/v3/m05-proxy-registration-43770541154/static-receipt.json",
+      "receipt": {
+        "bytes": 1094,
+        "sha256": "059c3146fe0a22a59e162c5d67b17bc7a10cef380d9e81f9dc43c7648eab99aa"
+      },
+      "stage": "completed",
+      "providerTableCount": 40,
+      "exceptions": [],
+      "requestedCodeBasePresent": false
+    }
+  ],
+  "preservedProperties": {
+    "policySha256": "6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9",
+    "fixedDestinationAndAbsentFile": true,
+    "processExecutableStartTicks": true,
+    "exactUniqueDialogAndControls": true,
+    "rootHandleLeaseAndReadback": true,
+    "sixOrderedPhases": true,
+    "noExecutionPolicyOverride": true,
+    "noSavePathBypass": true,
+    "noKeyboardFallback": true,
+    "noProviderOrAccountRequest": true
+  },
+  "evidenceCustody": {
+    "registrationMapBlob": "4f4f7bb79576be7be4ed7bc95ba6020788e9c92d",
+    "localCommandsMapBlob": "95813c6cd478a4b6ac762b017e3b89d36eec1446",
+    "unresolvedArgumentFailures": 5,
+    "unresolvedArgumentsExcludedFromCanonicalLedger": true,
+    "failedAttemptsRelabelledAsPass": false
+  },
+  "remainingGates": [
+    "Admit the measured exact parent representation without weakening ownership or selecting a fuzzy control.",
+    "Observe actual fixed destination, readback hash, target release and clean owned process exit in both native lanes.",
+    "Run the full installed retention flow on the accepted source. Isolated native diagnostics do not satisfy this installed gate."
+  ]
+}

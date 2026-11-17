@@ -1,0 +1,48 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-workbench-app-regression-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 26 tests using 1 worker
+
+[1A[2K(node:83) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:83) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/26] tests/e2e/workbench-app.spec.ts:335:1 › default-off App retains its ordinary composer and hides source actions
+[1A[2K[2/26] tests/e2e/workbench-app.spec.ts:357:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send
+[1A[2K[3/26] tests/e2e/workbench-app.spec.ts:383:1 › ask supplies a question only for an empty draft and never dispatches
+[1A[2K[4/26] tests/e2e/workbench-app.spec.ts:395:1 › stale capture remains exact until explicit keep or refresh and opens retained output
+[1A[2K[5/26] tests/e2e/workbench-app.spec.ts:429:1 › late source descriptions cannot attach to a replacement workspace
+[1A[2K[6/26] tests/e2e/workbench-app.spec.ts:454:1 › after-current mode is explicit and queues through message.send while the task is working
+[1A[2K[7/26] tests/e2e/workbench-app.spec.ts:492:1 › evidence preserves reported and observed grades, freshness and unsupported module state
+[1A[2K[8/26] tests/e2e/workbench-app.spec.ts:533:1 › rollback leaves retained source inspection and removal reachable
+[1A[2K[9/26] tests/e2e/workbench-app.spec.ts:564:1 › context and run views use recorded or explicit unavailable states without invented metrics
+[1A[2K[10/26] tests/e2e/workbench-app.spec.ts:592:1 › real activity integration bounds mounted rows and searches the authorized full read
+[1A[2K[11/26] tests/e2e/workbench-app.spec.ts:675:1 › source-aware navigation waits for journal handoff and preserves text on reload
+[1A[2K[12/26] tests/e2e/workbench-app.spec.ts:706:1 › pointing mode does not consume another pane focus or Escape
+[1A[2K[13/26] tests/e2e/workbench-app.spec.ts:720:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar
+[1A[2K[14/26] tests/e2e/workbench-app.spec.ts:759:1 › rollback retains a mode-only draft and permits returning to ordinary delivery
+[1A[2K[15/26] tests/e2e/workbench-app.spec.ts:795:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment
+[1A[2K[16/26] tests/e2e/workbench-app.spec.ts:850:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources
+[1A[2K[17/26] tests/e2e/workbench-app.spec.ts:889:1 › definitive precommit source rejection unlocks removal and ordinary resubmission
+[1A[2K[18/26] tests/e2e/workbench-app.spec.ts:936:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads
+[1A[2K[19/26] tests/e2e/workbench-app.spec.ts:982:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue
+[1A[2K[20/26] tests/e2e/workbench-app.spec.ts:1029:1 › deferred source view failure retains the mounted composer and restores focus
+[1A[2K[21/26] tests/e2e/workbench-app.spec.ts:1061:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom
+[1A[2K[22/26] tests/e2e/workbench-app.spec.ts:1181:1 › native return waits for canonical placement and keeps delayed source work isolated between owners
+[1A[2K[23/26] tests/e2e/workbench-app.spec.ts:1742:1 › prepared memory and selected sources queue together while working and clear only after acknowledgment
+[1A[2K[24/26] tests/e2e/workbench-app.spec.ts:1849:1 › M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft
+[1A[2K[25/26] tests/e2e/workbench-app.spec.ts:1974:1 › M15 memory review opens retained disabled records and an empty current-owner module
+[1A[2K[26/26] tests/e2e/workbench-app.spec.ts:2011:1 › M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner
+[1A[2K  26 passed (2.1m)

@@ -1,0 +1,71 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/desktop-surfaces.playwright.config.ts","--grep","M15 panel opener:","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:85) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/2] tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control
+[1A[2K  1) tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Open workspace panel', exact: true })
+    Expected: [32m1[39m
+    Received: [31m2[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Open workspace panel', exact: true })[22m
+    [2m    9 × locator resolved to 2 elements[22m
+    [2m      - unexpected value "2"[22m
+
+
+      149 |  const composer=page.getByRole('textbox',{name:'Message',exact:true});await composer.fill(draft);
+      150 |  await expect(composer).toHaveCount(1);const retained=await composer.elementHandle();
+    > 151 |  const opener=page.getByRole('button',{name:'Open workspace panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
+          |                                                                                                      ^
+      152 |  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(panel).toBeVisible();
+      153 |  const close=page.getByRole('button',{name:'Hide workspace panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
+      154 |  await expect(opener).toBeFocused();await expect(composer).toHaveValue(draft);await expect(composer).toHaveCount(1);
+        at checkSinglePanelOpener (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:151:102)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:161:2
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/artifacts/desktop-surfaces-M15-panel-abda9-reachable-workspace-control/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/artifacts/desktop-surfaces-M15-panel-abda9-reachable-workspace-control/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/artifacts/desktop-surfaces-M15-panel-abda9-reachable-workspace-control/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/2] tests/e2e/desktop-surfaces.spec.ts:1256:1 › M15 panel opener: a pinned native thread retains its workspace control
+[1A[2K  1 failed
+    tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control 
+  1 passed (16.9s)

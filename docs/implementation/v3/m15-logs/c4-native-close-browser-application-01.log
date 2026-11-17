@@ -1,0 +1,5 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/native-close-browser-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{"schemaVersion": 1, "status": "APPLIED_NOT_EXECUTED", "head": "082264877e3bb61e8c87f257ccd831b5c1438472", "manifestSha256": "fe0d00b2e03cf29149e2aa41baf5669e9296bd6ce1703688ac3648265ef5f866", "path": "tests/e2e/desktop-surfaces.spec.ts", "beforeSha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2", "afterSha256": "07f9b179504a44fc6297f4050663630dd95fd240a58fac756d5eccb9daef773d", "patchSha256": "a9f5106e8b78f1af5efaa1218f6e7637655b1ee47631273225a39d284550df39", "indexSha256": "1e10d04f91a9d5d2cd413fadc8b0d6220f5fa707937af29039c8f2d5eba85740", "originalCheckoutClean": true, "existingCasesAndDeadlinesUnchanged": true}

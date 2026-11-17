@@ -1,0 +1,21 @@
+2026-11-15T18:04:10.7603191Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T18:04:10.7604290Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T18:04:10.7683661Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T18:04:10.7684137Z env:
+2026-11-15T18:04:10.7684625Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T18:04:10.7685143Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:04:10.7686135Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T18:04:10.7686772Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:04:10.7687315Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:04:10.7687893Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:04:10.7688440Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T18:04:10.7689178Z ##[endgroup]
+2026-11-15T18:04:15.0602844Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T18:04:15.1283929Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T18:04:15.2158030Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T18:04:15.3518370Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T18:04:15.3552587Z 
+2026-11-15T18:04:15.3553973Z ----------------------------------------------------------------------
+2026-11-15T18:04:15.3556121Z Ran 4 tests in 3.956s
+2026-11-15T18:04:15.3556553Z 
+2026-11-15T18:04:15.3556879Z OK

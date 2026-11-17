@@ -17,6 +17,7 @@ import re
 import stat
 import sys
 import threading
+import time
 import traceback
 from types import SimpleNamespace
 import uuid
@@ -28,6 +29,9 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "third-party/hermes-agent/upstream"
 COMMIT = "c627ec84664d43e0b18b95d9d86d8963747d56c7"
+CHECKPOINT_SPEC = importlib.util.spec_from_file_location("harness_memory_checkpoint", ROOT / "packages/runtime-hermes/memory_checkpoint.py")
+CHECKPOINT = importlib.util.module_from_spec(CHECKPOINT_SPEC)
+CHECKPOINT_SPEC.loader.exec_module(CHECKPOINT)
 MAX_FRAME_BYTES = 32 * 1024 * 1024
 BUNDLED_INTEGRATIONS = frozenset({"humanizer", "emil", "impeccable", "graphify", "promptfoo", "biome", "superpowers", "spec-kit", "context7", "ponytail"})
 class SourceConflictError(RuntimeError):
@@ -110,6 +114,7 @@ class Worker:
         self.integration_config = {"enabled": [], "ponytailMode": "off"}
         self.integration_revocations = {}
         self.integration_revision = 0
+        self.memory_checkpoint_capability = None
 
     def guard_home(self):
         """Application namespace guard; original source is not an OS sandbox."""
@@ -149,6 +154,7 @@ class Worker:
 
     def host_call(self, name, args):
         call_id = uuid.uuid4().hex
+        deadline = time.monotonic() + 15 if name == "$memory.checkpoint" else None
         result = queue.Queue(maxsize=1)
         with self.pending_lock:
             self.pending[call_id] = result
@@ -163,6 +169,8 @@ class Worker:
                 except queue.Empty:
                     if self.cancelled.is_set():
                         raise RuntimeError("Host call cancelled")
+                    if deadline is not None and time.monotonic() >= deadline:
+                        raise RuntimeError("Required memory checkpoint timed out")
         finally:
             with self.pending_lock:
                 self.pending.pop(call_id, None)
@@ -257,7 +265,8 @@ class Worker:
                 worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence})
                 response = super()._create_chat_completion(**kwargs)
                 usage = worker.host_call("$transport.usage", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
-                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None})
+                observation = worker.host_call("$transport.observation", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
+                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None, "observation": observation or None})
                 # Absent usage stays unknown at the host. Hermes requires a numeric
                 # namespace internally; never emit its compatibility zeros as paid proof.
                 if isinstance(usage, dict) and isinstance(usage.get("inputTokens"), int) and isinstance(usage.get("outputTokens"), int):
@@ -289,6 +298,7 @@ class Worker:
         from run_agent import AIAgent
         from tools.registry import registry
         self.Agent = AIAgent
+        self.memory_checkpoint_capability = CHECKPOINT.native_checkpoint_capability(SOURCE, COMMIT, AIAgent)
         self.registry = registry
         self.source_handlers = {}
         for name in ("skills_list", "skill_view", "skill_manage"):
@@ -302,7 +312,7 @@ class Worker:
         self.refresh_integrations(params.get("integrations") or {"enabled": [], "ponytailMode": "off"}, params.get("projectRoot"))
         self.ready = True
         return {"protocolVersion": 1, "sourceCommit": COMMIT, "pythonVersion": sys.version.split()[0],
-                "engineClass": "run_agent.AIAgent", "methods": METHODS}
+                "engineClass": "run_agent.AIAgent", "methods": METHODS, "memoryCheckpoint": self.memory_checkpoint_capability}
 
     def guard_skill(self, args, write=False):
         policy = getattr(self.library_context, "policy", None)
@@ -541,6 +551,7 @@ class Worker:
     def start(self, params):
         with self.state_lock:
             self.guard_home()
+            CHECKPOINT.assert_checkpoint_capability(params.get("memoryCheckpoint"), self.memory_checkpoint_capability)
             if self.active_owner:
                 raise RuntimeError("An agent or its review is still active")
             session_key = params.get("sessionPath") or params.get("sessionId") or (params.get("ctx") or {}).get("threadId")
@@ -628,8 +639,9 @@ class Worker:
             self.foreground_active = True
             finish_writes = self.bind_completed_writes(params)
             try:
-                result = self.agent.run_conversation(params.get("prompt", ""), conversation_history=self.history,
-                    task_id=str((self.ctx or {}).get("runId") or "harness"))
+                with self.native_checkpoint(params):
+                    result = self.agent.run_conversation(params.get("prompt", ""), conversation_history=self.history,
+                        task_id=str((self.ctx or {}).get("runId") or "harness"))
             finally:
                 finish_writes()
                 self.foreground_active = False
@@ -664,6 +676,20 @@ class Worker:
                 self.event("library", {"reason": "settled"})
                 self.active_owner = False
                 self.event("settled", data)
+
+    def native_checkpoint(self, params):
+        agent = self.agent
+        context = {key: (self.ctx or {}).get(key) for key in ("threadId", "runId", "epoch")}
+        binding = {"ctx": context, "sessionPath": self.params.get("sessionPath"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+        def current():
+            if self.agent is not agent or not self.active_owner or self.cancelled.is_set() or self.current_ctx().get("phase") != "foreground":
+                raise RuntimeError("Native checkpoint no longer has its foreground owner")
+            actual = {"ctx": {key: (self.ctx or {}).get(key) for key in context}, "sessionPath": self.params.get("sessionPath"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+            if actual != binding:
+                raise RuntimeError("Native checkpoint owner changed during persistence")
+            self.guard_home()
+        return CHECKPOINT.native_memory_checkpoint(agent, params.get("memoryCheckpoint"), binding,
+            lambda request: self.host_call("$memory.checkpoint", request), current, self.memory_checkpoint_capability)
 
     def save_session(self):
         self.guard_home()
@@ -1249,13 +1275,15 @@ class Worker:
         if method == "agent.history":
             return {"messages": copy.deepcopy(self.history)}
         if method == "agent.compact":
+            CHECKPOINT.assert_checkpoint_capability(params.get("memoryCheckpoint"), self.memory_checkpoint_capability)
             self.bind_maintenance(params)
             try:
                 self.guard_home()
                 if getattr(self.agent, "client", None):
                     self.agent.client.close()
                 before = copy.deepcopy(self.history)
-                messages, _ = self.agent._compress_context(copy.deepcopy(before), self.agent._cached_system_prompt or "", force=True)
+                with self.native_checkpoint(params):
+                    messages, _ = self.agent._compress_context(copy.deepcopy(before), self.agent._cached_system_prompt or "", force=True)
                 self.history = messages
                 self.save_session()
                 return {"messages": messages, "compacted": messages != before, "usage": list(self.native_usage)}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "corepack",
+      "pnpm@10.30.3",
+      "typecheck"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/corepack",
+    "startedAt": "2026-11-15T21:42:35.374341+00:00",
+    "endedAt": "2026-11-15T21:43:26.019986+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-restored-main-typecheck.log",
+    "logDigest": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "indexTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+  "elapsedMs": 50531,
+  "rawOutputBytes": 87,
+  "rawOutputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "excerptInputBytes": 87,
+  "excerptInputSha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee",
+  "transformations": [],
+  "phaseIds": [
+    "BUILD_AND_SETUP"
+  ]
+}

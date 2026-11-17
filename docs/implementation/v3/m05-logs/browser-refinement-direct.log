@@ -1,0 +1,660 @@
+Browser results: /workspace/scratch/36f66011d961/m05-v3/test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094
+
+Browser suite: frontend-refinement (12 spec files)
+[WebServer] (node:32) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:44) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 91 tests using 1 worker
+
+(node:98) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 1440px (2ms)
+(node:111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 960px (2ms)
+(node:124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/e2e/artifact-style.spec.ts:594:1 › new composition schemas are strict, bounded and preserve stable step identities (31ms)
+  ✘   4 tests/e2e/artifact-style.spec.ts:674:1 › current question and mapped form values survive expansion, thread switching and reload (0ms)
+(node:137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/artifact-style.spec.ts:753:1 › the initial question persists its default step and focuses its matching PDF field (2ms)
+(node:150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/artifact-style.spec.ts:770:1 › bound relationships expose source status and map the selected stable node to actions (1ms)
+(node:163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/artifact-style.spec.ts:813:1 › status reads actual host operation states and keeps receipt details available (6ms)
+(node:176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state (3ms)
+(node:189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/artifact-style.spec.ts:929:1 › capture synthetic signing, operations and FAQ against supplied reference compositions (3ms)
+(node:202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/canvas-clarity.spec.ts:16:1 › agent families are contained by project and preserve edits through pin and collapse (2ms)
+(node:215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/canvas-clarity.spec.ts:44:1 › wheel zoom uses canvas chrome while transcript wheel input scrolls its content (2ms)
+(node:228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/canvas-clarity.spec.ts:73:1 › a delayed failed viewport write cannot roll back newer wheel input (3ms)
+(node:241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/canvas-clarity.spec.ts:98:1 › Fit and Arrange keep editors mounted and pointer cancellation clears drag state (8ms)
+(node:254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/canvas-clarity.spec.ts:131:1 › switching canvases before debounce saves both owning viewports (4ms)
+(node:267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/canvas-clarity.spec.ts:163:1 › an in-flight outgoing canvas save retains the second canvas viewport (2ms)
+(node:280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/e2e/composer-app-refinement.spec.ts:206:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (3ms)
+(node:293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:293) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[output bounded; middle omitted]
+controls/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-canvas-supplie-076de-ever-expose-detach-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  54) tests/e2e/drag-detach.spec.ts:52:3 › canvas: release beyond every app edge stays in app and retains the editor
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-canvas-release-f3abd--app-and-retains-the-editor/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-canvas-release-f3abd--app-and-retains-the-editor/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  55) tests/e2e/drag-detach.spec.ts:94:3 › canvas: cancellation and blur outside never invoke callbacks or lose edits
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-canvas-cancell-ed472-oke-callbacks-or-lose-edits/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-canvas-cancell-ed472-oke-callbacks-or-lose-edits/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  56) tests/e2e/drag-detach.spec.ts:121:1 › crossing the canvas edge inside the app remains an ordinary saved move
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-crossing-the-c-b04ae-ains-an-ordinary-saved-move/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-crossing-the-c-b04ae-ains-an-ordinary-saved-move/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57) tests/e2e/drag-detach.spec.ts:155:1 › a notes editor remains mounted through a cancelled outside canvas drag
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-a-notes-editor-1845a-ncelled-outside-canvas-drag/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/drag-detach-a-notes-editor-1845a-ncelled-outside-canvas-drag/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  58) tests/e2e/floating-windows.spec.ts:126:1 › the protected context only minimizes and preserves its draft on reload
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-the-prote-c88ba-eserves-its-draft-on-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-the-prote-c88ba-eserves-its-draft-on-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  59) tests/e2e/floating-windows.spec.ts:169:1 › minimizing and Escape retain the same task content without a delete control
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-minimizin-775e7-nt-without-a-delete-control/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-minimizin-775e7-nt-without-a-delete-control/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  60) tests/e2e/floating-windows.spec.ts:212:1 › live usage stays available and remembers its minimized state without close or resize controls
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-live-usag-5d218-ut-close-or-resize-controls/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-live-usag-5d218-ut-close-or-resize-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  61) tests/e2e/floating-windows.spec.ts:242:1 › both summaries fit a narrow viewport, retain keyboard access and leave Stop available
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-both-summ-03263-ss-and-leave-Stop-available/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/floating-windows-both-summ-03263-ss-and-leave-Stop-available/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  62) tests/e2e/free-floating.spec.ts:20:1 › closing a tool animates safely and an immediate reopen stays open
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-closing-a-to-df94c-immediate-reopen-stays-open/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-closing-a-to-df94c-immediate-reopen-stays-open/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  63) tests/e2e/free-floating.spec.ts:57:1 › reduced motion closes immediately and returns focus to the opener
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-reduced-moti-49b4b-returns-focus-to-the-opener/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-reduced-moti-49b4b-returns-focus-to-the-opener/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  64) tests/e2e/free-floating.spec.ts:89:1 › keyboard movement releases the rail in both axes and manual sizing preserves the draft
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-keyboard-mov-e8e0d--sizing-preserves-the-draft/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-keyboard-mov-e8e0d--sizing-preserves-the-draft/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  65) tests/e2e/free-floating.spec.ts:121:1 › free floating on a narrow workspace releases the reserved tool area
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-free-floatin-a44e1-ases-the-reserved-tool-area/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-free-floatin-a44e1-ases-the-reserved-tool-area/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  66) tests/e2e/free-floating.spec.ts:145:1 › pointer drag leaves the anchor without remounting, and hidden scrollbar still scrolls
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-pointer-drag-daf92-den-scrollbar-still-scrolls/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-pointer-drag-daf92-den-scrollbar-still-scrolls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  67) tests/e2e/free-floating.spec.ts:201:1 › adapter recovery is read before any write and keeps its recovered free coordinates
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-adapter-reco-bc096--recovered-free-coordinates/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-adapter-reco-bc096--recovered-free-coordinates/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  68) tests/e2e/free-floating.spec.ts:216:1 › blur ends an active drag and viewport changes keep the tool reachable
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-blur-ends-an-539ed-ges-keep-the-tool-reachable/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-blur-ends-an-539ed-ges-keep-the-tool-reachable/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  69) tests/e2e/free-floating.spec.ts:247:1 › content-fit adapter recovery keeps free coordinates without taking input focus
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-content-fit--e2d36--without-taking-input-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-content-fit--e2d36--without-taking-input-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  70) tests/e2e/free-floating.spec.ts:266:1 › pointer cancellation ends a move without losing the window or draft
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-pointer-canc-2303e--losing-the-window-or-draft/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/free-floating-pointer-canc-2303e--losing-the-window-or-draft/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  71) tests/e2e/frontend-refinement.spec.ts:15:1 › left ticked scrollbar supports keys, track clicks, dragging, and history during updates
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/frontend-refinement-left-t-d143d--and-history-during-updates/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/frontend-refinement-left-t-d143d--and-history-during-updates/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  72) tests/e2e/frontend-refinement.spec.ts:66:1 › disconnected context is compact and connected context leads with useful project facts
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/frontend-refinement-discon-03bc4-s-with-useful-project-facts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/frontend-refinement-discon-03bc4-s-with-useful-project-facts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  73) tests/e2e/no-detach-canvas.spec.ts:17:1 › canvas offers only in-app panel controls even when a detach callback is supplied
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-canvas-of-31bfb-detach-callback-is-supplied/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-canvas-of-31bfb-detach-callback-is-supplied/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  74) tests/e2e/no-detach-canvas.spec.ts:32:1 › dragging outside the app saves an in-app placement with no detach cue or callback
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-dragging--3ee33-h-no-detach-cue-or-callback/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-dragging--3ee33-h-no-detach-cue-or-callback/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  75) tests/e2e/no-detach-canvas.spec.ts:73:1 › in-app movement resizing pinning and hiding still save ordinary panel state
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-in-app-mo-32d29-l-save-ordinary-panel-state/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-in-app-mo-32d29-l-save-ordinary-panel-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  76) tests/e2e/no-detach-canvas.spec.ts:124:1 › embedded panels stay reachable after an outside drag without Fit or panning
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-embedded--e8b10-drag-without-Fit-or-panning/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/no-detach-canvas-embedded--e8b10-drag-without-Fit-or-panning/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  77) tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  78) tests/e2e/reserved-rail.spec.ts:156:1 › expanded usage stays compact and readable instead of reserving an oversized tool
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-expanded-usa-daeb7-reserving-an-oversized-tool/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-expanded-usa-daeb7-reserving-an-oversized-tool/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  79) tests/e2e/reserved-rail.spec.ts:179:1 › both protected tools minimize to a compact flow region on narrow screens
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-both-protect-b74e1-ow-region-on-narrow-screens/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-both-protect-b74e1-ow-region-on-narrow-screens/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  80) tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-minimized-su-d6ca2-t-artifact-panel-takes-over/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  81) tests/e2e/reserved-rail.spec.ts:236:1 › expanded context keeps the header and composer across the full available chat frame
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-expanded-con-1a718-e-full-available-chat-frame/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-expanded-con-1a718-e-full-available-chat-frame/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  82) tests/e2e/reserved-rail.spec.ts:260:1 › protected context has only minimize controls while keeping the composer draft
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-protected-co-a362d--keeping-the-composer-draft/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-protected-co-a362d--keeping-the-composer-draft/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  83) tests/e2e/reserved-rail.spec.ts:289:1 › minimizing context releases the chat frame and preserves the artifact renderer
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-minimizing-c-8b35e-erves-the-artifact-renderer/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-minimizing-c-8b35e-erves-the-artifact-renderer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  84) tests/e2e/reserved-rail.spec.ts:314:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-narrow-expli-8f667-t-covering-composer-or-Stop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/reserved-rail-narrow-expli-8f667-t-covering-composer-or-Stop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  85) tests/e2e/right-tools.spec.ts:20:1 › minimize-only context exposes one action and keeps its editor mounted
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-minimize-only--ca38b-nd-keeps-its-editor-mounted/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-minimize-only--ca38b-nd-keeps-its-editor-mounted/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  86) tests/e2e/right-tools.spec.ts:85:1 › generic floating windows ignore a supplied detach callback even outside the app
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-generic-floati-ebd4e-llback-even-outside-the-app/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-generic-floati-ebd4e-llback-even-outside-the-app/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  87) tests/e2e/right-tools.spec.ts:119:1 › minimize-only context restores collapse state while retiring old free-window geometry
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-minimize-only--7f42e-ng-old-free-window-geometry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-minimize-only--7f42e-ng-old-free-window-geometry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  88) tests/e2e/right-tools.spec.ts:149:1 › live usage starts compact and visible despite an old dismissed preference
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-live-usage-sta-6e45e-an-old-dismissed-preference/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-live-usage-sta-6e45e-an-old-dismissed-preference/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  89) tests/e2e/right-tools.spec.ts:197:1 › unavailable secondary usage stays in Details and the visibility preference still works
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "npx playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-unavailable-se-08790-lity-preference-still-works/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794739811211-97a5c594-972f-40a1-b1a6-d46dbb932094/frontend-refinement/artifacts/right-tools-unavailable-se-08790-lity-preference-still-works/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  89 failed
+    tests/e2e/artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 1440px
+    tests/e2e/artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 960px
+    tests/e2e/artifact-style.spec.ts:674:1 › current question and mapped form values survive expansion, thread switching and reload
+    tests/e2e/artifact-style.spec.ts:753:1 › the initial question persists its default step and focuses its matching PDF field
+    tests/e2e/artifact-style.spec.ts:770:1 › bound relationships expose source status and map the selected stable node to actions
+    tests/e2e/artifact-style.spec.ts:813:1 › status reads actual host operation states and keeps receipt details available
+    tests/e2e/artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state
+    tests/e2e/artifact-style.spec.ts:929:1 › capture synthetic signing, operations and FAQ against supplied reference compositions
+    tests/e2e/canvas-clarity.spec.ts:16:1 › agent families are contained by project and preserve edits through pin and collapse
+    tests/e2e/canvas-clarity.spec.ts:44:1 › wheel zoom uses canvas chrome while transcript wheel input scrolls its content
+    tests/e2e/canvas-clarity.spec.ts:73:1 › a delayed failed viewport write cannot roll back newer wheel input
+    tests/e2e/canvas-clarity.spec.ts:98:1 › Fit and Arrange keep editors mounted and pointer cancellation clears drag state
+    tests/e2e/canvas-clarity.spec.ts:131:1 › switching canvases before debounce saves both owning viewports
+    tests/e2e/canvas-clarity.spec.ts:163:1 › an in-flight outgoing canvas save retains the second canvas viewport
+    tests/e2e/composer-app-refinement.spec.ts:206:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths
+    tests/e2e/composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference
+    tests/e2e/composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under reduce
+    tests/e2e/composer-app-refinement.spec.ts:299:1 › attachment band reverses an interrupted exit without removing the live row
+    tests/e2e/composer-app-refinement.spec.ts:334:1 › composer removes repeated captions and toggles Build Plan without changing its draft
+    tests/e2e/composer-app-refinement.spec.ts:385:1 › project selection uses the explicit local host binding and leaves attachments on plus
+    tests/e2e/composer-app-refinement.spec.ts:426:1 › started chat opens an explicitly new project chat and retains its original binding and draft
+    tests/e2e/composer-app-refinement.spec.ts:462:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only
+    tests/e2e/composer-app-refinement.spec.ts:498:1 › a ready plan opens automatically and right-side tools can only be minimized
+    tests/e2e/composer-app-refinement.spec.ts:567:38 › /btw still sends a side question without a header button
+    tests/e2e/composer-app-refinement.spec.ts:567:38 › /side still sends a side question without a header button
+    tests/e2e/context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 1440px
+    tests/e2e/context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 390px
+    tests/e2e/context-compact.spec.ts:51:1 › context popup closes through Escape, outside click and its toggle without an X
+    tests/e2e/context-compact.spec.ts:78:1 › unsupported compaction remains disabled and sends no command
+    tests/e2e/context-compact.spec.ts:105:1 › available compaction keeps its existing owning-thread command
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1024px
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1440px
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 768px
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1024px
+    tests/e2e/document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1440px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px
+    tests/e2e/document-smoothness.spec.ts:352:1 › inline field and signature navigation pans while edits retain the same frame and Fit page shows the whole page
+    tests/e2e/document-smoothness.spec.ts:454:1 › a nearby PDF field settles promptly and stops requesting scroll work at rest
+    tests/e2e/document-smoothness.spec.ts:469:1 › manual PDF scrolling owns the viewport through background rerender and resize until the next field choice
+    tests/e2e/document-smoothness.spec.ts:501:1 › manual scrolling after a zoom choice wins over its still-preparing candidate
+    tests/e2e/document-smoothness.spec.ts:524:1 › rapid same-page choices retain one preview and move toward the latest field without a viewport jump
+    tests/e2e/document-smoothness.spec.ts:564:1 › reduced motion applies PDF focus without a travelling scroll or continuing frame loop
+    tests/e2e/document-smoothness.spec.ts:586:1 › the focus highlight identifies the new field instead of floating through unrelated document text
+    tests/e2e/drag-detach.spec.ts:41:3 › floating: supplied callbacks never expose detach controls ─
+    tests/e2e/drag-detach.spec.ts:52:3 › floating: release beyond every app edge stays in app and retains the editor
+    tests/e2e/drag-detach.spec.ts:94:3 › floating: cancellation and blur outside never invoke callbacks or lose edits
+    tests/e2e/drag-detach.spec.ts:41:3 › canvas: supplied callbacks never expose detach controls ───
+    tests/e2e/drag-detach.spec.ts:52:3 › canvas: release beyond every app edge stays in app and retains the editor
+    tests/e2e/drag-detach.spec.ts:94:3 › canvas: cancellation and blur outside never invoke callbacks or lose edits
+    tests/e2e/drag-detach.spec.ts:121:1 › crossing the canvas edge inside the app remains an ordinary saved move
+    tests/e2e/drag-detach.spec.ts:155:1 › a notes editor remains mounted through a cancelled outside canvas drag
+    tests/e2e/floating-windows.spec.ts:126:1 › the protected context only minimizes and preserves its draft on reload
+    tests/e2e/floating-windows.spec.ts:169:1 › minimizing and Escape retain the same task content without a delete control
+    tests/e2e/floating-windows.spec.ts:212:1 › live usage stays available and remembers its minimized state without close or resize controls
+    tests/e2e/floating-windows.spec.ts:242:1 › both summaries fit a narrow viewport, retain keyboard access and leave Stop available
+    tests/e2e/free-floating.spec.ts:20:1 › closing a tool animates safely and an immediate reopen stays open
+    tests/e2e/free-floating.spec.ts:57:1 › reduced motion closes immediately and returns focus to the opener
+    tests/e2e/free-floating.spec.ts:89:1 › keyboard movement releases the rail in both axes and manual sizing preserves the draft
+    tests/e2e/free-floating.spec.ts:121:1 › free floating on a narrow workspace releases the reserved tool area
+    tests/e2e/free-floating.spec.ts:145:1 › pointer drag leaves the anchor without remounting, and hidden scrollbar still scrolls
+    tests/e2e/free-floating.spec.ts:201:1 › adapter recovery is read before any write and keeps its recovered free coordinates
+    tests/e2e/free-floating.spec.ts:216:1 › blur ends an active drag and viewport changes keep the tool reachable
+    tests/e2e/free-floating.spec.ts:247:1 › content-fit adapter recovery keeps free coordinates without taking input focus
+    tests/e2e/free-floating.spec.ts:266:1 › pointer cancellation ends a move without losing the window or draft
+    tests/e2e/frontend-refinement.spec.ts:15:1 › left ticked scrollbar supports keys, track clicks, dragging, and history during updates
+    tests/e2e/frontend-refinement.spec.ts:66:1 › disconnected context is compact and connected context leads with useful project facts
+    tests/e2e/no-detach-canvas.spec.ts:17:1 › canvas offers only in-app panel controls even when a detach callback is supplied
+    tests/e2e/no-detach-canvas.spec.ts:32:1 › dragging outside the app saves an in-app placement with no detach cue or callback
+    tests/e2e/no-detach-canvas.spec.ts:73:1 › in-app movement resizing pinning and hiding still save ordinary panel state
+    tests/e2e/no-detach-canvas.spec.ts:124:1 › embedded panels stay reachable after an outside drag without Fit or panning
+    tests/e2e/reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer
+    tests/e2e/reserved-rail.spec.ts:156:1 › expanded usage stays compact and readable instead of reserving an oversized tool
+    tests/e2e/reserved-rail.spec.ts:179:1 › both protected tools minimize to a compact flow region on narrow screens
+    tests/e2e/reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over
+    tests/e2e/reserved-rail.spec.ts:236:1 › expanded context keeps the header and composer across the full available chat frame
+    tests/e2e/reserved-rail.spec.ts:260:1 › protected context has only minimize controls while keeping the composer draft
+    tests/e2e/reserved-rail.spec.ts:289:1 › minimizing context releases the chat frame and preserves the artifact renderer
+    tests/e2e/reserved-rail.spec.ts:314:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop
+    tests/e2e/right-tools.spec.ts:20:1 › minimize-only context exposes one action and keeps its editor mounted
+    tests/e2e/right-tools.spec.ts:85:1 › generic floating windows ignore a supplied detach callback even outside the app
+    tests/e2e/right-tools.spec.ts:119:1 › minimize-only context restores collapse state while retiring old free-window geometry
+    tests/e2e/right-tools.spec.ts:149:1 › live usage starts compact and visible despite an old dismissed preference
+    tests/e2e/right-tools.spec.ts:197:1 › unavailable secondary usage stays in Details and the visibility preference still works
+  2 passed (1.2m)
+
+Failed browser suites: frontend-refinement (exit 1)

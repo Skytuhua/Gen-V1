@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-typed-repair",
+  "startedAt": "2026-11-15T23:42:13.501558+00:00",
+  "endedAt": "2026-11-15T23:42:14.497794+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "logPath": "docs/implementation/v3/m05-logs/continuation-native-save-typed-custody-green.log",
+  "logBytes": 1475,
+  "logDigest": "cdeb5ed319be60bc8746bec400d6be6d78eb8c51028e550034148f5a5a58b7ce",
+  "sourceSha256": "4587816428badb693c77829a83efa596e394194aaadd0e8ae62f2a1e87c5ce31",
+  "testSha256": "416bcfb37dc1827a3d18ce8b0be408f3f0cf00a305df189d61d6eab7d128d080",
+  "scope": "Seven existing portable custody cases with the maximum accepted SystemRoot command bound; six-phase schema remains exact. Actual typed native destination requires both Windows lanes; prior focus run43775229884 failed both.",
+  "rawLogBytes": 1475,
+  "rawLogDigest": "cdeb5ed319be60bc8746bec400d6be6d78eb8c51028e550034148f5a5a58b7ce",
+  "transformations": [
+    "LOCAL_STDOUT_STDERR_CAPTURE",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "command": {
+    "argv": [
+      "node",
+      "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+      "run",
+      "tests/installed-native-save.test.ts",
+      "--reporter=verbose",
+      "--maxWorkers=1"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-typed-repair",
+    "executableIdentity": "node",
+    "startedAt": "2026-11-15T23:42:13.501558+00:00",
+    "endedAt": "2026-11-15T23:42:14.497794+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-typed-custody-green.log",
+    "logDigest": "cdeb5ed319be60bc8746bec400d6be6d78eb8c51028e550034148f5a5a58b7ce"
+  }
+}

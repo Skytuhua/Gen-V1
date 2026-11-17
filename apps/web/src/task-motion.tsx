@@ -80,6 +80,9 @@ export function MotionRegion({ open, children, id, duration = TASK_MOTION.height
     const measure = () => {
       const after = open ? content.getBoundingClientRect().height : 0;
       if(after!==spring.current!.value||spring.current!.active){content.style.visibility='visible';shell.dataset.motionPhase=open?'opening':'closing';}
+      // Settled at the target (including empty content): report the resolved
+      // state, otherwise an open zero-height region stays labelled closed.
+      else{content.style.visibility=open?'visible':'hidden';shell.dataset.motionPhase=open?'open':'closed';}
       spring.current!.to(after,!initialized.current||!animate||reducedMotion());initialized.current=true;
     };
     measure();

@@ -1,0 +1,21 @@
+{
+  "scope": "Private proposed test-only patch; no active repository edits or executions",
+  "baseCommit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "mergeHead": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "inputCut": "Staged C4 UI resolution before new behavior tests",
+  "paths": {
+    "tests/source-composer-v3.test.ts": {
+      "beforeSha256": "34d3633be795a639b609cecd407d6ff98a6394ad73112a766733fbc083ea4625",
+      "proposedSha256": "126703e57581bc2de0e43a85e32c4722ea20aa8106316546cb18add5ba751da7"
+    },
+    "tests/e2e/workbench-app.spec.ts": {
+      "beforeSha256": "c2eafa509cd222d5462ac0a9ea1b71fcafe6c1fff9c8235c268f9d8591ebb6c3",
+      "proposedSha256": "0532ea8364fa8984fa368232e72f467704f53366d72149bac3ab26dbf993fae7"
+    }
+  },
+  "expectedCounts": {
+    "workbenchApp": 26,
+    "sourceComposer": 8
+  },
+  "testsPatchSha256": "1b03573ada7c42281b765b8118f1dfef25da72fa90b3f58d6084c2b92e5ed07f"
+}

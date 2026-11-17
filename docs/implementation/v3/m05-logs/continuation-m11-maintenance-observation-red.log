@@ -1,0 +1,43 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/hermes-runtime.test.ts (39 tests | 1 failed) 2446ms
+   × owns a fresh authenticated broker for the original agent.compact maintenance RPC 120ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-runtime.test.ts > owns a fresh authenticated broker for the original agent.compact maintenance RPC
+AssertionError: expected { …(5) } to match object { threadId: 'thread', …(3) }
+(15 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -5,14 +5,14 @@
+        "accountId": null,
+        "modelId": "openai/model",
+        "providerId": "openai",
+      },
+      "owner": {
+-       "epoch": 2,
++       "epoch": 1,
+        "inputIds": [],
+        "phase": "foreground",
+-       "runId": "maintenance",
++       "runId": "run",
+        "sequence": 42,
+        "threadId": "thread",
+      },
+      "usage": {
+        "inputTokens": 31,
+
+ ❯ tests/hermes-runtime.test.ts:99:60
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 38 passed (39)
+   Start at  21:37:58
+   Duration  3.26s (transform 434ms, setup 0ms, import 619ms, tests 2.45s, environment 0ms)

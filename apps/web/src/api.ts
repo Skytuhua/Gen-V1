@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { CommandReceipt, HostCommand, Message, ModelInfo, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
+import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
 
 export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
@@ -130,8 +131,8 @@ export function getComposerPrediction(input: { threadId: string; replyId: string
 }
 export const getSkill=(name:string,options:{path?:string;revision?:number;versionOffset?:number;includeInactive?:boolean}={})=>{const query=new URLSearchParams(Object.entries(options).filter(([,value])=>value!==undefined).map(([key,value])=>[key,String(value)])).toString();return authenticated(()=>fetch(`/api/skills/${encodeURIComponent(name)}${query?'?'+query:''}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillDetail>);};
 export const getSkillProposal=(id:string)=>authenticated(()=>fetch(`/api/skill-proposals/${encodeURIComponent(id)}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillProposal>);
-export const getModels = (refresh = false, threadId?: string, signal?: AbortSignal) => {
-  const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}) }).toString();
+export const getModels = (refresh = false, threadId?: string, signal?: AbortSignal, target?:AccountAuthTarget) => {
+  const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}), ...(target?{providerId:target.providerId,accountId:target.accountId??''}:{}) }).toString();
   return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(readSchema(modelsResponseSchema)) as Promise<{ models: ModelInfo[]; error?: string }>;
 };
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }

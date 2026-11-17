@@ -1,0 +1,17 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/c3-retention-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "publicSupplementHashes": {
+    "retention-supplement.json": "db8f919e14590ba3aa3e3db5efb386cdc3b0de63baff0e34f07772bcfcbcbd74",
+    "retention-supplement.md": "fed38c7d2d3d75becce5fcc968f7d34b7fd80e06e07356641680a0514e65c354"
+  },
+  "originalArchives": 7,
+  "originalBytes": 82050695,
+  "exactCopiesRehashed": 21,
+  "privateIdentitiesPublished": false,
+  "indexUnchanged": true,
+  "runConclusion": "failure",
+  "currentC4TestGateCredit": false
+}

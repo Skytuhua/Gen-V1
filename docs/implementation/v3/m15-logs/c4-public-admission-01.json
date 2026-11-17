@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/public-admission-01/apply-reviewed.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T06:25:30.542Z",
+  "endedAt": "2026-11-16T06:25:31.464Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-public-admission-01.log",
+  "logDigest": "52cfc9aad42c5c14d4270381d1c728fd1ae344176a30692365bd268884fed7e9"
+}

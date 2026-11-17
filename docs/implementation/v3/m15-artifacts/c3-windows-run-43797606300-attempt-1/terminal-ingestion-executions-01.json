@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "runId": 43797606300,
+  "attempt": 1,
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "helperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+  "scope": "Seven unchanged sealed artifact ingester executions. Byte verification does not award test PASS.",
+  "records": [
+    {
+      "label": "native",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-native-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14195328865.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "native",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/native"
+      ],
+      "startedAt": "2026-11-16T04:10:55.614479+00:00",
+      "endedAt": "2026-11-16T04:10:55.687197+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/native-stdout.txt",
+        "bytes": 428,
+        "sha256": "fd0bdd4b7c77928533458df63bbc9eb160556a2af89390241613d2536dc6886f"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/native-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/native",
+        "manifestSha256": "f01dcaac5da04fa5bf8722d52416570dfe9187c0dbcf57dc681a80f5045c218f",
+        "archiveSha256": "211a50f3e45ad0b1687a16b7c2561cd8bb5c6579e53d2aab78c7b941dd0d7da0",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 1,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "label": "full-shard-1",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-full-shard-1-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14195937360.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "full-shard",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-1",
+        "--shard",
+        "1"
+      ],
+      "startedAt": "2026-11-16T04:10:55.688178+00:00",
+      "endedAt": "2026-11-16T04:10:55.785112+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-1-stdout.txt",
+        "bytes": 434,
+        "sha256": "e37e0a589c1c9821bbf4e72a559d97f32ea7b7e5b5d3396d01279855bcbc6f10"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-1-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-1",
+        "manifestSha256": "9fd60505b024a9344d311ba694c092923be726d97c78bd48e6096587d45bafe8",
+        "archiveSha256": "97b616d424698b0a924b8681fd9573b09cc7af94985dee92e62e879509538486",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 1,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "label": "full-shard-2",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-full-shard-2-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14195687155.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "full-shard",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-2",
+        "--shard",
+        "2"
+      ],
+      "startedAt": "2026-11-16T04:10:55.785493+00:00",
+      "endedAt": "2026-11-16T04:10:55.903825+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-2-stdout.txt",
+        "bytes": 434,
+        "sha256": "42a56f679af9b3aa792f6405f9391d7c7bff8047b32e5de8f9be61751f144fc4"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-2-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-2",
+        "manifestSha256": "fbe00c023babcbed3561a48c276959a1eb5afc16a9a3c8af87a4861ccb731fe5",
+        "archiveSha256": "c6ec7b5fd3404049e4f8bf00bd1e82678889a35afd269c9d48eebb8eed888a81",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 1,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "label": "full-shard-3",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-full-shard-3-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14196040668.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "full-shard",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-3",
+        "--shard",
+        "3"
+      ],
+      "startedAt": "2026-11-16T04:10:55.904553+00:00",
+      "endedAt": "2026-11-16T04:10:56.026086+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-3-stdout.txt",
+        "bytes": 434,
+        "sha256": "91df9e389220c18a927e9da0b1a31c62b723a1afd88ef6c93150b19235f324af"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-3-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-3",
+        "manifestSha256": "e6082a5f62f989f01234ff66271facdf2bd52cb6a9de8b2934de455899a8a731",
+        "archiveSha256": "234287a6c66b497954315b54615e34dec8638e76278fe4b225ce530caecc0cbb",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 1,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "label": "full-shard-4",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-full-shard-4-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14196155256.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "full-shard",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-4",
+        "--shard",
+        "4"
+      ],
+      "startedAt": "2026-11-16T04:10:56.026527+00:00",
+      "endedAt": "2026-11-16T04:10:56.153876+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-4-stdout.txt",
+        "bytes": 434,
+        "sha256": "e9e299389a1eecedc9a93ce4e7478ebf2fb93cd35d74f58b9373c751de2f9f7d"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-4-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/full-shard-4",
+        "manifestSha256": "7506f21ad43f8d598519179cdacb6bd208edd52a98c7c0ca682d357e9edc5e42",
+        "archiveSha256": "1766e070d82093214d8bd793985bf2c852459538f9ff50778bd43598528264d3",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 1,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "success"
+      }
+    },
+    {
+      "label": "browser",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-browser-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14195684579.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "browser",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/browser"
+      ],
+      "startedAt": "2026-11-16T04:10:56.154555+00:00",
+      "endedAt": "2026-11-16T04:10:56.548413+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/browser-stdout.txt",
+        "bytes": 430,
+        "sha256": "1ec0c2605f040ac9a087de08b38dd00386033fc10435ea8ceae573363eec5215"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/browser-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/browser",
+        "manifestSha256": "7e902bc8cabbb4cf14cce607c52241a8b6632f54a9845426fad999e3429d2e1d",
+        "archiveSha256": "33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 16,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "failure"
+      }
+    },
+    {
+      "label": "root-browser",
+      "argv": [
+        "python",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/v2/ingest-ci-artifact.py",
+        "--zip",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-root-browser-43797606300-1.zip",
+        "--run-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-run.json",
+        "--artifact-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/artifact-metadata/20261116T040939130Z-artifact-14197300687.json",
+        "--jobs-json",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/20261116T040939130Z-jobs.json",
+        "--run-id",
+        "43797606300",
+        "--attempt",
+        "1",
+        "--head",
+        "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "--tree",
+        "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+        "--kind",
+        "root-browser",
+        "--out",
+        "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/root-browser"
+      ],
+      "startedAt": "2026-11-16T04:10:56.549019+00:00",
+      "endedAt": "2026-11-16T04:10:57.944991+00:00",
+      "exitCode": 0,
+      "stdout": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/root-browser-stdout.txt",
+        "bytes": 434,
+        "sha256": "a6a0530b706cc9a20e442791ad766d45e3004890175d4ebb3e1702321fe26e9e"
+      },
+      "stderr": {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/root-browser-stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "output": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/root-browser",
+        "manifestSha256": "897d2d48302382be8e818a8da5d81634369803b235faf226584d9730f215d26f",
+        "archiveSha256": "3aa515f7d1d92eca11038c99da28a44db1b4f2185a3139c046d4b2d2d6457432",
+        "sourceStatus": "MATCH",
+        "observedReceipts": 2,
+        "missingReceipts": 0,
+        "runConclusion": "failure",
+        "jobConclusion": "failure"
+      }
+    }
+  ]
+}

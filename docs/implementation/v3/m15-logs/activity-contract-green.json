@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/activity-output-v3.test.ts",
+    "tests/source-composer-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:09:57.691Z",
+  "endedAt": "2026-11-15T22:10:01.353Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/activity-contract-green.log",
+  "logDigest": "9e622719bdea7558b21e532753f1676b15ec05972728f634a9453c5f24b05c43"
+}

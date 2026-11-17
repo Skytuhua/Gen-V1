@@ -1,0 +1,39 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-v3.test.ts (0 test)
+ ❯ tests/memory-forget-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts [ tests/memory-forget-v3.test.ts ]
+Error: Cannot find module '../packages/core/project-memory.ts' imported from /workspace/scratch/36f66011d961/m05-v3/tests/project-memory-fixture.ts
+ ❯ tests/project-memory-fixture.ts:6:1
+      4| import { randomUUID } from 'node:crypto';
+      5| import { Store } from '../packages/storage/store.ts';
+      6| import { ProjectMemory } from '../packages/core/project-memory.ts';
+       | ^
+      7| import type { MemoryAccess, MemoryAction, MemorySourceRefV1 } from '..…
+      8|
+ ❯ tests/memory-forget-v3.test.ts:4:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/project-memory-v3.test.ts [ tests/project-memory-v3.test.ts ]
+Error: Cannot find module '../packages/core/project-memory.ts' imported from /workspace/scratch/36f66011d961/m05-v3/tests/project-memory-fixture.ts
+ ❯ tests/project-memory-fixture.ts:6:1
+      4| import { randomUUID } from 'node:crypto';
+      5| import { Store } from '../packages/storage/store.ts';
+      6| import { ProjectMemory } from '../packages/core/project-memory.ts';
+       | ^
+      7| import type { MemoryAccess, MemoryAction, MemorySourceRefV1 } from '..…
+      8|
+ ❯ tests/project-memory-v3.test.ts:5:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  18:24:47
+   Duration  451ms (transform 86ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)

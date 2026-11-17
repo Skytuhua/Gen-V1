@@ -1,0 +1,46 @@
+2026-11-15T17:12:14.8210084Z ##[group]Run $failedSuites = @()
+2026-11-15T17:12:14.8210342Z $failedSuites = @()
+2026-11-15T17:12:14.8210610Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-15T17:12:14.8210898Z   pnpm test:browser --suite $suite
+2026-11-15T17:12:14.8211116Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-15T17:12:14.8211317Z }
+2026-11-15T17:12:14.8211450Z if ($failedSuites.Count -gt 0) {
+2026-11-15T17:12:14.8211677Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T17:12:14.8211887Z }
+2026-11-15T17:12:14.8266031Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T17:12:14.8266256Z env:
+2026-11-15T17:12:14.8266430Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T17:12:14.8266691Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:12:14.8267167Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T17:12:14.8267440Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:12:14.8267690Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:12:14.8267934Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T17:12:14.8268192Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T17:12:14.8268598Z ##[endgroup]
+2026-11-15T17:12:15.4874104Z Browser suite: project-memory (1 spec files)
+2026-11-15T17:12:17.9769201Z 
+2026-11-15T17:12:17.9769888Z Running 15 tests using 1 worker
+2026-11-15T17:12:17.9770124Z 
+2026-11-15T17:12:20.7727512Z   ok  1 tests\e2e\project-memory.spec.ts:358:1 › opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport (2.0s)
+2026-11-15T17:12:21.7791800Z   ok  2 tests\e2e\project-memory.spec.ts:401:1 › requires an explicit source selection before enabling the project (998ms)
+2026-11-15T17:12:22.7732825Z   ok  3 tests\e2e\project-memory.spec.ts:428:1 › disabled host prevents new opt-in and preserves correction of retained records (985ms)
+2026-11-15T17:12:23.8444836Z   ok  4 tests\e2e\project-memory.spec.ts:460:1 › opens an exact source as inert text and accepts a proposal by its reviewed revision (1.1s)
+2026-11-15T17:12:24.8295347Z   ok  5 tests\e2e\project-memory.spec.ts:493:1 › retains the exact correction draft when the reviewed revision is stale (976ms)
+2026-11-15T17:12:25.8641731Z   ok  6 tests\e2e\project-memory.spec.ts:517:1 › conflict resolution requires explicit revisions and a note before preserving both (1.0s)
+2026-11-15T17:12:26.9774058Z   ok  7 tests\e2e\project-memory.spec.ts:555:1 › forget names invalidated artifacts before committing and shows pending purge afterward (1.1s)
+2026-11-15T17:12:27.9844129Z   ok  8 tests\e2e\project-memory.spec.ts:588:1 › owner change closes the old review without retaining the previous project text (1.0s)
+2026-11-15T17:12:28.8391862Z   ok  9 tests\e2e\project-memory.spec.ts:602:1 › explicit export produces only the host redacted export envelope (848ms)
+2026-11-15T17:12:29.2324911Z   ok 10 tests\e2e\project-memory.spec.ts:615:1 › recall explains exact source and disables exclusion without a request preparation adapter (387ms)
+2026-11-15T17:12:30.2580421Z   ok 11 tests\e2e\project-memory.spec.ts:637:1 › confirms a reusable preference only after explicit project-only confirmation (1.0s)
+2026-11-15T17:12:30.8993042Z   ok 12 tests\e2e\project-memory.spec.ts:671:1 › prepares the exact draft with terminal excerpts, excludes a revision, and sends its host token (634ms)
+2026-11-15T17:12:31.5124084Z   ok 13 tests\e2e\project-memory.spec.ts:713:1 › invalidates exclusions when the draft changes and does not reuse its previous token (608ms)
+2026-11-15T17:12:32.1625554Z   ok 14 tests\e2e\project-memory.spec.ts:745:1 › blocks send during exclusion and after failure until explicit refresh (644ms)
+2026-11-15T17:12:32.8495555Z   ok 15 tests\e2e\project-memory.spec.ts:806:1 › an empty draft shows the last captured request with exclusion disabled (680ms)
+2026-11-15T17:12:33.0495284Z 
+2026-11-15T17:12:33.0499373Z   15 passed (16.8s)
+2026-11-15T17:12:33.3268521Z 
+2026-11-15T17:12:33.3269425Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-15T17:12:33.3269912Z > tsx scripts/test-browser.ts "--suite" "usage-context"
+2026-11-15T17:12:33.3270143Z 
+2026-11-15T17:12:33.5415442Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794762753540-f8b1863c-17f0-4dac-8d22-9b5122c9ee6c
+2026-11-15T17:12:33.5418776Z 

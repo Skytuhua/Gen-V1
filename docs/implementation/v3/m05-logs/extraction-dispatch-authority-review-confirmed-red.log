@@ -1,0 +1,19 @@
+{"outcome":"STALE","memoryEnabled":false,"nativeDispatches":1,"sharedSourceText":true}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Opt-out between preparation and scheduled native start must prevent sharing the source cut
+
+1 !== 0
+
+    at <anonymous> (/workspace/scratch/36f66011d961/m05-extraction-review-repro.mts:20:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

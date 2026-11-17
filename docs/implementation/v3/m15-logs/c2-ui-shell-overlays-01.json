@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-overlays.chromium.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-ui-shell-overlays-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:19:29.633Z",
+  "endedAt": "2026-11-16T01:19:47.580Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-01.log",
+  "logDigest": "1df594dd580e8eee07deb1edb1e496c6d5c21795ee901249d314e94f304272bd"
+}

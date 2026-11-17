@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-handoff-v3.test.ts",
+    "tests/editor-handoff.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c4-empty-owner-green-01/results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T05:57:44.978Z",
+  "endedAt": "2026-11-16T05:57:49.357Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-empty-owner-green-01.log",
+  "logDigest": "86a7ba55cacbeea6e218e70ddcf5d9db4ee6a3111100ff19fe3856ae0eec9c54"
+}

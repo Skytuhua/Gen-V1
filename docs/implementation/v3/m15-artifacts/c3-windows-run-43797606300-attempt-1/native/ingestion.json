@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "ingestionStatus": "BYTES_VERIFIED",
+  "testOutcome": "Read original job conclusions and command statuses; ingestion does not grant a passing test result.",
+  "repository": "skytuhua-org/Gen-V1",
+  "workflow": ".github/workflows/m15-evidence.yml",
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "runId": 43797606300,
+  "runAttempt": 1,
+  "runConclusion": "failure",
+  "artifactId": 14195328865,
+  "artifactName": "m15-native-3f68a8f1bc1ca5a588862571d905163861e94492-43797606300-1",
+  "kind": "native",
+  "shard": null,
+  "shardCount": null,
+  "event": "push",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "jobId": 133069880104,
+  "jobConclusion": "success",
+  "archive": {
+    "path": "archive.zip",
+    "bytes": 21565,
+    "sha256": "211a50f3e45ad0b1687a16b7c2561cd8bb5c6579e53d2aab78c7b941dd0d7da0",
+    "githubDigest": "sha256:211a50f3e45ad0b1687a16b7c2561cd8bb5c6579e53d2aab78c7b941dd0d7da0",
+    "githubDigestVerified": true
+  },
+  "metadata": [
+    {
+      "path": "github-run.json",
+      "bytes": 13144,
+      "sha256": "2fa3a089a883ad822181e80748245333cf0b0d497ce8fac93f7403e92e5045cb"
+    },
+    {
+      "path": "github-artifact.json",
+      "bytes": 738,
+      "sha256": "bdd31c4a2496d9995efd882c399e5be5cda24039a381b056011aebac2ca0d4ee"
+    },
+    {
+      "path": "github-jobs.json",
+      "bytes": 24002,
+      "sha256": "e346a124d3edff49afd12eee0e98356deeb49b9cf97324777ada29d0c6064f51"
+    }
+  ],
+  "files": {
+    "path": "files.json",
+    "entries": 5,
+    "bytes": 2238,
+    "sha256": "c12d6a64e9c6603457224534383b551af4905ab4c6675388166d39ff0bc35fa4"
+  },
+  "sourceValidation": {
+    "status": "MATCH",
+    "records": [
+      {
+        "path": "test-results/m15/checkout-source.json",
+        "sha256": "196a786faebc275d1d31806ef1dfb2837d45def9f45889c8e89cf2076c42d37b",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+          "recordedAt": "2026-11-16T03:35:00.7893407Z"
+        }
+      },
+      {
+        "path": "test-results/m15/native-source.json",
+        "sha256": "889b4771ffb14a5484cc5f20e1d104cb439531d768878186d8195e2aae526922",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "node": "v24.22.2",
+          "pnpm": "10.30.3",
+          "python": "Python 3.14.10",
+          "startedAt": "2026-11-16T03:36:01.3342575Z"
+        }
+      }
+    ],
+    "missing": []
+  },
+  "commands": {
+    "observed": [
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-native-43797606300-1.json",
+        "sha256": "b78e82faad1e17359efa79d0b0c5a79d6894db70bb68fb915131e4183ce30840",
+        "status": "PASS",
+        "exitCode": 0,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-native-43797606300-1.log",
+        "logSha256": "4264dcb8cd4c1a83019e69632c4d27e386b335e2721049d7b4a021768236ba8a"
+      }
+    ],
+    "missing": [],
+    "additionalRetainedReceipts": []
+  },
+  "fullRepositoryResult": null,
+  "ingestedAt": "2026-11-16T04:10:55.677169+00:00",
+  "ingestionHelperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+  "workflowEvidenceRevision": "c3-v2",
+  "splitBrowserResult": null
+}

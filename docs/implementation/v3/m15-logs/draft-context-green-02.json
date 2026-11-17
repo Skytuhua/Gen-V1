@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-draft-transfer-v3.test.ts",
+    "tests/saved-drafts.test.ts",
+    "tests/draft-transfer.test.ts",
+    "tests/compact-draft-transfer.test.ts",
+    "tests/journal.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:58:27.972Z",
+  "endedAt": "2026-11-15T21:58:35.187Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/draft-context-green-02.log",
+  "logDigest": "f947878baf0add01cfdd81f2504c226a1b1b55a1032df632bc4f0a71a94acc6e"
+}

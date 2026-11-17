@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/desktop-surfaces.playwright.config.ts",
+    "--grep",
+    "M15 panel opener:",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-panel-opener-green-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T03:59:42.178Z",
+  "endedAt": "2026-11-16T03:59:56.363Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-panel-opener-green-01.log",
+  "logDigest": "327b31b8bdaab2bc4c6aae48ded1be83aaa2932826c8ad392bf8f5219f3cb09b"
+}

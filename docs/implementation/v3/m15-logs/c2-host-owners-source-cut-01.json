@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "git",
+    "ls-tree",
+    "-r",
+    "138b1356495bb3a2c9b35020240513f8faa84964",
+    "--",
+    "packages/core/file-access.ts",
+    "packages/core/linux-path-guard.ts",
+    "packages/contracts/code-review.ts",
+    "packages/workspace/tools.ts",
+    "packages/workspace/github.ts",
+    "packages/core/task-memory.ts",
+    "packages/contracts/verification.ts",
+    "packages/core/verification-read-models.ts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/usr/local/bin/git",
+  "startedAt": "2026-11-16T00:28:04.493Z",
+  "endedAt": "2026-11-16T00:28:04.508Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-owners-source-cut-01.log",
+  "logDigest": "f2dfe29ebc113663549e3dc81de8db944ac4fc3e4af47b1c5a3b2b8bd5da2b4b"
+}

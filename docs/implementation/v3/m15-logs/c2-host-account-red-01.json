@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-workbench-host-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "first-account source custody|unsent captured custody"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:20:39.593Z",
+  "endedAt": "2026-11-16T00:20:43.212Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-account-red-01.log",
+  "logDigest": "b3cde09d23cb21c1ac784a280af20974a61bc3e8f145808502d88d73620161ea"
+}

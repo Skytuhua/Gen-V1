@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "chat-view-modes"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-16T03:35:30.397Z",
+  "endedAt": "2026-11-16T03:35:49.499Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-windows-chat-view-modes-43797606300-1.log",
+  "logDigest": "ff1fe6f1e2364c603a51dce3d9d468433819067a2fe1c302d1062bb38fbcae30"
+}

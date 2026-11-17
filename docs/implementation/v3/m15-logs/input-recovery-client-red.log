@@ -1,0 +1,24 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-input-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/workbench-input-recovery-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workbench-input-recovery-v3.test.ts [ tests/workbench-input-recovery-v3.test.ts ]
+Error: Cannot find module '/apps/web/src/workbench-input-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-input-recovery-v3.test.ts
+ ❯ tests/workbench-input-recovery-v3.test.ts:8:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:13:33
+   Duration  351ms (transform 85ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+

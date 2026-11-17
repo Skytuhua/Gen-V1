@@ -3,7 +3,7 @@
 .task-choice { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; gap:4px; min-height:43px; padding:10px 12px; border:1px solid transparent; background:var(--subtle); border-radius:10px; cursor:pointer; font-size:13px; line-height:1.4; transition:background-color var(--ui-motion-hover) var(--ui-ease-enter),border-color var(--ui-motion-hover) var(--ui-ease-enter); }
 .task-choice:hover { background:var(--hover); }
 .task-choice.is-selected { background:var(--selection-bg); border-color:var(--selection-border); }
-.task-choice:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+.task-choice:focus-within { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .task-choice:has(input:disabled) { opacity:.5; cursor:not-allowed; }
 .task-choice input { position:absolute; opacity:0; width:1px; height:1px; }
 .task-choice-copy { min-width:0; width:100%; overflow-wrap:anywhere; }
@@ -32,7 +32,7 @@
 .task-status-receipt pre { margin-top:7px; max-height:240px; overflow:auto; font-size:11px; }
 .status-neutral { color:var(--muted); }
 .status-pending { color:var(--pending); }
-.status-running { color:var(--accent); }
+.status-running { color:var(--accent-fg); }
 .status-success { color:var(--success); }
 .status-error { color:var(--danger); }
 .status-merged { color:#a67af4; }
@@ -46,7 +46,7 @@
 .task-history { max-height:420px; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; padding:2px 4px 2px 2px; }
 .task-history[data-scrolled="true"] { mask-image:linear-gradient(to bottom,transparent,#000 22px,#000); }
 .disclosure-children .field { padding:5px 0; font-size:12px; }
-.disclosure-trigger:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.disclosure-trigger:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 @keyframes task-pending-dot { from { opacity:.35; } to { opacity:1; } }
 @media(prefers-reduced-motion:reduce) { .disclosure-pending>span { animation:none; } .task-choice,.disclosure-trigger svg { transition:none; } }
 .task-unavailable { color:var(--muted); font-size:12px; padding:12px 0; }

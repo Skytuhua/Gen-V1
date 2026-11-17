@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/source-selection-v3.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+  "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+  "startedAt": "2026-11-16T19:16:50.734Z",
+  "endedAt": "2026-11-16T19:16:53.086Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-source-selection-v3.log",
+  "logDigest": "5eb1897f7f562b5753113472caa7a9160110e89e2ca286ff24dcd1d8f1b0d969"
+}

@@ -1,0 +1,181 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - complementary "Thread navigation" [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - strong [ref=e9]: Gen V1
+          - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - img [ref=e16]
+            - textbox "Search threads" [ref=e19]:
+              - /placeholder: Search
+          - button "Filter threads" [ref=e20] [cursor=pointer]:
+            - img [ref=e21]
+          - button "Connect project" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - button "New thread" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+        - navigation "Threads" [ref=e29]:
+          - generic [ref=e31]:
+            - button "Chat view modes Ready" [ref=e32]:
+              - generic [ref=e33]:
+                - generic [ref=e34]:
+                  - generic [ref=e35]: GV
+                  - generic [ref=e36]: Gen-V1
+                - time [ref=e38]: 16d
+              - generic [ref=e39]: Chat view modes
+              - generic [ref=e40]: Ready
+            - button "Options for Chat view modes" [ref=e42] [cursor=pointer]:
+              - img [ref=e43]
+        - generic "App controls" [ref=e47]:
+          - button "Settings" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - generic [ref=e52]: Settings
+          - button "Pull requests" [ref=e53] [cursor=pointer]:
+            - img [ref=e54]
+            - generic [ref=e58]: PRs
+          - button "Usage" [ref=e59] [cursor=pointer]:
+            - img [ref=e60]
+            - generic [ref=e62]: Usage
+          - button "Update" [disabled] [ref=e63]:
+            - img [ref=e64]
+            - generic [ref=e67]: Update
+      - separator "Resize sidebar" [ref=e68]
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - status [ref=e71]:
+            - generic [ref=e72]: Plug-ins could not be loaded.
+            - button "Retry" [ref=e73] [cursor=pointer]
+          - generic "Workspace layouts" [ref=e74]:
+            - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+            - button "All Agents" [ref=e76] [cursor=pointer]
+            - button "Code Review" [ref=e77] [cursor=pointer]
+            - button "Research" [ref=e78] [cursor=pointer]
+            - button "Custom" [ref=e79] [cursor=pointer]
+            - button "Layouts" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+              - text: Layouts
+              - img [ref=e86]
+            - button "Panels" [ref=e89] [cursor=pointer]:
+              - img [ref=e90]
+              - text: Panels
+              - img [ref=e95]
+        - generic [ref=e100]:
+          - generic [ref=e102]:
+            - main "Chat" [ref=e103]:
+              - generic [ref=e104]:
+                - strong [ref=e106]: Chat view modes
+                - generic [ref=e107]:
+                  - button "Find in conversation" [ref=e109] [cursor=pointer]:
+                    - img [ref=e110]
+                  - button "Open workspace panel" [ref=e113] [cursor=pointer]:
+                    - img [ref=e114]
+                  - generic [ref=e116]:
+                    - button "Move chat panel" [active] [ref=e117]:
+                      - img [ref=e118]
+                    - generic "Switch layout (Ctrl/⌘+Shift+L)" [ref=e125]:
+                      - button "Switch layout" [ref=e126] [cursor=pointer]:
+                        - img [ref=e127]
+                    - button "Dock chat to side drawer" [ref=e129] [cursor=pointer]:
+                      - img [ref=e130]
+              - generic [ref=e135]:
+                - scrollbar "Scroll conversation" [ref=e136] [cursor=pointer]
+                - generic "Conversation" [ref=e138]:
+                  - generic [ref=e140]:
+                    - generic [ref=e141]:
+                      - generic [ref=e142]: You
+                      - generic [ref=e143]:
+                        - button "Copy message" [ref=e144] [cursor=pointer]:
+                          - img [ref=e145]
+                        - status [ref=e148]
+                        - paragraph [ref=e150]: Help me keep this conversation close while I work.
+                    - generic [ref=e151]:
+                      - generic [ref=e152]: Assistant
+                      - generic [ref=e153]:
+                        - button "Copy message" [ref=e154] [cursor=pointer]:
+                          - img [ref=e155]
+                        - status [ref=e158]
+                        - generic [ref=e159]:
+                          - paragraph [ref=e160]: You can keep the same conversation in a full page, a side drawer, or a small pop-up.
+                          - paragraph [ref=e161]: Your messages, files, and draft stay with you as you move between layouts.
+                    - generic [ref=e162]:
+                      - generic [ref=e163]: You
+                      - generic [ref=e164]:
+                        - button "Copy message" [ref=e165] [cursor=pointer]:
+                          - img [ref=e166]
+                        - status [ref=e169]
+                        - paragraph [ref=e171]: I’d like to make room for the workspace.
+                    - generic [ref=e172]:
+                      - generic [ref=e173]: Assistant
+                      - generic [ref=e174]:
+                        - button "Copy message" [ref=e175] [cursor=pointer]:
+                          - img [ref=e176]
+                        - status [ref=e179]
+                        - paragraph [ref=e181]: Use the layout menu in the header. Resize a panel from any edge or corner, or move it by its header. You can dock it on the right again whenever you need.
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - textbox "Message" [ref=e188]:
+                    - /placeholder: Ask anything…
+                  - group "Task actions" [ref=e189]:
+                    - button "Inspect changes" [ref=e190] [cursor=pointer]:
+                      - img [ref=e191]
+                      - generic [ref=e193]: Changes
+                    - button "Create PR" [ref=e194] [cursor=pointer]:
+                      - img [ref=e195]
+                      - generic [ref=e200]: Create PR
+                - status [ref=e201]
+                - generic [ref=e203]:
+                  - group "Project and runtime" [ref=e204]:
+                    - button "Saved drafts" [ref=e205] [cursor=pointer]
+                    - button "Attach files" [ref=e206] [cursor=pointer]:
+                      - img [ref=e207]
+                    - button "Select project" [ref=e208] [cursor=pointer]:
+                      - img [ref=e209]
+                      - generic [ref=e211]: Gen-V1
+                    - generic "Local workspace" [ref=e212]:
+                      - img [ref=e213]
+                      - text: Local
+                    - button "Task mode" [ref=e215] [cursor=pointer]:
+                      - img [ref=e216]
+                    - button "Show live usage" [ref=e219] [cursor=pointer]:
+                      - img [ref=e220]
+                  - group "Model and voice" [ref=e222]:
+                    - combobox "Model" [ref=e223] [cursor=pointer]:
+                      - img [ref=e224]
+                      - generic [ref=e227]: Fixture
+                      - img [ref=e228]
+                    - button "Inspect context usage" [ref=e231] [cursor=pointer]:
+                      - img [ref=e232]
+                    - button "Start voice input" [ref=e233] [cursor=pointer]:
+                      - img [ref=e234]
+                    - button "Send message" [disabled] [ref=e238]:
+                      - img [ref=e239]
+              - button "Resize chat top" [ref=e241]
+              - button "Resize chat right" [ref=e242]
+              - button "Resize chat bottom" [ref=e243]
+              - button "Resize chat left" [ref=e244]
+              - button "Resize chat top right" [ref=e245]
+              - button "Resize chat top left" [ref=e246]
+              - button "Resize chat bottom right" [ref=e247]
+              - button "Resize chat bottom left" [ref=e248]
+            - generic:
+              - img
+              - generic: Dock chat
+          - complementary "Conversation summaries" [ref=e250]:
+            - region "Project overview window" [ref=e251]:
+              - button "Expand Project overview" [ref=e253] [cursor=pointer]:
+                - strong [ref=e254]: Project overview
+                - img [ref=e255]
+      - region "Notifications"
+    - status [ref=e257]:
+      - generic [ref=e258]: Plug-ins could not be loaded. Check the host connection, then retry.
+      - button "Dismiss notification" [ref=e259] [cursor=pointer]:
+        - img [ref=e260]
+  - tooltip "Move chat panel (arrow keys; Shift for larger steps)"
+```

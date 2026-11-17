@@ -1,0 +1,10 @@
+argv: ["python3","-c","import json,subprocess; original=\"/workspace/scratch/1b47eb428672/gen-v1\"; run=lambda *args:subprocess.check_output([\"git\",\"-C\",original,*args],text=True).strip(); status=run(\"status\",\"--porcelain=v1\"); head=run(\"rev-parse\",\"HEAD\"); print(json.dumps({\"originalRoot\":run(\"rev-parse\",\"--show-toplevel\"),\"originalHead\":head,\"originalStatus\":status,\"canonicalOrigin\":run(\"remote\",\"get-url\",\"origin\")},indent=2)); assert not status; assert head==\"399cde39ff4ee82272c7a7700944325c44b36070\""]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "originalRoot": "/workspace/scratch/1b47eb428672/gen-v1",
+  "originalHead": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "originalStatus": "",
+  "canonicalOrigin": "https://github.com/skytuhua-org/Gen-V1.git"
+}

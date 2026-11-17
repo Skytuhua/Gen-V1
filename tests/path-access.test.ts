@@ -7,7 +7,7 @@ import { Store } from "../packages/storage/store.ts";
 import { Service } from "../packages/core/service.ts";
 import { buildServer } from "../apps/server/server.ts";
 import type { RuntimeAdapter, ResourceGrant, Thread, Operation } from "../packages/contracts/index.ts";
-import { withResourceGrant, readBoundFile, withPathGuard, replaceOwnedFile, removeOwnedFile } from "../packages/core/file-access.ts";
+import { withResourceGrant, readBoundFile, withPathGuard, pathGuardRpcDeadline, replaceOwnedFile, removeOwnedFile } from "../packages/core/file-access.ts";
 import { handleDomainTool, executeDomainOperation, type DomainContext } from "../packages/capabilities/index.ts";
 import { stat } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
@@ -32,6 +32,15 @@ vi.mock("node:worker_threads", async importOriginal => {
       super(filename, options);
     }
   } };
+});
+
+it('bounds only the cold source guard acquire without extending ordinary or release RPCs',()=>{
+  expect(pathGuardRpcDeadline('acquire',false,false)).toBe(15_000);
+  expect(pathGuardRpcDeadline('acquire',false,true)).toBe(45_000);
+  expect(pathGuardRpcDeadline('release',false,true)).toBe(15_000);
+  expect(pathGuardRpcDeadline('removeOwned',false,true)).toBe(15_000);
+  expect(pathGuardRpcDeadline('acquire',true,true)).toBe(120_000);
+  expect(pathGuardRpcDeadline('acquire',true,false)).toBe(120_000);
 });
 
 const cleanups: (() => Promise<void>)[] = [];

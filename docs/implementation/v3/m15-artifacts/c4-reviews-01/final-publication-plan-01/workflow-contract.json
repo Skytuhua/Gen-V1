@@ -1,0 +1,576 @@
+{
+  "schemaVersion": 1,
+  "kind": "STATIC_WORKFLOW_COLLECTION_CONTRACT",
+  "observedAt": "2026-11-16T05:22:20.268589+00:00",
+  "execution": "NOT_RUN_BY_THIS_PLAN",
+  "publishedC4": {
+    "head": null,
+    "tree": null,
+    "runId": null,
+    "runAttempt": null
+  },
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "acceptedBaseTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "workflow": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/workflow-v4-proposal-01/m15-evidence.yml",
+    "bytes": 29046,
+    "sha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44"
+  },
+  "ingester": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/workflow-v4-proposal-01/ingest-ci-artifact.py",
+    "bytes": 31126,
+    "sha256": "47171717386ab1fdfd662207f05f9a1802bf5ecb33b06f99c854faf6b223c9c2"
+  },
+  "jobs": [
+    {
+      "jobId": "native",
+      "name": "M15 native contracts (Windows, exact branch head)",
+      "runsOn": "windows-2022",
+      "timeoutMinutes": 45,
+      "strategy": null,
+      "recordedCommands": [
+        {
+          "step": "Exercise M15 and native runtime contracts",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' && steps.native-setup.outcome == 'success' }}",
+          "labels": [
+            "native"
+          ],
+          "script": "$testArgs = @(\n  'tests/source-selection-v3.test.ts',\n  'tests/source-workbench-host-v3.test.ts',\n  'tests/source-workbench-hermes-v3.test.ts',\n  'tests/source-workbench-memory-v3.test.ts',\n  'tests/project-memory-service-v3.test.ts',\n  'tests/project-memory-request-http-v3.test.ts',\n  'tests/memory-host-lifecycle-v3.test.ts',\n  'tests/memory-native-file-capture-v3.test.ts',\n  'tests/memory-native-checkpoint-v3.test.ts',\n  'tests/memory-extraction-native-v3.test.ts',\n  'tests/memory-checkpoint-worker-ownership-v3.test.ts',\n  'tests/memory-source-reuse-v3.test.ts',\n  'tests/request-preparation-service-v3.test.ts',\n  'tests/source-selection-dom-v3.test.ts',\n  'tests/source-composer-v3.test.ts',\n  'tests/source-draft-transfer-v3.test.ts',\n  'tests/activity-output-v3.test.ts',\n  'tests/workbench-input-recovery-v3.test.ts',\n  'tests/workbench-performance-v3.test.ts',\n  'tests/workbench-recovery-v3.test.ts',\n  'tests/source-handoff-v3.test.ts',\n  'tests/agents-workspace-composer.test.ts',\n  'tests/agents-workspace-dispatch.test.ts',\n  'tests/saved-drafts.test.ts',\n  'tests/draft-transfer.test.ts',\n  'tests/compact-draft-transfer.test.ts',\n  'tests/journal.test.ts',\n  'tests/editor-handoff.test.ts',\n  'tests/public-source.test.ts',\n  'tests/accounts.test.ts',\n  'tests/hermes-client-startup.test.ts',\n  'tests/hermes-client.test.ts',\n  'tests/hermes-original-integration.test.ts',\n  'tests/hermes-multi-original.test.ts',\n  'tests/dev-plugin-runtime.test.ts',\n  'tests/skill-catalog.test.ts',\n  'tests/desktop-host.test.ts',\n  '--maxWorkers=2',\n  '--reporter=default',\n  '--reporter=json',\n  '--outputFile=test-results/m15/native-results.json'\n)\nnode scripts/m15-record.mjs \"c4-windows-native-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source node_modules/vitest/vitest.mjs run @testArgs\n",
+          "environment": {}
+        }
+      ],
+      "artifact": {
+        "name": "m15-native-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "path": "test-results/m15/\ndocs/implementation/v3/m15-logs/c4-windows-*\n",
+        "retention-days": 14,
+        "if-no-files-found": "error"
+      }
+    },
+    {
+      "jobId": "root-browser",
+      "name": "M15 root browser comparison (Windows, accepted base and exact branch head)",
+      "runsOn": "windows-2022",
+      "timeoutMinutes": 45,
+      "strategy": null,
+      "recordedCommands": [
+        {
+          "step": "Run the complete accepted-base root suite",
+          "condition": "${{ !cancelled() && steps.baseline-build.outcome == 'success' }}",
+          "labels": [
+            "root-baseline"
+          ],
+          "script": "node (Join-Path $env:RUNNER_TEMP 'm15-record.mjs') \"c4-windows-root-baseline-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root",
+          "environment": {}
+        },
+        {
+          "step": "Run the complete candidate root suite",
+          "condition": "${{ !cancelled() && steps.candidate-build.outcome == 'success' }}",
+          "labels": [
+            "root-candidate"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-root-candidate-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root",
+          "environment": {}
+        }
+      ],
+      "artifact": {
+        "name": "m15-root-browser-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "path": "test-results/m15/\ntest-results/browser/\nbaseline/test-results/browser/\ndocs/evidence/ui-clarity-20261031/stats-dark-confirm.png\nbaseline/docs/evidence/ui-clarity-20261031/stats-dark-confirm.png\ndocs/implementation/v3/m15-logs/c4-windows-*\nbaseline/docs/implementation/v3/m15-logs/c4-windows-*\n",
+        "retention-days": 14,
+        "if-no-files-found": "error"
+      }
+    },
+    {
+      "jobId": "browser",
+      "name": "M15 browser contracts (Windows and installed Edge, exact branch head)",
+      "runsOn": "windows-2022",
+      "timeoutMinutes": 45,
+      "strategy": null,
+      "recordedCommands": [
+        {
+          "step": "Exercise source selection and output",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "workbench"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-workbench-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench",
+          "environment": {}
+        },
+        {
+          "step": "Exercise the production App workbench integration",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "workbench-app"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-workbench-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench-app",
+          "environment": {}
+        },
+        {
+          "step": "Exercise the owning project memory review in Chromium",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "project-memory"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-project-memory-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite project-memory",
+          "environment": {}
+        },
+        {
+          "step": "Exercise current main composer and workspace regressions in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "frontend-refinement"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-frontend-refinement-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite frontend-refinement",
+          "environment": {}
+        },
+        {
+          "step": "Exercise saved drafts",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "saved-drafts"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-saved-drafts-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-drafts",
+          "environment": {}
+        },
+        {
+          "step": "Exercise canonical chat layout and Escape ownership",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "chat-view-modes"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-chat-view-modes-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite chat-view-modes",
+          "environment": {}
+        },
+        {
+          "step": "Exercise artifact acknowledgment ordering",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "artifact-acknowledgment"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-artifact-acknowledgment-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config playwright.config.ts tests/e2e/artifact-acknowledgment.spec.ts --trace retain-on-failure --output test-results/m15/artifact-acknowledgment/artifacts --reporter=list,json",
+          "environment": {
+            "GEN_E2E": "1",
+            "PLAYWRIGHT_JSON_OUTPUT_FILE": "test-results/m15/artifact-acknowledgment/results.json"
+          }
+        },
+        {
+          "step": "Exercise scoped conversations in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "scoped-conversation"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-scoped-conversation-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite scoped-conversation",
+          "environment": {}
+        },
+        {
+          "step": "Exercise shared overlay placement and focus in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "ui-shell-overlays"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-ui-shell-overlays-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-overlays",
+          "environment": {}
+        },
+        {
+          "step": "Exercise shared selection controls in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "ui-shell-controls"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-ui-shell-controls-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-controls",
+          "environment": {}
+        },
+        {
+          "step": "Exercise usage and context in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "usage-context"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-usage-context-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-context",
+          "environment": {}
+        },
+        {
+          "step": "Exercise the agents workspace in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "agents-workspace"
+          ],
+          "script": "$env:GITHUB_SHA = (git rev-parse HEAD)\nnode scripts/m15-record.mjs \"c4-windows-agents-workspace-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite agents-workspace\n",
+          "environment": {
+            "AGENTSUI_EVIDENCE_DIR": "test-results/m15/agents-candidate"
+          }
+        },
+        {
+          "step": "Exercise agents against the actual App in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "agents-actual-app"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-agents-actual-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config tests/e2e/agents-workspace.playwright.config.ts tests/e2e/agents-workspace.spec.ts --output test-results/m15/agents-actual-app/artifacts --reporter=list,json",
+          "environment": {
+            "GEN_E2E": "1",
+            "AGENTSUI_APP_CANDIDATE": "0",
+            "AGENTSUI_EVIDENCE_DIR": "test-results/m15/agents-actual-app",
+            "PLAYWRIGHT_JSON_OUTPUT_FILE": "test-results/m15/agents-actual-app/results.json"
+          }
+        },
+        {
+          "step": "Exercise retained workspace ownership in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "workspace-host"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-workspace-host-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workspace-host",
+          "environment": {}
+        },
+        {
+          "step": "Exercise saved layouts and retired records in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "saved-layout-chooser"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-saved-layout-chooser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-layout-chooser",
+          "environment": {}
+        },
+        {
+          "step": "Exercise App usage, shell errors and mobile navigation in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "usage-app-integration"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-usage-app-integration-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-app-integration",
+          "environment": {}
+        },
+        {
+          "step": "Exercise declared desktop bridge browser fixtures in Chromium",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "desktop-surfaces"
+          ],
+          "script": "node scripts/m15-record.mjs \"c4-windows-desktop-surfaces-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite desktop-surfaces",
+          "environment": {}
+        },
+        {
+          "step": "Exercise both explicitly enabled split browser suites in Edge",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "split-browser"
+          ],
+          "script": "$testCommand = @'\n$ErrorActionPreference = 'Stop'\n$env:GEN_SPLIT_RENDERER_BROWSER = '1'\n$env:GEN_SPLIT_APP_BROWSER = '1'\n$env:GEN_TEST_BROWSER_CHANNEL = 'msedge'\n$node = (Get-Command node).Source\n$head = git rev-parse HEAD\nif ($head -ne $env:GITHUB_SHA) { throw 'The split browser source does not match the pushed head.' }\nNew-Item -ItemType Directory -Force test-results/m15 | Out-Null\n[ordered]@{\n  head = $head\n  tree = (git rev-parse 'HEAD^{tree}')\n  event = $env:GITHUB_EVENT_NAME\n  ref = $env:GITHUB_REF\n  runId = $env:GITHUB_RUN_ID\n  runAttempt = $env:GITHUB_RUN_ATTEMPT\n  runner = \"$($env:RUNNER_OS)-$($env:RUNNER_ARCH)\"\n  nodeExecutable = $node\n  node = (& $node --version)\n  edgePath = $env:M15_EDGE_PATH\n  edgeVersion = $env:M15_EDGE_VERSION\n  flags = [ordered]@{\n    GEN_SPLIT_RENDERER_BROWSER = $env:GEN_SPLIT_RENDERER_BROWSER\n    GEN_SPLIT_APP_BROWSER = $env:GEN_SPLIT_APP_BROWSER\n    GEN_TEST_BROWSER_CHANNEL = $env:GEN_TEST_BROWSER_CHANNEL\n  }\n  testFiles = @('tests/split-workspace-renderer.test.ts', 'tests/split-app-browser.test.ts')\n  maxWorkers = 1\n  recordedAt = [DateTime]::UtcNow.ToString('o')\n} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 test-results/m15/split-browser-source.json\n& $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json\nexit $LASTEXITCODE\n'@\nnode scripts/m15-record.mjs \"c4-windows-split-browser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" (Get-Command pwsh).Source -NoLogo -NoProfile -NonInteractive -Command $testCommand\n",
+          "environment": {}
+        }
+      ],
+      "artifact": {
+        "name": "m15-browser-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "path": "test-results/m15/\ntest-results/browser/\ndocs/implementation/v3/m15-logs/c4-windows-*\n",
+        "retention-days": 14,
+        "if-no-files-found": "error"
+      }
+    },
+    {
+      "jobId": "full-repository",
+      "name": "M15 full repository (Windows, exact branch head, shard ${{ matrix.shard }}/4)",
+      "runsOn": "windows-2022",
+      "timeoutMinutes": 30,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "shard": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "recordedCommands": [
+        {
+          "step": "Run the complete repository shard with the existing CI command",
+          "condition": "${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}",
+          "labels": [
+            "full-shard-${{ matrix.shard }}"
+          ],
+          "script": "$testCommand = @'\n$ErrorActionPreference = 'Stop'\npnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4 --reporter=default --reporter=json --outputFile=test-results/m15/full-results.json\nexit $LASTEXITCODE\n'@\n$pwsh = (Get-Command pwsh -ErrorAction Stop).Source\nnode scripts/m15-record.mjs \"c4-windows-full-shard-${{ matrix.shard }}-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT\" $pwsh -NoLogo -NoProfile -NonInteractive -Command $testCommand\n",
+          "environment": {}
+        }
+      ],
+      "artifact": {
+        "name": "m15-full-shard-${{ matrix.shard }}-of-4-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "path": "test-results/m15/\ndocs/implementation/v3/m15-logs/c4-windows-*\n",
+        "retention-days": 14,
+        "if-no-files-found": "error"
+      }
+    }
+  ],
+  "runtimeJobs": 7,
+  "requiredReceipts": 25,
+  "expectedArchives": 7,
+  "nativeFiles": [
+    "tests/source-selection-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/source-workbench-hermes-v3.test.ts",
+    "tests/source-workbench-memory-v3.test.ts",
+    "tests/project-memory-service-v3.test.ts",
+    "tests/project-memory-request-http-v3.test.ts",
+    "tests/memory-host-lifecycle-v3.test.ts",
+    "tests/memory-native-file-capture-v3.test.ts",
+    "tests/memory-native-checkpoint-v3.test.ts",
+    "tests/memory-extraction-native-v3.test.ts",
+    "tests/memory-checkpoint-worker-ownership-v3.test.ts",
+    "tests/memory-source-reuse-v3.test.ts",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/source-selection-dom-v3.test.ts",
+    "tests/source-composer-v3.test.ts",
+    "tests/source-draft-transfer-v3.test.ts",
+    "tests/activity-output-v3.test.ts",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "tests/source-handoff-v3.test.ts",
+    "tests/agents-workspace-composer.test.ts",
+    "tests/agents-workspace-dispatch.test.ts",
+    "tests/saved-drafts.test.ts",
+    "tests/draft-transfer.test.ts",
+    "tests/compact-draft-transfer.test.ts",
+    "tests/journal.test.ts",
+    "tests/editor-handoff.test.ts",
+    "tests/public-source.test.ts",
+    "tests/accounts.test.ts",
+    "tests/hermes-client-startup.test.ts",
+    "tests/hermes-client.test.ts",
+    "tests/hermes-original-integration.test.ts",
+    "tests/hermes-multi-original.test.ts",
+    "tests/dev-plugin-runtime.test.ts",
+    "tests/skill-catalog.test.ts",
+    "tests/desktop-host.test.ts"
+  ],
+  "browserReceipts": [
+    "workbench",
+    "workbench-app",
+    "project-memory",
+    "frontend-refinement",
+    "saved-drafts",
+    "chat-view-modes",
+    "artifact-acknowledgment",
+    "scoped-conversation",
+    "ui-shell-overlays",
+    "ui-shell-controls",
+    "usage-context",
+    "agents-workspace",
+    "agents-actual-app",
+    "workspace-host",
+    "saved-layout-chooser",
+    "usage-app-integration",
+    "desktop-surfaces",
+    "split-browser"
+  ],
+  "namedBrowserSuites": [
+    "workbench",
+    "workbench-app",
+    "project-memory",
+    "frontend-refinement",
+    "saved-drafts",
+    "chat-view-modes",
+    "scoped-conversation",
+    "ui-shell-overlays",
+    "ui-shell-controls",
+    "usage-context",
+    "agents-workspace",
+    "workspace-host",
+    "saved-layout-chooser",
+    "usage-app-integration",
+    "desktop-surfaces"
+  ],
+  "splitFlags": {
+    "GEN_SPLIT_RENDERER_BROWSER": "1",
+    "GEN_SPLIT_APP_BROWSER": "1",
+    "GEN_TEST_BROWSER_CHANNEL": "msedge"
+  },
+  "splitFiles": [
+    "tests/split-workspace-renderer.test.ts",
+    "tests/split-app-browser.test.ts"
+  ],
+  "splitCommand": "$ErrorActionPreference = 'Stop'\n$env:GEN_SPLIT_RENDERER_BROWSER = '1'\n$env:GEN_SPLIT_APP_BROWSER = '1'\n$env:GEN_TEST_BROWSER_CHANNEL = 'msedge'\n$node = (Get-Command node).Source\n$head = git rev-parse HEAD\nif ($head -ne $env:GITHUB_SHA) { throw 'The split browser source does not match the pushed head.' }\nNew-Item -ItemType Directory -Force test-results/m15 | Out-Null\n[ordered]@{\n  head = $head\n  tree = (git rev-parse 'HEAD^{tree}')\n  event = $env:GITHUB_EVENT_NAME\n  ref = $env:GITHUB_REF\n  runId = $env:GITHUB_RUN_ID\n  runAttempt = $env:GITHUB_RUN_ATTEMPT\n  runner = \"$($env:RUNNER_OS)-$($env:RUNNER_ARCH)\"\n  nodeExecutable = $node\n  node = (& $node --version)\n  edgePath = $env:M15_EDGE_PATH\n  edgeVersion = $env:M15_EDGE_VERSION\n  flags = [ordered]@{\n    GEN_SPLIT_RENDERER_BROWSER = $env:GEN_SPLIT_RENDERER_BROWSER\n    GEN_SPLIT_APP_BROWSER = $env:GEN_SPLIT_APP_BROWSER\n    GEN_TEST_BROWSER_CHANNEL = $env:GEN_TEST_BROWSER_CHANNEL\n  }\n  testFiles = @('tests/split-workspace-renderer.test.ts', 'tests/split-app-browser.test.ts')\n  maxWorkers = 1\n  recordedAt = [DateTime]::UtcNow.ToString('o')\n} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 test-results/m15/split-browser-source.json\n& $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json\nexit $LASTEXITCODE",
+  "sourceSeals": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/.github/workflows/m15-evidence.yml",
+      "bytes": 29046,
+      "sha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44",
+      "repositoryPath": ".github/workflows/m15-evidence.yml"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/.github/workflows/ci.yml",
+      "bytes": 12556,
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "repositoryPath": ".github/workflows/ci.yml"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/.github/actions/setup/action.yml",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "repositoryPath": ".github/actions/setup/action.yml"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/browser-suites.ts",
+      "bytes": 6339,
+      "sha256": "33104c6c0de571ec021245d8110cb3cc454ba5efb3d60d29177788dfa26c158a",
+      "repositoryPath": "scripts/browser-suites.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/test-browser.ts",
+      "bytes": 3310,
+      "sha256": "6aba884457c135fc19cec841a3060b76a5c75ac90afbe19ce425fbe0fcada513",
+      "repositoryPath": "scripts/test-browser.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/scripts/m15-record.mjs",
+      "bytes": 2439,
+      "sha256": "971842beaeb9e0f1571afbe68407282603bbfef5b28aaab3df949af58e524cd6",
+      "repositoryPath": "scripts/m15-record.mjs"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/package.json",
+      "bytes": 3186,
+      "sha256": "58d6665ea47afdbbd9d7a67ee30195d202981b10e36832c860ddc3f534856a1b",
+      "repositoryPath": "package.json"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/pnpm-lock.yaml",
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "repositoryPath": "pnpm-lock.yaml"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/playwright.config.ts",
+      "bytes": 465,
+      "sha256": "f1cf1a7731441ac7e651d2da94721ab24d90e5a42de67b830c0b3b69f4bda0ca",
+      "repositoryPath": "playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/vitest.config.ts",
+      "bytes": 484,
+      "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+      "repositoryPath": "vitest.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.playwright.config.ts",
+      "bytes": 461,
+      "sha256": "8fc46e2ac81103eb3674ad3cf0a0b550c673395b3aa2d6aeb14310d229b7e8c4",
+      "repositoryPath": "tests/e2e/workbench.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+      "bytes": 476,
+      "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6",
+      "repositoryPath": "tests/e2e/workbench-app.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/project-memory.playwright.config.ts",
+      "bytes": 868,
+      "sha256": "ddaa1b939e8902f860563ff4b6fb0905843a0b2044ab243054650b658f07415f",
+      "repositoryPath": "tests/e2e/project-memory.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/frontend-refinement.playwright.config.ts",
+      "bytes": 998,
+      "sha256": "7e548b378b42e178d8080df57bc48d1289a3a8decdd301de397ef34936ec0acf",
+      "repositoryPath": "tests/e2e/frontend-refinement.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.playwright.config.ts",
+      "bytes": 593,
+      "sha256": "97be79757a18a8e6c657e820ecbb5abe250646cab70c255956e4e965b02149ac",
+      "repositoryPath": "tests/e2e/saved-drafts.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.playwright.config.ts",
+      "bytes": 578,
+      "sha256": "f8265e93fe341253ccf01c5f17832bfcbb85c0b4d6811b439924290fb98f5cf0",
+      "repositoryPath": "tests/e2e/chat-view-modes.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/scoped-conversation.playwright.config.ts",
+      "bytes": 651,
+      "sha256": "0fe83b29de917cee83d24a5cecd4f6f6d2977cf54d0a731ee3db3fed1f198cbc",
+      "repositoryPath": "tests/e2e/scoped-conversation.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/ui-shell-overlays.playwright.config.ts",
+      "bytes": 576,
+      "sha256": "9d9f7064059c2a2ee217ec546747a01d9fde20048255aea66dac5c454d23531b",
+      "repositoryPath": "tests/e2e/ui-shell-overlays.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/ui-shell-controls.playwright.config.ts",
+      "bytes": 576,
+      "sha256": "8cc1c1dbb71ec3248270895310a9cd705d7766cb069dc089e2a139da27621795",
+      "repositoryPath": "tests/e2e/ui-shell-controls.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-context.playwright.config.ts",
+      "bytes": 678,
+      "sha256": "4fb1d0998f4107894c046f9047526ad1c77afa13893fadc8feb79f1826e07312",
+      "repositoryPath": "tests/e2e/usage-context.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.playwright.config.ts",
+      "bytes": 679,
+      "sha256": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac",
+      "repositoryPath": "tests/e2e/agents-workspace.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workspace-host.playwright.config.ts",
+      "bytes": 592,
+      "sha256": "00ed403cf5ff103af97519e45e910c0003db11e7062bf6f49bc2b948cb13c30e",
+      "repositoryPath": "tests/e2e/workspace-host.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.playwright.config.ts",
+      "bytes": 554,
+      "sha256": "43898e25e3781aaeaa659a786281c384b3db7ef7bf2ee7ee34d4d0d6d888b037",
+      "repositoryPath": "tests/e2e/saved-layout-chooser.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.playwright.config.ts",
+      "bytes": 654,
+      "sha256": "d9537fb08383c2d0bff2ce90db83d6a4e98a40a57d2e573595be67ed1a8a1673",
+      "repositoryPath": "tests/e2e/usage-app-integration.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.playwright.config.ts",
+      "bytes": 459,
+      "sha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73",
+      "repositoryPath": "tests/e2e/desktop-surfaces.playwright.config.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/split-workspace-renderer.test.ts",
+      "bytes": 16328,
+      "sha256": "8d405ba4df4779bffa13cbe3959c8b196618bc5e1dea1979cdd6e2fcb83ecdeb",
+      "repositoryPath": "tests/split-workspace-renderer.test.ts"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/split-app-browser.test.ts",
+      "bytes": 68809,
+      "sha256": "045ac30eefb6797293d6f6b7f10381613695f7db1809e02c93d429f3739a8afd",
+      "repositoryPath": "tests/split-app-browser.test.ts"
+    }
+  ],
+  "unchangedFromIncomingEeda": {
+    ".github/workflows/ci.yml": true,
+    ".github/actions/setup/action.yml": true,
+    "pnpm-lock.yaml": true
+  },
+  "validation": [
+    "Parsed workflow and ingester literals without executing either",
+    "All37 native file paths exist; ordered workflow selection equals ingester",
+    "All18 browser receipt labels equal workflow order",
+    "Recorded split PowerShell body equals ingester constant exactly",
+    "Active workflow bytes equal sealed v4 proposal",
+    "Ordinary CI, shared setup and lock bytes equal incoming eeda"
+  ],
+  "limits": [
+    "Static counts are command/file declarations, not executed test counts",
+    "No current C4 published head or run supplied",
+    "Job timeouts can yield missing or incomplete evidence; original test deadlines remain",
+    "The ingester checks some special Playwright/root argv only generically, so manual exact-workflow argv and result membership review remains required"
+  ]
+}

@@ -1,0 +1,57 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/hermes-runtime.test.ts (46 tests | 3 failed) 4454ms
+   × production pool forwards required manual checkpoints and waits for host persistence before source compaction 1075ms
+   × production pool preserves retained source history after a rejected required checkpoint 63ms
+   × production pool preserves retained source history after a unconfirmed required checkpoint 76ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool forwards required manual checkpoints and waits for host persistence before source compaction
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/hermes-runtime.test.ts:98:40
+     96|   await f.runtime.start(run({memoryCheckpoint:requiredCheckpoint}));co…
+     97|   work=f.runtime.compact(maintenance,source.sessionPath as string,main…
+     98|   await vi.waitFor(()=>expect(persist).toHaveBeenCalledOnce());
+       |                                        ^
+     99|   expect(scripted.calls).toEqual([expect.objectContaining({memoryCheck…
+    100|   expect(persist.mock.calls[0][0]).toMatchObject({ctx:{threadId:mainte…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool preserves retained source history after a rejected required checkpoint
+AssertionError: expected [Function] to throw error including 'Synthetic checkpoint persistence fail…' but got 'The private memory checkpoint request…'
+
+Expected: "Synthetic checkpoint persistence failed"
+Received: "The private memory checkpoint request is invalid."
+
+ ❯ tests/hermes-runtime.test.ts:120:44
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/hermes-runtime.test.ts > production pool preserves retained source history after a unconfirmed required checkpoint
+AssertionError: expected HarnessError: The private memory checkpoi… { …(2) } to match object { Object (code) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "MEMORY_CHECKPOINT_UNCONFIRMED",
++ HarnessError {
++   "code": "MEMORY_CHECKPOINT_INVALID",
+  }
+
+ ❯ tests/hermes-runtime.test.ts:120:127
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 43 passed (46)
+   Start at  06:23:15
+   Duration  5.70s (transform 757ms, setup 0ms, import 1.00s, tests 4.45s, environment 0ms)
+

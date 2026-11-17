@@ -28,7 +28,7 @@ function Fixture() {
     <button onClick={() => setPulse(value => value + 1)}>Unrelated update {pulse}</button>
     <ShellSidebar elementRef={sidebar} searchRef={search} mobile={false} open layout={readShellLayout()} preferences={preferences}
       matching={[{ id: 'synthetic-thread', title: 'Existing thread', projectId: 'alpha', projectName: 'Alpha', status: 'ready', epoch: 0, runId: null, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' } as Thread]}
-      loaded creating={false} search="" setSearch={() => {}} close={() => {}} toggleCollapsed={() => {}} setFolded={() => {}} select={() => {}} create={() => setOpen(true)} settings={() => {}} presentation={() => {}} rename={() => {}} archive={() => {}} />
+      loaded creating={false} search="" setSearch={() => {}} close={() => {}} toggleCollapsed={() => {}} setFolded={() => {}} select={() => {}} create={() => setOpen(true)} settings={() => {}} presentation={async () => true} rename={() => {}} archive={() => {}} />
     <ProjectPicker open={open} authority={query.has('plugin') ? plugin : local} projects={projects} selectedProjectId={selected} recentProjectIds={query.has('recent') ? ['beta', 'alpha'] : []} colors={preferences.projectColors}
       onClose={() => setOpen(false)} onSelect={async (value: ProjectSummary | null) => {
         await new Promise(resolve => setTimeout(resolve, 100));

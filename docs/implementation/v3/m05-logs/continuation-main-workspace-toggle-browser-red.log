@@ -1,0 +1,41 @@
+[1A[2K[2m[WebServer] [22m(node:42) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:59) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+[1A[2K(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/e2e/workspace-ui.spec.ts:397:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload
+[1A[2K  1) tests/e2e/workspace-ui.spec.ts:397:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Panels' })[22m
+
+
+      70 | test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
+      71 |  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
+    > 72 |  await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
+         |                                                             ^
+      73 |  const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
+      74 |  await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+      75 |  await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:72:61
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-toggle-browser-red-artifacts/workspace-ui-primary-Works-7ec7e-ugh-close-reopen-and-reload/error-context.md
+
+
+[1A[2K  1 failed
+    tests/e2e/workspace-ui.spec.ts:397:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload 

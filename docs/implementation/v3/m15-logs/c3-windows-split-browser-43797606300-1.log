@@ -1,0 +1,53 @@
+argv: ["C:\\Program Files\\PowerShell\\7\\pwsh.exe","-NoLogo","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'\r\n$env:GEN_SPLIT_RENDERER_BROWSER = '1'\r\n$env:GEN_SPLIT_APP_BROWSER = '1'\r\n$env:GEN_TEST_BROWSER_CHANNEL = 'msedge'\r\n$node = (Get-Command node).Source\r\n$head = git rev-parse HEAD\r\nif ($head -ne $env:GITHUB_SHA) { throw 'The split browser source does not match the pushed head.' }\r\nNew-Item -ItemType Directory -Force test-results/m15 | Out-Null\r\n[ordered]@{\r\n  head = $head\r\n  tree = (git rev-parse 'HEAD^{tree}')\r\n  event = $env:GITHUB_EVENT_NAME\r\n  ref = $env:GITHUB_REF\r\n  runId = $env:GITHUB_RUN_ID\r\n  runAttempt = $env:GITHUB_RUN_ATTEMPT\r\n  runner = \"$($env:RUNNER_OS)-$($env:RUNNER_ARCH)\"\r\n  nodeExecutable = $node\r\n  node = (& $node --version)\r\n  edgePath = $env:M15_EDGE_PATH\r\n  edgeVersion = $env:M15_EDGE_VERSION\r\n  flags = [ordered]@{\r\n    GEN_SPLIT_RENDERER_BROWSER = $env:GEN_SPLIT_RENDERER_BROWSER\r\n    GEN_SPLIT_APP_BROWSER = $env:GEN_SPLIT_APP_BROWSER\r\n    GEN_TEST_BROWSER_CHANNEL = $env:GEN_TEST_BROWSER_CHANNEL\r\n  }\r\n  testFiles = @('tests/split-workspace-renderer.test.ts', 'tests/split-app-browser.test.ts')\r\n  maxWorkers = 1\r\n  recordedAt = [DateTime]::UtcNow.ToString('o')\r\n} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 test-results/m15/split-browser-source.json\r\n& $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json\r\nexit $LASTEXITCODE"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/a/Gen-V1/Gen-V1[39m
+
+ [32m✓[39m tests/split-app-browser.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 82081[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload [33m 7880[2mms[22m[39m
+     [33m[2m✓[22m[39m archiving the selected conversation leaves an explicit empty main that never revives activeThreadId, even after reload (T02/R02) [33m 4806[2mms[22m[39m
+     [33m[2m✓[22m[39m detaches a conversation to an independent float with an empty main, and returns it with placement recovery (T02/R02) [33m 6056[2mms[22m[39m
+     [33m[2m✓[22m[39m detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02) [33m 2467[2mms[22m[39m
+     [33m[2m✓[22m[39m keyboard Stop targets the focused float owner exactly once and leaves the main run untouched (AUD-06) [33m 2743[2mms[22m[39m
+     [33m[2m✓[22m[39m docks a float into a real directional pane split at a main edge (T03/R03 #3/#4) [33m 2644[2mms[22m[39m
+     [33m[2m✓[22m[39m divider resize reflows real pane widths without scaling content (T03/R04 #4) [33m 2127[2mms[22m[39m
+     [33m[2m✓[22m[39m embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05) [33m 1681[2mms[22m[39m
+     [33m[2m✓[22m[39m places a sidebar thread into a spatial edge target without duplicating its composer [33m 1908[2mms[22m[39m
+     [33m[2m✓[22m[39m uses one canonical plan in the overview and detailed pane with actual companion sections [33m 2828[2mms[22m[39m
+     [33m[2m✓[22m[39m starts a new chat in the chosen project while preserving a started pane and its pinned account [33m 3209[2mms[22m[39m
+     [33m[2m✓[22m[39m reconciles an explicitly connected unstarted chat without remounting its composer or changing other saved view owners [33m 4418[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the canonical detailed plan requirements in an explicitly recovered canvas panel [33m 2085[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a narrow focused composer visible on plan publication until the user opens the full plan [33m 2486[2mms[22m[39m
+     [33m[2m✓[22m[39m reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus [33m 2168[2mms[22m[39m
+     [33m[2m✓[22m[39m saves and applies split layouts while preserving drafts and the retained v1 canvas through explicit recovery [33m 5374[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the exact host save receipt and preserves geometry during name-only Rename [33m 3866[2mms[22m[39m
+     [33m[2m✓[22m[39m shows installed generic workspaces without replacing the personal workspace bar [33m 3813[2mms[22m[39m
+     [33m[2m✓[22m[39m defaults ordinary Workspace to the shared split plane without a pre-seeded split mode (T02/R02) [33m 1708[2mms[22m[39m
+     [33m[2m✓[22m[39m defaults ordinary Workspace to the plane with a panel toggle, hides the overview while the panel is open, and removes the split history bar [33m 3367[2mms[22m[39m
+     [33m[2m✓[22m[39m a browser dock shares the tool width budget and preserves chat space [33m 1809[2mms[22m[39m
+     [33m[2m✓[22m[39m artifacts stay inside the plane conversation without horizontal overflow (T02) [33m 1828[2mms[22m[39m
+     [33m[2m✓[22m[39m panel bounds retain chat and title bar at drag extremes 1920x1080 [33m 2597[2mms[22m[39m
+     [33m[2m✓[22m[39m panel bounds retain chat and title bar at drag extremes 1440x900 [33m 2649[2mms[22m[39m
+     [33m[2m✓[22m[39m panel bounds retain chat and title bar at drag extremes 1024x768 [33m 2419[2mms[22m[39m
+     [33m[2m✓[22m[39m panel bounds stack tools below chat in a narrow workarea [33m 1774[2mms[22m[39m
+ [32m✓[39m tests/split-workspace-renderer.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 7858[2mms[22m[39m
+     [33m[2m✓[22m[39m uses the shared area menu for keyboard editor selection, Escape and outside dismissal [33m 813[2mms[22m[39m
+     [33m[2m✓[22m[39m mounts a tool view opened in the empty main pane [33m 518[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps editor focus when a pending area action completes [33m 786[2mms[22m[39m
+     [33m[2m✓[22m[39m uses a shared narrow-area chooser without remounting either editor [33m 780[2mms[22m[39m
+     [33m[2m✓[22m[39m does not reopen a menu after responsive layout removes its owning pane [33m 563[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps editor DOM, values and iframe instance when moving and parking views [33m 483[2mms[22m[39m
+     [33m[2m✓[22m[39m supports keyboard divider movement and cancels pointer previews without a command [33m 509[2mms[22m[39m
+     [33m[2m✓[22m[39m retains layout when draft flush fails and restores desktop geometry after narrow mode [33m 797[2mms[22m[39m
+     [33m[2m✓[22m[39m moves a dragged tab to the center target and minimizes to a reachable strip [33m 569[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an incoming conversation that cannot fit its actual minimum [33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps editor and recovery controls reachable inside a short pane [33m 788[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m37 passed[39m[22m[90m (37)[39m
+[2m   Start at [22m 03:49:08
+[2m   Duration [22m 91.61s[2m (transform 278ms, setup 0ms, import 1.30s, tests 89.94s, environment 0ms)[22m
+
+JSON report written to D:/a/Gen-V1/Gen-V1/test-results/m15/split-browser-results.json

@@ -1,0 +1,492 @@
+[1A[2K[2m[WebServer] [22m(node:42) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:59) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 33 tests using 1 worker
+
+[1A[2K(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/33] tests/e2e/workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task
+[1A[2K  1) tests/e2e/workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/33] tests/e2e/workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates
+[1A[2K  2) tests/e2e/workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/33] tests/e2e/workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion
+[1A[2K  3) tests/e2e/workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:306) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/33] tests/e2e/workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout
+[1A[2K  4) tests/e2e/workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[5/33] tests/e2e/workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks
+[1A[2K  5) tests/e2e/workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:449) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[6/33] tests/e2e/workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false
+[1A[2K  6) tests/e2e/workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-components.spec.ts:10:574
+
+
+[1A[2K(node:522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[7/33] tests/e2e/workspace-ui.spec.ts:392:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload
+[1A[2K[8/33] tests/e2e/workspace-ui.spec.ts:440:1 › retained navigation directs tools to the main workspace without creating detached owners
+[1A[2K[9/33] tests/e2e/workspace-ui.spec.ts:459:1 › delegated agent panels page the actual child transcript without a composer
+[1A[2K[10/33] tests/e2e/workspace-ui.spec.ts:481:1 › main and side composers keep independent drafts across reload and rejected sends
+[1A[2K[11/33] tests/e2e/workspace-ui.spec.ts:523:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged
+[1A[2K  7) tests/e2e/workspace-ui.spec.ts:523:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Reset canvas zoom' })
+    Expected: [32m"[7m9[27m0%"[39m
+    Received: [31m"[7m10[27m0%"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Reset canvas zoom' })[22m
+    [2m    9 × locator resolved to <button title="Reset canvas zoom" aria-label="Reset canvas zoom">100%</button>[22m
+    [2m      - unexpected value "100%"[22m
+
+
+      122 |  const sidebar=page.locator('.sidebar'),before=await sidebar.boundingBox();
+      123 |  await page.getByRole('button',{name:'Zoom canvas out',exact:true}).click();
+    > 124 |  await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('90%');
+          |                                                                    ^
+      125 |  expect(await sidebar.boundingBox()).toEqual(before);
+      126 |  files.bounds.x=24;host.envelope.state.revision++;
+      127 |  await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:124:68
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-offscreen-too-58c0d-surrounding-shell-unchanged/error-context.md
+
+
+[1A[2K(node:677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized thread restores its saved originating tile using canonical native identity
+[1A[2K[13/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized agent restores its saved originating tile using canonical native identity
+[1A[2K[14/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized artifact restores its saved originating tile using canonical native identity
+[1A[2K[15/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized context restores its saved originating tile using canonical native identity
+[1A[2K[16/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized plan restores its saved originating tile using canonical native identity
+[1A[2K[17/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized usage restores its saved originating tile using canonical native identity
+[1A[2K[18/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized navigation restores its saved originating tile using canonical native identity
+[1A[2K[19/33] tests/e2e/workspace-ui.spec.ts:570:106 › docking specialized browser restores its saved originating tile using canonical native identity
+[1A[2K[20/33] tests/e2e/workspace-ui.spec.ts:590:1 › live native dock retries a concurrent layout revision without losing either draft
+[1A[2K[2m[WebServer] [22m5:49:23 AM [vite] http proxy error: /api/workspace
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K  8) tests/e2e/workspace-ui.spec.ts:590:1 › live native dock retries a concurrent layout revision without losing either draft 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"canvas"[39m
+    Received: [31m"native"[39m
+
+      157 |  await returnSavedNative(page,surface);
+      158 |  await expect(tile).toBeVisible();await expect(main).toHaveValue('Main native handoff draft');await expect(side).toHaveValue('Independent side draft');
+    > 159 |  expect(conflicts).toBe(1);expect(value.placement).toBe('canvas');expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual(['main-origin','side-origin']);
+          |                                                    ^
+      160 | });
+      161 |
+      162 | test('native dock refuses a panel retargeted by a concurrent profile change',async({page})=>{
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:159:52
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-live-native-d-e715f-without-losing-either-draft/error-context.md
+
+
+[1A[2K(node:909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[21/33] tests/e2e/workspace-ui.spec.ts:652:1 › native dock refuses a panel retargeted by a concurrent profile change
+[1A[2K  9) tests/e2e/workspace-ui.spec.ts:652:1 › native dock refuses a panel retargeted by a concurrent profile change 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'owning panel changed' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'owning panel changed' })[22m
+
+
+      165 |  await expect(page.locator('[data-panel-id="origin"]')).toHaveCount(0);raceEnabled=true;
+      166 |  await returnSavedNative(page,surface);
+    > 167 |  await expect(page.getByRole('alert').filter({hasText:'owning panel changed'})).toBeVisible();
+          |                                                                                 ^
+      168 |  expect(original).toMatchObject({binding:{threadId:'side'},placement:'native',visible:false});
+      169 | });
+      170 |
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:167:81
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-native-dock-r-590dc-a-concurrent-profile-change/error-context.md
+
+
+[1A[2K(node:992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[22/33] tests/e2e/workspace-ui.spec.ts:685:43 › canvas command retries native geometry only without rebasing its owner
+[1A[2K[23/33] tests/e2e/workspace-ui.spec.ts:685:43 › canvas command refuses a changed canvas without rebasing its owner
+[1A[2K  10) tests/e2e/workspace-ui.spec.ts:685:43 › canvas command refuses a changed canvas without rebasing its owner 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'workspace revision changed' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'workspace revision changed' })[22m
+
+
+      174 |  await page.locator('[data-panel-id="owner"]').getByRole('button',{name:'Inspect changes',exact:true}).click();
+      175 |  if(geometryOnly){await expect(page.locator('.canvas-panel-diff')).toBeVisible();expect(host.envelope.state.canvases[0].panels.find(panel=>panel.kind==='diff')!.binding.threadId).toBe('task-thread');}
+    > 176 |  else{await expect(page.getByRole('alert').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
+          |                                                                                            ^
+      177 |  expect(conflicts).toBe(1);
+      178 | });
+      179 |
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:176:92
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-canvas-comman-d58c7--without-rebasing-its-owner/error-context.md
+
+
+[1A[2K(node:1093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[24/33] tests/e2e/workspace-ui.spec.ts:712:42 › saved native selected task binding survives reload and dock
+[1A[2K[25/33] tests/e2e/workspace-ui.spec.ts:712:42 › saved native live project binding survives reload and dock
+[1A[2K[26/33] tests/e2e/workspace-ui.spec.ts:736:1 › keyboard and refreshed browser panel geometry updates native bounds while menus still occlude it
+[1A[2K[27/33] tests/e2e/workspace-ui.spec.ts:861:1 › canvas owner tool callbacks open fixed Files and Diff panels while another conversation is selected
+[1A[2K[28/33] tests/e2e/workspace-ui.spec.ts:986:1 › canvas project selection targets its owner and cancellation restores independent drafts and focus
+[1A[2K[29/33] tests/e2e/workspace-ui.spec.ts:1064:1 › canvas Connect project captures its owner across selection updates and preserves drafts and focus
+[1A[2K[30/33] tests/e2e/workspace-ui.spec.ts:1145:1 › obsolete model reads cancel on panel disposal and selection without cancelling another live owner
+[1A[2K[2m[WebServer] [22m5:50:33 AM [vite] http proxy error: /api/threads/task-thread/verification
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m5:50:33 AM [vite] http proxy error: /api/threads/other-main/verification
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m5:50:33 AM [vite] http proxy error: /api/threads/task-thread/verification
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m5:50:33 AM [vite] http proxy error: /api/threads/other-main/verification
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K  11) tests/e2e/workspace-ui.spec.ts:1145:1 › obsolete model reads cancel on panel disposal and selection without cancelling another live owner 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m2[39m
+    Received: [31m1[39m
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      280 |  const reads=await pendingReads(page,'models'),main=panel('selected-main','task-thread',24),other=panel('other-main','other-main',560),host=await fixture(page,[main,other]);
+      281 |  host.snapshot.threads.push({...host.snapshot.threads[0],id:'other-main',title:'Other model owner'});await page.reload();
+    > 282 |  await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=task-thread')).length).toBe(2);
+          |  ^
+      283 |  await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=other-main')).length).toBe(1);
+      284 |  other.visible=false;host.envelope.state.revision++;await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));
+      285 |  await expect(page.locator('[data-panel-id="other-main"]')).toHaveCount(0);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:282:2
+
+
+[1A[2K(node:1319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[31/33] tests/e2e/workspace-ui.spec.ts:1179:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive
+[1A[2K  12) tests/e2e/workspace-ui.spec.ts:1179:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m2[39m
+    Received: [31m1[39m
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      297 | test('closing Settings cancels its pending catalog read and leaves the current workspace read alive',async({page})=>{
+      298 |  const reads=await pendingReads(page,'models');await fixture(page,[panel('selected-main','task-thread',24)]);
+    > 299 |  await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('threadId=task-thread')).length).toBe(2);
+          |  ^
+      300 |  await page.getByRole('button',{name:'Settings',exact:true}).click();
+      301 |  await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();
+      302 |  await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(1);
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:299:2
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-closing-Setti-f177d-urrent-workspace-read-alive/error-context.md
+
+
+[1A[2K(node:1401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:1401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[32/33] tests/e2e/workspace-ui.spec.ts:1210:1 › disposing a project context cancels its read while another context still loads successfully
+[1A[2K[33/33] tests/e2e/workspace-ui.spec.ts:1238:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh
+[1A[2K  13) tests/e2e/workspace-ui.spec.ts:1238:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-panel-id="action-context"]').getByRole('button', { name: 'Open in Fixture editor', exact: true, includeHidden: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-panel-id="action-context"]').getByRole('button', { name: 'Open in Fixture editor', exact: true, includeHidden: true })[22m
+
+
+      336 |  const oldReads=(await reads()).filter(read=>read.url.includes('/old-project/context')).length;
+      337 |  const response=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/old-project/actions');release();await response;
+    > 338 |  await expect(editor).toBeEnabled();
+          |                       ^
+      339 |  expect((await reads()).filter(read=>read.url.includes('/new-project/context')).every(read=>!read.aborted)).toBe(true);
+      340 |  expect((await reads()).filter(read=>read.url.includes('/old-project/context'))).toHaveLength(oldReads);
+      341 |  await page.evaluate(value=>(window as any).__pendingWorkspaceReads.filter((read:any)=>read.url.includes('/new-project/context')&&!read.aborted).forEach((read:any)=>read.complete(value)),value('new-project','Current owner'));
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/workspace-ui.spec.ts:338:23
+
+    Error Context: ../m05-local-checks/continuation-main-workspace-browser-green-artifacts/workspace-ui-a-completed-o-78fe9-owner-actions-still-refresh/error-context.md
+
+
+[1A[2K  13 failed
+    tests/e2e/workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task 
+    tests/e2e/workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates 
+    tests/e2e/workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+    tests/e2e/workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout 
+    tests/e2e/workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks 
+    tests/e2e/workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false 
+    tests/e2e/workspace-ui.spec.ts:523:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged 
+    tests/e2e/workspace-ui.spec.ts:590:1 › live native dock retries a concurrent layout revision without losing either draft 
+    tests/e2e/workspace-ui.spec.ts:652:1 › native dock refuses a panel retargeted by a concurrent profile change 
+    tests/e2e/workspace-ui.spec.ts:685:43 › canvas command refuses a changed canvas without rebasing its owner 
+    tests/e2e/workspace-ui.spec.ts:1145:1 › obsolete model reads cancel on panel disposal and selection without cancelling another live owner 
+    tests/e2e/workspace-ui.spec.ts:1179:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive 
+    tests/e2e/workspace-ui.spec.ts:1238:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh 
+  20 passed (3.4m)

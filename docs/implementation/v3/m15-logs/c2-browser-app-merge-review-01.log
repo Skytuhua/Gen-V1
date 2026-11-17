@@ -1,0 +1,29 @@
+argv: ["python3","-c","from pathlib import Path\nimport subprocess, hashlib, re, json\npublished='fd17d9f1b3931eb2b974b86ccc5a3892da47ba33'\nupstream='138b1356495bb3a2c9b35020240513f8faa84964'\napp_path='apps/web/src/App.tsx'\nprovider_path='apps/web/src/SourceWorkbench.tsx'\napp=Path(app_path).read_text()\nprovider=Path(provider_path).read_text()\ndef from_git(ref,path):\n    return subprocess.check_output(['git','show',ref+':'+path],text=True)\nprior=from_git(published,app_path)\nmain=from_git(upstream,app_path)\nprior_provider=from_git(published,provider_path)\ndef block(text,start,end):\n    i=text.index(start)\n    return text[i:text.index(end,i)]\nchecks={}\nfor label,start,end,parent in [\n ('App host and embedded dispatch preserved from upstream','export function App(','\\nfunction ConversationWorkspace',main),\n ('Canonical pane selection preserved from upstream','  const mainPlacement=','  const modelThread',main),\n ('Candidate and detached thread selection preserved from upstream','  const candidateThread =','  const customConversationLayout=',main),\n ('Split view rendering, conditional root, and layout error branches preserved from upstream','  const renderConversationView=','  const interfaceFont',main),\n ('Source journal and workspace handoff preserved from published M15','  const prepareSourceJournal=','  const updateCanvasPanel',prior),\n]:\n    checks[label]=block(app,start,end)==block(parent,start,end)\nchecks['SourceWorkbenchProvider body preserved from published M15']=block(provider,'export function SourceWorkbenchProvider','export function SourceMessage')==block(prior_provider,'export function SourceWorkbenchProvider','export function SourceMessage')\nchecks['SourceMessage and WorkbenchComposer preserved from published M15']=block(provider,'export function SourceMessage','function WorkbenchDialog')==block(prior_provider,'export function SourceMessage','function WorkbenchDialog')\nartifact_active=lambda text: re.findall(r'<Artifact\\b[^>]*?active=\\{([^}]+)\\}',text)\nchecks['Both active Artifact predicates preserve canonical resolvedMainId']=artifact_active(app)==artifact_active(main)==['thread?.id===resolvedMainId','thread?.id===resolvedMainId']\ndef fallback_summary(text):\n    value=block(text,'    <SummaryLayout active={!embeddedThreadId','<div ref={findScope}')\n    return re.sub(r'\\s+',' ',re.sub(r'<SourceWorkbenchProvider\\b[^>]*>','',value)).strip()\nchecks['Fallback SummaryLayout props preserved with provider insertion only']=fallback_summary(app)==fallback_summary(main)\nchecks['No additional Composer element introduced']=len(re.findall(r'<Composer\\b',app))==len(re.findall(r'<Composer\\b',main))==2\nresult={\n 'kind':'read-only App merge review',\n 'publishedParent':published,\n 'upstreamParent':upstream,\n 'sourceSha256':{path:hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in [app_path,provider_path,'apps/web/src/WorkbenchPanelContent.tsx','apps/web/src/WorkActivity.tsx']},\n 'checks':checks,\n 'status':'PASS' if all(checks.values()) else 'FAIL',\n 'limits':'Exact block comparisons plus manual structural review; no browser launched, no runtime identity claim added.'\n}\nprint(json.dumps(result,indent=2))\nraise SystemExit(0 if all(checks.values()) else 1)\n"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "kind": "read-only App merge review",
+  "publishedParent": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+  "upstreamParent": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "sourceSha256": {
+    "apps/web/src/App.tsx": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
+    "apps/web/src/SourceWorkbench.tsx": "16595a6ab717aa4b0a25aa882b4b63c95e337487ec54a564ebc1aa753e7c608f",
+    "apps/web/src/WorkbenchPanelContent.tsx": "e8d036e293d419aa1cbb0adcca8bc0dd885ca480f9d9a88ff26719540f59f79d",
+    "apps/web/src/WorkActivity.tsx": "3a6118709384c3195f9bb25b259ce46d7b670efe2cdbd8326913f633ad2939d2"
+  },
+  "checks": {
+    "App host and embedded dispatch preserved from upstream": true,
+    "Canonical pane selection preserved from upstream": true,
+    "Candidate and detached thread selection preserved from upstream": true,
+    "Split view rendering, conditional root, and layout error branches preserved from upstream": true,
+    "Source journal and workspace handoff preserved from published M15": true,
+    "SourceWorkbenchProvider body preserved from published M15": true,
+    "SourceMessage and WorkbenchComposer preserved from published M15": true,
+    "Both active Artifact predicates preserve canonical resolvedMainId": true,
+    "Fallback SummaryLayout props preserved with provider insertion only": true,
+    "No additional Composer element introduced": true
+  },
+  "status": "PASS",
+  "limits": "Exact block comparisons plus manual structural review; no browser launched, no runtime identity claim added."
+}

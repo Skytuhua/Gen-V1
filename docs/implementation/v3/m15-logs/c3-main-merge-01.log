@@ -1,0 +1,12 @@
+argv: ["git","merge","--no-commit","--no-ff","49cd633273a3f61c14a4191a9877e99ab23ec88f"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Auto-merging apps/server/server.ts
+Auto-merging apps/web/src/App.tsx
+CONFLICT (content): Merge conflict in apps/web/src/App.tsx
+Auto-merging apps/web/src/project-api.ts
+Auto-merging scripts/browser-suites.ts
+Auto-merging scripts/public-source-files.json
+CONFLICT (content): Merge conflict in scripts/public-source-files.json
+Automatic merge failed; fix conflicts and then commit the result.

@@ -10,6 +10,10 @@ export const WORKSPACE_PANEL_KINDS=['thread','agent','artifact','context','plan'
 export type WorkspacePreset=typeof WORKSPACE_PRESETS[number];
 export type WorkspacePanelKind=typeof WORKSPACE_PANEL_KINDS[number];
 export const workspacePresetSchema=z.enum(WORKSPACE_PRESETS);
+// Retired presets stay readable for saved records; only these may be created or offered now (T05/R12).
+export const SUPPORTED_WORKSPACE_PRESETS=['workspace','all-agents'] as const;
+export type SupportedWorkspacePreset=typeof SUPPORTED_WORKSPACE_PRESETS[number];
+export const isSupportedWorkspacePreset=(preset:WorkspacePreset):preset is SupportedWorkspacePreset=>(SUPPORTED_WORKSPACE_PRESETS as readonly WorkspacePreset[]).includes(preset);
 export const workspacePanelKindSchema=z.enum(WORKSPACE_PANEL_KINDS);
 export const workspaceAuthoritySchema=z.discriminatedUnion('kind',[z.strictObject({kind:z.literal('local')}),z.strictObject({kind:z.literal('plugin'),pluginId:pluginIdSchema,scopeId:pluginSurfaceSchema.shape.scopeId})]);
 export type WorkspaceAuthority=z.infer<typeof workspaceAuthoritySchema>;

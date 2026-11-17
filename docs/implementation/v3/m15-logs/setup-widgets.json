@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "build:widgets"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:34:25.697Z",
+  "endedAt": "2026-11-15T21:34:26.606Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/setup-widgets.log",
+  "logDigest": "7f7bcdd429f281fd13b49f722420e738b01bb2d41d4e914bc57f01e018dd2ddc"
+}

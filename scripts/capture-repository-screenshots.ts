@@ -72,4 +72,6 @@ try{
  if(captures.reduce((total,item)=>total+item.bytes,0)>2*1024*1024)throw Error('Repository screenshots exceed the 2 MiB budget.');
  await writeFile(join(output,'README.md'),'# Product screenshots\n\nThese are unedited captures of the actual Gen V1 interface rendered in Chromium at 1440 × 1080. All conversations, trace spans, model choices and skills are clean **sample data**. They demonstrate the interface, not live provider authentication, inference quality, account entitlement or production measurements. No personal account, conversation or local profile was used.\n\n- `workspace.png`: dark conversation with a trace investigation and comparison.\n- `models.png`: searchable model picker with an illustrative model catalog.\n- `learning.png`: Skills & learning procedure editor, supporting files and revision history.\n- `workspace-light.png`: the same sample investigation in light mode.\n\nRegenerate with `pnpm exec tsx scripts/capture-repository-screenshots.ts` after installing Chromium with `pnpm exec playwright install chromium`. The script starts and stops its own local development server and makes no model requests.\n');
  console.log(JSON.stringify({scope:'Actual UI with synthetic sample data; no live accounts or inference.',captures}));
-}finally{await browser?.close();await terminateProcessTree(server);}
+}finally{
+ try{await browser?.close();}finally{await terminateProcessTree(server);}
+}

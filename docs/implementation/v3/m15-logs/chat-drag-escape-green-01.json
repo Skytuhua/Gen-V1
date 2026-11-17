@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/chat-view-modes.playwright.config.ts",
+    "--grep",
+    "active drag",
+    "--output",
+    "test-results/browser/chat-drag-escape-green-01"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:09:42.554Z",
+  "endedAt": "2026-11-15T22:10:05.643Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/chat-drag-escape-green-01.log",
+  "logDigest": "1c5318c1902d0328ccfb6051730606d0ffd2ff5d32348efaf0631e69354bf8b5"
+}

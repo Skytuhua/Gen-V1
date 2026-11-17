@@ -1,0 +1,67 @@
+--- a/tests/e2e/workspace-host.spec.ts
++++ b/tests/e2e/workspace-host.spec.ts
+@@ -350,7 +350,10 @@
+  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
+- await page.getByRole('textbox',{name:'Message',exact:true}).fill('Draft belongs to latest B');
++ await expect(page.getByRole('tab',{name:'Empty draft stays in navigation',exact:true})).toHaveAttribute('aria-selected','true');
++ const draftB=page.locator('[data-split-view="thread:empty-draft"]').getByRole('textbox',{name:'Message',exact:true});
++ await expect(draftB).toBeVisible();await expect(draftB).toBeEnabled();
++ await draftB.fill('Draft belongs to latest B');
+  await page.getByRole('button',{name:'All Agents',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Workspace',exact:true}).click();
+--- a/tests/e2e/saved-layout-chooser.spec.ts
++++ b/tests/e2e/saved-layout-chooser.spec.ts
+@@ -54,5 +54,5 @@
+  await page.goto('/saved-layouts?delay=1');await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Apply Coding',exact:true}).evaluate(node=>{(node as HTMLElement).click();(document.querySelector('.workspace-switcher button:nth-child(2)') as HTMLElement).click();});await expect(page.getByLabel('Calls')).toHaveText('apply:layout-0');await expect(page.getByRole('button',{name:'Layouts',exact:true})).toHaveAttribute('aria-expanded','false');
+ });
+ for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{
+- await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
++ await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();await popup.evaluate(async node=>{const finite=node.getAnimations().filter(animation=>{const endTime=animation.effect?.getComputedTiming().endTime;return typeof endTime==='number'&&Number.isFinite(endTime);});await Promise.all(finite.map(animation=>animation.finished));});const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+ });
+--- a/tests/e2e/usage-app-integration.spec.ts
++++ b/tests/e2e/usage-app-integration.spec.ts
+@@ -59,7 +59,9 @@
+  await expect(summary).toBeVisible();await expect(summary).toContainText('7 input tokens');
+  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
+- await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');
++ await summary.getByRole('button',{name:'Minimize live usage',exact:true}).click();
++ await expect(summary.getByText('999 input tokens',{exact:true})).toBeVisible();
++ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
+  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+@@ -106,3 +108,17 @@
+  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
+  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');
+ });
++
++
++test('review: an open restored Usage tab stays closed in split workspace and keeps both composers available',async({page})=>{
++ await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
++ const h=await host(page,{split:true});
++ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
++ await expect(modal(page)).toHaveCount(0);
++ const first=page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true}),second=page.locator('[data-split-view="thread:other"]').getByRole('textbox',{name:'Message',exact:true});
++ for(const draft of [first,second]){await expect(draft).toBeVisible();await expect(draft).toBeEnabled();}
++ await first.fill('Keep the first split draft');await second.fill('Keep the second split draft');
++ await expect(first).toHaveValue('Keep the first split draft');await expect(second).toHaveValue('Keep the second split draft');
++ await expect(modal(page)).toHaveCount(0);
++ expect(h.commands.filter(command=>command.type==='thread.create'||command.type==='message.send')).toHaveLength(0);
++});
+--- a/tests/e2e/mobile-navigation.spec.ts
++++ b/tests/e2e/mobile-navigation.spec.ts
+@@ -6,7 +6,9 @@
+  await page.setViewportSize({width:600,height:500});
+  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];
+  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};
+- await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');
++ await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
++ await Promise.all([page.waitForResponse(response=>new URL(response.url()).pathname==='/api/snapshot'&&response.request().method()==='GET'&&response.status()===200),page.goto('/')]);
++ const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');
+  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);
+  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);
+  await scrim.click({position:{x:590,y:100}});await expect(scrim).toHaveCount(0);await expect(opener).toBeFocused();await expect(draft).toHaveValue('Keep this mobile draft');

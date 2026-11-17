@@ -1,0 +1,19 @@
+{"configuredOutputLimit":65536,"retainedBytesAtRefusal":65537,"retainedBytesAfterLateCallbacks":589825,"ownerRevoked":false}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: A refused output must not continue accumulating native text while cleanup is pending
+
+589825 !== 65537
+
+    at <anonymous> (/workspace/scratch/36f66011d961/m05-extraction-output-review-repro.mts:20:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 589825,
+  expected: 65537,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

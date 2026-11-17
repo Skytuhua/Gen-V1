@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/public-source.test.ts",
+      "tests/project-context-owner.test.ts",
+      "tests/project-context-summary.test.ts",
+      "tests/task-table-controls.test.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/36f66011d961/m05-restored",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "startedAt": "2026-11-16T01:11:33.611108+00:00",
+    "endedAt": "2026-11-16T01:11:37.732413+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ec36-merged-source-check.log",
+    "logDigest": "730821dc8f74324ac5738261697e07df7ad3e949ccec48e6c74739a4c0dc8601"
+  },
+  "capture": "Actual restored Linux process output; no reconstructed CI step envelope",
+  "committedTreeBefore": "d6050d2b19f6c1a235c2bb0967df25d8f8bb624a",
+  "workingDiffSha256": "acbc345d2382116f1a337d9e879c4c5ce3792591621531e0d69a783fd5a4267b",
+  "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+  "elapsedMs": 4108,
+  "rawOutputBytes": 231,
+  "rawOutputSha256": "730821dc8f74324ac5738261697e07df7ad3e949ccec48e6c74739a4c0dc8601",
+  "excerptInputBytes": 231,
+  "excerptInputSha256": "730821dc8f74324ac5738261697e07df7ad3e949ccec48e6c74739a4c0dc8601",
+  "transformations": [],
+  "phaseIds": [
+    "REGRESSION_REQUIRED"
+  ]
+}

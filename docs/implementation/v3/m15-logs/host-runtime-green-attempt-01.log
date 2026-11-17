@@ -1,0 +1,35 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (8 tests | 1 failed) 1349ms
+   × reauthorizes retained file bytes after grant revocation and never grants source context 38ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reauthorizes retained file bytes after grant revocation and never grants source context
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ SourceWorkbench.resolveSource packages/core/source-workbench.ts:158:14
+ ❯ SourceWorkbench.describe packages/core/source-workbench.ts:185:142
+ ❯ tests/source-workbench-host-v3.test.ts:59:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 11 passed (12)
+   Start at  05:42:32
+   Duration  4.30s (transform 2.51s, setup 0ms, import 2.13s, tests 1.50s, environment 0ms)
+

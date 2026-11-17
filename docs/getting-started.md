@@ -1,6 +1,6 @@
 # Getting started
 
-Last updated: 2026-11-07.
+Last updated: 2026-11-15.
 
 Gen V1 runs a local backend and a Windows desktop or browser interface. Model requests go to the provider you connect; local application storage is not a hosted service.
 
@@ -117,8 +117,8 @@ Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop dev
 
 The desktop packager also requires the ignored runtime inputs; a Node dependency
 install alone does not supply them. Prepare `.harness-hermes-python-deps/` from
-the pinned Hermes requirements above, `.harness-integrations-python-deps/` to
-match [the integration lock](../third-party/integrations/PYTHON_LOCK.json), and
+the pinned Hermes requirements above, `.harness-integrations-python-deps/` from
+[the integration lock](../third-party/integrations/PYTHON_LOCK.json), and
 `.harness-tool-bundles/{git,gh}/` to match
 [the tool archive and file manifest](../third-party/git-tools/manifest.json).
 The integration lock records each distribution's wheel URL/hash and the exact
@@ -127,6 +127,15 @@ before extraction. A reviewed offline runtime payload can supply these same
 inputs. Packaging verifies them and refuses a mismatch; do not regenerate the
 locks to admit a different local installation. None of these inputs requires a
 private plug-in checkout, profile, account or credential.
+
+### Exact v1 mode
+
+When `HARNESS_INTEGRATION_WHEELS` is absent, packaging retains the original exact
+v1 comparison. Every admitted installed file, including each `RECORD`, must match
+the original inventory and hash. A regression-test dependency cache is not
+automatically an exact packaging payload: direct wheel installations can add
+`REQUESTED`/`direct_url.json` metadata, and pip's Windows launcher metadata can
+change installed `RECORD` bytes.
 
 ```powershell
 pnpm desktop:package
@@ -138,14 +147,57 @@ Packaging verifies the pinned source/dependency manifests, stages the selected P
 pnpm desktop:package --output-root .harness-release-output
 ```
 
+### Explicit canonical RECORD mode
+
+Set `HARNESS_INTEGRATION_WHEELS` to an **absolute directory containing the 91
+already-declared wheel archives** to select `wheel-canonical-record-v2` at build
+time. Use the archive filenames from the lock's `sourceUrl` entries and verify
+every `wheelSha256`. The **Stage pinned integration wheels for canonical
+packaging** step in [Windows CI](../.github/workflows/ci.yml) downloads exactly
+those URLs into a new temporary directory, rejects duplicate filenames, verifies
+the archive hashes and passes that directory to the package step. It does not
+select new versions or replace the lock. The installed dependency directory is
+still required.
+
+For a locally staged archive directory:
+
+```powershell
+$env:HARNESS_INTEGRATION_WHEELS = (Resolve-Path -LiteralPath 'C:\BuildInputs\integration-wheels').Path
+pnpm desktop:package --output-root .harness-canonical-release-output
+```
+
+The packager uses the same validated CPython 3.14 Windows x64 installation selected
+for Hermes, including `HARNESS_HERMES_PYTHON` when supplied. Its standard-library
+projection helper runs with `-I -S -B`, reads the pinned archives without executing
+wheel code, and authenticates each file's distribution ownership. The original
+`PYTHON_LOCK.json` remains unchanged. All **7,324 non-RECORD file hashes** remain
+mandatory; only the 91 installed RECORD files receive deterministic replacements.
+Additional `REQUESTED` and `direct_url.json` files under known distribution
+metadata directories are excluded from the package. A changed or undeclared
+runtime file still fails preflight. The helper does not rewrite the installed
+dependency cache.
+
+The staged and packaged host contains the original lock plus
+`third-party/integrations/PYTHON_INSTALLATION_V2.json`. This generated manifest
+records mode/version, the original lock digest, authenticated wheel identities
+and the exact relative file inventory with sizes and hashes. The release
+`build-manifest.json` records the selected mode and generated manifest digest.
+CI preserves the staged v2 manifest alongside its build and installed-verifier
+receipts when those files exist, including after a later packaging failure.
+Unset `HARNESS_INTEGRATION_WHEELS` to return to the unchanged exact v1 mode.
+
+These are build instructions. They do not establish a successful Windows package,
+installation or retained-memory verification; those results require their own
+executed receipts.
+
 Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
 
 ## Run the checks
 
 The full regression suite needs local runtime inputs beyond `pnpm install`.
 Install the isolated Hermes requirements above, then prepare
-`.harness-integrations-python-deps/` using the **Install pinned integration
-wheels for regression tests** step in [Windows CI](../.github/workflows/ci.yml).
+`.harness-integrations-python-deps/` using the **Install pinned Python test
+dependencies** step in [the CI toolchain action](../.github/actions/setup/action.yml).
 That step installs the exact wheels from the integration lock and checks their
 hashes. Run it from the repository root using your Python 3.14 executable.
 When adapting the CI step locally, use a writable temporary directory in place

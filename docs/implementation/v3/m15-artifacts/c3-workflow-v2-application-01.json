@@ -1,0 +1,18 @@
+{
+  "appliedAt": "2026-11-16T02:58:13.675879+00:00",
+  "scope": "Exact reviewed workflow bytes applied locally; no Windows or CI execution claimed.",
+  "workflow": ".github/workflows/m15-evidence.yml",
+  "workflowSha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+  "ingestionHelperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+  "head": "a1349b0a7ffa1420566da9c7770faf80d6be5bf3",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "ordinaryCiSha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2",
+  "reviewArtifacts": {
+    "c3-windows-workflow-ingestion-review-02.md": "5abd633bc335cce913034b87376ca37ddffaf27f5c01155eceded50639885050",
+    "c3-windows-workflow-ingestion-review-02.json": "b2933e96b3254c3b0b3dc8c5353151d0aeabd1a0d44360b4a0214c9820a664ec",
+    "c3-ci-v2-browser-path-review-01.md": "eb60286ea96863ba7c5378b67d17cadbc5af01296aa623cc11157790d8e29bb4",
+    "c3-ci-v2-browser-path-review-01.json": "fbf06f2761309de86c4c0108175f815877cf1972b217575dade27bbe49cbf4ce"
+  },
+  "requiredBrowserReceipts": 16,
+  "targetExecution": "NOT_RUN"
+}

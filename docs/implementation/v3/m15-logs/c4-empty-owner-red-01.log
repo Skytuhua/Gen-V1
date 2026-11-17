@@ -1,0 +1,69 @@
+argv: ["pnpm","exec","vitest","run","tests/source-handoff-v3.test.ts","tests/editor-handoff.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-empty-owner-red-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-handoff-v3.test.ts (24 tests | 2 failed) 981ms
+     ✓ acknowledges only an untouched owner whose source, text and pending recovery all failed  350ms
+     ✓ does not treat an unobserved owner as a failed, untouched recovery 17ms
+     ✓ retains the strict read after an earlier successful empty recovery 11ms
+     ✓ keeps a locally begun source action blocking before its first journal write 21ms
+     ✓ does not reset attempted source work across an A to B to A owner transition 7ms
+     ✓ drains pending source hydration before judging an independently recovered pending send 18ms
+     ✓ waits for a first single CAS before a generation exists 21ms
+     ✓ waits for a first many CAS before a generation exists 36ms
+     ✓ retains a failed first source CAS even when an empty read and false retry succeed 3ms
+     ✓ does not let accepted old-source cleanup retire a failed newer attachment 6ms
+     ✓ retires an earlier failed attachment only after an explicit source edit commits 6ms
+     ✓ does not let an older explicit commit acknowledge a newer failed source operation 6ms
+     ✓ keeps failed source imports blocked until an atomic import retry commits the exact bundle 247ms
+     ✓ waits through import preprocessing before the same registry handoff (commit fails: false) 92ms
+     ✓ waits through import preprocessing before the same registry handoff (commit fails: true) 17ms
+     ✓ retains an ordinary failed draft write until its exact staged generation persists 3ms
+     ✓ does not classify a recovered staging record with failed replay as cold 3ms
+     ✓ retains the obligation of source metadata acquired through broadcast after initial failure 8ms
+     ✓ retains a record observed by entry enumeration even without a cached generation 9ms
+     ✓ rejects a foreign-owner source record instead of granting the cold-owner allowance 10ms
+     ✓ settles both same-owner App and SourceWorkbench guards without changing retained input 23ms
+     ✓ rechecks a new source generation after both same-owner guards wait for recovery 32ms
+     × settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: false) 18ms
+     × settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: true) 9ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 30ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: false)
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: true)
+AssertionError: expected { ok: false, …(1) } to deeply equal { ok: true, value: undefined }
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "value": undefined,
++   "error": Error {
++     "message": "Empty-owner guards did not settle after 64 metadata inspections.",
++   },
++   "ok": false,
+  }
+
+ ❯ tests/source-handoff-v3.test.ts:448:36
+    446|         held.release(); expect(await recovering).toEqual([undefined, u…
+    447|       }
+    448|       expect(await handing.result).toEqual({ok: true, value: undefined…
+       |                                    ^
+    449|       expect(started).toEqual(['App', 'SourceWorkbench']); expect(fini…
+    450|       expect(journal.journalGeneration(sourceKey)).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 25 passed (27)
+   Start at  13:53:46
+   Duration  4.50s (transform 1.18s, setup 0ms, import 967ms, tests 1.01s, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-empty-owner-red-01/results.json

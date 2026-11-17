@@ -1,0 +1,20 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (26 tests | 1 failed | 24 skipped) 1232ms
+   × drains auxiliary extraction before dispatching an executor-generated outbox input 1114ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > drains auxiliary extraction before dispatching an executor-generated outbox input
+AssertionError: expected "vi.fn()" to be called at least once
+ ❯ tests/project-memory-service-v3.test.ts:289:61
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 24 skipped (26)
+   Start at  20:12:33
+   Duration  3.11s (transform 1.26s, setup 0ms, import 1.70s, tests 1.23s, environment 1ms)

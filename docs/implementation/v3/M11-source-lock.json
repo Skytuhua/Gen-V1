@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "inspectedPaths": [
+    { "path": "package.json", "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0" },
+    { "path": "pnpm-lock.yaml", "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf" },
+    { "path": "vitest.config.ts", "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb" },
+    { "path": "scripts/public-source-files.json", "blobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8" },
+    { "path": "packages/contracts/index.ts", "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b" },
+    { "path": "packages/contracts/execution-profile.ts", "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4" },
+    { "path": "packages/core/service.ts", "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4" },
+    { "path": "packages/core/capability-flags.ts", "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161" },
+    { "path": "packages/runtime/index.ts", "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b" },
+    { "path": "packages/runtime/model-only.ts", "blobSha": "53257ddb2a21c72c16be00cbee9ad5a9b0a9d47d" },
+    { "path": "packages/runtime/model-capacity.ts", "blobSha": "c7b4b9bfe418296f8eb00da415fa51e5b54d287a" },
+    { "path": "packages/runtime-hermes/broker.ts", "blobSha": "ce5ae96ebcaf24d7a4d400aba2088471ddbd037e" },
+    { "path": "packages/runtime-hermes/acp-server.ts", "blobSha": "8a41fcc0d9410148f32f2f0831b7db4d62f80100" },
+    { "path": "packages/runtime-hermes/index.ts", "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4" },
+    { "path": "packages/runtime-hermes/worker.py", "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1" },
+    { "path": "packages/storage/store.ts", "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b" },
+    { "path": "apps/server/server.ts", "blobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362" },
+    { "path": "apps/web/src/UsageDialog.tsx", "blobSha": "9c190e07fa319738d3782fdfff8c30f0f47fa276" },
+    { "path": "apps/web/src/App.tsx", "blobSha": "2978a3af00fed8b277674f28beb0898d3755c179" },
+    { "path": "apps/web/src/ModelPicker.tsx", "blobSha": "112fe01daadb6729054d5b30f4e0facdadfd191c" },
+    { "path": "apps/web/src/ComposerToolbar.tsx", "blobSha": "d885f1475fc4813495314b4506044972d48df8e4" },
+    { "path": "apps/web/src/snapshot-events.ts", "blobSha": "eb3ac1b1b6f4bc752db9fba7ee8232a351a755a7" },
+    { "path": "apps/web/src/usage-presentation.ts", "blobSha": "a47e40cb3843e0f553a504bdae19d6062eb1b8d3" },
+    { "path": "apps/web/src/model-picker.css", "blobSha": "02f4046e34a048b7a29095ff78930b256b20b64e" }
+  ],
+  "publicContracts": [
+    { "name": "model-request-observation-v1", "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf", "testIds": ["tests/model-transport-v3.test.ts", "tests/usage-accounting-v3.test.ts"] },
+    { "name": "request-capabilities-v1", "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa", "testIds": ["tests/model-transport-v3.test.ts"] },
+    { "name": "request-scheduler-v1", "version": "176f539503c251662d83a9522b5aecdc5f5da1b5", "testIds": ["tests/model-scheduling-v3.test.ts"] },
+    { "name": "usage-accounting-cache-v1", "version": "09517becaf0c35f5f63bd758878659ea0de5f57b", "testIds": ["tests/usage-accounting-v3.test.ts"] }
+  ],
+  "acceptedDependencyCommits": [],
+  "approvedDrift": []
+}

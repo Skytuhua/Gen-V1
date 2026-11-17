@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { HostCommand, UserStateRecord } from '../../packages/contracts';
-import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import { serveTaskFixture, serveTaskSplitLayout, taskFixture } from './task-interface-fixture';
 import { quiescent } from './settle';
 
 test('an older snapshot cannot replace a newer acknowledged selection', async ({ page }) => {
@@ -9,6 +9,7 @@ test('an older snapshot cannot replace a newer acknowledged selection', async ({
   } }, { rows: [{ id: 'row-0', name: 'First record' }] }, { selection: ['row-0'] });
   snapshot.userStates[0].revision = 1;
   const host = await serveTaskFixture(page, snapshot);
+  await serveTaskSplitLayout(page, snapshot);
   const saves: UserStateRecord[] = [];
   let visibleState = structuredClone(snapshot.userStates[0]), endHeld = false;
   let releaseFirst!: () => void, releaseEnd!: () => void;
@@ -28,7 +29,13 @@ test('an older snapshot cannot replace a newer acknowledged selection', async ({
   });
   try {
     await page.goto('/');
+    // Cold Vite loading and canonical pane mounting precede this save-order
+    // regression. No user action or host mutation occurs before the first check.
+    await page.locator('[data-split-view="thread:task-thread"]').getByRole('table', { name: 'Review records', exact: true }).waitFor({ state: 'visible' });
     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });
+    // The shell bootstraps through a dynamic import after the load event.
+    // Bound initial readiness separately from the selection assertions below.
+    await expect(selected).toBeVisible({ timeout: 15_000 });
     await expect(selected).toBeChecked();
     await selected.click();
     await expect.poll(() => saves.length).toBe(1);

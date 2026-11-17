@@ -25,7 +25,7 @@ function Fixture() {
   const [rows, setRows] = useState(threads), [generation, setGeneration] = useState(0);
   const [search, setSearch] = useState(''), [request, setRequest] = useState<(() => void) | null>(null);
   const [layout, setLayout] = useState<ShellLayout>({ sidebarCollapsed: false, sidebarWidth: 248, rightPanelOpen: false,
-    rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', activeArtifactId: null, folded: { settled: true } });
+    rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', openTabs: ['artifact'], activeArtifactId: null, folded: { settled: true } });
   const preferences = { ...DEFAULT_PREFERENCES, projectGrouping: false, showWorkingSection: false,
     projectOrder: query.has('recent') ? 'recent' as const : 'manual' as const };
   const matching = useMemo(() => matchingThreads(rows, [], search, preferences.projectOrder), [rows, search, preferences.projectOrder]);
@@ -35,10 +35,10 @@ function Fixture() {
       close={() => {}} toggleCollapsed={() => {}} setFolded={(key, folded) => setLayout(value => ({ ...value, folded: { ...value.folded, [key]: folded } }))}
       select={() => {}} create={() => {}} settings={() => {}} rename={() => {}} archive={() => {}}
       orderBounds={query.has('bounds') ? { minOrder: -100, maxOrder: 100 } : undefined}
-      presentation={(thread, patch) => {
+      presentation={async(thread, patch) => {
         const apply = () => setRows(value => value.map(row => row.id === thread.id ? { ...row, presentation: { ...row.presentation, ...patch } } : row));
-        if (query.has('deferred')) setRequest(() => apply);
-        else if (!query.has('fail')) apply();
+        if (query.has('deferred')) return new Promise<boolean>(resolve => setRequest(() => () => {apply(); resolve(true);}));
+        if (query.has('fail')) return false; apply(); return true;
       }} />
     <main>
       <p>Synthetic thread move fixture</p>

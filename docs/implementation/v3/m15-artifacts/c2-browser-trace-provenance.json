@@ -1,0 +1,1785 @@
+{
+  "version": 1,
+  "status": "PASS: artifact acknowledgment 1/1; complete agents configuration 22/22; combined ChatView suite 6/6. Earlier failed and overlapping attempts retained.",
+  "sourceInputsBeforeFixes": {
+    "head": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+    "mergeHead": "138b1356495bb3a2c9b35020240513f8faa84964",
+    "sha256": {
+      "apps/web/src/App.tsx": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
+      "apps/web/src/SourceWorkbench.tsx": "6a6acf2b1f2094eef5fdaa4ac0cdc1b8fcf6dd33469f97e552865f5bad933d44",
+      "tests/e2e/agents-workspace-fixture.tsx": "8bb7f29f89495696a04feec35265e0575729552c14c7aeb52ec27ef947fa8770",
+      "tests/e2e/agents-workspace.spec.ts": "c6799f240d1aea7610c1c0ca06740a4cc07fafd92fba71aeaaa9c223ea0c084c",
+      "tests/e2e/artifact-acknowledgment.spec.ts": "ae683fb04b686c96492ac2c7a4788abadf16794107bacb12576f868366613051",
+      "tests/e2e/task-interface-fixture.ts": "36f78cd686a347968ef4e5d49fb1a5c6bc49fce4bf74949eb7acf0947bc79dd3",
+      "tests/e2e/agents-workspace.playwright.config.ts": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac",
+      "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts": "7cf0fa13835a404083b454b4a902044e81c6c983b5def035494760625750d5ca"
+    }
+  },
+  "method": "Request counts and timings are extracted from each retained Playwright trace.zip, 0-trace.network. Non-API counts include documents, CSS, fonts and scripts, so they are not JavaScript-module counts. Start offsets use the first network request in each trace. These runs are diagnostic observations, not a controlled performance benchmark.",
+  "provenance": [
+    "Published candidate artifact failure preceded acknowledgment assertions, with the checked checkbox present in the terminal snapshot. Its first bootstrap request began at +4769.7 ms.",
+    "The unchanged merged artifact failure is distinct: split-workspace and profiles endpoints returned 404, and the terminal snapshot remained New conversation. Upstream canonical placement no longer selects the thread solely from Snapshot.activeThreadId.",
+    "The unchanged merged agents reproduction passed both selected cases. The inherited child follow-up receipt correction came from main; this work does not claim that correction.",
+    "The isolated agents fixture eagerly imported App even for candidate=false. Moving that import into the candidate branch removed App and SourceWorkbench network requests from isolated cases.",
+    "The generic parent command fixture still returned id/status/result. The accepted-retry UI assertion failed with an unexpected-response message, then passed after the fixture returned commandId/eventSeq/result. Production parser semantics were not changed.",
+    "Canonical split support remains opt-in: serveTaskSplitLayout(page, initialThreadId?) seeds pane-main only when a caller supplies a thread. Generic serveTaskFixture behavior is unchanged.",
+    "Stable artifact-green-02 served the canonical layout successfully but exceeded the initial five-second checkbox assertion during cold module loading.",
+    "Artifact-green-03 waits for the real Review records table in the canonical task-thread view before the first original checked-state assertion. Its trace shows that assertion begins at +5545.1 ms with the original 5000 ms assertion timeout.",
+    "The first complete agents run exposed cold App import time in its integration case. Candidate-only setup now waits for its existing fixture mount marker, retaining all API request history before unchanged no-snapshot assertions.",
+    "The migrated Escape and IME cases mount real ChatView and TooltipLayer. The upstream three-case canonical chat-view-modes spec remains byte-identical to main."
+  ],
+  "retainedPublishedArtifactTrace": [
+    {
+      "trace": "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/trace.zip",
+      "totalRequests": 308,
+      "appModuleRequested": true,
+      "sourceWorkbenchRequested": true,
+      "apiTimings": [
+        {
+          "path": "/api/bootstrap",
+          "startMs": 4769.7,
+          "durationMs": 12.2,
+          "status": 200
+        },
+        {
+          "path": "/api/workspace",
+          "startMs": 4810.3,
+          "durationMs": 14.7,
+          "status": 200
+        },
+        {
+          "path": "/api/plugins",
+          "startMs": 4810.6,
+          "durationMs": 15.1,
+          "status": 404
+        },
+        {
+          "path": "/api/shell-settings",
+          "startMs": 4810.7,
+          "durationMs": 14.9,
+          "status": 200
+        },
+        {
+          "path": "/api/snapshot",
+          "startMs": 5000.1,
+          "durationMs": 10.4,
+          "status": 200
+        },
+        {
+          "path": "/api/workbench/threads/task-thread",
+          "startMs": 5294.9,
+          "durationMs": 111.4,
+          "status": 404
+        },
+        {
+          "path": "/api/models",
+          "startMs": 5316.8,
+          "durationMs": 141.6,
+          "status": 200
+        },
+        {
+          "path": "/api/workbench/threads/task-thread/inputs",
+          "startMs": 5382.1,
+          "durationMs": 52.8,
+          "status": 404
+        }
+      ],
+      "firstAssertion": {
+        "startMs": 570.8,
+        "timeoutMs": 5000
+      },
+      "nonApiRequests": 300
+    }
+  ],
+  "attempts": {
+    "c2-browser-agents-merged-red-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-merged-red-01.json",
+      "recordedExitCode": 0,
+      "termination": "NONE",
+      "logDigest": "5dda9f4249ff36563c6a5eb7c7f7ed3bec7bc5d73d63d0b683461cc4420fec8d",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-agents-merged-red-01/results.json",
+      "resultsSha256": "be6700e98a8a70b41403b75155edc7832ec7511e364aae07f7fd6569b72f5333",
+      "stats": {
+        "startTime": "2026-11-16T00:21:53.677Z",
+        "duration": 13884.027,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "status": "passed",
+          "durationMs": 6875,
+          "errors": []
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "status": "passed",
+          "durationMs": 3876,
+          "errors": []
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-merged-red-01/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip",
+          "sha256": "62b6573f954454631f37dfb0942815f96cfc9d482b9dfc81b3cce7af8e86bc8d",
+          "requests": 331,
+          "nonApiRequests": 297,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [
+            "/src/WorkbenchInputsPanel.tsx",
+            "/src/WorkbenchPanels.tsx",
+            "/src/WorkbenchOutput.tsx",
+            "/src/WorkbenchActivity.tsx"
+          ],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 4371.6,
+              "durationMs": 5.3,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 4466.6,
+              "durationMs": 652.8,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 5118.2,
+              "durationMs": 5.5,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 5124.4,
+              "durationMs": 7.6,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 6088.4,
+              "durationMs": -1,
+              "status": -1
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 97.5,
+              "expression": "to.be.visible",
+              "selector": "internal:role=status >> internal:has-text=\"Loading agents\"i",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5063.6,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .agents-project-header >> nth=0",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5080.0,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .agents-transcript >> nth=0",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5089.1,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .loading-composer >> nth=0",
+              "timeoutMs": 5000
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-merged-red-01/artifacts/agents-workspace-child-fol-030cb-rent-ticket-through-handled/trace.zip",
+          "sha256": "83584ba09b1f3630f3947c3c08c63e380d944da01129f0ace1f44c62effe664b",
+          "requests": 331,
+          "nonApiRequests": 297,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [
+            "/src/WorkbenchPanels.tsx",
+            "/src/WorkbenchInputsPanel.tsx",
+            "/src/WorkbenchOutput.tsx",
+            "/src/WorkbenchActivity.tsx"
+          ],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 936.3,
+              "durationMs": 5.1,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 999.9,
+              "durationMs": 7.1,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1009.0,
+              "durationMs": 7.0,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1016.7,
+              "durationMs": 5.9,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 1668.9,
+              "durationMs": 9.1,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "waitForSelector",
+              "startMs": 62.3,
+              "expression": null,
+              "selector": "internal:role=group[name=\"Agent child-active\"s]",
+              "timeoutMs": 0
+            },
+            {
+              "method": "expect",
+              "startMs": 1583.7,
+              "expression": "to.be.enabled",
+              "selector": "internal:role=group[name=\"Agent child-active\"s] >> internal:role=button[name=\"Send to child-active\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 1650.6,
+              "expression": "to.have.text",
+              "selector": "internal:role=group[name=\"Agent child-active\"s] >> internal:role=status",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 1774.9,
+              "expression": "to.have.text",
+              "selector": "internal:role=group[name=\"Agent child-active\"s] >> internal:role=status",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-artifact-merged-red-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-merged-red-01.json",
+      "recordedExitCode": 1,
+      "termination": "NONE",
+      "logDigest": "5a52cdd2e204bf16e80e468b1b371e0762ad0ec9415a7999a092738d8d7f06d9",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-merged-red-01/results.json",
+      "resultsSha256": "873122bdc270fe83412b19b4150a5b77cd3e8f21cddf9adcfdd9b47e7a06efa3",
+      "stats": {
+        "startTime": "2026-11-16T00:22:17.966Z",
+        "duration": 8699.943,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "status": "failed",
+          "durationMs": 5420,
+          "errors": [
+            {
+              "location": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                "column": 28,
+                "line": 32
+              },
+              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n\n  30 |     await page.goto('/');\n  31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 32 |     await expect(selected).toBeChecked();\n     |                            ^\n  33 |     await selected.click();\n  34 |     await expect.poll(() => saves.length).toBe(1);\n  35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:32:28"
+            }
+          ]
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-merged-red-01/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+          "sha256": "d356ac0971ae515100d204a87043030eb386599fd417c078b1b2847161e66e96",
+          "requests": 310,
+          "nonApiRequests": 302,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [
+            "/src/WorkbenchActivity.tsx",
+            "/src/WorkbenchPanels.tsx",
+            "/src/WorkbenchOutput.tsx",
+            "/src/WorkbenchInputsPanel.tsx"
+          ],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 3239.3,
+              "durationMs": 11.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 3423.4,
+              "durationMs": 5.6,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 3553.6,
+              "durationMs": 8.5,
+              "status": 404
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 3559.6,
+              "durationMs": 11.0,
+              "status": 404
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 151.6,
+              "expression": "to.be.checked",
+              "selector": "internal:role=checkbox[name=\"Select row 1\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-parent-receipt-red-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-parent-receipt-red-01.json",
+      "recordedExitCode": 1,
+      "termination": "NONE",
+      "logDigest": "1861f67ddc5c60012777cb9651e32c7387f2ab4d65a1f6dae479c627bb30236e",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/results.json",
+      "resultsSha256": "bdc09baaa5f8f3601b46c2550d9d69387000da73648f1963d518d39d15c0e5eb",
+      "stats": {
+        "startTime": "2026-11-16T00:23:20.507Z",
+        "duration": 12282.646,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "status": "failed",
+          "durationMs": 7917,
+          "errors": [
+            {
+              "location": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                "column": 89,
+                "line": 164
+              },
+              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Retry send to parent-00', exact: true })\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Retry send to parent-00', exact: true })\u001b[22m\n\u001b[2m    9 \u00d7 locator resolved to 1 element\u001b[22m\n\u001b[2m      - unexpected value \"1\"\u001b[22m\n\n\n  162 |  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');\n  163 |  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);\n> 164 |  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);\n      |                                                                                         ^\n  165 | });\n  166 | test('filtered children retain their completed owning parent and local reading state', async ({page}) => {\n  167 |  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:164:89"
+            }
+          ]
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip",
+          "sha256": "6c6e6a63542a3cef914d730995e28b45f754bbd6faeb1ef186522bed2133c9ec",
+          "requests": 118,
+          "nonApiRequests": 73,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 1035.0,
+              "durationMs": 28.9,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1130.0,
+              "durationMs": 14.8,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1144.1,
+              "durationMs": 12.0,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1154.4,
+              "durationMs": 5.6,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 2039.2,
+              "durationMs": 17.9,
+              "status": 503
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 2359.0,
+              "durationMs": 14.9,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 2055.9,
+              "expression": "to.be.visible",
+              "selector": "internal:role=button[name=\"Retry send to parent-00\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2343.6,
+              "expression": "to.have.value",
+              "selector": "internal:role=textbox[name=\"Message to parent-00\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2398.3,
+              "expression": "to.have.count",
+              "selector": "internal:role=button[name=\"Retry send to parent-00\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-parent-receipt-green-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-parent-receipt-green-01.json",
+      "recordedExitCode": 0,
+      "termination": "NONE",
+      "logDigest": "d15ade3295387967dbaf43198f58d623048de68b25efee59ce0eae5ed2842628",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-green-01/results.json",
+      "resultsSha256": "52194be857135ded28a5fe04d28be0bf42a1d8a8267a8f946d1c98f9d5fa7b7b",
+      "stats": {
+        "startTime": "2026-11-16T00:24:25.736Z",
+        "duration": 12271.567000000001,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "status": "passed",
+          "durationMs": 4086,
+          "errors": []
+        },
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "status": "passed",
+          "durationMs": 2588,
+          "errors": []
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-green-01/artifacts/agents-workspace-first-age-596b1-arent-conversations-at-1440/trace.zip",
+          "sha256": "c7ee983cbf8317a79ea01bf505428a863802f6f414d2d3a888a4b42ad6ffe3fc",
+          "requests": 106,
+          "nonApiRequests": 73,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 1132.4,
+              "durationMs": 9.3,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 1276.2,
+              "durationMs": 1007.1,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 2286.8,
+              "durationMs": 8.3,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 2294.1,
+              "durationMs": 9.6,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 3269.9,
+              "durationMs": -1,
+              "status": -1
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 157.7,
+              "expression": "to.be.visible",
+              "selector": "internal:role=status >> internal:has-text=\"Loading agents\"i",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2239.0,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .agents-project-header >> nth=0",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2250.5,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .agents-transcript >> nth=0",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2258.4,
+              "expression": "to.be.visible",
+              "selector": ".loading-agents .loading-composer >> nth=0",
+              "timeoutMs": 5000
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-green-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip",
+          "sha256": "3b947eba433b5f3c8d829acd12af2d2f49be7ad5dcc126d0fa24437574dd3644",
+          "requests": 104,
+          "nonApiRequests": 73,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 398.7,
+              "durationMs": 5.0,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 483.7,
+              "durationMs": 11.9,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 491.3,
+              "durationMs": 4.7,
+              "status": 200
+            },
+            {
+              "path": "/api/agents",
+              "startMs": 495.9,
+              "durationMs": 8.9,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 1880.9,
+              "durationMs": 20.1,
+              "status": 503
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 2132.9,
+              "durationMs": 10.5,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 1879.9,
+              "expression": "to.be.visible",
+              "selector": "internal:role=button[name=\"Retry send to parent-00\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2131.3,
+              "expression": "to.have.value",
+              "selector": "internal:role=textbox[name=\"Message to parent-00\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2159.9,
+              "expression": "to.have.count",
+              "selector": "internal:role=button[name=\"Retry send to parent-00\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-artifact-green-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-01.json",
+      "recordedExitCode": 1,
+      "termination": "NONE",
+      "logDigest": "87cedb1d6906b804e4e7f1690d186d0b08aa0a1d3ee64ed89c69b8ce2fb74485",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-01/results.json",
+      "resultsSha256": "3387123ec1d4cb4f5c11d1fde7f6ec0a5cad73e236f280e659ac0211e202a891",
+      "stats": {
+        "startTime": "2026-11-16T00:27:15.068Z",
+        "duration": 9784.855000000001,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "status": "failed",
+          "durationMs": 5969,
+          "errors": [
+            {
+              "location": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                "column": 28,
+                "line": 32
+              },
+              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n\n  30 |     await page.goto('/');\n  31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 32 |     await expect(selected).toBeChecked();\n     |                            ^\n  33 |     await selected.click();\n  34 |     await expect.poll(() => saves.length).toBe(1);\n  35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:32:28"
+            }
+          ]
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-01/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+          "sha256": "0ea379fe214d60e481ac01685ca7de9b5c5522b82454c5a88345a423b62d8c82",
+          "requests": 308,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 4135.3,
+              "durationMs": 14.1,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 4462.7,
+              "durationMs": 6.8,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 4637.7,
+              "durationMs": 18.6,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 4652.8,
+              "durationMs": 21.9,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 4878.6,
+              "durationMs": 8.2,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 265.4,
+              "expression": "to.be.checked",
+              "selector": "internal:role=checkbox[name=\"Select row 1\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": [],
+      "qualification": "Fixture source edited while this attempt ran; retained as an overlapping attempt, not a stable-source comparison."
+    },
+    "c2-browser-artifact-green-02": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-02.json",
+      "recordedExitCode": 1,
+      "termination": "NONE",
+      "logDigest": "e07df75407359c3c083adc52073639d5c3ce16d0e0a399456920d132faac844b",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/results.json",
+      "resultsSha256": "122853e3e13e6329ba903dabdc1e6482ec4c6e6a03230f4c2175e6fe32f9c028",
+      "stats": {
+        "startTime": "2026-11-16T00:28:01.761Z",
+        "duration": 9843.499,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "status": "failed",
+          "durationMs": 5724,
+          "errors": [
+            {
+              "location": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                "column": 28,
+                "line": 33
+              },
+              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n\n  31 |     await page.goto('/');\n  32 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 33 |     await expect(selected).toBeChecked();\n     |                            ^\n  34 |     await selected.click();\n  35 |     await expect.poll(() => saves.length).toBe(1);\n  36 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:33:28"
+            }
+          ]
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+          "sha256": "1a223cf2e04c15c1aa8fcdcd1542daa2beadc1cfca23d1291ad08db96871c0d7",
+          "requests": 305,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 4885.4,
+              "durationMs": 16.1,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 5060.4,
+              "durationMs": 6.3,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 5183.2,
+              "durationMs": 10.6,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 5183.5,
+              "durationMs": 11.0,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 5326.6,
+              "durationMs": -1,
+              "status": -1
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 227.5,
+              "expression": "to.be.checked",
+              "selector": "internal:role=checkbox[name=\"Select row 1\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-artifact-green-03": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-03.json",
+      "recordedExitCode": 0,
+      "termination": "NONE",
+      "logDigest": "60909b0d88fb042c204600e45100868e51cf85abff083e26b8f42be19609f132",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-03/results.json",
+      "resultsSha256": "722298738a597a8cc439d5a0f59656299d8bb380393501dd885df11b388892d1",
+      "stats": {
+        "startTime": "2026-11-16T00:30:57.640Z",
+        "duration": 12693.278,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "status": "passed",
+          "durationMs": 8012,
+          "errors": []
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-03/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+          "sha256": "a679f000112dba362316890bd2fe9d27fbb4683d35a81a575eb5860d96baebcb",
+          "requests": 327,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 4314.1,
+              "durationMs": 15.1,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 4491.8,
+              "durationMs": 6.0,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 4630.7,
+              "durationMs": 9.7,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 4630.8,
+              "durationMs": 10.2,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 4765.5,
+              "durationMs": 10.4,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 5668.8,
+              "durationMs": 20.7,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6167.7,
+              "durationMs": 6.4,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6611.6,
+              "durationMs": 17.4,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6638.9,
+              "durationMs": 6.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6639.0,
+              "durationMs": 6.4,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6174.9,
+              "durationMs": 533.5,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6710.4,
+              "durationMs": 4.0,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6714.6,
+              "durationMs": 3.8,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6746.8,
+              "durationMs": 5.6,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6751.3,
+              "durationMs": 4.6,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6820.7,
+              "durationMs": 5.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6820.8,
+              "durationMs": 5.3,
+              "status": 200
+            },
+            {
+              "path": "/api/commands",
+              "startMs": 6758.9,
+              "durationMs": 153.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6917.9,
+              "durationMs": 11.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6918.1,
+              "durationMs": 7.5,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6918.1,
+              "durationMs": 7.4,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6980.7,
+              "durationMs": 12.1,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 6981.0,
+              "durationMs": 12.1,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "waitForSelector",
+              "startMs": 223.0,
+              "expression": null,
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=table[name=\"Review records\"s]",
+              "timeoutMs": 0
+            },
+            {
+              "method": "expect",
+              "startMs": 5545.1,
+              "expression": "to.be.checked",
+              "selector": "internal:role=checkbox[name=\"Select row 1\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 6622.6,
+              "expression": "to.be.checked",
+              "selector": "internal:role=checkbox[name=\"Select row 1\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 6644.0,
+              "expression": "to.be.visible",
+              "selector": "internal:text=\"Earlier projection received\"s",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    },
+    "c2-browser-agents-full-green-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-01.json",
+      "recordedExitCode": 1,
+      "termination": "NONE",
+      "logDigest": "5b21f77e55d4ce8cad5d34087e79da4ebe96ce76bdb36794e2405c8ea6416b11",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/results.json",
+      "resultsSha256": "4da51c5e1f0280e6b5a640b84cb1ea320375437d7ca99c596c334205f4f08a18",
+      "stats": {
+        "startTime": "2026-11-16T00:31:36.253Z",
+        "duration": 54592.066,
+        "expected": 21,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "populated grid evidence at 1440 (after)",
+          "status": "passed",
+          "durationMs": 3875,
+          "errors": []
+        },
+        {
+          "title": "populated grid evidence at 768 (after)",
+          "status": "passed",
+          "durationMs": 1094,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "status": "passed",
+          "durationMs": 3026,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1024",
+          "status": "passed",
+          "durationMs": 2545,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 768",
+          "status": "passed",
+          "durationMs": 2877,
+          "errors": []
+        },
+        {
+          "title": "missing history remains reachable after offscreen bursts without moving the message being read",
+          "status": "passed",
+          "durationMs": 3974,
+          "errors": []
+        },
+        {
+          "title": "a slower evidence request cannot replace the latest selected child",
+          "status": "passed",
+          "durationMs": 1364,
+          "errors": []
+        },
+        {
+          "title": "project rows expose working parent and nested child transcripts before any details click",
+          "status": "passed",
+          "durationMs": 1422,
+          "errors": []
+        },
+        {
+          "title": "all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization",
+          "status": "passed",
+          "durationMs": 1525,
+          "errors": []
+        },
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "status": "passed",
+          "durationMs": 1283,
+          "errors": []
+        },
+        {
+          "title": "filtered children retain their completed owning parent and local reading state",
+          "status": "passed",
+          "durationMs": 2471,
+          "errors": []
+        },
+        {
+          "title": "the actual App candidate opens and restores compact routing without mounting snapshot bootstrap",
+          "status": "failed",
+          "durationMs": 5145,
+          "errors": [
+            {
+              "location": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts",
+                "column": 2,
+                "line": 181
+              },
+              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  179 | test('the actual App candidate opens and restores compact routing without mounting snapshot bootstrap', async ({page}) => {\n  180 |  const h = await setup(page, true);\n> 181 |  await expect.poll(() => h.requests.some(path => path.startsWith('/api/agents?'))).toBe(true);\n      |  ^\n  182 |  expect(h.requests.some(path => path.startsWith('/api/snapshot') || path.startsWith('/api/events'))).toBe(false);\n  183 |  await expect(page.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');\n  184 |  await page.reload(); await expect(page.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:181:2"
+            }
+          ]
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "status": "passed",
+          "durationMs": 3822,
+          "errors": []
+        },
+        {
+          "title": "agent task progress exposes its name and unknown share to assistive technology",
+          "status": "passed",
+          "durationMs": 1600,
+          "errors": []
+        },
+        {
+          "title": "output while reading earlier retains position and exposes an explicit new-output action",
+          "status": "passed",
+          "durationMs": 3408,
+          "errors": []
+        },
+        {
+          "title": "readable geometry dark 1440x900 at 1",
+          "status": "passed",
+          "durationMs": 1437,
+          "errors": []
+        },
+        {
+          "title": "readable geometry light 1024x768 at 1.25",
+          "status": "passed",
+          "durationMs": 1219,
+          "errors": []
+        },
+        {
+          "title": "readable geometry dark 640x520 at 1.5",
+          "status": "passed",
+          "durationMs": 774,
+          "errors": []
+        },
+        {
+          "title": "readable geometry light 390x700 at 1",
+          "status": "passed",
+          "durationMs": 814,
+          "errors": []
+        },
+        {
+          "title": "a child input acknowledgement preserves a newer draft",
+          "status": "passed",
+          "durationMs": 1678,
+          "errors": []
+        },
+        {
+          "title": "a message board post acknowledgement preserves edits for the next post",
+          "status": "passed",
+          "durationMs": 2077,
+          "errors": []
+        },
+        {
+          "title": "keyboard entry into a virtual agent keeps focus on that card",
+          "status": "passed",
+          "durationMs": 1825,
+          "errors": []
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts/agents-workspace-the-actua-f2eb4-mounting-snapshot-bootstrap/trace.zip",
+          "sha256": "199f841b3c30b7e27b80caaff6aad4b43ab51484afdddf665ecbfdf0348fd23c",
+          "requests": 210,
+          "nonApiRequests": 210,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [],
+          "firstActions": []
+        }
+      ],
+      "screenshots": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+          "sha256": "2f0f32a11f790a06ed6af43873c39c31dca2d7819467023ac50772bf05e0e966"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+          "sha256": "a649975ea7d40cf28afec3e7bd1e9abc3aa9a1c9d91f86a4091ac8f83d35b74a"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+          "sha256": "7080a5f68a0bb8d0bd8e15643a7758c1568995606ab647b481f5a2c1e8e663cb"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-01/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+          "sha256": "e257e06c03fcf00f66991644a11138e13d4bc67f18305614029aba6fb6509597"
+        }
+      ]
+    },
+    "c2-browser-agents-full-green-02": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-02.json",
+      "recordedExitCode": 0,
+      "termination": "NONE",
+      "logDigest": "650fa935ac8c1edfd98b869e754128399db58c459ea4c828c7f21c7139365b4d",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/results.json",
+      "resultsSha256": "334b16c890279da9d762479a18b4559b41d1bec869d55947ab201ea7991079ef",
+      "stats": {
+        "startTime": "2026-11-16T00:33:42.536Z",
+        "duration": 58338.852999999996,
+        "expected": 22,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "populated grid evidence at 1440 (after)",
+          "status": "passed",
+          "durationMs": 10227,
+          "errors": []
+        },
+        {
+          "title": "populated grid evidence at 768 (after)",
+          "status": "passed",
+          "durationMs": 1536,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "status": "passed",
+          "durationMs": 2656,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1024",
+          "status": "passed",
+          "durationMs": 2462,
+          "errors": []
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 768",
+          "status": "passed",
+          "durationMs": 2081,
+          "errors": []
+        },
+        {
+          "title": "missing history remains reachable after offscreen bursts without moving the message being read",
+          "status": "passed",
+          "durationMs": 3127,
+          "errors": []
+        },
+        {
+          "title": "a slower evidence request cannot replace the latest selected child",
+          "status": "passed",
+          "durationMs": 1425,
+          "errors": []
+        },
+        {
+          "title": "project rows expose working parent and nested child transcripts before any details click",
+          "status": "passed",
+          "durationMs": 1582,
+          "errors": []
+        },
+        {
+          "title": "all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization",
+          "status": "passed",
+          "durationMs": 1596,
+          "errors": []
+        },
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "status": "passed",
+          "durationMs": 1172,
+          "errors": []
+        },
+        {
+          "title": "filtered children retain their completed owning parent and local reading state",
+          "status": "passed",
+          "durationMs": 1868,
+          "errors": []
+        },
+        {
+          "title": "the actual App candidate opens and restores compact routing without mounting snapshot bootstrap",
+          "status": "passed",
+          "durationMs": 5803,
+          "errors": []
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "status": "passed",
+          "durationMs": 4112,
+          "errors": []
+        },
+        {
+          "title": "agent task progress exposes its name and unknown share to assistive technology",
+          "status": "passed",
+          "durationMs": 1442,
+          "errors": []
+        },
+        {
+          "title": "output while reading earlier retains position and exposes an explicit new-output action",
+          "status": "passed",
+          "durationMs": 3919,
+          "errors": []
+        },
+        {
+          "title": "readable geometry dark 1440x900 at 1",
+          "status": "passed",
+          "durationMs": 1167,
+          "errors": []
+        },
+        {
+          "title": "readable geometry light 1024x768 at 1.25",
+          "status": "passed",
+          "durationMs": 1312,
+          "errors": []
+        },
+        {
+          "title": "readable geometry dark 640x520 at 1.5",
+          "status": "passed",
+          "durationMs": 638,
+          "errors": []
+        },
+        {
+          "title": "readable geometry light 390x700 at 1",
+          "status": "passed",
+          "durationMs": 781,
+          "errors": []
+        },
+        {
+          "title": "a child input acknowledgement preserves a newer draft",
+          "status": "passed",
+          "durationMs": 1576,
+          "errors": []
+        },
+        {
+          "title": "a message board post acknowledgement preserves edits for the next post",
+          "status": "passed",
+          "durationMs": 1879,
+          "errors": []
+        },
+        {
+          "title": "keyboard entry into a virtual agent keeps focus on that card",
+          "status": "passed",
+          "durationMs": 1059,
+          "errors": []
+        }
+      ],
+      "traces": [],
+      "screenshots": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts/agents-workspace-readable-geometry-dark-640x520-at-1-5/agents-dark-640-1.5.png",
+          "sha256": "2f0f32a11f790a06ed6af43873c39c31dca2d7819467023ac50772bf05e0e966"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts/agents-workspace-readable-geometry-light-1024x768-at-1-25/agents-light-1024-1.25.png",
+          "sha256": "a649975ea7d40cf28afec3e7bd1e9abc3aa9a1c9d91f86a4091ac8f83d35b74a"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts/agents-workspace-readable-geometry-light-390x700-at-1/agents-light-390-1.png",
+          "sha256": "7080a5f68a0bb8d0bd8e15643a7758c1568995606ab647b481f5a2c1e8e663cb"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-agents-full-green-02/artifacts/agents-workspace-readable-geometry-dark-1440x900-at-1/agents-dark-1440-1.png",
+          "sha256": "30847d6f12049506575acf5146079c338fdab92e9811272d093b4820466de8a0"
+        }
+      ]
+    },
+    "c2-browser-chat-view-green-01": {
+      "receipt": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-01.json",
+      "recordedExitCode": 0,
+      "termination": "NONE",
+      "logDigest": "ef609b4dcc4e7cc279be830b4eb0b8c48f78345d151869dd9feabd4be701fc82",
+      "results": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/results.json",
+      "resultsSha256": "8c14ab5e99451306d331c0ec340100d706ffa48f2413e44cf6ab00c28dc11942",
+      "stats": {
+        "startTime": "2026-11-16T00:35:02.600Z",
+        "duration": 21942.061,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "title": "active drag Escape cancels before an open tooltip and then releases keyboard ownership",
+          "status": "passed",
+          "durationMs": 2557,
+          "errors": []
+        },
+        {
+          "title": "active drag ignores Escape with IME composition flag",
+          "status": "passed",
+          "durationMs": 1836,
+          "errors": []
+        },
+        {
+          "title": "active drag ignores Escape with IME legacy key 229",
+          "status": "passed",
+          "durationMs": 1704,
+          "errors": []
+        },
+        {
+          "title": "the conversation lives in the split plane with its messages, composer and attachments",
+          "status": "passed",
+          "durationMs": 5351,
+          "errors": []
+        },
+        {
+          "title": "draft, selection and reading position survive the workspace panel opening",
+          "status": "passed",
+          "durationMs": 2767,
+          "errors": []
+        },
+        {
+          "title": "reduced motion settles instantly and keyboard focus stays in the composer",
+          "status": "passed",
+          "durationMs": 2754,
+          "errors": []
+        }
+      ],
+      "traces": [
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-modes-draft-sele-52a61-the-workspace-panel-opening/trace.zip",
+          "sha256": "bf2bee9604911539bdfcbf644660a75a9a538af15001adc7781e06082374534c",
+          "requests": 309,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 808.2,
+              "durationMs": 5.3,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 971.6,
+              "durationMs": 4.2,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 1063.8,
+              "durationMs": 6.9,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 1064.0,
+              "durationMs": 6.9,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 1151.9,
+              "durationMs": 8.8,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 150.4,
+              "expression": "to.be.enabled",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2511.8,
+              "expression": "to.be.visible",
+              "selector": "internal:role=complementary[name=\"Workspace panel\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2540.6,
+              "expression": "to.have.value",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-modes-reduced-mo-79713-focus-stays-in-the-composer/trace.zip",
+          "sha256": "b58e2a2807a37563e44f34e4234ea0fe52c26db0c837ea8795a092b307416c76",
+          "requests": 309,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 1097.5,
+              "durationMs": 6.8,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 1328.3,
+              "durationMs": 7.4,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 1447.7,
+              "durationMs": 9.1,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 1447.9,
+              "durationMs": 9.0,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 1572.7,
+              "durationMs": 5.8,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 278.2,
+              "expression": "to.be.enabled",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 2488.4,
+              "expression": "to.be.focused",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 2503.4,
+              "expression": null,
+              "selector": "[data-split-view=\"thread:task-thread\"]",
+              "timeoutMs": 0
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-escape-active-dr-67b8e-ape-with-IME-legacy-key-229/trace.zip",
+          "sha256": "fb8d616fd130ebffd74143fbf4b79b9ee6281f56e8090db926e0b94fe09a3eee",
+          "requests": 26,
+          "nonApiRequests": 26,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 50.5,
+              "expression": "to.be.enabled",
+              "selector": "internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 862.2,
+              "expression": "to.have.attribute.value",
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 872.3,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 1017.3,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-escape-active-dr-f3486-e-with-IME-composition-flag/trace.zip",
+          "sha256": "41c0c7f3cb014bc37094492cdfae441ec9f23cc7c14816f9fc5dd588da81d478",
+          "requests": 26,
+          "nonApiRequests": 26,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 86.1,
+              "expression": "to.be.enabled",
+              "selector": "internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 851.0,
+              "expression": "to.have.attribute.value",
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 857.1,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 998.3,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-escape-active-dr-5ef24-releases-keyboard-ownership/trace.zip",
+          "sha256": "7bd81fb5662b78cd9f955a947dfc20694394652023862a6f940fb100ae9d188e",
+          "requests": 26,
+          "nonApiRequests": 26,
+          "appModuleRequested": false,
+          "sourceWorkbenchRequested": false,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 111.0,
+              "expression": "to.be.enabled",
+              "selector": "internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 922.5,
+              "expression": "to.have.attribute.value",
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 936.4,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            },
+            {
+              "method": "waitForSelector",
+              "startMs": 1113.9,
+              "expression": null,
+              "selector": "internal:role=main[name=\"Chat\"s]",
+              "timeoutMs": 0
+            }
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-01/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/trace.zip",
+          "sha256": "3a51a1a8d5d82d1d155770bd06025fbfb9ab9d10ad07b7dceb4df7b619ee993c",
+          "requests": 309,
+          "nonApiRequests": 295,
+          "appModuleRequested": true,
+          "sourceWorkbenchRequested": true,
+          "optionalWorkbenchModulesRequested": [],
+          "timings": [
+            {
+              "path": "/api/bootstrap",
+              "startMs": 3689.4,
+              "durationMs": 5.0,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 3840.1,
+              "durationMs": 5.0,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace/profiles",
+              "startMs": 3944.5,
+              "durationMs": 6.4,
+              "status": 200
+            },
+            {
+              "path": "/api/split-workspace",
+              "startMs": 3947.4,
+              "durationMs": 9.5,
+              "status": 200
+            },
+            {
+              "path": "/api/snapshot",
+              "startMs": 4093.4,
+              "durationMs": 14.2,
+              "status": 200
+            }
+          ],
+          "firstActions": [
+            {
+              "method": "expect",
+              "startMs": 149.2,
+              "expression": "to.be.enabled",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5129.0,
+              "expression": "to.be.visible",
+              "selector": ".split-workspace",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5139.5,
+              "expression": "to.be.visible",
+              "selector": "[data-split-view=\"thread:task-thread\"] >> internal:text=\"Help me keep this conversation close while I work.\"i",
+              "timeoutMs": 5000
+            },
+            {
+              "method": "expect",
+              "startMs": 5152.1,
+              "expression": "to.have.text",
+              "selector": "internal:role=group[name=\"Attachments\"s]",
+              "timeoutMs": 5000
+            }
+          ]
+        }
+      ],
+      "screenshots": []
+    }
+  },
+  "limitations": [
+    "Chromium execution does not establish Edge, Windows, or installed-desktop coverage.",
+    "Explicit startup readiness gates separate cold Vite/module mounting from the existing behavioral assertions. No five-second whole-App startup guarantee is claimed.",
+    "The unchanged merged agents reproduction passed. The old child follow-up receipt correction was inherited from main, not introduced by this repair.",
+    "The artifact-green-01 attempt overlapped fixture edits and is retained without causal attribution.",
+    "Broader repository typecheck, builds, unit tests, saved-drafts validation and Windows workflow execution are coordinated by the parent task."
+  ],
+  "finalSourceSha256": {
+    "apps/web/src/App.tsx": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
+    "apps/web/src/SourceWorkbench.tsx": "16595a6ab717aa4b0a25aa882b4b63c95e337487ec54a564ebc1aa753e7c608f",
+    "apps/web/src/WorkbenchPanelContent.tsx": "e8d036e293d419aa1cbb0adcca8bc0dd885ca480f9d9a88ff26719540f59f79d",
+    "apps/web/src/WorkActivity.tsx": "3a6118709384c3195f9bb25b259ce46d7b670efe2cdbd8326913f633ad2939d2",
+    "apps/web/src/WorkbenchActivity.tsx": "20f9477187b2d18a6652caa3e597d1782f16acfd871963dbf894e68499679771",
+    "tests/e2e/agents-workspace-fixture.tsx": "0a855f6b6b97872b59d887fb95c82462b55f46818c4c69ff76889d30237333b9",
+    "tests/e2e/agents-workspace.spec.ts": "6830ddb564618900c57602bed55073fb02a181f0e173a6ff13bfd365cd069a46",
+    "tests/e2e/agents-workspace.playwright.config.ts": "453ff85fad5de0274f30d3b6d07cde97e2ea9d14d71d88cc2a4310169e99eeac",
+    "tests/e2e/artifact-acknowledgment.spec.ts": "7c14485373574da7c2fd39de062902ad955f83fc1b8c87cc12da6284c787433c",
+    "tests/e2e/task-interface-fixture.ts": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d",
+    "tests/e2e/chat-view-escape-fixture.tsx": "d0eeedf82f93825d5eae1f23e6227889f8ad46262c4a56638cf4ea9aff074cb2",
+    "tests/e2e/chat-view-escape.spec.ts": "c5f23bdbb70a96a444e6621a1557692306b8f988306ffb291058cb56cf003b35",
+    "tests/e2e/chat-view-modes.spec.ts": "fd2eba2ec4afadf42c82c35dc54e6910fcaf135bfa88f8b241f6a8294f593fa1",
+    "tests/e2e/chat-view-modes.playwright.config.ts": "f8265e93fe341253ccf01c5f17832bfcbb85c0b4d6811b439924290fb98f5cf0",
+    "tests/e2e/saved-drafts.playwright.config.ts": "97be79757a18a8e6c657e820ecbb5abe250646cab70c255956e4e965b02149ac"
+  },
+  "canonicalChatSpecBlob": "2aab5d30fb70e73eab431239a26b24ec14122520"
+}

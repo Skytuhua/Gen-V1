@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "tsx",
+      "diagnostics/native-save/run.ts",
+      "policy"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T23:18:18Z",
+    "endedAt": "2026-11-15T23:19:07Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/native-save-diagnostic-43773970252-a1-j132995881391-s4-policy.log",
+    "logDigest": "5941121e1e48a6649ec17fe91ea960db2a0894c77b735251143ee49218fbae3d"
+  },
+  "runId": 43773970252,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "93af723f1da00ec8690421e11c3f9887d20600a1",
+  "testedCheckout": {
+    "commitSha": "93af723f1da00ec8690421e11c3f9887d20600a1",
+    "treeSha": "3549f462026baba2b1f5e43a9d04e420ea5d8685",
+    "parents": [
+      "e371b5e5c5636dd5ad75bea45710e01f04355737"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits/93af723f1da00ec8690421e11c3f9887d20600a1",
+    "rawResponseSha256": "369917f356620fb7a1471d83ce788bcd24be989807fd896e9bc200f676081584"
+  },
+  "job": {
+    "id": 132995881391,
+    "name": "Native Save diagnostic (policy)",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43773970252/job/132995881391",
+    "status": "completed",
+    "conclusion": "failure",
+    "runner": {
+      "id": 1000001746,
+      "name": "GitHub Actions 1000001746",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Run the actual native Save lane",
+    "status": "completed",
+    "conclusion": "failure",
+    "number": 4,
+    "started_at": "2026-11-15T23:18:18Z",
+    "completed_at": "2026-11-15T23:19:07Z"
+  },
+  "receiptRef": "docs/implementation/v3/M05-native-save-diagnostic-43773970252.json",
+  "rawJobLogRef": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132995881391/logs",
+  "rawJobLogDigest": "496f9b1ba7ad35a4b2d71b351fefe0ca3d0fe2d4bdba9c5330ff1b9e4eb436d1",
+  "rawJobLogBytes": 156594,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained in scratch and agent memory. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      337,
+      355
+    ]
+  ],
+  "excerptInputSha256": "c97745049ad70ef00f1ec529149736c934a11183040c32f826764f8433fca180",
+  "excerptInputBytes": 121512,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF",
+    "BOUNDED_WITH_EXPLICIT_MIDDLE_OMISSION"
+  ],
+  "boundedBytes": 65536,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "Timestamps are jobs-API execution-step bounds. A separate native process or dialog duration is not inferred from them.",
+  "exitBasis": "The exact selected command group reports Process completed with exit code 1 and the corresponding jobs-API step concludes failure.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked pnpm command name; no resolved launcher executable path is claimed.",
+  "cwdBasis": "Observed checkout working directory; the selected script contains no directory change.",
+  "observedScript": "pnpm exec tsx diagnostics/native-save/run.ts policy",
+  "interpretation": {
+    "kind": "Exact parent AutomationId admission passed. Both lanes actually failed after Save invocation and dialog closure: destination metadata retained the default basename in another parent, and the policy lane's fixed target read returned ENOENT. No target-released phase or fixed-byte PASS was observed.",
+    "expectedNegativeRelabelledAsPass": false,
+    "nativeSaveDispatched": true,
+    "nativeResult": "running",
+    "scope": "Exact production memory export policy and reviewed native Save helper with a synthetic loopback fixture; not installed retention proof."
+  },
+  "receiptSha256": "8e3bd1933f05944f57a9dd037d10f976229afd7852c4e3863cf5e42277e7a442"
+}

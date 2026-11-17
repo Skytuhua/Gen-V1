@@ -11,9 +11,9 @@ describe('chat layout geometry',()=>{
    expect(rect.x+rect.width).toBe(width-20);expect(rect.width).toBeGreaterThanOrEqual(320);expect(rect.y).toBeGreaterThanOrEqual(20);expect(rect.y+rect.height).toBeLessThanOrEqual(880);
   }
  });
- it('defaults to a third-width drawer and a bottom-right 350×500 pop-up',()=>{
+ it('defaults to a third-width drawer and a bottom-right 400×760 pop-up',()=>{
   expect(chatPanelRect({mode:'drawer',detached:false},viewport)).toEqual({x:940,y:20,width:480,height:860});
-  expect(chatPanelRect({mode:'popup',detached:true},viewport)).toEqual({x:1070,y:380,width:350,height:500});
+  expect(chatPanelRect({mode:'popup',detached:true},viewport)).toEqual({x:1020,y:120,width:400,height:760});
  });
  it('keeps a resized docked drawer at the current right edge when the viewport grows',()=>{
   const layout:ChatLayout={mode:'drawer',detached:false,drawer:{x:580,y:60,width:424,height:720}};

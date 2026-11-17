@@ -1,0 +1,31 @@
+{
+  "kind": "M15_C4_REGRESSION_DRAFT02_SEAL",
+  "scope": "Additive historical reconciliation through final02 completed browser attempt; no active source edits or new test runs. Draft01 unchanged.",
+  "createdAt": "2026-11-16T05:56:41.556978+00:00",
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-02/M15-c4-regression-review.md",
+      "sha256": "4e2b28ededf9070bc567395c2090ce0d67e3fd2c0ce1302590715286f63bff4d",
+      "bytes": 46374
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-02/M15-c4-regression-review.evidence.json",
+      "sha256": "bb416c58152c104c58e3f38f57df6686eb133ef650bef050e72d91757b77d213",
+      "bytes": 717864
+    }
+  ],
+  "priorDraftUnchanged": {
+    "M15-c4-regression-review.md": "aabad3fe68c07e20287fceb7c573e9364ff21806e27add57597e664cbf91e954",
+    "M15-c4-regression-review.evidence.json": "80a53c2aaef4fe4c133171b1581680b276f50be8036e0054b53052d030a0fa86",
+    "seal.json": "be93dadddbc8d99ac8c692a4f154304d7bb128d9fafef0f7337d7df432a1536b"
+  },
+  "runRecords": 37,
+  "sourceCuts": 13,
+  "repositoryRelativeLinksChecked": 90,
+  "missingLinks": [],
+  "wordCount": 5641,
+  "currentCutOutcome": "App FAIL22/4; desktop FAIL26/5; renderer PASS21; host PASS404 with2Windows skips; type/build/policy PASS; later repair pending.",
+  "reviewedBeforeDeliveryAt": "2026-11-16T05:58:16.836960+00:00",
+  "immutableReceiptLogResultAndCutHashesRechecked": 116,
+  "markdownTableContinuationChecked": true
+}

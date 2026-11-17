@@ -1,0 +1,29 @@
+{
+  "kind": "M15_C4_REGRESSION_DRAFT03_SEAL",
+  "scope": "Additive reconciliation through final03 completed local validation; prior drafts and raw failures unchanged. No source edits or test reruns are performed by this ledger.",
+  "createdAt": "2026-11-16T06:11:05.857290+00:00",
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-03/M15-c4-regression-review.md",
+      "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716",
+      "bytes": 53088
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-03/M15-c4-regression-review.evidence.json",
+      "sha256": "c28160e3913a04f5a56fbb5915a469659ecf128e4fdcb545491b2c2ad4a3d670",
+      "bytes": 992923
+    }
+  ],
+  "priorDraft02Unchanged": {
+    "M15-c4-regression-review.md": "4e2b28ededf9070bc567395c2090ce0d67e3fd2c0ce1302590715286f63bff4d",
+    "M15-c4-regression-review.evidence.json": "bb416c58152c104c58e3f38f57df6686eb133ef650bef050e72d91757b77d213",
+    "seal.json": "72330fd565eadedfb84f99dec2202420f4935329cc02f92307a3ae7f5d41e622"
+  },
+  "runRecords": 47,
+  "sourceCuts": 16,
+  "repositoryRelativeLinksChecked": 117,
+  "missingLinks": [],
+  "immutableReceiptLogResultAndCutHashesRechecked": 146,
+  "wordCount": 6336,
+  "outcome": "Final03 App26, desktop31, renderer21 all PASS; host410 PASS with2Windows skips; type/build/policy PASS; target-platform/full-aggregate and publication gates separate."
+}

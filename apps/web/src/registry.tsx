@@ -1,6 +1,6 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, createContext, lazy, Suspense, useContext, useRef, useState, type ReactNode } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useId, useRef, useState, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
@@ -33,7 +33,7 @@ import { Table } from './TaskTable';
 import { MapView } from './MapView';
 import { TaskHistory } from './TaskHistory';
 import { tabStateData } from '../../../packages/ui-catalog/workflow';
-import { StatusIcon } from './task-status';
+import { StatusIcon, operationStatusKind, type StatusKind } from './task-status';
 import { Select as ShellSelect } from '../../../packages/ui-shell/Select';
 const string = (value: unknown, fallback = '') => typeof value === 'string' ? value : fallback;
 const list = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
@@ -157,7 +157,8 @@ function Code({ element: { props } }: ComponentRenderProps) { const data = useDa
 function Diff({ element: { props } }: ComponentRenderProps) { const data = useData(props); const pair = data && typeof data === 'object' ? obj(data) : props; const code = typeof data === 'string' ? data : typeof pair.before === 'string' || typeof pair.after === 'string' ? [...string(pair.before).split('\n').map(line => `- ${line}`), ...string(pair.after).split('\n').map(line => `+ ${line}`)].join('\n') : string(props.diff, string(props.content)); return <pre className="diff">{code.split('\n').map((line, i) => <div key={i} className={line.startsWith('+') ? 'added' : line.startsWith('-') ? 'removed' : ''}>{line || ' '}</div>)}</pre>; }
 function Document({ element: { props }, children }: ComponentRenderProps) { const data = useData(props); const text=typeof props.text==='string'?props.text:typeof data==='string'?data:undefined;const path = typeof props.resourcePath === 'string' ? '?' + new URLSearchParams({ path: props.resourcePath }) : '';if(props.presentation==='window')return <WindowDocument props={props} text={text}/>; return <section className={`document${props.download ? ' document-download' : ''}`}><div className="document-heading"><FileText size={16} />{string(props.title, 'Document')}</div>{props.text || props.content || typeof data === 'string' ? <Markdown text={string(props.text, string(props.content, string(data)))} /> : null}{children}{typeof props.resourceId === 'string' && <a href={`/api/resources/${encodeURIComponent(props.resourceId)}/content${path}`} download={props.download === true || undefined} target={props.download ? undefined : '_blank'} rel="noreferrer">{string(props.linkLabel, props.download ? 'Download PDF' : 'Open granted document')}<ExternalLink size={12} /></a>}</section>; }
 function Progress({ element: { props } }: ComponentRenderProps) { const source = useData(props); const value = Number(source ?? props.value); const max = Number(props.max) || 100; return <div className="surface-progress"><div>{string(props.label)}{Number.isFinite(value) && <span>{value} / {max}</span>}</div><progress aria-label={string(props.label, 'Progress')} value={Number.isFinite(value) ? value : undefined} max={max} /></div>; }
-function Timeline({ element: { props } }: ComponentRenderProps) { const items = list(useData(props) ?? props.items); return <ol className="timeline">{items.map((entry, i) => { const item = obj(entry); return <li key={i}><span className={`timeline-dot tone-${string(item.status)}`} /><div><strong>{string(item.title, string(item.label))}</strong>{item.description ? <p>{string(item.description)}</p> : null}</div><small>{string(item.time, string(item.status))}</small></li>; })}</ol>; }
+const timelineStatusKind:Record<string,StatusKind>={...operationStatusKind,pending:'pending',working:'running',completed:'success',success:'success',error:'error',stopped:'neutral','needs-input':'pending',awaiting_input:'pending'};
+function Timeline({ element: { props } }: ComponentRenderProps) { const items = list(useData(props) ?? props.items); return <ol className="timeline">{items.map((entry, i) => { const item = obj(entry),status=string(item.status),tone=Object.hasOwn(timelineStatusKind,status)?timelineStatusKind[status]:'neutral'; return <li key={i}><span className={`timeline-dot status-${tone}`} /><div><strong>{string(item.title, string(item.label))}</strong>{item.description ? <p>{string(item.description)}</p> : null}</div><small>{string(item.time, string(item.status))}</small></li>; })}</ol>; }
 function Evidence({ element: { props } }: ComponentRenderProps) { const data = useData(props); const href = string(props.href); return <div className="evidence"><Check size={14} /><div>{string(props.label, string(props.title, 'Evidence'))}{props.source ? <small>{string(props.source)}</small> : null}{data !== undefined && <pre>{display(data)}</pre>}</div>{/^https?:\/\//.test(href) && <a aria-label="Open evidence source" href={href} target="_blank" rel="noreferrer"><ExternalLink size={14} /></a>}</div>; }
 function Notice({ element: { props }, children }: ComponentRenderProps) { return <div className={`notice tone-${string(props.tone)}`}><AlertTriangle size={15} /><div>{props.title ? <strong>{string(props.title)}</strong> : null}{props.text ? <p>{string(props.text)}</p> : null}{children}</div></div>; }
 function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) {
@@ -243,6 +244,7 @@ function sameJsonValue(left: unknown, right: unknown): boolean {
   return keys.length === Object.keys(b).length && keys.every(key => Object.hasOwn(b, key) && sameJsonValue(a[key], b[key]));
 }
 function SchemaValue({ schema, label, value, required, onChange }: { schema: Record<string, unknown>; label: string; value: unknown; required: boolean; onChange: (value: unknown) => void }) {
+  const id = useId(), helpId = id + "-help";
   const omittedDraft = useRef<unknown>(undefined);
   if (value !== undefined) omittedDraft.current = value;
   if (Array.isArray(schema.enum)) {
@@ -256,5 +258,7 @@ function SchemaValue({ schema, label, value, required, onChange }: { schema: Rec
   }
   if (schema.type === 'boolean') return <label className="check-field"><input type="checkbox" checked={value === true} onChange={event => onChange(event.target.checked)} />{label}</label>;
   const numeric = schema.type === 'number' || schema.type === 'integer';
-  return <label className="field">{label}<input type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{schema.description ? <small>{string(schema.description)}</small> : null}</label>;
+  const minimum = schema.type === 'string' && typeof schema.minLength === 'number' && Number.isSafeInteger(schema.minLength) && schema.minLength > 0 ? schema.minLength : undefined;
+  const help = [string(schema.description), minimum === undefined ? '' : `Enter at least ${minimum} ${minimum === 1 ? 'character' : 'characters'}.`].filter(Boolean);
+  return <div className="field"><label htmlFor={id}>{label}</label><input id={id} aria-describedby={help.length ? helpId : undefined} type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{help.length ? <small id={helpId} className="muted">{help.join(' ')}</small> : null}</div>;
 }

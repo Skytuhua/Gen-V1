@@ -1,0 +1,133 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - button "Audit the workspace Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: CV
+                - generic [ref=e36]: Personal
+              - time [ref=e38]: 9d
+            - generic [ref=e39]: Audit the workspace
+            - generic [ref=e40]: Ready
+          - button "Options for Audit the workspace" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e47]:
+          - button "Review keyboard navigation Ready" [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: CV
+                - generic [ref=e52]: Personal
+              - time [ref=e54]: 9d
+            - generic [ref=e55]: Review keyboard navigation
+            - generic [ref=e56]: Ready
+          - button "Options for Review keyboard navigation" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+    - generic "App controls" [ref=e63]:
+      - button "Settings" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e68]: Settings
+      - button "Pull requests" [ref=e69] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e74]: PRs
+      - button "Usage" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e78]: Usage
+      - button "Update" [disabled] [ref=e79]:
+        - img [ref=e80]
+        - generic [ref=e83]: Update
+  - separator "Resize sidebar" [ref=e84]
+  - generic [ref=e85]:
+    - generic "Workspace layouts" [ref=e87]:
+      - button "Workspace" [pressed] [ref=e88] [cursor=pointer]
+      - button "All Agents" [ref=e89] [cursor=pointer]
+      - button "Code Review" [ref=e90] [cursor=pointer]
+      - button "Research" [ref=e91] [cursor=pointer]
+      - button "Custom" [ref=e92] [cursor=pointer]
+      - button "Open workspace panel" [ref=e93] [cursor=pointer]:
+        - img [ref=e94]
+      - button "Layouts" [ref=e97] [cursor=pointer]:
+        - img [ref=e98]
+        - text: Layouts
+        - img [ref=e102]
+    - generic [ref=e107]:
+      - generic [ref=e109]:
+        - main "Chat" [ref=e110]:
+          - generic [ref=e111]:
+            - strong [ref=e113]: New conversation
+            - generic [ref=e114]:
+              - button "Find in conversation" [ref=e116] [cursor=pointer]:
+                - img [ref=e117]
+              - generic [ref=e120]:
+                - generic "Switch layout (Ctrl/⌘+Shift+L)" [ref=e121]:
+                  - button "Switch layout" [ref=e122] [cursor=pointer]:
+                    - img [ref=e123]
+                - button "Detach chat" [ref=e125] [cursor=pointer]:
+                  - img [ref=e126]
+          - generic "Conversation" [ref=e134]:
+            - generic [ref=e137]:
+              - img [ref=e139]
+              - heading "What are we working on?" [level=1] [ref=e141]
+              - paragraph [ref=e142]: Start with a question, file, or project.
+          - generic [ref=e146]:
+            - textbox "Message" [ref=e149]:
+              - /placeholder: Ask anything...
+              - text: Concurrent edit
+            - generic [ref=e151]:
+              - group "Project and runtime" [ref=e152]:
+                - button "Saved drafts" [ref=e153] [cursor=pointer]
+                - dialog "Restore saved draft" [ref=e154]:
+                  - generic [ref=e155]:
+                    - heading "Restore saved draft" [level=2] [ref=e156]
+                    - button "Close dialog" [active] [ref=e157] [cursor=pointer]:
+                      - img [ref=e158]
+                  - paragraph [ref=e161]:
+                    - strong [ref=e162]: Named prompt
+                  - generic [ref=e163]: Saved text
+                  - paragraph [ref=e164]: Replace keeps the current text and source identities as a saved draft. Insert adds text at the saved caret. Current attachments, excerpts, skills, source selections and send mode stay selected.
+                  - generic [ref=e165]:
+                    - button "Cancel" [ref=e166] [cursor=pointer]
+                    - button "Insert text" [ref=e167] [cursor=pointer]
+                    - button "Replace text" [ref=e168] [cursor=pointer]
+                  - alert [ref=e169]: The current draft changed in another window. Nothing was replaced. Review and retry.
+                - button "Select project" [ref=e170] [cursor=pointer]:
+                  - img [ref=e171]
+                  - generic [ref=e173]: Select project
+                - generic [ref=e174]: Local
+              - group "Model and voice" [ref=e175]:
+                - combobox "Model" [ref=e176] [cursor=pointer]:
+                  - img [ref=e177]
+                  - generic [ref=e180]: Audit model
+                  - img [ref=e181]
+                - button "Start voice input" [ref=e183] [cursor=pointer]:
+                  - img [ref=e184]
+        - generic:
+          - img
+          - generic: Dock chat
+      - complementary "Conversation summaries" [ref=e189]:
+        - region "Project overview window" [ref=e190]:
+          - button "Expand Project overview" [ref=e192] [cursor=pointer]:
+            - strong [ref=e193]: Project overview
+            - img [ref=e194]
+  - region "Notifications"
+```

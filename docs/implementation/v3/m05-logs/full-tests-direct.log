@@ -1,0 +1,1092 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/skill-invocation.test.ts (36 tests | 36 failed) 507ms
+   × materializes exact entry bytes and captured support without changing prompt or resources 15ms
+   × denies stale support, forged identity, cross-source and private-provider references 3ms
+   × rejects every changed authority dimension before admission 3ms
+   × fences authority changes during catalog awaits and again before commit/runtime/support reads 4ms
+   × honors pre-abort and an abort that wins a catalog await without producing an admission 38ms
+   × denies support-bytes between fresh catalog custody and materialization 46ms
+   × denies entry-bytes between fresh catalog custody and materialization 3ms
+   × denies file-swap between fresh catalog custody and materialization 3ms
+   × denies directory-swap between fresh catalog custody and materialization 2ms
+   × denies hardlink between fresh catalog custody and materialization 3ms
+   × denies junction between fresh catalog custody and materialization 27ms
+   × denies extra-file between fresh catalog custody and materialization 14ms
+   × revalidates the canonical source after capture rather than accepting its earlier index 6ms
+   × restores authenticated exact bytes across host restart without rediscovering changed skills 3ms
+   × rejects command-ID reuse with changed content, model, thinking, reference or authority 5ms
+   × denies replay tampering and key loss instead of falling back to rediscovery 38ms
+   × denies forged admissions, mismatched runtime owners and arbitrary support paths 4ms
+   × reads the exact Harness version/document with no latest-name or ambient projection fallback 3ms
+   × denies a package exceeding files instead of silently truncating it 3ms
+   × denies a package exceeding fileBytes instead of silently truncating it 31ms
+   × denies a package exceeding packageBytes instead of silently truncating it 95ms
+   × rejects malformed payloads rather than accepting browser supplied text, paths or authority grants 110ms
+   × selection preserves every reference field without a body read or admission capability, and bundles for browsers 5ms
+   × denies a changed runtime thinking level even when the model is unchanged 2ms
+   × preserves UTF-8 BOM and original line endings in admitted guidance 2ms
+   × admits all selected references in order, never silently dropping a stale second selection 4ms
+   × bounds Harness entry bytes before materializing an oversized saved document 2ms
+   × captures only a verified installed App package, without activating its host, and rechecks registry revocation 3ms
+   × uses the bundled manifest pin and denies an index replacement between custody and capture 13ms
+   × resolves only the connected canonical project/worktree and denies its root identity changing 4ms
+   × aborts after capture while the final source recheck is in flight 2ms
+   × returns cancellation while an obsolete catalog read is still pending 2ms
+   × replays the same command after an actual Store reopen without another message or current-source read 2ms
+   × precommit authority revalidation leaves message/outbox/capture storage empty on a race 2ms
+   × sanitizes authority-provider failures at precommit without leaking host paths 1ms
+   × accepts the parent raw skills array while taking expected authority only from host options 1ms
+ ❯ tests/path-access.test.ts (0 test)
+ ❯ tests/capabilities.test.ts (24 tests | 13 failed) 1405ms
+     × publishes resource sourced text with an exact content hash 13ms
+     × prepares without writing and rejects absent approval and changed source bytes 2ms
+     × executes approved replacement, publishes actual results and re-resolves write permissions 3ms
+     × rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch 5ms
+     × reconciles before/after replacement hashes read-only and leaves changed bytes unknown 1ms
+     × runs the exact node-test recipe and reports actual success and failure exits 1ms
+     × cancels the actual process tree and records cancellation instead of success 2ms
+     × inspects real rows and applies exact prepared counts with integrity/version checks 2ms
+     × bounds inspect rows by serialized bytes and reports truncation 139ms
+     × rolls back wrong counts, denies attachment and rejects stale database versions 6ms
+     × reports actual migration DML counts independently from schema statements 2ms
+     × inspects fields, fills supported types and places typed/drawn marks in a new local export 29ms
+     × creates fixtures only at an exclusive new destination including real git conflict 128ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 19 failed) 536ms
+   × commits intent before local write and private result before event, then replays after Store restart 80ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 37ms
+   × serializes same-ID attempts across separate Store connections without a double write 22ms
+   × denies reuse of an ID with a changed payload 25ms
+   × denies reuse of an ID with a changed type 27ms
+   × denies reuse of an ID with a changed threadId 23ms
+   × denies reuse of an ID with a changed projectId 21ms
+   × inspects original payload/revision without current diff, review reads, or any write 22ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 24ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 19ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 24ms
+   × records not-applied only after host rejection before starting and never restarts that ID 21ms
+   × keeps failures after started uncertain even when there is no receipt 74ms
+   × keeps completed external write uncertain if durable result commit fails 25ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 18ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 17ms
+   × pins profile access while GitHubTools is awaiting remote validation 17ms
+   × rejects a profile replaced between inspection identity capture and credential read 14ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 19ms
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+ ❯ tests/agent-follow-up.test.ts (0 test)
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+[output bounded; middle omitted]
+ approval flow
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ IntegrationManager.command packages/integrations/index.ts:181:34
+ ❯ tests/integration-mcp.test.ts:121:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/281]⎯
+
+ FAIL  tests/integrations.test.ts > admits exactly the ten bundled integrations without starting their MCP services
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/integrations.test.ts:23:84
+     21|  const {manager}=await setup();try{
+     22|   const statuses=await manager.inventory(local);expect(statuses).toHav…
+     23|   expect(statuses.every(item=>item.installed&&item.enabled&&item.state…
+       |                                                                                    ^
+     24|   expect(statuses.find(item=>item.id==='humanizer')?.capabilities.mcp)…
+     25|   expect(statuses.find(item=>item.id==='context7')?.capabilities.mcp).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/281]⎯
+
+ FAIL  tests/managed-git-family.test.ts > requires host attestation for linked worktrees and retains ordinary repositories
+AssertionError: promise rejected "HarnessError: File access check failed — … { …(2) }" instead of resolving
+ ❯ tests/managed-git-family.test.ts:51:126
+     49|  const f=await fixture();
+     50|  await expect(snapshot(f.path,undefined,async()=>true)).rejects.toMatc…
+     51|  await expect(snapshot(f.base,undefined,async(metadata,worktree)=>git(…
+       |                                                                                                                              ^
+     52| });
+     53| it('snapshots the attested worktree HEAD, index and source, without ot…
+
+Caused by: HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/managed-git-family.test.ts:50:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/281]⎯
+
+ FAIL  tests/managed-git-family.test.ts > snapshots the attested worktree HEAD, index and source, without other worktrees or hooks
+ FAIL  tests/managed-git-family.test.ts > passes only the host-resolved family for the granted domain repository root
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/managed-git-family.test.ts:50:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/281]⎯
+
+ FAIL  tests/official-runtime-storage.test.ts > official runtime storage and subprocess isolation > uses published commands and isolated homes without inheriting provider or Node injection variables
+HarnessError: Cursor storage path cannot contain ":". Choose another storage folder.
+ ❯ officialRuntimeEnvironment packages/runtime-official/environment.ts:44:44
+     42|     const nullFile = process.platform === 'win32' ? 'NUL' : '/dev/null…
+     43|     const ceiling = dirname(resolve(workingDirectory ?? home));
+     44|     if (ceiling.includes(delimiter)) throw new HarnessError('OFFICIAL_…
+       |                                            ^
+     45|     Object.assign(env, { GIT_CEILING_DIRECTORIES: ceiling, GIT_CONFIG_…
+     46|   } else throw new Error('Unsupported official runtime provider.');
+ ❯ tests/official-runtime-storage.test.ts:20:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/281]⎯
+
+ FAIL  tests/packaged-providers.test.ts > packaged provider custody > imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper
+Error: Cannot find module '@cursor/sdk-win32-x64/package.json'
+Require stack:
+- /workspace/scratch/36f66011d961/m05-v3/node_modules/.pnpm/@cursor+sdk@1.0.38_zod@4.6.6/node_modules/@cursor/sdk/dist/cjs/index.js
+ ❯ resolveCursorDistributions scripts/verify-packaged-providers.ts:54:93
+     52|  const entry=await realpath(require.resolve('@cursor/sdk')),cursorSdk=…
+     53|  assertContainedPath(canonical,cursorSdk);
+     54|  const cursorRequire=createRequire(entry),cursorNative=await realpath(…
+       |                                                                                             ^
+     55|  assertContainedPath(canonical,cursorNative);
+     56|  for(const [root,name,assets] of [[cursorSdk,'@cursor/sdk',CURSOR_SDK_…
+ ❯ probeCursorBootstrap scripts/verify-packaged-providers.ts:184:2
+ ❯ tests/packaged-providers.test.ts:73:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/281]⎯
+
+ FAIL  tests/private-git-family.test.ts > streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "RESOURCE_LIMIT",
++ HarnessError {
++   "code": "CAPABILITY_DENIED",
+  }
+
+ ❯ tests/private-git-family.test.ts:75:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/281]⎯
+
+ FAIL  tests/project-trust-v3.test.ts > reading an ordinary granted text file still works while execution approval stays distinct
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/project-trust-v3.test.ts:121:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/281]⎯
+
+ FAIL  tests/research-capture.test.ts > captures a granted file with native custody and exact expected bytes and identity
+ FAIL  tests/research-capture.test.ts > rejects same-size edits after selection without publishing a source or receipt
+ FAIL  tests/research-capture.test.ts > binds a selected file reference to the exact grant generation even when bytes and identity match
+ FAIL  tests/research-capture.test.ts > fails closed after grant revocation, rebind, identity replacement, or hardlink introduction
+ FAIL  tests/research-capture.test.ts > rejects a missing selected file or binary material without retaining a partial capture
+ FAIL  tests/research-capture.test.ts > rechecks thread authority inside a browser lease and keeps revoked historical file material inaccessible
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ tests/research-capture.test.ts:14:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/281]⎯
+
+ FAIL  tests/research-capture.test.ts > denies secret paths, traversal and over-limit files through existing grants
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "RESOURCE_LIMIT",
++ HarnessError {
++   "code": "CAPABILITY_DENIED",
+  }
+
+ ❯ tests/research-capture.test.ts:57:62
+     55|   f.store.internal('restore', null, () => f.store.put('resource', 'gra…
+     56|   await writeFile(f.path, 'x'.repeat(4 * 1024 * 1024 + 1));
+     57|   await expect(f.repository.fileReference(context, 'grant-a')).rejects…
+       |                                                              ^
+     58| });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/281]⎯
+
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+ FAIL  tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+ FAIL  tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.start packages/runtime/index.ts:108:253
+ ❯ tests/runtime-router.test.ts:134:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/281]⎯
+
+ FAIL  tests/service.test.ts > thread and UI integrity > records a completed effect arriving after Stop without reviving its run
+ FAIL  tests/service.test.ts > thread and UI integrity > a generated operation button leads to native approval and cannot approve by its label
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Module.handleDomainTool packages/capabilities/index.ts:115:66
+ ❯ tests/service.test.ts:136:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/281]⎯
+
+ FAIL  tests/skill-catalog-apps.test.ts > discovers only declared installed metadata with verified package custody and never activates the host
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/skill-catalog-apps.test.ts:22:71
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/281]⎯
+
+ FAIL  tests/skill-catalog-apps.test.ts > invalidates installed references after content tampering, registry revocation, or untracked additions
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog-apps.test.ts:27:92
+     25| it('invalidates installed references after content tampering, registry…
+     26|  const f=await fixture(),first=(await f.repo.list()).skills[0];await w…
+     27|  expect((await f.repo.list()).skills).toEqual([]);await expect(f.repo.…
+       |                                                                                            ^
+     28|  await writeFile(join(f.registry,'active.json'),JSON.stringify({versio…
+     29| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes
+AssertionError: expected [ { …(7) } ] to have a length of 26 but got 1
+
+- Expected
++ Received
+
+- 26
++ 1
+
+ ❯ tests/skill-catalog.test.ts:31:18
+     29|  store.internal('test.seed',null,()=>applySkillOperations(store,[{acti…
+     30|  const repo=new SkillCatalogRepository([f.provider,harnessCatalog(stor…
+     31|  expect(entries).toHaveLength(26);expect(new Set(entries.map(e=>e.id))…
+       |                  ^
+     32|  expect(new Set(entries.map(e=>e.sourceId))).toEqual(new Set(['persona…
+     33|  expect(JSON.stringify(entries)).not.toMatch(/UNTRUSTED|HARNESS-BODY|s…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal
+TypeError: Cannot read properties of undefined (reading 'files')
+ ❯ tests/skill-catalog.test.ts:39:59
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > binds authenticated cursors to inventory, search, page size and connection context
+AssertionError: expected null to be truthy
+
+- Expected:
+true
+
++ Received:
+null
+
+ ❯ tests/skill-catalog.test.ts:48:79
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > denies file/directory symlinks and hardlinks while retaining other safe packages
+AssertionError: expected undefined to match object { status: 'unavailable', …(1) }
+
+- Expected:
+{
+  "reason": "denied",
+  "status": "unavailable",
+}
+
++ Received:
+undefined
+
+ ❯ tests/skill-catalog.test.ts:59:88
+     57|  await link(join(safe,'SKILL.md'),join(bad,'linked.md'));
+     58|  const linked=join(f.skills,'redirected');await symlink(safe,linked,pr…
+     59|  const entries=await all(f.repo);expect(entries.find(e=>e.name==='bad'…
+       |                                                                                        ^
+     60|  expect(entries.find(e=>e.name==='redirected')?.ref).toBeNull();expect…
+     61| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > bounds file counts and bytes without truncating a package into an available reference
+AssertionError: expected undefined to match object { ref: null, availability: { …(2) } }
+
+- Expected:
+{
+  "availability": {
+    "reason": "limit",
+    "status": "unavailable",
+  },
+  "ref": null,
+}
+
++ Received:
+undefined
+
+ ❯ tests/skill-catalog.test.ts:66:74
+     64|  const f=await fixture(),path=await f.skill('large');await writeFile(j…
+     65|  const provider=directoryCatalog({id:'bounded',kind:'personal',label:'…
+     66|  expect((await new SkillCatalogRepository([provider]).list()).skills[0…
+       |                                                                          ^
+     67|  const count=directoryCatalog({id:'bounded',kind:'personal',label:'Per…
+     68|  expect((await new SkillCatalogRepository([count]).list()).skills[0].a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > marks an exhausted root inventory unavailable instead of silently presenting a partial catalog
+AssertionError: expected { status: 'unavailable', …(1) } to deeply equal { status: 'unavailable', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "reason": "limit",
++   "reason": "denied",
+    "status": "unavailable",
+  }
+
+ ❯ tests/skill-catalog.test.ts:74:102
+     72|  const f=await fixture();await f.skill('folder/child');
+     73|  const provider=directoryCatalog({id:'bounded-root',kind:'personal',la…
+     74|  const page=await new SkillCatalogRepository([provider]).list();expect…
+       |                                                                                                      ^
+     75| });
+     76|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > counts bytes consumed by rejected packages against the root budget
+AssertionError: expected { status: 'unavailable', …(1) } to deeply equal { status: 'unavailable', …(1) }
+
+- Expected
++ Received
+
+  {
+-   "reason": "limit",
++   "reason": "denied",
+    "status": "unavailable",
+  }
+
+ ❯ tests/skill-catalog.test.ts:80:88
+     78|  const f=await fixture();for(const name of ['invalid-a','invalid-b']){…
+     79|  const provider=directoryCatalog({id:'bounded-root',kind:'personal',la…
+     80|  expect((await new SkillCatalogRepository([provider]).list()).sources[…
+       |                                                                                        ^
+     81| });
+     82|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > rejects namespace escalation and source substitution without resolving a display name
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog.test.ts:84:90
+     82|
+     83| it('rejects namespace escalation and source substitution without resol…
+     84|  const f=await fixture();await f.skill('same');const ref=(await f.repo…
+       |                                                                                          ^
+     85|  await expect(f.repo.checkReference({...ref,scope:{kind:'provider',pro…
+     86|  await expect(f.repo.checkReference({...ref,sourceId:'other'})).reject…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > accepts bound references for the full declared source-identity length
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog.test.ts:91:84
+     89| it('accepts bound references for the full declared source-identity len…
+     90|  const f=await fixture();await f.skill('procedure');const repo=new Ski…
+     91|  const entry=(await repo.list()).skills[0];expect((await repo.checkRef…
+       |                                                                                    ^
+     92| });
+     93|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > includes nested installed skill entries beneath another skill package
+AssertionError: expected [] to deeply equal [ 'outer', 'outer/nested' ]
+
+- Expected
++ Received
+
+- [
+-   "outer",
+-   "outer/nested",
+- ]
++ []
+
+ ❯ tests/skill-catalog.test.ts:102:72
+    100| it('includes nested installed skill entries beneath another skill pack…
+    101|  const f=await fixture();await f.skill('outer');await f.skill('outer/n…
+    102|  const entries=await all(f.repo);expect(entries.map(e=>e.name).sort())…
+       |                                                                        ^
+    103| });
+    104|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > keeps a root skill distinct from a child named after the root directory
+AssertionError: expected [] to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ tests/skill-catalog.test.ts:107:50
+    105| it('keeps a root skill distinct from a child named after the root dire…
+    106|  const f=await fixture();await writeFile(join(f.skills,'SKILL.md'),'--…
+    107|  const entries=await all(f.repo);expect(entries).toHaveLength(2);expec…
+       |                                                  ^
+    108| });
+    109|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > detects replacement during capture and never returns mixed metadata/custody
+AssertionError: expected undefined to be null
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/skill-catalog.test.ts:117:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > uses canonical connected project/worktree bindings and separates unavailable project authority
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/skill-catalog.test.ts:125:92
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > discovers only the selected worktree and invalidates its references after rebinding or revocation
+AssertionError: expected [] to deeply equal [ 'Worktree only' ]
+
+- Expected
++ Received
+
+- [
+-   "Worktree only",
+- ]
++ []
+
+ ❯ tests/skill-catalog.test.ts:141:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated title updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated status updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated project metadata updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated working-copy branch updates
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog.test.ts:156:134
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/281]⎯
+
+ FAIL  tests/skill-catalog.test.ts > reuses the real bundled integration inventory and covers all declared skills across pages
+AssertionError: expected [] to have a length of 40 but got +0
+
+- Expected
++ Received
+
+- 40
++ 0
+
+ ❯ tests/skill-catalog.test.ts:171:18
+    169|  const manifest=JSON.parse(await readFile(resolve('third-party/integra…
+    170|  const repo=new SkillCatalogRepository([bundledCatalog(resolve('.'))])…
+    171|  expect(entries).toHaveLength(manifest.integrations.reduce((sum,i)=>su…
+       |                  ^
+    172|  expect(entries.every(e=>e.availability.status==='available')).toBe(tr…
+    173|  expect(entries.some(e=>e.name==='test-driven-development')).toBe(true…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > materializes exact entry bytes and captured support without changing prompt or resources
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:41:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies stale support, forged identity, cross-source and private-provider references
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:52:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects every changed authority dimension before admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:62:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > fences authority changes during catalog awaits and again before commit/runtime/support reads
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:70:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > honors pre-abort and an abort that wins a catalog await without producing an admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:81:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies support-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies entry-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies file-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies directory-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies hardlink between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies junction between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies extra-file between fresh catalog custody and materialization
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:89:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > revalidates the canonical source after capture rather than accepting its earlier index
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:111:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > restores authenticated exact bytes across host restart without rediscovering changed skills
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:117:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects command-ID reuse with changed content, model, thinking, reference or authority
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:128:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[79/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies replay tampering and key loss instead of falling back to rediscovery
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:137:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[80/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies forged admissions, mismatched runtime owners and arbitrary support paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:147:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[81/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > reads the exact Harness version/document with no latest-name or ambient projection fallback
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:156:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[82/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding files instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding fileBytes instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding packageBytes instead of silently truncating it
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:171:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[83/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:182:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[84/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > selection preserves every reference field without a body read or admission capability, and bundles for browsers
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:187:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[85/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a changed runtime thinking level even when the model is unchanged
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:197:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > preserves UTF-8 BOM and original line endings in admitted guidance
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:203:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > admits all selected references in order, never silently dropping a stale second selection
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:211:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > bounds Harness entry bytes before materializing an oversized saved document
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:224:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:236:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[90/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:258:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:274:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:293:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:299:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:310:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:333:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:344:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/281]⎯
+
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:352:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/281]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.models packages/runtime/index.ts:100:18
+ ❯ Service.sendMessage packages/core/service.ts:728:18
+ ❯ Service.command packages/core/service.ts:444:116
+ ❯ tests/skills-integration.test.ts:52:61
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/281]⎯
+
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Module.handleDomainTool packages/capabilities/index.ts:115:66
+ ❯ tests/task-memory-recovery.test.ts:120:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/281]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences cancel during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ withAccountLogin packages/runtime-login/account-login.ts:18:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+This error originated in "tests/account-login.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not admit a successor sign-in when an expired lease still has a live owner". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences replace during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences expire during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  62 failed | 264 passed | 3 skipped (329)
+      Tests  244 failed | 2961 passed | 45 skipped (3250)
+     Errors  4 errors
+   Start at  18:34:48
+   Duration  194.93s (transform 9.82s, setup 0ms, import 42.55s, tests 440.39s, environment 25ms)

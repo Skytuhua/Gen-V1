@@ -1,0 +1,364 @@
+GitHub Actions job 132915985168: Installed desktop memory retention
+Run: 43748168614
+Head: bbc07f07fe8957de846433d51ecde51cd8b0fe00
+Conclusion: failure
+Raw decoded UTF-8 SHA256: 154bbe053162bb4ad0512740a96906c8614f2a9309119288b39a4fc4472d1ca7
+
+2026-11-15T18:41:34.0442558Z Current runner version: '2.338.2'
+2026-11-15T18:41:34.0463222Z ##[group]Runner Image Provisioner
+2026-11-15T18:41:34.0463765Z Hosted Compute Agent
+2026-11-15T18:41:34.0464081Z Version: 20261103.629
+2026-11-15T18:41:34.0464422Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T18:41:34.0464832Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T18:41:34.0465218Z Worker ID: {f09d30d9-92a1-4319-9d27-a9f3f479dc2a}
+2026-11-15T18:41:34.0465610Z Region: centralus
+2026-11-15T18:41:34.0465904Z Cloud: Azure
+2026-11-15T18:41:34.0466193Z ##[endgroup]
+2026-11-15T18:41:34.0466941Z ##[group]Operating System
+2026-11-15T18:41:34.0467281Z Microsoft Windows Server 2025
+2026-11-15T18:41:34.0467614Z 10.0.26100
+2026-11-15T18:41:34.0467899Z Datacenter
+2026-11-15T18:41:34.0468177Z ##[endgroup]
+2026-11-15T18:41:34.0468481Z ##[group]Runner Image
+2026-11-15T18:41:34.0468828Z Image: windows-2025-vs2026
+2026-11-15T18:41:34.0469158Z Version: 20261103.298.1
+2026-11-15T18:41:34.0470144Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T18:41:34.0471037Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T18:41:34.0471564Z ##[endgroup]
+2026-11-15T18:41:34.0472223Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T18:41:34.0473406Z Contents: read
+2026-11-15T18:41:34.0473723Z Metadata: read
+2026-11-15T18:41:34.0474021Z ##[endgroup]
+2026-11-15T18:41:34.0475728Z Secret source: Actions
+2026-11-15T18:41:34.0476340Z Cache mode: write
+2026-11-15T18:41:34.0476791Z Prepare workflow directory
+2026-11-15T18:41:34.0753208Z Prepare all required actions
+2026-11-15T18:41:34.0789179Z Getting action download info
+2026-11-15T18:41:34.2789166Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T18:41:34.3659277Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-15T18:41:34.5898431Z Complete job name: Installed desktop memory retention
+2026-11-15T18:41:34.7025170Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T18:41:34.7025953Z with:
+2026-11-15T18:41:34.7026180Z   persist-credentials: false
+2026-11-15T18:41:34.7026453Z   repository: skytuhua-org/Gen-V1
+2026-11-15T18:41:34.7028480Z   token: ***
+2026-11-15T18:41:34.7028698Z   ssh-strict: true
+2026-11-15T18:41:34.7029149Z   ssh-user: git
+2026-11-15T18:41:34.7029373Z   clean: true
+2026-11-15T18:41:34.7029594Z   sparse-checkout-cone-mode: true
+2026-11-15T18:41:34.7029861Z   fetch-depth: 1
+2026-11-15T18:41:34.7030076Z   fetch-tags: false
+2026-11-15T18:41:34.7030301Z   show-progress: true
+2026-11-15T18:41:34.7030523Z   lfs: false
+2026-11-15T18:41:34.7030727Z   submodules: false
+2026-11-15T18:41:34.7030953Z   set-safe-directory: true
+2026-11-15T18:41:34.7031212Z   allow-unsafe-pr-checkout: false
+2026-11-15T18:41:34.7031605Z ##[endgroup]
+2026-11-15T18:41:34.8073244Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T18:41:34.8074707Z ##[group]Getting Git version info
+2026-11-15T18:41:34.8075018Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T18:41:34.8521870Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T18:41:35.1844180Z git version 2.56.0.windows.4
+2026-11-15T18:41:35.1885643Z ##[endgroup]
+2026-11-15T18:41:35.1900565Z Temporarily overriding HOME='D:\a\_temp\2670ba14-dd5c-461b-9dd5-ae90e231ab68' before making global git config changes
+2026-11-15T18:41:35.1901383Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T18:41:35.1908445Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T18:41:35.2491166Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T18:41:35.2495522Z ##[group]Determining repository object format
+2026-11-15T18:41:35.2497540Z ##[endgroup]
+2026-11-15T18:41:35.2500085Z ##[group]Initializing the repository
+2026-11-15T18:41:35.2504476Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T18:41:35.3525457Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T18:41:35.3565779Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T18:41:35.4235682Z ##[endgroup]
+2026-11-15T18:41:35.4236525Z ##[group]Disabling automatic garbage collection
+2026-11-15T18:41:35.4243203Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T18:41:35.4533910Z ##[endgroup]
+2026-11-15T18:41:35.4534654Z ##[group]Setting up auth
+2026-11-15T18:41:35.4535283Z Removing SSH command configuration
+2026-11-15T18:41:35.4543656Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T18:41:35.4835814Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T18:41:36.8110180Z Removing HTTP extra header
+2026-11-15T18:41:36.8117455Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T18:41:36.8412639Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T18:41:37.2954437Z Removing includeIf entries pointing to credentials config files
+2026-11-15T18:41:37.2963349Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T18:41:37.3249767Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T18:41:37.7601603Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T18:41:37.7910142Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:37.8224561Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:37.8576040Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:37.8865860Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:37.9155878Z ##[endgroup]
+2026-11-15T18:41:37.9156289Z ##[group]Fetching the repository
+2026-11-15T18:41:37.9166274Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +2428711e2f135d869605c52b53e48c9f3350be63:refs/remotes/pull/347/merge
+2026-11-15T18:41:41.2803583Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T18:41:41.2804150Z  * [new ref]         2428711e2f135d869605c52b53e48c9f3350be63 -> pull/347/merge
+2026-11-15T18:41:41.2846072Z ##[endgroup]
+2026-11-15T18:41:41.2846904Z ##[group]Determining the checkout info
+2026-11-15T18:41:41.2847298Z ##[endgroup]
+2026-11-15T18:41:41.2855559Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T18:41:41.3375730Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T18:41:41.3685181Z ##[group]Checking out the ref
+2026-11-15T18:41:41.3694200Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/347/merge
+2026-11-15T18:41:42.3329326Z Note: switching to 'refs/remotes/pull/347/merge'.
+2026-11-15T18:41:42.3329622Z 
+2026-11-15T18:41:42.3329807Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-15T18:41:42.3330215Z changes and commit them, and you can discard any commits you make in this
+2026-11-15T18:41:42.3330609Z state without impacting any branches by switching back to a branch.
+2026-11-15T18:41:42.3330839Z 
+2026-11-15T18:41:42.3330982Z If you want to create a new branch to retain commits you create, you may
+2026-11-15T18:41:42.3331354Z do so (now or later) by using -c with the switch command. Example:
+2026-11-15T18:41:42.3331558Z 
+2026-11-15T18:41:42.3331721Z   git switch -c <new-branch-name>
+2026-11-15T18:41:42.3331856Z 
+2026-11-15T18:41:42.3331939Z Or undo this operation with:
+2026-11-15T18:41:42.3332070Z 
+2026-11-15T18:41:42.3332133Z   git switch -
+2026-11-15T18:41:42.3332256Z 
+2026-11-15T18:41:42.3332426Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-15T18:41:42.3332697Z 
+2026-11-15T18:41:42.3333069Z HEAD is now at 2428711 Merge bbc07f07fe8957de846433d51ecde51cd8b0fe00 into 399cde39ff4ee82272c7a7700944325c44b36070
+2026-11-15T18:41:42.3544969Z ##[endgroup]
+2026-11-15T18:41:42.3951811Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T18:41:42.4218281Z 2428711e2f135d869605c52b53e48c9f3350be63
+2026-11-15T18:41:42.4259711Z ##[group]Removing auth
+2026-11-15T18:41:42.4259950Z Removing SSH command configuration
+2026-11-15T18:41:42.4266079Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T18:41:42.4568991Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T18:41:42.9784522Z Removing HTTP extra header
+2026-11-15T18:41:42.9792943Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T18:41:43.0081656Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T18:41:43.4248503Z Removing includeIf entries pointing to credentials config files
+2026-11-15T18:41:43.4255987Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T18:41:43.4630617Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T18:41:43.4631172Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T18:41:43.4631530Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T18:41:43.4632381Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T18:41:43.4704708Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T18:41:43.5048487Z D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.5089883Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.5448141Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T18:41:43.5705093Z D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.5738830Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.6015384Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T18:41:43.6259202Z /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.6292259Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.6585327Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T18:41:43.6848084Z /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.6882478Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T18:41:43.7177174Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T18:41:44.1505425Z Removing credentials config 'D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config'
+2026-11-15T18:41:44.1506962Z ##[endgroup]
+2026-11-15T18:41:44.1832331Z Prepare all required actions
+2026-11-15T18:41:44.1833041Z Getting action download info
+2026-11-15T18:41:44.3005666Z Download action repository 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-15T18:41:44.6405833Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-15T18:41:44.7386413Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-11-15T18:41:44.8299550Z Download action repository 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-15T18:41:44.9456226Z ##[group]Run ./.github/actions/setup
+2026-11-15T18:41:44.9456386Z with:
+2026-11-15T18:41:44.9456494Z   python: true
+2026-11-15T18:41:44.9456602Z   playwright: false
+2026-11-15T18:41:44.9456716Z ##[endgroup]
+2026-11-15T18:41:44.9501221Z ##[start-action display=Install pnpm;id=__self.__pnpm_action-setup]
+2026-11-15T18:41:44.9650201Z ##[group]Run pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+2026-11-15T18:41:44.9650417Z with:
+2026-11-15T18:41:44.9650525Z   version: 10.30.3
+2026-11-15T18:41:44.9650644Z   dest: ~/setup-pnpm
+2026-11-15T18:41:44.9650756Z   run_install: null
+2026-11-15T18:41:44.9650862Z   cache: false
+2026-11-15T18:41:44.9650982Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-15T18:41:44.9651358Z   package_json_file: package.json
+2026-11-15T18:41:44.9651494Z   standalone: false
+2026-11-15T18:41:44.9651610Z ##[endgroup]
+2026-11-15T18:41:45.0915033Z ##[group]Running self-installer...
+2026-11-15T18:41:45.4053624Z (node:7324) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T18:41:45.4054484Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T18:41:45.5931038Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T18:41:45.6007737Z Packages: +1
+2026-11-15T18:41:45.6008167Z +
+2026-11-15T18:41:47.0025184Z Progress: resolved 1, reused 0, downloaded 1, added 0
+2026-11-15T18:41:47.3647095Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-11-15T18:41:47.4460369Z 
+2026-11-15T18:41:47.4460857Z dependencies:
+2026-11-15T18:41:47.4461091Z + pnpm 10.30.3 (12.21.0 is available)
+2026-11-15T18:41:47.4461248Z 
+2026-11-15T18:41:47.4549071Z Done in 2.2s
+2026-11-15T18:41:47.4744143Z ##[endgroup]
+2026-11-15T18:41:47.4744505Z Installation Completed!
+2026-11-15T18:41:47.4901741Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=2539]
+2026-11-15T18:41:47.4905493Z ##[start-action display=Install Node.js;id=__self.__actions_setup-node]
+2026-11-15T18:41:
+
+[Middle omitted from bounded public extract; full decoded log retained in scratch. Original decoded UTF-8 bytes: 124583.]
+
+pectedBytes":2146,"actualBytes":2334,"expectedSha256":"5230a5fd1b25dd6fe5b52ae27a498a06fae331eaa52c3014986846d4b290f66d","actualSha256":"b21953e6ebbe4c34ba54f52679e2e72e3df6a54a7473b17849ef6463df196fea"},{"path":".harness-integrations-python-deps/cryptography-50.0.2.dist-info/RECORD","expectedBytes":12300,"actualBytes":12496,"expectedSha256":"ee568f3db8ab327ca2b982aa8917c9cef6122fca60ce5189b94368376ddf91a6","actualSha256":"6681ef1f5e4ab42039fce755599365ad7c5d6550532da50a4a7156609f8fa344"},{"path":".harness-integrations-python-deps/cycler-0.12.1.dist-info/RECORD","expectedBytes":625,"actualBytes":809,"expectedSha256":"62e29a01dba36f98f8ff67ec1308a90ea428b50b9840cad7a8aa380a9163ab3b","actualSha256":"ce6a218f8cb5cc335478b0618e2529fb439242050ba73043968cafceca7924fc"},{"path":".harness-integrations-python-deps/et_xmlfile-2.0.0.dist-info/RECORD","expectedBytes":942,"actualBytes":1132,"expectedSha256":"ab07d4aebbd22f20992b762c4952bd28c0fa1817464fbfa686296e9dcefb0bce","actualSha256":"689442ddcd265815a8992db08458777d3f1c4e4e957e26350c186e4cf6e6509d"},{"path":".harness-integrations-python-deps/fonttools-4.68.0.dist-info/RECORD","expectedBytes":33565,"actualBytes":33755,"expectedSha256":"366d1176a23c5967348886120a295b59d0926455f7ed57bf71320039dffc60b2","actualSha256":"04fecf9064fef2c876e325c636581f57b67e1c5976de87dd86ee6b8d7393e1fa"},{"path":".harness-integrations-python-deps/graphifyy-0.9.100.dist-info/RECORD","expectedBytes":22779,"actualBytes":22879,"expectedSha256":"ea373527846317781a81ab69772a7f04c713fd2d94c53d53d9a6cc5d0cb63108","actualSha256":"7bef8068508fe3ae9766c41dc635e2f94a98f81de2d287baa4db3904d6f2a7ad"},{"path":".harness-integrations-python-deps/h11-0.16.0.dist-info/RECORD","expectedBytes":1346,"actualBytes":1524,"expectedSha256":"a7b163107b40ae57d77b221b3027d4036f156fb4d26d617edd34b6558f793c0c","actualSha256":"d9ec8e7436721dc77092c16b5cfc1f280e01bb55a3034cf361cdbf3efb08c1c6"},{"path":".harness-integrations-python-deps/httpcore2-2.16.0.dist-info/RECORD","expectedBytes":3116,"actualBytes":3306,"expectedSha256":"edfd59deb3f73d967a3b8714aa4b505bf0a56bae8586619077788a050afa23d2","actualSha256":"c01b6f831f9b0be571d147d1ec781add934dc832301478c833cdb88ede258d9c"},{"path":".harness-integrations-python-deps/httpx2-2.16.0.dist-info/RECORD","expectedBytes":3109,"actualBytes":3293,"expectedSha256":"7fb1979a05d6c0c13f5b054f3649aa2aefd0c5fbfc28011dbe2f420d442a5665","actualSha256":"c873ecdc2179966788025e4bfe1901f219943f034c2db93523492d69fcc6e0be"},{"path":".harness-integrations-python-deps/idna-3.20.dist-info/RECORD","expectedBytes":1347,"actualBytes":1523,"expectedSha256":"64767cb749ae2505e119bf3ef0a96e72dc0c109503b7a6123bfd754375c7110e","actualSha256":"8058267e13cb64788cffcf182da0b3db66afe7f4f76b0f080ea9a10667092809"},{"path":".harness-integrations-python-deps/json5-0.17.3.dist-info/RECORD","expectedBytes":1236,"actualBytes":1418,"expectedSha256":"572cadcacf51dd046e5db77b8b38a9ea3f7d62fc50f57e5913ace313643253fb","actualSha256":"7a8986a8884e89609408cb450bf3939e051a528baa010385e7ea556037584c16"},{"path":".harness-integrations-python-deps/jsonschema-4.26.0.dist-info/RECORD","expectedBytes":4046,"actualBytes":4238,"expectedSha256":"2f919f2b3bf115b42540a2a86ea8a151abc8611b926ffdcf2471d03bc2542ead","actualSha256":"fa74e96c22d0b3df6fb15013cb013e6e35406d66de39e5742fb429da6b64405f"},{"path":".harness-integrations-python-deps/jsonschema_specifications-2025.9.1.dist-info/RECORD","expectedBytes":3361,"actualBytes":3587,"expectedSha256":"93478e10125a131dd733b37e655f568fa7b9ac406794e9b8608f31a57c2e5440","actualSha256":"f9ea8c83ba73eac7b9a65f05c0d96c6cb1a83ff68277f91cde81a5f14400489e"},{"path":".harness-integrations-python-deps/kiwisolver-1.5.1.dist-info/RECORD","expectedBytes":917,"actualBytes":1107,"expectedSha256":"554491330ca92701035ce940f5a454d9117c2dcd88fe6e7a9fdb7d95048ee96c","actualSha256":"931b70dcc505891dc4e9732e79b98dc0a0cb0fb27100bb1fb5e07586d177d3b8"},{"path":".harness-integrations-python-deps/lxml-6.1.3.dist-info/RECORD","expectedBytes":15510,"actualBytes":15688,"expectedSha256":"0b98f3a2b26a8035c9ea5f280ccc7aefbd41de085bb9fb40e80a721b78d2e15e","actualSha256":"c3114388c37a81ea58a00c1e1724971aa7fbd2023192996e989b7e8fc49c0e1c"},{"path":".harness-integrations-python-deps/markdown_it_py-4.2.0.dist-info/RECORD","expectedBytes":6819,"actualBytes":7017,"expectedSha256":"9c7babd3ec8d543c9721bcaf2361937b974f0a9bc1e6cb3841401436e5b9e257","actualSha256":"17a7a56b0f66e1c05ecd784a55ea905ff660e87752588aad0e62d26cdd205ca2"},{"path":".harness-integrations-python-deps/markdownify-1.2.3.dist-info/RECORD","expectedBytes":1004,"actualBytes":1196,"expectedSha256":"265523d00c0bf0a5ad62c61d72350e56685bee61d786391013c7233273966ab1","actualSha256":"86e9f151c59160d43917ff280879cfda6c169f17ae037512848aae695c54bd0f"},{"path":".harness-integrations-python-deps/matplotlib-3.11.2.dist-info/RECORD","expectedBytes":56678,"actualBytes":56870,"expectedSha256":"264074b201867c5de53bb36dffb83312ad0a199a84c395c0a467aed7a1b28361","actualSha256":"021b917150bebca8fc748d65056886b858920e0c10167cfbee5e3eb3e99e3f1d"},{"path":".harness-integrations-python-deps/mcp-2.3.0.dist-info/RECORD","expectedBytes":11296,"actualBytes":11472,"expectedSha256":"4c2467f235e0d472466bf10ab1490e28f1802c732b2c60223f22bfab6cf13d9f","actualSha256":"d0f9c0127aed58689369a708ee242f2226c29c8d66cfe22aaa2bc6e956c564a5"},{"path":".harness-integrations-python-deps/mcp_types-2.3.0.dist-info/RECORD","expectedBytes":1138,"actualBytes":1326,"expectedSha256":"c2bf5a10becc790761856ecad83880005958e38049c0fe520d3a454164cfaa69","actualSha256":"d258fb2d5a2cd878a077b651aa6d92418802ba787247903a961d45b9d4c8e235"},{"path":".harness-integrations-python-deps/mdurl-0.1.2.dist-info/RECORD","expectedBytes":885,"actualBytes":1065,"expectedSha256":"fac1fa1c52a6e12543ba43a09f87185478740deb020f8262126123dd84233b56","actualSha256":"d5631b5a3d4634512678d32ae172db0976b0e60028b18555d9ca32c1e053c2e1"},{"path":".harness-integrations-python-deps/networkx-3.7.dist-info/RECORD","expectedBytes":61147,"actualBytes":61329,"expectedSha256":"0132393caf8db0e2846c6ec5e271a38c881f3ecb516544bba85df06286767974","actualSha256":"274e180edce1531fe097869b9a647b3cd60f693ea69f54f09d9d5e591a27f73c"},{"path":".harness-integrations-python-deps/numpy-2.5.4.dist-info/RECORD","expectedBytes":88649,"actualBytes":88829,"expectedSha256":"a2174adafef93df3791c0de7e4f004832cca946bafbae9abcd7bcb04aa325e53","actualSha256":"601187b72b4274c04b4783fd290209d2d2c781f1bf7f05ca110a0d7e5aed8255"},{"path":".harness-integrations-python-deps/openpyxl-3.1.5.dist-info/RECORD","expectedBytes":16810,"actualBytes":16996,"expectedSha256":"c3c88cdb71d90dbdbd2c40997760e7b986c11b89b0c7396f2071cd4520ea4537","actualSha256":"ebe46165552cff84d0b40d956f9e0356c41fde0b864081ac49f8b04cfb05da35"},{"path":".harness-integrations-python-deps/opentelemetry_api-1.45.2.dist-info/RECORD","expectedBytes":4420,"actualBytes":4626,"expectedSha256":"0a71f858d27a96a711a8d9a68ba3e87f8d75ab33c16878771ad2cde298580f5f","actualSha256":"f222be934794a9122090a3003504334c15fbb7810f5ee6d3152eb69bb5509aca"},{"path":".harness-integrations-python-deps/packaging-26.3.dist-info/RECORD","expectedBytes":2457,"actualBytes":2643,"expectedSha256":"c72404c2eacd53338f50eee4816eac21f053f0a25ff0bf984bf8d5cc5cca82b5","actualSha256":"18597248fda4985201990d73b2effc919af9c6e9fbcc3e13b752e01a5a563e8c"},{"path":".harness-integrations-python-deps/pathspec-1.1.1.dist-info/RECORD","expectedBytes":3192,"actualBytes":3378,"expectedSha256":"5c423ab4bf11b2cffdaf197575ea2548504dbee9b85d8f5f4a45c3f0f1014509","actualSha256":"83c697ca1e2869e9bd6f1e48a005c05cd6ad00b0c1263c2c47de797103716b7f"},{"path":".harness-integrations-python-deps/pillow-13.0.0.dist-info/RECORD","expectedBytes":9502,"actualBytes":9686,"expectedSha256":"208e322b5001332f97a4f5b225eb8037e9eb7080d8cd1218fa957e92cba3a633","actualSha256":"97a3a4c07e8698af3962098a8f6172786c3d694e0a8fa0f73a388d643fad8f15"},{"path":".harness-integrations-python-deps/pycparser-3.12.dist-info/RECORD","expectedBytes":1136,"actualBytes":1322,"expectedSha256":"ea700bd8ad997cbf36a536f11377c931e1ee5256eebf6324bf31c10f9558223c","actualSha256":"f11d5f85c55cf760cfcf6fc5e498c28b008628bdcdeb6cee7fc28f3f414fce4d"},{"path":".harness-integrations-python-deps/pydantic-2.14.2.dist-info/RECORD","expectedBytes":9532,"actualBytes":9720,"expectedSha256":"8b143dc65132d8442cfc93e5479520a2f66d8aae067874f4818c8cdea241ff54","actualSha256":"cce957f959698920730efe9be27ea2e849bd894848902857dd2a54f45bf5739f"},{"path":".harness-integrations-python-deps/pydantic_core-2.50.2.dist-info/RECORD","expectedBytes":1117,"actualBytes":1315,"expectedSha256":"5370a14299af75ee87d47b7db3b35055f33a52cceb55ed6af285d0f53fed5078","actualSha256":"c9594b3999c17532563010d6d48e176ba85967cbd235ed969e8583b6d3f772d7"},{"path":".harness-integrations-python-deps/pygments-2.21.0.dist-info/RECORD","expectedBytes":29434,"actualBytes":29622,"expectedSha256":"d2c16ea713de177352746e1f9ce06bfc036a8eb80f06b6baa084b3327b23bc96","actualSha256":"9e695a1a6a41133cbbc00f21dbf91700f3fcd05358864a30b352693fcbf6402f"},{"path":".harness-integrations-python-deps/pyjwt-2.15.1.dist-info/RECORD","expectedBytes":1526,"actualBytes":1708,"expectedSha256":"5d6a632c35b290e1ab6a67a451259199da8d395a8e748d57cb7181b4fceb62cd","actualSha256":"7de374d76b13509495c31fc889a625f4c6a1ad09f91379592a796cff83fe8dd7"},{"path":".harness-integrations-python-deps/pyparsing-3.3.3.dist-info/RECORD","expectedBytes":1980,"actualBytes":2168,"expectedSha256":"22797832e8001ac810fc25f728ffb719ec837a937650b8dce1c6a949248da857","actualSha256":"81a85be3b23e4457435764a9205fe9203834dd4451f0a118a7a198948d803edb"},{"path":".harness-integrations-python-deps/pypdf-6.21.4.dist-info/RECORD","expectedBytes":5482,"actualBytes":5664,"expectedSha256":"5a9ee399493434a85739e49bbeb3344e006087c8cbfe8264844901f1cc5b8e96","actualSha256":"6a8a93131fed0bcbe8354d4680a6d06d8792a9feaf4454d07bb3031942ca4db7"},{"path":".harness-integrations-python-deps/python_dateutil-4.0.0.dist-info/RECORD","expectedBytes":2226,"actualBytes":2426,"expectedSha256":"8f17a0b793f94ff63fd0157823beaf16851bfe89bb5252200790ecf73838ba96","actualSha256":"965a5e0f0c095ac06ce89f605381bf68f69233f0539355dd02f0c007c6fca3b7"},{"path":".harness-integrations-python-deps/python_docx-1.2.0.dist-info/RECORD","expectedBytes":10442,"actualBytes":10634,"expectedSha256":"d558f0db2f55b063e5b72d38d3e83f5acfd86b39796604bb15920d23ee0a1079","actualSha256":"caeec71307eb95ba800f183eabac9af2fcda7e8c7c62534ea886470f8d301844"},{"path":".harness-integrations-python-deps/python_multipart-0.0.33.dist-info/RECORD","expectedBytes":1189,"actualBytes":1393,"expectedSha256":"2084271200515c1892926da8b779e10e454298142050d7c4f1152b9a604e637c","actualSha256":"c3c2826564f24daaf9694ea31b91555187dbaf6145f7fe351c8c4ffbd6b79ed9"},{"path":".harness-integrations-python-deps/pywin32-312.dist-info/RECORD","expectedBytes":55228,"actualBytes":55408,"expectedSha256":"b2fcc6f6de90c25a5441366ee4aa64a545f38dd47404b37851a1072f21e3f54f","actualSha256":"933f4a1a40273bee2df4983e9f1a83c3ea72b99b3c981aacc4e1ff1caf1a31db"},{"path":".harness-integrations-python-deps/pyyaml-6.0.3.dist-info/RECORD","expectedBytes":1897,"actualBytes":2079,"expectedSha256":"0b782c3b48c4279634024132f048e8f604ab534fcac30224cebfd786fd99488c","actualSha256":"7a05758c669127e5b66a0ccde17321980f6c005e7d899bbcbdb117137a7c5122"},{"path":".harness-integrations-python-deps/rapidfuzz-3.14.6.dist-info/RECORD","expectedBytes":6260,"actualBytes":6450,"expectedSha256":"6e19279e67f163445701f8329688d409571a048d8de7aa657da23479fc377055","actualSha256":"4a4b491467912ddbc07004768c8d3355f6b51fcc760a6b7f0843c34d807bf33f"},{"path":".harness-integrations-python-deps/readchar-4.2.2.dist-info/RECORD","expectedBytes":1185,"actualBytes":1371,"expectedSha256":"6fc740831eb69c6bd79cf47e68b4b6a7821bbcbbeb03a2cd9faf7e89ffa62725","actualSha256":"3ba7dbd93d764f91f1b9e6b6b8ffbd4c79212f960741791e909d10836b044b77"},{"path":".harness-integrations-python-deps/referencing-0.37.0.dist-info/RECORD","expectedBytes":1694,"actualBytes":1888,"expectedSha256":"2d48e9da3caca5ec22f31e50a1790902a464846ec6b1f5d1ff67d3d5fd58dcc6","actualSha256":"0df4d9fe14e3fe55c3edaeab8f28acd6488aa82685e0f5479726aeae5f866bad"},{"path":".harness-integrations-python-deps/rich-15.0.0.dist-info/RECORD","expectedBytes":8253,"actualBytes":8433,"expectedSha256":"cd4927a956ccca188970d455ef5b8699a018d2a89d672affb53de11b51da18fc","actualSha256":"5a1d20e0e28cf3f27f9bbdb314d46dd17d69ec0d18f40f6798bb663a1d062d21"},{"path":".harness-integrations-python-deps/rpds_py-2026.9.1.dist-info/RECORD","expectedBytes":828,"actualBytes":1018,"expectedSha256":"9a0fe517dd3cf02f613ada9ec57b60de90617c40e0b2dce0987daed513c212cd","actualSha256":"8cca797d07b6dcefa7faca3600a9a43833eec8ac1b34b571a7cae6f2b06a4746"},{"path":".harness-integrations-python-deps/shellingham-1.5.4.dist-info/RECORD","expectedBytes":1159,"actualBytes":1351,"expectedSha256":"95688ac069256b0f891e61f4462136f06498aa191639fce0b3798a59e18c61ee","actualSha256":"7aa6c563ebbac45181a2802573475350e93153f95c7c4c2047cda912f3615ade"},{"path":".harness-integrations-python-deps/six-1.17.0.dist-info/RECORD","expectedBytes":526,"actualBytes":704,"expectedSha256":"dff90eff60f019e02174f76614a8248fac9ccd5f8462bb5dd231e9038a3261d5","actualSha256":"1beb0cdca75c92b1d6e140cc7c2d64f5bd31ea34a78059a3c7c5198dbb81cfbe"},{"path":".harness-integrations-python-deps/soupsieve-3.0.4.dist-info/RECORD","expectedBytes":1035,"actualBytes":1223,"expectedSha256":"4146defda44e345aff64f5daefe32c5a95b22d1a4c64a1244f64c3ed2bd737d7","actualSha256":"d3ddef4a76a2c58ab310f0da8a0b246a237ddedc2d9c25c0a15a7b152cf8f794"},{"path":".harness-integrations-python-deps/specify_cli-1.2.5.dist-info/RECORD","expectedBytes":40338,"actualBytes":40438,"expectedSha256":"87b3dd66c3a9db3265d04875e7b4b072675ec6f41b87b3193f3c5899b69c3c8b","actualSha256":"405e9bb9457af4ec1908eecbb7fda72abffb06aa5a21a3cac6452b4661c09aa2"},{"path":".harness-integrations-python-deps/sse_starlette-3.6.0.dist-info/RECORD","expectedBytes":1027,"actualBytes":1223,"expectedSha256":"42881f38495b83d884b923e32eb932b8cb677ed8a243685f74b7dde96b0ed9ac","actualSha256":"0380118398c823a46b8546cf962ecc3f1e139c44697d7cb837c295939c7cf1b4"},{"path":".harness-integrations-python-deps/starlette-1.10.0.dist-info/RECORD","expectedBytes":3521,"actualBytes":3711,"expectedSha256":"568b0924d3f6c654a6669be9baef352a0167549745e26ab1691fe0352f364176","actualSha256":"738eb9af4e13d2a3589efee5fc11e87c1e895a8500c7f10858f025b1aef15544"},{"path":".harness-integrations-python-deps/tree_sitter-0.25.2.dist-info/RECORD","expectedBytes":859,"actualBytes":1053,"expectedSha256":"df42c77753c3b33a9f33b6fb052ee11916649c3c8f57e6673cec5ae010417ee9","actualSha256":"add6daefbfd334a1dabc9c7983c4a0c485d5116964889840a782906b5f9fa1e7"},{"path":".harness-integrations-python-deps/tree_sitter_bash-0.25.1.dist-info/RECORD","expectedBytes":1068,"actualBytes":1272,"expectedSha256":"1a37f5943e33e4c974855b91b81d7ddc7997137a862200792f8925dbf2136586","actualSha256":"4fb2c7ac98addd4239a0a4653de61814cda819cdde881f9f5e5a1289174dd275"},{"path":".harness-integrations-python-deps/tree_sitter_c-0.24.2.dist-info/RECORD","expectedBytes":1120,"actualBytes":1318,"expectedSha256":"85a32d03dc3745f5c250c4be80d8cea6a059a1d1e0fc9157c9eca05509dd4509","actualSha256":"07f92aba31f8a1ef434a106326d91fbb167dfcdf426f9dc9e3e5ee66f4b8dc4d"},{"path":".harness-integrations-python-deps/tree_sitter_c_sharp-0.23.5.dist-info/RECORD","expectedBytes":1200,"actualBytes":1410,"expectedSha256":"6b56f87c1712cfb7d5731575d4ed94fb80b87dfa014be84675529fe0ce1101cd","actualSha256":"46f1a51a28689d53f2ff2c969c7927f7fb8de593e85332426dc6d8dbc1c0a06c"},{"path":".harness-integrations-python-deps/tree_sitter_cpp-0.23.4.dist-info/RECORD","expectedBytes":1231,"actualBytes":1433,"expectedSha256":"c901d3e61b2dc87bea0b2c04407b64ea48f734c320397dadd6a2b8be8061873d","actualSha256":"d861d0e010b3b1d13f4efe448088f2c06961e3c724e08c4626cb09d98ec52395"},{"path":".harness-integrations-python-deps/tree_sitter_elixir-0.3.5.dist-info/RECORD","expectedBytes":1386,"actualBytes":1592,"expectedSha256":"809d191e80d1200d5e683c5bf64325bb855242aa79a0d707b13a46048742a323","actualSha256":"3c20ad1e343424a252d40f0086c307cb4388ac5e3ee357c420c19680dcb634e0"},{"path":".harness-integrations-python-deps/tree_sitter_fortran-0.6.0.dist-info/RECORD","expectedBytes":1475,"actualBytes":1683,"expectedSha256":"6635ad4baaf4dbf7c2d57304b7c00f37dec3e201c5f3a0886ecb339f4bb961af","actualSha256":"0527b5fe66ba141fa4beede7461d4358078b70789bf72d3d1a7b5246613a9eeb"},{"path":".harness-integrations-python-deps/tree_sitter_go-0.25.0.dist-info/RECORD","expectedBytes":1134,"actualBytes":1334,"expectedSha256":"bda822daed3b0cea10e6f757482a1124ca3ceecfa5174dbff8742cd38b17b4b7","actualSha256":"914f0c1e95f741f4d877d4ef8824931e30336d776a912c65e5a6eb652378bc4e"},{"path":".harness-integrations-python-deps/tree_sitter_groovy-0.1.2.dist-info/RECORD","expectedBytes":879,"actualBytes":1085,"expectedSha256":"5bb197c69829ed9bcc5d5249c79cfa050233eacb2f082c18d68ea00c90645995","actualSha256":"e1cd95565f4a711f6992e8d82c3a424d2ef80c551651232f1303f4644e6e7a7a"},{"path":".harness-integrations-python-deps/tree_sitter_java-0.23.5.dist-info/RECORD","expectedBytes":1149,"actualBytes":1353,"expectedSha256":"c77108d9568e0ad12b8714e0e1e42bb8ea60d1270bafc4f64ddb5dab8061c42e","actualSha256":"ed4ac0a4f460d64e9ad0b4c794bbfd3232899fff13cc5568efa07c582e09f5a2"},{"path":".harness-integrations-python-deps/tree_sitter_javascript-0.25.0.dist-info/RECORD","expectedBytes":1654,"actualBytes":1870,"expectedSha256":"967b647e0a2300f98e61972f7efacbb5105c486516502e8983380ddf2987f523","actualSha256":"c2fce35b429cddbf2711cb06e1c1928c9282dbaa3753ad7be29ac222ef1bb799"},{"path":".harness-integrations-python-deps/tree_sitter_json-0.24.8.dist-info/RECORD","expectedBytes":1056,"actualBytes":1260,"expectedSha256":"51d1f1a372658127b82c7a627182ef2bf476a8f5b24de39a516205deb3ae3b67","actualSha256":"ac3053fe064e84b45e4fb1cf57e7f59e1c12214d985acd73843db524c7e38863"},{"path":".harness-integrations-python-deps/tree_sitter_julia-0.23.1.dist-info/RECORD","expectedBytes":1071,"actualBytes":1277,"expectedSha256":"ed2e9591193d3d82a47df37dc824063609b15b98c73fb2fc11b247da99e0d643","actualSha256":"955dcca4a49161ca8a2bf766b1424541736a7b57f9eaf2aabf042e4707f861a0"},{"path":".harness-integrations-python-deps/tree_sitter_kotlin-1.1.0.dist-info/RECORD","expectedBytes":978,"actualBytes":1184,"expectedSha256":"9248dd17c2b919f40553220940bec6d93beeeb5aa98cba2120bb8933d853b21e","actualSha256":"b02f224259660c67721eb750eb9c731f345d946fd5bb55823c0ece3f9d100db7"},{"path":".harness-integrations-python-deps/tree_sitter_lua-0.5.0.dist-info/RECORD","expectedBytes":1329,"actualBytes":1529,"expectedSha256":"a9a9e2432ade0bcf1b7ea527fb7a8a7be77da83d896b0d0e4560fb7cb2598332","actualSha256":"bafdd253dd5a00e181815af57540f90d53a927594ec01d6a5fa86731abb73c68"},{"path":".harness-integrations-python-deps/tree_sitter_objc-3.0.2.dist-info/RECORD","expectedBytes":1424,"actualBytes":1626,"expectedSha256":"9926bbc90b29cbdfd00d20b0dcdefee5092e09a2252b8c7370a4add6e44eb4ce","actualSha256":"89ace649dffec0f91c57bda5d9ac7b84d424f5a1f5ffe287e9a619caee3bd289"},{"path":".harness-integrations-python-deps/tree_sitter_php-0.24.1.dist-info/RECORD","expectedBytes":1343,"actualBytes":1545,"expectedSha256":"64226dd14d1e48085af77620d2f9648abd699d29d19c026b207e4dcc8326d5dd","actualSha256":"6d58e28dd469f8fde30e64711dfb99a1b858d837137987273ca36a2d3138448f"},{"path":".harness-integrations-python-deps/tree_sitter_powershell-0.26.4.dist-info/RECORD","expectedBytes":1141,"actualBytes":1357,"expectedSha256":"23193e9a1341e94cf078467f4c9ead43562d3d4f34ecf48cdb80d6d110fa4ebc","actualSha256":"c6a7b87a34e3ff8804159179112db9218890f8d19a1652b32ead806ab37ad693"},{"path":".harness-integrations-python-deps/tree_sitter_python-0.25.0.dist-info/RECORD","expectedBytes":1185,"actualBytes":1393,"expectedSha256":"b1a7071c6d592df448e4674b1b48c2c8ccea445eb63df1ff76536f05bdb142ac","actualSha256":"129e3817b8e42b6f3bee8cefcfba67d6b2061ee802331185bd35166052643bcd"},{"path":".harness-integrations-python-deps/tree_sitter_ruby-0.23.1.dist-info/RECORD","expectedBytes":1243,"actualBytes":1447,"expectedSha256":"bdb515260e51a46adcac561d8ba0f2862f662ac01992c0e225d45b30f11febaf","actualSha256":"9812ad895c0e37c1f27fc654458bfac67edeb912fdc7cc5b6386cf3e12af5506"},{"path":".harness-integrations-python-deps/tree_sitter_rust-0.24.2.dist-info/RECORD","expectedBytes":1256,"actualBytes":1460,"expectedSha256":"d0694ec6f04f1c3380edc3c3a7fafb41bb6c4533321282c4951d0f13a8beb8bf","actualSha256":"585d154c387f3e470adba1fa9216ab857c32ed43d50f744970781ecd0be1548a"},{"path":".harness-integrations-python-deps/tree_sitter_scala-0.26.4.dist-info/RECORD","expectedBytes":1360,"actualBytes":1566,"expectedSha256":"14ea79ab70db1ce2c39265f470f0e57dac745a0fde021cf526cc79dc22ce2b00","actualSha256":"80ba33f40e5c6cf6e7746561ef70c6df01390c316d8bf8e374264cedcae5f143"},{"path":".harness-integrations-python-deps/tree_sitter_swift-0.7.4.dist-info/RECORD","expectedBytes":1736,"actualBytes":1940,"expectedSha256":"86bb755fbbb72276cceec499080393fe260bbe6d07ddd20092fb1b38607da25a","actualSha256":"3abb585eee262a65d18877fadac9c465d5d0edbda859f679437a9c30dfbe7894"},{"path":".harness-integrations-python-deps/tree_sitter_typescript-0.23.2.dist-info/RECORD","expectedBytes":1326,"actualBytes":1542,"expectedSha256":"2183602aa61bb6e152972bcedc05875c1cf132f2e66198d50b7d8b9aa410af8b","actualSha256":"7da1f57d5904b8c4f2323a98592442661a662adcd042e0a421d16e14316c486c"},{"path":".harness-integrations-python-deps/tree_sitter_verilog-1.0.3.dist-info/RECORD","expectedBytes":990,"actualBytes":1198,"expectedSha256":"ffaea3a9c6435f636f3c9802065f066d256bc8b77ea258faf828a328398a22e6","actualSha256":"a1c2a854793ab73f8363baaa8a3d0cf0b963925c8307d09ad1d0d511b7a7a720"},{"path":".harness-integrations-python-deps/tree_sitter_zig-1.1.2.dist-info/RECORD","expectedBytes":1318,"actualBytes":1518,"expectedSha256":"e4a8cc0b69494430f7e4161398049c1d8ac1307c210d1442c51aa96abb527ef2","actualSha256":"589b2af86d8a0357d182e891dac344176a6a7e708a0af31f85fd09c71f78eb2a"},{"path":".harness-integrations-python-deps/truststore-0.10.5.dist-info/RECORD","expectedBytes":972,"actualBytes":1164,"expectedSha256":"f0145908bb041075385f1c6dc1fec5bdd6f4dd8378305e1b8f27bf0683e05c57","actualSha256":"4f3889ec46105a19fabdb951dbf36dd3afe5f36e67e24c0aaf3caa72931a1dd8"},{"path":".harness-integrations-python-deps/typer-0.27.3.dist-info/RECORD","expectedBytes":3407,"actualBytes":3589,"expectedSha256":"47a342e003c546b56df45bcf9c613b14397d45194f0c5f8629726f43f4be9c1d","actualSha256":"eda0f11b0f701df989aee803ed71fd2f37b86b00b60d3e5b66412d8cf1447a92"},{"path":".harness-integrations-python-deps/typing_extensions-4.16.0.dist-info/RECORD","expectedBytes":531,"actualBytes":737,"expectedSha256":"df79b14d51e84a4e19976bb06cecb42d94d4f075a36209c4717e024a08e5598e","actualSha256":"cd4901d222f46c624fd311faf87e2627bb31de0cf59972cf09f80575dd4f881e"},{"path":".harness-integrations-python-deps/typing_inspection-0.4.4.dist-info/RECORD","expectedBytes":891,"actualBytes":1095,"expectedSha256":"b9cac4f3c874712a1b47a768067c83e0bd247649d2b060d02615874c28545aff","actualSha256":"7e1b05975787f91b3a887a75fb8dfc377064eff0836bdbcfbe2dac66f57d6f44"},{"path":".harness-integrations-python-deps/tzdata-2026.6.dist-info/RECORD","expectedBytes":55420,"actualBytes":55604,"expectedSha256":"19bfa96dd9bd7ee53fe0fd84524726392c121e09b7e7a1983a63e87f7ee1ee65","actualSha256":"389541f63aac2aad1ad76075d7422c3a4b6ced0a259770f9f78dc25fd20e3fc1"},{"path":".harness-integrations-python-deps/uvicorn-0.54.0.dist-info/RECORD","expectedBytes":4537,"actualBytes":4723,"expectedSha256":"a5e22a7ddd83e6c762462597f6ff63b6dbe92e69ffbf75e390818554489b26f8","actualSha256":"4f225ae37086c6738e8328055e7dfe4e7668d2f017f2c66b6d6a7ea9816e1347"}],"truncated":true}
+2026-11-15T18:43:02.6714788Z windows-credential-lease.cc
+2026-11-15T18:43:11.1883223Z    Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+2026-11-15T18:43:15.1707108Z Lockfile is up to date, resolution step is skipped
+2026-11-15T18:43:15.2788451Z Packages: +741
+2026-11-15T18:43:15.2935116Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-15T18:43:15.2935630Z Progress: resolved 0, reused 1, downloaded 0, added 0
+2026-11-15T18:43:16.2898583Z Progress: resolved 0, reused 716, downloaded 0, added 14
+2026-11-15T18:43:17.2956192Z Progress: resolved 0, reused 716, downloaded 0, added 32
+2026-11-15T18:43:18.2998254Z Progress: resolved 0, reused 716, downloaded 0, added 45
+2026-11-15T18:43:19.3010495Z Progress: resolved 0, reused 716, downloaded 0, added 107
+2026-11-15T18:43:20.3047813Z Progress: resolved 0, reused 716, downloaded 0, added 167
+2026-11-15T18:43:21.3135674Z Progress: resolved 0, reused 716, downloaded 0, added 174
+2026-11-15T18:43:22.3153380Z Progress: resolved 0, reused 716, downloaded 0, added 254
+2026-11-15T18:43:23.3305152Z Progress: resolved 0, reused 716, downloaded 0, added 360
+2026-11-15T18:43:24.3386799Z Progress: resolved 0, reused 716, downloaded 0, added 438
+2026-11-15T18:43:25.3500731Z Progress: resolved 0, reused 716, downloaded 0, added 643
+2026-11-15T18:43:26.3585565Z Progress: resolved 0, reused 716, downloaded 0, added 660
+2026-11-15T18:43:27.3669230Z Progress: resolved 0, reused 716, downloaded 0, added 696
+2026-11-15T18:43:28.3905735Z Progress: resolved 0, reused 716, downloaded 0, added 741
+2026-11-15T18:43:28.3916275Z Progress: resolved 0, reused 716, downloaded 0, added 741, done
+2026-11-15T18:43:29.0080106Z 
+2026-11-15T18:43:29.0081030Z devDependencies: skipped
+2026-11-15T18:43:29.0081209Z 
+2026-11-15T18:43:29.0141390Z Done in 14s using pnpm v10.30.3
+2026-11-15T18:44:08.9641886Z   • electron-builder  version=26.18.0 os=10.0.26100
+2026-11-15T18:44:08.9699220Z   • Specified application directory equals to project dir — superfluous or wrong configuration  appDirectory=D:/a/Gen-V1/Gen-V1/.harness-installed-package/desktop-stage-1794768173985/desktop-app
+2026-11-15T18:44:09.3870380Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=pnpm detected=D:\a\Gen-V1\Gen-V1
+2026-11-15T18:44:09.3877248Z   • detected workspace root for project using packageManager field  pm=pnpm config=pnpm@10.30.3 resolved=D:\a\Gen-V1\Gen-V1 projectDir=D:\a\Gen-V1\Gen-V1\.harness-installed-package\desktop-stage-1794768173985\desktop-app
+2026-11-15T18:44:09.3899769Z   • skipped dependencies rebuild  reason=npmRebuild is set to false
+2026-11-15T18:44:09.3900643Z   • packaging       platform=win32 arch=x64 electron=45.2.0 appOutDir=.harness-installed-package\desktop-release-0.6.5\win-unpacked
+2026-11-15T18:44:09.6304007Z   • downloaded      label=electron progress=100%
+2026-11-15T18:44:12.9459629Z   • downloaded electron zip extracted successfully  output=D:\a\Gen-V1\Gen-V1\.harness-installed-package\desktop-release-0.6.5\win-unpacked
+2026-11-15T18:44:12.9550275Z   • searching for node modules  pm=pnpm searchDir=D:\a\Gen-V1\Gen-V1\.harness-installed-package\desktop-stage-1794768173985\desktop-app
+2026-11-15T18:44:13.9261758Z   • no node modules found in collection, trying next search directory  pm=pnpm searchDir=D:\a\Gen-V1\Gen-V1\.harness-installed-package\desktop-stage-1794768173985\desktop-app
+2026-11-15T18:44:13.9262710Z   • searching for node modules  pm=pnpm searchDir=D:\a\Gen-V1\Gen-V1
+2026-11-15T18:44:15.8475049Z   • platform-specific optional dependencies not bundled — add them to your project's optionalDependencies if your app requires them (pnpm 10+ does not auto-install transitive platform binaries)  dependencies=["@anthropic-ai/claude-agent-sdk-linux-x64@0.3.316","@anthropic-ai/claude-agent-sdk-linux-arm64@0.3.316","@anthropic-ai/claude-agent-sdk-linux-x64-musl@0.3.316","@anthropic-ai/claude-agent-sdk-linux-arm64-musl@0.3.316","@anthropic-ai/claude-agent-sdk-darwin-x64@0.3.316","@anthropic-ai/claude-agent-sdk-darwin-arm64@0.3.316","@anthropic-ai/claude-agent-sdk-win32-arm64@0.3.316","@biomejs/cli-android-arm64@2.6.4","@biomejs/cli-android-x64@2.6.4","@biomejs/cli-darwin-arm64@2.6.4","@biomejs/cli-darwin-x64@2.6.4","@biomejs/cli-linux-arm64@2.6.4","@biomejs/cli-linux-arm64-musl@2.6.4","@biomejs/cli-linux-x64@2.6.4","@biomejs/cli-linux-x64-musl@2.6.4","@biomejs/cli-win32-arm64@2.6.4","@cursor/sdk-darwin-arm64@1.0.38","@cursor/sdk-darwin-x64@1.0.38","@cursor/sdk-linux-arm64@1.0.38","@cursor/sdk-linux-x64@1.0.38","@lydell/node-pty-darwin-arm64@1.1.0","@lydell/node-pty-darwin-x64@1.1.0","@lydell/node-pty-linux-x64@1.1.0","@lydell/node-pty-win32-arm64@1.1.0","@anthropic-ai/claude-agent-sdk-darwin-arm64@0.3.316","@anthropic-ai/claude-agent-sdk-darwin-x64@0.3.316","@anthropic-ai/claude-agent-sdk-linux-arm64@0.3.316","@anthropic-ai/claude-agent-sdk-linux-arm64-musl@0.3.316","@anthropic-ai/claude-agent-sdk-linux-x64@0.3.316","@anthropic-ai/claude-agent-sdk-linux-x64-musl@0.3.316","@anthropic-ai/claude-agent-sdk-win32-arm64@0.3.316","@esbuild/android-arm@0.25.12","@esbuild/android-arm64@0.25.12","@esbuild/android-x64@0.25.12","@esbuild/darwin-arm64@0.25.12","@esbuild/darwin-x64@0.25.12","@esbuild/freebsd-arm64@0.25.12","@esbuild/freebsd-x64@0.25.12","@esbuild/linux-arm@0.25.12","@esbuild/linux-arm64@0.25.12","@esbuild/linux-ia32@0.25.12","@esbuild/linux-loong64@0.25.12","@esbuild/linux-ppc64@0.25.12","@esbuild/linux-riscv64@0.25.12","@esbuild/linux-s390x@0.25.12","@esbuild/linux-x64@0.25.12","@esbuild/win32-arm64@0.25.12","@esbuild/win32-ia32@0.25.12","@lydell/node-pty-darwin-arm64@1.1.0","@lydell/node-pty-darwin-x64@1.1.0","@lydell/node-pty-linux-arm64@1.1.0","@lydell/node-pty-linux-x64@1.1.0","@lydell/node-pty-win32-arm64@1.1.0","@napi-rs/canvas-android-arm64@1.0.13","@napi-rs/canvas-darwin-arm64@1.0.13","@napi-rs/canvas-darwin-x64@1.0.13","@napi-rs/canvas-linux-arm-gnueabihf@1.0.13","@napi-rs/canvas-linux-arm64-gnu@1.0.13","@napi-rs/canvas-linux-arm64-musl@1.0.13","@napi-rs/canvas-linux-riscv64-gnu@1.0.13","@napi-rs/canvas-linux-x64-gnu@1.0.13","@napi-rs/canvas-linux-x64-musl@1.0.13","@napi-rs/canvas-win32-arm64-msvc@1.0.13","@esbuild/android-arm@0.28.2","@esbuild/android-arm64@0.28.2","@esbuild/android-x64@0.28.2","@esbuild/darwin-arm64@0.28.2","@esbuild/darwin-x64@0.28.2","@esbuild/freebsd-arm64@0.28.2","@esbuild/freebsd-x64@0.28.2","@esbuild/linux-arm@0.28.2","@esbuild/linux-arm64@0.28.2","@esbuild/linux-ia32@0.28.2","@esbuild/linux-loong64@0.28.2","@esbuild/linux-ppc64@0.28.2","@esbuild/linux-riscv64@0.28.2","@esbuild/linux-s390x@0.28.2","@esbuild/linux-x64@0.28.2","@esbuild/win32-arm64@0.28.2","@esbuild/win32-ia32@0.28.2","@libsql/darwin-arm64@0.5.29","@libsql/darwin-x64@0.5.29","@libsql/linux-arm-gnueabihf@0.5.29","@libsql/linux-arm-musleabihf@0.5.29","@libsql/linux-arm64-gnu@0.5.29","@libsql/linux-arm64-musl@0.5.29","@libsql/linux-x64-gnu@0.5.29","@libsql/linux-x64-musl@0.5.29","@img/sharp-libvips-darwin-arm64@1.3.4","@img/sharp-libvips-darwin-x64@1.3.4","@img/sharp-libvips-linux-arm@1.3.4","@img/sharp-libvips-linux-arm64@1.3.4","@img/sharp-libvips-linux-ppc64@1.3.4","@img/sharp-libvips-linux-riscv64@1.3.4","@img/sharp-libvips-linux-s390x@1.3.4","@img/sharp-libvips-linux-x64@1.3.4","@img/sharp-win32-arm64@0.35.5","@img/sharp-win32-ia32@0.35.5","@img/sharp-darwin-arm64@0.35.5","@img/sharp-darwin-x64@0.35.5","@img/sharp-linux-arm@0.35.5","@img/sharp-linux-arm64@0.35.5","@img/sharp-linux-ppc64@0.35.5","@img/sharp-linux-riscv64@0.35.5","@img/sharp-linux-s390x@0.35.5","@img/sharp-linux-x64@0.35.5","@napi-rs/canvas-android-arm64@0.1.80","@napi-rs/canvas-darwin-arm64@0.1.80","@napi-rs/canvas-darwin-x64@0.1.80","@napi-rs/canvas-linux-arm-gnueabihf@0.1.80","@napi-rs/canvas-linux-arm64-gnu@0.1.80","@napi-rs/canvas-linux-arm64-musl@0.1.80","@napi-rs/canvas-linux-riscv64-gnu@0.1.80","@napi-rs/canvas-linux-x64-gnu@0.1.80","@napi-rs/canvas-linux-x64-musl@0.1.80"]
+2026-11-15T18:44:15.8489717Z   • duplicate dependency references  dependencies=["@modelcontextprotocol/sdk@1.32.2","ajv@8.18.0","ajv-formats@3.0.1","@modelcontextprotocol/server@2.3.1","express@5.3.0","fast-json-stringify@7.2.0","@hono/node-server@2.1.5","@inquirer/core@12.0.6","@opentelemetry/core@2.12.0","cors@2.8.6","fast-xml-parser@5.11.2","gcp-metadata@9.2.3","glob@14.0.2","js-yaml@5.4.3","minimatch@11.0.1","openai@7.47.0","@earendil-works/pi-ai@1.4.0","cross-spawn@7.0.6","debug@4.4.3","@aws-sdk/client-bedrock-runtime@3.1127.0","@aws-sdk/credential-provider-sso@3.973.23","@azure/identity@4.14.1","@azure/msal-node@7.1.2","@azure/storage-blob@12.34.0","@smithy/node-http-handler@4.14.0","google-auth-library@11.3.2","json-schema-to-ts@3.1.1","standardwebhooks@1.1.1","@inquirer/type@4.2.1","string-width@4.2.3","socket.io-parser@4.2.7","@ai-sdk/provider@3.0.19","@ai-sdk/provider-utils@4.0.63","keyv@5.6.0","editions@6.22.0","@opentelemetry/otlp-transformer@0.223.0","@opentelemetry/sdk-trace@2.12.0","http-proxy-agent@9.1.0","https-proxy-agent@9.1.0","socks-proxy-agent@10.1.0","@types/node@24.10.0","@aws-sdk/core@3.979.1","@aws-sdk/credential-provider-node@3.972.92","@aws-sdk/types@3.975.0","@smithy/core@3.38.0","@smithy/fetch-http-handler@5.8.0","@smithy/types@4.19.0","@aws-sdk/signature-v4-multi-region@3.996.51","iconv-lite@0.7.3","which@2.0.2","@smithy/hash-node@4.5.2","@smithy/signature-v4@5.7.5","@types/ws@8.18.2","@azure/abort-controller@2.2.0","@azure/core-auth@1.11.0","@azure/core-rest-pipeline@1.25.0","@azure/core-util@1.14.0","@azure/logger@1.4.0","pg@8.23.1","gaxios@8.3.2","qs@6.17.1","@aws-sdk/credential-provider-env@3.972.80","@aws-sdk/credential-provider-http@3.972.82","@aws-sdk/credential-provider-ini@3.973.25","@aws-sdk/credential-provider-login@3.972.87","@aws-sdk/credential-provider-process@3.972.80","@aws-sdk/credential-provider-sso@3.973.24","@aws-sdk/credential-provider-web-identity@3.972.86","@aws-sdk/nested-clients@3.997.54","@smithy/credential-provider-imds@4.5.2","@azure/core-tracing@1.4.0","@typespec/ts-http-runtime@0.3.9","@redis/client@5.12.1"]
+2026-11-15T18:44:15.8496070Z   • missing optional dependencies  dependencies=["fsevents@2.3.3","@esbuild/aix-ppc64@0.25.12","@esbuild/linux-mips64el@0.25.12","@esbuild/netbsd-arm64@0.25.12","@esbuild/netbsd-x64@0.25.12","@esbuild/openbsd-arm64@0.25.12","@esbuild/openbsd-x64@0.25.12","@esbuild/openharmony-arm64@0.25.12","@esbuild/sunos-x64@0.25.12","fsevents@2.3.3","@esbuild/aix-ppc64@0.28.2","@esbuild/linux-mips64el@0.28.2","@esbuild/netbsd-arm64@0.28.2","@esbuild/netbsd-x64@0.28.2","@esbuild/openbsd-arm64@0.28.2","@esbuild/openbsd-x64@0.28.2","@esbuild/openharmony-arm64@0.28.2","@esbuild/sunos-x64@0.28.2","@img/sharp-libvips-linuxmusl-arm64@1.3.4","@img/sharp-libvips-linuxmusl-x64@1.3.4","@img/sharp-linuxmusl-arm64@0.35.5","@img/sharp-linuxmusl-x64@0.35.5","@img/sharp-webcontainers-wasm32@0.35.5","@img/sharp-freebsd-wasm32@0.35.5"]
+2026-11-15T18:44:19.8384039Z   • updating asar integrity executable resource  executablePath=.harness-installed-package\desktop-release-0.6.5\win-unpacked\Gen V1.exe
+2026-11-15T18:44:52.4923146Z   • executable resource editing and code signing skipped — signAndEditExecutable is false. To skip only code signing while keeping icon and metadata applied, use signExecutable: false instead.  exe=.harness-installed-package\desktop-release-0.6.5\win-unpacked\Gen V1.exe
+2026-11-15T18:44:52.4928580Z   • building        target=nsis file=.harness-installed-package\desktop-release-0.6.5\Gen-V1-Setup-0.6.5-win-x64.exe archs=x64 oneClick=true perMachine=false
+2026-11-15T18:44:52.4953726Z   • default Electron icon is used  reason=application icon is not set
+2026-11-15T18:44:52.6166720Z   • downloaded      label=7zip-win-x64.tar.gz progress=100%
+2026-11-15T18:56:30.0513966Z   • downloaded      label=nsis-resources-3.4.1.7z progress=100%
+2026-11-15T18:56:30.6126867Z   • downloaded      label=nsis-3.0.4.1.7z progress=100%
+2026-11-15T18:56:31.7402723Z   • no code signing certificate configured, signing is skipped  path=.harness-installed-package\desktop-release-0.6.5\Gen-V1-Setup-0.6.5-win-x64.__uninstaller.exe
+2026-11-15T18:56:35.4185995Z   • no code signing certificate configured, signing is skipped  path=.harness-installed-package\desktop-release-0.6.5\Gen-V1-Setup-0.6.5-win-x64.exe
+2026-11-15T18:56:36.5690346Z {"artifacts":["D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe"]}
+2026-11-15T18:56:36.7848446Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T18:56:36.7848884Z $ErrorActionPreference = 'Stop'
+2026-11-15T18:56:36.7849291Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T18:56:36.7849709Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T18:56:36.7850156Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T18:56:36.7850605Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T18:56:36.7851082Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T18:56:36.7851600Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T18:56:36.7852169Z & pnpm @verifyArgs
+2026-11-15T18:56:36.7852425Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T18:56:36.7910905Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T18:56:36.7911228Z env:
+2026-11-15T18:56:36.7911465Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T18:56:36.7911801Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7912127Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T18:56:36.7912490Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7912773Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7913080Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7913413Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T18:56:36.7913801Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-2a7f64a5ca1f4d80a5a9a287f72c105b
+2026-11-15T18:56:36.7914128Z ##[endgroup]
+2026-11-15T18:56:37.2148785Z HARNESS_INSTALLED_VERIFY_ARGV={"executable":"pnpm","args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"]}
+2026-11-15T19:05:15.3955143Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794769510832-da5a7ead-c349-44c0-855a-c4cb80c2367d","passed":true}
+2026-11-15T19:06:17.1177920Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5","passed":false}
+2026-11-15T19:06:17.1238447Z node:internal/modules/run_main:107
+2026-11-15T19:06:17.1238718Z     triggerUncaughtException(
+2026-11-15T19:06:17.1239000Z     ^
+2026-11-15T19:06:17.1239152Z 
+2026-11-15T19:06:17.1239380Z locator.click: Timeout 30000ms exceeded.
+2026-11-15T19:06:17.1239591Z Call log:
+2026-11-15T19:06:17.1240774Z   - waiting for getByRole('button', { name: 'Project memory', exact: true })
+2026-11-15T19:06:17.1241820Z 
+2026-11-15T19:06:17.1242134Z     at Module.verifyInstalledMemoryUI (D:\a\Gen-V1\Gen-V1\scripts\installed-memory-retention.ts:127:75)
+2026-11-15T19:06:17.1242790Z     at async launchInstalled (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:310:13)
+2026-11-15T19:06:17.1243428Z     at async verifyInstalledDesktop (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:362:84)
+2026-11-15T19:06:17.1244045Z     at async <anonymous> (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:384:2) {
+2026-11-15T19:06:17.1244522Z   name: 'TimeoutError'
+2026-11-15T19:06:17.1244843Z }
+2026-11-15T19:06:17.1244996Z 
+2026-11-15T19:06:17.1245091Z Node.js v24.22.2
+2026-11-15T19:06:17.2309383Z ##[error]Process completed with exit code 1.
+2026-11-15T19:06:17.2862619Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-15T19:06:17.2862929Z with:
+2026-11-15T19:06:17.2863113Z   name: installed-memory-43748168614-1
+2026-11-15T19:06:17.2866086Z   retention-days: 7
+2026-11-15T19:06:17.2866260Z   if-no-files-found: warn
+2026-11-15T19:06:17.2869132Z   include-hidden-files: true
+2026-11-15T19:06:17.2870103Z   path: .harness-installed-package/desktop-release-*/build-manifest.json
+.harness-installed-package/desktop-stage-*/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json
+.harness-desktop-installed/run-*/owner.json
+.harness-desktop-installed/run-*/verification.json
+.harness-desktop-installed/run-*/*.png
+.harness-desktop-installed/run-*/installed-memory-redacted-export.json
+.harness-packaged-providers/run-*/verification.json
+
+2026-11-15T19:06:17.2873854Z   compression-level: 6
+2026-11-15T19:06:17.2874013Z   overwrite: false
+2026-11-15T19:06:17.2876658Z env:
+2026-11-15T19:06:17.2876904Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T19:06:17.2880007Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T19:06:17.2880319Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T19:06:17.2882700Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T19:06:17.2882977Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T19:06:17.2885752Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T19:06:17.2886034Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T19:06:17.2889193Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-2a7f64a5ca1f4d80a5a9a287f72c105b
+2026-11-15T19:06:17.2889478Z ##[endgroup]
+2026-11-15T19:06:17.8975290Z (node:7152) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T19:06:17.8985228Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T19:06:17.9143871Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-11-15T19:06:17.9145691Z The least common ancestor is D:\a\Gen-V1\Gen-V1. This will be the root directory of the artifact
+2026-11-15T19:06:17.9146303Z With the provided path, there will be 9 files uploaded
+2026-11-15T19:06:17.9149557Z Artifact name is valid!
+2026-11-15T19:06:17.9150643Z Root directory input is valid!
+2026-11-15T19:06:18.2308348Z Beginning upload of artifact content to blob storage
+2026-11-15T19:06:18.3018625Z (node:7152) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T19:06:18.6358171Z Uploaded bytes 673654
+2026-11-15T19:06:18.6803653Z Finished uploading artifact content to blob storage!
+2026-11-15T19:06:18.6804761Z SHA256 digest of uploaded artifact zip is 367e7879638a37bc2bba402c9ab035462af6ceda7415060357d3fe75e6930fd0
+2026-11-15T19:06:18.6806453Z Finalizing artifact upload
+2026-11-15T19:06:19.0582423Z Artifact installed-memory-43748168614-1.zip successfully finalized. Artifact ID 14176435300
+2026-11-15T19:06:19.0583622Z Artifact installed-memory-43748168614-1 has been successfully uploaded! Final size is 673654 bytes. Artifact ID is 14176435300
+2026-11-15T19:06:19.0593716Z Artifact download URL: https://github.com/skytuhua-org/Gen-V1/actions/runs/43748168614/artifacts/14176435300
+2026-11-15T19:06:19.1156338Z Post job cleanup.
+2026-11-15T19:06:19.1187381Z ##[start-action display=Cache pinned Python test dependencies;id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.python-deps]
+2026-11-15T19:06:19.1189571Z ##[end-action id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.python-deps;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T19:06:19.1191034Z ##[start-action display=Install Python;id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__actions_setup-python]
+2026-11-15T19:06:19.1192408Z ##[end-action id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__actions_setup-python;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T19:06:19.1193757Z ##[start-action display=Install Node.js;id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__actions_setup-node]
+2026-11-15T19:06:19.1194962Z ##[end-action id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__actions_setup-node;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T19:06:19.1196249Z ##[start-action display=Install pnpm;id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__pnpm_action-setup]
+2026-11-15T19:06:19.1305152Z Post job cleanup.
+2026-11-15T19:06:19.2449036Z Pruning is unnecessary.
+2026-11-15T19:06:19.2546916Z ##[end-action id=__d1a52247-46eb-4864-89c5-3af3047a7dbf.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=135]
+2026-11-15T19:06:19.2759509Z Post job cleanup.
+2026-11-15T19:06:19.3817445Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T19:06:19.4796349Z git version 2.56.0.windows.4
+2026-11-15T19:06:19.4853826Z Temporarily overriding HOME='D:\a\_temp\7bb8d7c2-7e9f-4ad7-af1e-3be513d84c7e' before making global git config changes
+2026-11-15T19:06:19.4854585Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T19:06:19.4860881Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T19:06:19.5174896Z Removing SSH command configuration
+2026-11-15T19:06:19.5182964Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T19:06:19.5449759Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T19:06:19.9763579Z Removing HTTP extra header
+2026-11-15T19:06:19.9771472Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T19:06:20.0026130Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T19:06:20.3851379Z Removing includeIf entries pointing to credentials config files
+2026-11-15T19:06:20.3861150Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T19:06:20.4081303Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T19:06:20.4081605Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T19:06:20.4109711Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T19:06:20.4328218Z D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T19:06:20.4356686Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T19:06:20.4596431Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T19:06:20.4810401Z D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T19:06:20.4836688Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config
+2026-11-15T19:06:20.5069406Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T19:06:20.8860963Z Removing credentials config 'D:\a\_temp\git-credentials-004a1cba-3e47-4193-8432-8f78f69f703c.config'
+2026-11-15T19:06:20.9057472Z Cleaning up orphan processes
+2026-11-15T19:06:21.0208637Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02, pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,6 +1,7 @@
 import {test,expect,type Page} from '@playwright/test';
 import type { Route } from '@playwright/test';
 import type { Snapshot, Thread } from '../../packages/contracts';
+import type {SourceDraftState} from '../../apps/web/src/workbench-recovery';
 
 // Adapted from frontend.spec.ts's host/snapshot protocol pattern. Independent
 // synthetic data; the spec is neither imported nor modified.
@@ -41,7 +42,7 @@ async function setup(page:Page,query=''){
  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
 }
 const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
-async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+async function open(page:Page){await page.getByRole('button',{name:'Saved drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
 async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
 }
@@ -72,7 +73,7 @@ test('quota failure and corrupt records keep the active draft and offer retry',a
  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');
 });
 test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{
- const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
+ const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Saved drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
 });
 test('approved list captures and stress names remain usable at 1440/1024/768 with reduced motion',async({page},info)=>{
  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);
@@ -105,7 +106,38 @@ for(const kind of ['excerpt','skill'] as const)test(`new ${kind}-only saves rema
  const modal=page.getByRole('dialog',{name:'Review saved references',exact:true});await expect(modal).toBeVisible();await expect(modal.getByText(/No prompt text was saved/)).toBeVisible();
  if(kind==='excerpt')await expect(modal.getByRole('textbox',{name:'Saved excerpt text · reference-only',exact:true})).toHaveValue('Reviewed saved output');else await expect(modal.getByText(/Skill saved-skill: unvalidated revision/)).toBeVisible();
  await expect(modal.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await expect(modal.getByRole('button',{name:'Insert text'})).toBeDisabled();await expect(modal.getByRole('button',{name:'Replace text'})).toBeDisabled();await expect(draft(page)).toHaveValue('');
- await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Terminal selection · reference-only',exact:true})).toBeHidden();expect(writes).toEqual([]);
+ await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Terminal selection · reference-only',exact:true})).toBeHidden();expect(writes).toEqual([]);
+});
+
+test('source-only named metadata remains inspectable after selection removal without changing the current send mode',async({page})=>{
+ const writes=await setup(page);
+ const ref=await page.evaluate(async owner=>{
+  const path='/apps/web/src/workbench-recovery.ts',recovery=await import(path);
+  const logicalOwner={threadId:owner.threadId,projectId:owner.projectId,workspaceId:owner.workingCopyId};
+  const ref={captureId:'named-source-capture',keepCaptured:true,source:{kind:'MESSAGE' as const,sourceId:'saved-message',sourceRevision:'saved-revision',logicalOwner,contentDigest:'a'.repeat(64),capturedAt:'2026-11-15T10:00:00.000Z',range:{encoding:'UTF16' as const,start:0,end:4,selectedTextDigest:'b'.repeat(64)}}};
+  await recovery.updateSourceDraft(logicalOwner,(state:SourceDraftState)=>({...state,sourceRefs:[ref],sendMode:'AFTER_CURRENT'}));return ref;
+ },owner);
+ await page.getByRole('button',{name:'Saved drafts',exact:true}).click();
+ await page.getByRole('button',{name:'Save current prompt',exact:true}).click();
+ await page.getByLabel('Draft name',{exact:true}).fill('Saved source identity');
+ await page.getByRole('button',{name:'Save draft',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+ await page.evaluate(async owner=>{const path='/apps/web/src/workbench-recovery.ts',recovery=await import(path);await recovery.updateSourceDraft({threadId:owner.threadId,projectId:owner.projectId,workspaceId:owner.workingCopyId},(state:SourceDraftState)=>({...state,sourceRefs:[],sendMode:'NOW'}));},owner);
+ await page.reload();await expect(draft(page)).toBeEnabled();
+ await page.getByRole('button',{name:'Saved drafts',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('1 sources');
+ await page.getByRole('button',{name:'Review',exact:true}).click();
+ const modal=page.getByRole('dialog',{name:'Review saved references',exact:true});
+ await expect(modal).toContainText('Saved send mode: After current run');
+ await expect(modal).toContainText('current source selections and send mode');
+ await modal.getByText('Source MESSAGE saved-message · capture named-source-capture',{exact:true}).click();
+ const metadata=modal.getByRole('textbox',{name:'Saved source metadata · named-source-capture',exact:true});
+ await expect(metadata).toHaveAttribute('readonly','');expect(JSON.parse(await metadata.inputValue())).toEqual(ref);
+ await expect(modal.getByRole('button',{name:'Insert text',exact:true})).toBeDisabled();
+ await expect(modal.getByRole('button',{name:'Replace text',exact:true})).toBeDisabled();
+ await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();
+ expect(await page.evaluate(async owner=>{const path='/apps/web/src/workbench-recovery.ts',recovery=await import(path);const state=await recovery.readSourceDraft({threadId:owner.threadId,projectId:owner.projectId,workspaceId:owner.workingCopyId});return {sourceRefs:state.sourceRefs,sendMode:state.sendMode};},owner)).toEqual({sourceRefs:[],sendMode:'NOW'});
+ expect(writes).toEqual([]);
 });
 
 test('legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority',async({page},info)=>{

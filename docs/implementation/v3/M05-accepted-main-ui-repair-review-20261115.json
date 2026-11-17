@@ -1,0 +1,596 @@
+{
+  "schemaVersion": 1,
+  "review": "M05 accepted-main UI compatibility and workspace repair",
+  "createdAt": "2026-11-15T22:15:17.181605+00:00",
+  "status": "LOCAL_BROWSER_AND_TYPECHECK_PASS; EXACT_PUBLISHED_WINDOWS_TREE_PENDING",
+  "repository": "skytuhua-org/Gen-V1",
+  "sourceContext": {
+    "previousExecutionBase": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "acceptedMain": "bc5aad3c3adbc559cc7a02279affecc86bec758f",
+    "m05BeforeMerge": "013c044d66f40136752df4f1903132d601d57851",
+    "localMergeCommit": "4ff48c43699c8c1500a74b4eea9f67f506c57a15",
+    "committedTreeBeforeFinalChecks": "fd77b30edae9563ac23f78463576f85d12187d9e",
+    "trackedWorkingDiffSha256": "8a00af4c3c7c7ed7d62cab7d41237de62c1693885f943a716a4ec64dc946da75",
+    "completeImmutableWorkingTreeProved": false,
+    "limitation": "The recorder hashes git diff HEAD for tracked changes and excludes the new untracked workspace-components-fixture.tsx. All seven final files, including that fixture and its source inventory registration, are independently bound below. Browser and typecheck captures precede the data-only inventory edit. Source-closure capture binds the later tracked diff. These working-cut checks are not complete immutable published-tree proof; final exact-tree Windows CI remains pending."
+  },
+  "finalSources": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 154712,
+      "sha256": "1316968eca5184a032741f4a8adc40fe5c26f35ec3281d92ea1654e908cfae59",
+      "gitBlobSha": "1aad429c3b1f1da677e1e9d0ec6862ceb527d2f2"
+    },
+    {
+      "path": "scripts/installed-native-save.ts",
+      "bytes": 25191,
+      "sha256": "26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741",
+      "gitBlobSha": "67bf25bec79ec2b64a013ca469b95522668d04d4"
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "bytes": 10247,
+      "sha256": "3278040d888e48774abb6f77971d57003bc5c9f037b90d6ec9eb72966a0c95c3",
+      "gitBlobSha": "63a217a7f0850f68b93f848c49ea2b0dd6540519"
+    },
+    {
+      "path": "tests/e2e/workspace-ui.spec.ts",
+      "bytes": 41360,
+      "sha256": "77b1631955f48708789a2bfdf29f753efb20d00d383b6567de3438bae83e18f0",
+      "gitBlobSha": "a7cbf2d0a010fba88f919b31669284ee81b8937b"
+    },
+    {
+      "path": "tests/e2e/workspace-components.spec.ts",
+      "bytes": 6742,
+      "sha256": "fe66ea00271e4258fd7483fd7a6cfa129b77f979fa336f26fc5f3a2c1ba903d7",
+      "gitBlobSha": "f0a0adfb934f9280e144528dd021cfa3786d07d8"
+    },
+    {
+      "path": "tests/e2e/workspace-components-fixture.tsx",
+      "bytes": 6171,
+      "sha256": "18b15f6646baeac6bd2c0d84923df32adc86e77322880539301f74dbf67e0327",
+      "gitBlobSha": "2a49a18b1664ee0a3f15e69a8e1919b75a4880db"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "bytes": 137599,
+      "sha256": "d075b2ad402addcd8ddefbd5b76215a595790ae74c6a5d52149b3715d20b2d40",
+      "gitBlobSha": "637384890c5d1d31f0a48e83d8ef0a0e3347f8ae"
+    }
+  ],
+  "changes": [
+    {
+      "kind": "TEST_FIXTURE",
+      "paths": [
+        "tests/e2e/task-interface-fixture.ts"
+      ],
+      "change": "Serve canonical split layout, profiles and commands using the existing production split reducer, seeded with the exact initial local thread/project owner. This replaces missing API responses, not application behavior."
+    },
+    {
+      "kind": "TEST_FIXTURE",
+      "paths": [
+        "tests/e2e/workspace-ui.spec.ts"
+      ],
+      "change": "Remove a contradictory empty split-layout override; use actual current workspace navigation and status roles; copy only x/y/zoom in the viewport response; await committed native-dock state; distinguish catalog reads from owner-scoped composer reads; keep old-owner actions unavailable until the new context resolves."
+    },
+    {
+      "kind": "TEST_FIXTURE",
+      "paths": [
+        "tests/e2e/workspace-components.spec.ts",
+        "tests/e2e/workspace-components-fixture.tsx"
+      ],
+      "change": "Replace a literal unexpanded fixtureRoot/generated-file URL with a durable fixture using actual WorkspaceCanvas, WorkspaceControls, DesktopProvider, ProjectContextCard and PlanStatus components. Align profile recovery and plan region selectors with current controls. Synthetic host callbacks retain explicit draft failure and native readiness failure followed by host rollback."
+    },
+    {
+      "kind": "COVERAGE_CHANGE",
+      "change": "The retired native main-window pin test is replaced by the current canvas panel alwaysOnTop action. It checks the exact source-panel mutation, visible data-pinned state and absence of native/stop commands. This does not newly prove native window pinning."
+    },
+    {
+      "kind": "PRODUCT_FIX",
+      "paths": [
+        "apps/web/src/App.tsx"
+      ],
+      "change": "An embedded conversation with hostWorkspaceContext no longer renders its own workspace tool panel or has-right-panel shell state. Its tool action forwards to the host with captured view.binding. Ordinary current-main actions retain the shared right panel; custom, different-owner or remote bindings go through existing openSplitTool with explicit owner binding, including its foreign-authority rejection."
+    },
+    {
+      "kind": "PRODUCT_FIX",
+      "paths": [
+        "scripts/installed-native-save.ts"
+      ],
+      "change": "Separate reviewed native Save diagnostic repair replaces RootElement.Children discovery with bounded exact-owned-PID EnumWindows and AutomationElement.FromHandle. All subsequent owner, title, unique-control, destination lease, completion/readback and cleanup checks remain. The local seven-case test is unit custody evidence only."
+    },
+    {
+      "kind": "SOURCE_INVENTORY",
+      "paths": [
+        "scripts/public-source-files.json"
+      ],
+      "change": "Root added exactly the new durable component fixture to the declared exported source list. Runtime inventory and all source-closure assertions remain unchanged; existing public-source tests pass eleven cases."
+    }
+  ],
+  "preservedAssertions": [
+    "Exact Workspace panel role query remains strict and detects duplicate asides; no first/nth selector workaround.",
+    "Primary close, ordinary reopen, reload, anchored draft, no detached canvas panels and no run.stop remain.",
+    "The real embedded composer Inspect changes action now must select the shared Diff tab and preserve its draft.",
+    "Independent main/side drafts, child read-only transcript, current native identity, owner retarget refusal, no unauthorized rebase and fixed tool binding remain.",
+    "Read cancellation still requires the obsolete request to abort while each live owner request remains active.",
+    "Profile rollback, refused draft flush, no-stop hiding, keyboard zoom/snapped geometry, mounted artifact edits, reduced motion and composer focus remain."
+  ],
+  "historicalBaseline": {
+    "record": {
+      "path": "docs/implementation/v3/logs/m08-browser-workspace.log",
+      "bytes": 1744,
+      "sha256": "14582f6ffc8b3317a4029a44ac7b70ecec47039b1b4f09830bb1c21a41028f19",
+      "gitBlobSha": "be2631f287963973bdb81325eda1bdc2e1875919"
+    },
+    "reportedCases": {
+      "failed": 11,
+      "passed": 22
+    },
+    "interpretation": "This committed historical record lists the same six component-fixture failures and five workspace viewport/dock/status/context failures. The two model-read expectations changed with the accepted canonical conversation plane. This review did not rerun a pristine historical checkout."
+  },
+  "actualLocalAttempts": [
+    {
+      "label": "continuation-restored-main-typecheck",
+      "classification": "STATIC_TYPECHECK",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:42:35.374341+00:00",
+      "endedAt": "2026-11-15T21:43:26.019986+00:00",
+      "elapsedMs": 50531,
+      "caseCounts": null,
+      "note": "Merged accepted-main source typecheck before these repairs.",
+      "log": {
+        "file": "continuation-restored-main-typecheck.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "metadata": {
+        "file": "continuation-restored-main-typecheck.meta.json",
+        "bytes": 1121,
+        "sha256": "cc5006008a59d197e260e46c76fe2c586cf4709aaac41e9092fc2116dc56249a"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-toggle-red",
+      "classification": "SETUP_FAILURE",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:44:20.730635+00:00",
+      "endedAt": "2026-11-15T21:44:23.457554+00:00",
+      "elapsedMs": 2709,
+      "caseCounts": null,
+      "note": "Wrong pnpm launcher failed before browser execution; not an intended test red.",
+      "log": {
+        "file": "continuation-main-workspace-toggle-red.log",
+        "bytes": 2295,
+        "sha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-toggle-red.meta.json",
+        "bytes": 1513,
+        "sha256": "eb45306e3c0b026b5f5651ad46d7c46d88e3eae797b3d613d6e06d89eaa7465b"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-task-fixture-red",
+      "classification": "SETUP_FAILURE",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:44:20.775333+00:00",
+      "endedAt": "2026-11-15T21:44:22.687150+00:00",
+      "elapsedMs": 1899,
+      "caseCounts": null,
+      "note": "Wrong pnpm launcher failed before browser execution; not an intended test red.",
+      "log": {
+        "file": "continuation-main-task-fixture-red.log",
+        "bytes": 2295,
+        "sha256": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+      },
+      "metadata": {
+        "file": "continuation-main-task-fixture-red.meta.json",
+        "bytes": 1370,
+        "sha256": "671d034cb86a44a736d742234ab457a7ee74ad3cb97889b627f252ed44638198"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-toggle-browser-red",
+      "classification": "PLATFORM_BROWSER",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:45:46.574464+00:00",
+      "endedAt": "2026-11-15T21:46:27.491526+00:00",
+      "elapsedMs": 40908,
+      "caseCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "note": "Real primary-workspace regression: retired Panels selector was absent.",
+      "log": {
+        "file": "continuation-main-workspace-toggle-browser-red.log",
+        "bytes": 2600,
+        "sha256": "5294b87b32525947334f6de89298bb5ce529d30f3945cae49ce6fd2c7c04818f"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-toggle-browser-red.meta.json",
+        "bytes": 1554,
+        "sha256": "acc77a8bde906f6a9bf6900619a9f213cfc74ef7ece7d424ecaa5f3cc8db9f87"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-task-fixture-browser-red",
+      "classification": "PLATFORM_BROWSER",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:45:46.602847+00:00",
+      "endedAt": "2026-11-15T21:46:11.817307+00:00",
+      "elapsedMs": 25188,
+      "caseCounts": {
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0
+      },
+      "note": "Real acknowledgment regression: canonical split API returned 404 and initial table did not render.",
+      "log": {
+        "file": "continuation-main-task-fixture-browser-red.log",
+        "bytes": 3176,
+        "sha256": "476feb63219ca6c71dac94603ae0a07ceb7912b4617fc21e0cedd1fffb976cd0"
+      },
+      "metadata": {
+        "file": "continuation-main-task-fixture-browser-red.meta.json",
+        "bytes": 1411,
+        "sha256": "e4c8e95ae1ee3e419724a26f0c6235dfcec509169aa564071945ecbfd838016b"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-browser-green",
+      "classification": "PLATFORM_BROWSER",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:47:39.933334+00:00",
+      "endedAt": "2026-11-15T21:51:11.945453+00:00",
+      "elapsedMs": 211976,
+      "caseCounts": {
+        "passed": 20,
+        "failed": 13,
+        "skipped": 0
+      },
+      "note": "Despite its filename, this is a failed full suite: six missing component-fixture cases and seven workspace cases.",
+      "log": {
+        "file": "continuation-main-workspace-browser-green.log",
+        "bytes": 51245,
+        "sha256": "108ef5bac7c72ee861c263f9a295922eaf7847bc06100bc3472e0ff3724d89c7"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-browser-green.meta.json",
+        "bytes": 1381,
+        "sha256": "41fe4ef69ca5aab768970afb6279ef4fb8eb4a8d158b2e4971b06f00fae6a4a0"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-task-fixture-browser-green-2",
+      "classification": "PLATFORM_BROWSER",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:48:01.433354+00:00",
+      "endedAt": "2026-11-15T21:48:28.117854+00:00",
+      "elapsedMs": 25226,
+      "caseCounts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "Acknowledgment case passed after the common fixture used the production split reducer.",
+      "log": {
+        "file": "continuation-main-task-fixture-browser-green-2.log",
+        "bytes": 953,
+        "sha256": "ad5201af2ac19cdd75116810be93756c0315332d2f218c04bbdd6aa659b0b2d6"
+      },
+      "metadata": {
+        "file": "continuation-main-task-fixture-browser-green-2.meta.json",
+        "bytes": 1417,
+        "sha256": "44c53f7fac882b1be4f40cfe3265845210236505f51ec13a2c54ca9c60a25dcc"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-document-browser-check",
+      "classification": "PLATFORM_BROWSER",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:49:10.030276+00:00",
+      "endedAt": "2026-11-15T21:51:12.896431+00:00",
+      "elapsedMs": 122854,
+      "caseCounts": {
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "Existing document suite, including all four requested widths, passed after the common fixture repair.",
+      "log": {
+        "file": "continuation-main-document-browser-check.log",
+        "bytes": 2627,
+        "sha256": "9fb23a20fd58782336e093faaa76a99a108521828e09c0b0abeb4a4011051ae4"
+      },
+      "metadata": {
+        "file": "continuation-main-document-browser-check.meta.json",
+        "bytes": 1400,
+        "sha256": "36acc0f9d4cec213d93623cb1083bfe380bc60bafd1bad87dda1a15acb2371f4"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-fixture-repair-check-1",
+      "classification": "PLATFORM_BROWSER",
+      "status": "FAIL",
+      "exitCode": 1,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T21:58:31.505881+00:00",
+      "endedAt": "2026-11-15T22:00:47.126134+00:00",
+      "elapsedMs": 135565,
+      "caseCounts": {
+        "passed": 31,
+        "failed": 2,
+        "skipped": 0
+      },
+      "note": "Full suite exposed the stale exact plan-title text selector and two actual Workspace panel asides after reload.",
+      "log": {
+        "file": "continuation-main-workspace-fixture-repair-check-1.log",
+        "bytes": 16214,
+        "sha256": "85bd36cec4873bc674efa425c21e09cf5c62b39096a6b30442a3c25044634706"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-fixture-repair-check-1.meta.json",
+        "bytes": 1632,
+        "sha256": "1f57c4aa4af7f6bde360708cb9db232d36935f87e8c9d433446a968ed2221547"
+      },
+      "recordedPhaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    },
+    {
+      "label": "continuation-main-plan-component-check",
+      "classification": "PLATFORM_BROWSER",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T22:04:10.323678+00:00",
+      "endedAt": "2026-11-15T22:04:24.206360+00:00",
+      "elapsedMs": 13565,
+      "caseCounts": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "Exact actual plan region and all existing focus, draft, reduced-motion and unreported-progress assertions passed.",
+      "log": {
+        "file": "continuation-main-plan-component-check.log",
+        "bytes": 963,
+        "sha256": "4326b59196ab9280005d516559a7f646bb51ebf25254d92c68d31b4723c7fbed"
+      },
+      "metadata": {
+        "file": "continuation-main-plan-component-check.meta.json",
+        "bytes": 1753,
+        "sha256": "0a340871c242f744ea0b36ff7781f8d3de09a54e5659dd490684b236b156476e"
+      },
+      "recordedPhaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    },
+    {
+      "label": "continuation-native-save-helper-check",
+      "classification": "UNIT_CUSTODY",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T22:07:31.440524+00:00",
+      "endedAt": "2026-11-15T22:07:33.508689+00:00",
+      "elapsedMs": 2046,
+      "caseCounts": {
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "Existing helper tests passed on the separately reviewed native window discovery repair. No real native Save execution.",
+      "log": {
+        "file": "continuation-native-save-helper-check.log",
+        "bytes": 228,
+        "sha256": "231302961f8200013ef7f8b511ff2f11899742fc5f3087aefed8c3d0f200da37"
+      },
+      "metadata": {
+        "file": "continuation-native-save-helper-check.meta.json",
+        "bytes": 1408,
+        "sha256": "791b76a3640fef4e5f3217036db763933bef0375e459e1e0c33da0c1c4290df9"
+      },
+      "recordedPhaseIds": [
+        "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-final-check",
+      "classification": "PLATFORM_BROWSER",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T22:09:49.816473+00:00",
+      "endedAt": "2026-11-15T22:11:45.741087+00:00",
+      "elapsedMs": 115831,
+      "caseCounts": {
+        "passed": 33,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "All workspace cases passed, including embedded Inspect changes selecting the single shared panel Diff tab and preserving the draft.",
+      "log": {
+        "file": "continuation-main-workspace-final-check.log",
+        "bytes": 5627,
+        "sha256": "4b2ef26dc274fbadba7abd9d807ae29f39c91a7aae62e66e93650dd0e4af7f4e"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-final-check.meta.json",
+        "bytes": 1608,
+        "sha256": "833d1c5ec247775f510ab18a7df68c63d35890f57782e1995f4db1d78566ee9f"
+      },
+      "recordedPhaseIds": [
+        "PLATFORM_BROWSER"
+      ]
+    },
+    {
+      "label": "continuation-main-workspace-final-typecheck",
+      "classification": "STATIC_TYPECHECK",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T22:11:57.739556+00:00",
+      "endedAt": "2026-11-15T22:13:01.178232+00:00",
+      "elapsedMs": 63353,
+      "caseCounts": null,
+      "note": "Full pnpm typecheck passed on the frozen six-file working cut.",
+      "log": {
+        "file": "continuation-main-workspace-final-typecheck.log",
+        "bytes": 87,
+        "sha256": "c4ab001af8e1eff318b6fecff32ac35bcc5dbf0701717fcae6eb0c91e15860ee"
+      },
+      "metadata": {
+        "file": "continuation-main-workspace-final-typecheck.meta.json",
+        "bytes": 1314,
+        "sha256": "5e9c3a84248c2b4959b30dcdf793b99f737aecfc28876999b6b4db963ad969c6"
+      },
+      "recordedPhaseIds": [
+        "BUILD_AND_SETUP"
+      ]
+    },
+    {
+      "label": "continuation-main-public-source-check",
+      "classification": "SOURCE_CLOSURE",
+      "status": "PASS",
+      "exitCode": 0,
+      "termination": "NONE",
+      "startedAt": "2026-11-15T22:13:36.575195+00:00",
+      "endedAt": "2026-11-15T22:13:41.341552+00:00",
+      "elapsedMs": 4750,
+      "caseCounts": {
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0
+      },
+      "note": "Existing public source closure tests passed after registering the durable fixture. Runtime list unchanged.",
+      "log": {
+        "file": "continuation-main-public-source-check.log",
+        "bytes": 231,
+        "sha256": "e2655b9753d6fb3c8fb126c41e9c75e7ae23f1756034914dac24a117bb79391a"
+      },
+      "metadata": {
+        "file": "continuation-main-public-source-check.meta.json",
+        "bytes": 1374,
+        "sha256": "05916e4a0b7b18baec9c9c1c09ba097e3dc15efbce2867201a0a451585daae90"
+      },
+      "recordedPhaseIds": [
+        "REGRESSION_REQUIRED"
+      ]
+    }
+  ],
+  "captureLauncherFailure": {
+    "actualLog": {
+      "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-task-fixture-browser-green-launcher-failure.log",
+      "bytes": 1196,
+      "sha256": "f10472706f2b7f50a726ed2b03525a61ca39f82629bf536fb603e89f567030d5",
+      "gitBlobSha": "8aa88ff238582695f5f158d5cfd90e62cb999ebe"
+    },
+    "status": "FAIL_BEFORE_BROWSER_INVOCATION",
+    "cause": "The old capture helper used git write-tree concurrently and hit the index lock. No canonical command metadata was emitted for this launcher failure. It remains distinct from intended browser reds."
+  },
+  "retainedFailureTraces": [
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-task-fixture-browser-red-artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+      "bytes": 456286,
+      "sha256": "cf6c0bb318730c3109cb30e989158b53c6547e9c66456a084db2a61aa14a2c23",
+      "gitBlobSha": "195a68f680edf14331501f9209212c669cff4cee"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-components-autom-567d6-er-focus-and-reduced-motion/trace.zip",
+      "bytes": 208516,
+      "sha256": "fb3d4fa9764d1bb1c279b86694be26c070dae2739f378a4106f016505206a868",
+      "gitBlobSha": "44dde673206f97b170285e2c66ec849d36576c58"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-local-checks/continuation-main-workspace-fixture-repair-check-1-artifacts/workspace-ui-primary-Works-7ec7e-ugh-close-reopen-and-reload/trace.zip",
+      "bytes": 1798004,
+      "sha256": "c9729a67f3d887d083724fd20c76648e7218842e4508d08008a008a8798dac30",
+      "gitBlobSha": "074736924d54d2bfc511108874baa1c74852aae3"
+    }
+  ],
+  "toolchainAndCapture": {
+    "pinnedPnpm": "10.30.3",
+    "launcher": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/shims/pnpm",
+    "adjustment": "Set PATH to the existing Corepack shims so nested Vite uses the declared pnpm. Preserve the two earlier ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY setup failures.",
+    "recorder": {
+      "path": "/workspace/scratch/36f66011d961/m05-capture-local-check.py",
+      "bytes": 2657,
+      "sha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0",
+      "gitBlobSha": "b99a0600fc25a3ef3175f39d55fcece501bd9f32"
+    },
+    "readOnlyCaptureRepair": "The recorder now reads committed HEAD tree and tracked diff SHA instead of writing the index. It captures actual argv, timestamps, child exit, bounded output and original raw-output digest.",
+    "phaseMapping": "Older recorder metadata labels some Playwright commands BUILD_AND_SETUP. Those bytes remain unchanged; reviewClassification identifies actual executed browser checks. New browser captures use PLATFORM_BROWSER.",
+    "browserEnvironment": "Actual local Linux Chromium through the existing workspace.playwright.config.ts. DesktopBridge/host responses in these suites are synthetic."
+  },
+  "reviewResult": {
+    "concreteRemainingFinding": null,
+    "sourceReviewers": [
+      "ui_audit",
+      "root",
+      "memory_integration_audit"
+    ],
+    "limits": [
+      "No installed Electron native Save or new installed retained-memory PASS is claimed.",
+      "No full enabled installed M05 lifecycle or live provider repeated-task study is proved.",
+      "Feature flags remain false. No provider/account or production activation was performed by these repairs.",
+      "All previous failed attempts remain preserved; filenames containing green do not override their actual exit/result.",
+      "Root has registered the new fixture and the eleven existing source-closure cases pass. The next published exact-tree Windows workflow remains required."
+    ]
+  },
+  "supersedesReview": {
+    "path": "/workspace/scratch/36f66011d961/M05-accepted-main-ui-repair-review-20261115.json",
+    "bytes": 40592,
+    "sha256": "2a4f9c22bf8c2a166352c8bbc2c1e29624d7ee539bc780b80b3cdaecb176e5b7",
+    "gitBlobSha": "8237102ed409f284a9c313f87b222828171153df"
+  },
+  "attemptFilesRoot": "/workspace/scratch/36f66011d961/m05-local-checks",
+  "captureMetadataContract": "Each checksum-bound metadata file contains the exact invoked argv, actual executable identity, capture timestamps, elapsed duration, child exit/termination, raw and bounded output digests, source/diff fields and recorder identity. Older captured phase labels are preserved and separately classified above. No failed command is discarded or relabeled PASS.",
+  "sourceClosureCaptureBinding": {
+    "committedTreeBefore": "fd77b30edae9563ac23f78463576f85d12187d9e",
+    "workingDiffSha256": "48be4e7635847b7a3570a137145648e81a77f77700b00494b5603bc380ace4de",
+    "captureScriptSha256": "094fba224b246ba7de8b555fa24f911008cda53a851bf51f8d6edebbedf85dd0"
+  },
+  "reporterLocations": "Reporter line numbers differ from the compact source line numbers. The tested file bytes and exact test titles are the review anchors; no unmeasured source-map explanation or line-number identity is asserted."
+}

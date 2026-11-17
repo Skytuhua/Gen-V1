@@ -1,0 +1,162 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "artifact-acknowledgment.spec.ts",
+          "clarity-data-work.spec.ts",
+          "dark-default.spec.ts",
+          "document-window.spec.ts",
+          "host-loop.spec.ts",
+          "journal-reload.spec.ts",
+          "latency.spec.ts",
+          "map-theme.spec.ts",
+          "migration-redesign.spec.ts",
+          "operational-motion.spec.ts",
+          "overnight-shell.spec.ts",
+          "plan-timeline.spec.ts",
+          "review-capture-theme.spec.ts",
+          "shell-micro-motion.spec.ts",
+          "signing-motion.spec.ts",
+          "skills.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts",
+      "url": "http://127.0.0.1:5499",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "artifact-acknowledgment.spec.ts",
+      "file": "artifact-acknowledgment.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5724,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:33:28",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                      "column": 28,
+                      "line": 33
+                    },
+                    "snippet": "  31 |     await page.goto('/');\n  32 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 33 |     await expect(selected).toBeChecked();\n     |                            ^\n  34 |     await selected.click();\n  35 |     await expect.poll(() => saves.length).toBe(1);\n  36 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                        "column": 28,
+                        "line": 33
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n\n  31 |     await page.goto('/');\n  32 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 33 |     await expect(selected).toBeChecked();\n     |                            ^\n  34 |     await selected.click();\n  35 |     await expect.poll(() => saves.length).toBe(1);\n  36 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:33:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T00:28:05.560Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                    "column": 28,
+                    "line": 33
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ca95034a0976bbb06b7b-d0bf9461f5cbb7a75941",
+          "file": "artifact-acknowledgment.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T00:28:01.761Z",
+    "duration": 9843.499,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

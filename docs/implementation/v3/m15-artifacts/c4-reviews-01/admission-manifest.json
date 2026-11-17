@@ -1,0 +1,1097 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_C4_REVIEW_ADMISSION",
+  "preparedAt": "2026-11-16T05:35:43.772502+00:00",
+  "status": "PREPARED_NOT_APPLIED",
+  "files": [
+    {
+      "source": "c3/m05-host-drift-review-01.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-dependency-review-01/upstream-m05-review.md",
+      "role": "Immutable upstream M05 owning-contract dependency review",
+      "sha256": "169c7c05f89b955f3af7296fac65c2b8404eee875ad50a7d2b19c39c56591a67",
+      "bytes": 12267,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/memory-module-proposal-01/design.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/memory-module-proposal-01/design.md",
+      "role": "M05 host reader proposal and exact two-file patch",
+      "sha256": "4ffe0b37a26e90e8e136690be5c2348c0bad1533fcdc6897d8cdfd9c34c18398",
+      "bytes": 6605,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/memory-module-proposal-01/production.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/memory-module-proposal-01/production.patch",
+      "role": "M05 host reader proposal and exact two-file patch",
+      "sha256": "0691371d473610cf98c161bd4c0c3e65d3a5309976e52f10cf82b00b8f33bafc",
+      "bytes": 7700,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/memory-module-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/memory-module-proposal-01/manifest.json",
+      "role": "M05 host reader proposal and exact two-file patch",
+      "sha256": "829fd88c4e80170cb9ce4330563828124aff995ff2b9e278970ea1964ba3b6b6",
+      "bytes": 1442,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/host-adapter-validation-01.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/host-adapter-validation-01.md",
+      "role": "Recorded M05 host red/green and broader source gate review",
+      "sha256": "347d88cfe7e4e24782e0d08303fbe02e3e32cc28c285c21282af2e19a5e6425c",
+      "bytes": 5949,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/host-regression-plan-01.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/host-regression-plan-01.json",
+      "role": "Exact initial20-file host command and declared source identity",
+      "sha256": "4b4a8e8dca0abaf52a4104b62c54d4a1ade6c3105e3e16172708145a5c4e0df2",
+      "bytes": 5420,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-combined-tests-01/README.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-combined-tests-01/README.md",
+      "role": "Original combined memory/source UI test proposal and fixture",
+      "sha256": "6b0c6ad2987c3c72bfd1c0180739c1dc4e26c06e1d29a3052136e6c56a0a9991",
+      "bytes": 3722,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-combined-tests-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-combined-tests-01/proposal.json",
+      "role": "Original combined memory/source UI test proposal and fixture",
+      "sha256": "29034e3211dd6d520764f644554597e872aeb093b66c1dfa233fea562b04a744",
+      "bytes": 919,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-combined-tests-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-combined-tests-01/tests.patch",
+      "role": "Original combined memory/source UI test proposal and fixture",
+      "sha256": "1b03573ada7c42281b765b8118f1dfef25da72fa90b3f58d6084c2b92e5ed07f",
+      "bytes": 25407,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-combined-tests-01/memory-browser-cases.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-combined-tests-01/memory-browser-cases.ts",
+      "role": "Original combined memory/source UI test proposal and fixture",
+      "sha256": "703dd9e4879ec54da3579b725ed37a1659e29a2583d6278973e5b68ad9dfccb1",
+      "bytes": 19040,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-combined-tests-01/unit-case.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-combined-tests-01/unit-case.ts",
+      "role": "Original combined memory/source UI test proposal and fixture",
+      "sha256": "cdd997a1399522ae6659620a790dee07528e30950f139360ff855e25083e2b62",
+      "bytes": 2657,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-proposal-03/implementation.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-proposal-03/implementation.patch",
+      "role": "Applied M05 read-only UI implementation cut03",
+      "sha256": "ed790ba57db7b87357b0c1d991f6f463c13f5f1f0bc68011a4c2de2ca3846678",
+      "bytes": 29845,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-proposal-03/files.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-proposal-03/files.json",
+      "role": "Applied M05 read-only UI implementation cut03",
+      "sha256": "c6312a4326bf8d7396a600e842055e54d27d67d015f0566133809b9b4e56618b",
+      "bytes": 706,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-independent-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-independent-review-01/review.md",
+      "role": "M05 UI independent review and bounded decoded case observations",
+      "sha256": "8e527adf3746f4417a519ad0bbf6d22578d96bfdbe35b2f03591181b7cc25559",
+      "bytes": 3691,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-independent-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-independent-review-01/review.json",
+      "role": "M05 UI independent review and bounded decoded case observations",
+      "sha256": "fd46fa414c9f89d7c7d1aff04ffcdc0a4b7e1e17f9615afd10b35fcf7aa8deb6",
+      "bytes": 8207,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-independent-review-01/memory-owner-transition.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-independent-review-01/memory-owner-transition.json",
+      "role": "M05 UI independent review and bounded decoded case observations",
+      "sha256": "15632e5be4329f18ea0d10a3f88458b9aacf14992390b0dfbe93347dd9fdf13e",
+      "bytes": 4216,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-independent-review-01/memory-read-only-review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-independent-review-01/memory-read-only-review.json",
+      "role": "M05 UI independent review and bounded decoded case observations",
+      "sha256": "dede7e0dd46b8163e19122aa641f048e34e3e094a7d9d9d953aaad03f1c70f36",
+      "bytes": 3580,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/ui-implementation-independent-review-01/memory-source-queued-command.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/ui-implementation-independent-review-01/memory-source-queued-command.json",
+      "role": "M05 UI independent review and bounded decoded case observations",
+      "sha256": "3d24b2c8d91370724c41d90cf3811e5d5c070d09c1deb656a9a1e6381c083e23",
+      "bytes": 4684,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-source-memory-proposal-01/addition.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-source-memory-proposal-01/addition.ts",
+      "role": "Combined actual-target Hermes/source/memory fixture proposal",
+      "sha256": "2a2f0c48186beee784e76ad21044de7cc0592e3009f8dc55c286c7e7d0999725",
+      "bytes": 13569,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-source-memory-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-source-memory-proposal-01/manifest.json",
+      "role": "Combined actual-target Hermes/source/memory fixture proposal",
+      "sha256": "25f4de9d59799e8b8df60ef5ae2754bf44d171ec117bdca8ce54997732a5da42",
+      "bytes": 1254,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-source-memory-proposal-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-source-memory-proposal-01/tests.patch",
+      "role": "Combined actual-target Hermes/source/memory fixture proposal",
+      "sha256": "f1d9bf80b10839304bf4cb337ef8e61c22f852ca26cc0f49aa28797d9655b3eb",
+      "bytes": 14405,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-source-memory-independent-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-source-memory-independent-review-01/review.md",
+      "role": "Combined native fixture static review and execution limits",
+      "sha256": "d2b91cf8160847ce1a9b7a8547c70e5e7aed28e38178abbb1913d15837e6861c",
+      "bytes": 4259,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-source-memory-independent-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-source-memory-independent-review-01/review.json",
+      "role": "Combined native fixture static review and execution limits",
+      "sha256": "a44606f96d3d8228fa86c587682d001a37f2c63b56bcdd4c8f7f65f2d199844a",
+      "bytes": 6235,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/panel-opener-regression-01/cases.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/panel-opener-regression-01/cases.ts",
+      "role": "Main-versus-pinned panel-opener regression fixture",
+      "sha256": "daf83c3ba6f11e488ad8dd8829b55040e35dad73700371d3ab9557addb9ec1da",
+      "bytes": 2220,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/panel-opener-regression-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/panel-opener-regression-01/proposal.json",
+      "role": "Main-versus-pinned panel-opener regression fixture",
+      "sha256": "168f5b7f7005f84bb9e186f8d0566d532ad02023007df181491076cdfaaf3851",
+      "bytes": 1236,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/panel-opener-regression-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/panel-opener-regression-01/tests.patch",
+      "role": "Main-versus-pinned panel-opener regression fixture",
+      "sha256": "c951f97ff775dce4c9615bf3fba6ddf40b5d2522a16842ab12ef463f3f161a00",
+      "bytes": 3152,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-product-proposal-01/product.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-product-proposal-01/product.patch",
+      "role": "Reviewed App/native/transfer error-role correction",
+      "sha256": "cee80a2273fcca1065184adae23bce9af4b970a351df8613de08f3d5b8f9b408",
+      "bytes": 22037,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-product-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-product-proposal-01/manifest.json",
+      "role": "Reviewed App/native/transfer error-role correction",
+      "sha256": "d7a2667640fbb7aa2a25f60bfa4eb7aa5e76a3e9f439aa9f119a30d4c407d39c",
+      "bytes": 1435,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-test-proposal-02/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-test-proposal-02/review.md",
+      "role": "Causal browser fixture correction and unchanged deadline evidence",
+      "sha256": "721009804456fcfc1951ab1b970357e4947474dbea545e3570737b74e8da292e",
+      "bytes": 9165,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-test-proposal-02/evidence.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-test-proposal-02/evidence.json",
+      "role": "Causal browser fixture correction and unchanged deadline evidence",
+      "sha256": "eb41b87628fddd75134b90867d82b39f7326a80ff2ba068c5e846218a63b5d94",
+      "bytes": 79112,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-test-proposal-02/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-test-proposal-02/manifest.json",
+      "role": "Causal browser fixture correction and unchanged deadline evidence",
+      "sha256": "6e1d73f67d345b9309e8acc79fbaa81b53730d9ad8357c1b529f3c1fd83887d8",
+      "bytes": 2577,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-test-proposal-02/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-test-proposal-02/tests.patch",
+      "role": "Causal browser fixture correction and unchanged deadline evidence",
+      "sha256": "3446a347445bfd3f46bc4e7e075ca6701e1c23e4a31fd0fc882c98833da03fe6",
+      "bytes": 10211,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-corrections-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-corrections-review-01/review.json",
+      "role": "Recorded four-run browser correction diagnosis",
+      "sha256": "914ffd84151b70e7f3e6bb6bdb3d5ffa74f83817a30723778b7fc25a6060058b",
+      "bytes": 62306,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/browser-correction-plan-01/commands.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/browser-correction-plan-01/commands.json",
+      "role": "Exact causal browser correction execution plan",
+      "sha256": "b2ff92219693d07dfa487f38d12048d1a1b4d2a49f7aee2e38a9c5a88524bb9b",
+      "bytes": 5412,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/usage-owner-proposal-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-proposal-01/review.md",
+      "role": "Shared live Usage ownership fix and scoped fixture corrections",
+      "sha256": "167c206ab2a33a7a472b9ebee47ddee636fa66926a0f7afdb39e69cbe5c465d9",
+      "bytes": 6781,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/usage-owner-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-proposal-01/manifest.json",
+      "role": "Shared live Usage ownership fix and scoped fixture corrections",
+      "sha256": "c5102371f4504b3d94cc8593b773763df16cda7b029f673726c3d0cee880f465",
+      "bytes": 2264,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/usage-owner-proposal-01/implementation.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-proposal-01/implementation.patch",
+      "role": "Shared live Usage ownership fix and scoped fixture corrections",
+      "sha256": "34c331588970e8ed447f18db772674932151121989d63540c9c7481d14ca98dd",
+      "bytes": 23780,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/usage-owner-validation-01/validation.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-validation-01/validation.md",
+      "role": "Observed Usage16-case validation and prior failure binding",
+      "sha256": "e6f7e14010d54d09e300548ce419d372ee185b6d6d114882c597f8c20235e138",
+      "bytes": 1545,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/usage-owner-validation-01/validation.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/usage-owner-validation-01/validation.json",
+      "role": "Observed Usage16-case validation and prior failure binding",
+      "sha256": "8e686c35f72d9d43cf3e8c068e18c5a37a23e6bad8c0fbe201b2d586e7c1d18f",
+      "bytes": 6210,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/signature-export-failure-01/finding.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/signature-export-failure-01/finding.json",
+      "role": "Bounded original signature error-role failure attribution",
+      "sha256": "763301dbd3a8070a8b49d98d9153b5d8275a5f0ef12beab6936b05366b88a767",
+      "bytes": 1504,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-01/configs.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-01/configs.json",
+      "role": "Original declared-target-to-Chromium adapter including failed TypeScript loader attempt",
+      "sha256": "081b959114f6c544f0be382525f8f62d141223c69446540c28f23c540a3cecf5",
+      "bytes": 3052,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-01/saved-layout-chooser.chromium.playwright.config.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-01/saved-layout-chooser.chromium.playwright.config.ts",
+      "role": "Original declared-target-to-Chromium adapter including failed TypeScript loader attempt",
+      "sha256": "35a38fe8afe5fd3d35fe887898986c638b901051c8bb29509b5451cfb6f79de2",
+      "bytes": 503,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-01/usage-app-integration.chromium.playwright.config.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-01/usage-app-integration.chromium.playwright.config.ts",
+      "role": "Original declared-target-to-Chromium adapter including failed TypeScript loader attempt",
+      "sha256": "e23788dc8b3e81937f80b67a6e67788bb564ec82a442d2740c121a82bb514f80",
+      "bytes": 504,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-01/workspace-host.chromium.playwright.config.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-01/workspace-host.chromium.playwright.config.ts",
+      "role": "Original declared-target-to-Chromium adapter including failed TypeScript loader attempt",
+      "sha256": "031174af822fe8a5889c054dbb760b68d3677658fb9c95d28b21035f02766b96",
+      "bytes": 497,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-02/configs.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-02/configs.json",
+      "role": "Corrected module-format diagnostic adapter; target scope remains qualified",
+      "sha256": "00a17c233123c8c1c4e3d53831892ddee63e45046dd6625827ce46ccd327ba12",
+      "bytes": 4345,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+      "role": "Corrected module-format diagnostic adapter; target scope remains qualified",
+      "sha256": "35a38fe8afe5fd3d35fe887898986c638b901051c8bb29509b5451cfb6f79de2",
+      "bytes": 503,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+      "role": "Corrected module-format diagnostic adapter; target scope remains qualified",
+      "sha256": "e23788dc8b3e81937f80b67a6e67788bb564ec82a442d2740c121a82bb514f80",
+      "bytes": 504,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+      "role": "Corrected module-format diagnostic adapter; target scope remains qualified",
+      "sha256": "031174af822fe8a5889c054dbb760b68d3677658fb9c95d28b21035f02766b96",
+      "bytes": 497,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-diagnosis-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-diagnosis-01/review.md",
+      "role": "Original native-close diagnosis and bounded owner-recovery design",
+      "sha256": "9758acf158d4da0f13344c75768428fe4c33298443fc8abfeccb8599382ae443",
+      "bytes": 4013,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-diagnosis-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-diagnosis-01/review.json",
+      "role": "Original native-close diagnosis and bounded owner-recovery design",
+      "sha256": "20b904eb751f4c8cc6978ffcbb926eeafebbbcfe3946b801469f118cb7174c54",
+      "bytes": 7302,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-diagnosis-01/proposal.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-diagnosis-01/proposal.md",
+      "role": "Original native-close diagnosis and bounded owner-recovery design",
+      "sha256": "94465af2f87988a0e8a47cd9a5a67fd50dae01a2c9247f416ab85c48d8027ff0",
+      "bytes": 7956,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/base-manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/base-manifest.json",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "40e34e723105290cc182050b098804d1a65e4d76576642fb619cb6e62203ae05",
+      "bytes": 1066,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/phase-a.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/phase-a.patch",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "b6f9a7c54e76fb2a75d156a5c1f2c3a604fc7bf363d76dcdf536bfc115bc2026",
+      "bytes": 22146,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/phase-a-manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/phase-a-manifest.json",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "93d4ec819d74ed536a102ddc5ebb756575b81ea671ac470e83f1d258bd5b959d",
+      "bytes": 2424,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/phase-b.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/phase-b.patch",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "2b1ad03c07dd9c0604dcf42cb52c5c56f6442ea442391235432fb28e8b282f8f",
+      "bytes": 12834,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/phase-b-manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/phase-b-manifest.json",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "d0268b597ca2008a8b4c39e9c28b5fe5d22ec90121541f17f1aca91702be8a04",
+      "bytes": 3556,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/source-handoff-v3.test.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/source-handoff-v3.test.ts",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df",
+      "bytes": 23223,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/design-and-validation-01.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/design-and-validation-01.md",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "d938f1d4e69244aec443f8364be6e92229bfed084fbded7a14e4277266569cf4",
+      "bytes": 11008,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-proposal-02/validation-readback-01.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-proposal-02/validation-readback-01.json",
+      "role": "Native-close staged strict extraction, policy correction and original20-case fixture",
+      "sha256": "e6f9d082c1ad8a96200ca246a8cfefa103a1d4a0eadefa19f3bc85e7475f887a",
+      "bytes": 8823,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-concurrent-guards-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-concurrent-guards-01/tests.patch",
+      "role": "Two appended same-owner guard schedules with bounded liveness sentinel",
+      "sha256": "8cbba0c8979fd9d57ab689a25114e42f56ee12d900b8d60568b28d15af8af43c",
+      "bytes": 4829,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-concurrent-guards-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-concurrent-guards-01/manifest.json",
+      "role": "Two appended same-owner guard schedules with bounded liveness sentinel",
+      "sha256": "40cb5c7643a8f76f311024f27f6077ef1dc6d84b295e814e63a92dbbeface778",
+      "bytes": 721,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-browser-proposal-01/addition.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-browser-proposal-01/addition.ts",
+      "role": "Real App import/preprocessing/close wiring fixture",
+      "sha256": "ac488f308074e8206309232b293dc61e310de22a2fdeb7acf82f4293dbd9edbf",
+      "bytes": 6636,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-browser-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-browser-proposal-01/manifest.json",
+      "role": "Real App import/preprocessing/close wiring fixture",
+      "sha256": "fe0d00b2e03cf29149e2aa41baf5669e9296bd6ce1703688ac3648265ef5f866",
+      "bytes": 776,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-browser-proposal-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-browser-proposal-01/tests.patch",
+      "role": "Real App import/preprocessing/close wiring fixture",
+      "sha256": "a9f5106e8b78f1af5efaa1218f6e7637655b1ee47631273225a39d284550df39",
+      "bytes": 7112,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-independent-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-independent-review-01/review.md",
+      "role": "Independent native-close policy, concurrency and browser-wiring review",
+      "sha256": "637c8470697ade660969ed0fcc534a8972bcd92f20e0d4f748bcd91e7ed30b37",
+      "bytes": 5850,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/native-close-independent-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/native-close-independent-review-01/review.json",
+      "role": "Independent native-close policy, concurrency and browser-wiring review",
+      "sha256": "05a856aba4ca386590a0fb0377a82b6f3ea74239fe07728c2ca8e672600f9c4a",
+      "bytes": 31602,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v3-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v3-proposal-01/manifest.json",
+      "role": "Workflowv3 proposal identity and exact workflow/ingester changes",
+      "sha256": "c132ab0e69ab39f7cd0aa47c571f861d31a2883e546eaa6113393b654343f47e",
+      "bytes": 2659,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v3-proposal-01/workflow.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v3-proposal-01/workflow.patch",
+      "role": "Workflowv3 proposal identity and exact workflow/ingester changes",
+      "sha256": "17f97ae42e7d071e78aab18afda75a0c8d187f2c2399137bf16c8dc81f13ad82",
+      "bytes": 19749,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v3-proposal-01/ingester.diff",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v3-proposal-01/ingester.diff",
+      "role": "Workflowv3 proposal identity and exact workflow/ingester changes",
+      "sha256": "731f0962d0e208005f6abaefeeb50ad3a4c3b80e86e29acfbb18d9629706dc20",
+      "bytes": 12092,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v3-review-01.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v3-review-01.json",
+      "role": "Static workflowv3 and ingester contract review",
+      "sha256": "4c79ef96f3e89675cb86708085b67f09edbaf68f62e6680097a79d63e55e59e6",
+      "bytes": 3955,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v4-proposal-01/manifest.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/manifest.json",
+      "role": "Workflowv4 native37 amendment and exact byte/source verifier",
+      "sha256": "ab3fd16336ac5a5d21421251fb3ad56717e7c96db83ac487365f0be6dcc4db4e",
+      "bytes": 1114,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v4-proposal-01/workflow.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/workflow.patch",
+      "role": "Workflowv4 native37 amendment and exact byte/source verifier",
+      "sha256": "349bcd0b54538e1f72ffc3f7bc1d4bcf99ad9f540c92fae7606c6ca91edbd42d",
+      "bytes": 470,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v4-proposal-01/ingester.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/ingester.patch",
+      "role": "Workflowv4 native37 amendment and exact byte/source verifier",
+      "sha256": "1887c522b9d8e3d43b6b9706ef438a4670058405d4d944d71602449eb87d2baa",
+      "bytes": 5319,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v4-proposal-01/ingest-ci-artifact.py",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/ingest-ci-artifact.py",
+      "role": "Workflowv4 native37 amendment and exact byte/source verifier",
+      "sha256": "47171717386ab1fdfd662207f05f9a1802bf5ecb33b06f99c854faf6b223c9c2",
+      "bytes": 31126,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/workflow-v4-independent-review-01.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-independent-review-01.json",
+      "role": "Independent workflowv4 static review",
+      "sha256": "594009a82dcf1be34028c25e4705a6a1a8b7447b5a37864eddb6c16dac2ab1cf",
+      "bytes": 3465,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/source-cut-v2.py",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/source-cut-v2.py",
+      "role": "Exact source-cut helper used by C4 verification",
+      "sha256": "118ac770c76d40fb88ee56085f73aa632e8ea3f5ca1308687eaa559f59667233",
+      "bytes": 2345,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/main109-host-audit-01/audit.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main109-host-audit-01/audit.md",
+      "role": "Conditional unaccepted-main109 Research owning-contract review",
+      "sha256": "ace8f482fbf9e5f022aba030d8c37bcdbb59e84227135fc6531f49e26cd6e908",
+      "bytes": 4911,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/main109-host-audit-01/audit.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main109-host-audit-01/audit.json",
+      "role": "Conditional unaccepted-main109 Research owning-contract review",
+      "sha256": "99ad46ecdcf1ebc707854b0420a28dd995b2ffd09f56915051a1d1c31131c16c",
+      "bytes": 6282,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/main5fa-boundary.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/main5fa-boundary.json",
+      "role": "Bounded future main5fa status-versus-alert contract conflict",
+      "sha256": "59167cfe9d47ecdf353573ce3eb873327803ea6624d518cedb11c3bc102cf3d5",
+      "bytes": 3144,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/main5fa-desktop.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/main5fa-desktop.patch",
+      "role": "Bounded future main5fa status-versus-alert contract conflict",
+      "sha256": "4b64cbd56b4386421d38cb33ddecc998db03462b47d0fa231850de24fcfa9723",
+      "bytes": 10097,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/eeda-adoption/incoming.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/eeda-adoption/incoming.patch",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "bcb2b01d382862d2c8224c68211e96686495720146b902c6d1f4ff8f9104f391",
+      "bytes": 7418,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/eeda-adoption/source-workbench-union.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/eeda-adoption/source-workbench-union.patch",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "f7ce809a243f0215e3dd54008baff6c1c4d224e3ec700f21ff7e9bf5408b1d39",
+      "bytes": 3057,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/eeda-adoption/summary.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/eeda-adoption/summary.md",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "9e63c8546a93e73ac0c9ac48c7670a0725f8a4542702d66b6578f8234a3793a9",
+      "bytes": 1033,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/eeda-adoption/summary.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/eeda-adoption/summary.json",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "f2f57e59378b47310a247b2c873215c70003e725cec5bcdb499b56fd65ee682f",
+      "bytes": 4094,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/main-drift/summary.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main-drift/summary.md",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "6c5c9e356a08417c38e1edc6469fbfa78125fce21b5fb5b1b77bc8dbe7b6a265",
+      "bytes": 1036,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/review-admission-01/generated/main-drift/summary.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main-drift/summary.json",
+      "role": "Bounded immutable adoption/drift summary and exact patch",
+      "sha256": "21b07c4207f22929e81b39605e086d4f5ab17e0cbae2fc870f766430b1c993e7",
+      "bytes": 5028,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/prepared-adoption-01/application.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/eeda-adoption/application.json",
+      "role": "Exact bounded eeda adoption application record",
+      "sha256": "b5b0372cecd2714a39320940c7c0248fa8f7773c76d3b1b908e37f374de88b5f",
+      "bytes": 3002,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/prepare-payload.py",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/prepare-payload.py",
+      "role": "Reviewed C4 single-parent publication payload helper source",
+      "sha256": "605f8233c54c7d91c7051d3c61b2996a6d2486a9d03a50c03504edcb3eed3945",
+      "bytes": 39314,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/publication-helper-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/publication-helper-review-01/review.md",
+      "role": "C4 publication helper independent review and C3-to-C4 delta",
+      "sha256": "c41d020b12015fb66f8e3c4a69949af385f0d7283f6f385bb0848c95013a6826",
+      "bytes": 3073,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/publication-helper-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/publication-helper-review-01/review.json",
+      "role": "C4 publication helper independent review and C3-to-C4 delta",
+      "sha256": "c6a23a83e0ea6e448285712413b7bbd8bac140eca5ab60ce25cea8e62a101913",
+      "bytes": 1869,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/publication-helper-review-01/helper.diff",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/publication-helper-review-01/helper.diff",
+      "role": "C4 publication helper independent review and C3-to-C4 delta",
+      "sha256": "3f46ec90a2b3dc2d35a544351cf6542007c551315540ed7ab01c404ebf101f08",
+      "bytes": 7818,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-custody.py",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody.py",
+      "role": "Corrected exact archive/runtime/source custody verifier source",
+      "sha256": "1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419",
+      "bytes": 10456,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-custody-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody-review-01/review.md",
+      "role": "Initial custody checker findings at the original helper hash",
+      "sha256": "db1d1d06734ca656242dbfb69a727facd718c4f275e5af1e6cd104fac19f367f",
+      "bytes": 2530,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-custody-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody-review-01/review.json",
+      "role": "Initial custody checker findings at the original helper hash",
+      "sha256": "de14c1d90b5d2499c4416aec37e4aa0c438d302b949bc1162b0d2548ac97bdee",
+      "bytes": 2384,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-custody-review-02/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody-review-02/review.md",
+      "role": "Corrected custody checker review; no execution promotion",
+      "sha256": "b28a2d1f807fc0a546a6b95c0db8d5c2720359a0500315c13018e97640ad1081",
+      "bytes": 2531,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-custody-review-02/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-custody-review-02/review.json",
+      "role": "Corrected custody checker review; no execution promotion",
+      "sha256": "740378054f941f662a44d1f698ab34c01b5716646d076a6667099ac422f80751",
+      "bytes": 2396,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/README.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/README.md",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "7e792476a83676ad2c3ac6e0dbc43e1e993da6690710360d67948ebdb9260a08",
+      "bytes": 6698,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/argv.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/argv.json",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "0a2af11541269084bedc3336ed3c0a7b82bdb35f9541ad586fa51656fdeee29d",
+      "bytes": 2975,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/plan.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/plan.json",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "750ef97106b0a49895cfbc1d1f834680670ee22ad3e573247138391831e83654",
+      "bytes": 5255,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/native-coverage.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/native-coverage.json",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "e076d996f85c1c8b6ed92059221e4eaf519ae3b9da331770a9fb0440e5012be9",
+      "bytes": 4500,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/self-review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/self-review.json",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "65b28aebe57b4198cf54cdef77358feb2dfdb29e1006ec3af34454913cc88e07",
+      "bytes": 1878,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-host-plan-01/source-files.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-host-plan-01/source-files.json",
+      "role": "Final host/caller selection, bounded source list and target limits",
+      "sha256": "4bebc31ae801b282887a39b3e8b284423043ea91d4781ed8c6708873de0cb3a6",
+      "bytes": 14448,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-plan-01/commands.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-plan-01/commands.md",
+      "role": "Original final browser plan and separate external Linux failed-attempt attribution",
+      "sha256": "4b3c4f951c9e1c5560afd494f434e12307560ef13289812fa449cab9e2c1045c",
+      "bytes": 2263,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-plan-01/commands.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-plan-01/commands.json",
+      "role": "Original final browser plan and separate external Linux failed-attempt attribution",
+      "sha256": "8c162372c286df30b4f1faa4bbf723f05931ed54d1bd7c88aaff2dc92c29273c",
+      "bytes": 10523,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-plan-01/seal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-plan-01/seal.json",
+      "role": "Original final browser plan and separate external Linux failed-attempt attribution",
+      "sha256": "71f748ce19365fd6f9d0782593c65b9e16908d5355e133a187c2739211842769",
+      "bytes": 988,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-plan-01/external-082-linux-addendum.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-plan-01/external-082-linux-addendum.md",
+      "role": "Original final browser plan and separate external Linux failed-attempt attribution",
+      "sha256": "ab8680ab60951ea4c284d3c1cb9262a5e162efeef42a8e39434a7397a753ece8",
+      "bytes": 1262,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-plan-01/external-082-linux-evidence.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-plan-01/external-082-linux-evidence.json",
+      "role": "Original final browser plan and separate external Linux failed-attempt attribution",
+      "sha256": "676c88c1e069017af3579591722307e128b63fdea0bf659310738fade0929937",
+      "bytes": 1962,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/plan.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/plan.md",
+      "role": "Publication and exact-head seven-job collection plan",
+      "sha256": "89aca49b6891d14f76a608bbc836ffa50bb976fb71f729a3d9fa367f8ac41598",
+      "bytes": 15697,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/plan.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/plan.json",
+      "role": "Publication and exact-head seven-job collection plan",
+      "sha256": "6713e4d9622c6d45723642dc0d3c7a60a4b68d4193e6963fb43ab08d985ee0fd",
+      "bytes": 8692,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-publication-plan-01/workflow-contract.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/workflow-contract.json",
+      "role": "Publication and exact-head seven-job collection plan",
+      "sha256": "e3eea5e874058326f1eeee983dc2cf3f0835c361b2af2ad567ab6e131fffff29",
+      "bytes": 31666,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/external-host-audit-01/audit.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/external-host-audit-01/audit.md",
+      "role": "Bounded external incoming host reconciliation review",
+      "sha256": "864a620a9277ed492a04a034fb7e2cafedf94169a1dd1f9890fe6db56f4010ae",
+      "bytes": 8205,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/external-host-audit-01/audit.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/external-host-audit-01/audit.json",
+      "role": "Bounded external incoming host reconciliation review",
+      "sha256": "e7ec1c768507d2a1419a64a7ffd127d62d9a1a8640e83b117a111258ed3d72d0",
+      "bytes": 12238,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/external-ui-audit-01/audit.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/external-ui-audit-01/audit.md",
+      "role": "Bounded external incoming UI reconciliation review and patch",
+      "sha256": "b753c72090390bb605579db5d7a80aacb53bf7a5accd27752ee20dbf5437f298",
+      "bytes": 8014,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/external-ui-audit-01/audit.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/external-ui-audit-01/audit.json",
+      "role": "Bounded external incoming UI reconciliation review and patch",
+      "sha256": "f61003e8fd09b65ae038e43242fa7ccb322778ba60110a0cc861620f9a6c5f6f",
+      "bytes": 8967,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/external-ui-audit-01/reviewed-ui.diff",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/external-ui-audit-01/reviewed-ui.diff",
+      "role": "Bounded external incoming UI reconciliation review and patch",
+      "sha256": "be9cceb115b4d86b4b7b717828ee908c188dd6ba7c929e047e658bdebbdc4316",
+      "bytes": 46476,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-diagnostic-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-diagnostic-01/tests.patch",
+      "role": "Original selection completion diagnostic and exact zero-test setup-failure source",
+      "sha256": "6240e39f4e4288875a0e089eaaea0b163912f72f3a0bd956b0e0c7aa66d7bdc6",
+      "bytes": 6580,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-diagnostic-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-diagnostic-01/proposal.json",
+      "role": "Original selection completion diagnostic and exact zero-test setup-failure source",
+      "sha256": "babcfaf094f2b0f9394929b9cafb10f709ae6fd8983f7a97fa15147d5f78dfa1",
+      "bytes": 1530,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-diagnostic-01/workbench-spec-setup-failure.ts",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-diagnostic-01/workbench-spec-setup-failure.ts",
+      "role": "Original selection completion diagnostic and exact zero-test setup-failure source",
+      "sha256": "d9db1c91ba7e39850a2cd77d1937631b9ec87f3e9ab47a3b0c66e551d833f608",
+      "bytes": 27373,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-diagnostic-01/trace-scope-correction.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-diagnostic-01/trace-scope-correction.patch",
+      "role": "Original selection completion diagnostic and exact zero-test setup-failure source",
+      "sha256": "f56d4ec7ef6d993abed2ac287ce1c9376bd183478938147d9b446d97ff6a32b9",
+      "bytes": 1389,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-diagnostic-01/trace-scope-correction.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-diagnostic-01/trace-scope-correction.json",
+      "role": "Original selection completion diagnostic and exact zero-test setup-failure source",
+      "sha256": "d7ce55d7d818c4143a54e3f801a683fe546dedaa755e6cdbb6a1d47bfec7acdf",
+      "bytes": 396,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-same-source-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-same-source-01/tests.patch",
+      "role": "Same-source newer-range regression appendix",
+      "sha256": "819b0675aae6daba04f6dadceb80a06ec1b53c04436e055330292faee16ae185",
+      "bytes": 2648,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-same-source-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-same-source-01/proposal.json",
+      "role": "Same-source newer-range regression appendix",
+      "sha256": "b1d2726b453226363e112a2791e6bf1b368fe7531ad37eda25af7a05a114fac0",
+      "bytes": 892,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-followthrough-01/tests.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-followthrough-01/tests.patch",
+      "role": "Stronger downstream second-action assertions after the unchanged failing assertion",
+      "sha256": "0d4c7a051573f88f331f1c8877e29c0e1830e5631fa2e5e418e5ec831dc787c4",
+      "bytes": 1293,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-followthrough-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-followthrough-01/proposal.json",
+      "role": "Stronger downstream second-action assertions after the unchanged failing assertion",
+      "sha256": "9d759e7c00cdf4b93ddb2f383db84a0330e68152ed52a2981485afa27d538672",
+      "bytes": 671,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-fix-proposal-01/source.patch",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-fix-proposal-01/source.patch",
+      "role": "Exact source-bound selection ownership fix and application record",
+      "sha256": "cfbf672945376079bdd20ceacb84ffa1c9bb226b31837245af230187f0ed8469",
+      "bytes": 1466,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-fix-proposal-01/proposal.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-fix-proposal-01/proposal.json",
+      "role": "Exact source-bound selection ownership fix and application record",
+      "sha256": "fb81142fe5c234298cee714dfe92a2a1a1dad3c6562e5e8fc04dfb88d3838765",
+      "bytes": 991,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-fix-proposal-01/application.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-fix-proposal-01/application.json",
+      "role": "Exact source-bound selection ownership fix and application record",
+      "sha256": "de0f48504932fe71409c188fad4007b2f70d0295814efaf8d1395be43e3fa3fe",
+      "bytes": 1173,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-validation-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-validation-01/review.md",
+      "role": "Recorded setup failure, two actual red cuts and focused three-case green",
+      "sha256": "864e6adc79c217f9670d3c61fcb1e4ebf48a2d20581b253538ffedaa26337b47",
+      "bytes": 3794,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-validation-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-validation-01/review.json",
+      "role": "Recorded setup failure, two actual red cuts and focused three-case green",
+      "sha256": "c90bd8d06ed5475029b9d12565a565feb50b8954b43862c2e393a8d0f65402ff",
+      "bytes": 35497,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/final-browser-execution-addendum-01/commands.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-execution-addendum-01/commands.json",
+      "role": "Final source-cut-bound browser command amendment; execution not inferred",
+      "sha256": "5383165fb1a028fb51a87018b352a55ab085bac80985645c63c2e1fcb5fcb3d7",
+      "bytes": 10351,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-independent-review-01/review.md",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-independent-review-01/review.md",
+      "role": "Independent selection completion source, fixture and recorded red/green review",
+      "sha256": "62470f175c0f88d2cfed929f44fb62d0aaff0b5d7d812ca93805ebb3971f845f",
+      "bytes": 3771,
+      "sourceMode": 420
+    },
+    {
+      "source": "c4/selection-completion-independent-review-01/review.json",
+      "destination": "docs/implementation/v3/m15-artifacts/c4-reviews-01/selection-completion-independent-review-01/review.json",
+      "role": "Independent selection completion source, fixture and recorded red/green review",
+      "sha256": "1001077177a88a55017e82515524673eb5b89660ff047fe7bab180c3d10613db",
+      "bytes": 6783,
+      "sourceMode": 420
+    }
+  ],
+  "fileCount": 132,
+  "totalBytes": 1102080,
+  "summary": "docs/implementation/v3/m15-artifacts/c4-reviews-01/admission-summary.md",
+  "metadataRule": "This manifest enumerates content artifacts, excluding itself and its readable summary to avoid recursive digests. The private application manifest additionally seals both metadata files.",
+  "excluded": [
+    "Private Library identifiers, URLs and custody",
+    "Raw ZIPs/logs/results/traces already retained",
+    "Copied indexes, broad inventories and scratch payloads",
+    "Caches/dependencies and unfinished doc templates"
+  ],
+  "intentionalSameByteDifferentNames": [
+    {
+      "reason": "TypeScript module extension is the observed setup distinction",
+      "sources": [
+        "c4/chromium-diagnostic-configs-01/saved-layout-chooser.chromium.playwright.config.ts",
+        "c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts"
+      ]
+    },
+    {
+      "reason": "TypeScript module extension is the observed setup distinction",
+      "sources": [
+        "c4/chromium-diagnostic-configs-01/usage-app-integration.chromium.playwright.config.ts",
+        "c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts"
+      ]
+    },
+    {
+      "reason": "TypeScript module extension is the observed setup distinction",
+      "sources": [
+        "c4/chromium-diagnostic-configs-01/workspace-host.chromium.playwright.config.ts",
+        "c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts"
+      ]
+    }
+  ]
+}

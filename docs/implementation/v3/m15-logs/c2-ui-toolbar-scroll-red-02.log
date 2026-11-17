@@ -1,0 +1,45 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","M15 internal toolbar scrolling retains","--output","docs/implementation/v3/m15-artifacts/c2-ui-toolbar-scroll-red-02/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench.spec.ts:305:3 › M15 source toolbar scroll ownership › M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it (5.7s)
+
+
+  1) tests/e2e/workbench.spec.ts:305:3 › M15 source toolbar scroll ownership › M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('toolbar', { name: 'Selected source', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('toolbar', { name: 'Selected source', exact: true })[22m
+
+
+      66 |   const open=toolbar.getByRole('button',{name:'Open source',exact:true});await open.focus();
+      67 |   await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+    > 68 |   await expect(toolbar).toBeVisible();await expect(open).toBeFocused();await open.click();await expect(page.locator('output')).toHaveText('open:selected text');
+         |                         ^
+      69 |   await select(page);await expect(toolbar).toBeVisible();await page.evaluate(()=>window.scrollBy(0,16));
+      70 |   await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+      71 |   await expect(toolbar).toHaveCount(0);await expect(page.locator('output')).toHaveText('open:selected text');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:68:25
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-ui-toolbar-scroll-red-02/artifacts/workbench-M15-source-toolb-a4a93-stor-scrolling-dismisses-it/error-context.md
+
+  1 failed
+    tests/e2e/workbench.spec.ts:305:3 › M15 source toolbar scroll ownership › M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it 

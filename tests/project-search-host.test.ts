@@ -84,6 +84,18 @@ it('reads live untracked path/content hits, sorts paths then kinds/lines, and ha
   expect((await f.search.search(f.projectId, { q: 'missing' })).matches).toEqual([]);
 });
 
+it('includes a late matching term in its bounded preview and keeps the full line column', async () => {
+  const f = await fixture(), term = 'W'.repeat(200);
+  await f.write('long-line.txt', '😀'.repeat(600) + term + ' after ' + 'z'.repeat(350));
+  const result = await f.search.search(f.projectId, { q: term.toLowerCase() });
+  expect(result.matches).toHaveLength(1);
+  const match = result.matches[0]!;
+  expect(match).toMatchObject({ line: 1, column: 601 });
+  expect(match.preview).toContain(term + ' after ');
+  expect([...match.preview]).toHaveLength(512);
+  expect(searchMatchSchema.safeParse(match).success).toBe(true);
+});
+
 it('treats query metacharacters and shell syntax as literal text and preserves code-point columns/previews', async () => {
   const f = await fixture(), literal = '.*[$(echo unsafe)]';
   await f.write('literal.txt', '😀İ ' + literal + '\n' + '😀'.repeat(600) + literal);
@@ -312,11 +324,36 @@ it.skipIf(process.platform === 'win32')('rejects malformed UTF-8 names and dupli
   expect(result.issues).toContainEqual({ path: null, reason: 'excluded' });
 });
 
-it('uses the real platform guard: Windows ordinary reads succeed; unsupported platforms fail closed', async () => {
+it('uses an acquired real Windows guard for ordinary reads; unsupported platforms fail closed', async () => {
   const f = await fixture(); await f.write('a.txt', 'needle');
   const actual = await vi.importActual<typeof import('../packages/core/file-access.ts')>('../packages/core/file-access.ts');
   vi.mocked(withPathGuard).mockImplementation(actual.withPathGuard);
-  const result = await f.search.search(f.projectId, { q: 'needle' });
-  if (process.platform === 'win32') expect(result).toMatchObject({ complete: true, matches: [{ path: 'a.txt', kind: 'text' }] });
-  else expect(result).toMatchObject({ complete: false, matches: [], issues: [{ path: null, reason: 'changed' }] });
+  if (process.platform === 'win32') {
+    // Keep cold PowerShell startup outside the scan budget; nested acquisitions still use the real guard.
+    await actual.withPathGuard([{ path: await fs.realpath(f.path), leaf: false }], new AbortController().signal, async () => {
+      const result = await f.search.search(f.projectId, { q: 'needle' });
+      expect(result).toMatchObject({ complete: true, matches: [{ path: 'a.txt', kind: 'text' }] });
+    });
+  } else {
+    const result = await f.search.search(f.projectId, { q: 'needle' });
+    expect(result).toMatchObject({ complete: false, matches: [], issues: [{ path: null, reason: 'changed' }] });
+  }
+});
+
+it('sizes multibyte search pages without repeatedly serializing the growing response', async () => {
+  const f = await fixture();
+  await f.write('large-results.txt', ('needle "quoted" ' + '😀'.repeat(410) + '\n').repeat(140));
+  const stringify = JSON.stringify;
+  const spy = vi.spyOn(JSON, 'stringify');
+  let first: SearchResponse;
+  try {
+    first = await f.search.search(f.projectId, { q: 'needle', limit: 100 });
+    const responseWrites = spy.mock.calls.filter(([value]) => value && typeof value === 'object' && 'matches' in value && 'nextCursor' in value);
+    expect(responseWrites.length).toBeLessThanOrEqual(3);
+  } finally { spy.mockRestore(); }
+  expect(first.matches).toHaveLength(100);
+  expect(Buffer.byteLength(stringify(first))).toBeLessThanOrEqual(512 * 1024);
+  const rest = await f.search.search(f.projectId, { q: 'needle', limit: 100, cursor: first.nextCursor! });
+  expect(rest.matches.map(value => value.line)).toEqual(Array.from({ length: 40 }, (_, i) => i + 101));
+  expect(rest.nextCursor).toBeNull();
 });

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:35:23.457Z",
+  "endedAt": "2026-11-15T21:35:25.164Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-performance-red-01.log",
+  "logDigest": "e6cb11574eb2b2671a4688855bc890c57dcd74524374a4d5beea3ac9fb0182cc"
+}

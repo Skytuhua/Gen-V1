@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "node",
+    "/workspace/scratch/36f66011d961/m05-restored/node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/installed-native-save.test.ts",
+    "--reporter=verbose",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/36f66011d961/m05-native-save-retained-boundary",
+  "startedAt": "2026-11-15T22:43:19.052173+00:00",
+  "endedAt": "2026-11-15T22:43:20.982089+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "logPath": "/workspace/scratch/36f66011d961/m05-native-save-retained-boundary/continuation-native-save-retained-boundary-custody.log",
+  "logBytes": 1483,
+  "logDigest": "56c6a1b4f3b336c4f8b59d215377947ed70c8e811789098cb6440abb12ca654d",
+  "sourceSha256": "8d08a6f72131c9da50315fc8fcf25b6361ce829a016319662a2367c94bfa7c67",
+  "testSha256": "5a63b8e63caf56e7823d6ec23c0efd711b4fddbc43b968196ca34b3686cfb13c",
+  "scope": "Existing seven portable custody tests against retained compiled-boundary candidate; no Windows native Save execution."
+}

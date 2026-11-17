@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--grep",
+    "accepted stale input|rollback permits cancellation",
+    "--reporter=list",
+    "--output=test-results/m15-input-recovery-red-02"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:15:11.209Z",
+  "endedAt": "2026-11-15T22:16:20.220Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-ui-red-02.log",
+  "logDigest": "e66bff148d223a7f9a28b3a075f4f3a49f460bdbfe279f1f4503a1f4be563e06"
+}

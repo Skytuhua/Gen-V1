@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "desktop-surfaces"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-16T03:43:26.401Z",
+  "endedAt": "2026-11-16T03:49:07.551Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-windows-desktop-surfaces-43797606300-1.log",
+  "logDigest": "183f36af908182cb76ac84fe8dfc11d29a3eef40c0b3a15905c2fa479dd5711c"
+}

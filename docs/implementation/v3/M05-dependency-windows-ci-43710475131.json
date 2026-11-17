@@ -1,0 +1,857 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "pullRequest": 351,
+  "pullRequestURL": "https://github.com/skytuhua-org/Gen-V1/pull/351",
+  "observedAt": "2026-11-15 11:52:47 UTC",
+  "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+  "reviewedLocalCommit": "fcfdca77ab351908643abdeaf5638780b428eeb5",
+  "treeSha": "2236ea3249409f3436501f9306bab9bf5ccf6cc3",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "workflow": {
+    "id": 43710475131,
+    "attempt": 1,
+    "name": "CI",
+    "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+    "event": "pull_request",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131",
+    "createdAt": "2026-11-15T11:45:43Z",
+    "updatedAt": "2026-11-15T11:51:40Z"
+  },
+  "prState": {
+    "state": "open",
+    "merged": false,
+    "mergeable": true,
+    "mergeableState": "clean"
+  },
+  "checks": [
+    {
+      "id": 132800711243,
+      "name": "Windows checks",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711243"
+    },
+    {
+      "id": 132800711225,
+      "name": "Tests (shard 1/4)",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711225"
+    },
+    {
+      "id": 132800711199,
+      "name": "Tests (shard 4/4)",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711199"
+    },
+    {
+      "id": 132800711181,
+      "name": "Hermes contracts",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711181"
+    },
+    {
+      "id": 132800711180,
+      "name": "Tests (shard 3/4)",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711180"
+    },
+    {
+      "id": 132800711158,
+      "name": "Desktop build",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711158"
+    },
+    {
+      "id": 132800711141,
+      "name": "Tests (shard 2/4)",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711141"
+    },
+    {
+      "id": 132800711025,
+      "name": "Browser tests",
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711025"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 132800711025,
+      "name": "Browser tests",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:48:50Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711025",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711025/logs",
+      "savedLog": "job-132800711025.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:48Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:48Z",
+          "completedAt": "2026-11-15T11:45:58Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:58Z",
+          "completedAt": "2026-11-15T11:47:14Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:14Z",
+          "completedAt": "2026-11-15T11:47:28Z"
+        },
+        {
+          "number": 5,
+          "name": "Exercise split workspace in the browser",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:28Z",
+          "completedAt": "2026-11-15T11:48:44Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:44Z",
+          "completedAt": "2026-11-15T11:48:46Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:46Z",
+          "completedAt": "2026-11-15T11:48:49Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:49Z",
+          "completedAt": "2026-11-15T11:48:49Z"
+        }
+      ],
+      "savedLogSha256": "30afd759d5d94c8c25240bf33422e6807a5cab53f20e398d852f5a4a5ea91748",
+      "savedLogBytes": 64259,
+      "testSummaries": [
+        "2026-11-15T11:48:44.8227070Z  Test Files  2 passed (2)",
+        "2026-11-15T11:48:44.8227920Z       Tests  29 passed (29)"
+      ]
+    },
+    {
+      "id": 132800711141,
+      "name": "Tests (shard 2/4)",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:50:12Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711141",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711141/logs",
+      "savedLog": "job-132800711141.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:47Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:56Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:56Z",
+          "completedAt": "2026-11-15T11:46:55Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:55Z",
+          "completedAt": "2026-11-15T11:47:06Z"
+        },
+        {
+          "number": 5,
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:06Z",
+          "completedAt": "2026-11-15T11:50:08Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:08Z",
+          "completedAt": "2026-11-15T11:50:09Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:09Z",
+          "completedAt": "2026-11-15T11:50:11Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:11Z",
+          "completedAt": "2026-11-15T11:50:11Z"
+        }
+      ],
+      "savedLogSha256": "2c3c1aec008685757b200fd29ca9e33305160dcb800716abbb03fb1addfbabf3",
+      "savedLogBytes": 83865,
+      "testSummaries": [
+        "2026-11-15T11:50:08.3426902Z  Test Files  81 passed (81)",
+        "2026-11-15T11:50:08.3434633Z       Tests  840 passed | 7 skipped (847)"
+      ],
+      "passedTests": 840,
+      "skippedTests": 7
+    },
+    {
+      "id": 132800711158,
+      "name": "Desktop build",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:47:00Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711158",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711158/logs",
+      "savedLog": "job-132800711158.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:47Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:56Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:56Z",
+          "completedAt": "2026-11-15T11:46:44Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:44Z",
+          "completedAt": "2026-11-15T11:46:55Z"
+        },
+        {
+          "number": 5,
+          "name": "Build desktop shell",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:55Z",
+          "completedAt": "2026-11-15T11:46:56Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:56Z",
+          "completedAt": "2026-11-15T11:46:57Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:57Z",
+          "completedAt": "2026-11-15T11:46:59Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:59Z",
+          "completedAt": "2026-11-15T11:46:59Z"
+        }
+      ],
+      "savedLogSha256": "0c8aed177e59f75c4296c91bdb18201b9c0e94f030f966f2406328bcd5f6036d",
+      "savedLogBytes": 45476,
+      "testSummaries": []
+    },
+    {
+      "id": 132800711180,
+      "name": "Tests (shard 3/4)",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:49:17Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711180",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711180/logs",
+      "savedLog": "job-132800711180.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:47Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:56Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:56Z",
+          "completedAt": "2026-11-15T11:46:42Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:42Z",
+          "completedAt": "2026-11-15T11:46:50Z"
+        },
+        {
+          "number": 5,
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:50Z",
+          "completedAt": "2026-11-15T11:49:14Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:14Z",
+          "completedAt": "2026-11-15T11:49:14Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:14Z",
+          "completedAt": "2026-11-15T11:49:16Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:16Z",
+          "completedAt": "2026-11-15T11:49:16Z"
+        }
+      ],
+      "savedLogSha256": "6abfeb39b0b147d5789cb92d7dbcffc05d551addc7f75213075605d13d413cd5",
+      "savedLogBytes": 97451,
+      "testSummaries": [
+        "2026-11-15T11:49:14.1254781Z  Test Files  81 passed (81)",
+        "2026-11-15T11:49:14.1255610Z       Tests  779 passed (779)"
+      ],
+      "passedTests": 779,
+      "skippedTests": 0
+    },
+    {
+      "id": 132800711181,
+      "name": "Hermes contracts",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:49:12Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711181",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711181/logs",
+      "savedLog": "job-132800711181.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:48Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:48Z",
+          "completedAt": "2026-11-15T11:45:59Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:59Z",
+          "completedAt": "2026-11-15T11:47:18Z"
+        },
+        {
+          "number": 4,
+          "name": "Verify original source custody",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:18Z",
+          "completedAt": "2026-11-15T11:47:31Z"
+        },
+        {
+          "number": 5,
+          "name": "Verify atomic learning controls",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:31Z",
+          "completedAt": "2026-11-15T11:47:37Z"
+        },
+        {
+          "number": 6,
+          "name": "Verify original Hermes worker behavior",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:37Z",
+          "completedAt": "2026-11-15T11:49:06Z"
+        },
+        {
+          "number": 11,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:06Z",
+          "completedAt": "2026-11-15T11:49:07Z"
+        },
+        {
+          "number": 12,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:07Z",
+          "completedAt": "2026-11-15T11:49:10Z"
+        },
+        {
+          "number": 13,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:49:10Z",
+          "completedAt": "2026-11-15T11:49:10Z"
+        }
+      ],
+      "savedLogSha256": "ccf90d276e438b0acbc53a62907cf4ed87296a36c79bad4e61e5a4b0ae07ef1a",
+      "savedLogBytes": 45802,
+      "testSummaries": [
+        "2026-11-15T11:47:31.4934363Z Ran 5 tests in 11.547s",
+        "2026-11-15T11:47:37.7540763Z Ran 4 tests in 4.685s",
+        "2026-11-15T11:49:06.8719576Z Ran 16 tests in 88.633s"
+      ]
+    },
+    {
+      "id": 132800711199,
+      "name": "Tests (shard 4/4)",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:50:27Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711199",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711199/logs",
+      "savedLog": "job-132800711199.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:47Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:59Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:59Z",
+          "completedAt": "2026-11-15T11:47:01Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:01Z",
+          "completedAt": "2026-11-15T11:47:13Z"
+        },
+        {
+          "number": 5,
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:13Z",
+          "completedAt": "2026-11-15T11:50:22Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:22Z",
+          "completedAt": "2026-11-15T11:50:23Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:23Z",
+          "completedAt": "2026-11-15T11:50:25Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:50:25Z",
+          "completedAt": "2026-11-15T11:50:25Z"
+        }
+      ],
+      "savedLogSha256": "de8042fb7811df361df7039abb1377da4fbb7eefeb66724611bc102c9eea1fdd",
+      "savedLogBytes": 103470,
+      "testSummaries": [
+        "2026-11-15T11:50:22.7740921Z  Test Files  79 passed | 2 skipped (81)",
+        "2026-11-15T11:50:22.7748884Z       Tests  827 passed | 30 skipped (857)"
+      ],
+      "passedTests": 827,
+      "skippedTests": 30
+    },
+    {
+      "id": 132800711225,
+      "name": "Tests (shard 1/4)",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:51:40Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711225",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711225/logs",
+      "savedLog": "job-132800711225.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:47Z",
+          "completedAt": "2026-11-15T11:45:48Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:48Z",
+          "completedAt": "2026-11-15T11:45:58Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:58Z",
+          "completedAt": "2026-11-15T11:47:03Z"
+        },
+        {
+          "number": 4,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:03Z",
+          "completedAt": "2026-11-15T11:47:14Z"
+        },
+        {
+          "number": 5,
+          "name": "Run application regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:14Z",
+          "completedAt": "2026-11-15T11:51:35Z"
+        },
+        {
+          "number": 9,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:51:35Z",
+          "completedAt": "2026-11-15T11:51:35Z"
+        },
+        {
+          "number": 10,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:51:35Z",
+          "completedAt": "2026-11-15T11:51:37Z"
+        },
+        {
+          "number": 11,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:51:37Z",
+          "completedAt": "2026-11-15T11:51:37Z"
+        }
+      ],
+      "savedLogSha256": "b81ccff7ec04addd97e9bcb4c154156a99f33d7f826dae9dcadc3b3a33155d0d",
+      "savedLogBytes": 108483,
+      "testSummaries": [
+        "2026-11-15T11:51:34.8687164Z  Test Files  82 passed (82)",
+        "2026-11-15T11:51:34.8692833Z       Tests  908 passed (908)"
+      ],
+      "passedTests": 908,
+      "skippedTests": 0
+    },
+    {
+      "id": 132800711243,
+      "name": "Windows checks",
+      "runId": 43710475131,
+      "headSha": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "status": "completed",
+      "conclusion": "success",
+      "labels": [
+        "windows-latest"
+      ],
+      "startedAt": "2026-11-15T11:45:46Z",
+      "completedAt": "2026-11-15T11:48:44Z",
+      "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43710475131/job/132800711243",
+      "logsApi": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/132800711243/logs",
+      "savedLog": "job-132800711243.log",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:48Z",
+          "completedAt": "2026-11-15T11:45:49Z"
+        },
+        {
+          "number": 2,
+          "name": "Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:45:49Z",
+          "completedAt": "2026-11-15T11:46:01Z"
+        },
+        {
+          "number": 3,
+          "name": "Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:01Z",
+          "completedAt": "2026-11-15T11:46:58Z"
+        },
+        {
+          "number": 4,
+          "name": "Build and verify the public plug-in API package",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:46:58Z",
+          "completedAt": "2026-11-15T11:47:43Z"
+        },
+        {
+          "number": 5,
+          "name": "Install optional visuals plug-in dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:43Z",
+          "completedAt": "2026-11-15T11:47:45Z"
+        },
+        {
+          "number": 6,
+          "name": "Exercise UI guard negative and positive fixtures",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:45Z",
+          "completedAt": "2026-11-15T11:47:56Z"
+        },
+        {
+          "number": 7,
+          "name": "Check TypeScript and enforce UI architecture policy",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:47:56Z",
+          "completedAt": "2026-11-15T11:48:22Z"
+        },
+        {
+          "number": 8,
+          "name": "Check and build the optional visuals plug-in",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:22Z",
+          "completedAt": "2026-11-15T11:48:25Z"
+        },
+        {
+          "number": 9,
+          "name": "Build web application",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:25Z",
+          "completedAt": "2026-11-15T11:48:40Z"
+        },
+        {
+          "number": 17,
+          "name": "Post Install toolchain",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:40Z",
+          "completedAt": "2026-11-15T11:48:40Z"
+        },
+        {
+          "number": 18,
+          "name": "Post Check out source",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:40Z",
+          "completedAt": "2026-11-15T11:48:43Z"
+        },
+        {
+          "number": 19,
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-15T11:48:43Z",
+          "completedAt": "2026-11-15T11:48:43Z"
+        }
+      ],
+      "savedLogSha256": "dcacde7d3aebe29e3f05418519d9284f0e583c5b47a16008727b83d0bfe442df",
+      "savedLogBytes": 56480,
+      "testSummaries": [
+        "2026-11-15T11:47:43.6997402Z \u2139 tests 6",
+        "2026-11-15T11:47:43.6998365Z \u2139 fail 0",
+        "2026-11-15T11:47:56.1273053Z  Test Files  2 passed (2)",
+        "2026-11-15T11:47:56.1274125Z       Tests  31 passed (31)"
+      ]
+    }
+  ],
+  "logEncoding": "Decoded UTF-8; CRLF normalized to LF; terminal newline normalized. SHA-256 refers to the saved local file.",
+  "sourceChangesRequired": false,
+  "retriesRequired": false,
+  "applicationRegression": {
+    "passed": 3354,
+    "skipped": 37,
+    "failed": 0
+  }
+}

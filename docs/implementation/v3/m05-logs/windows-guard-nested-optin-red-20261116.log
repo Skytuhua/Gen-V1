@@ -1,0 +1,27 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-restored
+
+ ❯ tests/file-access-startup.test.ts (9 tests | 1 failed) 60070ms
+   × ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds 60043ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/file-access-startup.test.ts > ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/file-access-startup.test.ts:68:1
+     66| });
+     67|
+     68| it('ignores a nested startup opt-in and keeps its acquisition deadline…
+       | ^
+     69|   const g = guard(), nested = vi.fn(async () => undefined);
+     70|   const observed = observe(startupGuard([path], signal(), () => startu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+   Start at  09:56:42
+   Duration  60.80s (transform 227ms, setup 0ms, import 366ms, tests 60.07s, environment 0ms)
+

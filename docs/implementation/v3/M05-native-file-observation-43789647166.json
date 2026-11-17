@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "status": "OBSERVED_CURRENT_NATIVE_FILE_CAPTURE_ONLY",
+  "recordedAt": "2026-11-16T02:23:15.504552+00:00",
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "runId": 43789647166,
+  "runAttempt": 1,
+  "event": "push",
+  "branch": "agent/m05-v3",
+  "headSha": "299aa79fce281bacc370bd76373f760082046941",
+  "treeSha": "a30449bbf40d121b9545bca225c1adb95d6851af",
+  "actualCheckoutSha": "299aa79fce281bacc370bd76373f760082046941",
+  "jobId": 133044988874,
+  "jobName": "Tests (shard 4/4)",
+  "jobConclusion": "success",
+  "rawLog": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43789647166/job-133044988874.log",
+    "url": "https://api.github.com/repos/skytuhua-org/Gen-V1/actions/jobs/133044988874/logs",
+    "encoding": "Exact connector-decoded UTF-8 log string; no normalization before hashing",
+    "bytes": 103742,
+    "sha256": "9147bcdbd126778e16975577dabdbdf2b1f9a554f2242c552e5c0eef85c77471",
+    "gitBlobSha": "75cbe217abe1f2eeb90e5c63f759262f12c1313c"
+  },
+  "suite": {
+    "path": "tests/memory-native-file-capture-v3.test.ts",
+    "executedCases": 3,
+    "passedCases": 3,
+    "failedCases": 0,
+    "skippedCases": 0,
+    "rawLineNumber": 737,
+    "rawLine": "2026-11-16T02:06:25.1611183Z  \u001b[32m✓\u001b[39m tests/memory-native-file-capture-v3.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2668\u001b[2mms\u001b[22m\u001b[39m",
+    "ansiStrippedLine": "2026-11-16T02:06:25.1611183Z  ✓ tests/memory-native-file-capture-v3.test.ts (3 tests) 2668ms",
+    "rawLineSha256": "7efe04095d052c26dd6a1644fbbfb10f0d8b01ca35a527f0567f9705c3f5ce13",
+    "wholeSuiteDurationMs": 2668,
+    "source": {
+      "bytes": 7623,
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5",
+      "gitBlobSha": "c2bc4a908a46e6daa454879b7ba3c11a99c73f69"
+    }
+  },
+  "individualCaseLines": [
+    {
+      "name": "captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file",
+      "status": "PASS",
+      "rawLineNumber": 738,
+      "rawLine": "2026-11-16T02:06:25.1612588Z      \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file \u001b[33m 1387\u001b[2mms\u001b[22m\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:06:25.1612588Z      ✓ captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file  1387ms",
+      "rawLineSha256": "3f59fa2ce706933c9bd2f1b38f09986530341976035d09303a93c71a5434993a",
+      "wholeCaseDurationMs": 1387
+    },
+    {
+      "name": "rejects native-captured FILE recall, detail and recapture after grant revocation",
+      "status": "PASS",
+      "rawLineNumber": 739,
+      "rawLine": "2026-11-16T02:06:25.1613740Z      \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m rejects native-captured FILE recall, detail and recapture after grant revocation \u001b[33m 623\u001b[2mms\u001b[22m\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:06:25.1613740Z      ✓ rejects native-captured FILE recall, detail and recapture after grant revocation  623ms",
+      "rawLineSha256": "4cf1efa9a04da52a9dff9556544145f8d4041ce13a1709297e4a969f21c72d82",
+      "wholeCaseDurationMs": 623
+    },
+    {
+      "name": "rejects native-captured FILE recall, detail and recapture after physical replacement",
+      "status": "PASS",
+      "rawLineNumber": 740,
+      "rawLine": "2026-11-16T02:06:25.1615592Z      \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m rejects native-captured FILE recall, detail and recapture after physical replacement \u001b[33m 656\u001b[2mms\u001b[22m\u001b[39m",
+      "ansiStrippedLine": "2026-11-16T02:06:25.1615592Z      ✓ rejects native-captured FILE recall, detail and recapture after physical replacement  656ms",
+      "rawLineSha256": "560b464e4ec39cac49755933177706007af58ffbb18adf577572e2802aedc9f9",
+      "wholeCaseDurationMs": 656
+    }
+  ],
+  "observedCommand": {
+    "argv": [
+      "pnpm",
+      "test",
+      "--maxWorkers=2",
+      "--shard=4/4"
+    ],
+    "rawLines": [
+      {
+        "rawLineNumber": 546,
+        "rawLine": "2026-11-16T02:03:26.7891098Z ##[group]Run pnpm test --maxWorkers=2 --shard=4/4",
+        "ansiStrippedLine": "2026-11-16T02:03:26.7891098Z ##[group]Run pnpm test --maxWorkers=2 --shard=4/4"
+      },
+      {
+        "rawLineNumber": 547,
+        "rawLine": "2026-11-16T02:03:26.7891775Z \u001b[36;1mpnpm test --maxWorkers=2 --shard=4/4\u001b[0m",
+        "ansiStrippedLine": "2026-11-16T02:03:26.7891775Z pnpm test --maxWorkers=2 --shard=4/4"
+      }
+    ],
+    "stepNumber": 5,
+    "stepName": "Run application regression tests",
+    "stepConclusion": "success",
+    "startedAt": "2026-11-16T02:03:26Z",
+    "completedAt": "2026-11-16T02:07:03Z",
+    "timingBasis": "Actual jobs-API step envelope, not per-case or subprocess timing."
+  },
+  "runnerEvidence": [
+    {
+      "rawLineNumber": 12,
+      "rawLine": "2026-11-16T02:01:51.4837091Z Microsoft Windows Server 2025"
+    },
+    {
+      "rawLineNumber": 17,
+      "rawLine": "2026-11-16T02:01:51.4841612Z Image: windows-2025-vs2026"
+    },
+    {
+      "rawLineNumber": 18,
+      "rawLine": "2026-11-16T02:01:51.4842484Z Version: 20261103.298.1"
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "role": "Executed three native FILE capture cases",
+      "bytes": 7623,
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5",
+      "gitBlobSha": "c2bc4a908a46e6daa454879b7ba3c11a99c73f69"
+    },
+    {
+      "path": "tests/project-memory-fixture.ts",
+      "role": "Disposable project/profile and constructor-local opt-in",
+      "bytes": 2523,
+      "sha256": "71159ca52a41e8d1c6f00caa7d1f3ab01cb56d2ffce5fc12d2e4806d67d33852",
+      "gitBlobSha": "dbdbc86830c06c6614f8df260d000d7035370b55"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "role": "Actual captureFile, source authority, accepted-memory and reuse implementation",
+      "bytes": 63143,
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+      "gitBlobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "role": "Actual withResourceGrant/readBoundFile/Windows guard dispatch and scoped startup deadline",
+      "bytes": 12366,
+      "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81",
+      "gitBlobSha": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+    },
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "role": "Actual fixed PowerShell/native guard program",
+      "bytes": 15955,
+      "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb",
+      "gitBlobSha": "4ee3427f44cf547d44aa5f5d01da3fc395241bfa"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "role": "Grant resolution and protected-storage authority",
+      "bytes": 5344,
+      "sha256": "286df9991313997e0edc13fb1478ad095339ff93f8efe5448a28f71a500d7946",
+      "gitBlobSha": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+    },
+    {
+      "path": "packages/core/memory-retrieval.ts",
+      "role": "Actual lexical recall with fresh sourceAvailable fence",
+      "bytes": 26823,
+      "sha256": "e3f88f9bc94dfcad6404be75b64c2ffeb16b7978997683f660767ead71e73e83",
+      "gitBlobSha": "85b8ca85a57b5033cf5178ebb112d9ac809c4c79"
+    },
+    {
+      "path": "packages/core/memory-publication.ts",
+      "role": "Shared publication secret validation",
+      "bytes": 555,
+      "sha256": "c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711",
+      "gitBlobSha": "fa9685412e5b8be70d0d1a0d86b49719a601bb31"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "role": "Default-off capability registry asserted by the native fixture",
+      "bytes": 6848,
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41",
+      "gitBlobSha": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "role": "Source/ref/access schemas and limits",
+      "bytes": 9160,
+      "sha256": "c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9",
+      "gitBlobSha": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "role": "ResourceGrant and common host contracts",
+      "bytes": 9143,
+      "sha256": "254decb9702125a01815b4528d22836d9da042198b31713428bb09b61d78eefe",
+      "gitBlobSha": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "role": "Actual persisted source/item/transaction storage",
+      "bytes": 15079,
+      "sha256": "3b98fd273214e77cf741ecdc0b1c1a8b6b03f57921b35be14283a7a8271ad9ae",
+      "gitBlobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "packages/workspace/tools.ts",
+      "role": "Project authority used by ProjectMemory access",
+      "bytes": 25568,
+      "sha256": "419148db0f57678c51df9def6b8379b3078193df954a716a81817417a5aa629e",
+      "gitBlobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
+    },
+    {
+      "path": "vitest.config.ts",
+      "role": "Windows canonical TEMP and test include/timeout configuration",
+      "bytes": 484,
+      "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+      "gitBlobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "role": "Exact Windows shard command and runner configuration",
+      "bytes": 12556,
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "gitBlobSha": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+    },
+    {
+      "path": ".github/actions/setup/action.yml",
+      "role": "Pinned CI toolchain setup",
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab",
+      "gitBlobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+    },
+    {
+      "path": "package.json",
+      "role": "Declared test command and dependency versions",
+      "bytes": 3172,
+      "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+      "gitBlobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "role": "Exact resolved dependency lock",
+      "bytes": 355786,
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "gitBlobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    }
+  ],
+  "sourceReview": {
+    "actualCallPath": [
+      "memoryFixture creates the real Store and ProjectMemory, enabled only through its constructor-local callback and explicit disposable source-thread configuration.",
+      "The test creates an exclusive UTF-8 file, captures its canonical path/device/inode, and stores an owning read-only ResourceGrant.",
+      "ProjectMemory.captureFile calls actual withResourceGrant and readBoundFile. The Windows branch spawns the fixed system PowerShell and windows-path-guard.ps1.",
+      "No file access module, guard, child process, source snapshot or ProjectMemory method is mocked by the test or its fixture; the reviewed Vitest configuration installs no mocking setup file."
+    ],
+    "positiveAssertions": [
+      "Exact UTF-8 bytes and SHA-256 revision/digest in a FILE ref; private grant digest retained with the immutable source.",
+      "Accepted exact source detail is readable; repeated capture reuses the original ref without Store sequence growth or another source row.",
+      "Original file bytes, physical device/inode, size and mtime remain unchanged.",
+      "The registered memory.projectV1 and memory.externalRecallExperimentV1 flags are false."
+    ],
+    "negativeAssertions": [
+      "Grant removal and an identical-byte physical replacement separately deny sourceAvailable, accepted memory, cached-candidate lexical recall and exact detail.",
+      "Recapture rejects MEMORY_SOURCE_DENIED without changing Store sequence or retained sources."
+    ],
+    "deadlineScope": "The current guard file includes the new Hermes-only first-acquire opt-in. This FILE path calls withPathGuard without that option and therefore exercises its ordinary 15-second acquisition bound; it is not proof of the separate cold-Hermes startup allowance.",
+    "fixtureCleanup": "The fixture closes its Store and removes only its disposable temporary root in afterEach."
+  },
+  "inferenceBasis": "The actual Windows job is successful, its exact green file summary reports 3 tests with no skipped or failed suffix, and each of the three named cases has a separate green raw line. The shard has other skipped cases; none is assigned to this suite.",
+  "limits": [
+    "Current native FILE capture/authority proof only. This does not establish installed application launch, native Save, retained-memory restart, provider calls, full enabled memory or the live study.",
+    "The 2,668 ms value is the whole test-file duration; the 1,387/623/656 ms values are whole-case durations, not individual native-operation durations.",
+    "No new test run or log download was performed for this observation; it uses the collector-owned raw shard log and immutable source Git objects.",
+    "Historical native FILE observations retain their original source hashes; this artifact does not claim old file-access bytes match the current implementation."
+  ],
+  "extractionNote": "An initial scratch extraction assertion assumed the reporter emitted only the file summary. The actual retained raw log contains all three individual green case lines; this completed observation preserves them. No test or CI command was rerun."
+}

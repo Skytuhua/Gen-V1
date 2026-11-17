@@ -1,0 +1,150 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-storage-boundary-v3.test.ts (9 tests | 9 failed) 39ms
+   × denies the legacy deletion mirror through direct and ancestor resource grants 17ms
+   × derives the sibling fence from the canonical profile instead of a restored identity 10ms
+   × denies sibling ledger reads and writes through direct, ancestor and not-yet-created paths 2ms
+   × reserves the deletion-ledger namespace across profile scopes 2ms
+   × fails resource admission closed when the current ledger is a symlink 1ms
+   × fails resource admission closed when the current ledger is a hardlink 1ms
+   × fails resource admission closed when the current ledger is a directory 1ms
+   × requires the current deletion ledger to retain private POSIX permissions 1ms
+   × requests the canonical ledger-parent namespace pin before an ordinary grant action 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > denies the legacy deletion mirror through direct and ancestor resource grants
+AssertionError: promise resolved "'/tmp/m05-storage-cSqcAa/profile/proje…'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"/tmp/m05-storage-cSqcAa/profile/project-memory-deletions.jsonl"
+
+ ❯ tests/memory-storage-boundary-v3.test.ts:38:85
+     36|   await writeFile(legacy, 'synthetic deletion fence', { mode: 0o600 });
+     37|   for (const write of [false, true]) {
+     38|     await expect(security.resolveGrant(f.grant(legacy), undefined, wri…
+       |                                                                                     ^
+     39|     await expect(security.resolveGrant(f.grant(f.root), 'profile/proje…
+     40|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > derives the sibling fence from the canonical profile instead of a restored identity
+AssertionError: M05 requires one canonical host-owned external deletion path: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ ledgerPath tests/memory-storage-boundary-v3.test.ts:30:116
+     28| }
+     29| function ledgerPath(profile: string) {
+     30|   expect(security.projectMemoryDeletionLedgerPath, 'M05 requires one c…
+       |                                                                                                                    ^
+     31|   return security.projectMemoryDeletionLedgerPath(profile);
+     32| }
+ ❯ tests/memory-storage-boundary-v3.test.ts:49:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > denies sibling ledger reads and writes through direct, ancestor and not-yet-created paths
+AssertionError: M05 requires one canonical host-owned external deletion path: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ ledgerPath tests/memory-storage-boundary-v3.test.ts:30:116
+     28| }
+     29| function ledgerPath(profile: string) {
+     30|   expect(security.projectMemoryDeletionLedgerPath, 'M05 requires one c…
+       |                                                                                                                    ^
+     31|   return security.projectMemoryDeletionLedgerPath(profile);
+     32| }
+ ❯ tests/memory-storage-boundary-v3.test.ts:55:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > reserves the deletion-ledger namespace across profile scopes
+AssertionError: promise resolved "'/tmp/m05-storage-x7GcZx/.gen-memory-d…'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"/tmp/m05-storage-x7GcZx/.gen-memory-deletions-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff.jsonl"
+
+ ❯ tests/memory-storage-boundary-v3.test.ts:68:94
+     66|   const f = await fixture(), peerLedger = join(f.root, '.gen-memory-de…
+     67|   await writeFile(peerLedger, 'other profile deletion fence', { mode: …
+     68|   await expect(security.resolveGrant(f.grant(f.root), basename(peerLed…
+       |                                                                                              ^
+     69|   const alias = join(f.root, 'public-alias.txt'); await symlink(peerLe…
+     70|   await expect(security.resolveGrant(f.grant(alias), undefined, false,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > fails resource admission closed when the current ledger is a symlink
+ FAIL  tests/memory-storage-boundary-v3.test.ts > fails resource admission closed when the current ledger is a hardlink
+ FAIL  tests/memory-storage-boundary-v3.test.ts > fails resource admission closed when the current ledger is a directory
+AssertionError: M05 requires one canonical host-owned external deletion path: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ ledgerPath tests/memory-storage-boundary-v3.test.ts:30:116
+     28| }
+     29| function ledgerPath(profile: string) {
+     30|   expect(security.projectMemoryDeletionLedgerPath, 'M05 requires one c…
+       |                                                                                                                    ^
+     31|   return security.projectMemoryDeletionLedgerPath(profile);
+     32| }
+ ❯ tests/memory-storage-boundary-v3.test.ts:74:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > requires the current deletion ledger to retain private POSIX permissions
+AssertionError: M05 requires one canonical host-owned external deletion path: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ ledgerPath tests/memory-storage-boundary-v3.test.ts:30:116
+     28| }
+     29| function ledgerPath(profile: string) {
+     30|   expect(security.projectMemoryDeletionLedgerPath, 'M05 requires one c…
+       |                                                                                                                    ^
+     31|   return security.projectMemoryDeletionLedgerPath(profile);
+     32| }
+ ❯ tests/memory-storage-boundary-v3.test.ts:83:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/memory-storage-boundary-v3.test.ts > requests the canonical ledger-parent namespace pin before an ordinary grant action
+AssertionError: M05 requires one canonical host-owned external deletion path: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ ledgerPath tests/memory-storage-boundary-v3.test.ts:30:116
+     28| }
+     29| function ledgerPath(profile: string) {
+     30|   expect(security.projectMemoryDeletionLedgerPath, 'M05 requires one c…
+       |                                                                                                                    ^
+     31|   return security.projectMemoryDeletionLedgerPath(profile);
+     32| }
+ ❯ tests/memory-storage-boundary-v3.test.ts:90:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  18:45:43
+   Duration  577ms (transform 164ms, setup 0ms, import 315ms, tests 39ms, environment 0ms)

@@ -1,0 +1,743 @@
+{
+  "scope": "Actual journal/recovery/editor registry; scripted empty IndexedDB requests delivered by setImmediate; no React, browser, native, or host execution.",
+  "owner": {
+    "threadId": "empty-thread",
+    "projectId": "empty-project",
+    "workspaceId": "empty-copy"
+  },
+  "outcome": {
+    "status": "REJECTED",
+    "message": "Empty-owner handoff exceeded 64 asynchronous source reads without settling.",
+    "sentinel": true
+  },
+  "allReads": 68,
+  "sourceReads": 66,
+  "sources": {
+    "apps/web/src/journal.ts": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+    "apps/web/src/workbench-recovery.ts": "43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed",
+    "apps/web/src/editor-handoff.ts": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+    "apps/web/src/App.tsx": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+    "apps/web/src/SourceWorkbench.tsx": "de0cac5c3f3575621a12822d8c1b963932bc47911591f78ffbead2a61cd34965",
+    "tests/source-handoff-v3.test.ts": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd"
+  },
+  "finalMetadata": [
+    {
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "revision": 132,
+      "changeRevision": 0,
+      "pending": false,
+      "readSucceeded": true,
+      "readFailures": 2,
+      "recordSeen": false,
+      "localWorkAttempted": false
+    },
+    {
+      "key": "draft:empty-thread",
+      "revision": 2,
+      "changeRevision": 0,
+      "pending": false,
+      "readSucceeded": true,
+      "readFailures": 0,
+      "recordSeen": false,
+      "localWorkAttempted": false
+    },
+    {
+      "key": "agents-pending:empty-thread",
+      "revision": 2,
+      "changeRevision": 0,
+      "pending": false,
+      "readSucceeded": true,
+      "readFailures": 0,
+      "recordSeen": false,
+      "localWorkAttempted": false
+    }
+  ],
+  "events": [
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 1
+    },
+    {
+      "event": "read-start",
+      "key": "draft:empty-thread",
+      "reads": 1
+    },
+    {
+      "event": "read-start",
+      "key": "agents-pending:empty-thread",
+      "reads": 1
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 1
+    },
+    {
+      "event": "read-empty",
+      "key": "draft:empty-thread",
+      "reads": 1
+    },
+    {
+      "event": "read-empty",
+      "key": "agents-pending:empty-thread",
+      "reads": 1
+    },
+    {
+      "event": "App-start"
+    },
+    {
+      "event": "SourceWorkbench-start"
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 2
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 2
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 3
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 3
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 4
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 4
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 5
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 5
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 6
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 6
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 7
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 7
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 8
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 8
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 9
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 9
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 10
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 10
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 11
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 11
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 12
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 12
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 13
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 13
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 14
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 14
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 15
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 15
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 16
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 16
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 17
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 17
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 18
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 18
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 19
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 19
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 20
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 20
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 21
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 21
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 22
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 22
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 23
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 23
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 24
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 24
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 25
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 25
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 26
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 26
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 27
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 27
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 28
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 28
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 29
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 29
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 30
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 30
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 31
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 31
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 32
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 32
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 33
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 33
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 34
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 34
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 35
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 35
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 36
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 36
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 37
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 37
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 38
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 38
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 39
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 39
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 40
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 40
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 41
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 41
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 42
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 42
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 43
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 43
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 44
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 44
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 45
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 45
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 46
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 46
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 47
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 47
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 48
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 48
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 49
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 49
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 50
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 50
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 51
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 51
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 52
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 52
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 53
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 53
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 54
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 54
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 55
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 55
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 56
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 56
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 57
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 57
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 58
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 58
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 59
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 59
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 60
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 60
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 61
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 61
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 62
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 62
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 63
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 63
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 64
+    },
+    {
+      "event": "read-empty",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 64
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 65
+    },
+    {
+      "event": "read-sentinel",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 65
+    },
+    {
+      "event": "read-start",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 66
+    },
+    {
+      "event": "read-sentinel",
+      "key": "source-context:empty-thread:empty-project:empty-copy",
+      "reads": 66
+    }
+  ]
+}

@@ -47,6 +47,20 @@ test('Tab exits the card to the next control and Shift Tab returns to its trigge
   await expect(page.getByRole('button', {name: 'Next control'})).toBeFocused(); await expect(card(page)).toHaveCount(0);
 });
 
+test('Escape dismisses a pointer-opened thread card without moving keyboard focus', async ({page}) => {
+  await fixture(page);
+  const outside = page.getByRole('button', {name: 'Outside control', exact: true});
+  await outside.focus();
+  await trigger(page).hover();
+  await expect(card(page)).toBeVisible();
+  await expect(outside).toBeFocused();
+  await outside.dispatchEvent('keydown', {key: 'Escape', bubbles: true, isComposing: true});
+  await expect(card(page)).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(card(page)).toHaveCount(0);
+  await expect(outside).toBeFocused();
+});
+
 test('pointer exit dismisses after transfer grace and outside focus dismisses immediately', async ({page}) => {
   await fixture(page); await page.clock.install(); await page.clock.pauseAt(new Date()); await trigger(page).hover();
   await page.clock.runFor(350); await expect(card(page)).toBeVisible();

@@ -25,6 +25,18 @@ export const HOST_FLAG_REGISTRY = Object.freeze({
     default: false,
     description: 'Verification workflow: approved recipes, check/visual observations, bounded repair and the additive completion read model.',
   }),
+  'coding.intelligenceV1': Object.freeze({
+    default: false,
+    description: 'Language intelligence bridge: revision-aware diagnostics and bounded navigation through an approved language-server adapter.',
+  }),
+  'coding.renameV1': Object.freeze({
+    default: false,
+    description: 'Safe rename: preview, exact approval and a guarded apply with a durable recovery journal under the workspace mutation lock.',
+  }),
+  'coding.debuggerV1': Object.freeze({
+    default: false,
+    description: 'Restricted debugger: launch only from an approved recipe on a proven backend, with inspect separated from effectful commands.',
+  }),
 } as const satisfies Record<string, HostFlagDefinition>);
 
 export type RegisteredHostFlag = keyof typeof HOST_FLAG_REGISTRY;

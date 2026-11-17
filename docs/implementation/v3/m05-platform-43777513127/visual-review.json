@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "NOT_RUN_NO_RENDERER_PNG_MEMBERS",
+  "recordedAt": "2026-11-16T00:34:09.014410+00:00",
+  "source": {
+    "id": 43777513127,
+    "headSha": "0aacdacdf835ec95710ae3674b260d654060f446",
+    "treeSha": "20e8e77f1fd8732e3a0e0607f9c9fb6d9558d28d",
+    "actualCheckoutSha": "0aacdacdf835ec95710ae3674b260d654060f446"
+  },
+  "artifact": {
+    "id": 14188460877,
+    "bytes": 397526,
+    "sha256": "78a5cfa8a79d249efb482d801bc10b4dfcf1e04915c2f9495384f3d665cbe265"
+  },
+  "images": [],
+  "scope": "Actual archive has five JSON members and no PNGs. No renderer image inspection or native Save/retention/restart proof is claimed."
+}

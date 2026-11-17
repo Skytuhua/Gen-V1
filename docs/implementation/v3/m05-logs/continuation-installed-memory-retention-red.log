@@ -1,0 +1,59 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/installed-desktop-verification.test.ts (12 tests | 4 failed) 33ms
+     × requires an explicit retention option and rejects unknown or duplicated options 2ms
+     × seeds source-linked records in place and reopens them with the production default-off policy and no model owner 6ms
+     × refuses an existing host profile without changing its contents 2ms
+     × refuses a redirected evidence root before creating a backend profile 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed project memory retention fixture > requires an explicit retention option and rejects unknown or duplicated options
+TypeError: readInstalledVerificationArguments is not a function
+ ❯ tests/installed-desktop-verification.test.ts:75:32
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed project memory retention fixture > seeds source-linked records in place and reopens them with the production default-off policy and no model owner
+Error: Cannot find module '/scripts/installed-memory-retention.ts' imported from /workspace/scratch/36f66011d961/m05-continuation/tests/installed-desktop-verification.test.ts
+ ❯ tests/installed-desktop-verification.test.ts:82:61
+     80|   const root=await realpath(await mkdtemp(join(tmpdir(),'installed-mem…
+     81|   try{
+     82|    const {seedInstalledMemoryProfile,INSTALLED_MEMORY_CASE}=await impo…
+       |                                                             ^
+     83|    const seed=await seedInstalledMemoryProfile(root);
+     84|    expect(seed.profile.path).toBe(await realpath(join(root,'host')));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses an existing host profile without changing its contents
+Error: Cannot find module '/scripts/installed-memory-retention.ts' imported from /workspace/scratch/36f66011d961/m05-continuation/tests/installed-desktop-verification.test.ts
+ ❯ tests/installed-desktop-verification.test.ts:109:39
+    107|   const root=await realpath(await mkdtemp(join(tmpdir(),'installed-mem…
+    108|   try{
+    109|    const {seedInstalledMemoryProfile}=await import('../scripts/install…
+       |                                       ^
+    110|    await mkdir(join(root,'host'));await writeFile(join(root,'host','ex…
+    111|    await expect(seedInstalledMemoryProfile(root)).rejects.toThrow(/exi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed project memory retention fixture > refuses a redirected evidence root before creating a backend profile
+Error: Cannot find module '/scripts/installed-memory-retention.ts' imported from /workspace/scratch/36f66011d961/m05-continuation/tests/installed-desktop-verification.test.ts
+ ❯ tests/installed-desktop-verification.test.ts:118:39
+    116|   const root=await realpath(await mkdtemp(join(tmpdir(),'installed-mem…
+    117|   try{
+    118|    const {seedInstalledMemoryProfile}=await import('../scripts/install…
+       |                                       ^
+    119|    await mkdir(join(root,'target'));await symlink(join(root,'target'),…
+    120|    await expect(seedInstalledMemoryProfile(join(root,'alias'))).reject…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 8 passed (12)
+   Start at  23:41:09
+   Duration  1.06s (transform 349ms, setup 0ms, import 841ms, tests 33ms, environment 0ms)

@@ -1,0 +1,50 @@
+[WebServer] (node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:94) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:94) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px
+tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px
+M05_DOCUMENT_GEOMETRY={".composer":{"x":516,"width":656,"paddingLeft":"14px","paddingRight":"14px","boxSizing":"border-box"},".composer-dock":{"x":504,"width":680,"paddingLeft":"12px","paddingRight":"12px","boxSizing":"border-box"},".artifact":{"x":504,"width":680,"paddingLeft":"0px","paddingRight":"0px","boxSizing":"border-box"},".conversation":{"x":504,"width":680,"paddingLeft":"0px","paddingRight":"0px","boxSizing":"border-box"},".conversation-scroll":{"x":249,"width":1190,"paddingLeft":"32px","paddingRight":"32px","boxSizing":"border-box"}}
+
+  1) tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2
+    Received:   12
+
+      105 |  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox(),chromeInset=width<=700?4:0;
+      106 |  console.log('M05_DOCUMENT_GEOMETRY='+JSON.stringify(await page.evaluate(()=>Object.fromEntries(['.composer','.composer-dock','.artifact','.conversation','.conversation-scroll'].map(selector=>{const node=document.querySelector(selector)!;const rect=node.getBoundingClientRect(),style=getComputedStyle(node);return [selector,{x:rect.x,width:rect.width,paddingLeft:style.paddingLeft,paddingRight:style.paddingRight,boxSizing:style.boxSizing}];})))));
+    > 107 |  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2+chromeInset);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2+chromeInset);
+          |                                            ^
+      108 |  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');
+      109 |  expect(pdf!.height).toBeLessThan(650);
+      110 |  const canvas=await page.locator('.document-preview canvas').elementHandle();await page.getByRole('button',{name:'Go to Title',exact:true}).click();
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/document-smoothness.spec.ts:107:44
+
+    Error Context: ../m05-local-checks/continuation-85d-document-geometry-red-artifacts/document-smoothness-paired-4e7e2--only-when-narrow-at-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../m05-local-checks/continuation-85d-document-geometry-red-artifacts/document-smoothness-paired-4e7e2--only-when-narrow-at-1440px/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../m05-local-checks/continuation-85d-document-geometry-red-artifacts/document-smoothness-paired-4e7e2--only-when-narrow-at-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    tests/e2e/document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px 

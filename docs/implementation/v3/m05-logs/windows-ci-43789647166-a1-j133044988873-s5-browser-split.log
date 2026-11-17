@@ -1,0 +1,62 @@
+2026-11-16T02:03:31.5170945Z ##[group]Run pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-16T02:03:31.5171975Z pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+2026-11-16T02:03:31.5244798Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T02:03:31.5245644Z env:
+2026-11-16T02:03:31.5245944Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T02:03:31.5246464Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:31.5246983Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T02:03:31.5247512Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:31.5247977Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:31.5248431Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:03:31.5248979Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T02:03:31.5249418Z   GEN_SPLIT_RENDERER_BROWSER: 1
+2026-11-16T02:03:31.5249686Z   GEN_SPLIT_APP_BROWSER: 1
+2026-11-16T02:03:31.5249927Z ##[endgroup]
+2026-11-16T02:03:32.6909879Z 
+2026-11-16T02:03:32.6912168Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-16T02:03:32.6912731Z 
+2026-11-16T02:05:06.8938612Z  ✓ tests/split-app-browser.test.ts (26 tests) 93183ms
+2026-11-16T02:05:06.8940956Z      ✓ keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload  8388ms
+2026-11-16T02:05:06.8943760Z      ✓ archiving the selected conversation leaves an explicit empty main that never revives activeThreadId, even after reload (T02/R02)  5293ms
+2026-11-16T02:05:06.8946552Z      ✓ detaches a conversation to an independent float with an empty main, and returns it with placement recovery (T02/R02)  6791ms
+2026-11-16T02:05:06.8948695Z      ✓ detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)  2355ms
+2026-11-16T02:05:06.8951548Z      ✓ keyboard Stop targets the focused float owner exactly once and leaves the main run untouched (AUD-06)  2824ms
+2026-11-16T02:05:06.8953549Z      ✓ docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)  2746ms
+2026-11-16T02:05:06.8955379Z      ✓ divider resize reflows real pane widths without scaling content (T03/R04 #4)  2878ms
+2026-11-16T02:05:06.8957278Z      ✓ embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)  2014ms
+2026-11-16T02:05:06.8959214Z      ✓ places a sidebar thread into a spatial edge target without duplicating its composer  2712ms
+2026-11-16T02:05:06.8961117Z      ✓ uses one canonical plan in the overview and detailed pane with actual companion sections  3099ms
+2026-11-16T02:05:06.8963438Z      ✓ starts a new chat in the chosen project while preserving a started pane and its pinned account  2781ms
+2026-11-16T02:05:06.8965770Z      ✓ reconciles an explicitly connected unstarted chat without remounting its composer or changing other saved view owners  4983ms
+2026-11-16T02:05:06.8968039Z      ✓ renders the canonical detailed plan requirements in an explicitly recovered canvas panel  2301ms
+2026-11-16T02:05:06.8973929Z      ✓ keeps a narrow focused composer visible on plan publication until the user opens the full plan  3366ms
+2026-11-16T02:05:06.8975392Z      ✓ reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus  2547ms
+2026-11-16T02:05:06.8976656Z      ✓ saves and applies split layouts while preserving drafts and the retained v1 canvas through explicit recovery  5661ms
+2026-11-16T02:05:06.8977740Z      ✓ uses the exact host save receipt and preserves geometry during name-only Rename  4356ms
+2026-11-16T02:05:06.8978760Z      ✓ shows installed generic workspaces without replacing the personal workspace bar  4000ms
+2026-11-16T02:05:06.8979830Z      ✓ defaults ordinary Workspace to the shared split plane without a pre-seeded split mode (T02/R02)  1686ms
+2026-11-16T02:05:06.8981141Z      ✓ defaults ordinary Workspace to the plane with a panel toggle, hides the overview while the panel is open, and removes the split history bar  3480ms
+2026-11-16T02:05:06.8982297Z      ✓ a browser dock shares the tool width budget and preserves chat space  1898ms
+2026-11-16T02:05:06.8983701Z      ✓ artifacts stay inside the plane conversation without horizontal overflow (T02)  1941ms
+2026-11-16T02:05:06.8984706Z      ✓ panel bounds retain chat and title bar at drag extremes 1920x1080  2693ms
+2026-11-16T02:05:06.8986051Z      ✓ panel bounds retain chat and title bar at drag extremes 1440x900  2750ms
+2026-11-16T02:05:06.8986939Z      ✓ panel bounds retain chat and title bar at drag extremes 1024x768  2450ms
+2026-11-16T02:05:06.8987780Z      ✓ panel bounds stack tools below chat in a narrow workarea  1879ms
+2026-11-16T02:05:14.1429872Z  ✓ tests/split-workspace-renderer.test.ts (11 tests) 6562ms
+2026-11-16T02:05:14.1431071Z      ✓ uses the shared area menu for keyboard editor selection, Escape and outside dismissal  686ms
+2026-11-16T02:05:14.1432000Z      ✓ mounts a tool view opened in the empty main pane  412ms
+2026-11-16T02:05:14.1432781Z      ✓ keeps editor focus when a pending area action completes  680ms
+2026-11-16T02:05:14.1433927Z      ✓ uses a shared narrow-area chooser without remounting either editor  709ms
+2026-11-16T02:05:14.1434847Z      ✓ does not reopen a menu after responsive layout removes its owning pane  466ms
+2026-11-16T02:05:14.1435785Z      ✓ keeps editor DOM, values and iframe instance when moving and parking views  392ms
+2026-11-16T02:05:14.1436763Z      ✓ supports keyboard divider movement and cancels pointer previews without a command  415ms
+2026-11-16T02:05:14.1437772Z      ✓ retains layout when draft flush fails and restores desktop geometry after narrow mode  709ms
+2026-11-16T02:05:14.1438727Z      ✓ moves a dragged tab to the center target and minimizes to a reachable strip  483ms
+2026-11-16T02:05:14.1439629Z      ✓ rejects an incoming conversation that cannot fit its actual minimum  427ms
+2026-11-16T02:05:14.1440882Z      ✓ keeps editor and recovery controls reachable inside a short pane  690ms
+2026-11-16T02:05:14.1470197Z 
+2026-11-16T02:05:14.1477738Z  Test Files  2 passed (2)
+2026-11-16T02:05:14.1479882Z       Tests  37 passed (37)
+2026-11-16T02:05:14.1480823Z    Start at  02:03:32
+2026-11-16T02:05:14.1482078Z    Duration  101.44s (transform 275ms, setup 0ms, import 1.31s, tests 99.74s, environment 0ms)
+2026-11-16T02:05:14.1482863Z 

@@ -35,7 +35,7 @@ test('material review keeps decisions, comments, validation and the exact conten
   const host=await open(page,'ReviewQueue');
   await page.getByRole('radio',{name:'Request changes',exact:true}).check();await page.getByRole('button',{name:'Next item',exact:true}).click();
   await page.getByRole('radio',{name:'Accept',exact:true}).check();await page.getByRole('button',{name:'Send review',exact:true}).click();
-  await expect(page.getByRole('alert')).toContainText('Add a comment');await expect(page.getByText(review.items[0].evidence[0].value,{exact:true})).toBeVisible();
+  await expect(page.getByRole('status').filter({hasText:'Add a comment'})).toBeVisible();await expect(page.getByText(review.items[0].evidence[0].value,{exact:true})).toBeVisible();
   await page.getByRole('textbox',{name:'Review comment',exact:true}).fill('State which argument remains compatible.');
   await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({selectedId:'signature',items:{signature:{decision:'revise',comment:'State which argument remains compatible.'},empty:{decision:'approve'}}});
   await page.reload();await expect(page.getByRole('radio',{name:'Request changes',exact:true})).toBeChecked();await expect(page.getByRole('textbox',{name:'Review comment',exact:true})).toHaveValue('State which argument remains compatible.');
@@ -59,7 +59,7 @@ test('parameter adjustments expose a precise source to draft proposal and reset 
 test('invalid adjustment proposals stay editable and show the failed constraint without sending',async({page})=>{
   const host=await open(page,'ParameterControls');await page.getByRole('spinbutton',{name:'Width',exact:true}).fill('100');
   await expect(page.getByRole('region',{name:'Changes to apply',exact:true})).toContainText('Minimum 320');
-  await page.getByRole('button',{name:'Apply adjustments',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Minimum 320');
+  await page.getByRole('button',{name:'Apply adjustments',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Minimum 320'})).toBeVisible();
   expect(host.commands.some(command=>command.type==='action.submit')).toBe(false);await page.reload();await expect(page.getByRole('spinbutton',{name:'Width',exact:true})).toHaveValue('100');
 });
 
@@ -77,7 +77,7 @@ test('a rejected adjustment visibly preserves its exact draft and supports an ex
   const host=await open(page,'ParameterControls');let reject=true;
   await page.route('**/api/commands',async route=>{if(reject&&route.request().postDataJSON().type==='action.submit')return route.fulfill({status:409,json:{error:{code:'STALE_ACTION',message:'The source changed. Review the current values before applying.'}}});await route.fallback();});
   await page.getByRole('spinbutton',{name:'Width',exact:true}).fill('1920');await page.getByRole('button',{name:'Apply adjustments',exact:true}).click();
-  await expect(page.getByRole('alert')).toContainText('The source changed');await expect(page.getByRole('spinbutton',{name:'Width',exact:true})).toHaveValue('1920');await expect(page.getByRole('region',{name:'Changes to apply',exact:true})).toContainText('1920');
+  await expect(page.getByRole('status').filter({hasText:'The source changed'})).toBeVisible();await expect(page.getByRole('spinbutton',{name:'Width',exact:true})).toHaveValue('1920');await expect(page.getByRole('region',{name:'Changes to apply',exact:true})).toContainText('1920');
   reject=false;await page.getByRole('button',{name:'Apply adjustments',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toMatchObject({values:{width:1920}});
 });
 

@@ -1,0 +1,56 @@
+{
+  "kind": "REVIEW_ONLY_BROWSER_TEST_PROPOSAL",
+  "baseSourceCut": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+  "baseSourceCutSha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+  "files": [
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "beforeSha256": "9f35e05deaa3dadb03b8ffce74a08b3e60fbd7a21a80ec01a150260817a299d8",
+      "afterSha256": "3bcd00ac11265447989e86cb7b41a2f7c17b13b0196d7ab53762b1a19ece814f",
+      "beforeBytes": 61185,
+      "afterBytes": 61459,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/saved-layout-chooser.spec.ts",
+      "beforeSha256": "0d18bf02ec72e1d0f2e086bd6ab75a2bb785d0bc154e63f393b32d8e6bd54718",
+      "afterSha256": "f1bd163d59308658bd3f3374d492503a5a2a1c3fba75cc09e3ec96f07bf47a99",
+      "beforeBytes": 13480,
+      "afterBytes": 13753,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/usage-app-integration.spec.ts",
+      "beforeSha256": "d7ab8d35a4471f4a49ec77e3680ac19fe9f01331e2249798ead284fa25222aaf",
+      "afterSha256": "c2595840613b47d8354c437c3e2a588005bdf7df410ce424af6ae166d93ccf5d",
+      "beforeBytes": 11619,
+      "afterBytes": 12954,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/mobile-navigation.spec.ts",
+      "beforeSha256": "70fbbe60fb81fbbfadbe23d73688a091957e27d7ddf90f8cee65055b576b7be2",
+      "afterSha256": "cf0af397eab466d1ae4882b36b9b769a894822905b306ee0ac812d40a24a66ab",
+      "beforeBytes": 1855,
+      "afterBytes": 2019,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    }
+  ],
+  "testsRun": false,
+  "repositoryFilesWritten": false,
+  "limits": [
+    "No config, production source, assertion deadline, overall deadline, geometry threshold, animation implementation, or browser channel is changed.",
+    "The mobile first-snapshot wait changes only the start of the existing five-second enabled assertion within the unchanged fifteen-second test budget.",
+    "The added split restore negative case is proposed and unexecuted."
+  ],
+  "patchSha256": "3446a347445bfd3f46bc4e7e075ca6701e1c23e4a31fd0fc882c98833da03fe6",
+  "supersedesProposal": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-test-proposal-01/tests.patch",
+    "sha256": "bbbc0c15ec17512765107efd22ce094ebaa07c67d8264f26f6987b4521649301",
+    "reason": "Static SummaryDock review found the proposed caption assertion ran while expanded; explicitly collapse and reopen the summary around its exact visible value assertion."
+  }
+}

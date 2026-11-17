@@ -1,0 +1,28 @@
+argv: ["node","--import","tsx","scripts/test-browser.ts","--suite","root"]
+cwd: /workspace/scratch/1b47eb428672/gen-v1
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794778548890-4c2ec330-9390-406f-b701-0b6d98815dc6
+
+Browser suite: root (16 spec files)
+[2m[WebServer] [22m(node:48) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:60) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Require stack:
+- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Require stack:
+- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+
+
+Failed browser suites: root (exit 1)

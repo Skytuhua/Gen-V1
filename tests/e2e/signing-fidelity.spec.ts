@@ -10,6 +10,58 @@ const signingSpec = (fit?: 'width' | 'page'): TaskSpec => ({ root: 'pair', eleme
   signature: { type: 'SignaturePad', props: { stateKey: 'signature', nameStateKey: 'name', label: 'Add your signature', initialMode: 'generate' } },
 } });
 
+test('unmount preserves the last points of an active signature',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();
+ await canvas.evaluate(node=>{const el=node as HTMLCanvasElement, r=el.getBoundingClientRect();el.setPointerCapture=()=>{};for(const [type,x] of [['pointerdown',.2],['pointermove',.4],['pointermove',.6]] as const)el.dispatchEvent(new PointerEvent(type,{pointerId:77,pointerType:'mouse',isPrimary:true,button:0,buttons:1,clientX:r.left+r.width*x,clientY:r.top+r.height*.5,bubbles:true}));});
+ host.snapshot.artifacts[0].spec!.root='pdf';await host.publish();await expect(signature).toHaveCount(0);
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+});
+test('journal updates do not end an active signature stroke',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ await page.mouse.move(box.x+box.width*.6,box.y+box.height*.5);await page.mouse.up();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBeGreaterThan(2);
+});
+test('window blur ends a pointer stroke without accepting later movement',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ await canvas.evaluate(node=>{const rect=node.getBoundingClientRect();for(const x of [.3,.4])node.dispatchEvent(new PointerEvent('pointermove',{pointerId:1,clientX:rect.left+rect.width*x,clientY:rect.top+rect.height*.5,bubbles:true}));window.dispatchEvent(new Event('blur'));});
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+ const before=await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL());
+ await page.mouse.move(box.x+box.width*.8,box.y+box.height*.5);await page.mouse.up();
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL())).toBe(before);
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+});
+test('a competing primary pointer cannot replace a signature stroke',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ const before=await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL());
+ await canvas.evaluate(node=>{const target=node as HTMLCanvasElement,native=target.setPointerCapture.bind(target),rect=target.getBoundingClientRect();target.setPointerCapture=id=>{if(id!==77)native(id);};target.dispatchEvent(new PointerEvent('pointerdown',{pointerId:77,pointerType:'touch',isPrimary:true,button:0,clientX:rect.left+rect.width*.8,clientY:rect.top+rect.height*.5,bubbles:true}));});
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await canvas.evaluate((node,old)=>(node as HTMLCanvasElement).toDataURL()===old,before)).toBe(true);
+ await page.mouse.move(box.x+box.width*.4,box.y+box.height*.5);await page.mouse.up();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBeGreaterThan(2);
+});
+test('a pointer can follow a keyboard stroke without losing it',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.focus();await canvas.press('Enter');await canvas.press('ArrowRight');
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(3);
+ await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;await page.mouse.move(box.x+box.width*.4,box.y+box.height*.5);await page.mouse.down();await page.mouse.move(box.x+box.width*.6,box.y+box.height*.5);await page.mouse.up();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {strokes?:unknown[]}|null)?.strokes?.length).toBe(2);
+});
 test('canonical dark signature ink stays readable in the image-backed well in dark theme',async({page})=>{
  const fixture=await signingFixture(page,undefined,{step:'signature'});fixture.snapshot.settings.theme='dark';await page.goto('/');await expect(page.locator('.signature-image-preview img')).toBeVisible();
  const contrast=await page.locator('.signature-well[data-mode="generate"]').evaluate(node=>{const color=getComputedStyle(node).backgroundColor.match(/[\d.]+/g)!.slice(0,3).map(Number);const luminance=(rgb:number[])=>rgb.map(value=>{const n=value/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);const background=luminance(color),ink=luminance([25,27,48]);return(Math.max(background,ink)+.05)/(Math.min(background,ink)+.05);});expect(contrast).toBeGreaterThan(7);

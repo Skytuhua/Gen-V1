@@ -27,6 +27,17 @@ async function drag(page: Page, source: { x: number; y: number }, destination: {
   await page.mouse.move(source.x, source.y); await page.mouse.down(); await page.mouse.move(destination.x, destination.y, { steps: 6 });
 }
 
+test('window blur cancels an active column resize', async ({ page }) => {
+  const snapshot = taskFixture(spec(), { rows }, { selected: ['a'] }); await serveTaskFixture(page, snapshot); await page.goto('/');
+  await page.locator('.task-table-resizer').first().waitFor();
+  const resize = separator(page), start = await resize.getAttribute('aria-valuenow'), box = (await resize.boundingBox())!;
+  await drag(page, { x: box.x + 12, y: box.y + 16 }, { x: box.x + 72, y: box.y + 16 });
+  await expect(page.locator('.task-table-resize-guide')).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await expect(page.locator('.task-table-resize-guide')).toHaveCount(0);
+  await page.mouse.up(); await expect(resize).toHaveAttribute('aria-valuenow', start!);
+});
+
 test('resize anchors the grid until release, cancels, fits on double-click and obeys keyboard bounds', async ({ page }) => {
   await open(page); const resize = separator(page), task = page.locator('th[data-column-key=task]');
   const start = Number(await resize.getAttribute('aria-valuenow')), box = (await resize.boundingBox())!, grid = (await task.boundingBox())!;
@@ -86,6 +97,20 @@ test('sort cycles numerically with one aria-sort and filter is literal, clearabl
   await page.getByRole('button', { name: 'Clear filter', exact: true }).click(); await expect(filter).toBeFocused(); await expect(page.locator('.task-table tbody tr')).toHaveCount(8);
   await filter.fill('.*'); await expect(page.locator('.task-table tbody tr')).toHaveCount(0); await page.getByRole('button', { name: 'Clear', exact: true }).click();
   await expect(page.locator('.task-table [data-row-id=a] input')).toBeChecked();
+});
+
+test('filters numeric cells by copied display text or plain digits', async ({ page }) => {
+  const numericColumns = columns.map(column => column.key === 'hours' ? { ...column, type: 'number' as const } : column);
+  const data = rows.map(row => row.id === 'a' ? { ...row, hours: 1234567 } : row);
+  await open(page, data, 'dark', numericColumns);
+  const displayed = (await page.locator('[data-row-id="a"] td').last().innerText()).trim();
+  expect(displayed).not.toBe('1234567');
+  const filter = page.getByRole('textbox', { name: 'Filter rows' });
+  for (const query of [displayed, '1234567']) {
+    await filter.fill(query);
+    await expect(page.locator('.task-table tbody tr')).toHaveCount(1);
+    expect(await rowIds(page)).toEqual(['a']);
+  }
 });
 
 test('live rows and columns retain compatible settings; removing sorted column clears sort; remount resets controls', async ({ page }) => {
@@ -158,7 +183,11 @@ test('custom rowKey preserves selected rows and valid scroll offsets across loca
   await page.getByRole('button', { name: 'Sort Task', exact: true }).evaluate(node => (node as HTMLButtonElement).click()); expect(await offsets()).toEqual([120, 200]);
   const filter = page.getByRole('textbox', { name: 'Filter rows' }); await filter.fill('Ready'); expect(await offsets()).toEqual([120, 200]);
   await page.getByRole('button', { name: 'Move Owner column' }).evaluate(node => node.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true })));
-  expect(await offsets()).toEqual([120, 200]); await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
+  expect((await offsets())[1]).toBe(200);
+  const moved = page.getByRole('button', { name: 'Move Owner column' }); await expect(moved).toBeFocused();
+  const header = await moved.locator('xpath=ancestor::th').boundingBox(), bounds = await region.boundingBox();
+  expect(header!.x).toBeGreaterThanOrEqual(bounds!.x - 1); expect(header!.x + header!.width).toBeLessThanOrEqual(bounds!.x + bounds!.width + 1);
+  await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
   host.setInput('rows', [...data].reverse()); await host.publish(); await expect(page.locator('[data-row-id="10"] input')).toBeChecked();
   await expect(region).toHaveAttribute('data-following', 'false');
 });

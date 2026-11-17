@@ -1,0 +1,124 @@
+import {createHash} from 'node:crypto';
+import type {Page} from '@playwright/test';
+import type {DesktopBridge,DesktopContext,DesktopState,DesktopWindowInfo} from '../../packages/desktop-contract';
+import type {CapturedSourceV1,LogicalOwnerV1,SourceDescriptorV1} from '../../packages/contracts/source-selection';
+import {sameLogicalOwner,sourceCaptureRequestV1Schema,sourceDescribeRequestV1Schema,sourceOpenRequestV1Schema} from '../../packages/contracts/source-selection';
+import {serveTaskFixture,serveTaskSplitLayout,taskFixture} from './task-interface-fixture';
+
+const digest=(text:string)=>createHash('sha256').update(text).digest('hex');
+const deferred=()=>{let resolve!:()=>void;const promise=new Promise<void>(accept=>{resolve=accept;});return {promise,resolve};};
+interface NativeFixtureWindow extends Window {
+ __m15NativeCalls?:Array<{type:string;surface?:unknown;windowId?:string}>;
+ __m15NativeState?:(state:DesktopState)=>void;
+ __m15NativeClose?:()=>Promise<boolean>;
+}
+
+/** Real App and journal; the native host bridge and source HTTP authority are
+ * deterministic browser fixtures. This does not launch an installed desktop. */
+export async function serveWorkbenchNativeReturnFixture(page:Page){
+ await page.addInitScript(()=>{
+  const w=window as NativeFixtureWindow,storageKey='m15-native-return-fixture-windows';
+  const main:DesktopWindowInfo={id:'main',surface:{kind:'main'},ready:true,minimized:false};
+  let windows:DesktopWindowInfo[]=JSON.parse(sessionStorage.getItem(storageKey)??'null')??[main];
+  const context=():DesktopContext=>({windowId:'main',surface:{kind:'main'},windows});
+  const persist=()=>sessionStorage.setItem(storageKey,JSON.stringify(windows));
+  const calls:NonNullable<NativeFixtureWindow['__m15NativeCalls']>=[];
+  w.__m15NativeCalls=calls;
+  const bridge:DesktopBridge={
+   getContext:async()=>context(),ready:async()=>context(),list:async()=>windows,
+   onState:listener=>{w.__m15NativeState=state=>{windows=state.windows;persist();listener(state);};return()=>{delete w.__m15NativeState;};},
+   onCloseRequested:handler=>{w.__m15NativeClose=handler;return()=>{delete w.__m15NativeClose;};},
+   detach:async surface=>{const info:DesktopWindowInfo={id:'detached-a',surface,ready:true,minimized:false};calls.push({type:'detach',surface});windows=[...windows,info];persist();w.__m15NativeState?.({windows});return info;},
+   reattach:async()=>{calls.push({type:'reattach'});},
+   minimize:async()=>{calls.push({type:'minimize'});},
+   focus:async windowId=>{calls.push({type:'focus',windowId});},
+   resetBounds:async()=>{},browser:async()=>{},signIn:async()=>{},
+  };
+  w.harnessDesktop=bridge;
+ });
+ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'unused'}}}});
+ snapshot.artifacts=[];snapshot.data=[];snapshot.userStates=[];
+ snapshot.settings.preferences={showUsageFooter:true,showComposerContext:true};
+ snapshot.threads[0]={...snapshot.threads[0],title:'Native return A',workspaceId:'source-copy-a'};
+ snapshot.threads.push({...snapshot.threads[0],id:'second-thread',title:'Native return B',workspaceId:'source-copy-b'});
+ snapshot.messages[0]={...snapshot.messages[0],content:'Owner A keeps this retained text in its own source.'};
+ snapshot.messages.push({...snapshot.messages[0],id:'reply-b',threadId:'second-thread',content:'Owner B has a different immutable source and draft.'});
+ const owners={a:{threadId:'task-thread',projectId:null,workspaceId:'source-copy-a'},b:{threadId:'second-thread',projectId:null,workspaceId:'source-copy-b'}} satisfies Record<string,LogicalOwnerV1>;
+ const host=await serveTaskFixture(page,snapshot);
+ await serveTaskSplitLayout(page, snapshot);
+ const captures=new Map<string,CapturedSourceV1>();
+ const events:Array<Record<string,unknown>>=[];
+ const splitCommands:Array<{id:string;type:string;payload:Record<string,unknown>}>=[];
+ const heldReleases=new Set<()=>void>();
+ type DescriptionHold={threadId:string;arrived:ReturnType<typeof deferred>;released:ReturnType<typeof deferred>;completed:ReturnType<typeof deferred>;outcome?:'fulfilled'|'aborted';failure?:string};
+ type LayoutHold={arrived:ReturnType<typeof deferred>;released:ReturnType<typeof deferred>;reads:number};
+ let descriptionHold:DescriptionHold|undefined,layoutHold:LayoutHold|undefined;
+ const owner=(threadId:string)=>Object.values(owners).find(value=>value.threadId===threadId);
+ const message=(threadId:string,sourceId?:string)=>snapshot.messages.find(value=>value.threadId===threadId&&(!sourceId||value.id===sourceId));
+ const label=(threadId:string)=>threadId===owners.a.threadId?'Owner A message':'Owner B message';
+ await page.route('**/api/workbench/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  const threadMatch=/\/threads\/([^/]+)(?:\/(inputs|evidence|context))?$/.exec(path);
+  if(threadMatch){
+   const logicalOwner=owner(decodeURIComponent(threadMatch[1]));
+   if(!logicalOwner)return route.fulfill({status:404});
+   if(threadMatch[2]==='inputs')return route.fulfill({json:{logicalOwner,inputs:[]}});
+   if(threadMatch[2]==='evidence')return route.fulfill({json:{logicalOwner,items:[],modules:[]}});
+   if(threadMatch[2]==='context')return route.fulfill({json:{logicalOwner,state:'EMPTY',requestContext:null}});
+   return route.fulfill({json:{logicalOwner,enabled:true,sources:[{locator:{kind:'MESSAGE',sourceId:message(logicalOwner.threadId)!.id},label:label(logicalOwner.threadId)}],sourceCapabilities:[{kind:'MESSAGE',state:'AVAILABLE',reason:null}]}});
+  }
+  if(path.endsWith('/describe')){
+   const body=sourceDescribeRequestV1Schema.parse(route.request().postDataJSON());
+   const logicalOwner=owner(body.logicalOwner.threadId),source=message(body.logicalOwner.threadId,body.locator.sourceId);
+   if(!logicalOwner||!sameLogicalOwner(logicalOwner,body.logicalOwner)||!source)return route.fulfill({status:404});
+   const descriptor:SourceDescriptorV1={logicalOwner,locator:body.locator,label:label(logicalOwner.threadId),text:source.content,sourceRevision:digest(source.content),contentDigest:digest(source.content)};
+   const hold=descriptionHold?.threadId===logicalOwner.threadId?descriptionHold:undefined;
+   if(hold){descriptionHold=undefined;events.push({kind:'description-held',owner:logicalOwner});hold.arrived.resolve();await hold.released.promise;}
+   try{await route.fulfill({json:descriptor});if(hold)hold.outcome='fulfilled';}
+   catch(cause){const failure=route.request().failure();if(!hold||!failure)throw cause;hold.outcome='aborted';hold.failure=failure.errorText;}
+   finally{if(hold){events.push({kind:'description-completed',owner:logicalOwner,outcome:hold.outcome,requestFailure:route.request().failure()});hold.completed.resolve();}}
+   return;
+  }
+  if(path.endsWith('/capture')){
+   const {source}=sourceCaptureRequestV1Schema.parse(route.request().postDataJSON()),logicalOwner=owner(source.logicalOwner.threadId),record=message(source.logicalOwner.threadId,source.sourceId);
+   if(source.kind!=='MESSAGE'||!logicalOwner||!sameLogicalOwner(logicalOwner,source.logicalOwner)||!record)return route.fulfill({status:404});
+   const preview=record.content.slice(source.range.start,source.range.end);
+   const captured:CapturedSourceV1={ref:{captureId:`native-capture-${captures.size+1}`,source,keepCaptured:false},label:label(logicalOwner.threadId),preview,previewTruncated:false,selectedBytes:Buffer.byteLength(preview),retained:true,state:'CURRENT'};
+   captures.set(captured.ref.captureId,captured);events.push({kind:'captured',owner:logicalOwner,captureId:captured.ref.captureId});
+   return route.fulfill({json:captured});
+  }
+  if(path.endsWith('/open')){
+   const body=sourceOpenRequestV1Schema.parse(route.request().postDataJSON()),captured=captures.get(body.ref.captureId);
+   if(!captured||!sameLogicalOwner(body.logicalOwner,captured.ref.source.logicalOwner)||JSON.stringify(body.ref.source)!==JSON.stringify(captured.ref.source))return route.fulfill({status:404});
+   return route.fulfill({json:{...captured,ref:body.ref,text:captured.preview}});
+  }
+  return route.fulfill({status:404});
+ });
+ await page.route('**/api/split-workspace?workspaceId=workspace',async route=>{
+  const hold=layoutHold;
+  if(hold){hold.reads++;events.push({kind:'layout-read-held'});hold.arrived.resolve();await hold.released.promise;}
+  return route.fallback();
+ });
+ await page.route('**/api/split-workspace/commands',async route=>{
+  const command=route.request().postDataJSON();splitCommands.push(command);events.push({kind:'split-command',command});return route.fallback();
+ });
+ return {...host,owners,captures,events,splitCommands,
+  holdNextDescription(threadId:string){
+   if(descriptionHold)throw Error('A source description is already held.');
+   const hold:DescriptionHold={threadId,arrived:deferred(),released:deferred(),completed:deferred()};descriptionHold=hold;heldReleases.add(hold.released.resolve);
+   return {arrived:hold.arrived.promise,completed:hold.completed.promise,release:()=>{events.push({kind:'description-released'});hold.released.resolve();},outcome:()=>hold.outcome};
+  },
+  holdLayoutReads(){
+   if(layoutHold)throw Error('Canonical layout reads are already held.');
+   const hold:LayoutHold={arrived:deferred(),released:deferred(),reads:0};layoutHold=hold;heldReleases.add(hold.released.resolve);
+   return {arrived:hold.arrived.promise,release:()=>{events.push({kind:'layout-reads-released',reads:hold.reads});if(layoutHold===hold)layoutHold=undefined;hold.released.resolve();}};
+  },
+  async returnThread(threadId:string){
+   await page.waitForFunction(()=>Boolean((window as NativeFixtureWindow).__m15NativeState));
+   events.push({kind:'native-return-intent',threadId});
+   await page.evaluate(id=>(window as NativeFixtureWindow).__m15NativeState!({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:id}}),threadId);
+  },
+  nativeCalls:()=>page.evaluate(()=>{const calls=(window as NativeFixtureWindow).__m15NativeCalls;if(!calls)throw Error('Native bridge fixture is not initialized.');return calls;}),
+  releaseAll(){for(const release of heldReleases)release();},
+ };
+}

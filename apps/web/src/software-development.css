@@ -10,7 +10,7 @@
 .software-list button { position:relative; display:flex; flex-direction:column; align-items:stretch; gap:5px; min-width:0; min-height:44px; padding:8px 10px; border:1px solid var(--border); border-radius:7px; background:transparent; color:var(--text); cursor:pointer; text-align:left; transition:background-color 150ms ease-out,border-color 150ms ease-out; }
 .software-list button:hover { background:var(--hover); }
 .software-list button[aria-selected=true] { background:var(--hover); border-color:var(--muted); }
-.software-list button:focus-visible { outline:2px solid var(--accent); outline-offset:-1px; }
+.software-list button:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:-1px; }
 .software-item-copy { display:flex; align-items:center; gap:8px; min-width:0; font-size:12px; font-weight:500; line-height:1.45; }
 .software-item-copy>svg { flex:0 0 14px; color:var(--muted); }
 .software-item-copy>span { overflow-wrap:anywhere; }
@@ -34,7 +34,7 @@
 .software-state-passed,.software-diff-counts b { color:var(--success); }
 .software-state-failed,.software-diff-counts i { color:var(--danger); }
 .software-state-blocked,.software-state-unknown { color:var(--pending); }
-.software-state-running { color:var(--accent); }
+.software-state-running { color:var(--accent-fg); }
 .software-state-not-run,.software-state-skipped { color:var(--muted); }
 .software-file-location { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 12px; color:var(--muted); font-size:11px; }
 .software-file-location span { display:inline-flex; gap:8px; white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -54,7 +54,7 @@
 .software-code figcaption { margin-bottom:7px; color:var(--muted); font-size:11px; }
 .software-code pre,.software-patch { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; padding:12px; border-radius:7px; background:var(--subtle); color:var(--text); font:12px/1.7 var(--code-font,ui-monospace,SFMono-Regular,Consolas,monospace); tab-size:2; }
 .software-code code { font:inherit; }
-.software-code pre:focus-visible,.software-patch:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.software-code pre:focus-visible,.software-patch:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .software-file-status { padding-top:4px; color:var(--muted); font-size:10px; text-transform:capitalize; }
 .software-diff-counts { display:flex; gap:5px; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .software-diff-counts :is(b,i) { font-weight:500; font-style:normal; }
@@ -109,7 +109,7 @@
 .software-response-tabs button[aria-selected=true] { color:var(--text); background:var(--selection-bg); border-color:var(--selection-border); }
 .software-response-label { font-family:var(--font-family,inherit); }
 .software-response header { flex-wrap:wrap; }
-.software-response-tabs button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.software-response-tabs button:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .software-response-description { font-size:11px; color:var(--muted); margin:10px 0 0; }
 .software-no-body { margin:9px 0 0; padding:18px 12px; min-height:85px; background:var(--subtle); border-radius:7px; color:var(--muted); font-size:11px; }
 .software-stage-graph { position:relative; display:grid; grid-template-columns:repeat(var(--stage-columns),minmax(0,1fr)); grid-template-rows:repeat(var(--stage-rows),80px); gap:0; padding:0; isolation:isolate; }
@@ -123,7 +123,7 @@
 .software-stage-node { display:flex; align-items:center; justify-content:center; flex:0 0 18px; width:18px; height:18px; background:var(--surface); border:1px solid var(--border); border-radius:50%; }
 .software-stage-node.software-state-passed { border-color:color-mix(in srgb,var(--success) 50%,var(--border)); }
 .software-stage-node.software-state-failed { border-color:color-mix(in srgb,var(--danger) 50%,var(--border)); }
-.software-stage-node.software-state-running { border-color:color-mix(in srgb,var(--accent) 50%,var(--border)); }
+.software-stage-node.software-state-running { border-color:color-mix(in srgb,var(--accent-fg) 50%,var(--border)); }
 .software-dependencies { display:flex; align-items:center; gap:6px; margin:0 0 16px; color:var(--muted); font-size:11px; }
 .software-blocking-checks { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:13px; }
 .software-blocking-checks button { display:flex; align-items:center; gap:7px; padding:6px 9px; border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:11px; }

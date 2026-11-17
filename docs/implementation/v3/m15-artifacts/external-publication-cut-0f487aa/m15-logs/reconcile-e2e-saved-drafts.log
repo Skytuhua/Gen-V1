@@ -1,0 +1,36 @@
+argv: ["pnpm","exec","playwright","test","-c","tests/e2e/saved-drafts.playwright.config.ts"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15
+exitCode: 0
+termination: NONE
+
+Running 27 tests using 1 worker
+
+  ok  1 tests\e2e\saved-drafts.spec.ts:283:1 › named save, reload, delete/cancel and empty state stay local (19.0s)
+  ok  2 tests\e2e\saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input (7.6s)
+  ok  3 tests\e2e\saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit (6.8s)
+  ok  4 tests\e2e\saved-drafts.spec.ts:391:1 › rich records list missing/revoked references but restore text only, preserving current excerpts (3.9s)
+  ok  5 tests\e2e\saved-drafts.spec.ts:422:1 › account/profile/thread/project/working-copy libraries remain isolated (13.4s)
+  ok  6 tests\e2e\saved-drafts.spec.ts:442:1 › quota failure and corrupt records keep the active draft and offer retry (5.9s)
+  ok  7 tests\e2e\saved-drafts.spec.ts:484:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger (3.5s)
+  ok  8 tests\e2e\saved-drafts.spec.ts:520:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion (6.8s)
+  ok  9 tests\e2e\saved-drafts.spec.ts:565:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts (7.9s)
+  ok 10 tests\e2e\saved-drafts.spec.ts:565:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts (6.1s)
+  ok 11 tests\e2e\saved-drafts.spec.ts:565:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts (8.2s)
+  ok 12 tests\e2e\saved-drafts.spec.ts:651:42 › new excerpt-only saves remain reviewable after the original selection is gone (5.7s)
+  ok 13 tests\e2e\saved-drafts.spec.ts:651:42 › new skill-only saves remain reviewable after the original selection is gone (5.2s)
+  ok 14 tests\e2e\saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode (7.4s)
+  ok 15 tests\e2e\saved-drafts.spec.ts:868:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority (6.1s)
+  ok 16 tests\e2e\saved-drafts.spec.ts:967:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy (3.1s)
+  ok 17 tests\e2e\saved-drafts.spec.ts:1016:1 › idle expiry refreshes an open list and deletes only the expired saved record (4.3s)
+  ok 18 tests\e2e\saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on load (3.4s)
+  ok 19 tests\e2e\saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on list (2.4s)
+  ok 20 tests\e2e\saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on switch (3.1s)
+  ok 21 tests\e2e\saved-drafts.spec.ts:1139:1 › empty active library schedules expiry for inactive threads and copies without reading their owner (3.6s)
+  ok 22 tests\e2e\saved-drafts.spec.ts:1158:1 › another window adding an inactive library reschedules the empty active library deadline (4.2s)
+  ok 23 tests\e2e\saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid load or inactive expiry (4.7s)
+  ok 24 tests\e2e\saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid save or inactive expiry (4.1s)
+  ok 25 tests\e2e\saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid list or inactive expiry (2.4s)
+  ok 26 tests\e2e\saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid switch or inactive expiry (3.6s)
+  ok 27 tests\e2e\saved-drafts.spec.ts:1295:1 › malformed inactive library does not stop the global expiry deadline (4.5s)
+
+  27 passed (2.8m)

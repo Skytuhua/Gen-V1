@@ -1,0 +1,50 @@
+[2m[WebServer] [22m(node:50) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:67) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:94) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/reserved-rail.spec.ts:122:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (5.6s)
+
+
+  1) tests/e2e/reserved-rail.spec.ts:122:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+      15 | async function showUsage(page:Page){const owner=page.locator('[data-split-view="thread:task-thread"]');await expect(owner.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();const usage=page.getByRole('region',{name:'Live usage',exact:true}),launcher=owner.getByRole('button',{name:'Show live usage',exact:true});await expect(usage.or(launcher)).toBeVisible();if(await launcher.isVisible())await launcher.click();await expect(usage).toBeVisible();return usage;}
+      16 | async function open(page:Page,value=snapshot()){
+    > 17 |  await serveTaskFixture(page,value);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await showPlan(page);await showUsage(page);
+         |                                                                                                                              ^
+      18 |  const plan=page.getByRole('region',{name:'Project overview window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;
+      19 | }
+      20 |
+        at open (/workspace/scratch/36f66011d961/m05-restored/tests/e2e/reserved-rail.spec.ts:17:126)
+        at /workspace/scratch/36f66011d961/m05-restored/tests/e2e/reserved-rail.spec.ts:22:55
+
+    Error Context: .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-frontend-refinement/browser-artifacts/reserved-rail-workspace-ar-d7103-and-keeps-the-same-renderer/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/reserved-rail.spec.ts:122:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer 

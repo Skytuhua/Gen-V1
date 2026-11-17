@@ -1,0 +1,132 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench-app.spec.ts:330:1 › default-off App retains its ordinary composer and hides source actions (5.9s)
+  ✓   2 tests/e2e/workbench-app.spec.ts:352:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (5.5s)
+  ✓   3 tests/e2e/workbench-app.spec.ts:378:1 › ask supplies a question only for an empty draft and never dispatches (1.9s)
+  ✓   4 tests/e2e/workbench-app.spec.ts:390:1 › stale capture remains exact until explicit keep or refresh and opens retained output (4.7s)
+  ✓   5 tests/e2e/workbench-app.spec.ts:424:1 › late source descriptions cannot attach to a replacement workspace (2.9s)
+  ✓   6 tests/e2e/workbench-app.spec.ts:449:1 › after-current mode is explicit and queues through message.send while the task is working (3.6s)
+  ✓   7 tests/e2e/workbench-app.spec.ts:468:1 › evidence preserves reported and observed grades, freshness and unsupported module state (3.3s)
+  ✓   8 tests/e2e/workbench-app.spec.ts:509:1 › rollback leaves retained source inspection and removal reachable (3.3s)
+  ✓   9 tests/e2e/workbench-app.spec.ts:540:1 › context and run views use recorded or explicit unavailable states without invented metrics (3.1s)
+  ✓  10 tests/e2e/workbench-app.spec.ts:568:1 › real activity integration bounds mounted rows and searches the authorized full read (6.4s)
+  ✓  11 tests/e2e/workbench-app.spec.ts:631:1 › source-aware navigation waits for journal handoff and preserves text on reload (5.8s)
+  ✓  12 tests/e2e/workbench-app.spec.ts:662:1 › pointing mode does not consume another pane focus or Escape (2.5s)
+  ✓  13 tests/e2e/workbench-app.spec.ts:676:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.8s)
+  ✓  14 tests/e2e/workbench-app.spec.ts:715:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (3.5s)
+  ✓  15 tests/e2e/workbench-app.spec.ts:751:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (6.9s)
+  ✓  16 tests/e2e/workbench-app.spec.ts:806:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (3.4s)
+  ✓  17 tests/e2e/workbench-app.spec.ts:845:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (3.5s)
+  ✓  18 tests/e2e/workbench-app.spec.ts:892:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (6.5s)
+  ✓  19 tests/e2e/workbench-app.spec.ts:938:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (3.1s)
+  ✘  20 tests/e2e/workbench-app.spec.ts:985:1 › deferred source view failure retains the mounted composer and restores focus (36.1s)
+(node:504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom (30.4s)
+
+
+  1) tests/e2e/workbench-app.spec.ts:985:1 › deferred source view failure retains the mounted composer and restores focus 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: [32m"Retain this prompt when source views cannot load"[39m
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+      147 |  await expect(editor(page)).toHaveValue('Retain this prompt when source views cannot load');
+      148 |  expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+    > 149 |  await page.reload();await expect(editor(page)).toHaveValue('Retain this prompt when source views cannot load');
+          |                                                 ^
+      150 | });
+      151 |
+      152 | test('actual source modal and shared controls remain within the viewport at 200 percent zoom',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:149:49
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-deferred-sou-f7b88-composer-and-restores-focus/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-deferred-sou-f7b88-composer-and-restores-focus/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-deferred-sou-f7b88-composer-and-restores-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('navigation', { name: 'Workbench views', exact: true }).getByRole('button', { name: 'Sources', exact: true })[22m
+    [2m    - locator resolved to <button type="button" aria-pressed="false">Sources</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - element is outside of the viewport[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - element is outside of the viewport[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    50 × waiting for element to be visible, enabled and stable[22m
+    [2m       - element is visible, enabled and stable[22m
+    [2m       - scrolling into view if needed[22m
+    [2m       - done scrolling[22m
+    [2m       - element is outside of the viewport[22m
+    [2m     - retrying click action[22m
+    [2m       - waiting 500ms[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+
+
+      165 |  const navigation=panel.getByRole('navigation',{name:'Workbench views',exact:true});
+      166 |  await withinViewport(navigation);await navigation.getByRole('button',{name:'Evidence',exact:true}).click();await expect(panel).toContainText('Fixture reported claim');
+    > 167 |  await navigation.getByRole('button',{name:'Sources',exact:true}).click();await withinViewport(panel.getByRole('button',{name:'MESSAGE: Assistant message',exact:true}));
+          |                                                                   ^
+      168 |  await close.click();await expect(panel).toHaveCount(0);await expect(opener).toBeFocused();await expect(editor(page)).toHaveValue('Retain the authored draft at 200 percent zoom');
+      169 |  await opener.click();await panel.getByRole('button',{name:'MESSAGE: Assistant message',exact:true}).click();
+      170 |  const attachSource=panel.getByRole('button',{name:'Attach to prompt',exact:true});await withinViewport(attachSource);await attachSource.click();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:167:67
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/e2e/workbench-app.spec.ts:985:1 › deferred source view failure retains the mounted composer and restores focus 
+    tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom 
+  19 passed (2.5m)

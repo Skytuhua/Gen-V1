@@ -1,0 +1,288 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-11-15T17:50:44.466596+00:00",
+  "scope": "Independent review of current Windows package receipts, original-lock identity, repeated canonical inventory and failed installed-verifier custody. No source, ledger or production changes; no duplicate artifact download.",
+  "execution": {
+    "runId": 43739565577,
+    "jobId": 132889515576,
+    "head": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+    "tree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "actualCheckout": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4"
+    ]
+  },
+  "rawJobLog": {
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515576.log",
+    "bytes": 126569,
+    "sha256": "c15eb4ce2c7b18ae351432b2b9fdb0c257d88f9d022bb7f1246b6ad2a67bd16b"
+  },
+  "artifact": {
+    "id": 14172970343,
+    "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343.zip",
+    "bytes": 356377,
+    "sha256": "4b965d11507bc7f01441310c358581c03b35a19e512e44d304c34e6008eaea90",
+    "downloadOwner": "ui_audit; reused extracted files",
+    "extractedFileCount": 4,
+    "screenshots": 0
+  },
+  "records": {
+    "verification.json": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-desktop-installed/run-1794763379114-eac9fe38-4aaf-4246-b500-f55696071fbe/verification.json",
+      "bytes": 4446,
+      "sha256": "a140751889c929b3575732ea391fdaca75e0bcc68a283ca78e85c19a3ddc60c6"
+    },
+    "owner.json": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-desktop-installed/run-1794763379114-eac9fe38-4aaf-4246-b500-f55696071fbe/owner.json",
+      "bytes": 330,
+      "sha256": "ecc9c033455c322c1be254b7cca4ddfb879ce22b2fde15b2dfb18dca2f8c29fb"
+    },
+    "build-manifest.json": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "sha256": "9c342a08e317f1a653f85c93668f9c3f674670a54b4128ab0f6144d08c4b0b3f"
+    },
+    "PYTHON_INSTALLATION_V2.json": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-installed-package/desktop-stage-1794762716143/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+    }
+  },
+  "canonical": {
+    "mode": "wheel-canonical-record-v2",
+    "originalLock": {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/third-party/integrations/PYTHON_LOCK.json",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+    },
+    "originalLockMatchesPublishedHead": true,
+    "wheelIdentities": 91,
+    "allWheelIdentitiesExactlyMatchOriginalPins": true,
+    "pathCount": 7415,
+    "exactOriginalPathSet": true,
+    "nonRecordCount": 7324,
+    "allOriginalNonRecordRowsExact": true,
+    "nonRecordBytes": 253401145,
+    "recordCount": 91,
+    "recordBytes": 669096,
+    "recordRowsEqualOriginal": 75,
+    "recordRowsChangedFromOriginal": 16,
+    "canonicalBytes": 254070241,
+    "projectionByteIdenticalToPriorActualWindowsBuild": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306/.harness-installed-package/desktop-stage-1794760904370/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+    },
+    "buildManifestBindsOriginalLockWheelsAndProjection": true
+  },
+  "inputDiagnosis": {
+    "rawLine": 601,
+    "expectedFiles": 7415,
+    "actualFiles": 7595,
+    "addedCount": 180,
+    "missingCount": 0,
+    "changedCount": 91,
+    "addedRowsRetained": 100,
+    "changedRowsRetained": 91,
+    "allRecordedChangedPathsAreRecord": true,
+    "addedRowsAreBoundedSample": "100 of180; no claim of independently inspecting all180 absent rows"
+  },
+  "packageCustody": {
+    "packageCommandPassed": true,
+    "setup": {
+      "file": ".harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+      "bytes": 828427576,
+      "sha256": "5980141204c178790423c2803ded5080ea9c43e5d25948dfee47047f38b24afc"
+    },
+    "ownerAndVerifierMatchBuildManifest": true,
+    "expectedUnpacked": {
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "0d2fd55f5424b9c0057306b849d6f4276f7526b1fb81765d4154ec8d764ae604",
+      "maxInstalledPathLength": 240
+    },
+    "strictStagingScope": "Successful package path invokes exact protected-file hashes and full canonical Python staged-set equality, including afterPack; this review compared emitted inventories and bindings, not all staged bytes independently."
+  },
+  "installedOutcome": {
+    "status": "FAIL",
+    "error": "Owned installer process exceeded its 600000 ms deadline.",
+    "preflights": [
+      {
+        "stage": "before-install",
+        "startedAt": "2026-11-15T17:22:59.120Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 29665,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 5,
+            "observedElapsedMs": 222
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 26,
+            "observedElapsedMs": 238
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 122,
+            "observedElapsedMs": 334
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 127,
+            "observedElapsedMs": 339
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 133,
+            "observedElapsedMs": 345
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 29414,
+            "observedElapsedMs": 29625
+          }
+        ]
+      },
+      {
+        "stage": "pre-install-recheck",
+        "startedAt": "2026-11-15T17:24:26.880Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 22682,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 6,
+            "observedElapsedMs": 201
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 25,
+            "observedElapsedMs": 216
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 48,
+            "observedElapsedMs": 239
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 53,
+            "observedElapsedMs": 245
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 60,
+            "observedElapsedMs": 251
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 22447,
+            "observedElapsedMs": 22638
+          }
+        ]
+      }
+    ],
+    "clearFirstPreflight": {
+      "entries": [],
+      "shortcuts": [
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\Desktop\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\Desktop\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\Public\\Desktop\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\Public\\Desktop\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+        }
+      ],
+      "updaterCache": {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Local\\generative-harness-desktop-updater"
+      },
+      "runningAppPids": []
+    },
+    "installWasInvoked": true,
+    "successfulInstallCommandReceipt": false,
+    "installedRegistryVerified": false,
+    "installedPayloadVerified": false,
+    "providerCLIInstalledVerified": false,
+    "launches": [],
+    "memoryRetentionExecuted": false,
+    "cleanup": {
+      "status": "preserved-unconfirmed-installation"
+    },
+    "cause": "Unmeasured inside installer; no captured archive header, native dialog, extraction progress, exit-versus-close state or disk-space measurement."
+  },
+  "publishedSources": [
+    {
+      "path": "scripts/integration_python_projection.py",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 17295,
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 14137,
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 7628,
+      "sha256": "1cdf863ee743ef3d0f8f08a9a9081529f82bb28a67036e4085e48bf94043620b"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 30832,
+      "sha256": "4a6a80e9033d8ba7a3e63911f4e3e719c6c7fb541e081343758955fc672c5bd6"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "commit": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+      "bytes": 19526,
+      "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+    }
+  ],
+  "limits": [
+    "No successful installed executable launch, default-off retained-memory UI, restart, Forget or uninstall evidence in this run.",
+    "No provider/model execution or live repeated-task evaluation claimed.",
+    "Actual installer, embedded archive, wheel files, staged payload files and canonical RECORD byte bodies are not included in this four-file artifact.",
+    "Identical canonical receipt across two successful Windows packages demonstrates this emitted projection repeated; it does not by itself prove every future environment deterministic."
+  ]
+}

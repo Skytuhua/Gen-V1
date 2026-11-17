@@ -1,6 +1,6 @@
 # Preview release notes
 
-Updated 4 November 2026. Gen is a Windows x64 preview. Source features, published downloads and acceptance results have different scopes.
+Gen is a Windows x64 preview. Source features, published downloads and acceptance results have different scopes.
 
 [Get started](getting-started.md) · [Feature tour](features.md) · [Changelog](../../CHANGELOG.md)
 
@@ -8,11 +8,15 @@ Updated 4 November 2026. Gen is a Windows x64 preview. Source features, publishe
 
 The [v0.6.1 prerelease](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) is the current published preview. It includes an unsigned Windows x64 installer and a SHA-256 checksum file. It is not a stable release.
 
-There is no published stable 0.6.4 download yet. Use the source setup instructions for the newer interface shown in the gallery. Release availability can change; check the [release list](https://github.com/Skytuhua/Gen-V1/releases) before choosing an installer.
+The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the source setup instructions to try changes made after the v0.6.1 prerelease. Release availability can change; check the [release list](https://github.com/Skytuhua/Gen-V1/releases) before choosing an installer.
 
-## Current 0.6.4 source
+## Unreleased 0.6.5 source
 
-The current source keeps the original conversation workspace, project/thread navigation, compact composer, neutral dark/light themes and interactive task catalog. Changes include:
+For the latest source changes, see the [unreleased changelog](../../CHANGELOG.md#unreleased--065-visual-workspace-preview) and [visual workspace guide](../visual-workspace.md).
+
+## 0.6.4 source preview
+
+The 0.6.4 preview kept the original conversation workspace, project/thread navigation, compact composer, neutral dark/light themes and interactive task catalog. Changes include:
 
 - A public plug-in API with independent package versions, compatibility checks, file inventories and durable data outside application updates.
 - A main workspace that works without an optional plug-in installed.
@@ -25,7 +29,7 @@ The [screenshots and videos](media/README.md) show the actual public browser int
 
 ## Verified scope and remaining work
 
-The current public source has passed its Windows CI run. Focused native candidate checks cover the latest workspace cleanup and normal close/reopen recovery. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
+The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
 
 The following remain open:
 
@@ -34,9 +38,9 @@ The following remain open:
 - The broader generated-application quality pilot.
 - Physical multi-monitor and mixed-DPI acceptance.
 
-A bounded review of 28 captured alerts from the older default branch found none applicable to this source head. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
+A bounded review of 28 captured alerts from the older default branch found none applicable to the evaluated 0.6.4 source. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
 
-Threads can again detach into their own pinned native windows; the main workspace returns to an empty container and its sidebar keeps opening other chats. Canvas panel detachment remains retired. Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are also unavailable. Historical design and desktop documents retain older proposals and evidence; the current UI and these limits take precedence.
+In the current source preview, the conversation pane's **Detach conversation** action floats it inside Gen; use **Return to main** or drag it to a split edge. On Windows desktop, the sidebar's **Detach thread** instead opens a pinned native window. See the [visual workspace guide](../visual-workspace.md) for both paths. Neither action enables new native detachment for canvas panels. Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are also unavailable. Historical design and desktop documents retain older proposals and evidence; the current UI and these limits take precedence.
 
 ## Data, licensing and attribution
 

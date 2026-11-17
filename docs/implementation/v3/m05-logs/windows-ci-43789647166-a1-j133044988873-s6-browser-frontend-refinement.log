@@ -1,0 +1,123 @@
+2026-11-16T02:05:14.3205802Z ##[group]Run $failedSuites = @()
+2026-11-16T02:05:14.3206220Z $failedSuites = @()
+2026-11-16T02:05:14.3206709Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-16T02:05:14.3207247Z   pnpm test:browser --suite $suite
+2026-11-16T02:05:14.3207659Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-16T02:05:14.3208000Z }
+2026-11-16T02:05:14.3208248Z if ($failedSuites.Count -gt 0) {
+2026-11-16T02:05:14.3208645Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-16T02:05:14.3209007Z }
+2026-11-16T02:05:14.3285737Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-16T02:05:14.3286121Z env:
+2026-11-16T02:05:14.3286416Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-16T02:05:14.3286871Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:05:14.3287427Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-16T02:05:14.3287927Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:05:14.3288376Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:05:14.3289043Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-16T02:05:14.3289541Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-16T02:05:14.3289950Z ##[endgroup]
+2026-11-16T02:06:11.7031137Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-16T02:06:11.7034007Z > tsx scripts/test-browser.ts "--suite" "frontend-refinement"
+2026-11-16T02:06:11.7034576Z 
+2026-11-16T02:06:12.0245965Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794794772022-a85e8e15-171b-489e-b448-e99eb0b898e4
+2026-11-16T02:06:12.0250987Z 
+2026-11-16T02:06:12.0251308Z Browser suite: frontend-refinement (12 spec files)
+2026-11-16T02:06:15.6102251Z 
+2026-11-16T02:06:15.6102816Z Running 91 tests using 1 worker
+2026-11-16T02:06:15.6103138Z 
+2026-11-16T02:06:32.1987555Z   ok  1 tests\e2e\artifact-style.spec.ts:555:34 › long email choices retain readable width and compact navigation at 1440px (15.2s)
+2026-11-16T02:06:39.0052696Z   ok  2 tests\e2e\artifact-style.spec.ts:555:34 › long email choices retain readable width and compact navigation at 960px (6.8s)
+2026-11-16T02:06:39.0634401Z   ok  3 tests\e2e\artifact-style.spec.ts:596:1 › new composition schemas are strict, bounded and preserve stable step identities (45ms)
+2026-11-16T02:06:47.6838466Z   ok  4 tests\e2e\artifact-style.spec.ts:676:1 › current question and mapped form values survive expansion, thread switching and reload (8.6s)
+2026-11-16T02:06:54.3210090Z   ok  5 tests\e2e\artifact-style.spec.ts:755:1 › the initial question persists its default step and focuses its matching PDF field (6.6s)
+2026-11-16T02:06:59.3692657Z   ok  6 tests\e2e\artifact-style.spec.ts:772:1 › bound relationships expose source status and map the selected stable node to actions (5.0s)
+2026-11-16T02:07:10.5363824Z   ok  7 tests\e2e\artifact-style.spec.ts:815:1 › status reads actual host operation states and keeps receipt details available (11.2s)
+2026-11-16T02:07:13.2179330Z   ok  8 tests\e2e\artifact-style.spec.ts:902:1 › connected FAQ branches and follow-up draft retain independent state (2.7s)
+2026-11-16T02:07:13.4058042Z   -   9 tests\e2e\artifact-style.spec.ts:935:1 › capture synthetic signing, operations and FAQ against supplied reference compositions
+2026-11-16T02:07:14.3487450Z   ok 10 tests\e2e\canvas-clarity.spec.ts:16:1 › agent families are contained by project and preserve edits through pin and collapse (909ms)
+2026-11-16T02:07:15.3305439Z   ok 11 tests\e2e\canvas-clarity.spec.ts:44:1 › wheel zoom uses canvas chrome while transcript wheel input scrolls its content (964ms)
+2026-11-16T02:07:16.8762373Z   ok 12 tests\e2e\canvas-clarity.spec.ts:73:1 › a delayed failed viewport write cannot roll back newer wheel input (1.5s)
+2026-11-16T02:07:17.6057920Z   ok 13 tests\e2e\canvas-clarity.spec.ts:98:1 › Fit and Arrange keep editors mounted and pointer cancellation clears drag state (711ms)
+2026-11-16T02:07:18.7402681Z   ok 14 tests\e2e\canvas-clarity.spec.ts:131:1 › switching canvases before debounce saves both owning viewports (1.1s)
+2026-11-16T02:07:19.8274818Z   ok 15 tests\e2e\canvas-clarity.spec.ts:163:1 › an in-flight outgoing canvas save retains the second canvas viewport (1.1s)
+2026-11-16T02:07:23.1120021Z   ok 16 tests\e2e\composer-app-refinement.spec.ts:176:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (3.2s)
+2026-11-16T02:07:26.4909393Z   ok 17 tests\e2e\composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under no-preference (3.4s)
+2026-11-16T02:07:29.5641022Z   ok 18 tests\e2e\composer-app-refinement.spec.ts:208:51 › attachment band exists only for attached resources and preserves input under reduce (3.1s)
+2026-11-16T02:07:32.4265448Z   ok 19 tests\e2e\composer-app-refinement.spec.ts:269:1 › attachment band reverses an interrupted exit without removing the live row (2.8s)
+2026-11-16T02:07:36.1002279Z   ok 20 tests\e2e\composer-app-refinement.spec.ts:304:1 › composer removes repeated captions and toggles Build Plan without changing its draft (3.7s)
+2026-11-16T02:07:39.3705770Z   ok 21 tests\e2e\composer-app-refinement.spec.ts:355:1 › project selection uses the explicit local host binding and leaves attachments on plus (3.3s)
+2026-11-16T02:07:42.7450118Z   ok 22 tests\e2e\composer-app-refinement.spec.ts:396:1 › started chat opens an explicitly new project chat and retains its original binding and draft (3.4s)
+2026-11-16T02:07:45.3076300Z   ok 23 tests\e2e\composer-app-refinement.spec.ts:432:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only (2.5s)
+2026-11-16T02:07:48.9485552Z   ok 24 tests\e2e\composer-app-refinement.spec.ts:468:1 › a ready plan opens automatically and right-side tools can only be minimized (3.6s)
+2026-11-16T02:07:51.8079672Z   ok 25 tests\e2e\composer-app-refinement.spec.ts:537:38 › /btw still sends a side question without a header button (2.8s)
+2026-11-16T02:07:54.5254021Z   ok 26 tests\e2e\composer-app-refinement.spec.ts:537:38 › /side still sends a side question without a header button (2.7s)
+2026-11-16T02:07:55.3552159Z   ok 27 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 1440px (804ms)
+2026-11-16T02:07:56.1020307Z   ok 28 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 390px (732ms)
+2026-11-16T02:07:57.0394839Z   ok 29 tests\e2e\context-compact.spec.ts:51:1 › context popup closes through Escape, outside click and its toggle without an X (921ms)
+2026-11-16T02:07:57.7902885Z   ok 30 tests\e2e\context-compact.spec.ts:78:1 › unsupported compaction remains disabled and sends no command (735ms)
+2026-11-16T02:07:58.6127257Z   ok 31 tests\e2e\context-compact.spec.ts:105:1 › available compaction keeps its existing owning-thread command (806ms)
+2026-11-16T02:08:01.1939622Z   ok 32 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px (2.5s)
+2026-11-16T02:08:03.7784779Z   ok 33 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1024px (2.6s)
+2026-11-16T02:08:06.3955190Z   ok 34 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1440px (2.6s)
+2026-11-16T02:08:09.0069636Z   ok 35 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 768px (2.6s)
+2026-11-16T02:08:11.5637185Z   ok 36 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1024px (2.5s)
+2026-11-16T02:08:14.1305834Z   ok 37 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1440px (2.6s)
+2026-11-16T02:08:17.8686578Z   ok 38 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px (3.7s)
+2026-11-16T02:08:21.4936172Z   ok 39 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px (3.6s)
+2026-11-16T02:08:25.1887732Z   ok 40 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px (3.7s)
+2026-11-16T02:08:28.8811430Z   ok 41 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px (3.7s)
+2026-11-16T02:08:32.4585549Z   ok 42 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px (3.6s)
+2026-11-16T02:08:36.2622239Z   ok 43 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px (3.8s)
+2026-11-16T02:08:44.4148243Z   ok 44 tests\e2e\document-smoothness.spec.ts:352:1 › inline field and signature navigation pans while edits retain the same frame and Fit page shows the whole page (8.1s)
+2026-11-16T02:08:48.5554001Z   ok 45 tests\e2e\document-smoothness.spec.ts:454:1 › a nearby PDF field settles promptly and stops requesting scroll work at rest (4.1s)
+2026-11-16T02:08:52.7826102Z   ok 46 tests\e2e\document-smoothness.spec.ts:469:1 › manual PDF scrolling owns the viewport through background rerender and resize until the next field choice (4.2s)
+2026-11-16T02:08:56.9105469Z   ok 47 tests\e2e\document-smoothness.spec.ts:501:1 › manual scrolling after a zoom choice wins over its still-preparing candidate (4.1s)
+2026-11-16T02:09:01.5208446Z   ok 48 tests\e2e\document-smoothness.spec.ts:524:1 › rapid same-page choices retain one preview and move toward the latest field without a viewport jump (4.6s)
+2026-11-16T02:09:06.4285922Z   ok 49 tests\e2e\document-smoothness.spec.ts:564:1 › reduced motion applies PDF focus without a travelling scroll or continuing frame loop (4.9s)
+2026-11-16T02:09:10.1431983Z   ok 50 tests\e2e\document-smoothness.spec.ts:586:1 › the focus highlight identifies the new field instead of floating through unrelated document text (3.7s)
+2026-11-16T02:09:10.8524508Z   ok 51 tests\e2e\drag-detach.spec.ts:41:3 › floating: supplied callbacks never expose detach controls (682ms)
+2026-11-16T02:09:12.8891664Z   ok 52 tests\e2e\drag-detach.spec.ts:52:3 › floating: release beyond every app edge stays in app and retains the editor (2.0s)
+2026-11-16T02:09:13.9948473Z   ok 53 tests\e2e\drag-detach.spec.ts:94:3 › floating: cancellation and blur outside never invoke callbacks or lose edits (1.1s)
+2026-11-16T02:09:14.6993845Z   ok 54 tests\e2e\drag-detach.spec.ts:41:3 › canvas: supplied callbacks never expose detach controls (689ms)
+2026-11-16T02:09:17.1788398Z   ok 55 tests\e2e\drag-detach.spec.ts:52:3 › canvas: release beyond every app edge stays in app and retains the editor (2.5s)
+2026-11-16T02:09:18.4815661Z   ok 56 tests\e2e\drag-detach.spec.ts:94:3 › canvas: cancellation and blur outside never invoke callbacks or lose edits (1.3s)
+2026-11-16T02:09:19.3443306Z   ok 57 tests\e2e\drag-detach.spec.ts:121:1 › crossing the canvas edge inside the app remains an ordinary saved move (845ms)
+2026-11-16T02:09:20.1417920Z   ok 58 tests\e2e\drag-detach.spec.ts:155:1 › a notes editor remains mounted through a cancelled outside canvas drag (781ms)
+2026-11-16T02:09:20.1702373Z   ok 59 tests\e2e\floating-windows.spec.ts:91:1 › floating geometry rejects nonfinite storage and confines windows to a narrow viewport (5ms)
+2026-11-16T02:09:24.7902148Z   ok 60 tests\e2e\floating-windows.spec.ts:126:1 › the protected context only minimizes and preserves its draft on reload (4.6s)
+2026-11-16T02:09:27.8597568Z   ok 61 tests\e2e\floating-windows.spec.ts:169:1 › minimizing and Escape retain the same task content without a delete control (3.1s)
+2026-11-16T02:09:32.8476988Z   ok 62 tests\e2e\floating-windows.spec.ts:212:1 › live usage stays available and remembers its minimized state without close or resize controls (5.0s)
+2026-11-16T02:09:35.6395890Z   ok 63 tests\e2e\floating-windows.spec.ts:242:1 › both summaries fit a narrow viewport, retain keyboard access and leave Stop available (2.8s)
+2026-11-16T02:09:36.5332868Z   ok 64 tests\e2e\free-floating.spec.ts:20:1 › closing a tool animates safely and an immediate reopen stays open (865ms)
+2026-11-16T02:09:37.3110967Z   ok 65 tests\e2e\free-floating.spec.ts:57:1 › reduced motion closes immediately and returns focus to the opener (761ms)
+2026-11-16T02:09:38.5583614Z   ok 66 tests\e2e\free-floating.spec.ts:89:1 › keyboard movement releases the rail in both axes and manual sizing preserves the draft (1.2s)
+2026-11-16T02:09:39.2537293Z   ok 67 tests\e2e\free-floating.spec.ts:121:1 › free floating on a narrow workspace releases the reserved tool area (679ms)
+2026-11-16T02:09:40.5700841Z   ok 68 tests\e2e\free-floating.spec.ts:145:1 › pointer drag leaves the anchor without remounting, and hidden scrollbar still scrolls (1.3s)
+2026-11-16T02:09:41.2309908Z   ok 69 tests\e2e\free-floating.spec.ts:201:1 › adapter recovery is read before any write and keeps its recovered free coordinates (645ms)
+2026-11-16T02:09:42.0214129Z   ok 70 tests\e2e\free-floating.spec.ts:216:1 › blur ends an active drag and viewport changes keep the tool reachable (772ms)
+2026-11-16T02:09:42.7427504Z   ok 71 tests\e2e\free-floating.spec.ts:247:1 › content-fit adapter recovery keeps free coordinates without taking input focus (705ms)
+2026-11-16T02:09:43.4065299Z   ok 72 tests\e2e\free-floating.spec.ts:266:1 › pointer cancellation ends a move without losing the window or draft (647ms)
+2026-11-16T02:09:44.6464713Z   ok 73 tests\e2e\frontend-refinement.spec.ts:15:1 › left ticked scrollbar supports keys, track clicks, dragging, and history during updates (1.2s)
+2026-11-16T02:09:45.6538063Z   ok 74 tests\e2e\frontend-refinement.spec.ts:71:1 › disconnected context is compact and connected context leads with useful project facts (991ms)
+2026-11-16T02:09:46.3698846Z   ok 75 tests\e2e\no-detach-canvas.spec.ts:17:1 › canvas offers only in-app panel controls even when a detach callback is supplied (694ms)
+2026-11-16T02:09:47.2819571Z   ok 76 tests\e2e\no-detach-canvas.spec.ts:32:1 › dragging outside the app saves an in-app placement with no detach cue or callback (895ms)
+2026-11-16T02:09:48.3042587Z   ok 77 tests\e2e\no-detach-canvas.spec.ts:73:1 › in-app movement resizing pinning and hiding still save ordinary panel state (1.0s)
+2026-11-16T02:09:49.6687377Z   ok 78 tests\e2e\no-detach-canvas.spec.ts:124:1 › embedded panels stay reachable after an outside drag without Fit or panning (1.3s)
+2026-11-16T02:09:52.9046834Z   ok 79 tests\e2e\reserved-rail.spec.ts:127:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (3.2s)
+2026-11-16T02:09:55.7898570Z   ok 80 tests\e2e\reserved-rail.spec.ts:166:1 › expanded usage stays compact and readable instead of reserving an oversized tool (2.9s)
+2026-11-16T02:09:58.3764325Z   ok 81 tests\e2e\reserved-rail.spec.ts:189:1 › both protected tools minimize to a compact flow region on narrow screens (2.6s)
+2026-11-16T02:10:01.7824660Z   ok 82 tests\e2e\reserved-rail.spec.ts:214:1 › minimized summaries retain their rail until an explicit artifact panel takes over (3.4s)
+2026-11-16T02:10:04.7238115Z   ok 83 tests\e2e\reserved-rail.spec.ts:248:1 › expanded context keeps the header and composer across the full available chat frame (2.9s)
+2026-11-16T02:10:08.1044356Z   ok 84 tests\e2e\reserved-rail.spec.ts:272:1 › protected context has only minimize controls while keeping the composer draft (3.4s)
+2026-11-16T02:10:11.5212708Z   ok 85 tests\e2e\reserved-rail.spec.ts:301:1 › minimizing context releases the chat frame and preserves the artifact renderer (3.4s)
+2026-11-16T02:10:14.7075086Z   ok 86 tests\e2e\reserved-rail.spec.ts:326:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop (3.2s)
+2026-11-16T02:10:15.7913825Z   ok 87 tests\e2e\right-tools.spec.ts:20:1 › minimize-only context exposes one action and keeps its editor mounted (1.1s)
+2026-11-16T02:10:16.6918527Z   ok 88 tests\e2e\right-tools.spec.ts:85:1 › generic floating windows ignore a supplied detach callback even outside the app (879ms)
+2026-11-16T02:10:17.6569515Z   ok 89 tests\e2e\right-tools.spec.ts:119:1 › minimize-only context restores collapse state while retiring old free-window geometry (946ms)
+2026-11-16T02:10:18.6114094Z   ok 90 tests\e2e\right-tools.spec.ts:149:1 › live usage starts compact and visible despite an old dismissed preference (937ms)
+2026-11-16T02:10:19.4937407Z   ok 91 tests\e2e\right-tools.spec.ts:197:1 › unavailable secondary usage stays in Details and the visibility preference still works (862ms)
+2026-11-16T02:10:21.1622648Z 
+2026-11-16T02:10:21.1629351Z   1 skipped
+2026-11-16T02:10:21.1633829Z   90 passed (4.1m)
+2026-11-16T02:10:21.6517846Z 

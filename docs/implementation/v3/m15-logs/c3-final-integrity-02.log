@@ -1,0 +1,16 @@
+argv: ["node","--import","tsx","scripts/m15-evidence.mts","--assemble"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "validatedAt": "2026-11-16T03:07:23.637Z",
+  "integrityStatus": "PASS",
+  "bundleStatus": "PARTIAL",
+  "commandRecords": 215,
+  "artifactHashes": 890,
+  "implementationFiles": 72,
+  "changedFiles": 968,
+  "sourceLockDigest": "f4bb271eda17b4d47e005d44944f75f02c906cc5947bb4acac48bff8b524fa4a",
+  "reviewerApproval": false,
+  "issues": []
+}

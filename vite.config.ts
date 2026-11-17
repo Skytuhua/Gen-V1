@@ -14,6 +14,8 @@ function devProxy() {
 export const application = defineConfig({
   root: "apps/web",
   plugins: [react()],
+  // Prebundle the PDF renderer and the draft worker library so the first preview cannot trigger a dev page reload.
+  optimizeDeps: { include: ["pdf-lib", "pdfjs-dist/legacy/build/pdf.mjs"] },
   build: { outDir: "../../dist/web", emptyOutDir: true }
 });
 
