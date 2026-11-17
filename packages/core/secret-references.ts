@@ -99,6 +99,10 @@ export class SecretReferenceLedger {
     }
     issued.consumed = true;
     const value = await entry.resolver();
+    // A host-side resolver can wait on a credential store. Revocation or expiry
+    // during that wait must prevent delivery, while the approval stays spent.
+    if (entry.revoked) throw denied('SECRET_REF_REVOKED', 'The secret reference was revoked.');
+    if (issued.expiresAt <= this.now()) throw denied('SECRET_REF_APPROVAL', 'The secret approval expired.');
     if (typeof value !== 'string' || !value || Buffer.byteLength(value, 'utf8') > MAX_SECRET_BYTES || value.includes('\0')) {
       throw denied('SECRET_REF_INVALID', 'The secret resolver returned an invalid value.');
     }

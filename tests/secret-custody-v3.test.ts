@@ -63,6 +63,31 @@ describe('secret reference custody',()=>{
   time+=100;
   await expect(ledger.resolve('api-token',processRef().destination,approval)).rejects.toThrow(/expired|approval/i);
  });
+
+ it('revocation while the resolver is pending prevents delivery',async()=>{
+  let finish!:(value:string)=>void;
+  const ledger=new SecretReferenceLedger();
+  ledger.register(processRef(),()=>new Promise<string>(resolve=>{finish=resolve;}));
+  const approval=ledger.approve('api-token',processRef().destination);
+  const pending=ledger.resolve('api-token',processRef().destination,approval);
+  ledger.revoke('api-token');
+  finish('REVOKED_SECRET_333');
+  await expect(pending).rejects.toThrow(/revoked/i);
+  await expect(ledger.resolve('api-token',processRef().destination,approval)).rejects.toThrow(/revoked/i);
+ });
+
+ it('expiry while the resolver is pending prevents delivery and keeps approval consumed',async()=>{
+  let time=1_000;
+  let finish!:(value:string)=>void;
+  const ledger=new SecretReferenceLedger(()=>time);
+  ledger.register(processRef(),()=>new Promise<string>(resolve=>{finish=resolve;}));
+  const approval=ledger.approve('api-token',processRef().destination,{ttlMs:50});
+  const pending=ledger.resolve('api-token',processRef().destination,approval);
+  time+=50;
+  finish('EXPIRED_SECRET_444');
+  await expect(pending).rejects.toThrow(/expired/i);
+  await expect(ledger.resolve('api-token',processRef().destination,approval)).rejects.toThrow(/approval/i);
+ });
 });
 
  it('children start from an explicit environment allowlist, never a process.env copy',()=>{
