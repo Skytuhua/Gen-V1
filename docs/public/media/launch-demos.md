@@ -75,7 +75,7 @@ This compares documented workflows, not every capability, edition, or integratio
 
 ## Recording notes
 
-These silent recordings show real clicks, sorting, selections, and message composition in the Gen browser renderer, driven by authored fixture responses. No personal account, live inference, purchase, source-system data, or external operation is used. This is not a demonstration of the published installer's behavior. The still is framed from an actual recording. The developer launch cut adds only camera framing and zoom, with no title cards or captions. [Everyday workflow capture](https://github.com/Skytuhua/Gen-V1/actions/runs/43585601617) · [Developer workflow capture](https://github.com/Skytuhua/Gen-V1/actions/runs/43586852755).
+These silent recordings show real clicks, sorting, selections, and message composition in the Gen browser renderer, driven by authored fixture responses. No personal account, live inference, purchase, source-system data, or external operation is used. This is not a demonstration of the published installer's behavior. The still is framed from an actual recording. The developer launch cut adds only camera framing and zoom, with no title cards or captions. [Everyday workflow capture](https://github.com/skytuhua-org/Gen-V1/actions/runs/43585601617) · [Developer workflow capture](https://github.com/skytuhua-org/Gen-V1/actions/runs/43586852755).
 
 From the repo root, with locked dependencies and FFmpeg/FFprobe installed:
 
