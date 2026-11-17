@@ -416,3 +416,103 @@ describe("M10 host command binding", () => {
     await expect(service.command(command("intake.push", {}))).rejects.toMatchObject({ code: "UNKNOWN_COMMAND" });
   });
 });
+describe("M10 v6 completeness regressions", () => {
+  it("S04: account mismatch and host authority revalidation block delivery without retry", async () => {
+    const f = fixture();
+    enable("jobs.backgroundV1");
+    const store = f.store;
+    store.internal("fixture.account", f.thread.id, () => store.put("thread", f.thread.id, f.thread.id, { ...f.thread, accountId: "account-a", modelId: "test/model" }));
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: { ...f.owner, accountBinding: "account-a" }, kind: "MAINTENANCE", title: "account bound" });
+    f.coordinator.scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+    store.internal("fixture.account.change", f.thread.id, () => store.put("thread", f.thread.id, f.thread.id, { ...f.thread, accountId: "account-b" }));
+    await f.coordinator.scheduler.tick();
+    expect(f.coordinator.scheduler.schedules()[0]!.blockedReason).toBe("ACCOUNT_MISMATCH");
+    expect(f.store.all("backgroundAdmission")).toHaveLength(0);
+  });
+  it("S04: injected grant/budget authority hook blocks delivery", async () => {
+    const root = mkdtempSync(join(realpathSync(tmpdir()), "m10-authority-"));
+    const store = new Store(join(root, "state"));
+    let clock = 1_700_000_000_000;
+    const coordinator = new BackgroundWorkCoordinator({ store, now: () => clock, revalidateAuthority: () => ({ ok: false, blockedReason: "BUDGET_EXHAUSTED" }) });
+    cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true }); });
+    enable("jobs.backgroundV1");
+    const thread: Thread = { id: "thread-1", title: "Owner", projectName: null, createdAt: new Date(clock).toISOString(), updatedAt: new Date(clock).toISOString(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null };
+    store.internal("fixture.thread", thread.id, () => store.put("thread", thread.id, thread.id, thread));
+    const owner = { threadId: thread.id, runId: null, epoch: 0, projectId: null, workspaceId: null, accountBinding: null };
+    const work = coordinator.admit(command("background.work.admit"), { owner, kind: "MAINTENANCE", title: "budget" });
+    coordinator.scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "AT_UTC", dueAtMs: clock } });
+    await coordinator.scheduler.tick();
+    expect(coordinator.scheduler.schedules()[0]!.state).toBe("BLOCKED");
+    expect(coordinator.scheduler.schedules()[0]!.blockedReason).toBe("BUDGET_EXHAUSTED");
+    expect(store.all("backgroundAdmission")).toHaveLength(0);
+  });
+  it("S01: one tick inspects at most 50 due records across wakeups and expired claims", async () => {
+    const f = fixture();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => ({ status: "DELIVERED" as const }) });
+    cleanups.push(() => scheduler.stop());
+    for (let index = 0; index < 60; index++) scheduler.register(command("background.wakeup.register"), { taskId: `task-${index}`, trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+    await scheduler.tick();
+    await waitFor(() => f.store.all("backgroundAdmission").length >= 50);
+    expect(f.store.all("backgroundAdmission")).toHaveLength(50);
+    await scheduler.tick();
+    await waitFor(() => f.store.all("backgroundAdmission").length === 60);
+  });
+  it("S11: every missed occurrence is persisted, not only a bounded sample", async () => {
+    const f = fixture();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => ({ status: "DELIVERED" as const }) });
+    cleanups.push(() => scheduler.stop());
+    const anchor = f.now();
+    scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: 60_000 } });
+    f.advance(60 * 60_000);
+    await scheduler.tick();
+    await waitFor(() => f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").some(item => item.state === "DELIVERED"));
+    const occurrences = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence");
+    expect(occurrences.filter(item => item.state === "SKIPPED")).toHaveLength(59);
+    expect(scheduler.schedules()[0]!.skippedTotal).toBe(59);
+    expect(occurrences.filter(item => item.state === "DELIVERED")).toHaveLength(1);
+  });
+  it("S08: a confirmed successful idle teardown releases its permit", async () => {
+    const gate = new ModelCapacity(1);
+    const f = fixture({ gate, idleExecutor: async () => ({ outcome: "SUCCEEDED", teardownConfirmed: true }) });
+    enable("jobs.backgroundV1", "jobs.idleReviewV1");
+    const idle = { projectId: "p1", profileId: "verify", intervalMs: 60_000 };
+    f.coordinator.configureIdle(command("background.idle.configure"), { ...idle, enabled: true });
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "MAINTENANCE", title: "idle", idle });
+    f.advance(60_000);
+    await f.coordinator.scheduler.tick();
+    await waitFor(() => !f.coordinator.permitHeld(work.workId));
+    const release = await gate.acquire("background", null);
+    release();
+  });
+  it("S07: a new parent turn invalidates actionable fork output while history remains", () => {
+    const f = fixture();
+    enable("jobs.backgroundV1");
+    const review = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "REVIEW", title: "fork", parentThreadId: "thread-1", advisory: true });
+    expect(review.invalidated).toBe(false);
+    f.coordinator.noteForegroundAdmission("thread-1");
+    const after = f.coordinator.work(review.workId);
+    expect(after.invalidated).toBe(true);
+    expect(after.state).toBe("BLOCKED");
+    expect(f.store.get("backgroundWork", review.workId)).not.toBeNull();
+  });
+  it("admission rejects malformed command specs and non-read-only idle kinds", () => {
+    const f = fixture();
+    enable("jobs.backgroundV1", "jobs.idleReviewV1");
+    expect(() => f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "bad", command: { executable: "", argv: [], cwd: f.root, profileId: "p" } })).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }));
+    expect(() => f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "bad", command: { executable: process.execPath, argv: [42 as unknown as string], cwd: f.root, profileId: "p" } })).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }));
+    f.coordinator.configureIdle(command("background.idle.configure"), { projectId: "p1", profileId: "verify", enabled: true, intervalMs: 60_000 });
+    expect(() => f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "EXTERNAL_TASK", title: "bad idle", idle: { projectId: "p1", profileId: "verify", intervalMs: 60_000 }, intakeId: "x" })).toThrowError(expect.objectContaining({ code: "INVALID_INPUT" }));
+  });
+  it("G03: rollback stops owned running commands and preserves their receipts", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }) });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "running", command: { executable: process.execPath, argv: ["-e", "setTimeout(()=>{}, 30000)"], cwd: f.root, profileId: "p" } });
+    await f.coordinator.startCommand(work.workId);
+    expect(f.coordinator.work(work.workId).state).toBe("RUNNING");
+    const result = f.coordinator.pauseAll(command("background.pauseAll"));
+    expect(result.stopped).toBeGreaterThanOrEqual(1);
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("FAILED");
+    expect(f.coordinator.exitReceipt(work.workId)).not.toBeNull();
+  });
+});

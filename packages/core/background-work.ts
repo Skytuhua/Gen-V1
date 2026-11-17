@@ -55,6 +55,8 @@ export interface BackgroundWorkOptions {
   idleExecutor?: (work: BackgroundWorkRecord, signal: AbortSignal) => Promise<IdleExecutionResult>;
   /** The pinned Hermes wrapper exposes no callable fork API on this cut. */
   forkApi?: null;
+  /** S04: host-owned account/grant/budget revalidation before any delivery. */
+  revalidateAuthority?: (work: BackgroundWorkRecord) => { ok: true } | { ok: false; blockedReason: string };
   onPaused?: () => void;
 }
 
@@ -103,6 +105,7 @@ export class BackgroundWorkCoordinator {
   private readonly executionGate?: BackgroundWorkOptions["executionGate"];
   private readonly idleExecutor?: BackgroundWorkOptions["idleExecutor"];
   private readonly onPaused?: () => void;
+  private readonly revalidateAuthority?: BackgroundWorkOptions["revalidateAuthority"];
   private readonly sessions = new Map<string, CommandSession>();
   private readonly permits = new Map<string, { release: () => void; teardownConfirmed: boolean }>();
   private readonly idleControls = new Map<string, AbortController>();
@@ -119,6 +122,7 @@ export class BackgroundWorkCoordinator {
     this.executionGate = options.executionGate;
     this.idleExecutor = options.idleExecutor;
     this.onPaused = options.onPaused;
+    this.revalidateAuthority = options.revalidateAuthority;
     this.scheduler = new DurableWakeupScheduler({
       store: this.store,
       now: this.now,
@@ -147,6 +151,13 @@ export class BackgroundWorkCoordinator {
     if (input.owner.runId !== null && (thread.runId !== input.owner.runId || thread.epoch !== input.owner.epoch))
       throw new HarnessError("CANCELLED_RUN", "This run no longer has authority.");
     if (input.owner.projectId !== (thread.projectId ?? null)) throw new HarnessError("CAPABILITY_DENIED", "Background work must stay with its admitted project.");
+    if (input.command) {
+      const spec = input.command;
+      if (typeof spec.executable !== "string" || !spec.executable.trim() || !Array.isArray(spec.argv) || spec.argv.some(arg => typeof arg !== "string") || typeof spec.cwd !== "string" || !spec.cwd.trim() || typeof spec.profileId !== "string" || !spec.profileId.trim())
+        throw new HarnessError("INVALID_INPUT", "Command launch requires an exact executable, argv, cwd and approved profile.");
+    }
+    if (input.idle && input.kind !== "MAINTENANCE" && input.kind !== "REVIEW")
+      throw new HarnessError("INVALID_INPUT", "Idle work is limited to read-only verification or organization proposals.");
     return this.store.command(command, () => {
       const stamp = this.now(), workId = input.workId ?? randomUUID();
       if (this.store.get("backgroundWork", workId)) throw new HarnessError("DUPLICATE_COMMAND", "Work already admitted.");
@@ -487,6 +498,9 @@ export class BackgroundWorkCoordinator {
     if (!thread || this.store.get("archivedThread", work.owner.threadId)) return { ok: false, blockedReason: "OWNER_REVOKED" };
     if (work.owner.runId !== null && (thread.runId !== work.owner.runId || thread.epoch !== work.owner.epoch)) return { ok: false, blockedReason: "OWNER_REVOKED" };
     if (work.owner.projectId !== (thread.projectId ?? null)) return { ok: false, blockedReason: "SCOPE_CHANGED" };
+    if (work.owner.accountBinding !== (thread.accountId ?? null)) return { ok: false, blockedReason: "ACCOUNT_MISMATCH" };
+    const authority = this.revalidateAuthority?.(work);
+    if (authority && !authority.ok) return { ok: false, blockedReason: authority.blockedReason };
     if (this.now() > work.deadlineMs) return { ok: false, blockedReason: "DEADLINE_EXCEEDED" };
     return { ok: true };
   }
@@ -544,7 +558,7 @@ export class BackgroundWorkCoordinator {
         // job itself remains admitted for its next interval occurrence.
         this.store.put("backgroundAdvisory", `${work.workId}:${delivery.occurrence.occurrenceKey}`, work.owner.threadId, { workId: work.workId, occurrenceKey: delivery.occurrence.occurrenceKey, advisory: result.advisory ?? null, invalidated: current.invalidated, createdAt: iso(this.now()) });
         this.transition(current, control.signal.aborted ? "SETTLED" : "RUNNING", control.signal.aborted ? { outcome: "CANCELLED", settledAtMs: this.now() } : { lastRunAtMs: this.now() });
-        if (control.signal.aborted) this.releasePermitIfConfirmed(work.workId, result.teardownConfirmed);
+        this.releasePermitIfConfirmed(work.workId, result.teardownConfirmed);
       });
       return result.teardownConfirmed ? { status: "DELIVERED", receiptRef: work.workId } : { status: "UNCERTAIN", reason: result.error ?? "Idle teardown was not confirmed." };
     } catch (error) {
@@ -717,6 +731,7 @@ export class BackgroundWorkCoordinator {
 
   async drain(boundedMs: number = BACKGROUND_SCHEDULER_LIMITS.shutdownDrainMs): Promise<{ cancelled: number; uncertain: number }> {
     this.draining = true;
+    for (const control of this.idleControls.values()) control.abort();
     const wakeups = await this.scheduler.drain(boundedMs);
     let cancelled = 0, uncertain = wakeups.uncertain;
     this.store.internal("background.work.draining", null, () => {
@@ -753,6 +768,12 @@ export class BackgroundWorkCoordinator {
       let stopped = 0, quarantined = 0;
       for (const work of this.store.all<BackgroundWorkRecord>("backgroundWork")) {
         if (work.state === "UNKNOWN") { quarantined++; continue; }
+        if (work.state === "RUNNING") {
+          if (this.sessions.has(work.workId)) queueMicrotask(() => { void this.stopCommand(work.workId).catch(() => {}); });
+          else this.idleControls.get(work.workId)?.abort();
+          stopped++;
+          continue;
+        }
         if (work.state === "QUEUED" || work.state === "WAITING_EVENT" || work.state === "WAITING_HUMAN") {
           this.transition(work, "SETTLED", { outcome: "CANCELLED", settledAtMs: this.now(), error: "Paused by rollback." });
           stopped++;

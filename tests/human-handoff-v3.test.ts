@@ -6,6 +6,7 @@ import { randomUUID } from "node:crypto";
 import { Store } from "../packages/storage/store.ts";
 import { Service } from "../packages/core/service.ts";
 import { BackgroundWorkCoordinator, type BackgroundWorkRecord } from "../packages/core/background-work.ts";
+import { AttentionRepository } from "../packages/core/attention.ts";
 import { __setCapabilityFlagForTests } from "../packages/core/capability-flags.ts";
 import type { RuntimeAdapter, Thread } from "../packages/contracts/index.ts";
 import type { HumanStepV1 } from "../packages/contracts/background-work.ts";
@@ -167,5 +168,22 @@ describe("M10 human handoff host binding", () => {
     await new Promise(resolve => setTimeout(resolve, 80));
     expect(starts).toContain(inputId);
     expect(store.get<{ status: string }>("outbox", inputId)!.status).toBe("processing");
+  });
+});
+describe("M10-U02 dismiss is not completion or approval", () => {
+  it("dismissing the notification leaves the human step pending and grants nothing", () => {
+    const f = fixture();
+    f.request(1);
+    f.store.internal("fixture.request", "thread-1", () => f.store.put("request", "req-1", "thread-1", { id: "req-1", threadId: "thread-1", artifactId: null, revision: 1, title: "Blocked step", prompt: "Answer to resume.", responseSchema: SCHEMA, basis: [], status: "pending" }));
+    const attention = new AttentionRepository(f.store);
+    const envelope = attention.read();
+    const item = envelope.items.find(entry => entry.kind === "request" && entry.destination.requestId === "req-1");
+    expect(item).toBeTruthy();
+    attention.command({ id: randomUUID(), eventId: item!.id, type: "dismiss-popup" });
+    expect(f.coordinator.humanSteps()[0]!.deliveryState).toBe("PENDING");
+    expect(f.coordinator.work(f.work.workId).state).toBe("WAITING_HUMAN");
+    expect(f.followUps).toHaveLength(0);
+    expect(f.store.all("approval")).toHaveLength(0);
+    expect(f.store.get<{ status: string }>("request", "req-1")!.status).toBe("pending");
   });
 });

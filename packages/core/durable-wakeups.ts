@@ -150,9 +150,11 @@ export class DurableWakeupScheduler {
     for (const delivery of claimed) this.dispatch(delivery);
     // Reconcile expired claims within the same bounded inspection: a lease
     // expiry after an uncertain dispatch never authorizes a second submit.
+    // S01: at most 50 due records inspected per tick, shared across new due
+    // wakeups and expired claims needing reconciliation.
     const expired = this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence")
       .filter(item => item.state === "CLAIMED" && item.leaseExpiresAtMs !== null && item.leaseExpiresAtMs <= stamp)
-      .slice(0, this.limits.dueBatchLimit);
+      .slice(0, Math.max(0, this.limits.dueBatchLimit - due.length));
     for (const occurrence of expired) {
       const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
       if (!wakeup || wakeup.paused || wakeup.state === "CANCELLED" || wakeup.state === "DELIVERED" || wakeup.state === "BLOCKED") continue;
@@ -215,7 +217,9 @@ export class DurableWakeupScheduler {
         // latest admitted one (bounded per tick; the count is always exact).
         const missed = input.scheduledDueAtMs > previousDue ? Math.max(0, Math.round((input.scheduledDueAtMs - previousDue) / intervalMs) - 1) : 0;
         skippedTotal += missed;
-        const persist = Math.min(missed, this.limits.dueBatchLimit);
+        // S11: persist every intended missed occurrence; the hard cap is only
+        // a host memory guard for pathological multi-year jumps.
+        const persist = Math.min(missed, 100_000);
         for (let index = 0; index < persist; index++) {
           const skippedDue = input.scheduledDueAtMs - (index + 1) * intervalMs;
           const skippedKey = occurrenceKeyForTime(wakeupId, wakeup.scheduleRevision, skippedDue);
