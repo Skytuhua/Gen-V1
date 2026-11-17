@@ -91,9 +91,9 @@ test('context changes, disabling, blur and a new real run invalidate pending res
 
 test('the Chat setting defaults off and exposes the selected-model quota control', async ({ page }) => {
   const snapshot = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Settings fixture' } } } });
-  const host = await serveTaskFixture(page, snapshot); await page.goto('/'); await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Chat', exact: true }).click();
+  const host = await serveTaskFixture(page, snapshot); await page.goto('/'); await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Chat & Composer', exact: true }).click();
   const toggle = page.getByRole('switch', { name: 'Suggest my next message', exact: true }); await expect(toggle).toHaveAttribute('aria-checked', 'false');
-  await expect(page.getByText('Uses your selected model and subscription quota.', { exact: true })).toBeVisible(); await toggle.click();
+  await expect(page.getByText('Uses the selected model and subscription quota.', { exact: true })).toBeVisible(); await toggle.click();
   await expect.poll(() => host.commands.find(c => c.type === 'settings.update')?.payload).toMatchObject({ preferences: { composerPredictions: true } });
 });
 
@@ -120,7 +120,7 @@ test('model, account and thread changes reject late results and do not restore h
   host.snapshot.threads[0].accountId = 'new-pinned-account'; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   await host.settle('two'); await expect.poll(() => host.calls.length).toBe(2);
   host.snapshot.threads[0].modelId = 'test/replaced'; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
-  const current = host.snapshot.threads[0]; host.snapshot.threads = [{ ...current, id: 'different-thread', modelId: 'test/model' }]; host.snapshot.activeThreadId = 'different-thread'; await host.publish();
+  const current = host.snapshot.threads[0]; host.snapshot.threads.push({ ...current, id: 'different-thread', title: 'Different prediction owner', modelId: 'test/model' }); host.snapshot.activeThreadId = 'different-thread'; await host.publish();await page.getByRole('button',{name:'Different prediction owner',exact:true}).click();
   await host.draft.focus(); await flushEffects(page); expect(host.calls).toHaveLength(2); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
 });
 

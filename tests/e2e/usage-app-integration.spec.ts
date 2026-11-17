@@ -57,9 +57,10 @@ test('split conversation launchers control the shared summary for the active pan
  await first.getByRole('button',{name:'Show live usage',exact:true}).click();
  await expect(first.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
  await expect(summary).toBeVisible();await expect(summary).toContainText('7 input tokens');
- await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
- await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');
+ await expect(summary).toContainText('999 input tokens');
+ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+ await expect(summary.getByRole('button',{name:'Open Usage',exact:true})).toBeVisible();
  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();

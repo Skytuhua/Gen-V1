@@ -7,7 +7,7 @@ test.afterEach(async ({ page }) => { expect(audits.get(page) ?? []).toEqual([]);
 test.beforeEach(async ({ page }) => {
   const unexpected: string[] = [];
   audits.set(page, unexpected);
-  const allowed = new Set(['/api/bootstrap', '/api/models', '/api/snapshot', '/api/shell-settings', '/api/workspace', '/api/commands', '/api/plugins']);
+  const allowed = new Set(['/api/bootstrap', '/api/models', '/api/snapshot', '/api/shell-settings', '/api/workspace', '/api/commands', '/api/plugins', '/api/split-workspace', '/api/split-workspace/profiles', '/api/split-workspace/commands']);
   page.on('request', request => { const url = new URL(request.url()); if (url.pathname.startsWith('/api/') && !allowed.has(url.pathname)) unexpected.push(url.href); });
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
