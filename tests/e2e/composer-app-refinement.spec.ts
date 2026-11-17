@@ -59,6 +59,37 @@ test('text entry shares its first row with Changes and Create PR at wide and nar
  await expect(draft).toHaveValue('Create a pull request for the current changes.\n\nKeep this thought');await expect(draft).toBeFocused();
 });
 
+for(const dismissal of ['Cancel','Add resource'] as const)test(`resource picker ${dismissal} preserves a newly focused composer before its deferred frame`,async({page})=>{
+ const host=await fixture(page),settings=page.getByRole('button',{name:'Settings',exact:true});
+ await settings.click();
+ await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
+ await page.getByRole('button',{name:'Add resource',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true});await expect(dialog).toBeVisible();
+ if(dismissal==='Add resource')await dialog.getByRole('textbox',{name:'Absolute local path',exact:true}).fill('C:/fixture/first');
+ // Hold the next frame so a deliberate new focus can occur after the modal
+ // unmounts and before the deferred restoration runs. No production timers change.
+ await page.evaluate(()=>{
+  const original=requestAnimationFrame,callbacks:FrameRequestCallback[]=[];
+  window.requestAnimationFrame=callback=>{callbacks.push(callback);return callbacks.length;};
+  Object.assign(window,{releaseResourceFrames:()=>{window.requestAnimationFrame=original;for(const callback of callbacks)callback(performance.now());}});
+ });
+ await dialog.getByRole('button',{name:dismissal,exact:true}).click();await expect(dialog).toHaveCount(0);
+ const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.focus();await expect(draft).toBeFocused();
+ await page.evaluate(()=>(window as unknown as {releaseResourceFrames:()=>void}).releaseResourceFrames());
+ await expect(draft).toBeFocused();await page.keyboard.insertText('Keep the input after closing the resource picker.');
+ await expect(draft).toHaveValue('Keep the input after closing the resource picker.');
+ await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeEnabled();
+ expect(host.commands.filter(command=>command.type==='resource.grant')).toHaveLength(dismissal==='Add resource'?1:0);
+});
+
+test('resource picker keyboard dismissal restores its opener when focus was not moved',async({page})=>{
+ await fixture(page);const settings=page.getByRole('button',{name:'Settings',exact:true});await settings.click();
+ await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
+ await page.getByRole('button',{name:'Add resource',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true});await expect(dialog).toBeVisible();
+ await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(settings).toBeFocused();
+});
+
 for(const motion of ['no-preference','reduce'] as const)test(`attachment band exists only for attached resources and preserves input under ${motion}`,async({page})=>{
  await page.emulateMedia({reducedMotion:motion});const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true}),original=await draft.elementHandle();
  await draft.fill('Preserve my draft');await expect(page.locator('.composer-attachment-band')).toHaveCount(0);const before=(await page.locator('.composer').boundingBox())!.height;
