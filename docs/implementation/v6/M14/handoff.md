@@ -128,10 +128,17 @@ on `agent/m14-v3` at `30b5d649`.
 - X1 custody: all 4 `linux-path-guard` fixture probes PASS under WSL2
   (x86_64 + euid 0 + ext4 state-root owned by a third uid) —
   idmapped custody, credential-alias qualification, negative control,
-  nested account profile. The aarch64 arch pin does not apply; the
-  ~40 custody test files still fail under WSL vitest because vitest
-  itself is not broker-spawned (fd3/fd4 come from the broker), so the
-  fixture probes are the custody evidence.
+  nested account profile. The aarch64 arch pin does not apply.
+- X1 custody, vitest level: first real broker-wrapped vitest run —
+  the test process is itself spawned as a broker child (fd3 socket +
+  fd4 root dir) inside `/custody2`, a repo copy owned by a third uid.
+  `linux-path-guard.test.ts` 23/23 and `memory-storage-boundary-v3.test.ts`
+  9/9 PASS under live custody. `capabilities.test.ts`: 11/24 pass; the
+  13 failures all request `readOnly`/`tree`/`leaf`/`empty`/
+  `gitMetadataImport` grants that `validateLinuxDirectoryPaths` denies
+  by contract while the Windows path guard admits them — a guard-contract
+  asymmetry surfaced for the orchestrator, not relaxed to pass
+  (`win-x1-wsl-vitest-broker.log`).
 - W1 packaged tests: 27/27 PASS (packaged-providers/rg.exe,
   desktop-packaging, cursor-offline-executor, cursor-sdk-mcp-metadata).
 - W4 hermes bundle: CPython 3.14.9 provisioned via nuget; `py -3.14`
@@ -146,18 +153,26 @@ on `agent/m14-v3` at `30b5d649`.
 - W2 `pnpm test:browser` (real Edge): 35 of 76 suites failed in the
   loaded run and all 35 fail again in a quiet serial rerun — 417 test
   failures plus 6 suites whose `config.webServer` uses the Unix
-  `exec timeout` convention and cannot start on Windows at all
-  (file-checkpoints, redundant-ui, terminal-excerpts, conversation-find,
-  project-search, wo5-app-integration). Largest clusters: shell 63,
+  `exec timeout` convention. Those 6 were unblocked via the
+  `GEN_WO5_SERVER_EXTERNAL=1` escape hatch plus a per-suite vite on
+  its pinned port: file-checkpoints 21/21, terminal-excerpts 9/9 and
+  project-search 38/38 PASS; conversation-find 1/11, redundant-ui 7/18
+  and wo5-app-integration 0/9 FAIL
+  (`win-test-browser-dead-suites.log`). Largest clusters: shell 63,
   files-reading 46, generated-selects 42. No M14 surface implicated.
 - W3 desktop: `desktop:build` + `desktop:package` PASS —
   `Gen-V1-Setup-0.6.5-win-x64.exe` produced. `verify-installed-desktop`
   runs the whole owned matrix (NSIS install, payload custody, provider
   verification, installed launches, memory proposal review) and fails
-  only at the project-memory native-save export: the real Windows
-  Save-As dialog completes but the `saved` status never appears
-  ("the native save was interrupted or its byte count changed");
-  deterministic across two runs including a quiet-box retry.
+  only at the project-memory native-save export: the UIA worker
+  completes the real Save-As dialog (file-name-set, save-invoked,
+  dialog-closed at 8.4s) but no file is written and Electron's
+  DownloadItem `done` resolves interrupted, so the app's custody
+  check rejects it ("the native save was interrupted or its byte
+  count changed"). Root cause: the UIA-invoked IFileSaveDialog
+  result never reaches the download item as a committed path —
+  a harness/app save-handoff issue, not M14 code. Deterministic
+  across two runs including a quiet-box retry.
 
 ## Holds
 
