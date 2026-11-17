@@ -124,6 +124,46 @@ it('projects only metadata for admitted host input without changing the model-vi
   expect(JSON.stringify(enabled.receipt)).not.toContain('keep this fixture verbatim');
 });
 
+it('captures the automatic compaction requirement from the host flag without adding model-visible instructions', async () => {
+  async function submit(enabled: boolean) {
+    const directory=mkdtempSync(join(tmpdir(),'m04-auto-policy-')),store=new Store(directory);
+    let captured:import('../packages/contracts').StartRun|undefined,callbacks!:RuntimeCallbacks;
+    const runtime:RuntimeAdapter={configure:next=>{callbacks=next;},models:async()=>[{id:'test/model',name:'Fixture',provider:'test'}],start:async input=>{captured=input;},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+    const service=new Service(store,runtime);
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1',enabled);
+    try{
+      store.internal('fixture','auto-policy',()=>{
+        store.put('thread','auto-policy','auto-policy',{id:'auto-policy',title:'Fixture',runId:null,epoch:1,status:'ready',modelId:'test/model',projectName:null,sessionPath:null,createdAt:'2026-01-01T00:00:00Z',updatedAt:'2026-01-01T00:00:00Z'});
+        store.put('outbox','auto-input','auto-policy',{id:'auto-input',threadId:'auto-policy',content:'Keep the original source unchanged.',status:'persisted',runId:null});
+      });
+      const deliver=Reflect.get(service,'deliverOutbox') as (id:string)=>Promise<void>;
+      await deliver.call(service,'auto-policy');
+      expect(captured).toBeDefined();
+      const {threadId,runId,epoch,modelId}=captured!,ctx={threadId,runId,epoch},sessionPath='/fixture/auto-session';
+      callbacks.onEvent({...ctx,type:'session',sessionPath});
+      const before=store.sequence,generation=store.get('requestContextGeneration',threadId),usage=store.get('usage',threadId);
+      const refusal={version:1,status:'REFUSED',reason:'AUTOMATIC_PROTECTION_UNAVAILABLE',method:'compress',trigger:'pre_api',
+        owner:{ctx,sessionPath,modelId,accountId:null}};
+      callbacks.onEvent({...ctx,type:'context.compaction.refused',refusal});
+      for(const invalid of [{...refusal,status:'APPLIED'},{...refusal,owner:{...refusal.owner,sessionPath:'/another-session'}},
+        {...refusal,owner:{...refusal.owner,accountId:'other-account'}},{...refusal,owner:{...refusal.owner,ctx:{...ctx,runId:'another-run'}}}])
+        callbacks.onEvent({...ctx,type:'context.compaction.refused',refusal:invalid});
+      const events=store.eventsAfter(before),accepted=events.filter(event=>event.type==='runtime.context.compaction.refused')
+        .flatMap(event=>{const result=(event.payload as {result:{refusal?:unknown}}).result;return result.refusal?[result.refusal]:[];});
+      expect(accepted).toEqual(enabled?[refusal]:[]);
+      expect(events.some(event=>['runtime.compaction.start','runtime.compaction.end','context.compaction.applied'].includes(event.type))).toBe(false);
+      expect(store.get('requestContextGeneration',threadId)).toEqual(generation);
+      expect(store.get('usage',threadId)).toEqual(usage);
+      return captured!;
+    }finally{__setCapabilityFlagForTests('context.lossAwareCompactionV1',undefined);await service.dispose();store.close();rmSync(directory,{recursive:true,force:true,maxRetries:5});}
+  }
+  const disabled=await submit(false),enabled=await submit(true);
+  expect(disabled).not.toHaveProperty('automaticCompactionProtection');
+  expect(enabled.automaticCompactionProtection).toEqual({apiVersion:1,required:true});
+  expect(enabled.prompt).toBe(disabled.prompt);
+  expect(enabled).toMatchObject({threadId:'auto-policy',runId:expect.any(String),epoch:2,modelId:'test/model',accountId:null});
+});
+
 it('does not implement loss-aware compaction by calling legacy native compaction', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'm04-compaction-gate-')), store = new Store(directory);
   let calls = 0;

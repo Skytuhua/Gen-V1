@@ -9,6 +9,22 @@ export const NATIVE_COMPACTION_CAPABILITY = Object.freeze({
   apiVersion: 1, strategy: 'EXACT_PROTECTED_RECORDS', commitBoundary: 'NATIVE_IN_MEMORY_COMMIT',
 } as const);
 
+export const AUTOMATIC_COMPACTION_CAPABILITY = Object.freeze({
+  apiVersion: 1, strategy: 'REFUSE_UNPROTECTED_FOREGROUND',
+} as const);
+/** Private host policy, separate from a manual protected-compaction plan. */
+export const automaticCompactionRequirementSchema = z.strictObject({apiVersion: z.literal(1), required: z.literal(true)});
+export type AutomaticCompactionRequirementV1 = z.infer<typeof automaticCompactionRequirementSchema>;
+export const automaticCompactionRefusalSchema = z.strictObject({
+  version: z.literal(1), status: z.literal('REFUSED'),
+  reason: z.enum(['AUTOMATIC_PROTECTION_UNAVAILABLE', 'HOST_REVOKED']),
+  method: z.enum(['compress', 'prune', 'micro']), trigger: boundedText(80).nullable(),
+  owner: z.strictObject({
+    ctx: z.strictObject({threadId: boundedText(200), runId: boundedText(200), epoch: count}),
+    sessionPath: boundedText(32768), modelId: boundedText(200), accountId: boundedText(200).nullable(),
+  }),
+});
+
 export const nativeCompactionOwnerSchema = z.strictObject({
   threadId: boundedText(1024), runId: boundedText(1024), epoch: count,
   workspaceId: boundedText(1024), modelId: boundedText(1024), accountId: boundedText(1024).nullable(),
