@@ -84,4 +84,4 @@ pnpm exec playwright install chromium
 node --import tsx scripts/record-readme-launch.ts .harness-readme-launch
 ```
 
-Use `GEN_README_FLOWS=everyday` on shells with inline environment assignments to record only the everyday workflows. Set it to `developer` to record only the PR and CI workflows. The script binds a loopback-only fixture host, blocks nonlocal browser requests, and checks the visible end states.
+Use `GEN_README_FLOWS=scenarios` on shells with inline environment assignments to record only the scenario workflows. Set it to `developer` to record only the PR and CI workflows. The script binds a loopback-only fixture host, blocks nonlocal browser requests, and checks the visible end states.
