@@ -147,3 +147,16 @@ A real authenticated `pollOnce` ran against repository `1442565952` (`skytuhua-o
 - Delivery dedup verified trivially (second poll: 0 new).
 
 The same run exposed a real limitation, filed as [#644](https://github.com/skytuhua-org/Gen-V1/issues/644): on a PR-heavy repository the single `per_page=30&sort=updated` page starves real issues indefinitely — the poll never paginates. Proposal/dedup logic remains fixture-verified; the live run proves auth, request shape, payload parsing, and the PR exclusion rule against production GitHub responses.
+
+### Live intake re-validation after fixes (session 6 continued)
+
+The starvation was fixed in `packages/core/external-intake.ts` (bounded pagination: `per_page=100`, up to `intakePollPages: 3`, advancing until a non-PR record is seen or the page is short) plus a second live-discovered defect: the issues API returns `repository_url` in `/repos/{owner}/{name}` form, so the strict numeric-URL equality rejected every real issue as `WRONG_REPOSITORY`. Each distinct foreign-form `repository_url` is now resolved once per poll (bounded at 10) and accepted only when the resolved `id` equals the configured numeric `repositoryId`; unresolvable lookups fail closed as `WRONG_REPOSITORY`.
+
+Re-ran the same live script against production GitHub after both fixes:
+
+- First poll: `OK`, **17 proposals**, 0 rejected, 1 fetch attempt (page 1 of 100 contained ≥1 non-PR record, so only one page was needed; 300-record PR saturation is bounded at 3 pages).
+- Second poll: `OK`, **17 duplicates**, 0 new — live delivery dedup confirmed.
+- Proposed issues: #575–#590, #644 — the real open issue set. `createTask` calls: **0** (polling remains GET-only; execution authority exists only inside `approve()`).
+- Fixture coverage added: PR-only first page paging to a real issue, bounded pagination under full PR saturation, slug-form `repository_url` acceptance via id resolution, different-id and failed-lookup fail-closed rejection.
+
+Both live findings are closed-loop verified: the intake path now demonstrably works against the production API end-to-end (auth → paginated read → provenance check → dedup → proposal-only records). #644 is fixed on this branch.

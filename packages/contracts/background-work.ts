@@ -12,6 +12,8 @@ export const BACKGROUND_SCHEDULER_LIMITS = {
   heartbeatMs: 10_000,
   idleMinIntervalMs: 60_000,
   intakePollMs: 60_000,
+  intakePageSize: 100,
+  intakePollPages: 3,
   retryDelaysMs: [1_000, 2_000] as readonly number[],
   retryAttempts: 3,
   reviewForkDeadlineMs: 60_000,

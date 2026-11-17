@@ -120,48 +120,83 @@ export class ExternalIntakeCoordinator {
       const current = this.config();
       if (current && current.sourceInstallation !== installation) this.store.put("intakeConfig", "global", null, { ...current, sourceInstallation: installation, updatedAt: iso(this.now()) });
     });
-    const url = `https://api.github.com/repositories/${config.repositoryId}/issues?state=open&sort=updated&direction=desc&per_page=30`;
-    let response: Response | null = null, lastFailure: unknown = null, attempts = 0;
-    for (let attempt = 1; attempt <= BACKGROUND_SCHEDULER_LIMITS.retryAttempts; attempt++) {
-      attempts = attempt;
-      if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
-      if (attempt > 1) await this.sleep(BACKGROUND_SCHEDULER_LIMITS.retryDelaysMs[attempt - 2] ?? 2_000);
-      if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
+    // Pull requests and issues share the issues endpoint sorted by updated
+    // time; on an active repository a single page can be all PRs and real
+    // issues are never inspected. Page forward until at least one non-PR
+    // record is seen, the page is short, or the page bound is hit.
+    const perPage = BACKGROUND_SCHEDULER_LIMITS.intakePageSize;
+    const records: unknown[] = [];
+    let lastFailure: unknown = null, attempts = 0;
+    for (let page = 1; page <= BACKGROUND_SCHEDULER_LIMITS.intakePollPages; page++) {
+      const url = `https://api.github.com/repositories/${config.repositoryId}/issues?state=open&sort=updated&direction=desc&per_page=${perPage}&page=${page}`;
+      let response: Response | null = null;
+      for (let attempt = 1; attempt <= BACKGROUND_SCHEDULER_LIMITS.retryAttempts; attempt++) {
+        attempts++;
+        if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
+        if (attempt > 1) await this.sleep(BACKGROUND_SCHEDULER_LIMITS.retryDelaysMs[attempt - 2] ?? 2_000);
+        if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
+        try {
+          const candidate = await this.fetchImpl(url, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "User-Agent": "gen-v1-host" },
+            redirect: "error",
+          });
+          if (candidate.ok) { response = candidate; break; }
+          lastFailure = new HarnessError("INTAKE_READ_FAILED", `GitHub read failed with status ${candidate.status}`);
+          if (!this.transient(candidate.status, null)) {
+            this.lastPollAt = iso(this.now());
+            this.lastError = candidate.status === 401 || candidate.status === 403 ? "GITHUB_AUTH_REQUIRED" : `GitHub read failed with status ${candidate.status}`;
+            return { status: candidate.status === 401 || candidate.status === 403 ? "UNAVAILABLE" : "FAILED", ...empty, attempts, error: this.lastError };
+          }
+        } catch (error) {
+          lastFailure = error;
+          if (!this.transient(null, error)) {
+            this.lastError = error instanceof Error ? error.message : String(error);
+            return { status: "FAILED", ...empty, attempts, error: this.lastError };
+          }
+        }
+      }
+      if (!response) {
+        this.lastPollAt = iso(this.now());
+        this.lastError = lastFailure instanceof Error ? lastFailure.message : String(lastFailure);
+        return { status: "FAILED", ...empty, attempts, error: this.lastError };
+      }
+      let pageRecords: unknown;
+      try { pageRecords = await response.json(); }
+      catch (error) {
+        this.lastError = error instanceof Error ? error.message : String(error);
+        return { status: "FAILED", ...empty, attempts, error: this.lastError };
+      }
+      if (!Array.isArray(pageRecords)) {
+        this.lastError = "GitHub issue payload was not a list.";
+        return { status: "FAILED", ...empty, attempts, error: this.lastError };
+      }
+      records.push(...pageRecords);
+      const sawIssue = pageRecords.some(entry => !(entry as { pull_request?: unknown } | null)?.pull_request);
+      if (sawIssue || pageRecords.length < perPage) break;
+    }
+    // GitHub returns repository_url in /repos/{owner}/{name} form while the
+    // configured identity is numeric. Resolve each distinct foreign-form URL
+    // once and keep only those that resolve to the configured repository id.
+    const expectedRepositoryUrl = `https://api.github.com/repositories/${config.repositoryId}`;
+    const candidates = new Set<string>();
+    for (const entry of records) {
+      const record = entry as { repository_url?: unknown; pull_request?: unknown } | null;
+      if (record && typeof record.repository_url === "string" && !record.pull_request && record.repository_url !== expectedRepositoryUrl) candidates.add(record.repository_url);
+      if (candidates.size >= 10) break;
+    }
+    const verifiedRepositories = new Set<string>();
+    for (const repositoryUrl of candidates) {
       try {
-        const candidate = await this.fetchImpl(url, {
+        const res = await this.fetchImpl(repositoryUrl, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "User-Agent": "gen-v1-host" },
           redirect: "error",
         });
-        if (candidate.ok) { response = candidate; break; }
-        lastFailure = new HarnessError("INTAKE_READ_FAILED", `GitHub read failed with status ${candidate.status}`);
-        if (!this.transient(candidate.status, null)) {
-          this.lastPollAt = iso(this.now());
-          this.lastError = candidate.status === 401 || candidate.status === 403 ? "GITHUB_AUTH_REQUIRED" : `GitHub read failed with status ${candidate.status}`;
-          return { status: candidate.status === 401 || candidate.status === 403 ? "UNAVAILABLE" : "FAILED", ...empty, attempts, error: this.lastError };
-        }
-      } catch (error) {
-        lastFailure = error;
-        if (!this.transient(null, error)) {
-          this.lastError = error instanceof Error ? error.message : String(error);
-          return { status: "FAILED", ...empty, attempts, error: this.lastError };
-        }
-      }
-    }
-    if (!response) {
-      this.lastPollAt = iso(this.now());
-      this.lastError = lastFailure instanceof Error ? lastFailure.message : String(lastFailure);
-      return { status: "FAILED", ...empty, attempts, error: this.lastError };
-    }
-    let records: unknown;
-    try { records = await response.json(); }
-    catch (error) {
-      this.lastError = error instanceof Error ? error.message : String(error);
-      return { status: "FAILED", ...empty, attempts, error: this.lastError };
-    }
-    if (!Array.isArray(records)) {
-      this.lastError = "GitHub issue payload was not a list.";
-      return { status: "FAILED", ...empty, attempts, error: this.lastError };
+        if (!res.ok) continue;
+        const repo = await res.json() as { id?: unknown };
+        if (repo && repo.id === config.repositoryId) verifiedRepositories.add(repositoryUrl);
+      } catch { /* unverified URLs fail closed as WRONG_REPOSITORY */ }
     }
     const stamp = this.now();
     const result = this.store.internal("intake.polled", null, () => {
@@ -177,7 +212,7 @@ export class ExternalIntakeCoordinator {
         if (this.store.get("intakeDelivery", deliveryKey)) { duplicates++; continue; }
         this.store.put("intakeDelivery", deliveryKey, null, { repositoryId: config.repositoryId, eventId: record.node_id, updatedAt: record.updated_at, capturedAt: iso(stamp) });
         // Wrong repository: captured and rejected, never proposed or executed.
-        if (record.repository_url !== `https://api.github.com/repositories/${config.repositoryId}`) {
+        if (record.repository_url !== expectedRepositoryUrl && !verifiedRepositories.has(record.repository_url)) {
           rejected++;
           const intakeId = randomUUID();
           const rejectedRecord: IntakeRecord = {
