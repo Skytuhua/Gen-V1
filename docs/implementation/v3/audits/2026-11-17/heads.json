@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "auditAncestorSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7",
+  "baseSha": "6ad7f0e8f2d389883900dbebc11cd94a3787f1ae",
+  "heads": [
+    {
+      "pr": 591,
+      "sha": "9eb6fc80b83641cf3a70b66d9f7fb18e5b24f6e5",
+      "stage": "candidate"
+    },
+    {
+      "pr": 598,
+      "sha": "fdf68a2bb376e825c9e29f9eb6950634274433ed",
+      "stage": "candidate"
+    },
+    {
+      "pr": 625,
+      "sha": "2d4de7b762b19e8785b995edc083b46bef69b004",
+      "stage": "candidate"
+    },
+    {
+      "pr": 626,
+      "sha": "8e737a9e66f4d5c334b507b4490525586601fbe3",
+      "stage": "candidate"
+    },
+    {
+      "pr": 627,
+      "sha": "062571871b73a71b9ebeaa1a86f6da11f88d8444",
+      "stage": "candidate"
+    },
+    {
+      "pr": 628,
+      "sha": "01e42be5f163f9e97c175e21d39cfde26c6cad96",
+      "stage": "candidate"
+    },
+    {
+      "pr": 629,
+      "sha": "a8bfe6e306f32f1f4f185a18392c20f9357dfd33",
+      "stage": "candidate"
+    },
+    {
+      "pr": 630,
+      "sha": "db76595c78e677dfda48872eb659c266f740ef1f",
+      "stage": "regression"
+    },
+    {
+      "pr": 632,
+      "sha": "3a7919a75e581f9d0a2392c989d019270dad6e1b",
+      "stage": "test"
+    },
+    {
+      "pr": 633,
+      "sha": "9539cac99090bd3067a97d821bc85a3373d49cec",
+      "stage": "candidate"
+    },
+    {
+      "pr": 634,
+      "sha": "6c2492ac79f970be75f5e40c6a569eade67cad8b",
+      "stage": "regression"
+    },
+    {
+      "pr": 636,
+      "sha": "f09a7f0e0a29e7884dd543d29060634deb097ac0",
+      "stage": "candidate"
+    },
+    {
+      "pr": 637,
+      "sha": "0192e43f5e5a5473659eaf223fe9c034d1155f1c",
+      "stage": "regression"
+    },
+    {
+      "pr": 639,
+      "sha": "588ce7c9f2b51536b70c4c24f5f3260b09c7d3fd",
+      "stage": "regression"
+    },
+    {
+      "pr": 640,
+      "sha": "b4b394aa353904c5744e779052ee9daf4298a6dc",
+      "stage": "regression"
+    },
+    {
+      "pr": 642,
+      "sha": "01663a3f2e1b897f24b5f4158563b5292a5c2453",
+      "stage": "regression"
+    },
+    {
+      "pr": 643,
+      "sha": "a2828065974a5169168bbbbef0ef90383e0a7767",
+      "stage": "test"
+    },
+    {
+      "pr": 645,
+      "sha": "6a65b478d2f9cc1ed84e7e338b13bc57b427c702",
+      "stage": "diagnostic"
+    },
+    {
+      "pr": 646,
+      "sha": "0c8cebc82f6a0817ea26e5ea721386f637e36e8a",
+      "stage": "regression"
+    },
+    {
+      "pr": 648,
+      "sha": "a77bd4ca7a4423e1008fda528f0d4e70d5b57e66",
+      "stage": "regression"
+    },
+    {
+      "pr": 649,
+      "sha": "e360e41af99b771388700f4f595601f1eb035e3b",
+      "stage": "regression"
+    },
+    {
+      "pr": 654,
+      "sha": "ad15b4d0b95347d99280d36fb35c6731420b6749",
+      "stage": "candidate"
+    },
+    {
+      "pr": 655,
+      "sha": "eaa2ee65ff99eb8ac208a2b1fd2c4b45113c867b",
+      "stage": "test"
+    },
+    {
+      "pr": 656,
+      "sha": "87dc751c0d4967297cf2e6b94e99f43eb27bfb13",
+      "stage": "test"
+    },
+    {
+      "pr": 658,
+      "sha": "bbf81e95d9306d0d90926f65b2c38fb8c90a5b58",
+      "stage": "candidate"
+    },
+    {
+      "pr": 660,
+      "sha": "79a42cf0ce72243450a153fbad564432b56998ca",
+      "stage": "diagnostic"
+    }
+  ],
+  "tests": [
+    "tests/baseline-package-manager-v3.test.ts",
+    "tests/tool-effect-operation-owner-v3.test.ts",
+    "tests/project-trust-custody-v3.test.ts",
+    "tests/package-screening-cache-v3.test.ts",
+    "tests/execution-platform-proof-v3.test.ts",
+    "tests/tool-effect-hard-crash-v3.test.mjs",
+    "tests/project-trust-verification-races-v3.test.mjs",
+    "tests/source-lock-ancestry-v3.test.ts",
+    "tests/benchmark-report-availability-v3.test.ts",
+    "tests/github-output-redaction-v3.test.ts",
+    "tests/tool-effect-admission-owner-race-v3.test.mjs",
+    "tests/project-trust-persistence-v3.test.ts",
+    "tests/tool-effect-approval-review-v3.test.mjs",
+    "tests/baseline-workloads-v3.test.ts",
+    "tests/project-trust-hardlinks-v3.test.ts",
+    "tests/tool-definition-version-v3.test.mjs",
+    "tests/tool-effect-late-progress-v3.test.mjs",
+    "tests/tool-effect-header-redaction-v3.test.mjs",
+    "tests/workspace-action-outcome-routes.test.ts",
+    "tests/tool-effect-snapshot-v3.test.ts",
+    "tests/source-lock-drift-v3.test.ts",
+    "tests/research-baseline.test.ts",
+    "tests/regression-selection.test.ts",
+    "tests/evidence-aggregation-v3.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/tool-effect-replay-authority-v3.test.ts",
+    "tests/tool-effect-replay-owner-v3.test.ts",
+    "tests/execution-boundary-v3.test.ts",
+    "tests/project-trust-v3.test.ts",
+    "tests/secret-custody-v3.test.ts",
+    "tests/dependency-contract-execution-v3.test.ts"
+  ],
+  "browserSuite": "root",
+  "releaseApproved": false,
+  "scope": "Deterministic Windows core and browser integration. Native confinement, live-provider behavior, and complete milestone acceptance remain separate gates."
+}
