@@ -72,6 +72,7 @@ export async function collectHermesPayload(root:string,python:HermesPython):Prom
  await walk(dependencyRoot,'.harness-hermes-python-deps',path=>!path.split('/').some(part=>['__pycache__','bin','Scripts'].includes(part))&&!/\.py[co]$/i.test(path));
  await add(join(root,'packages/runtime-hermes/worker.py'),'packages/runtime-hermes/worker.py');
  await add(join(root,'packages/runtime-hermes/memory_checkpoint.py'),'packages/runtime-hermes/memory_checkpoint.py');
+ for(const name of ['context_capture.py','compaction_protection.py'])await add(join(root,'packages/runtime-hermes',name),'packages/runtime-hermes/'+name);
  for(const name of ['LICENSE','runtime-requirements.txt','RUNTIME_DEPENDENCIES.json','UPSTREAM_MANIFEST.json'])await add(join(third,name),'third-party/hermes-agent/'+name);
  for(const name of ['README.md','RUNTIME_PROTOCOL.md'])try{await add(join(third,name),'third-party/hermes-agent/'+name);}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
  for(const file of manifest.files)await add(child(join(third,'upstream'),file.path),'third-party/hermes-agent/upstream/'+file.path,file);

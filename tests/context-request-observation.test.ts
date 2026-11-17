@@ -6,6 +6,7 @@ import { Service } from '../packages/core/service';
 import { Store } from '../packages/storage/store';
 import { capabilityEnabled, M04_FLAG_KEYS, __setCapabilityFlagForTests } from '../packages/core/capability-flags';
 import type { RequestContextV1, RuntimeAdapter, RuntimeCallbacks } from '../packages/contracts';
+import { createInferenceBudgetLedger } from '../packages/runtime-hermes/context-budget';
 
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const close of cleanup.splice(0)) await close(); });
@@ -28,16 +29,33 @@ it('only projects minimal, current request observations under the host flag', as
     ...ctx, type: 'context.request', sequence, promptBytes: 13, knownInputs: 1, provider: 'hermes', rawText: 'synthetic private text', ...patch,
   });
   const observed = () => (store.get<{ value: { lastRequest?: unknown } }>('usage', ctx.threadId)?.value)?.lastRequest;
+  const budget = createInferenceBudgetLedger(null).preview({ sequence: 4, inputIds: ['input'], phase: 'foreground' }, 13);
+  const observedBudget = () => store.get<{ value: { inferenceBudget?: unknown } }>('usage', ctx.threadId)?.value?.inferenceBudget;
   expect(M04_FLAG_KEYS.map(key => capabilityEnabled(key))).toEqual([false, false, false, false]);
   emit(1);
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget });
   expect(observed()).toBeUndefined();
+  expect(observedBudget()).toBeUndefined();
   __setCapabilityFlagForTests('context.compilerV1', true);
+  callbacks.onEvent({ ...ctx, epoch: 3, type: 'context.budget', provider: 'hermes', budget });
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget: { ...budget, rawText: 'synthetic private text' } });
+  expect(observedBudget()).toBeUndefined();
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget });
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget: { ...budget, sequence: 3 } });
+  callbacks.onEvent({ ...ctx, type: 'usage', usage: { inferenceBudget: { rawText: 'synthetic private text' } } });
+  expect(observedBudget()).toEqual({ ...ctx, budget });
   emit(4, { epoch: 3 }); expect(observed()).toBeUndefined();
   emit(4, { promptBytes: -1 }); expect(observed()).toBeUndefined();
   emit(4); emit(3);
   expect(observed()).toEqual({ ...ctx, sequence: 4, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' });
   callbacks.onEvent({ ...ctx, type: 'usage', usage: { lastRequest: { rawText: 'synthetic private text' } } });
   expect(observed()).toMatchObject({ sequence: 4, promptBytes: 13 });
+  const nativeSources = { source: 'ORIGINAL_ACP_MESSAGES', measurement: 'BYTE_ONLY', generation: 1, revisionDigest: 'a'.repeat(64), change: 'RESET', sourceCount: 1, sourceBytes: 30,
+    reusedSources: 0, compiledSources: 1, inspectedSources: 1, newToolResults: null, newToolResultBytes: null,
+    sources: [{ category: 'USER', sourceId: 'native:1:0', sourceRevision: 1, utf8Bytes: 30, sha256: 'b'.repeat(64) }], omittedSources: 0 };
+  emit(5, { nativeSources }); expect(observed()).toMatchObject({ sequence: 5, nativeSources, visibility: 'OPAQUE_NATIVE_CONTEXT' });
+  emit(6, { nativeSources: { ...nativeSources, rawText: 'synthetic private text' } });
+  expect(observed()).toMatchObject({ sequence: 6, nativeSourcesUnavailable: 'UNSUPPORTED_SOURCE' }); expect(observed()).not.toHaveProperty('nativeSources');
   expect(JSON.stringify(store.eventsAfter(0))).not.toContain('synthetic private text');
 });
 

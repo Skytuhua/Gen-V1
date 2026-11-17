@@ -32,6 +32,12 @@ COMMIT = "c627ec84664d43e0b18b95d9d86d8963747d56c7"
 CHECKPOINT_SPEC = importlib.util.spec_from_file_location("harness_memory_checkpoint", ROOT / "packages/runtime-hermes/memory_checkpoint.py")
 CHECKPOINT = importlib.util.module_from_spec(CHECKPOINT_SPEC)
 CHECKPOINT_SPEC.loader.exec_module(CHECKPOINT)
+CONTEXT_SPEC = importlib.util.spec_from_file_location("harness_context_capture", ROOT / "packages/runtime-hermes/context_capture.py")
+CONTEXT = importlib.util.module_from_spec(CONTEXT_SPEC)
+CONTEXT_SPEC.loader.exec_module(CONTEXT)
+COMPACTION_SPEC = importlib.util.spec_from_file_location("harness_compaction_protection", ROOT / "packages/runtime-hermes/compaction_protection.py")
+COMPACTION = importlib.util.module_from_spec(COMPACTION_SPEC)
+COMPACTION_SPEC.loader.exec_module(COMPACTION)
 MAX_FRAME_BYTES = 32 * 1024 * 1024
 BUNDLED_INTEGRATIONS = frozenset({"humanizer", "emil", "impeccable", "graphify", "promptfoo", "biome", "superpowers", "spec-kit", "context7", "ponytail"})
 class SourceConflictError(RuntimeError):
@@ -98,6 +104,7 @@ class Worker:
         self.followups = {}
         self.native_usage = []
         self.transport_sequence = 0
+        self.context_capture = CONTEXT.NativeContextCapture()
         self.session_key = None
         self.foreground_active = False
         self.active_owner = False
@@ -115,6 +122,7 @@ class Worker:
         self.integration_revocations = {}
         self.integration_revision = 0
         self.memory_checkpoint_capability = None
+        self.compaction_protection_capability = None
 
     def guard_home(self):
         """Application namespace guard; original source is not an OS sandbox."""
@@ -154,7 +162,7 @@ class Worker:
 
     def host_call(self, name, args):
         call_id = uuid.uuid4().hex
-        deadline = time.monotonic() + 15 if name == "$memory.checkpoint" else None
+        deadline = time.monotonic() + 15 if name in ("$memory.checkpoint", "$context.compaction.commit") else None
         result = queue.Queue(maxsize=1)
         with self.pending_lock:
             self.pending[call_id] = result
@@ -170,7 +178,7 @@ class Worker:
                     if self.cancelled.is_set():
                         raise RuntimeError("Host call cancelled")
                     if deadline is not None and time.monotonic() >= deadline:
-                        raise RuntimeError("Required memory checkpoint timed out")
+                        raise RuntimeError("Required memory checkpoint timed out" if name == "$memory.checkpoint" else "Required native compaction admission timed out")
         finally:
             with self.pending_lock:
                 self.pending.pop(call_id, None)
@@ -262,7 +270,11 @@ class Worker:
                             name = fn.get("name")
                             return isinstance(name, str) and (name not in worker.host_names or name in admitted)
                         kwargs["tools"] = [tool for tool in tools if in_view(tool)]
-                worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence})
+                context_cut = {}
+                capture = worker.params.get("contextCapture")
+                if worker.foreground_active and worker.current_ctx()["phase"] == "foreground" and isinstance(capture, dict) and capture.get("apiVersion") == 1:
+                    context_cut["nativeContextCut"] = worker.context_capture.capture(kwargs.get("messages"), capture.get("bindingDigest"), kwargs.get("tools"))
+                worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence, **context_cut})
                 response = super()._create_chat_completion(**kwargs)
                 usage = worker.host_call("$transport.usage", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
                 observation = worker.host_call("$transport.observation", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
@@ -299,6 +311,7 @@ class Worker:
         from tools.registry import registry
         self.Agent = AIAgent
         self.memory_checkpoint_capability = CHECKPOINT.native_checkpoint_capability(SOURCE, COMMIT, AIAgent)
+        self.compaction_protection_capability = COMPACTION.capability(SOURCE, COMMIT, AIAgent)
         self.registry = registry
         self.source_handlers = {}
         for name in ("skills_list", "skill_view", "skill_manage"):
@@ -312,7 +325,8 @@ class Worker:
         self.refresh_integrations(params.get("integrations") or {"enabled": [], "ponytailMode": "off"}, params.get("projectRoot"))
         self.ready = True
         return {"protocolVersion": 1, "sourceCommit": COMMIT, "pythonVersion": sys.version.split()[0],
-                "engineClass": "run_agent.AIAgent", "methods": METHODS, "memoryCheckpoint": self.memory_checkpoint_capability}
+                "engineClass": "run_agent.AIAgent", "methods": METHODS, "memoryCheckpoint": self.memory_checkpoint_capability,
+                "contextCapture": {"apiVersion": 1, "source": "original-acp-messages"}, "compactionProtection": self.compaction_protection_capability}
 
     def guard_skill(self, args, write=False):
         policy = getattr(self.library_context, "policy", None)
@@ -691,7 +705,7 @@ class Worker:
         return CHECKPOINT.native_memory_checkpoint(agent, params.get("memoryCheckpoint"), binding,
             lambda request: self.host_call("$memory.checkpoint", request), current, self.memory_checkpoint_capability)
 
-    def save_session(self):
+    def save_session(self, committed=None):
         self.guard_home()
         path = self.params.get("sessionPath")
         if path:
@@ -700,7 +714,26 @@ class Worker:
                 "identity": self.agent_identity, "sessionId": self.agent.session_id if self.agent else None,
                 "ownership": self.history_ownership(self.params),
                 "messages": self.history})
+            if committed is not None:
+                committed()
             self.guard_home()
+
+    def native_compaction(self, params, messages):
+        agent, context = self.agent, copy.deepcopy(self.ctx)
+        binding = {"threadId": (self.ctx or {}).get("threadId"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+        if params.get("compactionProtection") is not None:
+            maintenance = params.get("compactionContext")
+            # The retained conversation ctx remains the native session owner.
+            # This distinct host context owns only the protected maintenance.
+            if not isinstance(maintenance, dict) or set(maintenance) != {"threadId", "runId", "epoch"} or maintenance.get("threadId") != binding["threadId"] or type(maintenance.get("epoch")) is not int:
+                raise COMPACTION.ProtectionError("SOURCE_MISMATCH")
+            binding.update({"runId": maintenance["runId"], "epoch": maintenance["epoch"]})
+        def current():
+            if self.agent is not agent or self.ctx != context or not self.active_owner or self.cancelled.is_set() or self.current_ctx().get("phase") != "foreground":
+                raise COMPACTION.ProtectionError("HOST_REVOKED")
+            self.guard_home()
+        return COMPACTION.protect(agent, params.get("compactionProtection"), messages, self.params.get("sessionPath"), binding, current,
+            lambda request: self.host_call("$context.compaction.commit", request), self.compaction_protection_capability)
 
     @staticmethod
     def binding_identity(params):
@@ -1288,11 +1321,36 @@ class Worker:
                 if getattr(self.agent, "client", None):
                     self.agent.client.close()
                 before = copy.deepcopy(self.history)
-                with self.native_checkpoint(params):
-                    messages, _ = self.agent._compress_context(copy.deepcopy(before), self.agent._cached_system_prompt or "", force=True)
-                self.history = messages
-                self.save_session()
-                return {"messages": messages, "compacted": messages != before, "usage": list(self.native_usage)}
+                protection = None
+                try:
+                    with self.native_checkpoint(params), self.native_compaction(params, before) as protection:
+                        messages, _ = self.agent._compress_context(copy.deepcopy(before), self.agent._cached_system_prompt or "", force=True)
+                        if protection is not None:
+                            protection.ready_for_application(messages)
+                            # No SessionDB was introduced. The original worker's
+                            # native session file remains the active transcript.
+                            self.history = messages
+                            def committed():
+                                protection.committed, protection.active_messages = True, copy.deepcopy(messages)
+                            try:
+                                self.save_session(committed)
+                            except Exception:
+                                if not protection.committed:
+                                    self.history = before
+                                    raise
+                                # The atomic native session write returned. A
+                                # later custody failure cannot undo that fact.
+                except COMPACTION.ProtectionError as failure:
+                    if protection is None:
+                        raise
+                    protection.reason = failure.reason
+                    messages = before
+                if protection is not None:
+                    messages = protection.active_messages if protection.committed else before
+                else:
+                    self.history = messages
+                    self.save_session()
+                return {"messages": messages, "compacted": messages != before, "usage": list(self.native_usage), **({"protection": protection.receipt()} if protection is not None else {})}
             finally:
                 with self.state_lock:
                     self.active_owner = False

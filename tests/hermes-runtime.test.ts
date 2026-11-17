@@ -5,6 +5,7 @@ import {join} from 'node:path';
 import {spawn} from 'node:child_process';
 import type {RuntimeAdapter,RuntimeCallbacks,RuntimeEvent,StartRun} from '../packages/contracts/index.ts';
 import type {MemoryCheckpointAckV1,MemoryCheckpointRequestV1} from '../packages/contracts/memory-checkpoint.ts';
+import {NATIVE_COMPACTION_CAPABILITY,nativeCompactionPlanSchema,type NativeCompactionOwnerV1,type NativeCompactionPlanV1,type NativeCompactionEnvelopeV1,type NativeCompactionReceiptV1,type NativeCompactionAckV1} from '../packages/contracts/native-compaction.ts';
 import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} from '../packages/runtime-hermes/index.ts';
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
@@ -42,11 +43,59 @@ it('passes only a matching idle receipt through the optional host channel and re
 });
 
 const run=(extra:Partial<StartRun>={}):StartRun=>({threadId:'thread',runId:'run',epoch:1,inputId:'input',modelId:'openai/model',accountId:null,sessionPath:null,prompt:'Original user prompt',resources:[],...extra});
-async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapability?:unknown){
+it('awaits the current host owner at actual foreground dispatch and refuses a late admission after settlement',async()=>{
+ __setCapabilityFlagForTests('context.compilerV1',true);
+ const f=await fixture();let release!:()=>void;const admit=vi.fn(()=>new Promise<void>(done=>{release=done;}));
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onBeforeInference:admit});
+ try{
+  await f.runtime.start(run());expect(admit).not.toHaveBeenCalled();
+  f.event('model_request',{sequence:1,inputIds:['input']});expect(admit).not.toHaveBeenCalled();
+  const response=fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Actual flattened request'})});
+  await vi.waitFor(()=>expect(admit).toHaveBeenCalledExactlyOnceWith({ctx:{threadId:'thread',runId:'run',epoch:1},modelId:'openai/model',accountId:null,thinkingLevel:null,sequence:1,inputIds:['input']}));
+  expect(f.natives).toHaveLength(0);f.event('foreground_settled',{text:'Owner completed'});release();
+  expect((await response).status).toBe(400);expect(f.natives).toHaveLength(0);await f.settle();
+ }finally{release?.();__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
+});
+it('requires the host admission callback when foreground context coordination is enabled',async()=>{
+ __setCapabilityFlagForTests('context.compilerV1',true);const f=await fixture();
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>({})});
+ try{
+  await f.runtime.start(run());f.event('model_request',{sequence:1,inputIds:['input']});let status:number|undefined;
+  const response=fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Actual flattened request'})}).then(value=>{status=value.status;return value;});
+  await vi.waitFor(()=>expect(status!==undefined||f.natives[0]?.input!==undefined).toBe(true));
+  if(f.natives[0]?.input)f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'settled'});
+  expect((await response).status).toBe(400);expect(f.natives).toHaveLength(0);await f.settle();
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
+});
+it('compiles an owned native source delta only at its real broker request and preserves opaque provider context',async()=>{
+ __setCapabilityFlagForTests('context.compilerV1',true);
+ const f=await fixture({},undefined,{apiVersion:1,source:'original-acp-messages'}),hash=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+ try{
+  await f.runtime.start(run());const capture=f.start().contextCapture as {apiVersion:number;bindingDigest:string};expect(capture.apiVersion).toBe(1);
+  const sources=[{sequence:0,id:'native:1:0',revision:1,category:'SYSTEM',utf8Bytes:20,sha256:hash('native system')},{sequence:1,id:'native:1:1',revision:1,category:'USER',utf8Bytes:30,sha256:hash('native user')}],schemaDigest='e'.repeat(64);
+  const cut={version:1,status:'AVAILABLE',bindingDigest:capture.bindingDigest,schemaDigest,generation:1,previousDigest:null,revisionDigest:hash([capture.bindingDigest,schemaDigest,1,sources.map(source=>[source.sha256,source.utf8Bytes,source.category])]),sourceCount:2,sourceBytes:50,reusedSources:0,inspectedSources:2,sources,change:'RESET',newToolResults:null,newToolResultBytes:null};
+  f.event('model_request',{sequence:1,inputIds:['input'],nativeContextCut:cut});expect(f.events.some(event=>event.type==='context.request')).toBe(false);
+  const post=()=>fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Opaque actual broker input'})});
+  const first=post();await vi.waitFor(()=>expect(f.natives[0]?.input).toBeDefined());
+  expect(f.events.find(event=>event.type==='context.request')).toMatchObject({sequence:1,promptBytes:26,nativeSources:{source:'ORIGINAL_ACP_MESSAGES',reusedSources:0,compiledSources:2}});
+  expect(f.natives[0].input.prompt).toBe('Opaque actual broker input');expect(f.natives[0].input).not.toHaveProperty('nativeContextCut');
+  f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'usage',usage:{inputTokens:12,outputTokens:9,cacheReadTokens:80,contextTokens:5000,contextWindow:10000}});
+  f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'settled'});expect((await first).status).toBe(200);
+  const tool={sequence:2,id:'native:1:2',revision:1,category:'TOOL',utf8Bytes:40,sha256:hash('native tool')},all=[...sources,tool];
+  const next={...cut,previousDigest:cut.revisionDigest,revisionDigest:hash([capture.bindingDigest,schemaDigest,1,all.map(source=>[source.sha256,source.utf8Bytes,source.category])]),sourceCount:3,sourceBytes:90,reusedSources:2,inspectedSources:3,sources:[tool],change:'APPEND',newToolResults:1,newToolResultBytes:40};
+  f.event('model_request',{sequence:2,inputIds:['input'],nativeContextCut:next});const second=post();await vi.waitFor(()=>expect(f.natives[1]?.input).toBeDefined());
+  expect(f.events.filter(event=>event.type==='context.request').at(-1)).toMatchObject({sequence:2,nativeSources:{sourceCount:3,reusedSources:2,compiledSources:1,newToolResultBytes:40}});
+  expect(f.events.filter(event=>event.type==='context.budget').at(-1)).toMatchObject({provider:'hermes',budget:{sequence:2,measurement:'BYTE_ONLY',sourceContinuity:'VERIFIED',newSourceBytes:40,newToolResultBytes:40,newToolResults:1,previousRequest:{sequence:1,inputTokens:12,cacheReadTokens:80,reportedContextTokens:5000},normalizedInputTokens:null,reservedOutputTokens:null,requiredTokens:null}});
+  f.natives[1].callbacks.onEvent({...f.natives[1].input,type:'settled'});expect((await second).status).toBe(200);
+  expect(()=>f.event('model_request',{sequence:3,inputIds:['input'],nativeContextCut:{...next,bindingDigest:'f'.repeat(64)}})).toThrow('native context cut');
+  await f.settle();
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
+});
+async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapability?:unknown,contextCapability?:unknown,compactionCapability?:unknown){
  const dataDir=await mkdtemp(join(tmpdir(),'hermes-runtime-')),events:RuntimeEvent[]=[],sourceEvents:HermesEvent[]=[],sources:{options:ConstructorParameters<typeof HermesClient>[0];calls:{method:string;params:Record<string,unknown>}[];client:HermesSourceClient}[]=[],natives:{callbacks:RuntimeCallbacks;input:StartRun;runtime:RuntimeAdapter}[]=[];
  const accounts={get:()=>null,claimUse:vi.fn(()=>({id:'lease',nonce:'nonce'})),releaseUse:vi.fn()},catalog:RuntimeAdapter={configure(){},models:vi.fn(async()=>[]),start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:vi.fn(async()=>['old-receipt']),dispose:vi.fn(async()=>{})};
- const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
- runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true}))});
+ const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability}),...(contextCapability===undefined?{}:{contextCapture:contextCapability}),...(compactionCapability===undefined?{}:{compactionProtection:compactionCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
+ runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true})),onBeforeInference:()=>{}});
  const source=()=>sources.at(-1)!,start=()=>source().calls.filter(call=>call.method==='agent.start').at(-1)!.params;
  const event=(name:string,data:Record<string,unknown>={},phase='foreground')=>source().options.onEvent?.({event:name,ctx:{...(start().ctx as Record<string,unknown>),phase},data});
  const settle=async(data:Record<string,unknown>={})=>{event('foreground_settled',data);event('settled',data);await vi.waitFor(()=>expect(runtime.reviewBusy).toBe(false));};
@@ -406,4 +455,159 @@ it('admits the real repository-map schema only at the next frozen native request
   expect(onTool).toHaveBeenCalledWith({name:'repository_map',args},expect.objectContaining({threadId:'thread',runId:'run',epoch:1}));
   await f.settle();
  }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);__setCapabilityFlagForTests('tools.deferredV1',undefined);await f.runtime.dispose();}
+});
+
+const protectedMaintenance={threadId:'thread',runId:'protected-maintenance',epoch:2};
+function protectedEnvelope(owner:Partial<NativeCompactionOwnerV1>={}):NativeCompactionEnvelopeV1 {
+ const plan:NativeCompactionPlanV1={version:1,candidateId:'protected-candidate',owner:{...protectedMaintenance,workspaceId:'workspace',modelId:'openai/model',accountId:null,generation:1,instructionDigest:'b'.repeat(64),toolRegistryDigest:'c'.repeat(64),...owner},
+  sourceSha256:'d'.repeat(64),retainedIndices:[0,1],references:[],maxRetainedBytes:65536};
+ return{plan,planDigest:createHash('sha256').update(JSON.stringify(plan)).digest('hex')};
+}
+function protectedReceipt(envelope:NativeCompactionEnvelopeV1):NativeCompactionReceiptV1 {
+ return{version:1,candidateId:envelope.plan.candidateId,planDigest:envelope.planDigest,sourceSha256:envelope.plan.sourceSha256,status:'APPLIED',
+  archiveRef:'native-archive:'+envelope.plan.sourceSha256,archiveSha256:envelope.plan.sourceSha256,retainedBytes:256,protectedRecords:envelope.plan.retainedIndices.length,
+  referenceCount:envelope.plan.references.length,toolPairs:0,beforeBytes:10000,afterBytes:1000,summarySha256:'e'.repeat(64),reason:null};
+}
+function protectedSource(f:Awaited<ReturnType<typeof fixture>>,envelope:NativeCompactionEnvelopeV1,options:{
+ historySha256?:string;waitForHistory?:()=>Promise<void>;commitPatch?:Record<string,unknown>;receipt?:Partial<NativeCompactionReceiptV1>;skipCommit?:boolean;
+}={}){
+ const previous=f.source().client.request.bind(f.source().client),state={calls:[] as Record<string,unknown>[],historyReads:0,applied:0};
+ f.source().client.request=async<T>(method:string,params:Record<string,unknown>={})=>{
+  if(method==='agent.history'){
+   state.historyReads++;await options.waitForHistory?.();
+   return{historySha256:options.historySha256??envelope.plan.sourceSha256,messages:[{role:'user',content:'required'},{role:'assistant',content:'tail'}]} as T;
+  }
+  if(method==='agent.compact'){
+   state.calls.push(params);const captured=params.compactionProtection as NativeCompactionEnvelopeV1;
+   if(!options.skipCommit)await f.source().options.onHostCall!({id:'protected-commit',name:'$context.compaction.commit',args:{version:1,candidateId:captured.plan.candidateId,planDigest:captured.planDigest,sourceSha256:captured.plan.sourceSha256,...options.commitPatch},ctx:f.start().ctx as Record<string,unknown>});
+   const receipt={...protectedReceipt(captured),...options.receipt},compacted=receipt.status==='APPLIED';
+   if(compacted)state.applied++;
+   return{compacted,protection:receipt} as T;
+  }
+  return previous<T>(method,params);
+ };
+ return state;
+}
+const admitProtection=(request:Parameters<NonNullable<RuntimeCallbacks['onCompactionCommit']>>[0]):NativeCompactionAckV1=>({version:1,accepted:true,planDigest:request.planDigest});
+function protectedCallbacks(f:Awaited<ReturnType<typeof fixture>>,admit:NonNullable<RuntimeCallbacks['onCompactionCommit']>=admitProtection){
+ const onTool=vi.fn(async()=>({}));f.runtime.configure({onEvent:event=>f.events.push(event),onTool,onCompactionCommit:admit});return onTool;
+}
+it('routes protected compaction through the production pool with distinct source and maintenance identities',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection),onTool=protectedCallbacks(f,admit);
+ try{
+  await f.runtime.start(run());const source=f.start();await f.settle();const scripted=protectedSource(f,envelope);
+  const receipt=await f.runtime.compactProtected!(protectedMaintenance,source.sessionPath as string,'openai/model',null,envelope);
+  expect(scripted.calls).toEqual([expect.objectContaining({ctx:source.ctx,compactionContext:protectedMaintenance,compactionProtection:envelope,expectedHistorySha256:envelope.plan.sourceSha256})]);
+  expect(scripted.historyReads).toBe(1);expect(scripted.applied).toBe(1);expect(admit).toHaveBeenCalledOnce();expect(onTool).not.toHaveBeenCalled();
+  expect(admit.mock.calls[0][0]).toEqual({version:1,candidateId:envelope.plan.candidateId,planDigest:envelope.planDigest,sourceSha256:envelope.plan.sourceSha256,owner:envelope.plan.owner});
+  expect(receipt).toEqual(protectedReceipt(envelope));
+  expect(f.events).toContainEqual(expect.objectContaining({type:'compaction.end',runId:protectedMaintenance.runId,epoch:protectedMaintenance.epoch,aborted:false}));
+ }finally{await f.runtime.dispose();}
+});
+it.each([undefined,{...NATIVE_COMPACTION_CAPABILITY,apiVersion:2}])('rejects protected compaction with unavailable native capability %j before native dispatch',async capability=>{
+ const f=await fixture({},undefined,undefined,capability),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toMatchObject({code:'HERMES_COMPACTION_UNSUPPORTED'});
+  expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);expect(admit).not.toHaveBeenCalled();expect(f.accounts.claimUse).toHaveBeenCalledOnce();
+ }finally{await f.runtime.dispose();}
+});
+it('requires private host admission even when the source advertises protection',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,protectedEnvelope())).rejects.toMatchObject({code:'HERMES_COMPACTION_UNSUPPORTED'});
+  expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it.each([{threadId:'other'},{runId:'other'},{epoch:3},{modelId:'other/model'},{accountId:'other'}] satisfies Partial<NativeCompactionOwnerV1>[])('rejects a protected plan with the wrong admitted owner %j',async owner=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY);protectedCallbacks(f);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,protectedEnvelope(owner))).rejects.toMatchObject({code:'HERMES_COMPACTION_OWNER'});
+  expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it('captures the protected plan and maintenance context before asynchronous admission',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),expected=structuredClone(envelope),ctx={...protectedMaintenance},admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope);
+  const work=f.runtime.compactProtected!(ctx,path,'openai/model',null,envelope);
+  envelope.plan.owner.workspaceId='changed';envelope.plan.owner.runId='changed';envelope.planDigest='f'.repeat(64);ctx.runId='changed';
+  expect(await work).toEqual(protectedReceipt(expected));expect(scripted.calls[0].compactionProtection).toEqual(expected);
+  expect(scripted.calls[0].compactionContext).toEqual(protectedMaintenance);expect(admit.mock.calls[0][0].owner).toEqual(expected.plan.owner);
+ }finally{await f.runtime.dispose();}
+});
+it.each([{candidateId:'other'},{planDigest:'f'.repeat(64)},{sourceSha256:'f'.repeat(64)}])('rejects a mismatched private native commit %j before host admission',async commitPatch=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope,{commitPatch});
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toMatchObject({code:'HERMES_COMPACTION_OWNER'});
+  expect(scripted.historyReads).toBe(0);expect(scripted.applied).toBe(0);expect(admit).not.toHaveBeenCalled();
+ }finally{await f.runtime.dispose();}
+});
+it('rechecks the original native history digest at the commit boundary',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope,{historySha256:'f'.repeat(64)});
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toMatchObject({code:'HERMES_COMPACTION_MISMATCH'});
+  expect(scripted.applied).toBe(0);expect(admit).not.toHaveBeenCalled();expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it.each(['rejected','unconfirmed'])('keeps native history unchanged after %s host commit admission',async outcome=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope();
+ protectedCallbacks(f,request=>{if(outcome==='rejected')throw Error('Host source references changed');return{...admitProtection(request),accepted:false} as unknown as NativeCompactionAckV1;});
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope);
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toThrow();
+  expect(scripted.applied).toBe(0);expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it.each(['ARCHIVE_FAILED','NO_REDUCTION'] as const)('preserves the explicit native refusal %s without successful settlement',async reason=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope,{skipCommit:true,receipt:{status:'REFUSED',archiveRef:null,archiveSha256:null,afterBytes:null,summarySha256:null,reason}});
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toThrow(reason);
+  expect(scripted.applied).toBe(0);expect(admit).not.toHaveBeenCalled();expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it.each([{archiveRef:null},{archiveSha256:null},{afterBytes:10000},{protectedRecords:1},{summarySha256:null}] satisfies Partial<NativeCompactionReceiptV1>[])('does not report application from an invalid native proof %j',async receipt=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope();protectedCallbacks(f);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();protectedSource(f,envelope,{receipt});
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toMatchObject({code:'HERMES_COMPACTION_UNCONFIRMED'});
+  expect(f.events.some(event=>event.type==='compaction.end'||event.type==='settled'&&event.runId===protectedMaintenance.runId)).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it('does not accept a successful source result that bypassed the private commit callback',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();protectedSource(f,envelope,{skipCommit:true});
+  await expect(f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope)).rejects.toMatchObject({code:'HERMES_COMPACTION_UNCONFIRMED'});
+  expect(admit).not.toHaveBeenCalled();expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{await f.runtime.dispose();}
+});
+it('revokes protected admission when cancelled during the native source recheck',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection);protectedCallbacks(f,admit);
+ let release!:()=>void,reading=false;const held=new Promise<void>(done=>{release=done;});let work:Promise<NativeCompactionReceiptV1>|undefined,cancelling:Promise<void>|undefined;
+ try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();const scripted=protectedSource(f,envelope,{waitForHistory:async()=>{reading=true;await held;}});
+  work=f.runtime.compactProtected!(protectedMaintenance,path,'openai/model',null,envelope);void work.catch(()=>{});
+  await vi.waitFor(()=>expect(reading).toBe(true));cancelling=f.runtime.cancel(protectedMaintenance);release();
+  await expect(work).rejects.toThrow();await cancelling;
+  expect(scripted.applied).toBe(0);expect(admit).not.toHaveBeenCalled();expect(f.events.some(event=>event.type==='compaction.end')).toBe(false);
+ }finally{release();await work?.catch(()=>{});await cancelling?.catch(()=>{});await f.runtime.dispose();}
+});
+
+it('does not grant private compaction admission to a foreground source tool call',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),envelope=protectedEnvelope(),admit=vi.fn(admitProtection),onTool=protectedCallbacks(f,admit);
+ try{await f.runtime.start(run());const source=f.start();
+  await expect(f.source().options.onHostCall!({id:'forged-protected-call',name:'$context.compaction.commit',args:{version:1,candidateId:envelope.plan.candidateId,planDigest:envelope.planDigest,sourceSha256:envelope.plan.sourceSha256},ctx:source.ctx as Record<string,unknown>})).rejects.toMatchObject({code:'HERMES_COMPACTION_OWNER'});
+  expect(admit).not.toHaveBeenCalled();expect(onTool).not.toHaveBeenCalled();await f.settle();
+ }finally{await f.runtime.dispose();}
+});
+it('keeps protected native compaction unavailable to a read-only task engine',async()=>{
+ const f=await fixture({},undefined,undefined,NATIVE_COMPACTION_CAPABILITY),child=f.runtime.createTaskRuntime(),admit=vi.fn(admitProtection);
+ child.configure({onEvent:event=>f.events.push(event),onTool:async()=>({}),onCompactionCommit:admit});
+ try{await child.start(run());const source=f.start();await f.settle();
+  await expect(child.compactProtected!(protectedMaintenance,source.sessionPath as string,'openai/model',null,protectedEnvelope())).rejects.toMatchObject({code:'HERMES_COMPACTION_UNSUPPORTED'});
+  expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);expect(admit).not.toHaveBeenCalled();
+ }finally{await child.dispose();await f.runtime.dispose();}
+});
+
+it('preserves opaque source evidence revisions while approvals still require integer revisions',()=>{
+ const plan=protectedEnvelope().plan;
+ plan.references=[{kind:'SOURCE_EVIDENCE',id:'capture:source',revision:'captured-file-revision-7',digest:'e'.repeat(64)}];
+ expect(nativeCompactionPlanSchema.parse(plan).references).toEqual(plan.references);
+ expect(nativeCompactionPlanSchema.safeParse({...plan,references:[{...plan.references[0],kind:'PENDING_APPROVAL'}]}).success).toBe(false);
+ expect(nativeCompactionPlanSchema.safeParse({...plan,references:[{...plan.references[0],revision:'x'.repeat(201)}]}).success).toBe(false);
 });
