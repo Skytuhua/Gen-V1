@@ -724,7 +724,9 @@ export class Service {
       const thread=this.thread(command.threadId!),mode=p.mode;
       if(mode!=='FRESH_VERIFICATION_BROWSER'&&mode!=='CONSENTED_EXISTING_TAB'&&mode!=='SELECTED_DESKTOP_APPLICATION')throw new HarnessError('INVALID_INPUT','Choose a control mode.');
       const owner={threadId:thread.id,runId:null,epoch:thread.epoch,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null,accountBinding:thread.accountId??null};
-      const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations:Array.isArray(p.operations)?(p.operations as ('CLICK'|'TYPE'|'KEYPRESS'|'UPLOAD'|'DOWNLOAD'|'NAVIGATE')[]):[],allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
+      const OPS=['CLICK','TYPE','KEYPRESS','UPLOAD','DOWNLOAD','NAVIGATE'] as const;
+      const operations=Array.isArray(p.operations)?p.operations.filter((o):o is (typeof OPS)[number]=>typeof o==='string'&&(OPS as readonly string[]).includes(o)):[];
+      const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations,allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
       return {consent:request,control:this.controlConsent.surfaceModel(thread.id)};
     });
     if(command.type==='control.stop')return this.store.command(command,()=>{
