@@ -1,5 +1,5 @@
 import {describe,it,expect,vi} from 'vitest';
-import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm,lstat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {EventEmitter} from 'node:events';
@@ -27,6 +27,22 @@ describe('installed subscription readiness',()=>{
 });
 
 describe('installed desktop verification custody',()=>{
+ it('creates a separate ordinary ownership receipt for the enabled phase before its native Save lease',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-phase-owner-')));
+  const owner={setup:join(root,'setup.exe'),setupSha256:'a'.repeat(64),installDirectory:join(root,'installed'),guid:'owned-installation'};
+  try{
+   await writeFile(join(root,'owner.json'),JSON.stringify(owner),{flag:'wx'});
+   const directory=await installedVerification.prepareInstalledMemoryPhaseDirectory(root,owner),receipt=join(directory,'owner.json');
+   const info=await lstat(receipt,{bigint:true});
+   expect(info.isFile()&&!info.isSymbolicLink()).toBe(true);expect(info.nlink).toBe(1n);
+   expect(JSON.parse(await readFile(receipt,'utf8'))).toEqual(owner);
+   const {prepareInstalledNativeSave}=await import('../scripts/installed-native-save.ts');
+   expect((await prepareInstalledNativeSave(directory)).directory.path).toBe(directory);
+   await expect(installedVerification.prepareInstalledMemoryPhaseDirectory(root,owner)).rejects.toMatchObject({code:'EEXIST'});
+   expect(JSON.parse(await readFile(receipt,'utf8'))).toEqual(owner);
+   expect(JSON.parse(await readFile(join(root,'owner.json'),'utf8'))).toEqual(owner);
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
  it('records installer exit separately from close and never copies child text into lifecycle evidence',()=>{
   const observe=(installedVerification as unknown as {observeOwnedProcess:(child:ChildProcess,phase:'installer',timeoutMs:number,clock:()=>number)=>{status:string;pid:number|null;spawnElapsedMs:number|null;exit:{elapsedMs:number;code:number|null;signal:string|null}|null;close:{elapsedMs:number;code:number|null;signal:string|null}|null;stdoutBytes:number;stderrBytes:number}}).observeOwnedProcess;
   expect(typeof observe).toBe('function');

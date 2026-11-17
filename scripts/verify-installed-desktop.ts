@@ -20,6 +20,18 @@ type ContentManifest={files:{path:string;bytes:number;sha256:string}[];bytes:num
 type FileIdentity={dev:string;ino:string;sha256:string};
 type OwnedCache={path:string;dev:string;ino:string;file:FileIdentity}|null;
 type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[];mode:InstalledMemoryMode};
+type InstalledVerificationOwner={setup:string;setupSha256:string;installDirectory:string;guid:string};
+
+/** Each separately launched memory phase owns a new evidence directory. */
+export async function prepareInstalledMemoryPhaseDirectory(ownedDirectory:string,owner:InstalledVerificationOwner):Promise<string>{
+ const parent=await lstat(ownedDirectory,{bigint:true});
+ if(!isAbsolute(ownedDirectory)||!parent.isDirectory()||parent.isSymbolicLink()||await realpath(ownedDirectory)!==ownedDirectory)throw Error('Installed memory evidence parent must be ordinary and canonical.');
+ const directory=join(ownedDirectory,'enabled-memory');await mkdir(directory);
+ // The native Save helper pins this existing ordinary receipt while it holds
+ // the root lease. Each phase must supply its own file, never a hard link.
+ await writeFile(join(directory,'owner.json'),JSON.stringify(owner,null,2),{flag:'wx',mode:0o600});
+ return directory;
+}
 const PREFLIGHT_TIMEOUT_MS=60000;
 const PREFLIGHT_PHASES=['script-start','registry-complete','shortcuts-complete','cache-complete','processes-complete','result-complete'] as const;
 type PreflightProgress={phase:typeof PREFLIGHT_PHASES[number];scriptElapsedMs:number};
@@ -441,7 +453,8 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   // Repeat the read-only preflight immediately before installation; never upgrade an existing user installation.
   assertClearInstallPreflight(await preflight('pre-install-recheck'));
   if(!sameIdentity(await identity(setup),setupIdentity))throw Error('Installer changed since verification began.');
-  await writeFile(join(ownedDirectory,'owner.json'),JSON.stringify({setup,setupSha256:setupIdentity.sha256,installDirectory,guid:nsisApplicationGuid(APP_ID)},null,2),{flag:'wx'});
+  const owner:InstalledVerificationOwner={setup,setupSha256:setupIdentity.sha256,installDirectory,guid:nsisApplicationGuid(APP_ID)};
+  await writeFile(join(ownedDirectory,'owner.json'),JSON.stringify(owner,null,2),{flag:'wx'});
   const sampleProgress=await createInstalledPathProgressSampler(installDirectory,expected.files).catch(()=>undefined);receipt.installerProgressSetup=sampleProgress?'ready':'unavailable';
   installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:1200000,rawTail:true,phase:'installer',sampleProgress,onObservation:value=>{receipt.installerObservation=value;}});
   if(!sameWindowsPath(await realpath(installDirectory),installDirectory))throw Error('Installer did not create the exact ordinary owned directory.');
@@ -463,7 +476,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   if(options.memoryEnabled){
    // Keep the default-off receipt and profile intact. The enabled phase owns
    // a separate, new profile and uses the production host environment path.
-   const enabledDirectory=join(ownedDirectory,'enabled-memory');await mkdir(enabledDirectory);
+   const enabledDirectory=await prepareInstalledMemoryPhaseDirectory(ownedDirectory,owner);
    const seed=await (await import('./installed-memory-retention.ts')).seedInstalledMemoryProfile(enabledDirectory),enabled:MemoryRetention={seed,observations:[],mode:'enabled'};
    receipt.memoryEnabled={version:1,scope:'Seeded disposable retained records in a separate installed profile with explicit production host activation and UI source opt-in. Proves review, pinned sources, deterministic consolidation, redacted native export, Forget and restart. No foreground recall/exclusion/send, automatic extraction, native checkpoint, live-provider evaluation or elapsed-retention purge proof.',seed,activation:{HARNESS_FLAG_MEMORY_PROJECT_V1:'true'},sourceConsent:'Disabled before launch; enabled only through the project-memory UI.',providerNetworkCalls:null,observations:enabled.observations};
    await launchInstalled(executable,enabledDirectory,1,receipt,ports,enabled);await launchInstalled(executable,enabledDirectory,2,receipt,ports,enabled);
