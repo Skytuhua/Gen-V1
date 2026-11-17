@@ -95,8 +95,8 @@ export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache,
     ['Machine', details.machine], ['Environment', details.environment], ['Working copy', details.workingCopy], ['Branch', details.branch],
     ['Runtime', details.runtime], ['Model', details.model], ['Reasoning', details.reasoning], ['Activity', details.activity],
     ['Last activity', details.lastActivity && <time dateTime={details.lastActivity.at}>{details.lastActivity.label}</time>],
-    ['Source / handoff', details.sourceHandoff], ['Parent', details.parent && (details.parent.title ? `${details.parent.title} (${details.parent.threadId})` : details.parent.threadId)],
-    ['Subagents', details.childCount !== undefined && Number.isSafeInteger(details.childCount) && details.childCount >= 0 ? String(details.childCount) : undefined],
+    ['Source / handoff', details.sourceHandoff], ['Parent', details.parent && (details.parent.title ? <span title={details.parent.threadId}>{details.parent.title}</span> : details.parent.threadId)],
+    ['Subagents', details.childCount !== undefined && Number.isSafeInteger(details.childCount) && details.childCount > 0 ? String(details.childCount) : undefined],
   ];
   const knownRows = rows.filter(([, value]) => value !== undefined && value !== null && value !== '');
 
