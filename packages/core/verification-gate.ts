@@ -295,6 +295,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     // all checks it produced, so one fresh PASS cannot hide a missing, stale
     // or unsettled sibling check. Advisory and audit-only evidence cannot
     // satisfy a reference even when its recorded outcome is PASS.
+    // Current executed failures are present evidence; their outcome is graded below.
     for (const ref of new Set(req.checkRefs)) {
       const checks = bound.filter(obs => match(obs, ref));
       const refExecutions = new Set(checks.map(executionKey));
@@ -305,7 +306,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
         missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
       else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
-        !checks.some(obs => obs.outcome === 'PASS' && canVerify(obs)))
+        !checks.some(obs => ['PASS', 'FAIL', 'BLOCKED', 'CANCELLED'].includes(obs.outcome) && canVerify(obs)))
         missing.push(`evidence for ${req.id} (${ref}) is indeterminate or missing`);
     }
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
