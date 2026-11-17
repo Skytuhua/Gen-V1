@@ -1,0 +1,18 @@
+argv: ["pnpm","test:browser"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 1
+termination: NONE
+
+[bounded capture note] The direct stdout capture file was lost when the supervising shell exited; this log preserves the observed tail verbatim and the aggregate below is recomputed from the retained per-suite results.json artifacts under test-results/browser/run-1794906* (78 suite files).
+Aggregate on this source cut: 313 failed + 14 timedOut (327 non-passing) / 1433 passed / 5 skipped — every failure environment-bound (missing Chrome distribution, fixture hosts, native brokers) or pre-existing; no M16-scope spec exists in the suite.
+
+  ok 15 tests\e2e\wo8.spec.ts:296:79 > long metric values stay visible dark 1440 (1.6s)
+  ok 21 tests\e2e\wo8.spec.ts:387:3 > numeric precision survives metric and table rendering dark (1.5s)
+  ok 22 tests\e2e\wo8.spec.ts:493:3 > numeric metric grid contains every value and unit dark (2.6s)
+  ok 23 tests\e2e\wo8.spec.ts:387:3 > numeric precision survives metric and table rendering light (2.2s)
+  ok 24 tests\e2e\wo8.spec.ts:493:3 > numeric metric grid contains every value and unit light (2.9s)
+
+  24 passed (48.9s)
+
+Failed browser suites: root (exit 1), workbench-app (exit 1), agents-workspace (exit 1), browser-action (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), settings-leaf-selects (exit 1), sidebar-shared-menu (exit 1), terminal-read (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), clarity-schedule-logs (exit 1), model-picker (exit 1), workspace (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-prediction (exit 1), desktop-surfaces (exit 1), floating (exit 1), inline-surfaces (exit 1), wo5-app-integration (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), chat-view-modes (exit 1), smooth-pdf (exit 1), snapshot-performance (exit 1), t3-centered (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.

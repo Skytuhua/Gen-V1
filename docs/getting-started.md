@@ -65,7 +65,7 @@ Open `http://127.0.0.1:4317`. The host binds to loopback; remote/multi-user host
 
 ## Connect a provider
 
-1. Open **Settings → Providers**.
+1. Open **Settings → Models & Accounts**.
 2. Add a local account label, then choose **Connect** for that account.
 3. Complete the provider's native browser or console flow.
 4. Check connection readiness, refresh models and choose an available model.
