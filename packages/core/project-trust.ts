@@ -148,8 +148,16 @@ export class ProjectTrustLedger {
     const prior = this.records.get(input.trustId)?.record;
     const record = await createProjectTrust({ ...input, revision: (prior?.revision ?? 0) + 1 });
     const envelope: TrustEnvelope = { version: 1, record, revokedAt: null };
+    const previous = this.records.get(record.trustId);
     this.records.set(record.trustId, Object.freeze(envelope));
-    this.persist(envelope);
+    try { this.persist(envelope); }
+    catch (error) {
+      if (this.records.get(record.trustId) === envelope) {
+        if (previous) this.records.set(record.trustId, previous);
+        else this.records.delete(record.trustId);
+      }
+      throw error;
+    }
     return record;
   }
   get(trustId: string): Readonly<TrustEnvelope> | null {
