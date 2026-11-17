@@ -62,3 +62,34 @@ A clause-by-clause re-audit found and fixed: S04 account-binding plus host-injec
 ## Publication
 
 LOCAL_ONLY. No push, PR, account change or force update was performed. Final commit SHA is reported in the task reply outside the committed artifacts.
+
+## Session 3 — continuation, base-integration attempt and re-verification
+
+A follow-on session of the same assigned task resumed custody of `agent/m10-v6` at `/home/piadmin/Gen-V1-m10-v6`. The duplicate-work search found this worktree/branch (HEAD `a8c85dcd`, clean tree) as the existing M10 task work — the same assigned names, so custody continued rather than duplicated. No other M10 owner exists. PR #355 remains the M12 bundle and was not touched.
+
+### R03 base-integration attempt
+
+- Captured `origin/main` at fetch: `33639138f1cca3a596cab6315b1518a799fea6a5` (80 commits ahead of merge-base `1c09d492`).
+- Working tree clean (0 entries); preserved HEAD `a8c85dcd0072a544793946fe1f4e9d5f3ec288a5`.
+- `git merge --no-commit --no-ff 33639138` → content conflicts in 3 files; per R03 the conflict paths and base/ours/theirs blob identities are recorded here and `git merge --abort` restored the clean task worktree (verified: status 0, HEAD `a8c85dcd`). The affected join is marked **HOLD_SOURCE_DRIFT**. No blanket ours/theirs or guessed replacement API was applied; no remote update occurred.
+
+| path | base (stage1) | ours (stage2) | theirs (stage3) |
+|---|---|---|---|
+| apps/server/server.ts | f47211cc6c67eb683241a368604c1e56d862908b | e8ccd884a21678405a348ea872eba6d26eee306c | 894473a7fbfc0d9e5879fb6982b7fcf40d902db6 |
+| apps/web/src/App.tsx | 6858a165c1fe566004d1de24b5661baf9b63b895 | 0ea78ad15b48ba9a011c8a1db2d80205f856ccb6 | 20833df2893d03b265498246c42e3771edd93eed |
+| packages/core/capability-flags.ts | 02783eb029b618f9bf1abe0b9f51ff8f5c27076a | 9026dda94544b6be171eacd8f01a94e3321b04ed | bb13ab52cfb8ff5c4cd6f3d8081087d61ad60460 |
+
+Conflict characterization: `capability-flags.ts` — adjacent-addition collision; ours adds `M10_FLAG_KEYS` union member + four host registry entries, theirs adds `M15_FLAG_KEYS` (`ui.sourceWorkbenchV1`), `M04FlagKey` union member and three m04 registry entries. `App.tsx` — ours wires the `background-work` editor option/drawer label inside `renderSplitRoot`; theirs rewrote the same expression (customDock layout, `onActiveViewsChange`, differing editor-option list). `server.ts` — whole-file conflict; ours restructured route registration for background routes while theirs refactored the file around the new M15 source-workbench routes. Resolution requires owner-level coordination, not a guess.
+
+### Re-verification on the unchanged cut (stages independent of the join)
+
+The aborted merge restored a byte-identical tree, so the prior `-final` gate receipts remain source-bound to this SHA. Fresh r3 receipts (separate ledger `receipts-r3.jsonl`, logs `*-r3.log`):
+
+- `pnpm build:widgets` exit 0
+- `pnpm exec vitest run tests/background-work-v3.test.ts --maxWorkers=1` exit 0 (31/31)
+- `pnpm exec vitest run tests/human-handoff-v3.test.ts --maxWorkers=1` exit 0 (11/11)
+- `pnpm exec vitest run tests/external-intake-v3.test.ts --maxWorkers=1` exit 0 (13/13)
+- `pnpm exec vitest run tests/background-contract-decisions-v6.test.ts --maxWorkers=1` exit 0 (5/5)
+- `pnpm typecheck` exit 0; `pnpm lint` exit 0 (543 sources, 0 violations); `pnpm build` exit 0
+
+Full `pnpm test` / `pnpm test:browser` outcomes are unchanged from the recorded `-final` receipts on this identical SHA (environmental failures: python3.14 absent, Chrome/Edge channels absent; not waived, not classified as passes). Milestone outcome remains **PARTIAL**: C1/C2/C3 deterministic phases PASS; C4 HOLD_SUPERVISOR; C5 HOLD_FORK_API; base join HOLD_SOURCE_DRIFT; platform/live gates unmet. Production flags remain false; reviewerApproval remains false.
