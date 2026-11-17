@@ -13,6 +13,7 @@ import { PLANNING_TOOLS } from "./planning-tools.ts";
 import { toolSchemas } from "../capabilities/schemas.ts";
 import { z } from "zod";
 import { CONTEXT_RESULT_READ } from "./context-result-tool.ts";
+import { REPOSITORY_MAP } from "./repository-map-tool.ts";
 import { digest } from "../storage/store.ts";
 
 /** Where a call's effect is executed. "internal" bindings only mutate the
@@ -58,6 +59,7 @@ const CLASSIFICATION: Row[] = [
   ["harness_session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["integration_list", "READ", "READ_RETRYABLE", RUN, "network", "none"],
   ["integration_call", "NETWORK_WRITE", "PROVIDER_IDEMPOTENT", RUN, "network", "explicit"],
+  ["repository_map", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["repository_files", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_read", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_status", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
@@ -74,7 +76,7 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
-  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ].find(tool => tool.name === name);
+  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
   if (schema) return z.toJSONSchema(schema) as Record<string, unknown>;

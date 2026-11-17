@@ -9,6 +9,23 @@ import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} f
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
+import {createHash} from 'node:crypto';
+import {projectContextGrantDigest} from '../packages/core/approved-project-context.ts';
+import {REPOSITORY_MAP} from '../packages/core/repository-map-tool.ts';
+
+it('passes owned project instruction bytes only through the native system prefix and rejects changed active-turn instructions',async()=>{
+ const f=await fixture({systemPrompt:'Host policy'}),input=run(),text='\nApproved project instructions: preserve the API.';
+ const context=(value:string):NonNullable<StartRun['approvedProjectContext']>=>({version:1,owner:{threadId:input.threadId,runId:input.runId,epoch:input.epoch,modelId:input.modelId,accountId:null},grantDigest:projectContextGrantDigest(input.resources),instructionText:value,instructionDigest:createHash('sha256').update(value).digest('hex'),instructions:{entries:[],duplicates:[],overlaps:[],exclusions:[],omittedRoots:0,precedence:'fixture'}});
+ try{
+  const approvedProjectContext=context(text);await f.runtime.start({...input,approvedProjectContext});
+  expect(f.start().systemPrompt).toBe('Host policy'+text);expect(f.start().prompt).not.toContain(text);
+  await f.runtime.followUp({...input,inputId:'next',approvedProjectContext});
+  const before=f.source().calls.filter(call=>call.method==='agent.followUp').length;
+  await expect(f.runtime.followUp({...input,inputId:'changed',approvedProjectContext:context(text+' Changed.')})).rejects.toMatchObject({code:'STALE_REQUEST_CONTEXT'});
+  await expect(f.runtime.followUp({...input,inputId:'forged',approvedProjectContext:{...approvedProjectContext,instructionText:'Replaced without a digest'}})).rejects.toMatchObject({code:'STALE_REQUEST_CONTEXT'});
+  expect(f.source().calls.filter(call=>call.method==='agent.followUp')).toHaveLength(before);await f.settle();
+ }finally{await f.runtime.dispose();}
+});
 
 it('keeps private completed-write metadata off the default/company path and model envelope',async()=>{
  const f=await fixture(),input=run({completedWrites:[{operationId:'op',revision:1,inputId:'operation-result:op',origin:{threadId:'thread',runId:'before',epoch:0,sessionPath:'not-admitted',modelId:'openai/model',accountId:null,projectId:'project',workspaceId:'worktree',projectRoot:'C:/private-project'},path:'C:/private-project/App.tsx',sha256:'a'.repeat(64),bytes:1}]});
@@ -70,6 +87,16 @@ it('does not release ownership on a cancellation acknowledgement before actual s
 it('rejects compaction of a different retained task, account or model',async()=>{
  const f=await fixture();try{await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();for(const value of [run({threadId:'different'}),run({accountId:'different'}),run({modelId:'other/model'})])await expect(f.runtime.compact(value,path,value.modelId,value.accountId)).rejects.toMatchObject({code:'HERMES_SESSION_INVALID'});expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);
  await f.runtime.compact(run({runId:'compact',epoch:2}),path,'openai/model',null);expect(f.source().calls.filter(call=>call.method==='agent.compact')).toHaveLength(1);
+ }finally{await f.runtime.dispose();}
+});
+it.each([undefined,'d'.repeat(64)])('does not publish successful compaction when the native source reports no change (digest %s)',async expectedHistorySha256=>{
+ const f=await fixture();try{
+  await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();
+  const source=f.source(),request=source.client.request.bind(source.client);
+  source.client.request=async<T>(method:string,params:Record<string,unknown>={})=>method==='agent.compact'?{compacted:false,messages:[]} as T:request<T>(method,params);
+  const ctx=run({runId:'compact-no-change',epoch:2});
+  await expect(f.runtime.compact(ctx,path,'openai/model',null,undefined,expectedHistorySha256)).rejects.toMatchObject({code:'HERMES_COMPACTION_UNCONFIRMED'});
+  expect(f.events.filter(event=>event.runId===ctx.runId&&['compaction.end','settled'].includes(event.type))).toEqual([]);
  }finally{await f.runtime.dispose();}
 });
 const requiredCheckpoint={apiVersion:2,required:true} as const;
@@ -340,4 +367,25 @@ it('uses one owned snapshot for progressive discovery and denies premature and h
   __setCapabilityFlagForTests('tools.deferredV1',undefined);
   await f.runtime.dispose();
  }
+});
+
+it('admits the real repository-map schema only at the next frozen native request and dispatches its owned host call',async()=>{
+ const f=await fixture({hostTools:[REPOSITORY_MAP]});
+ const onTool=vi.fn(async()=>({files:[{path:'main.ts',mode:'PARSED',sha256:'a'.repeat(64),exports:[{name:'render',line:2}]}]}));
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool});
+ __setCapabilityFlagForTests('context.compilerV1',true);__setCapabilityFlagForTests('tools.deferredV1',true);
+ try{
+  await f.runtime.start(run());const ctx=f.start().ctx as Record<string,unknown>,args={resourceId:'project',paths:['main.ts']};
+  const call=(name:string,args:Record<string,unknown>)=>f.source().options.onHostCall!({id:name,name,args,ctx});
+  const before=await call('$context.tools.snapshot',{sequence:1}) as {names:string[];digest:string};
+  expect(before.names).not.toContain('repository_map');
+  expect(await call('context_discover_tools',{query:'repository_map'})).toEqual(expect.arrayContaining([expect.objectContaining({name:'repository_map'})]));
+  expect(await call('context_describe_tool',{name:'repository_map'})).toMatchObject({name:'repository_map',schema:REPOSITORY_MAP.parameters});
+  await expect(call('repository_map',args)).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
+  const after=await call('$context.tools.snapshot',{sequence:2}) as {names:string[];digest:string};
+  expect(after.names).toContain('repository_map');expect(after.digest).not.toBe(before.digest);
+  await expect(call('repository_map',args)).resolves.toMatchObject({files:[{path:'main.ts',sha256:'a'.repeat(64)}]});
+  expect(onTool).toHaveBeenCalledWith({name:'repository_map',args},expect.objectContaining({threadId:'thread',runId:'run',epoch:1}));
+  await f.settle();
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);__setCapabilityFlagForTests('tools.deferredV1',undefined);await f.runtime.dispose();}
 });
