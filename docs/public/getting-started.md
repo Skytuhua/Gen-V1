@@ -6,7 +6,7 @@ Gen runs a local application host and a Windows desktop or browser interface. Yo
 
 ## Try the published preview
 
-Open the [v0.6.1 preview release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1). It contains an unsigned Windows x64 installer and `SHA256SUMS.txt`. Check the release notes and compare the installer’s SHA-256 with that file:
+Open the [v0.6.1 preview release](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1). It contains an unsigned Windows x64 installer and `SHA256SUMS.txt`. Check the release notes and compare the installer’s SHA-256 with that file:
 
 ```powershell
 Get-FileHash -Algorithm SHA256 -LiteralPath .\Gen-V1-Setup-0.6.1-win-x64.exe
@@ -21,7 +21,7 @@ Use Windows x64 with Node.js **24.10.0 or newer**, pnpm **10.30.3** and CPython 
 From PowerShell:
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -50,7 +50,7 @@ Development starts the backend on loopback port 4317 and the generated-app recei
 
 ## Connect an account
 
-1. Open **Settings → Providers** and add a local account label.
+1. Open **Settings → Models & Accounts** and add a local account label.
 2. Choose **Connect** for that account and complete its native sign-in flow.
 3. Check readiness, refresh models and choose one available to your account.
 4. Start a new conversation and send a small task you can verify.
