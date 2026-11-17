@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { closeSync, constants, createReadStream, fstatSync, lstatSync, openSync, readSync, realpathSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { HarnessError, type Thread } from '../contracts/index.ts';
@@ -22,6 +22,9 @@ import { digest, type Store } from '../storage/store.ts';
 
 const now = () => new Date().toISOString();
 const MAX_DIGEST_FILE_BYTES = 64 * 1024 * 1024;
+// Shared host limits, including synchronous completion reads inside Store.
+const MAX_DIGEST_TOTAL_BYTES = 128 * 1024 * 1024;
+const DIGEST_CHUNK_BYTES = 64 * 1024;
 const MAX_DIGEST_FILES = 2048;
 const MAX_LOG_BYTES = 64 * 1024;
 /** A START server must stay alive past this bounded settle window; the
@@ -59,17 +62,20 @@ export interface ListenerProbe {
 export async function sourceDigest(root: string, files: readonly string[]): Promise<string> {
   const base = await canonical(root);
   const items: { path: string; sha256: string }[] = [];
+  let totalBytes = 0;
   if (files.length > MAX_DIGEST_FILES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the file limit');
   for (const relative of files.slice().sort()) {
     const candidate = await canonical(join(base, ...relative.split('/')));
     if (!inside(base, candidate)) throw new HarnessError('CAPABILITY_DENIED', 'A digest input leaves the workspace root');
     const info = await stat(candidate, { bigint: true });
     if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Digest inputs must be regular files');
+    assertDigestSize(info.size, totalBytes);
     const hash = createHash('sha256');
     let bytes = 0;
     for await (const chunk of createReadStream(candidate)) {
       bytes += (chunk as Buffer).length;
-      if (bytes > MAX_DIGEST_FILE_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the size limit');
+      totalBytes += (chunk as Buffer).length;
+      assertDigestRead(bytes, totalBytes);
       hash.update(chunk as Buffer);
     }
     items.push({ path: relative, sha256: hash.digest('hex') });
@@ -83,16 +89,37 @@ export function sourceDigestSync(root: string, files: readonly string[]): string
   if (files.length > MAX_DIGEST_FILES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the file limit');
   const base = canonicalSync(root);
   const items: { path: string; sha256: string }[] = [];
+  let totalBytes = 0;
+  const chunk = Buffer.allocUnsafe(DIGEST_CHUNK_BYTES);
   for (const relative of files.slice().sort()) {
     const candidate = canonicalSync(join(base, ...relative.split('/')));
     if (!inside(base, candidate)) throw new HarnessError('CAPABILITY_DENIED', 'A digest input leaves the workspace root');
-    const info = statSync(candidate, { bigint: true });
-    if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Digest inputs must be regular files');
-    const data = readFileSync(candidate);
-    if (data.length > MAX_DIGEST_FILE_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the size limit');
-    items.push({ path: relative, sha256: createHash('sha256').update(data).digest('hex') });
+    const fd = openSync(candidate, constants.O_RDONLY | (constants.O_NONBLOCK ?? 0) | (constants.O_NOFOLLOW ?? 0));
+    try {
+      const info = fstatSync(fd, { bigint: true });
+      if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Digest inputs must be regular files');
+      assertDigestSize(info.size, totalBytes);
+      const hash = createHash('sha256');
+      let bytes = 0, count: number;
+      while ((count = readSync(fd, chunk, 0, chunk.length, null)) !== 0) {
+        bytes += count; totalBytes += count;
+        assertDigestRead(bytes, totalBytes);
+        hash.update(chunk.subarray(0, count));
+      }
+      items.push({ path: relative, sha256: hash.digest('hex') });
+    } finally { closeSync(fd); }
   }
   return digest(items);
+}
+
+function assertDigestSize(bytes: bigint, priorBytes: number): void {
+  if (bytes > BigInt(MAX_DIGEST_FILE_BYTES)) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the per-file size limit');
+  if (bytes > BigInt(MAX_DIGEST_TOTAL_BYTES - priorBytes)) throw new HarnessError('RESOURCE_LIMIT', 'Digest inputs exceed the combined size limit');
+}
+
+function assertDigestRead(fileBytes: number, totalBytes: number): void {
+  if (fileBytes > MAX_DIGEST_FILE_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the per-file size limit');
+  if (totalBytes > MAX_DIGEST_TOTAL_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Digest inputs exceed the combined size limit');
 }
 
 function canonicalSync(path: string): string {
