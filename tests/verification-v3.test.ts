@@ -9,7 +9,7 @@ import {
 } from '../packages/core/project-verification';
 import {BoundedRepairLoop,computeAssessment,observationFreshness} from '../packages/core/verification-gate';
 import {verificationRecipeV1Schema,type CheckObservationV1,type VerificationRecipeV1} from '../packages/contracts/verification';
-import type {ApprovalV1,ToolOwner} from '../packages/contracts/tool-effects';
+import type {ApprovalV1,ToolEffectRecord,ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
@@ -517,4 +517,52 @@ describe('complete requirement evidence',()=>{
   expect(result.label).toBe('COMPLETED_UNVERIFIED');
   expect(result.requirements[0].missing).toHaveLength(64);
  });
+});
+
+describe('bounded unresolved effect projection',()=>{
+ const assess=(count:number,provenance='test')=>computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),environmentId:'test'},
+  requirements:[],observations:[],unresolvedEffects:Array.from({length:count},(_,index)=>`effect-${index}`),
+  verifierIdentity:'test',provenance,
+ });
+ it.each([65,128,1024])('keeps %i unresolved effects blocked with bounded references and the full count',count=>{
+  const result=assess(count);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.unresolvedEffects).toEqual(Array.from({length:64},(_,index)=>`effect-${index}`));
+  expect(result.provenance).toContain(`Unresolved effects: ${count}`);
+  expect(result.provenance).toContain('references shown: 64');
+ });
+ it('keeps the effect count visible when existing provenance fills its bound',()=>{
+  const result=assess(65,'p'.repeat(500));
+  expect(result.label).toBe('BLOCKED');
+  expect(result.provenance.length).toBeLessThanOrEqual(500);
+  expect(result.provenance).toContain('Unresolved effects: 65');
+  expect(result.provenance).toContain('provenance shortened');
+ });
+});
+
+it('task_finish and the live panel keep 65 unresolved ledger effects blocked without dropping records',async()=>{
+ const {Service}=await import('../packages/core/service');
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const root=workspace(),identity=await statIdentity(root),store=stateStore(),stamp=new Date().toISOString();
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{});
+ store.internal('test.fixture','t1',()=>{
+  store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectId:'p1',workspaceId:null,accountId:null,projectName:'P',status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1});
+  store.put('workspaceProject','p1',null,{id:'p1',name:'P',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','p1',null,{path:root,identity:{dev:identity.dev,ino:identity.ino}});
+  store.put('verificationDeclaration','t1','t1',{version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'test',requirements:[]});
+  for(let index=0;index<65;index++){
+   const id=`effect-${index}`;
+   const effect:ToolEffectRecord={effectId:id,invocationId:id,attemptId:1,parentInvocationId:null,owner:{...owner(),projectId:'p1'},toolId:'repository_read',definitionDigest:'c'.repeat(64),privateArgumentCommitment:'d'.repeat(64),publicRedactedSummary:'pending read',targetPreconditions:[],approvalId:null,state:'DISPATCHED',providerReceiptRef:null,createdAt:stamp,updatedAt:stamp,threadId:'t1',transitions:[{from:null,to:'PREPARED',at:stamp},{from:'PREPARED',to:'DISPATCHED',at:stamp}]};
+   store.put('toolEffect',id,'t1',effect);
+  }
+ });
+ const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{await service.tool({name:'task_finish',args:{commandId:'finish-overflow',outcome:'done'}},{threadId:'t1',runId:'r1',epoch:1});}
+ finally{if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+ const assessment=store.all<{label:string;unresolvedEffects:string[];provenance:string}>('assessment','t1').at(-1)!;
+ expect(assessment.label).toBe('BLOCKED');expect(assessment.unresolvedEffects).toHaveLength(64);expect(assessment.provenance).toContain('Unresolved effects: 65');
+ expect(verificationPanelModel(store,'t1').label).toBe('BLOCKED');
+ expect(store.all<ToolEffectRecord>('toolEffect','t1')).toHaveLength(65);
 });

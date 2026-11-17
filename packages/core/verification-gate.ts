@@ -279,6 +279,19 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // purely conversational tasks still finish, with the label saying so.
   if (!requirements.length) label = input.unresolvedEffects.length ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
 
+  // Keep the wire projection bounded without dropping durable ledger records
+  // or turning a large unresolved set into a schema error. The label above is
+  // derived from the full set; provenance makes the displayed subset explicit.
+  const unresolvedEffects = input.unresolvedEffects.slice(0, 64);
+  let provenance = input.provenance;
+  if (input.unresolvedEffects.length > unresolvedEffects.length) {
+    deliverableAssessmentV1Schema.shape.provenance.parse(provenance);
+    const summary = `Unresolved effects: ${input.unresolvedEffects.length}; references shown: ${unresolvedEffects.length}. `;
+    const available = 500 - summary.length;
+    const shortened = ' [provenance shortened]';
+    if (provenance.length > available) provenance = provenance.slice(0, available - shortened.length) + shortened;
+    provenance = summary + provenance;
+  }
   return deliverableAssessmentV1Schema.parse({
     version: 1,
     assessmentId: `assess-${randomUUID()}`,
@@ -286,9 +299,9 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     sourceCut: { ...input.sourceCut, recordedAt: now() },
     label,
     requirements,
-    unresolvedEffects: input.unresolvedEffects,
+    unresolvedEffects,
     verifierIdentity: input.verifierIdentity,
-    provenance: input.provenance,
+    provenance,
     createdAt: now(),
   });
 }
