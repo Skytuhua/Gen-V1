@@ -118,6 +118,14 @@ The head for each workflow below is the exact published head in the PR ledger ab
 | [#536](https://github.com/skytuhua-org/Gen-V1/pull/536) | [44048961433](https://github.com/skytuhua-org/Gen-V1/actions/runs/44048961433) | queued | [44048961534](https://github.com/skytuhua-org/Gen-V1/actions/runs/44048961534) skipped |
 | [#538](https://github.com/skytuhua-org/Gen-V1/pull/538) (draft) | [44051118186](https://github.com/skytuhua-org/Gen-V1/actions/runs/44051118186) | queued | [44051118250](https://github.com/skytuhua-org/Gen-V1/actions/runs/44051118250) skipped |
 
+### Handoff refresh
+
+A subsequent read of the same 24 published commits recorded **11 successful CI runs, five failed, five in progress, and three queued**. The new successes were [#526](https://github.com/skytuhua-org/Gen-V1/actions/runs/44044577244), [#531](https://github.com/skytuhua-org/Gen-V1/actions/runs/44046307306), [#532](https://github.com/skytuhua-org/Gen-V1/actions/runs/44046419818), and [#533](https://github.com/skytuhua-org/Gen-V1/actions/runs/44046429803).
+
+PRs #527, #528, #529, #530, and #536 were in progress; #534, #535, and draft #538 were queued. The five failed runs below were unchanged, with no new failed run. All 24 returned Agents UI evidence workflows remained skipped. Documentation PR #539 is outside this code/test count.
+
+This later observation leaves the earlier frozen table intact. Neither observation validates the combined candidate, and no failed job was rerun or waived during the audit.
+
 ### Observed failures remain unresolved
 
 All five failed CI workflows had nine jobs: Browser tests failed and the other eight succeeded. The common failed step was Exercise project memory and affected context browser flows. Successful sibling jobs do not waive the browser failures.
