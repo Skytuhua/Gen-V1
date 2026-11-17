@@ -425,16 +425,28 @@ it('keeps the required memory checkpoint inside the admitted loss-aware compacti
   f.callbacks().onEvent({ ...foreground, type: 'session', sessionPath: path }); f.settle(foreground);
   await vi.waitFor(() => expect(f.service.thread('thread').runId).toBeNull());
   __setCapabilityFlagForTests('context.lossAwareCompactionV1', true);
-  f.runtime.nativeHistoryDigest = async () => ({ sha256: 'a'.repeat(64), messages: [{ role: 'user', content: 'Native source' }] });
+  f.runtime.nativeHistoryDigest = async () => ({ sha256: 'a'.repeat(64), messages: [
+    { role: 'user', content: 'Original native instruction' },
+    { role: 'assistant', content: 'Earlier settled response eligible for summarization' },
+    { role: 'user', content: 'Current native instruction' },
+  ] });
   let compacted = false;
   const persist = vi.spyOn(f.service.projectMemory, 'persistCheckpoint').mockImplementation(() => { throw Error('Durable checkpoint persistence refused'); });
-  vi.mocked(f.runtime.compact).mockImplementation(async (ctx, sessionPath, modelId, accountId, requirement) => {
-    if (requirement) await f.callbacks().onMemoryCheckpoint!({ apiVersion: 2, requestId: 'loss-aware-checkpoint', adapterId: 'hermes', ctx,
-      sessionPath, modelId, accountId: accountId ?? null, reason: 'manual' });
+  f.runtime.compactProtected = vi.fn(async (ctx, sessionPath, modelId, accountId, protection, requirement) => {
+    expect(requirement).toEqual({ apiVersion: 2, required: true });
+    expect(f.service.thread('thread')).toMatchObject({ runId: ctx.runId, epoch: ctx.epoch, status: 'working' });
+    expect(ctx.runId).not.toBe(foreground.runId);
+    expect(protection.plan.owner).toMatchObject({ threadId: ctx.threadId, runId: ctx.runId, epoch: ctx.epoch });
+    await f.callbacks().onMemoryCheckpoint!({ apiVersion: 2, requestId: 'loss-aware-checkpoint', adapterId: 'hermes', ctx,
+      sessionPath, modelId, accountId, reason: 'manual' });
     compacted = true;
+    throw Error('Protected compaction must not apply after a refused checkpoint');
   });
   await expect(f.command('run.compact')).rejects.toMatchObject({ code: 'COMPACTION_FAILED' });
+  expect(f.runtime.compactProtected).toHaveBeenCalledOnce();
+  expect(f.runtime.compact).not.toHaveBeenCalled();
   expect(persist).toHaveBeenCalledOnce();
   expect(compacted).toBe(false);
+  expect(f.store.all('compactionUsage')).toEqual([]);
   expect(f.service.thread('thread').sessionPath).toBe(path);
 });
