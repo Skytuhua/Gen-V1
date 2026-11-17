@@ -183,10 +183,16 @@ export class ControlDispatcher {
           }
         }
       } catch (error) {
-        // Only failures before the dispatch attempt are clean rejections; a
-        // rejection at or after dispatch may postdate delivered input.
-        if (item.outcome === 'QUEUED') item.outcome = item.reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
-        item.reason = error instanceof HarnessError ? error.code : 'DRIVER_ERROR';
+        // A still-QUEUED action whose permission died while it waited or
+        // observed is a cancellation, not a rejection; only failures before
+        // dispatch are rejections, and dispatch-stage failures stay UNCERTAIN.
+        if (item.outcome === 'QUEUED') {
+          if (!this.permissionLive(item)) { item.outcome = 'CANCELLED'; item.reason = 'grant_revoked'; }
+          else {
+            item.outcome = item.reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
+            item.reason = error instanceof HarnessError ? error.code : 'DRIVER_ERROR';
+          }
+        }
       } finally {
         if (this.inFlight === item) this.inFlight = null;
         this.dispatched.push(item);
