@@ -77,8 +77,15 @@ function sameOrigin(approved: readonly string[], value: string): boolean {
   });
 }
 
-function deadline(timeoutMs: number): Promise<never> {
-  return new Promise((_, reject) => setTimeout(() => reject(new HarnessError('BROWSER_STEP_TIMEOUT', 'A browser step exceeded its deadline')), timeoutMs));
+async function withStepDeadline<T>(operation: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([operation, new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new HarnessError('BROWSER_STEP_TIMEOUT', 'A browser step exceeded its deadline')), BROWSER_STEP_TIMEOUT_MS);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function runBrowserChecklist(store: Store, input: BrowserRunInput, env: Readonly<Record<string, string | undefined>> = process.env): Promise<BrowserRunResult> {
@@ -147,20 +154,20 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
           outcome = 'FAIL';
           return 'stop';
         }
-        await Promise.race([session.page.goto(step.url), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        await withStepDeadline(session.page.goto(step.url));
         return 'ok';
       }
-      case 'CLICK': await Promise.race([session.page.click(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]); return 'ok';
-      case 'TYPE': await Promise.race([session.page.type(step.selector, step.text), deadline(BROWSER_STEP_TIMEOUT_MS)]); return 'ok';
+      case 'CLICK': await withStepDeadline(session.page.click(step.selector)); return 'ok';
+      case 'TYPE': await withStepDeadline(session.page.type(step.selector, step.text)); return 'ok';
       case 'ASSERT_TEXT': {
-        const text = await Promise.race([session.page.text(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const text = await withStepDeadline(session.page.text(step.selector));
         const pass = text !== null && text.includes(step.text);
         record(step.checklistItemId, `Element ${step.selector} contains "${step.text.slice(0, 200)}"`, text === null ? 'selector not found' : `observed "${text.slice(0, 200)}"`, pass ? 'PASS' : 'FAIL', null);
         if (!pass) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';
       }
       case 'ASSERT_VISIBLE': {
-        const visible = await Promise.race([session.page.visible(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const visible = await withStepDeadline(session.page.visible(step.selector));
         record(step.checklistItemId, `Element ${step.selector} is visible`, visible ? 'visible' : 'not visible', visible ? 'PASS' : 'FAIL', null);
         if (!visible) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';
@@ -174,7 +181,7 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
         return 'ok';
       }
       case 'SCREENSHOT': {
-        const data = await Promise.race([session.page.screenshot(), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const data = await withStepDeadline(session.page.screenshot());
         const digest = await writeShot(step.checklistItemId, data);
         // Capture is supporting evidence, distinct from an executed behavior
         // assertion. Binding this record alone must never verify a requirement.
