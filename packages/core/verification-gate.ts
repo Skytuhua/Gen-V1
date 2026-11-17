@@ -113,6 +113,18 @@ export interface RepairState {
   stopped: RepairStopReason | null;
 }
 
+/** Stable check identity excludes per-execution IDs and source edits. */
+export function verificationFailureIdentity(observed: CheckObservationV1 | VisualObservationV1, detail?: string): string {
+  return digest({
+    phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
+    cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
+    outcome: observed.outcome, exitCode: observed.exitCode,
+    item: 'checklistItemId' in observed ? observed.checklistItemId : null,
+    assertion: 'assertion' in observed ? observed.assertion : null,
+    detail: detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
+  });
+}
+
 export class BoundedRepairLoop {
   private state: RepairState;
   constructor(private readonly store: Store, private readonly owner: ToolOwner, recipeId: string, requirementIds: readonly string[]) {
@@ -162,14 +174,7 @@ export class BoundedRepairLoop {
           throw new HarnessError('REPAIR_SCOPE', 'Repair evidence belongs to another owner binding');
         // Execution and observation IDs are new for every retest. Compare the
         // stable check identity and actual failure instead of those run IDs.
-        return digest({
-          phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
-          cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
-          outcome: observed.outcome, exitCode: observed.exitCode,
-          item: 'checklistItemId' in observed ? observed.checklistItemId : null,
-          assertion: 'assertion' in observed ? observed.assertion : null,
-          detail: failure.detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
-        });
+        return verificationFailureIdentity(observed, failure.detail);
       }).sort()),
       outcome: input.outcome,
       recordedAt: now(),
