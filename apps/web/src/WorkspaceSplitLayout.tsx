@@ -65,9 +65,8 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  const endFloat=(event:ReactPointerEvent<HTMLElement>)=>{
   const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dx=event.clientX-g.startX,dy=event.clientY-g.startY,moved=g.mode==='resize'?(dx!==0||dy!==0):floatDragged.current||Math.hypot(dx,dy)>=3;
   const target=g.mode==='move'&&moved&&onDockFloat?locateDropAt(event.clientX,event.clientY):null,dock=target&&target.edge!=='center'&&fitSplit(target.paneId,target.edge,target.outer,layout.views[g.viewId])?target:null;setDrop(null);
-  const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy},rect=moved?clampChatRect(next,{width:size.width,height:size.height}):g.startRect;floatDragged.current=moved;releaseFloat();
+  const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy},rect=moved?clampChatRect(next,{width:size.width,height:size.height}):g.startRect;floatDragged.current=moved;if(!g.docked&&!moved){cancelFloat();return;}releaseFloat();
   if(g.docked){if(!moved)return;const view=g.docked;setFloatRects(current=>({...current,[view.id]:rect}));setDockedPreview(view.id);if(g.el)paintFloatRect(g.el,rect);void run(async()=>{try{if(dock&&onDockFloat)await onDockFloat(view,dock.paneId,dock.edge,dock.outer);else await onDetachView?.(view,rect);}finally{setDockedPreview(null);setFloatRects(current=>{const next={...current};delete next[view.id];return next;});}},false);return;}
-  if(!moved)return;
   if(dock&&onDockFloat){const view=layout.views[g.viewId];if(view)onDockFloat(view,dock.paneId,dock.edge,dock.outer);return;}
   if(g.el&&moved)paintFloatRect(g.el,rect);setFloatRects(current=>({...current,[g.viewId]:rect}));onMoveFloat?.(g.viewId,rect);
  };
