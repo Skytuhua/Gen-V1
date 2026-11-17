@@ -41,7 +41,7 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
-import { computeAssessment } from "./verification-gate.ts";
+import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
@@ -1597,11 +1597,12 @@ export class Service {
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
   private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+    const thread = this.assertRun(ctx);
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
       ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
       ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
-    ];
+    ].filter(observation => observationMatchesThreadOwner(observation, thread));
     if (!declaration && !observations.length) return null;
     // When effect auditing wraps task_finish, the ledger admits this very call
     // as DISPATCHED and settles it only after the body returns. That record is

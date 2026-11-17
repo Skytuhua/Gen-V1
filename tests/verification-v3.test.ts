@@ -284,7 +284,7 @@ it('an audited task_finish does not block its own completion assessment',async()
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  // Audited path admits this very task_finish as DISPATCHED before the body
  // runs; the assessment must exclude it by argument commitment.
@@ -326,7 +326,7 @@ it('the panel shows no completion label until task_finish saved an assessment',a
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  const model=verificationPanelModel(store,'t1');
  // Rows and freshness still compute against the live cut; the label stays
@@ -342,7 +342,7 @@ it('the panel read model re-digests declared inputs so edits never keep a green 
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:declaration.requirements,observations:[obs],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);store.put('assessment',assessment.assessmentId,'t1',assessment);});
  const before=verificationPanelModel(store,'t1');
