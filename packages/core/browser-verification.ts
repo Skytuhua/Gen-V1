@@ -246,7 +246,11 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
       }
     }
   } finally {
-    await session.close().catch(() => {});
+    try { await session.close(); }
+    catch (error) {
+      record('__cleanup__', 'Owned browser resources closed', error instanceof Error ? error.message.slice(0, 500) : 'Owned browser cleanup failed', 'FAIL', null);
+      if (outcome === 'PASS') outcome = 'FAIL';
+    }
   }
   return { observations, collected: session.collectedFailures(), deniedOrigins, outcome };
 }

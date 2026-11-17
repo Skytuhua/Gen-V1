@@ -192,6 +192,20 @@ it('cleanup failures are recorded as their own observation',async()=>{
  expect(teardown.outcome).toBe('FAIL');
 });
 
+it('a passing recipe cannot report success when its owned process cleanup fails',async()=>{
+ const root=workspace();const store=stateStore();
+ const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root);
+ const r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ const o=owner();service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const failing:VerificationLauncher={launch:async()=>({pid:1,tree:async()=>[1],wait:async()=>({exitCode:0,termination:'NONE'}),terminate:async()=>{throw new Error('owned process still running');},log:async()=>({text:'',truncated:false})})};
+ const result=await service.runRecipe(o,request('recipe-1'),failing);
+ expect(result.observations.find(obs=>obs.phase==='TEST')?.outcome).toBe('PASS');
+ expect(result.outcome).toBe('FAIL');
+ expect(result.cleanupFailures).toEqual(['owned process still running']);
+ expect(result.observations.find(obs=>obs.phase==='TEARDOWN')?.outcome).toBe('FAIL');
+});
+
 it('the completion projection marks fresh trusted evidence verified and names missing checks',async()=>{
  const root=workspace();
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
