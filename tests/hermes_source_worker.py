@@ -383,8 +383,8 @@ class WorkerFixture(unittest.TestCase):
         self.assertLess(len(applied["messages"]), len(snapshot["messages"]))
         self.assertEqual(applied["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
 
-    def protected_compaction_fixture(self, distinct_turns=True, extra_user_text=""):
-        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 2, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+    def protected_compaction_fixture(self, distinct_turns=True, extra_user_text="", abort_on_summary_failure=True):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 2, "abort_on_summary_failure": abort_on_summary_failure}, "auxiliary": {"background_review": {"enabled": False}}})
         history = [{"role": "user", "content": "M04_UNRESOLVED_REQUIREMENT: retain the old API and evidence source src/api.ts revision 7." + extra_user_text}]
         for index in range(6):
             history += [{"role": "assistant", "content": f"Old explanatory paragraph {index}: " + "This completed investigation may be summarized. " * 80}]
@@ -503,6 +503,28 @@ class WorkerFixture(unittest.TestCase):
         self.assertIsNone(refused["protection"]["archiveRef"])
         self.assertIsNone(refused["protection"]["archiveSha256"])
         self.assertIn("$context.compaction.commit", self.host_calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
+
+    def test_m04_archive_unavailable_refuses_before_summary_and_preserves_native_history(self):
+        self.assert_archive_unavailable_refuses(abort_on_summary_failure=True)
+
+    def test_m04_archive_unavailable_refuses_when_native_summary_fallback_is_enabled(self):
+        self.assert_archive_unavailable_refuses(abort_on_summary_failure=False)
+
+    def assert_archive_unavailable_refuses(self, abort_on_summary_failure):
+        params, source, _plan, compact = self.protected_compaction_fixture(abort_on_summary_failure=abort_on_summary_failure)
+        archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
+        archive.mkdir()
+        calls = list(self.host_calls)
+        refused = self.request("agent.compact", compact)
+        self.assertFalse(refused["compacted"])
+        self.assertEqual(refused["protection"]["status"], "REFUSED")
+        self.assertEqual(refused["protection"]["reason"], "ARCHIVE_FAILED")
+        self.assertIsNone(refused["protection"]["archiveRef"])
+        self.assertIsNone(refused["protection"]["archiveSha256"])
+        self.assertEqual(self.host_calls, calls, "An unavailable original archive must prevent summary spend and host commit")
+        self.assertTrue(archive.is_dir(), "The refusing archive must not replace an existing path")
         self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
         self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
 
