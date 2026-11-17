@@ -96,7 +96,14 @@ test('a late response cannot replace evidence fetched after a run-owner change',
     value.observation.freshness = 'STALE';
     await value.host.publish();
     await expect(drawer.locator('pre')).toContainText('Fresh owner observation');
+    const obsoleteResponse = page.waitForResponse(async response => {
+      if (!new URL(response.url()).pathname.endsWith('/observations') || !response.ok()) return false;
+      const body = await response.json();
+      return body.effect?.outcome?.error === 'Earlier observation';
+    });
     release();
+    await obsoleteResponse;
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await expect(drawer.locator('pre')).toContainText('Fresh owner observation');
     await expect(drawer.locator('pre')).not.toContainText('Earlier observation');
     expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
