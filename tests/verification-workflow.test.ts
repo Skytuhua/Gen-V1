@@ -223,9 +223,16 @@ it('managed repair source conflict blocks dispatch before it consumes the retest
   const operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
     payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
   writeFileSync(join(f.root, 'app.ts'), 'export const changedAfterReview = true;\n');
-  await f.approve(operation); await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'BLOCKED_SOURCE_DRIFT'});
-  expect(f.store.get('verificationRepair', (operation.args.intent as VerificationIntent).repair!.planId)).toMatchObject({stopped: 'CONFLICT', pendingOperationId: null, attempts: []});
-  expect(f.store.all<ApprovalV1>('approval', f.thread.id).some(value => value.remainingUses === 1)).toBe(true);
+  // Approval schedules the first dispatch. A later dispatch reads its durable failure.
+  await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).resolves.toMatchObject({id: operation.id, status: 'failed', approved: true, error: expect.stringContaining('BLOCKED_SOURCE_DRIFT')});
+  const intent = operation.args.intent as VerificationIntent;
+  expect(f.store.get('verificationRepair', intent.repair!.planId)).toMatchObject({stopped: 'CONFLICT', pendingOperationId: null, chargedTokens: 0, attempts: []});
+  const approvals = f.store.all<ApprovalV1>('approval', f.thread.id).filter(value => value.operationId === operation.id);
+  expect(approvals).toHaveLength(1); expect(approvals[0].remainingUses).toBe(1);
+  expect(f.store.get('toolEffect', 'operation:' + operation.id + '@' + operation.revision)).toBeNull();
+  expect(f.store.all<CheckObservationV1>('checkObservation', f.thread.id).filter(value => value.executionId === intent.executionId)).toEqual([]);
+  expect(f.store.all('verificationQaLifecycle', f.thread.id)).toEqual([]);
   expect(f.launched).toHaveLength(1);
 });
 
