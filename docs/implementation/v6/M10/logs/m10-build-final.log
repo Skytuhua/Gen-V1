@@ -36,7 +36,7 @@ computing gzip size...
 dist/plugin-runtime/assets/pdf-draft.worker-BsXEv1s_.js    438.34 kB
 dist/plugin-runtime/runtime.css                          1,055.94 kB │ gzip: 667.00 kB
 dist/plugin-runtime/runtime.js                           2,969.21 kB │ gzip: 961.53 kB
-✓ built in 28.25s
+✓ built in 18.08s
 ✓ 2145 modules transformed.
 rendering chunks...
 computing gzip size...
@@ -98,7 +98,7 @@ computing gzip size...
 ../../dist/web/assets/xterm-B-qIQCd3.js                                      329.31 kB │ gzip:  83.04 kB
 ../../dist/web/assets/pdf-CL8ynlU4.js                                        495.58 kB │ gzip: 151.29 kB
 ../../dist/web/assets/DesktopEntry-B-FfEHYm.js                             1,185.21 kB │ gzip: 367.68 kB
-✓ built in 33.06s
+✓ built in 23.80s
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application

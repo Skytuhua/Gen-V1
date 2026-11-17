@@ -193,3 +193,12 @@ A second automated-review pass on `316ad2a5` flagged seven further defects, seve
 New regression coverage: human-deferred host-event delivery, operator-pause preservation through auto-resume, overlapping-start wait semantics, held-occurrence state assertions, transient-lookup deferral + retry, mixed-page pagination, non-transient rejection. **78 M10 tests pass; typecheck/lint/build clean; background-work browser suite re-run PASS (11/11).**
 
 Evidence note: one receipt row for `m10-browser-background-work-final.log` recorded `FAIL` at 23:15Z from a stale vite dev server holding port 5821 (leftover from a killed run, not a gate verdict); the row was removed and the suite re-run to a real PASS. Validator: 0 issues; `bundleStatus` remains honest `FAIL` on the unchanged full-repo environmental gates. `reviewerApproval` remains false.
+
+## Session 7 continued — round-3 review findings fixed on `7be06068`
+
+A third review pass on `596ce44c` surfaced two genuine defects:
+
+- **Credential origin guard (external-intake.ts) — 🟥**: `repository_url` is attacker-controlled issue content, and the slug-resolution fetch sent the bearer token to whatever URL a forged record supplied. Candidate lookups are now restricted to the API origin already used for the issues read (`new URL(url).origin === new URL(expectedRepositoryUrl).origin`); every other origin is foreign by definition and rejected as `WRONG_REPOSITORY` **without a fetch**. Regression test asserts zero requests to the forged origin.
+- **Held-firing recovery (durable-wakeups.ts) — 🔴**: a host interruption between the resume commit and `deliverHeld`'s claim could strand a held PENDING occurrence permanently — neither `tick` nor `recover` inspected it. `recover()` now re-delivers held occurrences for every live wakeup after reconciliation. Regression test simulates the crash gap (unblocked wakeup + stranded PENDING occurrence) and verifies delivery on `recover()`.
+
+80 M10 tests pass; typecheck/lint/build PASS; evidence regenerated on `7be06068` with validator 0 issues. `bundleStatus` remains honest `FAIL` (unchanged environmental full-repo gates); `reviewerApproval` remains false.
