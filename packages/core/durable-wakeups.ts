@@ -373,10 +373,8 @@ export class DurableWakeupScheduler {
     });
     // A host interruption can strand a held firing: the resume committed the
     // wakeup PENDING but deliverHeld never claimed its deferred occurrence.
-    // Redelivery is still gated on enablement — a disabled feature reconciles
-    // records but never executes. Held occurrences stay durable for a later
-    // enabled recovery.
-    if (this.enabled()) for (const wakeup of this.store.all<WakeupRecord>("backgroundWakeup")) this.deliverHeld(wakeup);
+    // Redeliver any held occurrence bound to a live wakeup.
+    for (const wakeup of this.store.all<WakeupRecord>("backgroundWakeup")) this.deliverHeld(wakeup);
   }
 
   reconcile(command: HostCommand, occurrenceKey: string, receipt: { observed: "DELIVERED" | "NOT_DISPATCHED"; receiptRef?: string }): BackgroundOccurrenceV1 {
@@ -433,9 +431,10 @@ export class DurableWakeupScheduler {
 
   /** After an unblock, re-claim and dispatch any occurrence that was held
    * (PENDING, never dispatched) by the block. An operator-paused wakeup keeps
-   * its firing held until the explicit resume. */
+   * its firing held until the explicit resume, and a disabled feature never
+   * executes — the occurrence stays durable for an enabled resume/recover. */
   private deliverHeld(wakeup: WakeupRecord): void {
-    if (wakeup.paused || wakeup.state !== "PENDING") return;
+    if (!this.enabled() || wakeup.paused || wakeup.state !== "PENDING") return;
     for (const occurrence of this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => item.wakeupId === wakeup.wakeupId && item.state === "PENDING" && item.dispatch === "NOT_DISPATCHED")) {
       const delivery = this.claimOccurrence(wakeup.wakeupId, occurrence.occurrenceKey, {
         scheduledDueAtMs: occurrence.scheduledDueAtMs, hostEventId: occurrence.hostEventId,
