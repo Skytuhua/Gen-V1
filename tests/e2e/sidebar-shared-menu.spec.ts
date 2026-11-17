@@ -64,7 +64,7 @@ for (const [label, value] of [['Pin thread', {pinned: true}], ['Mark as unread',
 }
 
 test('inverse flags and fallback ordering preserve existing payloads', async ({page}) => {
-  await page.goto('/sidebar-shared-menu-check?flags&fallback');
+  await page.goto('/sidebar-shared-menu-check?flags');
   for (const label of ['Unpin thread', 'Mark as read', 'Return to inbox']) {
     await options(page).click(); await menu(page).getByRole('menuitem', {name: label, exact: true}).click();
   }

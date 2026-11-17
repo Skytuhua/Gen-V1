@@ -80,7 +80,7 @@ async function immediate(page: Page) {
 
 for (const width of [1024, 1440]) {
   test(`desktop pointer moves FLIP only affected visible rows for 180ms with drawer closed at ${width}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 1000 }); await load(page, 'bounds');
+    await page.setViewportSize({ width, height: 1000 }); await load(page);
     const sidebar = page.getByRole('complementary', { name: 'Thread navigation' });
     await expect(sidebar).toBeVisible();
     await expect(sidebar).not.toHaveClass(/\bsidebar-open\b/);

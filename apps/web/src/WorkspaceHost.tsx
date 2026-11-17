@@ -270,7 +270,6 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       onConnectProject={() => action('connect-project')} onOpenPullRequests={() => action('linked-pull-requests')} onOpenUsage={() => action('usage')}
       rename={row => {setRename(row); setTitle(row.title);}} archive={id => {const row = navigation.page?.items.find(value => value.id === id); if (row) {if (preferences.archiveConfirmation) setArchive(row); else archiveRow(row);}}} presentation={present}
       ensureManualOrder={() => mutate(async () => {await command('settings.update', {preferences: {projectOrder: 'manual'}}); await refreshSettings(); fail(navigation.refresh);})}
-      orderBounds={navigation.page?.stats}
       pageControls={<div className="workspace-host-navigation-page">
         {navigation.error && <ErrorState message={navigation.error} retryLabel="Retry threads" onRetry={() => fail(navigation.refresh)}/>}
         <PendingStatus pending={navigation.pending} label="Loading threads…"/>

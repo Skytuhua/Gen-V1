@@ -44,8 +44,7 @@ function Fixture() {
           if(mode==='hold')setRows(current=>current.map(row=>row.id===thread.id?{...row,presentation:{...row.presentation,...value}}:row));return true;
         }} rename={thread => calls.push({rename: thread})}
         archive={id => calls.push({archive: id})} detachThread={() => calls.push({detach: true})}
-        {...(!query.has('custom') ? {onPlaceThread: (thread: ThreadNavigationRow) => calls.push({place: thread})} : {})}
-        {...(!query.has('fallback') ? {orderBounds: {minOrder: -50, maxOrder: 80}} : {})}/>
+        {...(!query.has('custom') ? {onPlaceThread: (thread: ThreadNavigationRow) => calls.push({place: thread})} : {})}/>
       <Toaster/><main><p>Synthetic sidebar menu fixture</p><button onClick={() => setVisible(false)}>Hide mobile sidebar</button>
         <button onClick={() => setLayout(value => ({...value, sidebarCollapsed: true}))}>Collapse sidebar</button>
         <button onClick={() => setRows([])}>Remove threads</button><button>Outside target</button></main>

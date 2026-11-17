@@ -226,16 +226,17 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
         drop(was.item, point);
       }
     };
+    const cancelled = (event: PointerEvent) => { if (held && event.pointerId === held.pointerId) cancel(); };
     element.addEventListener('pointerdown', down);
     window.addEventListener('pointermove', moveTouch, { passive: false });
     window.addEventListener('pointerup', up);
-    window.addEventListener('pointercancel', () => cancel());
+    window.addEventListener('pointercancel', cancelled);
     return () => {
       cancel();
       element.removeEventListener('pointerdown', down);
       window.removeEventListener('pointermove', moveTouch);
       window.removeEventListener('pointerup', up);
-      window.removeEventListener('pointercancel', () => cancel());
+      window.removeEventListener('pointercancel', cancelled);
     };
   }, [nav]);
 

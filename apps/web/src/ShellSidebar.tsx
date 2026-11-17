@@ -127,7 +127,6 @@ export function ShellSidebar({
   preferences: UiPreferences;
   matching: Thread[];
   pageControls?: ReactNode;
-  orderBounds?: {minOrder: number; maxOrder: number};
   selectedId?: string;
   loaded: boolean;
   creating: boolean;
