@@ -171,6 +171,10 @@ export class ProjectTrustLedger {
     const envelope = this.records.get(trustId);
     if (!envelope) return { status: 'INVALIDATED', reasons: ['unknown-trust-record'] };
     if (envelope.revokedAt) return { status: 'INVALIDATED', reasons: ['trust-revoked'] };
-    return verifyProjectTrust(envelope.record, rootPath);
+    const verification = await verifyProjectTrust(envelope.record, rootPath);
+    const current = this.records.get(trustId);
+    if (current?.revokedAt) return { status: 'INVALIDATED', reasons: ['trust-revoked'] };
+    if (current !== envelope) return { status: 'INVALIDATED', reasons: ['trust-decision-changed'] };
+    return verification;
   }
 }
