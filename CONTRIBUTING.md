@@ -13,7 +13,7 @@ Gen V1 is a private Windows x64 beta. Coordinate source contributions with the m
 - Suggest a focused improvement and explain the problem it would solve.
 - Improve test coverage for a contract, coordinator or recovery path you understand.
 
-Use the matching [issue form](https://github.com/Skytuhua/Gen-V1/issues/new/choose). Search existing issues first; a useful reproduction or clarification can help more than a duplicate report. For sensitive findings, follow [SECURITY.md](SECURITY.md) instead of posting details in an issue.
+Use the matching [issue form](https://github.com/skytuhua-org/Gen-V1/issues/new/choose). Search existing issues first; a useful reproduction or clarification can help more than a duplicate report. For sensitive findings, follow [SECURITY.md](SECURITY.md) instead of posting details in an issue.
 
 ## Your first contribution
 

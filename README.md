@@ -6,7 +6,7 @@
 
 Gen V1 is a developer workspace: an agent harness where plans, diffs, logs and pull requests become typed, interactive controls inside the thread — backed by a local host that records every action as a receipt.
 
-**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
+**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
 <a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
 
@@ -71,7 +71,7 @@ Gen combines **generative UI in the same thread, a local host that saves your pr
 
 ### Try the Windows preview
 
-**[Download v0.6.1 for Windows x64 →](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)**
+**[Download v0.6.1 for Windows x64 →](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1)**
 
 The published download is an **unsigned prerelease**. Read its notes and compare the installer with `SHA256SUMS.txt` before running it. The source tree includes newer workspace and plug-in changes than the installer. The [demo notes](docs/public/media/launch-demos.md) identify which source was recorded.
 
@@ -82,7 +82,7 @@ The published download is an **unsigned prerelease**. Read its notes and compare
 Use **Windows x64**, **Node.js ≥ 24.10.0**, **pnpm 10.30.3** and **CPython 3.14 with pip**.
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -120,6 +120,7 @@ Read [release status](docs/public/release-notes.md), [security and local data](S
 | Understand the current preview | [Release notes and limitations](docs/public/release-notes.md) |
 | Understand the host and recovery model | [Architecture](docs/architecture.md) |
 | Build a workspace extension | [Plug-in API](docs/plugin-api.md) |
+| Report a bug or suggest a feature | [Issue forms](#report-an-issue) |
 | Report a security issue privately | [Security policy](SECURITY.md) |
 | Make a useful contribution | [Contributor guide](CONTRIBUTING.md) |
 
@@ -127,17 +128,24 @@ Read [release status](docs/public/release-notes.md), [security and local data](S
 
 Good contributions start with a clear problem. A reproducible bug, a better explanation, an accessibility improvement or a focused fix can all make Gen better.
 
-**[Read the contributor guide →](CONTRIBUTING.md)**
+**[Read the contributor guide →](CONTRIBUTING.md)** — it covers agreeing scope with the maintainer, the `fix/`/`docs/` branch convention, local checks (`pnpm typecheck`, `pnpm build`, `pnpm test --maxWorkers=1`) and what makes a pull request easy to review. A draft PR is welcome for early feedback.
 
-[Report a bug](https://github.com/Skytuhua/Gen-V1/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/Skytuhua/Gen-V1/issues/new?template=feature_request.yml) · [Improve the docs](https://github.com/Skytuhua/Gen-V1/issues/new?template=documentation.yml)
+Coordinate source changes with the maintainer before starting; the current first-party license does not grant general modification or redistribution rights.
 
-Coordinate source changes with the maintainer before starting; the current first-party license does not grant general modification or redistribution rights. The guide explains setup, focused checks and what makes a pull request easy to review.
+### Report an issue
+
+[Report a bug](https://github.com/skytuhua-org/Gen-V1/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/skytuhua-org/Gen-V1/issues/new?template=feature_request.yml) · [Improve the docs](https://github.com/skytuhua-org/Gen-V1/issues/new?template=documentation.yml)
+
+- Search [open issues](https://github.com/skytuhua-org/Gen-V1/issues) first — confirming a reproduction on an existing report helps more than a duplicate.
+- For a bug, include the app version, Windows/Node/Python versions where relevant, a minimal reproduction and the expected behavior. You do not need to diagnose the cause before reporting.
+- Redact credentials, account identifiers, private paths and personal conversations from logs and screenshots before attaching them.
+- Report security findings privately through [SECURITY.md](SECURITY.md), not a public issue.
 
 ### Contributors
 
 <a href="https://github.com/Skytuhua"><img src="https://avatars.githubusercontent.com/u/99881928?v=4&amp;s=64" width="56" height="56" alt="Skytuhua, Gen V1 creator and maintainer"></a>
 
-Created and maintained by [Skytuhua](https://github.com/Skytuhua). [View the contribution history →](https://github.com/Skytuhua/Gen-V1/graphs/contributors)
+Created and maintained by [Skytuhua](https://github.com/Skytuhua). [View the contribution history →](https://github.com/skytuhua-org/Gen-V1/graphs/contributors)
 
 ## License and acknowledgments
 
