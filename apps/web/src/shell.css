@@ -308,3 +308,6 @@
 .verification-check-details dd { margin:0; min-width:0; }
 .verification-check-details pre { max-width:100%; max-height:20rem; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; padding:8px; background:var(--subtle); border-radius:4px; }
 .verification-check-details ul { padding-left:18px; }
+.verification-retained-artifact { min-width:0; max-width:100%; margin:12px 0; }
+.verification-retained-artifact img { display:block; max-width:100%; height:auto; border:1px solid var(--border); }
+.verification-retained-artifact figcaption { color:var(--muted); margin-bottom:8px; }

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { resolve } from 'node:path';
+import {crc32, deflateSync} from 'node:zlib';
 const fixture = '/@fs/' + resolve('tests/e2e/usage-context-fixture.tsx').replaceAll('\\', '/');
 const update = async (page: Page, action: string) => {
   await expect(page.locator('html')).toHaveAttribute('data-usage-fixture-ready', 'true');
@@ -94,6 +95,57 @@ const exactCheckDetails = () => ({
   environmentId: 'fixture/linux/node24/pnpm10.30.3/exact-environment',
   startedAt: '2026-11-17T07:00:00.123Z', endedAt: '2026-11-17T07:00:01.456Z',
   exitCode: 0, observationKind: 'process', detail: 'Observed exit 0. Literal output: <script>not executable</script>', visual: null,
+});
+
+const retainedRef = (tail: number) => `verification-artifact:00000000-0000-4000-8000-${String(tail).padStart(12, '0')}`;
+const retainedPath = (tail: number) => `**/api/threads/thread-one/verification/artifacts/${retainedRef(tail).slice('verification-artifact:'.length)}`;
+function retainedImage() {
+  const chunk = (name: string, data: Buffer) => {const bytes = Buffer.alloc(data.length + 12); bytes.writeUInt32BE(data.length); bytes.write(name, 4); data.copy(bytes, 8); bytes.writeUInt32BE(crc32(bytes.subarray(4, -4)), bytes.length - 4); return bytes;};
+  const header = Buffer.alloc(13); header.writeUInt32BE(1); header.writeUInt32BE(1, 4); header[8] = 8; header[9] = 6;
+  return Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), chunk('IHDR', header), chunk('IDAT', deflateSync(Buffer.from([0, 0, 0, 0, 255]))), chunk('IEND', Buffer.alloc(0))]);
+}
+test('verification opens bounded retained logs as text and a screenshot at its captured viewport', async ({page}) => {
+  const model = verificationResult('Retained evidence').verification, text = 'Observed output\n<script>window.artifactExecuted=true</script>\n', image = retainedImage();
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...model, rows: [{...model.rows[0], details: exactCheckDetails(), evidence: [retainedRef(1), retainedRef(2)]}]}}}));
+  await page.route(retainedPath(1), route => route.fulfill({contentType: 'text/plain; charset=utf-8', headers: {'content-length': String(Buffer.byteLength(text)), 'x-verification-artifact-truncated': 'true'}, body: text}));
+  await page.route(retainedPath(2), route => route.fulfill({contentType: 'image/png', headers: {'content-length': String(image.length), 'x-verification-viewport-width': '1', 'x-verification-viewport-height': '1'}, body: image}));
+  await page.goto('/usage-context?verification');
+  await verification(page).getByRole('button', {name: 'Check details for check-one (Retained evidence)', exact: true}).click();
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Retained evidence)', exact: true});
+  await expect(detail.getByLabel('Retained log', {exact: true})).toHaveText(text);
+  await expect(detail).toContainText('Log truncated at capture');
+  expect(await page.evaluate(() => (window as unknown as {artifactExecuted?: boolean}).artifactExecuted)).toBeUndefined();
+  await detail.getByRole('button', {name: 'Artifact 2', exact: true}).click();
+  const capture = detail.getByRole('img', {name: 'Captured verification screenshot', exact: true});
+  await expect(capture).toBeVisible(); await expect.poll(() => capture.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(1);
+  await expect(detail).toContainText('Captured at 1 × 1');
+  await expect(detail.getByLabel('Retained log', {exact: true})).toHaveCount(0);
+});
+
+test('verification discards a late artifact read after another retained reference is selected', async ({page}) => {
+  const model = verificationResult('Switch evidence').verification;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...model, rows: [{...model.rows[0], details: exactCheckDetails(), evidence: [retainedRef(1), retainedRef(2)]}]}}}));
+  let release: (() => Promise<void>) | undefined;
+  await page.route(retainedPath(1), route => {release = () => route.fulfill({contentType: 'text/plain; charset=utf-8', headers: {'content-length': '16'}, body: 'Old private body'}).catch(() => {});});
+  await page.route(retainedPath(2), route => route.fulfill({contentType: 'text/plain; charset=utf-8', headers: {'content-length': '17'}, body: 'Current log bytes'}));
+  await page.goto('/usage-context?verification');
+  await verification(page).getByRole('button', {name: 'Check details for check-one (Switch evidence)', exact: true}).click();
+  await expect.poll(() => Boolean(release)).toBe(true);
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Switch evidence)', exact: true});
+  await detail.getByRole('button', {name: 'Artifact 2', exact: true}).click();
+  await expect(detail.getByLabel('Retained log', {exact: true})).toHaveText('Current log bytes');
+  await release!(); await expect(detail).not.toContainText('Old private body');
+});
+
+test('verification reports an unavailable retained artifact without rendering its bytes', async ({page}) => {
+  const model = verificationResult('Unavailable artifact').verification;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...model, rows: [{...model.rows[0], details: exactCheckDetails(), evidence: [retainedRef(1)]}]}}}));
+  await page.route(retainedPath(1), route => route.fulfill({status: 404, json: {error: {code: 'NOT_FOUND', message: 'Verification artifact unavailable'}}}));
+  await page.goto('/usage-context?verification');
+  await verification(page).getByRole('button', {name: 'Check details for check-one (Unavailable artifact)', exact: true}).click();
+  const detail = verification(page).getByRole('region', {name: 'Check details for check-one (Unavailable artifact)', exact: true});
+  await expect(detail.getByRole('status')).toHaveText('Retained artifact unavailable.');
+  await expect(detail.getByRole('img')).toHaveCount(0); await expect(detail.getByLabel('Retained log', {exact: true})).toHaveCount(0);
 });
 test('verification check details preserve exact arguments, execution identities and historical outcome', async ({page}) => {
   const details = exactCheckDetails(), model = verificationResult('Exact process check', 'STALE').verification;

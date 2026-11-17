@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { VerificationPanelModel as Model, VerificationPanelRow as Row } from '../../../packages/core/verification-read-models';
 import { authenticated, read } from './api';
+import {VerificationArtifact, isRetainedVerificationArtifact} from './VerificationArtifact';
 
 /** M06 verification panel — additive read model. Columns: requirement,
  * observed check, source revision, outcome, freshness, verifier, evidence.
@@ -28,8 +29,11 @@ function DetailField({label, children, wide = false}: {label: string; children: 
   return <div className={wide ? 'verification-detail-wide' : undefined}><dt>{label}</dt><dd aria-label={label}>{children}</dd></div>;
 }
 
-function CheckDetails({row, id, close}: {row: Row; id: string; close: () => void}) {
+function CheckDetails({row, id, threadId, close}: {row: Row; id: string; threadId: string; close: () => void}) {
   const panel = useRef<HTMLElement>(null), details = row.details!;
+  const retained = row.evidence.filter(isRetainedVerificationArtifact);
+  const [selected, select] = useState<string | null>(() => retained[0] ?? null);
+  const active = selected && retained.includes(selected) ? selected : retained[0] ?? null;
   useEffect(() => {panel.current?.focus({preventScroll: true}); panel.current?.scrollIntoView({block: 'nearest'});}, []);
   return <section ref={panel} id={id} className="verification-check-details" aria-label={detailsLabel(row)} tabIndex={-1}>
     <header><div><h3>Check details</h3><p>{row.requirement} · {row.checkId}</p></div><button type="button" className="quiet" onClick={close}>Close check details</button></header>
@@ -59,7 +63,8 @@ function CheckDetails({row, id, close}: {row: Row; id: string; close: () => void
       <DetailField label="Screenshot digest" wide><code>{details.visual.screenshotDigest ?? 'Not captured'}</code></DetailField>
     </dl></>}
     <h4>Artifact references</h4>
-    {row.evidence.length ? <ul>{row.evidence.map((ref, index) => <li key={index}><code>{ref}</code></li>)}</ul> : <p>None recorded.</p>}
+    {row.evidence.length ? <ul>{row.evidence.map((ref, index) => <li key={index}>{isRetainedVerificationArtifact(ref) && <button type="button" className="quiet" aria-pressed={active === ref} onClick={() => select(ref)}>Artifact {index + 1}</button>}<code>{ref}</code></li>)}</ul> : <p>None recorded.</p>}
+    {active && <VerificationArtifact key={`${threadId}:${active}`} threadId={threadId} artifactRef={active} />}
   </section>;
 }
 
@@ -129,7 +134,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
           ))}
         </tbody>
       </table></div>
-      {expandedRow && <CheckDetails key={expanded} id={`${id}-details`} row={expandedRow} close={() => {setExpanded(null); opener.current?.focus();}} />}
+      {expandedRow && <CheckDetails key={expanded} id={`${id}-details`} row={expandedRow} threadId={threadId} close={() => {setExpanded(null); opener.current?.focus();}} />}
     </section>
   );
 }
