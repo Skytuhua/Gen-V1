@@ -35,6 +35,15 @@ it('keeps stored attachments inside the conversation that uploaded them', async 
   }
 });
 
+it('reserves deletion ledgers outside the profile even for a grant rooted beside them', async () => {
+  const f = profileFixture(), peer = join(dirname(f.profile), 'peer'), name = '.gen-memory-deletions-' + 'a'.repeat(64) + '.jsonl';
+  mkdirSync(peer, { recursive: true }); writeFileSync(join(peer, name), '{}\n');
+  // A peer profile's ledger is reserved wherever it lives; only the attachment
+  // exception may lift a reservation, and it requires a path inside the root.
+  await expect(resolveGrant(f.grant(peer), name, false, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+  await expect(resolveGrant(f.grant(join(peer, name)), undefined, false, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+});
+
 it('still reads an attachment through the grant the host created for it', async () => {
   const f = profileFixture();
   await expect(resolveGrant(f.grant(join(f.owned, 'secret.txt')), undefined, false, f.profile)).resolves.toBe(join(f.owned, 'secret.txt'));

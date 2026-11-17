@@ -70,7 +70,7 @@ export function assertNotStorage(path: string, dataDir: string, grantRoot?: stri
     // grant rooted inside that conversation's attachment folder may read them
     // back, so a grant rooted at the profile (or an ancestor) cannot reach
     // another conversation's uploads.
-    const attachments = resolve(root, "attachments"), folder = relative(attachments, path).split(sep)[0] ?? "";
+    const attachments = resolve(root, "attachments"), folder = inside(attachments, path) ? relative(attachments, path).split(sep)[0] ?? "" : "";
     const owner = folder && folder !== ".." ? resolve(attachments, folder) : null;
     if (!owner || !grantRoot || !inside(owner, grantRoot) || !inside(owner, path)) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
   }
