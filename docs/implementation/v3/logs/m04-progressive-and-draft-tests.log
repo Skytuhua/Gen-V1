@@ -1,0 +1,8 @@
+
+ RUN  v4.1.12 <isolated-worktree>
+
+
+ Test Files  13 passed (13)
+      Tests  121 passed (121)
+   Start at  21:12:38
+   Duration  4.22s (transform 4.09s, setup 0ms, import 6.68s, tests 6.00s, environment 2ms)

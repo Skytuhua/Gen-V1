@@ -3,7 +3,7 @@ import {serveTaskFixture,taskFixture,growingQaSpec} from './task-interface-fixtu
 import {expectArtifactGeometry,holdArtifactJournal,releaseArtifactJournal,serveArtifactSettleFixture} from './artifact-settle-host';
 
 async function mount(page:Page,kind:'markdown'|'artifact',props:Record<string,unknown>){
- await serveTaskFixture(page,taskFixture({root:'retained',elements:{retained:{type:'Text',props:{text:'Retained history.'}}}}));await page.goto('/');
+ await serveTaskFixture(page,taskFixture({root:'retained',elements:{retained:{type:'Text',props:{text:'Retained history.'}}}}));await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.locator('html')).toHaveAttribute('data-motion','system');
  const motionSource=await(await page.request.get('/src/task-motion.tsx')).text(),mainSource=await(await page.request.get('/src/main.tsx')).text();
  const modules={react:motionSource.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],dom:mainSource.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1]};
  await page.evaluate(async({kind,props,modules})=>{
@@ -46,7 +46,7 @@ test('a theme change clears the old-color reveal without replaying the text',asy
 test('a new artifact has its final geometry from first paint after a delayed journal read',async({page})=>{
  await holdArtifactJournal(page);await serveArtifactSettleFixture(page);
  await page.getByRole('button',{name:'Publish artifact',exact:true}).click();
- await expect(page.getByRole('status',{includeHidden:true})).toHaveText('Restoring Task surface…');
+ await expect(page.locator('.artifact-restoring').getByRole('status',{includeHidden:true})).toHaveText('Restoring Task surface…');
  await releaseArtifactJournal(page);
  const note=page.getByRole('textbox',{name:'Artifact note',exact:true});await expect(note).toHaveValue('Keep this saved note');
  const identity=await note.elementHandle(),initial=await expectArtifactGeometry(page);
@@ -59,7 +59,7 @@ test('a new artifact has its final geometry from first paint after a delayed jou
 test('newly published structured prose reveals once while restored prose remains quiet',async({page})=>{
  const snapshot=taskFixture({root:'fact',elements:{fact:{type:'Text',props:{text:'The new task keeps its actual source material and its editing controls together.'}}}}),artifact=snapshot.artifacts[0];snapshot.artifacts=[];
  await page.addInitScript(()=>{const animate=Element.prototype.animate;Object.assign(window,{structuredReveals:0});Element.prototype.animate=function(...args){if(this.closest('.artifact')&&(this as HTMLElement).dataset.revealStart!==undefined)(window as unknown as{structuredReveals:number}).structuredReveals++;return animate.apply(this,args);};});
- const host=await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();snapshot.artifacts=[artifact];await host.publish();
+ const host=await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await expect(page.locator('html')).toHaveAttribute('data-motion','system');snapshot.artifacts=[artifact];await host.publish();
  await expect.poll(()=>page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBeGreaterThan(0);
  await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running').map(a=>a.finished.catch(()=>{}))));const count=await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals);await host.publish();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(count);
  await page.reload();await expect(page.locator('.artifact .surface-text')).toBeVisible();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(0);

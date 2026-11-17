@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  04:04:35
+   Duration  428ms (transform 96ms, setup 0ms, import 103ms, tests 99ms, environment 0ms)
+

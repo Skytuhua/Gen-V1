@@ -196,6 +196,30 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
 });
 
+test('last request shows observed broker bytes, then drops them on a new epoch', async ({ page }) => {
+  await page.goto('/usage-context');
+  await update(page, 'request-proof');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const last = context(page).getByRole('region', { name: 'Last request' });
+  await expect(last).toContainText('13 observed prompt bytes');
+  await expect(last).toContainText('Provider tokens and roles were not inferred');
+  const tabs = last.getByRole('tablist');
+  await expect(tabs.getByRole('tab')).toHaveCount(4);
+  await tabs.getByRole('tab', { name: 'Last request' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(tabs.getByRole('tab', { name: 'Sources' })).toHaveAttribute('aria-selected', 'true');
+  await expect(last.getByRole('tabpanel')).toContainText('1 known input');
+  await expect(last.getByRole('tabpanel')).toContainText('user · revision 1 · 13 bytes');
+  await tabs.getByRole('tab', { name: 'Tools' }).click();
+  await expect(last.getByRole('tabpanel')).toContainText('Schema counts were not reported');
+  await update(page, 'request-schemas');
+  await expect(last.getByRole('tabpanel')).toContainText('7 host tool schemas · 428 serialized bytes');
+  await tabs.getByRole('tab', { name: 'Compaction' }).click();
+  await expect(last.getByRole('tabpanel')).toContainText('No loss-aware compaction receipt');
+  await update(page, 'restart');
+  await expect(last).toHaveCount(0);
+});
+
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
   await page.goto('/usage-context?requests'); await update(page, 'empty');
   await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

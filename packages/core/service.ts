@@ -1,4 +1,10 @@
 import { randomUUID, createHash } from "node:crypto";
+import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
+import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
+import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
+import { openContextResultCustody } from './context-result-custody.ts';
+import { contextResultReadArgs } from './context-result-tool.ts';
+import { projectHostRequest } from './host-context-projection.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
@@ -47,7 +53,8 @@ import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import type { RequestPreparationV1 } from '../contracts/request-context.ts';
+import { createCompactionCandidateRegistry, evaluateCompactionCandidate } from './context-compaction.ts';
+import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
@@ -108,6 +115,9 @@ export class Service {
   private skillIndexes=new Map<string,string>();
   private learningSupported:boolean;
   private lastActivity=Date.now();
+  private readonly compactionRegistry = createCompactionCandidateRegistry();
+  private readonly compactionCandidateIds = new Map<string, string[]>();
+  private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -117,8 +127,34 @@ export class Service {
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
   private readonly authority:ToolAuthority;
+  private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
+  private contextStorage?: Promise<ContextResultStorage>;
+  private contextResults?: ReturnType<typeof createContextResults>;
+  private contextResultsEnabled() { return capabilityEnabled('context.compilerV1') && capabilityEnabled('tools.deferredV1'); }
+  private contextResultOwner(thread: Thread) {
+    return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
+  }
+  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null]); }
+  private contextResultVault() {
+    const open = () => this.contextStorage ??= openContextResultCustody(this.store.dataDir).catch(cause => { this.contextStorage = undefined; throw cause; });
+    return this.contextResults ??= createContextResults({
+      now: Date.now,
+      isAuthorized: (owner, invocation) => {
+        const thread = this.store.get<Thread>('thread', owner.threadId);
+        if (this.closed || !this.contextResultsEnabled() || !thread?.runId || thread.kind === 'delegate' || thread.sideParentId) return false;
+        const current = this.contextResultOwner(thread);
+        return invocation.startsWith(this.contextResultInvocation(thread) + ':') && current.workspaceId === owner.workspaceId && current.accountId === owner.accountId;
+      },
+      storage: {
+        put: async (key, bytes, record) => (await open()).put(key, bytes, record),
+        get: async key => (await open()).get(key),
+        getRecord: async key => (await open()).getRecord?.(key),
+        pruneExpired: async now => (await open()).pruneExpired?.(now) ?? 0,
+      },
+    });
+  }
   private readonly requestCustody:RequestContextCustody;
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
@@ -138,7 +174,8 @@ export class Service {
       },
     });
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
-    this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
+    this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
@@ -360,6 +397,30 @@ export class Service {
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
   private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
+  /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
+   * Never mutates native history; candidates carry metadata only. */
+  private recordCompactionCandidate(threadId:string):void {
+    const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
+    if(!row)return;
+    const stored=JSON.parse(row.body) as {receipt?:RequestContextV1};
+    const receipt=stored.receipt;
+    if(!receipt)return;
+    const binding={generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
+    if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
+    const verdict=evaluateCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeCasAvailable:false});
+    this.compactionVerdicts.set(metadata.candidateId,verdict.status);
+    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==metadata.candidateId),metadata.candidateId].slice(-8);
+    this.compactionCandidateIds.set(threadId,ids);
+    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);return entry?{
+      metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
+      retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
+      estimatedByteReduction:null,measuredBeforeBytes:entry.metadata.usageObservationRef?receipt.budget.utf8Bytes:null,measuredAfterBytes:null,
+    }:null;}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
+    const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
+    const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
+  }
   private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
@@ -722,6 +783,10 @@ export class Service {
       });
     }
     if (command.type === "run.compact") {
+      if (capabilityEnabled('context.lossAwareCompactionV1')) {
+        this.recordCompactionCandidate(thread.id);
+        throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+      }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
       this.assertNoOtherRun(thread.id);
@@ -1115,6 +1180,19 @@ export class Service {
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
     let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
+      try {
+        const current = this.assertRun(ctx);
+        const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
+          guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
+        this.store.internal('runtime.context.host', threadId, () => {
+          const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
+          const usage = { ...old, hostProjection };
+          this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
+          return { runId: ctx.runId, usage };
+        });
+      } catch { /* Shadow observation cannot alter or prevent the submitted request. */ }
+    }
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -1198,6 +1276,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
+    if (event.type === 'context.request' && !capabilityEnabled('context.compilerV1')) return;
     if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
     if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
     // Preserve event order: buffered deltas precede every other commit here.
@@ -1251,9 +1330,27 @@ export class Service {
         // snapshot instead of re-fetching it for every streamed chunk.
         return { runId: event.runId, message };
       }
+      if (event.type === 'context.request') {
+        const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
+        const { sequence, promptBytes, knownInputs } = event;
+        const old = this.store.get<{ value: RuntimeUsage }>('usage', thread.id)?.value ?? EMPTY_USAGE;
+        const last = old.lastRequest;
+        if (event.provider !== 'hermes' || !count(sequence, Number.MAX_SAFE_INTEGER) || sequence < 1 ||
+          !count(promptBytes, MODEL_ONLY_MAX_PROMPT_BYTES) || !count(knownInputs, 4096) ||
+          (last?.runId === event.runId && last.epoch === event.epoch && last.sequence >= sequence)) return { runId: event.runId };
+        const tool = event.toolSnapshot as Record<string, unknown> | undefined;
+        const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
+          typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
+          ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
+        const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}) };
+        const usage = { ...old, lastRequest: observation };
+        this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
+        return { runId: event.runId, usage };
+      }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }
@@ -1323,7 +1420,30 @@ export class Service {
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
-    if (call.name === "ui_discover") return discoverCapabilities(args);
+    if (call.name === 'context_result_read') {
+      if (!this.contextResultsEnabled()) throw new HarnessError('CAPABILITY_UNAVAILABLE', 'Context result retrieval is disabled');
+      const parsed = contextResultReadArgs.safeParse(args);
+      if (!parsed.success) throw new HarnessError('INVALID_INPUT', 'Choose a valid context result range');
+      const result = await this.contextResultVault().read({ owner: this.contextResultOwner(owningThread), ...parsed.data });
+      this.assertRun(ctx);
+      if (result.status !== 'OK') return result;
+      const { bytes, ...summary } = result;
+      try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
+      catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
+    }
+    if (call.name === "ui_discover") {
+      const value = await discoverCapabilities(args);
+      if (!this.contextResultsEnabled()) return value;
+      const bytes = Buffer.from(JSON.stringify(value));
+      if (bytes.length <= CONTEXT_PREVIEW_CAP_BYTES) return value;
+      const current = this.assertRun(ctx);
+      const result = await this.contextResultVault().spill({
+        owner: this.contextResultOwner(current), invocationId: this.contextResultInvocation(current) + ':' + randomUUID(),
+        bytes, mediaType: 'application/json', expiresAtMs: Date.now() + 60 * 60_000,
+      });
+      this.assertRun(ctx);
+      return { ...result, totalBytes: bytes.length };
+    }
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {

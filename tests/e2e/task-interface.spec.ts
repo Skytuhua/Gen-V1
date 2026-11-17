@@ -88,7 +88,7 @@ test('a pending question cannot duplicate or erase a newer draft and source erro
     if (command.payload.actionId === 'expand') { snapshot.data[0].value = { status: 'ready', answer: 'Use a separate destination for each package.' }; snapshot.data[0].revision++; }
   });
   await page.goto('/'); await page.getByRole('button', { name: 'Can delivery be split?', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('The delivery source needs another attempt.');
+  await expect(page.getByRole('status').filter({hasText:'The delivery source needs another attempt.'})).toContainText('The delivery source needs another attempt.');
   await page.getByRole('button', { name: 'Try again' }).click();
   await expect(page.getByText('Use a separate destination for each package.')).toBeVisible();
   const question = page.getByRole('textbox', { name: 'Ask another question' });

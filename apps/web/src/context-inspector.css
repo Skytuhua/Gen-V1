@@ -47,3 +47,8 @@ html[data-motion="reduced"] .context-compaction-shimmer,html[data-motion="off"] 
 html[data-motion="reduced"] .context-segment,html[data-motion="off"] .context-segment { transition:none; }
 @media(prefers-reduced-transparency:reduce) { .context-inspector,.context-category-detail { background:var(--surface); } }
 @media(forced-colors:active) { .context-meter .context-segment { outline:1px solid CanvasText; outline-offset:-1px; } .context-category-row>i { border:1px solid CanvasText; } }
+
+.context-request-evidence { margin-top:12px; }
+.context-request-tabs { display:flex; flex-wrap:wrap; gap:4px; }
+.context-request-tabs>button { min-height:28px; padding:4px 6px; border:1px solid transparent; border-radius:var(--radius,6px); background:none; color:var(--muted); font:inherit; font-size:12px; }
+.context-request-tabs>button[aria-selected="true"] { border-color:var(--border); background:var(--subtle); color:var(--text); }

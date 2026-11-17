@@ -245,6 +245,23 @@ class Worker:
                     fates = _steer_fates(worker.agent) if worker.agent is not None else {}
                     with worker.state_lock:
                         input_ids.extend(ticket for ticket in list(worker.followups) if fates.get(ticket) is True)
+                if worker.params.get("progressiveTools") is True and worker.current_ctx()["phase"] == "foreground":
+                    view = worker.host_call("$context.tools.snapshot", {"sequence": sequence})
+                    names = view.get("names") if isinstance(view, dict) else None
+                    if not isinstance(names, list) or any(not isinstance(name, str) or name not in worker.host_names for name in names):
+                        raise PermissionError("The host did not admit a valid current tool schema view")
+                    admitted = frozenset(names)
+                    tools = kwargs.get("tools")
+                    if isinstance(tools, list):
+                        def in_view(spec):
+                            if not isinstance(spec, dict):
+                                return False
+                            fn = spec.get("function", spec)
+                            if not isinstance(fn, dict):
+                                return False
+                            name = fn.get("name")
+                            return isinstance(name, str) and (name not in worker.host_names or name in admitted)
+                        kwargs["tools"] = [tool for tool in tools if in_view(tool)]
                 worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence})
                 response = super()._create_chat_completion(**kwargs)
                 usage = worker.host_call("$transport.usage", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
