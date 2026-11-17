@@ -99,7 +99,7 @@ function ReviewSession({owner, close}: ProjectMemoryReviewProps) {
       {loading && <p role="status">{view ? 'Refreshing project memory…' : 'Loading project memory…'}</p>}
       {!view && !loading && <button type="button" onClick={() => void load()}>Retry loading</button>}
       {view && <>
-        <header className="project-memory-heading"><div><h3>{view.projectName}</h3><p>Reviewed contextual evidence. Memory never authorizes actions.</p></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load();}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
+        <header className="project-memory-heading"><div><h3>{view.projectName}</h3></div><div className="project-memory-actions"><button type="button" disabled={blocked} onClick={() => {clearDetails(); void load();}}>Refresh</button><button type="button" disabled={blocked} onClick={() => void exportData()}>Export redacted JSON</button></div></header>
         <section className="project-memory-consent" aria-label="Project memory settings">
           <p><strong>{view.enabled ? 'Enabled for this project' : 'Not enabled for this project'}</strong></p>
           {view.disabledReason && <p>{view.disabledReason}</p>}
@@ -137,7 +137,7 @@ function MemoryRow({row, projectName, disabled, onAction, onEdit, onSource, onFo
     <header><strong>{label(item.kind)}</strong><span>{label(item.state)} · revision {item.revision}</span></header>
     <p className="project-memory-text">{item.text}</p>
     <dl className="project-memory-metadata"><dt>Project</dt><dd>{projectName}</dd><dt>Age</dt><dd><time dateTime={item.observedAt} title={date(item.observedAt)}>{age(item.observedAt)}</time></dd><dt>Expiry</dt><dd>{item.expiresAt ? <time dateTime={item.expiresAt}>{date(item.expiresAt)}</time> : 'None'}</dd><dt>Last used</dt><dd>{row.lastUsedAt ? <time dateTime={row.lastUsedAt}>{date(row.lastUsedAt)}</time> : 'Never'}</dd><dt>Asserted by</dt><dd>{label(item.assertedBy.kind)} · {item.sensitivity === 'SENSITIVE' ? 'Sensitive' : 'Normal sensitivity'}</dd><dt>Source</dt><dd>{item.sourceRefs.map((ref, index) => <span className="project-memory-source" key={`${ref.digest}:${index}`}><span>{label(ref.sourceKind)} · {label(ref.observedStatus)}</span><button type="button" disabled={disabled} aria-label={`View source ${item.id} ${index + 1}`} onClick={() => onSource(item, ref)}>View pinned source</button></span>)}</dd></dl>
-    {item.assertedBy.kind === 'AGENT' && <p className="project-memory-caption">Source attribution does not independently verify an agent claim.</p>}
+
     {item.state === 'CONFLICT' ? <><ConflictReview row={row} disabled={disabled} onAction={onAction} onSource={onSource}/><button type="button" className="project-memory-danger" disabled={disabled} aria-label={`Forget ${item.id}`} onClick={() => onForget(item)}>Forget</button></> : <div className="project-memory-actions">
       {item.state === 'PROPOSED' && <button type="button" disabled={disabled} aria-label={`Accept ${item.id}`} onClick={() => void onAction({action: 'accept', itemId: item.id, baseRevision: item.revision})}>Accept</button>}
       <button type="button" disabled={disabled} aria-label={`Edit ${item.id}`} onClick={() => onEdit(item)}>{item.state === 'PROPOSED' ? 'Edit and accept' : 'Edit'}</button>
@@ -157,7 +157,7 @@ function MemoryEditor({item, disabled, onCancel, onSave}: {item: MemoryItemV1; d
     <label>Memory text<textarea autoFocus rows={5} value={text} maxLength={2048} disabled={disabled} required onChange={event => setText(event.target.value)}/></label><p className={bytes > PROJECT_MEMORY_LIMITS.textBytes ? 'error-text' : 'project-memory-caption'}>{bytes} of 2048 UTF-8 bytes</p>
     <label>Expiry (UTC)<input type="datetime-local" max="9999-12-31T23:59" value={expiry} disabled={disabled} onChange={event => setExpiry(event.target.value)}/></label>{!validExpiry && <p role="alert">Choose a valid expiry date.</p>}
     {item.kind !== 'PREFERENCE' && <label><input type="checkbox" checked={preference} disabled={disabled} onChange={event => setPreference(event.target.checked)}/>Confirm this as a reusable preference for this project only</label>}
-    <p>Your correction supersedes this exact revision. A concurrent edit becomes a conflict.</p><div className="project-memory-actions"><button type="button" disabled={disabled} onClick={onCancel}>Cancel edit</button><button type="submit" disabled={disabled || !validExpiry || !text.trim() || bytes > PROJECT_MEMORY_LIMITS.textBytes}>{item.state === 'PROPOSED' ? 'Accept edited memory' : 'Save correction'}</button></div>
+    <div className="project-memory-actions"><button type="button" disabled={disabled} onClick={onCancel}>Cancel edit</button><button type="submit" disabled={disabled || !validExpiry || !text.trim() || bytes > PROJECT_MEMORY_LIMITS.textBytes}>{item.state === 'PROPOSED' ? 'Accept edited memory' : 'Save correction'}</button></div>
   </form>;
 }
 function ConflictReview({row, disabled, onAction, onSource}: {row: Row; disabled: boolean; onAction: (operation: MemoryAction) => Promise<boolean>; onSource: (item: MemoryItemV1, ref: MemorySourceRefV1) => void}) {

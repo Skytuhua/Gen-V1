@@ -41,7 +41,7 @@
 .files-surface input:focus-visible,
 .files-surface a:focus-visible,
 .files-surface [tabindex]:focus-visible {
-	outline: 2px solid var(--accent);
+	outline:2px solid var(--ui-focus-ring,#808080);
 	outline-offset: -2px;
 }
 .files-actions button {
@@ -384,7 +384,7 @@
 	cursor: pointer;
 }
 .project-search-details summary:focus-visible {
-	outline: 2px solid var(--accent);
+	outline:2px solid var(--ui-focus-ring,#808080);
 	outline-offset: 2px;
 }
 .files-matching-line {

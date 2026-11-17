@@ -112,7 +112,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
         : <div className="usage-dialog-empty-state">
           <BarChart3 size={20} aria-hidden="true" />
           <strong>No usage reported yet</strong>
-          <p>Cost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.</p>
+
           {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
         </div>)}
       {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}

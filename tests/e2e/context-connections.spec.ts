@@ -31,7 +31,7 @@ test('subscription inventory exposes OAuth, plan keys and official runtimes with
   const connections = page.getByRole('region', { name: 'AI subscription connections' });
   for(const provider of SUBSCRIPTION_CONNECTIONS){
     await connections.getByRole('button',{name:provider.label,exact:true}).click();const detail=connections.locator(`[data-provider="${provider.id}"]`);await expect(connections.locator('[data-provider]')).toHaveCount(1);
-    if(provider.status==='available'){await detail.getByText('Connect from a terminal',{exact:true}).click();await expect(detail.locator('code')).toHaveText(`pnpm agent:login --provider ${provider.id}`);await expect(detail).toContainText('Synthetic status; identity unavailable.');}
+    if(provider.status==='available'){await detail.getByText('Connect from a terminal',{exact:true}).click();await expect(detail.locator('code')).toHaveText(`pnpm agent:login --provider ${provider.id}`);await expect(detail.locator('.connection-auth-summary strong')).toHaveText('Status unknown');}
     else await expect(detail).toContainText('Unavailable.');
     await detail.getByText('Runtime and setup details',{exact:true}).click();await expect(detail).toContainText(provider.description);
   }
@@ -71,28 +71,18 @@ test('a saved note named new never shares a journal or mount identity with a fre
 
 test.describe('absolute local clock format (T07/R10)', () => {
   test.use({ locale: 'en-US', timezoneId: 'UTC' });
-  test('connection check time follows the system/24h/12h preference at the 13:05 fixture', async ({ page }) => {
-    await serveTaskFixture(page, taskFixture(simple));
-    await page.route('**/api/account-auth*', route => {
-      const url = new URL(route.request().url());
-      return route.fulfill({ json: { providerId: url.searchParams.get('providerId'), accountId: url.searchParams.get('accountId') || null, state: 'configured', identity: { availability: 'unavailable', subject: null, email: null, organization: null, subscription: null }, lastCheckedAt: '2026-11-16T13:05:00.000Z', localSignout: false, message: '' } });
-    });
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await page.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
-    const checked = page.locator('[data-provider="openai"]').getByText(/Last checked/);
-    await expect(checked).toContainText('1:05 PM');
-    const setFormat = async (label: string) => {
-      await page.getByRole('button', { name: 'General', exact: true }).click();
-      await page.getByRole('combobox', { name: 'Time format', exact: true }).click();
-      await page.getByRole('option', { name: label, exact: true }).click();
-      await page.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
+  test('recorded output time follows the system/24h/12h preference at the 13:05 fixture', async ({ page }) => {
+    const snapshot=taskFixture(simple);snapshot.data.push({id:'clock-output',threadId:'task-thread',revision:1,value:{stdout:'Clock format fixture',exitCode:0},provenance:'Synthetic recorded output',createdAt:'2026-11-16T13:05:00.000Z'});
+    await serveTaskFixture(page,snapshot);await page.goto('/');
+    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Output',exact:true}).click();
+    const checked=panel.locator('.executor-record>header>small');await expect(checked).toHaveText('1:05 PM');
+    const setFormat=async(label:string)=>{
+      await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'General',exact:true}).click();
+      await page.getByRole('combobox',{name:'Time format',exact:true}).click();await page.getByRole('option',{name:label,exact:true}).click();
+      await page.getByRole('button',{name:'Close dialog',exact:true}).click();
     };
-    await setFormat('24 hour');
-    await expect(checked).toContainText('13:05');
-    await setFormat('12 hour');
-    await expect(checked).toContainText('1:05 PM');
-    await setFormat('System');
-    await expect(checked).toContainText('1:05 PM');
-  });
-});
+    await setFormat('24 hour');await expect(checked).toHaveText('13:05');
+    await setFormat('12 hour');await expect(checked).toHaveText('1:05 PM');
+    await setFormat('System');await expect(checked).toHaveText('1:05 PM');
+  });});

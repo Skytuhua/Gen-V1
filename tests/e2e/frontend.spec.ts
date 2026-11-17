@@ -362,7 +362,7 @@ test('workspace files, diffs and executor output show actual scoped snapshot evi
   await panel.getByRole('button', { name: 'Add surface', exact: true }).click();
   await page.getByRole('menuitem', { name: 'Output', exact: true }).click();
   await expect(panel).toContainText('one real fixture check passed');
-  await expect(panel).toContainText('Recorded executor receipts and output. Open Terminal for an interactive host session.');
+  await expect(panel).not.toContainText('Recorded executor receipts and output. Open Terminal for an interactive host session.');
 });
 
 test('sidebar presentation, ordering and keyboard resize leave runtime status unchanged', async ({ page }) => {

@@ -107,7 +107,7 @@ test('removed accounts remain visible, cannot be selected, and can be restored',
   const h = await host(page); await page.goto('/'); const provider = await openAccounts(page);
   await provider.getByRole('button', { name: 'Remove Personal', exact: true }).click();
   await expect(provider.getByRole('radio', { name: 'Personal', exact: true })).toBeDisabled();
-  await expect(provider).toContainText('Existing tasks keep this account');
+  await expect(provider).not.toContainText('Existing tasks keep this account');
   await provider.getByRole('button', { name: 'Restore Personal', exact: true }).click();
   await expect(provider.getByRole('radio', { name: 'Personal', exact: true })).toBeEnabled();
   expect(h.commands.map(c => c.type)).toEqual(['account.remove', 'account.restore']);
@@ -212,7 +212,7 @@ test('an account radio is a pending choice until the new-task default is saved',
   const personalRow = provider.locator(`[data-account-id="${personal}"]`), workRow = provider.locator(`[data-account-id="${work}"]`);
   await expect(personalRow.getByText('Default', { exact: true })).toBeVisible();
   await provider.getByRole('radio', { name: 'Work', exact: true }).check();
-  await expect(provider.getByRole('status')).toContainText('Work is selected. Use account to make it the default for new tasks.');
+  await expect(provider.getByRole('status').filter({hasText:'Work is selected.'})).toContainText('Work is selected. Use account to make it the default for new tasks.');
   await expect(personalRow.getByText('Default', { exact: true })).toBeVisible();
   expect(h.commands).toHaveLength(0);
   const held = h.holdNext(); await provider.getByRole('button', { name: 'Use account', exact: true }).click(); await held;
@@ -220,7 +220,7 @@ test('an account radio is a pending choice until the new-task default is saved',
   await expect(provider.locator('.connection-accounts')).toHaveAttribute('aria-busy', 'true'); h.release();
   await expect(workRow.getByText('Default', { exact: true })).toBeVisible();
   await expect(personalRow.getByText('Default', { exact: true })).toHaveCount(0);
-  await expect(provider.getByRole('status')).toContainText('Work is the default for new tasks.');
+  await expect(provider.getByRole('status').filter({hasText:'Work is the default for new tasks.'})).toContainText('Work is the default for new tasks.');
 });
 
 test('bound thread catalogs follow their pinned account and ignore late discovery from another thread', async ({ page }) => {
@@ -272,6 +272,12 @@ test('account labels fit the existing settings layout across dark, light, and na
   await page.getByRole('searchbox', { name: 'Search all settings', exact: true }).fill('ChatGPT');
   await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:/^ChatGPT \/ Codex Models & accounts/}).click();
   await expect(provider).toBeVisible();
+  const settings=page.getByRole('dialog',{name:'Settings',exact:true}),header=settings.locator(':scope>.ui-modal-header');
+  const frame=(await settings.boundingBox())!,title=(await header.boundingBox())!;expect(title.y).toBeGreaterThanOrEqual(frame.y);
+  const mark=provider.locator('.connection-auth-summary strong');await expect(mark).toHaveText('Saved, not verified');await expect(provider).toHaveCSS('outline-style','none');
+  const treatment=await mark.evaluate(node=>({background:getComputedStyle(node).backgroundColor,dotWidth:getComputedStyle(node,'::before').width,dotHeight:getComputedStyle(node,'::before').height}));
+  expect(treatment).toEqual({background:'rgba(0, 0, 0, 0)',dotWidth:'6px',dotHeight:'6px'});
+  expect(await provider.locator('.connection-account-badge').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
   for (const theme of ['dark', 'light'] as const) { snapshot.settings.theme = theme; await h.publish(); await expect(page.locator('html')).toHaveAttribute('data-theme', theme); await page.getByRole('dialog', { name: 'Settings', exact: true }).screenshot({ path: testInfo.outputPath(`accounts-${theme}.png`) }); }
   await page.setViewportSize({ width: 390, height: 844 });
   const dialog = page.getByRole('dialog', { name: 'Settings', exact: true });
@@ -300,7 +306,7 @@ test('shows per-account readiness without turning model counts or local labels i
   await host(page);
   await page.route(`**/api/account-auth?providerId=openai&accountId=${work}`,route=>route.fulfill({json:{providerId:'openai',accountId:work,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'No credential configured.'}}));
   await page.goto('/');const provider=await openAccounts(page),detail=provider.locator('.connection-account-auth');
-  await expect(detail).toContainText('Saved, not verified');await expect(detail).toContainText('Authenticated identity unavailable.');
+  await expect(detail).toContainText('Saved, not verified');await expect(detail).not.toContainText('Authenticated identity unavailable.');await expect(detail).not.toContainText('Last checked');
   await expect(detail.getByRole('button',{name:'Sign out locally',exact:true})).toBeEnabled();
   await provider.getByRole('radio',{name:'Work',exact:true}).check();await expect(detail).toContainText('Not signed in');
   await expect(provider.locator('header').first()).not.toContainText('models available');await expect(provider).not.toContainText('Verified provider user');
@@ -328,7 +334,7 @@ test('local signout names its scope and preserves account metadata',async({page}
   await host(page);let target:any;
   await page.route('**/api/account-auth/signout',async route=>{target=route.request().postDataJSON();await route.fulfill({json:{...target,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'Local credentials removed. Remote sessions and provider grants were not revoked.'}});});
   await page.goto('/');const provider=await openAccounts(page);await provider.getByRole('radio',{name:'Work',exact:true}).check();const detail=provider.locator('.connection-account-auth');await detail.getByRole('button',{name:'Sign out locally',exact:true}).click();
-  await expect(detail).toContainText('Remote sessions and provider grants were not revoked.');expect(target).toEqual({providerId:'openai',accountId:work});await expect(provider.getByRole('button',{name:'Rename Work',exact:true})).toBeVisible();
+  await expect(detail).toHaveAttribute('data-state','signed-out');await expect(detail.getByRole('button',{name:'Sign out locally',exact:true})).toBeDisabled();expect(target).toEqual({providerId:'openai',accountId:work});await expect(provider.getByRole('button',{name:'Rename Work',exact:true})).toBeVisible();
 });
 
 for(const lateError of [false,true])test(`switching account cancels readiness and ignores late ${lateError?'failure':'identity'}`,async({page})=>{
@@ -352,7 +358,7 @@ test('signing out a non-default account preserves unrelated pinned and default c
   await page.goto('/');const provider=await openAccounts(page);await provider.getByRole('radio',{name:'Work',exact:true}).check();
   const detail=provider.locator('.connection-account-auth');await expect(detail).toHaveAttribute('aria-busy','false');
   const reads=h.discoveries.length;await detail.getByRole('button',{name:'Sign out locally',exact:true}).click();
-  await expect(detail).toContainText('Local Work credentials removed.');await expect(detail).toHaveAttribute('aria-busy','false');
+  await expect(detail).toHaveAttribute('data-state','signed-out');await expect(detail).toHaveAttribute('aria-busy','false');
   expect(h.discoveries).toHaveLength(reads);await expect(page.getByRole('combobox',{name:'Default model',exact:true})).toContainText('Personal model');
 });
 
@@ -363,7 +369,7 @@ for(const failedRefresh of [false,true])test(`auth invalidation reaches the save
   await page.route('**/api/account-auth/signout',route=>{signedOut=true;return route.fulfill({json:{providerId:'openai',accountId:personal,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'Local credentials removed.'}});});
   await page.route('**/api/workspace',route=>route.fulfill({json:{projects:[],state:{version:1,revision:0,activeCanvasId:'saved-canvas',canvases:[{version:1,id:'saved-canvas',name:'Saved canvas',preset:'custom',viewport:{x:0,y:0,zoom:1},panels:[{id:'saved-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'},canvasId:'saved-canvas',placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:560},order:0,alwaysOnTop:false}],filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}}}));
   await page.goto('/');await expect(page.getByRole('combobox',{name:'Model',exact:true})).toContainText('Personal model',{timeout:15000});
-  const provider=await openAccounts(page);await provider.getByRole('button',{name:'Sign out locally',exact:true}).click();await expect(provider).toContainText('Local credentials removed.');
+  const provider=await openAccounts(page);await provider.getByRole('button',{name:'Sign out locally',exact:true}).click();await expect(provider.locator('.connection-account-auth')).toHaveAttribute('data-state','signed-out');
   await page.getByRole('button',{name:'Close dialog',exact:true}).click();
   await expect(page.getByRole('combobox',{name:'Model',exact:true})).toContainText(failedRefresh?'openai/shared':'Refreshed Personal model');
   if(failedRefresh)await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeDisabled();
