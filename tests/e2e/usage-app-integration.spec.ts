@@ -2,7 +2,7 @@ import {test,expect,type Page} from '@playwright/test';
 import {taskFixture,serveTaskFixture} from './task-interface-fixture';
 import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 const modal=(page:Page)=>page.getByRole('dialog',{name:'Usage',exact:true});
-async function host(page:Page,{split=false}={}){
+async function host(page:Page,{split=false,mode='split'}:{split?:boolean;mode?:'missing'|'v2-chat'|'v3-chat'|'split'}={}){
  const s=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Usage App integration'}}}});
  s.artifacts=[];s.data=[];s.messages=[];s.userStates=[];
  s.threads[0].sessionPath='/fixture/pi/tasks/task-thread/sessions/session.jsonl';
@@ -13,7 +13,7 @@ async function host(page:Page,{split=false}={}){
  const h=await serveTaskFixture(page,s);
  await page.route('**/api/workspace',r=>r.fulfill({json:{state:{version:1,revision:1,activeCanvasId:'main',canvases:[{id:'main',version:1,name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'all',projectIds:[]}],disabledKinds:[],integrations:{},profiles:[]},projects:[]}}));
  if(split){
-  await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','split'));
+  await page.addInitScript(mode=>{localStorage.removeItem('harness:workspace-mode:v2');localStorage.removeItem('harness:workspace-mode:v3');if(mode!=='missing')localStorage.setItem(mode==='v2-chat'?'harness:workspace-mode:v2':'harness:workspace-mode:v3',mode==='split'?'split':'chat');},mode);
   let layout=applySplitWorkspaceCommand(createSplitWorkspaceLayout(),'view.open',{paneId:'pane-main',view:{id:'thread:task-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'}}});
   layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'pane-other',splitId:'usage-split',axis:'horizontal',view:{id:'thread:other',kind:'thread',binding:{authority:{kind:'local'},threadId:'other'}}});
   await page.route('**/api/split-workspace?*',r=>r.fulfill({json:layout}));
@@ -91,9 +91,9 @@ test('actual App captured usage scope does not switch to another thread on snaps
  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other synthetic owner'});h.snapshot.usage.other={...h.snapshot.usage['task-thread'],inputTokens:999};h.snapshot.activeThreadId='other';await h.publish();
  await expect(modal(page)).toContainText('Source-bound task fixture');await expect(modal(page)).not.toContainText('999');
 });
-test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{
+test('canonical App migrates the old Usage route without a modal and leaves saved Thread memory reachable',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));
- await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');
+ await host(page);await expect(modal(page)).toHaveCount(0);
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);
  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');
@@ -104,22 +104,24 @@ test('review: a closed remembered Usage tab must not open a blocking dialog on l
  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:false})));
  await host(page);await expect(modal(page)).toHaveCount(0);
 });
-test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{
+test('Usage opened after restored-route migration resolves its loaded conversation scope',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
- await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
+ await host(page);await expect(modal(page)).toHaveCount(0);await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');
 });
 
 
-test('review: an open restored Usage tab stays closed in split workspace and keeps both composers available',async({page})=>{
+for(const mode of ['missing','v2-chat','v3-chat','split'] as const)test(`restored Usage stays closed for the canonical renderer with ${mode} mode and keeps both composers available`,async({page})=>{
  await page.setViewportSize({width:1920,height:900});
  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
- const h=await host(page,{split:true});
+ const h=await host(page,{split:true,mode});
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
  await expect(modal(page)).toHaveCount(0);
  const first=page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true}),second=page.locator('[data-split-view="thread:other"]').getByRole('textbox',{name:'Message',exact:true});
  for(const draft of [first,second]){await expect(draft).toBeVisible();await expect(draft).toBeEnabled();}
  await first.fill('Keep the first split draft');await second.fill('Keep the second split draft');
+ await expect.poll(()=>page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);return Promise.all(['draft:task-thread','draft:other'].map(key=>journal.journalRead(key)));})).toEqual(['Keep the first split draft','Keep the second split draft']);
+ await page.reload();
  await expect(first).toHaveValue('Keep the first split draft');await expect(second).toHaveValue('Keep the second split draft');
  await expect(modal(page)).toHaveCount(0);
  expect(h.commands.filter(command=>command.type==='thread.create'||command.type==='message.send')).toHaveLength(0);
