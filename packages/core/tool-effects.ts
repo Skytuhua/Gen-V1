@@ -16,7 +16,7 @@ import { digest, type Store } from "../storage/store.ts";
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
 const CONTROL_KEYS = new Set(["commandId", "invocationId"]);
-const SECRET_KEY = /secret|token|password|credential|api[_-]?key/i;
+const SECRET_KEY = /secret|token|password|credential|api[_-]?key|authorization|cookie/i;
 const TRANSITION_CAP = 200;
 
 /** Test-only seam: throws injected faults at durability boundaries
