@@ -316,3 +316,14 @@
 .verification-security-findings > p { color:var(--muted); margin:8px 0; }
 .verification-security-findings > details { padding:8px 0; border-top:1px solid var(--border); }
 .verification-security-findings summary { cursor:pointer; }
+
+.verification-actions { min-width:0; margin:8px 0 12px; overflow-wrap:anywhere; }
+.verification-actions p { margin:8px 0; color:var(--muted); }
+.verification-actions [role="alert"] { color:var(--danger,#e05d5d); }
+.verification-actions h3 { margin:8px 0; font-size:13px; }
+.verification-action-buttons,.verification-budget { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 12px; }
+.verification-actions button { max-width:100%; white-space:normal; }
+.verification-budget { margin:12px 0; }
+.verification-budget > p { flex-basis:100%; }
+.verification-budget label { display:flex; flex-direction:column; gap:4px; min-width:0; max-width:100%; }
+.verification-budget input { width:12rem; max-width:100%; box-sizing:border-box; }

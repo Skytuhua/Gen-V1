@@ -524,3 +524,97 @@ test('Requests can filter measured providers even when no usage report exists', 
   await modal.getByRole('tab', { name: 'Cost', exact: true }).click();
   await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toBeVisible();
 });
+
+
+const workflowControls = (change: Partial<import('../../packages/contracts/verification-repair.ts').VerificationWorkflowView> = {}): import('../../packages/contracts/verification-repair.ts').VerificationWorkflowView => ({
+  ownerKey: 'owner-one', executionId: 'execution-one', recipeId: 'recipe-one', qa: false, canRerun: true, canStartRepair: true,
+  unavailableReason: null, suggestedBudget: {tokens: 0, ms: 900_000}, repair: null, ...change,
+});
+const repairProgress = (change: Partial<NonNullable<ReturnType<typeof workflowControls>['repair']>> = {}): NonNullable<ReturnType<typeof workflowControls>['repair']> => ({
+  planId: 'repair-one', revision: 2, attempts: 0, maxAttempts: 3, state: 'AWAITING_APPROVAL', remainingTokens: 2500, reservedTokens: 0,
+  remainingMs: 60_000, deadline: '2030-01-01T00:01:00.000Z', stopped: null, stopDetail: null, unavailableReason: null, canContinue: false, canStop: true, ...change,
+});
+for (const status of [403, 409]) test(`verification shows pending and denied reruns without removing historical rows (HTTP ${status})`, async ({page}) => {
+  const commands: {type: string; threadId: string; payload: unknown}[] = [];
+  let reply!: () => Promise<void>;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...verificationResult('Retained prior check').verification, workflow: workflowControls()}}}));
+  await page.route('**/api/commands', route => {
+    commands.push(route.request().postDataJSON());
+    reply = () => route.fulfill({status, json: {error: {code: status === 409 ? 'STALE_REVISION' : 'APPROVAL_REQUIRED', message: 'Review the current verification before retrying.'}}});
+  });
+  await page.goto('/usage-context?verification');
+  const rerun = verification(page).getByRole('button', {name: 'Rerun checks', exact: true});
+  await rerun.click(); await expect.poll(() => commands.length).toBe(1);
+  await expect(rerun).toBeDisabled(); await expect(verification(page)).toContainText('Preparing rerun...');
+  await expect(verification(page)).toContainText('Retained prior check');
+  expect(commands[0]).toMatchObject({type: 'verification.rerun', threadId: 'thread-one', payload: {executionId: 'execution-one'}});
+  await reply();
+  await expect(verification(page).getByRole('alert')).toHaveText('Review the current verification before retrying.');
+  await expect(rerun).toBeEnabled(); expect(commands).toHaveLength(1);
+});
+
+test('verification exposes the three-attempt budget and keyboard Stop inside a short canvas', async ({page}, info) => {
+  let workflow = workflowControls({qa: true, suggestedBudget: {tokens: 3000, ms: 900_000}});
+  const commands: {type: string; threadId: string; payload: unknown}[] = [];
+  await page.setViewportSize({width: 340, height: 420});
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...verificationResult('Retained failing check').verification, workflow}}}));
+  await page.route('**/api/commands', route => {
+    const request = route.request().postDataJSON(); commands.push(request);
+    workflow = request.type === 'verification.repair.start'
+      ? {...workflow, canRerun: false, canStartRepair: false, repair: repairProgress()}
+      : {...workflow, canRerun: true, repair: repairProgress({revision: 3, state: 'STOPPED', stopped: 'CANCELLED', canStop: false})};
+    return route.fulfill({json: {commandId: request.id, eventSeq: commands.length, result: {}}});
+  });
+  await page.goto('/usage-context?verification&canvas');
+  await verification(page).getByRole('spinbutton', {name: 'Repair time limit (seconds)', exact: true}).fill('60');
+  await verification(page).getByRole('spinbutton', {name: 'Repair QA token budget', exact: true}).fill('2500');
+  await verification(page).getByRole('button', {name: 'Start bounded repair', exact: true}).click();
+  await expect(verification(page)).toContainText('0 of 3 attempts used');
+  await expect(verification(page)).toContainText('Awaiting approval');
+  await expect(verification(page)).toContainText('Review and approve the prepared operation');
+  await expect(verification(page)).toContainText('2500 QA tokens remaining');
+  expect(commands[0]).toMatchObject({type: 'verification.repair.start', payload: {executionId: 'execution-one', budget: {tokens: 2500, ms: 60_000}}});
+  const stop = verification(page).getByRole('button', {name: 'Stop repair', exact: true});
+  await expect(stop).toBeEnabled(); await stop.focus(); await page.keyboard.press('Enter');
+  await expect(verification(page)).toContainText('Stop reason: Cancelled');
+  await expect(stop).toBeDisabled();
+  expect(commands[1]).toMatchObject({type: 'verification.repair.stop', threadId: 'thread-one', payload: {planId: 'repair-one', revision: 2}});
+  await expect(verification(page)).toContainText('Retained failing check');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('textbox', {name: 'Reply', exact: true}).fill('The composer remains available.');
+  await expect(page.getByRole('textbox', {name: 'Reply', exact: true})).toBeInViewport();
+  await verification(page).getByText('Bounded repair', {exact: true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path: info.outputPath('verification-repair-short-canvas.png'), fullPage: true});
+});
+
+test('verification explains an unchanged-failure stop and preserves the active-parent prerequisite for QA', async ({page}) => {
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...verificationResult('Previous failure').verification,
+    workflow: workflowControls({qa: true, canRerun: false, canStartRepair: false, unavailableReason: 'Resume this task before preparing checks that include QA.',
+      repair: repairProgress({state: 'STOPPED', stopped: 'UNCHANGED_FAILURE', attempts: 1, canStop: false})})}}}));
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Repeated unchanged failure');
+  await expect(verification(page)).toContainText('Resume this task before preparing checks that include QA.');
+  await expect(verification(page)).toContainText('1 of 3 attempts used');
+  await expect(verification(page).getByRole('button', {name: 'Prepare next attempt', exact: true})).toHaveCount(0);
+  await expect(verification(page).getByRole('button', {name: 'Rerun checks', exact: true})).toBeDisabled();
+  await expect(verification(page).getByRole('button', {name: 'Start bounded repair', exact: true})).toHaveCount(0);
+});
+
+test('verification does not retry a prior-owner command after an authentication refresh', async ({page}) => {
+  const commands: {type: string; threadId: string}[] = [];
+  let reply!: () => Promise<void>;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {verification: {...verificationResult('First evidence').verification, workflow: workflowControls()}}}));
+  await page.route('**/api/threads/thread-two/verification', route => route.fulfill({json: {verification: {...verificationResult('Second evidence').verification, workflow: workflowControls({ownerKey: 'owner-two', executionId: 'execution-two'})}}}));
+  await page.route('**/api/commands', route => {commands.push(route.request().postDataJSON()); reply = () => route.fulfill({status: 401, json: {error: {code: 'UNAUTHENTICATED', message: 'Old owner session expired.'}}});});
+  await page.goto('/usage-context?verification');
+  await verification(page).getByRole('button', {name: 'Rerun checks', exact: true}).click();
+  await expect.poll(() => commands.length).toBe(1);
+  await page.getByRole('button', {name: 'Second conversation', exact: true}).click();
+  await expect(verification(page)).toContainText('Second evidence');
+  const refreshed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/bootstrap');
+  await reply(); await (await refreshed).finished(); await page.evaluate(() => Promise.resolve());
+  expect(commands).toEqual([expect.objectContaining({type: 'verification.rerun', threadId: 'thread-one'})]);
+  await expect(verification(page)).not.toContainText('Old owner session expired');
+  await expect(verification(page)).not.toContainText('First evidence');
+  await expect(verification(page).getByRole('button', {name: 'Rerun checks', exact: true})).toBeEnabled();
+});
