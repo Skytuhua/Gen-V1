@@ -183,6 +183,9 @@ describe('M01 current dependency compatibility execution', () => {
     const value = fixture();
     writeFileSync(join(value.root, '.git/info/attributes'), 'packages/contracts/index.ts text eol=lf\n');
     value.put('packages/contracts/index.ts', 'export const value = 42;\r\n');
+    // Refresh the index using the local clean filter without changing its blob.
+    value.git('add', '--', 'packages/contracts/index.ts');
+    expect(value.git('rev-parse', ':packages/contracts/index.ts')).toBe(value.lock.publicContracts[0]!.version);
     expect(value.git('status', '--porcelain', '--untracked-files=all')).toBe('');
     expect(value.git('hash-object', '--path=packages/contracts/index.ts', '--', join(value.root, 'packages/contracts/index.ts')))
       .toBe(value.lock.publicContracts[0]!.version);
