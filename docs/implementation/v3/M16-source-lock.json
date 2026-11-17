@@ -1,0 +1,111 @@
+{
+ "schemaVersion": 3,
+ "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
+ "executionBaseSha": "f20b92c636f9ba749a2a2ac027a9e1f053574198",
+ "inspectedPaths": [
+  {
+   "path": "package.json",
+   "blobSha": "98917356c2e24da32ecd93b9e6cd8d92d3a81080"
+  },
+  {
+   "path": "pnpm-lock.yaml",
+   "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+  },
+  {
+   "path": "docs/architecture.md",
+   "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+  },
+  {
+   "path": "docs/implementation/v6/M15/handoff.md",
+   "blobSha": "4543b2ec282fbe06c31dd48cc1d1225fc8c96389"
+  },
+  {
+   "path": "packages/contracts/implementation-evidence.ts",
+   "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+  },
+  {
+   "path": "packages/contracts/tool-effects.ts",
+   "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+  },
+  {
+   "path": "packages/contracts/request-context.ts",
+   "blobSha": "90485ab315299e97f96b7b2dc370f0851f7f620f"
+  },
+  {
+   "path": "packages/contracts/index.ts",
+   "blobSha": "78c6954b62725956a4adbda7b93718966ddb025d"
+  },
+  {
+   "path": "packages/core/capability-flags.ts",
+   "blobSha": "bb13ab52cfb8ff5c4cd6f3d8081087d61ad60460"
+  },
+  {
+   "path": "packages/core/service.ts",
+   "blobSha": "743ad3720f399cb3ee59da61a3f0e62b6d79c558"
+  },
+  {
+   "path": "packages/storage/store.ts",
+   "blobSha": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326"
+  },
+  {
+   "path": "apps/server/server.ts",
+   "blobSha": "894473a7fbfc0d9e5879fb6982b7fcf40d902db6"
+  },
+  {
+   "path": "apps/web/src/App.tsx",
+   "blobSha": "20833df2893d03b265498246c42e3771edd93eed"
+  },
+  {
+   "path": "apps/web/src/api.ts",
+   "blobSha": "579e0420d55576d47bc11c722506c573a1bdd0c0"
+  },
+  {
+   "path": "apps/web/src/VerificationPanel.tsx",
+   "blobSha": "118b5e69683001dc347ccc6c18e667b6c9e8c995"
+  },
+  {
+   "path": "vitest.config.ts",
+   "blobSha": "90b2be612db1daf6813887f18bd9da6a8181c323"
+  },
+  {
+   "path": "tsconfig.json",
+   "blobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515"
+  }
+ ],
+ "publicContracts": [
+  {
+   "name": "packages/contracts/tool-effects.ts",
+   "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+   "testIds": [
+    "tests/browser-consent-v3.test.ts",
+    "tests/interactive-control-decisions-v6.test.ts"
+   ]
+  },
+  {
+   "name": "packages/contracts/implementation-evidence.ts",
+   "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+   "testIds": [
+    "tests/interactive-control-decisions-v6.test.ts"
+   ]
+  },
+  {
+   "name": "packages/storage/store.ts",
+   "version": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326",
+   "testIds": [
+    "tests/browser-consent-v3.test.ts",
+    "tests/interactive-control-decisions-v6.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/capability-flags.ts",
+   "version": "bb13ab52cfb8ff5c4cd6f3d8081087d61ad60460",
+   "testIds": [
+    "tests/interactive-control-decisions-v6.test.ts"
+   ]
+  }
+ ],
+ "acceptedDependencyCommits": [
+  "f20b92c636f9ba749a2a2ac027a9e1f053574198"
+ ],
+ "approvedDrift": []
+}
