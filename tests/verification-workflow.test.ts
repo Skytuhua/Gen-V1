@@ -111,7 +111,34 @@ it('runs a restricted QA child through the exact approved M02 execution and reta
   expect(runtime.created[0].policy).toMatchObject({hostTools: [{name: 'qa_run'}, {name: 'qa_observe'}, {name: 'qa_context'}, {name: 'qa_result'}]});
   expect(f.store.all('verificationQaReview')).toEqual([expect.objectContaining({evidenceQuality: 'ADVISORY', output: qaOutput})]);
   expect(f.store.all('agentWork')).toEqual([expect.objectContaining({role: 'QA', state: 'COMPLETED_REPORTED', grantSubset: [], budget: qaRequest.budget})]);
+  expect(f.store.get<Thread>('thread', runtime.created[0].input!.threadId)).toMatchObject({status: 'completed', runId: null});
   expect((await f.finish()).label).toBe('VERIFIED'); expect((await f.service.verificationPanel(f.thread.id)).label).toBe('VERIFIED');
+});
+
+it.each(['none', 'run', 'project', 'workspace', 'account', 'model'] as const)('retires only the completed QA child after confirmed cleanup (replacement: %s)', async replacement => {
+  let entered = false, release!: () => void;
+  const cleanup = new Promise<void>(resolve => {release = resolve;});
+  const runtime = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);});
+  const f = await fixture({qaRuntimeFactory: policy => {
+    const native = runtime.factory(policy);
+    return {...native, dispose: async () => {entered = true; await cleanup; await native.dispose();}};
+  }});
+  const operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  const pending = f.service.dispatchOperation(operation.id);
+  try {
+    await vi.waitFor(() => expect(entered).toBe(true));
+    const input = runtime.created[0].input!, child = f.store.get<Thread>('thread', input.threadId)!;
+    expect(child).toMatchObject({status: 'completed', runId: input.runId, epoch: input.epoch});
+    expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({cleanupConfirmed: null})]);
+    const change: Partial<Thread> = replacement === 'run' ? {runId: 'replacement-run', epoch: child.epoch + 1, status: 'working'} :
+      replacement === 'project' ? {projectId: 'replacement-project'} : replacement === 'workspace' ? {workspaceId: 'replacement-workspace'} :
+      replacement === 'account' ? {accountId: 'replacement-account'} : replacement === 'model' ? {modelId: 'replacement/model'} : {};
+    if (replacement !== 'none') f.store.internal('fixture.replacement', child.id, () => f.store.put('thread', child.id, child.id, {...child, ...change}));
+    release(); await pending;
+    expect(f.store.get<Thread>('thread', child.id)).toMatchObject(replacement === 'none' ? {...child, runId: null} : {...child, ...change});
+    expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({state: 'COMPLETED_REPORTED', cleanupConfirmed: true})]);
+    expect(f.store.all('agentWork')).toEqual([expect.objectContaining({state: 'COMPLETED_REPORTED', childOwner: {threadId: input.threadId, runId: input.runId, epoch: input.epoch}})]);
+  } finally {release(); await pending.catch(() => {});}
 });
 
 it('rejects QA source reads and structured findings outside the exact approved source inputs', async () => {
@@ -239,6 +266,7 @@ it('keeps executed PASS historical but blocks clean completion when the QA runti
   expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown', error: 'Owned QA runtime cleanup could not be confirmed.'});
   expect(f.store.all<CheckObservationV1>('checkObservation').some(value => value.phase === 'TEST' && value.outcome === 'PASS')).toBe(true);
   expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({state: 'FAILED', cleanupConfirmed: false})]);
+  expect(f.store.get<Thread>('thread', runtime.created[0].input!.threadId)).toMatchObject({status: 'completed', runId: runtime.created[0].input!.runId});
   await expect(f.finish()).rejects.toMatchObject({code: 'REQUEST_GATED'});
   expect((await f.service.verificationPanel(f.thread.id)).summary.blocked).toBe(1);
 });
