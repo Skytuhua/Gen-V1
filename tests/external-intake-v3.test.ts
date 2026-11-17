@@ -210,6 +210,22 @@ describe("M10-T05/D05 untrusted content and approval gates", () => {
     await expect(f.intake.approve(command("intake.approve"), { intakeId: approved.intakeId, modelId: "test/model" })).rejects.toMatchObject({ code: "STALE_REVISION" });
     expect(f.executorCalls).toHaveLength(1);
   });
+  it("a concurrent approval while the first still executes creates no duplicate task", async () => {
+    const f = fixture({ createTask: async request => { f.executorCalls.push(request); await new Promise(resolve => setTimeout(resolve, 30)); return { threadId: "created-thread" }; } });
+    await f.intake.pollOnce();
+    const intakeId = f.intake.records()[0]!.intakeId;
+    const results = await Promise.allSettled([
+      f.intake.approve(command("intake.approve"), { intakeId, modelId: "test/model" }),
+      f.intake.approve(command("intake.approve"), { intakeId, modelId: "test/model" }),
+    ]);
+    const succeeded = results.filter(r => r.status === "fulfilled");
+    const rejected = results.filter(r => r.status === "rejected");
+    expect(succeeded).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({ code: "STALE_REVISION" });
+    expect(f.executorCalls).toHaveLength(1);
+    expect(f.intake.records()[0]!.disposition).toBe("APPROVED");
+  });
   it("approval is an explicit host command, never inferred from repository access", async () => {
     const f = fixture({ createTask: undefined });
     await f.intake.pollOnce();

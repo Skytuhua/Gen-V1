@@ -22,13 +22,13 @@ afterEach(async () => {
 const M10_FLAGS = ["jobs.backgroundV1", "jobs.serviceLifetimeV1", "jobs.idleReviewV1", "integrations.intakeV1"] as const;
 function enable(...keys: (typeof M10_FLAGS)[number][]) { for (const key of keys) __setCapabilityFlagForTests(key, true); }
 
-function fixture(options: { idleExecutor?: ConstructorParameters<typeof BackgroundWorkCoordinator>[0]["idleExecutor"]; gate?: ModelCapacity; executionGate?: ConstructorParameters<typeof BackgroundWorkCoordinator>[0]["executionGate"] } = {}) {
+function fixture(options: { idleExecutor?: ConstructorParameters<typeof BackgroundWorkCoordinator>[0]["idleExecutor"]; gate?: ModelCapacity; executionGate?: ConstructorParameters<typeof BackgroundWorkCoordinator>[0]["executionGate"]; enqueueFollowUp?: ConstructorParameters<typeof BackgroundWorkCoordinator>[0]["enqueueFollowUp"] } = {}) {
   const root = mkdtempSync(join(realpathSync(tmpdir()), "m10-background-"));
   const store = new Store(join(root, "state"));
   let clock = 1_700_000_000_000;
   const now = () => clock;
   const advance = (ms: number) => { clock += ms; };
-  const coordinator = new BackgroundWorkCoordinator({ store, now, gate: options.gate, idleExecutor: options.idleExecutor, executionGate: options.executionGate });
+  const coordinator = new BackgroundWorkCoordinator({ store, now, gate: options.gate, idleExecutor: options.idleExecutor, executionGate: options.executionGate, enqueueFollowUp: options.enqueueFollowUp });
   const thread: Thread = { id: "thread-1", title: "Owner", projectName: null, createdAt: new Date(clock).toISOString(), updatedAt: new Date(clock).toISOString(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null };
   store.internal("fixture.thread", thread.id, () => store.put("thread", thread.id, thread.id, thread));
   cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
@@ -327,6 +327,117 @@ describe("M10-S02/S03/T02 owned RUN-lifetime commands", () => {
     expect(verifyProcessIdentity({ pid: process.pid, creationToken: "not-the-token", platform: process.platform, capturedAt: "now" })).toBe(process.platform === "linux" ? "MISMATCH" : "UNPROVEN");
     expect(verifyProcessIdentity({ pid: 4_000_000, creationToken: "x", platform: "linux", capturedAt: "now" })).toBe(process.platform === "linux" ? "GONE" : "UNPROVEN");
     expect(verifyProcessIdentity({ pid: process.pid, creationToken: null, platform: "linux", capturedAt: "now" })).toBe("UNPROVEN");
+  });
+});
+
+describe("M10 review regressions", () => {
+  const cmdSpec = (cwd: string, argv: string[]) => ({ executable: process.execPath, argv, cwd, profileId: "p" });
+  it("a repeated or concurrent start never spawns a second owned process", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }) });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "once", command: cmdSpec(f.root, ["-e", "console.log('only once')"]) });
+    const [a, b] = await Promise.all([f.coordinator.startCommand(work.workId), f.coordinator.startCommand(work.workId)]);
+    const third = await f.coordinator.startCommand(work.workId);
+    const pid = (a.state === "RUNNING" ? a : b).processIdentity!.pid;
+    expect(third.processIdentity?.pid).toBe(pid);
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+    expect(f.store.all("backgroundExitReceipt")).toHaveLength(1);
+    expect(f.coordinator.exitReceipt(work.workId)?.pid).toBe(pid);
+  });
+  it("a settled command releases its session so busy readiness clears", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }) });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "exit", command: cmdSpec(f.root, ["-e", "0"]) });
+    await f.coordinator.startCommand(work.workId);
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    await waitFor(() => !f.coordinator.busy);
+    const reopened = f.coordinator.readOutput(work.workId, "thread-1", 0);
+    expect(reopened.exited).toBe(true);
+  });
+  it("a scheduled command stays parked while a human step is pending, then runs after the answer", async () => {
+    const followUps: { id: string; threadId: string; content: string }[] = [];
+    const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { followUps.push(input); f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "guarded", command: cmdSpec(f.root, ["-e", "0"]) });
+    const scheduler = f.coordinator.scheduler;
+    scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "AT_UTC", dueAtMs: f.now() - 1 } });
+    f.coordinator.requestHumanStep(command("background.human.request"), { requestId: "req-1", owner: f.owner, questionRevision: 1, responseSchema: {}, requiredAction: "answer", workId: work.workId });
+    expect(f.coordinator.work(work.workId).state).toBe("WAITING_HUMAN");
+    await scheduler.tick();
+    await waitFor(() => scheduler.schedules()[0]?.state === "BLOCKED");
+    const parked = scheduler.schedules()[0]!;
+    expect(parked.state).toBe("BLOCKED");
+    expect(parked.blockedReason).toBe("WAITING_HUMAN");
+    expect(f.coordinator.work(work.workId).processIdentity).toBeNull();
+    f.coordinator.respondHumanStep(command("background.human.respond", {}, "thread-1"), { requestId: "req-1", revision: 1, response: { proceed: true } });
+    expect(f.coordinator.work(work.workId).state).toBe("QUEUED");
+    const resumed = scheduler.schedules()[0]!;
+    expect(resumed.state).toBe("PENDING");
+    expect(resumed.nextDueAtMs).not.toBeNull();
+    expect(resumed.scheduleRevision).toBeGreaterThan(parked.scheduleRevision);
+    await scheduler.tick();
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+  });
+  it("a blocked AT_UTC wakeup re-arms on resume instead of staying permanently dead", async () => {
+    const f = fixture();
+    enable("jobs.backgroundV1");
+    let outcome: "BLOCKED" | "DELIVERED" = "BLOCKED";
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => outcome === "BLOCKED" ? { status: "BLOCKED", blockedReason: "WAITING_HUMAN" } : { status: "DELIVERED" } });
+    cleanups.push(() => scheduler.stop());
+    const dueAtMs = f.now() - 1;
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "task-1", trigger: { kind: "AT_UTC", dueAtMs } });
+    await scheduler.tick();
+    await waitFor(() => scheduler.schedules()[0]?.state === "BLOCKED");
+    outcome = "DELIVERED";
+    const resumed = scheduler.resume(command("background.wakeup.resume"), wakeup.wakeupId);
+    expect(resumed.state).toBe("PENDING");
+    expect(resumed.nextDueAtMs).toBe(dueAtMs);
+    expect(resumed.scheduleRevision).toBe(wakeup.scheduleRevision + 1);
+    await scheduler.tick();
+    await waitFor(() => scheduler.schedules()[0]?.state === "DELIVERED");
+    const occurrences = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === wakeup.wakeupId);
+    expect(occurrences.filter(o => o.state === "CANCELLED")).toHaveLength(1);
+    expect(occurrences.filter(o => o.state === "DELIVERED")).toHaveLength(1);
+  });
+  it("a direct start on a revoked owner blocks instead of launching", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }) });
+    enable("jobs.backgroundV1");
+    const owner = { ...f.owner, runId: "run-1" };
+    f.store.internal("fixture.run", f.owner.threadId, () => f.store.put("thread", f.owner.threadId, f.owner.threadId, { ...f.thread, runId: "run-1" }));
+    const work = f.coordinator.admit(command("background.work.admit"), { owner, kind: "COMMAND", title: "stale", command: cmdSpec(f.root, ["-e", "0"]) });
+    f.store.internal("fixture.revoke", f.owner.threadId, () => f.store.put("thread", f.owner.threadId, f.owner.threadId, { ...f.thread, runId: "run-2" }));
+    const result = await f.coordinator.startCommand(work.workId);
+    expect(result.state).toBe("BLOCKED");
+    expect(result.blockedReason).toBe("OWNER_REVOKED");
+    expect(result.processIdentity).toBeNull();
+  });
+  it("an answer after the owner run changed is denied before any follow-up", () => {
+    const followUps: unknown[] = [];
+    const f = fixture({ enqueueFollowUp: input => { followUps.push(input); } });
+    enable("jobs.backgroundV1");
+    const owner = { ...f.owner, runId: "run-1" };
+    f.store.internal("fixture.run", f.owner.threadId, () => f.store.put("thread", f.owner.threadId, f.owner.threadId, { ...f.thread, runId: "run-1" }));
+    const work = f.coordinator.admit(command("background.work.admit"), { owner, kind: "MAINTENANCE", title: "x" });
+    f.coordinator.requestHumanStep(command("background.human.request"), { requestId: "req-1", owner, questionRevision: 1, responseSchema: {}, requiredAction: "answer", workId: work.workId });
+    f.store.internal("fixture.revoke", f.owner.threadId, () => f.store.put("thread", f.owner.threadId, f.owner.threadId, { ...f.thread, runId: "run-2" }));
+    expect(() => f.coordinator.respondHumanStep(command("background.human.respond", {}, "thread-1"), { requestId: "req-1", revision: 1, response: { a: 1 } })).toThrowError(expect.objectContaining({ code: "CAPABILITY_DENIED" }));
+    expect(followUps).toHaveLength(0);
+  });
+  it("host-event wakeups deliver when the host publishes an allowlisted event", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }) });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "on event", command: cmdSpec(f.root, ["-e", "0"]) });
+    f.coordinator.scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "thread-1" } });
+    f.coordinator.notifyHostEvent("runtime.settled", "other-key", "evt-1");
+    expect(f.coordinator.work(work.workId).processIdentity).toBeNull();
+    f.coordinator.notifyHostEvent("runtime.settled", "thread-1", "evt-1");
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+    const before = f.store.all("backgroundOccurrence").length;
+    f.coordinator.notifyHostEvent("runtime.settled", "thread-1", "evt-1");
+    expect(f.store.all("backgroundOccurrence")).toHaveLength(before);
   });
 });
 

@@ -244,7 +244,7 @@ export function BackgroundWorkView(props: BackgroundWorkViewProps) {
     {data && data.works.length === 0 && data.schedules.length === 0 && data.intake.records.length === 0 && <p className="background-empty">No background work yet. Owned jobs, schedules and external proposals appear here.</p>}
     {data && <div className="background-body">
       <section aria-label="Owned background work">
-        {data.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} />)}
+        {data.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId && step.deliveryState === 'PENDING') ?? data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} />)}
       </section>
       <section className="background-schedules" aria-label="Schedules">
         <h3>Schedules</h3>

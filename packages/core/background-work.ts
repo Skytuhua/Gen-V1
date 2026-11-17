@@ -110,6 +110,7 @@ export class BackgroundWorkCoordinator {
   private readonly permits = new Map<string, { release: () => void; teardownConfirmed: boolean }>();
   private readonly idleControls = new Map<string, AbortController>();
   private readonly executorWork = new Set<Promise<unknown>>();
+  private readonly starting = new Set<string>();
   private draining = false;
 
   constructor(options: BackgroundWorkOptions) {
@@ -307,14 +308,41 @@ export class BackgroundWorkCoordinator {
     if (!this.executionGate) {
       return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: BACKGROUND_HOLD_REASONS.executionProfile })) as BackgroundWorkRecord;
     }
-    const profileId = work.profileId ?? "trusted-host";
-    const decision = await this.executionGate({ profileId, spec: work.command });
-    if (!decision.allowed) {
-      return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: decision.reason || BACKGROUND_HOLD_REASONS.executionProfile })) as BackgroundWorkRecord;
+    const owner = this.revalidateOwner(work);
+    if (!owner.ok) {
+      return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: owner.blockedReason })) as BackgroundWorkRecord;
     }
-    const current = this.requireWork(workId);
-    if (current.state === "SETTLED" || current.state === "UNKNOWN" || this.draining) return current;
-    return this.launch(workId);
+    // A second start while a launch is in flight or a session is live must
+    // never spawn again — the previous child would be orphaned unsupervised.
+    if (this.starting.has(workId)) return this.requireWork(workId);
+    this.starting.add(workId);
+    try {
+      const profileId = work.profileId ?? "trusted-host";
+      const decision = await this.executionGate({ profileId, spec: work.command });
+      if (!decision.allowed) {
+        return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: decision.reason || BACKGROUND_HOLD_REASONS.executionProfile })) as BackgroundWorkRecord;
+      }
+      const current = this.requireWork(workId);
+      if (current.state === "SETTLED" || current.state === "UNKNOWN" || this.draining) return current;
+      if (current.state === "RUNNING") {
+        if (this.sessions.has(workId)) return current;
+        // RUNNING without an owned supervised session is an orphan risk:
+        // quarantine instead of spawning a second unowned process.
+        this.markUnknown(workId, "RUNNING without an owned session cannot be restarted blindly.");
+        return this.requireWork(workId);
+      }
+      // Work paused for a human does not launch until the answer lands; the
+      // parked schedule is released by respondHumanStep's auto-resume.
+      if (current.state === "WAITING_HUMAN") return current;
+      // Custody may have drifted while the execution gate was pending.
+      const drifted = this.revalidateOwner(current);
+      if (!drifted.ok) {
+        return this.store.internal("background.work.blocked", null, () => this.transition(current, "BLOCKED", { blockedReason: drifted.blockedReason })) as BackgroundWorkRecord;
+      }
+      return this.launch(workId);
+    } finally {
+      this.starting.delete(workId);
+    }
   }
 
   private launch(workId: string): BackgroundWorkRecord {
@@ -357,6 +385,10 @@ export class BackgroundWorkCoordinator {
               this.transition(current, "UNKNOWN", { error: "Exit receipt identity does not match the admitted process." });
             }
           });
+          // The owned receipt is persisted above; the session map only tracks
+          // live processes, so the entry must be released or `busy` and
+          // update-readiness stay true for the rest of the host lifetime.
+          this.sessions.delete(workId);
           resolve();
         };
         child.once("exit", finish);
@@ -371,6 +403,7 @@ export class BackgroundWorkCoordinator {
               const current = this.store.get<BackgroundWorkRecord>("backgroundWork", workId);
               if (current && current.state !== "SETTLED") this.transition(current, "UNKNOWN", { error: error.message });
             });
+            this.sessions.delete(workId);
             resolve();
           }
         });
@@ -490,10 +523,9 @@ export class BackgroundWorkCoordinator {
 
   // ---- wakeup delivery (S04) ----
 
-  private revalidateDelivery(delivery: WakeupDelivery): { ok: true } | { ok: false; blockedReason: string } {
-    const work = this.store.get<BackgroundWorkRecord>("backgroundWork", delivery.wakeup.taskId);
-    if (!work) return { ok: false, blockedReason: "WORK_UNAVAILABLE" };
-    if (work.state === "SETTLED" || work.state === "UNKNOWN" || work.state === "BLOCKED") return { ok: false, blockedReason: "WORK_NOT_ADMITTED" };
+  /** Owner custody checks shared by scheduled delivery and direct starts: a
+   * revoked or drifted owner admits no new execution, whichever path asks. */
+  private revalidateOwner(work: BackgroundWorkRecord): { ok: true } | { ok: false; blockedReason: string } {
     const thread = this.currentThread(work.owner.threadId);
     if (!thread || this.store.get("archivedThread", work.owner.threadId)) return { ok: false, blockedReason: "OWNER_REVOKED" };
     if (work.owner.runId !== null && (thread.runId !== work.owner.runId || thread.epoch !== work.owner.epoch)) return { ok: false, blockedReason: "OWNER_REVOKED" };
@@ -501,6 +533,18 @@ export class BackgroundWorkCoordinator {
     if (work.owner.accountBinding !== (thread.accountId ?? null)) return { ok: false, blockedReason: "ACCOUNT_MISMATCH" };
     const authority = this.revalidateAuthority?.(work);
     if (authority && !authority.ok) return { ok: false, blockedReason: authority.blockedReason };
+    return { ok: true };
+  }
+
+  private revalidateDelivery(delivery: WakeupDelivery): { ok: true } | { ok: false; blockedReason: string } {
+    const work = this.store.get<BackgroundWorkRecord>("backgroundWork", delivery.wakeup.taskId);
+    if (!work) return { ok: false, blockedReason: "WORK_UNAVAILABLE" };
+    if (work.state === "SETTLED" || work.state === "UNKNOWN" || work.state === "BLOCKED") return { ok: false, blockedReason: "WORK_NOT_ADMITTED" };
+    // A human hold must not be bypassed by a scheduled firing; the parked
+    // schedule is released only when respondHumanStep resumes it.
+    if (work.state === "WAITING_HUMAN") return { ok: false, blockedReason: "WAITING_HUMAN" };
+    const owner = this.revalidateOwner(work);
+    if (!owner.ok) return owner;
     if (this.now() > work.deadlineMs) return { ok: false, blockedReason: "DEADLINE_EXCEEDED" };
     return { ok: true };
   }
@@ -640,7 +684,7 @@ export class BackgroundWorkCoordinator {
   }
 
   respondHumanStep(command: HostCommand, input: { requestId: string; revision: number; response: unknown }): { inputId: string; replayed: boolean; requestRevision: number } {
-    return this.store.command(command, () => {
+    const accepted = this.store.command(command, () => {
       const step = this.store.get<HumanStepV1>("humanStep", input.requestId);
       if (!step) throw new HarnessError("NOT_FOUND", "Human step unavailable.");
       if (command.threadId !== step.owner.threadId) throw new HarnessError("CAPABILITY_DENIED", "This response belongs to another task.");
@@ -658,6 +702,10 @@ export class BackgroundWorkCoordinator {
       validateJson(step.responseSchema, input.response);
       const work = this.requireWork(step.resumeBinding.workId);
       if (work.owner.threadId !== step.owner.threadId) throw new HarnessError("CAPABILITY_DENIED", "The resume binding changed owner.");
+      // A stale answer must not cross a revoked or drifted owner boundary: the
+      // question was issued under the admitted run/epoch, project and account.
+      const owner = this.revalidateOwner(work);
+      if (!owner.ok) throw new HarnessError("CAPABILITY_DENIED", `The owning task can no longer receive this response (${owner.blockedReason}).`);
       const inputId = `human:${input.requestId}:${input.revision}`;
       const envelope = { type: "human-step-response", requestId: input.requestId, requestRevision: input.revision, workId: work.workId, response: input.response };
       if (!this.store.get("outbox", inputId)) {
@@ -670,8 +718,16 @@ export class BackgroundWorkCoordinator {
       if (request && request.threadId === step.owner.threadId && request.status === "pending" && request.revision === input.revision)
         this.store.put("request", request.id, request.threadId, { ...request, revision: request.revision + 1, status: "accepted", response: input.response });
       if (work.state === "WAITING_HUMAN") this.transition(work, "QUEUED", {}, "Human response accepted; one durable follow-up enqueued.");
-      return { inputId, replayed: false, requestRevision: input.revision };
-    }).result as { inputId: string; replayed: boolean; requestRevision: number };
+      return { inputId, replayed: false, requestRevision: input.revision, workId: work.workId };
+    }).result as { inputId: string; replayed: boolean; requestRevision: number; workId?: string };
+    if (!accepted.replayed && accepted.workId) {
+      // Release schedules parked by the human wait, then surface the answer as
+      // an allowlisted host event for host-event wakeups bound to it.
+      this.scheduler.resumeBlockedForWork(accepted.workId, "WAITING_HUMAN");
+      this.scheduler.hostEvent("humanStep.answered", input.requestId, accepted.inputId);
+      this.scheduler.hostEvent("humanStep.answered", accepted.workId, accepted.inputId);
+    }
+    return { inputId: accepted.inputId, replayed: accepted.replayed, requestRevision: accepted.requestRevision };
   }
 
   declineHumanStep(command: HostCommand, input: { requestId: string; revision: number }): { declined: true; workId: string } {
@@ -694,7 +750,14 @@ export class BackgroundWorkCoordinator {
   }
 
   humanSteps(threadId?: string): HumanStepV1[] {
-    return this.store.all<HumanStepV1>("humanStep").filter(step => threadId === undefined || step.owner.threadId === threadId);
+    // Bounded like works(): the read surface never grows past its schema cap.
+    return this.store.all<HumanStepV1>("humanStep").filter(step => threadId === undefined || step.owner.threadId === threadId).slice(-200);
+  }
+
+  /** Allowlisted host events reach HOST_EVENT wakeups by exact correlation
+   * key; the payload never supplies authority (contracts). */
+  notifyHostEvent(eventKind: string, correlationKey: string, hostEventId: string): void {
+    this.scheduler.hostEvent(eventKind, correlationKey, hostEventId);
   }
 
   // ---- review fork gate (S07) ----

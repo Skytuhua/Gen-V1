@@ -1451,7 +1451,15 @@ export class Service {
     const control=this.aborts.get(thread.id);
     this.commitRuntimeProjection(thread, event);
     if(event.type==='input.processing')try{this.memoryHostInstance?.acceptedInput(event);}catch{/* Runtime acceptance remains authoritative; revoked memory cannot be re-read for a usage projection. */}
-    if (event.type === "settled") this.retireController(thread.id,control);
+    if (event.type === "settled") {
+      this.retireController(thread.id,control);
+      // Allowlisted host event for HOST_EVENT wakeups; schedules may correlate
+      // on the settled run or its thread. Never supplies execution authority.
+      try {
+        this.backgroundWork.notifyHostEvent("runtime.settled", event.runId, `runtime.settled:${event.runId}`);
+        this.backgroundWork.notifyHostEvent("runtime.settled", thread.id, `runtime.settled:${event.runId}`);
+      } catch { /* A disabled background surface must not break settlement. */ }
+    }
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
       // accepted transition mints the slot; request admission waits for cleanup.
