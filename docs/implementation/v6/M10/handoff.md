@@ -160,3 +160,20 @@ Re-ran the same live script against production GitHub after both fixes:
 - Fixture coverage added: PR-only first page paging to a real issue, bounded pagination under full PR saturation, slug-form `repository_url` acceptance via id resolution, different-id and failed-lookup fail-closed rejection.
 
 Both live findings are closed-loop verified: the intake path now demonstrably works against the production API end-to-end (auth → paginated read → provenance check → dedup → proposal-only records). #644 is fixed on this branch.
+
+## Session 7 — automated-review findings fixed on `3678adbf`
+
+capy-ai[bot] and devin-ai-integration[bot] review comments on PR #501 flagged ten M10 sites. Triage classified all as genuine defects; each is fixed in `3678adbf` with regression coverage:
+
+- **Command start custody** (`packages/core/background-work.ts`): `startCommand` now revalidates owner custody before *and after* the async execution gate, guards concurrent launches with an in-flight set, returns the live record for repeated starts instead of respawning, and quarantines a `RUNNING` record with no owned session as `UNKNOWN` rather than launching an unsupervised duplicate.
+- **WAITING_HUMAN dispatch**: `revalidateDelivery` rejects `WAITING_HUMAN` work, so scheduled firings park instead of executing during a human wait; `respondHumanStep` auto-resumes only wakeups blocked for that reason (`resumeBlockedForWork`) after the answer lands.
+- **Session pruning**: `sessions.delete(workId)` on exit and spawn error so `busy`/update-readiness clears; the persisted exit receipt remains authoritative for `readOutput`.
+- **Blocked one-shot re-arm** (`durable-wakeups.ts`): `resumeRecord` bumps `scheduleRevision` and restores `nextDueAtMs` for a blocked `AT_UTC` wakeup whose occurrence was cancelled — the cancelled receipt stays as history while the same due instant becomes claimable under a fresh key.
+- **HOST_EVENT wiring**: `Service.onRuntimeEvent` forwards allowlisted `runtime.settled` (correlated by run id and thread id); `respondHumanStep` emits `humanStep.answered` correlated by request id and work id. Event payloads never supply authority.
+- **Intake approve race**: `approving` in-flight set rejects a second concurrent approval with `STALE_REVISION` before either reaches `createTask`.
+- **Owner revocation on respond**: a stale answer can no longer cross a revoked run/epoch/project/account boundary — `respondHumanStep` revalidates custody and throws `CAPABILITY_DENIED` before any follow-up is enqueued.
+- **Read-surface bounds**: `schedules()`, `humanSteps()`, `works()`, `intake.records()` all stay within the 200-item schema caps server-side; the drawer prefers a `PENDING` human step over an answered historical one for the same work.
+
+Regression tests added (8): concurrent start idempotency, busy clearing after exit, parked-during-human-wait → resume → run, blocked AT_UTC re-arm, revoked-owner direct start, revoked-owner answer rejection, host-event delivery + dedup, concurrent approve → single task.
+
+Evidence regenerated on `3678adbf`: the four M10 vitest suites (73 tests), typecheck, lint, build all PASS; **`pnpm test:browser --suite background-work` now records a real PASS (11/11) on this host via bundled Chromium** — the U-cases upgrade from environmental absence to verified. `pnpm test` and full `pnpm test:browser` remain recorded environmental FAILs; `bundleStatus` stays honest `FAIL`, validator issues: 0. `reviewerApproval` remains false.

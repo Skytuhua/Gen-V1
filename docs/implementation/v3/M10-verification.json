@@ -95,7 +95,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
         },
         {
           "argv": [
@@ -114,7 +114,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:17.332Z",
+          "endedAt": "2026-11-17T22:47:31.157Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
         },
         {
           "argv": [
@@ -133,7 +152,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         },
         {
           "argv": [
@@ -152,7 +171,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:54.480Z",
+          "endedAt": "2026-11-17T22:47:57.844Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         }
       ],
       "artifactRefs": [
@@ -213,7 +251,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
         },
         {
           "argv": [
@@ -232,7 +270,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:17.332Z",
+          "endedAt": "2026-11-17T22:47:31.157Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "3aabe3dda6c32a23cddc6116e0ce7f3dd5d3238db8267a2bbaf3947fe081797d"
         }
       ],
       "artifactRefs": [
@@ -282,7 +339,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
-          "logDigest": "948733272cfb1e47f00237ab3fe409bb8d46e0ed43575be38ca72fdc4c8beb6b"
+          "logDigest": "3eaf2b9e5077b564da0bbfb0b3d056f7a7344b8f649ed085d876bfc2ff2650a7"
         },
         {
           "argv": [
@@ -301,7 +358,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
-          "logDigest": "948733272cfb1e47f00237ab3fe409bb8d46e0ed43575be38ca72fdc4c8beb6b"
+          "logDigest": "3eaf2b9e5077b564da0bbfb0b3d056f7a7344b8f649ed085d876bfc2ff2650a7"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/human-handoff-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:31.218Z",
+          "endedAt": "2026-11-17T22:47:40.003Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
+          "logDigest": "3eaf2b9e5077b564da0bbfb0b3d056f7a7344b8f649ed085d876bfc2ff2650a7"
         },
         {
           "argv": [
@@ -320,7 +396,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         },
         {
           "argv": [
@@ -339,7 +415,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:54.480Z",
+          "endedAt": "2026-11-17T22:47:57.844Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         }
       ],
       "artifactRefs": [
@@ -394,7 +489,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
-          "logDigest": "386535f10240df7db2c1f3ed4d20c7f56f882c1c8005468ef8dc46edfc604938"
+          "logDigest": "f87660869691fcd2bfe8a5a4d74dec7a7de3220f65a2debd7bd13c0a607e2c3d"
         },
         {
           "argv": [
@@ -413,7 +508,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
-          "logDigest": "386535f10240df7db2c1f3ed4d20c7f56f882c1c8005468ef8dc46edfc604938"
+          "logDigest": "f87660869691fcd2bfe8a5a4d74dec7a7de3220f65a2debd7bd13c0a607e2c3d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/external-intake-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:43.475Z",
+          "endedAt": "2026-11-17T22:47:54.430Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
+          "logDigest": "f87660869691fcd2bfe8a5a4d74dec7a7de3220f65a2debd7bd13c0a607e2c3d"
         },
         {
           "argv": [
@@ -432,7 +546,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         },
         {
           "argv": [
@@ -451,7 +565,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:47:54.480Z",
+          "endedAt": "2026-11-17T22:47:57.844Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "25a457a9e2358ee26d297853e662c67cbf2c2f09f07549be8cfc366f290fb8f6"
         }
       ],
       "artifactRefs": [
@@ -499,7 +632,24 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log",
-          "logDigest": "4c013e7ce871d0eda04feb02074a3af8317f077215406445c1c16ebda6a40403"
+          "logDigest": "e9ca7e000b31b9709270338d313281b4734a2f9a8bebb93e522710b904170e13"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "background-work"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:52:00.594Z",
+          "endedAt": "2026-11-17T22:52:37.574Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-browser-background-work-final.log",
+          "logDigest": "e9ca7e000b31b9709270338d313281b4734a2f9a8bebb93e522710b904170e13"
         }
       ],
       "artifactRefs": [
@@ -570,6 +720,21 @@
         {
           "argv": [
             "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:48:03.661Z",
+          "endedAt": "2026-11-17T22:50:07.937Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-typecheck-final.log",
+          "logDigest": "e8c11f46739a56886e30fdf9d6cec329257e3b871d4eadbcdb7ba2b70f5e5c75"
+        },
+        {
+          "argv": [
+            "pnpm",
             "lint"
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
@@ -591,6 +756,21 @@
           "executableIdentity": "pnpm",
           "startedAt": "2026-11-17T22:17:11.593Z",
           "endedAt": "2026-11-17T22:18:53.242Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-lint-final.log",
+          "logDigest": "915159d005f6f19b0fa670cf0cd3470fb704fa11e4b8010af7e812bc5d7bd427"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:50:08.020Z",
+          "endedAt": "2026-11-17T22:51:27.361Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
@@ -626,7 +806,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
-          "logDigest": "82ad436e3a869e12b376f6ecf6b0cf2ea605b494a7fd67f12c7f20efba01f850"
+          "logDigest": "9c0e4ab3a6b6cc4ea291236d94ace65d8a55f6220b8aa4b1aaae954b3cc6ca6f"
         },
         {
           "argv": [
@@ -641,7 +821,22 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
-          "logDigest": "82ad436e3a869e12b376f6ecf6b0cf2ea605b494a7fd67f12c7f20efba01f850"
+          "logDigest": "9c0e4ab3a6b6cc4ea291236d94ace65d8a55f6220b8aa4b1aaae954b3cc6ca6f"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:51:27.411Z",
+          "endedAt": "2026-11-17T22:51:57.767Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
+          "logDigest": "9c0e4ab3a6b6cc4ea291236d94ace65d8a55f6220b8aa4b1aaae954b3cc6ca6f"
         },
         {
           "argv": [

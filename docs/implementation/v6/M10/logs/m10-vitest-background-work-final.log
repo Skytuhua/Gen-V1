@@ -1,20 +1,13 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1660127) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1674493) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 10039[2mms[22m[39m
-     [33m[2m✓[22m[39m foreground admission cancels queued idle work and keeps a running permit until confirmed teardown [33m 389[2mms[22m[39m
-     [33m[2m✓[22m[39m captures exact process identity, bounded cursor output and an exit receipt [33m 306[2mms[22m[39m
-     [33m[2m✓[22m[39m failed exit codes settle FAILED, never SUCCEEDED [33m 324[2mms[22m[39m
-     [33m[2m✓[22m[39m PID reuse yields UNKNOWN and never signals the reused PID [33m 516[2mms[22m[39m
-     [33m[2m✓[22m[39m host loss marks RUNNING commands UNKNOWN until the exact owned exit receipt resolves them [33m 713[2mms[22m[39m
-     [33m[2m✓[22m[39m drain prevents new admission, cancels eligible work and records uncertainty [33m 389[2mms[22m[39m
-     [33m[2m✓[22m[39m wall-clock jumps preserve occurrence identity and timezone stays display metadata [33m 491[2mms[22m[39m
-     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 3529[2mms[22m[39m
+ [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m38 tests[22m[2m)[22m[33m 7518[2mms[22m[39m
+     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 2462[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m31 passed[39m[22m[90m (31)[39m
-[2m   Start at [22m 14:14:04
-[2m   Duration [22m 15.39s[2m (transform 3.43s, setup 0ms, import 4.99s, tests 10.04s, environment 0ms)[22m
+[2m      Tests [22m [1m[32m38 passed[39m[22m[90m (38)[39m
+[2m   Start at [22m 14:47:18
+[2m   Duration [22m 12.21s[2m (transform 3.12s, setup 0ms, import 4.46s, tests 7.52s, environment 0ms)[22m
 
