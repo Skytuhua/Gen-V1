@@ -4,7 +4,7 @@ import {QaResultV1Schema} from '../contracts/agent-work.ts';
 import {HarnessError, type Operation, type Thread} from '../contracts/index.ts';
 import type {ApprovalV1, ToolEffectRecord, ToolOwner} from '../contracts/tool-effects.ts';
 import type {CheckObservationV1, VerificationDeclarationV1, VerificationRecipeV1, VisualObservationV1} from '../contracts/verification.ts';
-import {verificationIntentSchema, verificationOperationArgumentsSchema, verificationPrepareSchema, type VerificationIntent} from '../contracts/verification-workflow.ts';
+import {verificationIntentSchema, verificationOperationArgumentsSchema, verificationPrepareSchema, verificationRerunSchema, type VerificationIntent, type VerificationPrepareInput} from '../contracts/verification-workflow.ts';
 import {digest, type Store} from '../storage/store.ts';
 import {assertVerificationSourceRoot, ProjectVerificationService, recipeDigest, sourceDigest, type RecipeExecutionResult} from './project-verification.ts';
 import type {VerificationExecutorBinding, VerificationExecutorFactory} from './verification-executor.ts';
@@ -63,6 +63,21 @@ export class VerificationWorkflow {
     const owned = this.store.all<VerificationRecipeV1>('verificationRecipe', owner.threadId).find(value => value.recipeId === recipeId) ?? null;
     if (any && !owned) throw new HarnessError('CAPABILITY_DENIED', 'That recipe belongs to another thread.');
     return owned;
+  }
+
+  rerunInput(owner: ToolOwner, raw: unknown): VerificationPrepareInput {
+    const {executionId} = verificationRerunSchema.parse(raw); this.enabled();
+    const thread = this.current(owner), current = this.store.get<ManagedVerificationRecord>('verificationManaged', owner.threadId);
+    if (!current || current.intent.executionId !== executionId) throw new HarnessError('STALE_REVISION', 'Select the current verification execution before preparing a rerun.');
+    const intent = verificationIntentSchema.parse(current.intent);
+    if (!observationMatchesThreadOwner({owner: intent.owner}, thread)) throw new HarnessError('APPROVAL_REQUIRED', 'The retained recipe belongs to a different project, working copy or account.');
+    if (!['succeeded', 'failed', 'cancelled'].includes(current.status)) throw new HarnessError('VERIFICATION_BUSY', 'The previous verification must settle before a new run can be prepared.');
+    const recipe = this.prior(owner, intent.recipe.recipeId);
+    if (!recipe || digest(recipe) !== digest(intent.recipe)) throw drift('The retained recipe no longer matches the current approved recipe.');
+    return verificationPrepareSchema.parse({recipeId: recipe.recipeId, baseRevision: recipe.revision, profileId: intent.binding.profile.profileId,
+      phases: recipe.phases, sourceFiles: intent.sourceFiles, dependencyFiles: intent.dependencyFiles, requirements: intent.requirements,
+      ...(intent.readiness ? {readiness: intent.readiness} : {}), ...(intent.checklist ? {checklist: intent.checklist} : {}),
+      ...(intent.qa ? {qa: {prompt: intent.qa.admission.prompt, budget: intent.qa.admission.budget}} : {})});
   }
 
   async prepare(owner: ToolOwner, raw: unknown, signal: AbortSignal, assertCurrent: () => void): Promise<{intent: VerificationIntent}> {
