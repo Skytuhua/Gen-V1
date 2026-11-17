@@ -37,6 +37,7 @@ export class HermesClient {
  private pending=new Map<string,Pending>();
  private hostCalls=new Set<Promise<unknown>>();
  private guard?:Promise<void>;
+ private guardAcquired=false;
  private releaseGuard?:()=>void;
  constructor(private options:ClientOptions){}
  private ensure():Promise<ChildProcessWithoutNullStreams> {
@@ -44,7 +45,7 @@ export class HermesClient {
   return this.startup??=(async()=>{
    const home=resolve(this.options.home);
    const held=new Promise<void>(done=>{this.releaseGuard=done;});
-   await new Promise<void>((ready,reject)=>{this.guard=withHermesHome(home,async()=>{ready();await held;},()=>this.fail('HERMES_STORAGE_CHANGED'));void this.guard.catch(error=>{reject(error);if(this.child&&!this.closed)this.fail('HERMES_STORAGE_CHANGED');});});
+   await new Promise<void>((ready,reject)=>{this.guard=withHermesHome(home,async()=>{this.guardAcquired=true;ready();await held;},()=>this.fail('HERMES_STORAGE_CHANGED'));void this.guard.catch(error=>{reject(error);if(this.child&&!this.closed)this.fail('HERMES_STORAGE_CHANGED');});});
    if(this.closed)throw new HarnessError('HERMES_CLOSED','The Hermes source worker has closed.');
    const bundled=join(root,'hermes-python','python.exe'),useBundle=process.platform==='win32'&&existsSync(bundled);
    const python=this.options.python??{executable:useBundle?bundled:process.env.HARNESS_HERMES_PYTHON??(process.platform==='win32'?join(process.env.SystemRoot??'C:/Windows','py.exe'):'python3.14'),args:[...(process.platform==='win32'&&!useBundle&&!process.env.HARNESS_HERMES_PYTHON?['-3.14']:[]),'-I','-S','-B',this.options.workerPath??join(root,'packages/runtime-hermes/worker.py')]};
@@ -107,7 +108,11 @@ export class HermesClient {
  private async stop():Promise<void> {
   const results=await Promise.allSettled([this.child?terminateProcessTree(this.child):Promise.resolve(),...this.hostCalls]);
   // Keep the namespace lease when descendant cancellation is unconfirmed.
-  if(results[0].status==='fulfilled'){this.releaseGuard?.();if(this.guard)await this.guard;}
+  if(results[0].status==='fulfilled'){
+   this.releaseGuard?.();
+   // Failed admission belongs to startup; an acquired guard must confirm release.
+   if(this.guard)await this.guard.catch(error=>{if(this.guardAcquired)throw error;});
+  }
   if(results[0].status==='rejected')throw new AggregateError([results[0].reason],'Could not close the source-worker process owner.');
  }
  async dispose():Promise<void> {

@@ -24,7 +24,7 @@
 .document-preview-failure p { flex-basis:100%; margin:0; line-height:1.6; }
 .document-preview-failure button { border:1px solid var(--border,#e9e9ec); border-radius:6px; background:var(--surface,#fff); padding:6px 9px; color:var(--text,#202023); }
 .document-preview-failure a { color:var(--accent,#4765d6); text-underline-offset:3px; }
-.document-preview :is(button,a):focus-visible,.signature-pad :is(button,input,canvas):focus-visible { outline:2px solid var(--accent,#4765d6); outline-offset:2px; }
+.document-preview :is(button,a):focus-visible,.signature-pad :is(button,input,canvas):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .signature-pad { min-width:0; color:var(--text,#202023); font-size:13px; }
 .signature-loading-geometry { visibility:hidden; }
 .signature-heading { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
@@ -66,7 +66,7 @@
 .signature-upload strong { font-size:13px; color:var(--text,#202023); font-weight:500; }
 .signature-upload span { font-size:11px; }
 .signature-upload input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
-.signature-upload:focus-within { outline:2px solid var(--accent,#4765d6); outline-offset:2px; }
+.signature-upload:focus-within { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .task-choice-custom { position:relative; }
 .task-choice-custom-radio { position:absolute; opacity:0; width:1px; height:1px; }
 .task-choice-custom-input { display:block; width:100%; min-width:0; height:43px; border:1px solid var(--accent,#4765d6); padding:10px 12px; border-radius:9px; background:var(--surface,#fff); color:var(--text,#202023); font:inherit; font-size:13px; }
@@ -79,6 +79,6 @@
 @media (prefers-reduced-motion:reduce) { .document-preview-page { transition:none; } }
 
 .document-active-field { animation:document-focus-arrival var(--ui-motion-status) var(--ui-ease-enter); }
-.document-preview-scroll:focus-visible { outline:2px solid var(--accent,#4765d6); outline-offset:-3px; }
+.document-preview-scroll:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:-3px; }
 @keyframes document-focus-arrival { from { opacity:.35; } to { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .document-active-field { animation-duration:var(--ui-motion-press); } }

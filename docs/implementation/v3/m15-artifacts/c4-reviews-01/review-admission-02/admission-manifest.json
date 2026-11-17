@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "kind": "C4_ADDITIVE_REVIEW_EVIDENCE_PUBLIC_MANIFEST",
+  "stateAtPreparation": "PREPARED_NOT_APPLIED",
+  "inputs": [
+    {
+      "manifest": "review-admission-02/admission-manifest.json",
+      "sha256": "0f3587320e84e918195ac3001ed70feebddac33b5354b989fc93fd937e626a9c",
+      "contentFiles": 36
+    },
+    {
+      "manifest": "review-admission-02/final-addendum-manifest.json",
+      "sha256": "60f98c3019ca2792fbb23bad4599893fc77039c4dfb35d524e2d43862d5980b9",
+      "contentFiles": 5
+    }
+  ],
+  "fileCount": 41,
+  "totalBytes": 2398519,
+  "files": [
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/app-trace-boundary-readback.json",
+      "bytes": 23413,
+      "sha256": "bafb80c34dc6b7c05b3512e705fd6ba669c89c1873560edd4efe20712e2b1a7e",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/diagnosis-01.json",
+      "bytes": 2239,
+      "sha256": "e05af07623f959f19c5b7f9b751c078e4021b35052c97a12d43c55d34a64922e",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/diagnosis-01.md",
+      "bytes": 5361,
+      "sha256": "ebca22a7b0c84771d4004e948e1171e36c57a207883d5d3565a3e11daf65f82a",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/diagnostic.mts",
+      "bytes": 4149,
+      "sha256": "b67d1a991a2c5d31f13bfb9ecd8b5fd74bcad4d2cf6f8b30cccbec488a1fe3ba",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/results.json",
+      "bytes": 19421,
+      "sha256": "a5ba3c276030b54bfdeae4b743c69c7ad292c3c801cc5bf70550c5a8f97c007c",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/source-verify-after.json",
+      "bytes": 258,
+      "sha256": "b1250bc1563587c37de819a97b2ff233cdc3964dbbe346ce04ceb868f5994e3b",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-diagnostic-01/source-verify-before.json",
+      "bytes": 258,
+      "sha256": "b1250bc1563587c37de819a97b2ff233cdc3964dbbe346ce04ceb868f5994e3b",
+      "mode": "0644",
+      "role": "Exact failing asynchronous-empty-owner diagnostic, source-verification record or bounded diagnosis/trace readback; no browser attribution beyond recorded observations"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/design-01.md",
+      "bytes": 1362,
+      "sha256": "ec7ce4ee7c1fd9074579814acee8d7c91049721ee3b4c119b7145158e5343d83",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/empty-owner-tests.patch",
+      "bytes": 4508,
+      "sha256": "16d1445cbbe3539e65613a718d798fd898c50d57d3e6ae96e54a87f1fca7abc8",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/production.patch",
+      "bytes": 1356,
+      "sha256": "a60c434a3be5915ad523559425722005039467d5e858dd313e064a00bbe85306",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/queued-validation-proposal-v2.json",
+      "bytes": 754,
+      "sha256": "ba78036a15d90e0a9ee7c6c98a9ca7994fd797a017e99a29123388c614d2cf72",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/queued-validation-proposal.json",
+      "bytes": 1102,
+      "sha256": "880abf89597ac72eafa85d5324924357bdb7a5c21d05ee90c8b4f92977c229f7",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/queued-validation-tests-v2.patch",
+      "bytes": 7236,
+      "sha256": "a5e7d1fe674bbdc28eedac4d9ae71ef6ab08527848d628e5e875eef9ad5d3b1a",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/queued-validation-tests.patch",
+      "bytes": 7139,
+      "sha256": "c5c8b5713197006e07582cba43ec578dba5f3fcdd30423dd9b391d9f82c9cae5",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/red-green-review-01.json",
+      "bytes": 8401,
+      "sha256": "f421a326bb3d42a9c40dfd88e67b72866bf81e04a626d92b09f3448ba10c0d3b",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/red-green-review-01.md",
+      "bytes": 4237,
+      "sha256": "b3f882add71293b243733c85bb5c87baf85ff894399ca2547f82329bfd2d086f",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-handoff-proposal-01/test-proposal.json",
+      "bytes": 970,
+      "sha256": "f37e5608ebe0367ecaa6a02e909aefbdd5b4366645528b942b7659ed644bf0ca",
+      "mode": "0644",
+      "role": "Bounded source/test patch, proposal seal, design or red/green readback; unexecuted v1 and failed attempts remain explicit"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-independent-review-01/review.json",
+      "bytes": 7008,
+      "sha256": "77f28332f2978d17e1908c6ff650eaf6f8308ecf8fa01c4b9cf3b317d4b1d92b",
+      "mode": "0644",
+      "role": "Read-only independent FIFO review; exact proposed/applied source hashes only, no post-fix execution or platform approval"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/empty-owner-independent-review-01/review.md",
+      "bytes": 2385,
+      "sha256": "50976d626e25ce52fc6dad7b82632b378008ae99ebe1ec710b442dcfc23c9d80",
+      "mode": "0644",
+      "role": "Read-only independent FIFO review; exact proposed/applied source hashes only, no post-fix execution or platform approval"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/evidence-plan-proposal-01/M15-evidence-plan.proposed.json",
+      "bytes": 27423,
+      "sha256": "612330ecab300549189dd04a8de686eddc199c79fb752328421f31872316d407",
+      "mode": "0644",
+      "role": "Frozen historical 5f plan or its bounded decision/admission/seal; FAIL remains historical, not the final corrected-cut plan"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/evidence-plan-proposal-01/additional-public-admissions.json",
+      "bytes": 3691,
+      "sha256": "61a16ec549f942d5b87f8e0624fff32c822c1f19818ac2d63eebaa3a98b304de",
+      "mode": "0644",
+      "role": "Frozen historical 5f plan or its bounded decision/admission/seal; FAIL remains historical, not the final corrected-cut plan"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/evidence-plan-proposal-01/decision-seal.json",
+      "bytes": 705,
+      "sha256": "9040dffd61bcb5862b690000a4fddc0b79c685d42e66cc9d5e0514b788de887d",
+      "mode": "0644",
+      "role": "Frozen historical 5f plan or its bounded decision/admission/seal; FAIL remains historical, not the final corrected-cut plan"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/evidence-plan-proposal-01/decision.md",
+      "bytes": 3113,
+      "sha256": "35d3a0cdced437a30ccf51364c96d17c96b374b9190bf5c2d07f5cad4553de54",
+      "mode": "0644",
+      "role": "Frozen historical 5f plan or its bounded decision/admission/seal; FAIL remains historical, not the final corrected-cut plan"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/incoming.patch",
+      "bytes": 18292,
+      "sha256": "147bb670d54452c45a1496b2d683fa9babe416ad403ace7fa1ca5f016e553d5f",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/review.json",
+      "bytes": 1906,
+      "sha256": "6ecbfb71e3b9c2d1c8f7d67ce68b904531472a65c984f52c7185b6a8e816120b",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/main5f-drift-01/review.md",
+      "bytes": 1107,
+      "sha256": "ade69cde68c216bb2db34c517d8858ffd1e6ee1ba34662b6a55b026243e459b1",
+      "mode": "0644",
+      "role": "Observed unaccepted later-main drift; static evidence only"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-01/M15-c4-regression-review.evidence.json",
+      "bytes": 373072,
+      "sha256": "80a53c2aaef4fe4c133171b1581680b276f50be8036e0054b53052d030a0fa86",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-01/M15-c4-regression-review.md",
+      "bytes": 31271,
+      "sha256": "aabad3fe68c07e20287fceb7c573e9364ff21806e27add57597e664cbf91e954",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-01/seal.json",
+      "bytes": 963,
+      "sha256": "be93dadddbc8d99ac8c692a4f154304d7bb128d9fafef0f7337d7df432a1536b",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-02/M15-c4-regression-review.evidence.json",
+      "bytes": 717864,
+      "sha256": "bb416c58152c104c58e3f38f57df6686eb133ef650bef050e72d91757b77d213",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-02/M15-c4-regression-review.md",
+      "bytes": 46374,
+      "sha256": "4e2b28ededf9070bc567395c2090ce0d67e3fd2c0ce1302590715286f63bff4d",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-02/seal.json",
+      "bytes": 1538,
+      "sha256": "72330fd565eadedfb84f99dec2202420f4935329cc02f92307a3ae7f5d41e622",
+      "mode": "0644",
+      "role": "Immutable historical ledger draft, derived per-case evidence or seal at its original cutoff; not current final-cut acceptance"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-01/application.json",
+      "bytes": 506,
+      "sha256": "f18ef6fe1cfe52b6b60361211fc5de2b13e3f3ca7d1b7d55136908ed0041ed10",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-01/apply-fixed-call.py",
+      "bytes": 906,
+      "sha256": "deb920a4e7f45f5d8672dbb13a7110b0ed71e12722a656524ac7b5c8131a7221",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-independent-review-01/review.json",
+      "bytes": 2976,
+      "sha256": "548f7ad288cc0f01b123f86a04f907f7c45d8019779f11cd714226eb0f725d2e",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/review-admission-independent-review-01/review.md",
+      "bytes": 3184,
+      "sha256": "080c9ed59e84ca8058b8697b468cd03f42ee448ecda0ec02e92b0f77a6effd92",
+      "mode": "0644",
+      "role": "Independent admission review and exact-call mitigation"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-execution-addendum-02/commands.json",
+      "bytes": 13021,
+      "sha256": "e6271d66f1db5cfdf596c08892b5f2e8b057f6e29acd257c96c90957107b52a9",
+      "mode": "0644",
+      "role": "Immutable final03 browser command plan; original preparation-time NOT_RUN scope retained separately from actual receipts"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-browser-execution-addendum-02/README.md",
+      "bytes": 1547,
+      "sha256": "40d261aac8584510924aa247dd64d75aee803ceec0755d2840f70ea3fe4dae64",
+      "mode": "0644",
+      "role": "Immutable final03 browser command plan; original preparation-time NOT_RUN scope retained separately from actual receipts"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-03/M15-c4-regression-review.md",
+      "bytes": 53088,
+      "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716",
+      "mode": "0644",
+      "role": "Immutable final03 regression ledger or derived evidence/seal; keeps earlier drafts and failures separate from current local passes"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-03/M15-c4-regression-review.evidence.json",
+      "bytes": 992923,
+      "sha256": "c28160e3913a04f5a56fbb5915a469659ecf128e4fdcb545491b2c2ad4a3d670",
+      "mode": "0644",
+      "role": "Immutable final03 regression ledger or derived evidence/seal; keeps earlier drafts and failures separate from current local passes"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c4-reviews-01/regression-review-draft-03/seal.json",
+      "bytes": 1492,
+      "sha256": "a59cc36831979dd2ab29f08ffdc348f3843ee5c1ec74dfdb2741a8ef3b21e413",
+      "mode": "0644",
+      "role": "Immutable final03 regression ledger or derived evidence/seal; keeps earlier drafts and failures separate from current local passes"
+    }
+  ],
+  "metadataQualification": "This manifest covers 41 content files. Its own copy and the immutable 36-file summary are two separately explicit metadata destinations; no self-referential digest is claimed.",
+  "historicalScopesPreserved": true,
+  "privateTransferIdentifiersIncluded": false
+}

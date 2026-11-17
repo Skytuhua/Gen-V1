@@ -1,0 +1,126 @@
+{
+  "kind": "NOT_EXECUTED_BROWSER_CORRECTION_COMMAND_PLAN",
+  "sequence": [
+    {
+      "id": "c4-desktop-error-roles-01",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "argv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-desktop-error-roles-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "tests/e2e/desktop-surfaces.playwright.config.ts",
+        "--grep",
+        "detached workspace selection does not acquire|export refuses pending signature assets|review: a failed detached workspace close retains",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/artifacts"
+      ],
+      "env": {
+        "PATH_PREFIX": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-desktop-error-roles-01/results.json"
+      },
+      "expectedSelectedCount": 3,
+      "scope": "Declared Linux Chromium with scripted desktop bridge",
+      "configSha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73"
+    },
+    {
+      "id": "c4-usage-chromium-corrected-01",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "argv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-usage-chromium-corrected-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/artifacts"
+      ],
+      "env": {
+        "PATH_PREFIX": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-corrected-01/results.json"
+      },
+      "expectedSelectedCount": 16,
+      "scope": "Private Linux Chromium override of declared Edge config",
+      "configSha256": "e23788dc8b3e81937f80b67a6e67788bb564ec82a442d2740c121a82bb514f80"
+    },
+    {
+      "id": "c4-workspace-chromium-corrected-01",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "argv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-workspace-chromium-corrected-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/artifacts"
+      ],
+      "env": {
+        "PATH_PREFIX": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/results.json"
+      },
+      "expectedSelectedCount": 48,
+      "scope": "Private Linux Chromium override of declared Edge config",
+      "configSha256": "031174af822fe8a5889c054dbb760b68d3677658fb9c95d28b21035f02766b96"
+    },
+    {
+      "id": "c4-layout-chromium-corrected-01",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "argv": [
+        "node",
+        "scripts/m15-record.mjs",
+        "c4-layout-chromium-corrected-01",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts",
+        "--reporter=line,json",
+        "--output",
+        "docs/implementation/v3/m15-artifacts/c4-layout-chromium-corrected-01/artifacts"
+      ],
+      "env": {
+        "PATH_PREFIX": "/workspace/scratch/1b47eb428672/tool-bin",
+        "PLAYWRIGHT_JSON_OUTPUT_NAME": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-layout-chromium-corrected-01/results.json"
+      },
+      "expectedSelectedCount": 15,
+      "scope": "Private Linux Chromium override of declared Edge config",
+      "configSha256": "35a38fe8afe5fd3d35fe887898986c638b901051c8bb29509b5451cfb6f79de2"
+    }
+  ],
+  "sourceCut": "PENDING_PARENT_STABLE_POST_ADOPTION_CUT",
+  "verifyBeforeAndAfterEachRun": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+    "verify",
+    "PARENT_SUPPLIED_SOURCE_CUT_PATH"
+  ],
+  "requiredPatchSha256": {
+    "tests": "3446a347445bfd3f46bc4e7e075ca6701e1c23e4a31fd0fc882c98833da03fe6",
+    "parentProduct": "cee80a2273fcca1065184adae23bce9af4b970a351df8613de08f3d5b8f9b408"
+  },
+  "rules": [
+    "Wait for parent release after adoption, patch application and source cut.",
+    "Run sequentially with no competing browser or build job.",
+    "No retries, corrections, test membership/deadline/threshold changes during the cut.",
+    "Record exact process exit and inspect results before continuing.",
+    "The selected desktop run intentionally diagnoses only the three confirmed role failures; the still-unfixed cold-close failure remains retained and pending later full affected validation.",
+    "Do not call private Chromium evidence Edge or installed-desktop proof."
+  ]
+}

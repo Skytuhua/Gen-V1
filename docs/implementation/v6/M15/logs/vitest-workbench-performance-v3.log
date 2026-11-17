@@ -1,0 +1,14 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/workbench-performance-v3.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  19:16:53
+   Duration  651ms (transform 178ms, setup 0ms, import 149ms, tests 300ms, environment 0ms)
+

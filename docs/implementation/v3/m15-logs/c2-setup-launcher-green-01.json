@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "pnpm",
+    "run",
+    "build:credential-lease"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:24:03.047Z",
+  "endedAt": "2026-11-16T00:24:04.125Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-setup-launcher-green-01.log",
+  "logDigest": "a9cc6cd003d0f9f1f2927bcf42c50d0b56346bc514b5c527499520742098d0b0"
+}

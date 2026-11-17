@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "status": "STATIC_REVIEW_COMPLETE_NOT_RUN",
+  "checks": {
+    "prior20PreservedInOrder": true,
+    "eightUniqueAdditions": true,
+    "allPathsExist": true,
+    "allPriorSourceHashesMatch": true,
+    "nativeListHas37UniquePaths": true,
+    "noRunnerFilterOrTimeoutChange": true,
+    "singleWorker": true,
+    "recorderIdUnused": true,
+    "noBuildGenerateBrowserCommand": true
+  },
+  "sourceOnlyAssessment": "Read full added caller fixtures, existing selected journal/owner helpers, prior20 fixture history and current process/platform markers. The selected HTTP tests stub PTY; no selected test invokes a build, generator, browser suite or real Python/model worker.",
+  "deliberateOmissions": {
+    "tests/agents-workspace-follow-up.test.ts": "Journal and HTTP mocked; unchanged child-ticket polling/controller semantics are outside the changed source-owner handoff, with overlapping owner/durable-retry cases in included composer tests.",
+    "tests/settings-operations.test.ts": "Exercises an unchanged separate settings-operation queue, not journal observation or the editor registry; actual Settings/close behavior remains browser coverage.",
+    "tests/terminal-excerpts.test.ts": "Pure capture/serialization/bounds assertions do not call journal mutation paths; generation retention is exercised by included composer cases.",
+    "tests/plugin-frame-custody.test.ts": "Starts the real built plugin-frame/browser path and shares generated output; excluded from source-only local host command.",
+    "tests/document-handoff.test.ts": "Document export/grant admission is distinct from renderer editor handoff and unchanged."
+  },
+  "nativeScope": "Windows37 already contains all eight added caller files plus16 other files omitted here. No missing journal/helper caller file from this bounded selection is being delegated exclusively to Windows."
+}

@@ -295,20 +295,20 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "1bbc6ffb132794c15f8f44bab2328cfbd6e9ff6776d14ea1f846fb526b1c340b",
-      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
-      "evidence": ".split-surface-plane{position:absolute;inset:0;pointer-events:none;z-index:1}.split-surface{position:absolute;pointer-events:auto;overflow:hidden;min-height:0;min-width:0;background:var(--panel,#0f0f0f);display:flex;flex",
+      "fingerprint": "f049c623154979add395ab32be06a5e50d47b3af791d8d436081e0bb2ef87d92",
+      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry. Surface plane raised to z-index 7 so conversation floats paint above pane headers (clip fix).",
+      "evidence": ".split-surface-plane{position:absolute;inset:0;pointer-events:none;z-index:7}.split-surface{position:absolute;pointer-events:auto;overflow:hidden;min-height:0;min-width:0;background:var(--panel,#0f0f0f);display:flex;flex",
       "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/workspace-split.css",
-      "line": 15,
+      "line": 16,
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "026b3c79ca87f5799ab8f37f9d568103cddc9dea10de0d76fc44e525168f2c55",
-      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
-      "evidence": ".split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--focus,#8f9cff);background:color-mix(in srgb,var(--focus,#8f9cff) 15%,transparent);display:grid;place-items",
+      "fingerprint": "9f7472cea2357b2e6b93c092790c8dab48608678a6bb5ea6ca2d996408e0d7b8",
+      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry. Neutral ink only; preview geometry, eligibility and pointer behavior are unchanged.",
+      "evidence": ".split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--ui-focus-ring,#808080);background:color-mix(in srgb,var(--ui-focus-ring,#808080) 15%,transparent);display:",
       "disposition": "staged-migration"
     },
     {

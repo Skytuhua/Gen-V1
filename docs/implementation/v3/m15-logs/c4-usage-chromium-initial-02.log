@@ -1,0 +1,290 @@
+argv: ["pnpm","exec","playwright","test","--config","/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 15 tests using 1 worker
+
+[1A[2K(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:80) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/15] tests/e2e/mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes
+[1A[2K  1) tests/e2e/mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       7 |  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];
+       8 |  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};
+    >  9 |  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');
+         |                                                                                                                                                                                        ^
+      10 |  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);
+      11 |  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);
+      12 |  await scrim.click({position:{x:590,y:100}});await expect(scrim).toHaveCount(0);await expect(opener).toBeFocused();await expect(draft).toHaveValue('Keep this mobile draft');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts:9:184
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[2/15] tests/e2e/shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded
+[1A[2K  2) tests/e2e/shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })
+    Expected: [32m1[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })[22m
+    [2m    9 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');
+      15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);
+    > 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);
+         |                                                                                                                                                            ^
+      17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);
+      18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);
+      19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:16:156
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[3/15] tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection
+[1A[2K  3) tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })[22m
+
+
+      31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);
+      32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
+    > 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
+         |                                                                                                                                                                                                   ^
+      34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+      35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
+      36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:33:195
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[4/15] tests/e2e/usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft
+[1A[2K[5/15] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 375px
+[1A[2K[6/15] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 768px
+[1A[2K[7/15] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 1440px
+[1A[2K[8/15] tests/e2e/usage-app-integration.spec.ts:217:1 › actual App Live usage preference controls the composer launcher without opening the summary
+[1A[2K[9/15] tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload
+[1A[2K  4) tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()
+    Expected: [32m"999"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()[22m
+
+
+      60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+      61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
+    > 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');
+         |                                                                                                 ^
+      63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+      64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
+      65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:62:97
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[10/15] tests/e2e/usage-app-integration.spec.ts:337:1 › actual App dock header remains a disclosure and its body opens the same Usage modal
+[1A[2K[11/15] tests/e2e/usage-app-integration.spec.ts:364:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt
+[1A[2K[12/15] tests/e2e/usage-app-integration.spec.ts:395:1 › actual App captured usage scope does not switch to another thread on snapshots
+[1A[2K[13/15] tests/e2e/usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable
+[1A[2K  5) tests/e2e/usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+
+
+      91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{
+      92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));
+    > 93 |  await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');
+         |                                             ^
+      94 |  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
+      95 |  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);
+      96 |  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:93:45
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[14/15] tests/e2e/usage-app-integration.spec.ts:447:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch
+[1A[2K[15/15] tests/e2e/usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope
+[1A[2K  6) tests/e2e/usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+
+
+      104 | test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{
+      105 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
+    > 106 |  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
+          |                                             ^
+      107 |  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');
+      108 | });
+      109 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:106:45
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  6 failed
+    tests/e2e/mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes 
+    tests/e2e/shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded 
+    tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+    tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+    tests/e2e/usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
+    tests/e2e/usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
+  9 passed (1.3m)

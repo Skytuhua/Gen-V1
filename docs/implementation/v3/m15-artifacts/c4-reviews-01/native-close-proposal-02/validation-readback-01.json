@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "scope": "Independent read of root-run receipts/results and exact active source bytes. This agent did not execute the jobs.",
+  "attempts": [
+    {
+      "id": "c4-source-handoff-initial-01",
+      "receipt": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/source-handoff-v3.test.ts",
+          "tests/editor-handoff.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "startedAt": "2026-11-16T04:51:27.616Z",
+        "endedAt": "2026-11-16T04:51:29.757Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.log",
+        "logDigest": "c66134bb95a99e050c92585600f048e4a3024d0813432995375c3148255e4d4c"
+      },
+      "counts": {
+        "numTotalTests": 23,
+        "numPassedTests": 11,
+        "numFailedTests": 12,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 4,
+        "numPassedTestSuites": 2,
+        "numFailedTestSuites": 2,
+        "success": false
+      },
+      "artifacts": [
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.json",
+          "bytes": 796,
+          "sha256": "80ac4eafcd898e2710f8230959bc598fb3f8c6f7f7780afc5e73a7233f3d9aba"
+        },
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.log",
+          "bytes": 12178,
+          "sha256": "c66134bb95a99e050c92585600f048e4a3024d0813432995375c3148255e4d4c"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json",
+          "bytes": 17272,
+          "sha256": "99017e4a9c4c74b211db0031c1f7e7619e440c33f7be206c4ff144e5d97af135"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/source-cut.json",
+          "bytes": 548158,
+          "sha256": "fe8a782f2a48c0a359042c54bce38e1b2003fce00a0e639292a9e283aacad0ae"
+        }
+      ],
+      "failedCases": [
+        "M15 source handoff recovery obligations acknowledges only an untouched owner whose source, text and pending recovery all failed",
+        "M15 source handoff recovery obligations does not reset attempted source work across an A to B to A owner transition",
+        "M15 source handoff recovery obligations drains pending source hydration before judging an independently recovered pending send",
+        "M15 source handoff recovery obligations waits for a first single CAS before a generation exists",
+        "M15 source handoff recovery obligations waits for a first many CAS before a generation exists",
+        "M15 source handoff recovery obligations retains a failed first source CAS even when an empty read and false retry succeed",
+        "M15 source handoff recovery obligations does not let accepted old-source cleanup retire a failed newer attachment",
+        "M15 source handoff recovery obligations retires an earlier failed attachment only after an explicit source edit commits",
+        "M15 source handoff recovery obligations does not let an older explicit commit acknowledge a newer failed source operation",
+        "M15 source handoff recovery obligations keeps failed source imports blocked until an atomic import retry commits the exact bundle",
+        "M15 source handoff recovery obligations waits through import preprocessing before the same registry handoff (commit fails: true)",
+        "M15 source handoff recovery obligations retains an ordinary failed draft write until its exact staged generation persists"
+      ]
+    },
+    {
+      "id": "c4-source-handoff-policy-01",
+      "receipt": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/source-handoff-v3.test.ts",
+          "tests/editor-handoff.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "startedAt": "2026-11-16T04:56:52.948Z",
+        "endedAt": "2026-11-16T04:56:57.074Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.log",
+        "logDigest": "489602ab47e2987d6dc4a2f021b3fac4f698a448bb684488d8efd52413e27bf0"
+      },
+      "counts": {
+        "numTotalTests": 25,
+        "numPassedTests": 25,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 4,
+        "numPassedTestSuites": 4,
+        "numFailedTestSuites": 0,
+        "success": true
+      },
+      "artifacts": [
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.json",
+          "bytes": 794,
+          "sha256": "d089c5211b33b287ba7408c41232ddedae10d5242c44889de9ecdd0df2398dc3"
+        },
+        {
+          "path": "docs/implementation/v3/m15-logs/c4-source-handoff-policy-01.log",
+          "bytes": 1021,
+          "sha256": "489602ab47e2987d6dc4a2f021b3fac4f698a448bb684488d8efd52413e27bf0"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/results.json",
+          "bytes": 10073,
+          "sha256": "95f2ef1d5178e976c5e0e46a8dbe9f74b877bb63b2151ad2db512b8d1e4b3b99"
+        },
+        {
+          "path": "docs/implementation/v3/m15-artifacts/c4-source-handoff-policy-01/source-cut.json",
+          "bytes": 548158,
+          "sha256": "4ce32ce11edfac8cfaf89728f783266e67adc17f42a9338ab9d8e48842cc53ed"
+        }
+      ],
+      "failedCases": []
+    }
+  ],
+  "sourceMatches": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "actualSha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "expectedPhaseBSha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "matches": true
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "actualSha256": "43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed",
+      "expectedPhaseBSha256": "43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed",
+      "matches": true
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "actualSha256": "1b515e343591ddcfce17b79805feed2bca4dabe82f2f2015107b5c4f8f99f5db",
+      "expectedPhaseBSha256": "1b515e343591ddcfce17b79805feed2bca4dabe82f2f2015107b5c4f8f99f5db",
+      "matches": true
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "actualSha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "expectedPhaseBSha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "matches": true
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "actualSha256": "9b6efa9a20e4c5aa0d50d00e1f4df60c18ffd7954ee818f81d8cb6718fbcb52e",
+      "expectedPhaseBSha256": "9b6efa9a20e4c5aa0d50d00e1f4df60c18ffd7954ee818f81d8cb6718fbcb52e",
+      "matches": true
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "actualSha256": "11cf401b6c4eef64ef0dadedaf939180423592ced7f94865c2adbd7dce5f2b43",
+      "expectedPhaseBSha256": "11cf401b6c4eef64ef0dadedaf939180423592ced7f94865c2adbd7dce5f2b43",
+      "matches": true
+    },
+    {
+      "path": "tests/source-handoff-v3.test.ts",
+      "actualSha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd",
+      "expected22CaseSha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd",
+      "matches": true
+    }
+  ],
+  "liveness": "Investigated static concern. Both new same-owner schedules passed under the original Phase B with the64-inspection diagnostic sentinel. No liveness defect was reproduced and no coalescing change was made.",
+  "browserProposal": "native-close-browser-proposal-01 remains NOT_RUN at this review point.",
+  "limits": [
+    "Controlled storage unit boundaries, not actual browser or native platform execution.",
+    "The12 initial failures are required helper boundary assertions, not12 separately demonstrated native product defects.",
+    "Passing two bounded schedules does not establish every possible interleaving.",
+    "Existing c4-desktop-regression-01 behavioral native-close failure is preserved."
+  ]
+}

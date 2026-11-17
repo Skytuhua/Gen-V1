@@ -1,0 +1,42 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/research-baseline.test.ts","tests/m01-m02-compatibility.test.ts","tests/tool-effects-v3.test.ts","tests/tool-authority-v3.test.ts","tests/effect-recovery-v3.test.ts","tests/context-compiler-v3.test.ts","tests/request-preparation-service-v3.test.ts","tests/project-memory-service-v3.test.ts","tests/project-memory-request-http-v3.test.ts","tests/memory-host-lifecycle-v3.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-prerequisites-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/project-memory-service-v3.test.ts (29 tests) 2274ms
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: remote error: upload-pack: not our ref bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ ✓ tests/research-baseline.test.ts (26 tests) 38615ms
+     ✓ times out a hung child and kills its process tree  1508ms
+     ✓ reproduce identical control actions and effect counts per fixed seed  743ms
+     ✓ flags drift, missing ancestry, contract version mismatch and absent contract tests  35684ms
+ ✓ tests/request-preparation-service-v3.test.ts (34 tests) 5740ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  3463ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle  507ms
+ ✓ tests/project-memory-request-http-v3.test.ts (12 tests) 3997ms
+   ✓ requires the Personal host session and CSRF before preparing or excluding memory  458ms
+   ✓ returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request  400ms
+   ✓ blocks native dispatch when HTTP forget revokes a selection during asynchronous finalization  1206ms
+   ✓ keeps plaintext matched terms ephemeral before and after forgotten memory reaches purge completion  588ms
+ ✓ tests/tool-effects-v3.test.ts (13 tests) 1108ms
+ ✓ tests/effect-recovery-v3.test.ts (11 tests) 202ms
+ ✓ tests/memory-host-lifecycle-v3.test.ts (7 tests) 282ms
+ ✓ tests/tool-authority-v3.test.ts (6 tests) 36ms
+ ✓ tests/context-compiler-v3.test.ts (11 tests) 16ms
+ ✓ tests/m01-m02-compatibility.test.ts (2 tests) 19ms
+
+ Test Files  10 passed (10)
+      Tests  151 passed (151)
+   Start at  11:31:43
+   Duration  65.42s (transform 3.90s, setup 0ms, import 9.93s, tests 52.29s, environment 1ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-prerequisites-01/results.json

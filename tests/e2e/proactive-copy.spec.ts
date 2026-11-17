@@ -32,12 +32,12 @@ test('only a newly published live artifact enters; restored history and unchange
   await page.addInitScript(() => {
     const original = Element.prototype.animate; Object.assign(window, { artifactEntries: 0 });
     Element.prototype.animate = function(...args: Parameters<Element['animate']>) {
-      if (this.matches('.artifact')) (window as unknown as {artifactEntries:number}).artifactEntries++;
+      if (this.matches('.artifact > .artifact-body')) (window as unknown as {artifactEntries:number}).artifactEntries++;
       return original.apply(this, args);
     };
   });
   const fixture = await serveTaskFixture(page, snapshot); await page.goto('/');
-  await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeEnabled(); await expect(page.locator('html')).toHaveAttribute('data-motion','system');
   snapshot.artifacts = [artifact]; await fixture.publish();
   await expect(page.locator('.artifact')).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as {artifactEntries:number}).artifactEntries)).toBe(1);

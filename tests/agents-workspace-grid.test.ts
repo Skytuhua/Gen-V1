@@ -150,6 +150,7 @@ describe('agents workspace grid layout', () => {
       await page.getByRole('button', {name: 'Search agents'}).click();
       const input = page.getByRole('searchbox', {name: 'Filter agents'});
       await visible(input).toBeVisible();
+      await visible(input).toBeFocused();
       await input.blur();
       await page.evaluate(() => window.controller.setScope({text: 'external'}));
       await visible(input).toHaveValue('external', {timeout: 2000});

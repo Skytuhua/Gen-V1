@@ -1,0 +1,226 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/desktop-surfaces.playwright.config.ts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 30 tests using 1 worker
+
+[1A[2K(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/30] tests/e2e/desktop-surfaces.spec.ts:116:1 › desktop context and usage minimize in the workspace while thread detachment stays available
+[1A[2K[2/30] tests/e2e/desktop-surfaces.spec.ts:183:1 › authoritative detached plan ignores URL descriptors and restores its owning thread
+[1A[2K[3/30] tests/e2e/desktop-surfaces.spec.ts:206:1 › an artifact stays editable in the main window with no new-detachment entry
+[1A[2K[4/30] tests/e2e/desktop-surfaces.spec.ts:225:1 › browser clients expose no native window controls
+[1A[2K[5/30] tests/e2e/desktop-surfaces.spec.ts:239:1 › native workspace notifications refresh authenticated state without opening renderer event streams
+[1A[2K[6/30] tests/e2e/desktop-surfaces.spec.ts:309:1 › close acknowledgment freezes editing until native cancellation resumes the same draft
+[1A[2K[7/30] tests/e2e/desktop-surfaces.spec.ts:338:1 › desktop draft import preserves collisions and blocks stale artifact revisions
+[1A[2K[8/30] tests/e2e/desktop-surfaces.spec.ts:410:1 › browser draft export is explicit and does not clear the source
+[1A[2K[9/30] tests/e2e/desktop-surfaces.spec.ts:447:1 › native close saves the latest edit and lease before acknowledgment, retaining source DOM
+[1A[2K[10/30] tests/e2e/desktop-surfaces.spec.ts:469:1 › native close freezes the same workspace editor alias after acknowledged saving
+[1A[2K[11/30] tests/e2e/desktop-surfaces.spec.ts:495:1 › sidebar detaches a thread into its own window and the main workspace stays usable
+[1A[2K[12/30] tests/e2e/desktop-surfaces.spec.ts:581:1 › detached workspace selection does not acquire an unacknowledged second artifact editor
+[1A[2K[2m[WebServer] [22m12:06:19 PM [vite] http proxy error: /api/workbench/threads/task-thread/inputs
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K[2m[WebServer] [22m12:06:19 PM [vite] http proxy error: /api/workbench/threads/second-thread/inputs
+[2m[WebServer] [22mError: connect ECONNREFUSED 127.0.0.1:4317
+[2m[WebServer] [22m    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2083:16)
+
+[1A[2K  1) tests/e2e/desktop-surfaces.spec.ts:581:1 › detached workspace selection does not acquire an unacknowledged second artifact editor 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alert')
+    Expected substring: [32m"Open this artifact from the main workspace. Your current editor is kept open."[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert')[22m
+
+
+      89 |  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();
+      90 | });
+    > 91 | test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Open this artifact from the main workspace. Your current editor is kept open.');await expect(page.locator('[data-artifact-id="second-artifact"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      92 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+      93 |
+      94 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:91:753
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:361) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[13/30] tests/e2e/desktop-surfaces.spec.ts:622:1 › navigation windows never mount hidden editable artifacts or a composer
+[1A[2K[14/30] tests/e2e/desktop-surfaces.spec.ts:648:1 › native close acknowledges an unrecovered composer workspace without detaching
+[1A[2K  2) tests/e2e/desktop-surfaces.spec.ts:648:1 › native close acknowledges an unrecovered composer workspace without detaching 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      92 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+      93 |
+    > 94 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      95 | test('upload preprocessing blocks native close before the canonical PNG is journaled',async({page})=>{await bridge(page);await page.addInitScript(()=>{const original=File.prototype.arrayBuffer;File.prototype.arrayBuffer=function(){const file=this;return new Promise<ArrayBuffer>(resolve=>{(window as any).__releaseUpload=()=>void original.call(file).then(resolve);});};});const s=fixture();s.artifacts[0].spec={root:'signature',elements:{signature:{type:'SignaturePad',props:{stateKey:'signature',initialMode:'upload'}}}};await serveTaskFixture(page,s);await page.goto('/');await page.getByLabel('Upload PNG signature',{exact:true}).setInputFiles({name:'mark.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64')});expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(false);await expect(page.getByRole('alert')).toContainText('signature mark');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach').length)).toBe(0);await expect(page.getByLabel('Upload PNG signature',{exact:true})).toBeEnabled();});
+      96 |
+      97 | test('compatible browser draft import restores the live composer and survives reload',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('');await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const backup={app:'generative-harness-drafts',version:1,entries:[{key:'draft:task-thread',record:{value:'Continue from browser backup',generation:'browser-original',updatedAt:1}}]};await page.getByLabel('Draft backup file',{exact:true}).setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('.draft-transfer [role="status"]')).toContainText('1 drafts imported');await page.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Continue from browser backup');await page.reload();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Continue from browser backup');});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:94:801
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-native-cl-c979e-workspace-without-detaching/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[15/30] tests/e2e/desktop-surfaces.spec.ts:677:1 › upload preprocessing blocks native close before the canonical PNG is journaled
+[1A[2K[16/30] tests/e2e/desktop-surfaces.spec.ts:719:1 › compatible browser draft import restores the live composer and survives reload
+[1A[2K[17/30] tests/e2e/desktop-surfaces.spec.ts:771:1 › imported artifact draft updates the already mounted editor before another edit
+[1A[2K[18/30] tests/e2e/desktop-surfaces.spec.ts:823:1 › export refuses pending signature assets instead of silently omitting the mark
+[1A[2K  3) tests/e2e/desktop-surfaces.spec.ts:823:1 › export refuses pending signature assets instead of silently omitting the mark 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.draft-transfer [role="alert"]')
+    Expected substring: [32m"signature"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.draft-transfer [role="alert"]')[22m
+
+
+       99 | test('imported artifact draft updates the already mounted editor before another edit',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('');await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const backup={app:'generative-harness-drafts',version:1,entries:[{key:'state:task-state',record:{value:{baseRevision:0,values:{name:'Imported artifact value'}},generation:'browser-state',updatedAt:1}}]};await page.getByLabel('Draft backup file',{exact:true}).setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('.draft-transfer [role="status"]')).toContainText('1 drafts imported');await page.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Imported artifact value');});
+      100 |
+    > 101 | test('export refuses pending signature assets instead of silently omitting the mark',async({page})=>{await bridge(page);await page.addInitScript(()=>{File.prototype.arrayBuffer=function(){return new Promise<ArrayBuffer>(()=>{});};});const value=fixture();value.artifacts[0].spec={root:'signature',elements:{signature:{type:'SignaturePad',props:{stateKey:'signature',initialMode:'upload'}}}};await serveTaskFixture(page,value);await page.goto('/');await page.getByLabel('Upload PNG signature',{exact:true}).setInputFiles({name:'mark.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64')});await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();await page.getByRole('button',{name:'Export local drafts',exact:true}).click();await expect(page.locator('.draft-transfer [role="alert"]')).toContainText('signature');});
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+      102 |
+      103 | test('source editor recovers a durable satellite draft when editing ownership returns',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await expect(input).toBeEnabled();const node=await input.elementHandle();await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false},{id:'existing-artifact',surface:{kind:'artifact',threadId:'task-thread',artifactId:'task-surface'},ready:true,minimized:false}]}));await expect(page.getByText('Editing in a detached window.',{exact:true})).toBeVisible();await expect.poll(()=>node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);await page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);await journal.journalWrite('state:task-state',{baseRevision:0,values:{name:'Recovered after satellite failure'}});(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}]});});await expect(input).toHaveValue('Recovered after satellite failure');await expect(input).toBeEnabled();expect(await node!.evaluate(element=>element.isConnected)).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+      104 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:101:972
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:597) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[19/30] tests/e2e/desktop-surfaces.spec.ts:868:1 › source editor recovers a durable satellite draft when editing ownership returns
+[1A[2K[20/30] tests/e2e/desktop-surfaces.spec.ts:928:1 › desktop sign-in uses the fixed native launcher without requiring pnpm
+[1A[2K[21/30] tests/e2e/desktop-surfaces.spec.ts:962:1 › desktop readiness does not wait for slow model discovery
+[1A[2K[22/30] tests/e2e/desktop-surfaces.spec.ts:997:1 › review: startup does not expose an ownerless composer before the initial snapshot
+[1A[2K[23/30] tests/e2e/desktop-surfaces.spec.ts:1041:39 › review: clearing an enum omits the optional response
+[1A[2K[24/30] tests/e2e/desktop-surfaces.spec.ts:1041:39 › review: clearing an enum retains required validation
+[1A[2K[25/30] tests/e2e/desktop-surfaces.spec.ts:1100:1 › review: an existing native browser action remains visible and retryable
+[1A[2K[26/30] tests/e2e/desktop-surfaces.spec.ts:1126:1 › review: a failed detached workspace close retains the editable surface
+[1A[2K  4) tests/e2e/desktop-surfaces.spec.ts:1126:1 › review: a failed detached workspace close retains the editable surface 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alert')
+    Expected substring: [32m"Dock destination is unavailable"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert')[22m
+
+
+      134 | test('review: a failed detached workspace close retains the editable surface',async({page})=>{
+      135 |  await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
+    > 136 |  await expect(page.getByRole('alert')).toContainText('Dock destination is unavailable');await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();
+          |                                        ^
+      137 | });
+      138 |
+      139 | test('review: standalone workspace uses native sizing instead of inactive panel maximize controls',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts:136:40
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[27/30] tests/e2e/desktop-surfaces.spec.ts:1155:1 › review: standalone workspace uses native sizing instead of inactive panel maximize controls
+[1A[2K[28/30] tests/e2e/desktop-surfaces.spec.ts:1178:1 › review: detached browser follows saved theme and subsequent system changes
+[1A[2K[29/30] tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control
+[1A[2K[30/30] tests/e2e/desktop-surfaces.spec.ts:1256:1 › M15 panel opener: a pinned native thread retains its workspace control
+[1A[2K  4 failed
+    tests/e2e/desktop-surfaces.spec.ts:581:1 › detached workspace selection does not acquire an unacknowledged second artifact editor 
+    tests/e2e/desktop-surfaces.spec.ts:648:1 › native close acknowledges an unrecovered composer workspace without detaching 
+    tests/e2e/desktop-surfaces.spec.ts:823:1 › export refuses pending signature assets instead of silently omitting the mark 
+    tests/e2e/desktop-surfaces.spec.ts:1126:1 › review: a failed detached workspace close retains the editable surface 
+  26 passed (1.6m)

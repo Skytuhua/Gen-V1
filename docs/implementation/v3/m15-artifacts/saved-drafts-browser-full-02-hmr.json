@@ -1,0 +1,29 @@
+{
+  "source": "test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/trace.zip",
+  "retainedTrace": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-02-hmr-trace.zip",
+  "sha256": "3dcc7316d37b83982351c68e64b62206d87613cbf0d4fd2c0bc0dd1c77d88fbc",
+  "hotUpdateEvents": [
+    {
+      "type": "console",
+      "messageType": "debug",
+      "text": "[vite] hot updated: /apps/web/src/App.tsx",
+      "args": [
+        {
+          "preview": "[vite]",
+          "value": "[vite]"
+        },
+        {
+          "preview": "hot updated: /apps/web/src/App.tsx",
+          "value": "hot updated: /apps/web/src/App.tsx"
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:5522/@vite/client",
+        "lineNumber": 809,
+        "columnNumber": 28
+      },
+      "time": 107938.554,
+      "pageId": "page@8bc9743a6ace9a9071fdc4601c6d3a4b"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PROPOSED_APPEND_ONLY_TEST_FOLLOWTHROUGH_NOT_APPLIED_NOT_RUN",
+  "path": "tests/e2e/workbench.spec.ts",
+  "beforeSha256": "e57edc4b1f2f58132f75aeb391adc0499a4b0fa86dfdefeee898da305997efa2",
+  "proposedSha256": "568eb7e4f773fc40bd18d064a7a77d2fadd955908752b75783cbd29b3c46cb3f",
+  "patchSha256": "0d4c7a051573f88f331f1c8877e29c0e1830e5631fa2e5e418e5ec831dc787c4",
+  "scope": "Seven lines only, after the unchanged critical same-source retained-range/visible-enabled-toolbar assertion. It explicitly activates B, verifies exact B payload while held, completes B and verifies range and toolbar cleanup.",
+  "selectedCaseCount": 3,
+  "deadlineChanges": false
+}

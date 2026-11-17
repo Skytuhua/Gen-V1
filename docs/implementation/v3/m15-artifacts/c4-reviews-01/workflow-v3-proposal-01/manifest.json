@@ -1,0 +1,62 @@
+{
+  "scope": "Private unapplied workflow and ingester proposal. No dispatch, platform execution, result promotion, default activation or ordinary CI changes.",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "acceptedTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "nativeTests": [
+    "tests/source-selection-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/source-workbench-hermes-v3.test.ts",
+    "tests/source-workbench-memory-v3.test.ts",
+    "tests/project-memory-service-v3.test.ts",
+    "tests/project-memory-request-http-v3.test.ts",
+    "tests/memory-host-lifecycle-v3.test.ts",
+    "tests/memory-native-file-capture-v3.test.ts",
+    "tests/memory-native-checkpoint-v3.test.ts",
+    "tests/memory-extraction-native-v3.test.ts",
+    "tests/memory-checkpoint-worker-ownership-v3.test.ts",
+    "tests/memory-source-reuse-v3.test.ts",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/source-selection-dom-v3.test.ts",
+    "tests/source-composer-v3.test.ts",
+    "tests/source-draft-transfer-v3.test.ts",
+    "tests/activity-output-v3.test.ts",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "tests/agents-workspace-composer.test.ts",
+    "tests/agents-workspace-dispatch.test.ts",
+    "tests/saved-drafts.test.ts",
+    "tests/draft-transfer.test.ts",
+    "tests/compact-draft-transfer.test.ts",
+    "tests/journal.test.ts",
+    "tests/editor-handoff.test.ts",
+    "tests/public-source.test.ts",
+    "tests/accounts.test.ts",
+    "tests/hermes-client-startup.test.ts",
+    "tests/hermes-client.test.ts",
+    "tests/hermes-original-integration.test.ts",
+    "tests/hermes-multi-original.test.ts",
+    "tests/dev-plugin-runtime.test.ts",
+    "tests/skill-catalog.test.ts",
+    "tests/desktop-host.test.ts"
+  ],
+  "addedBrowserSuites": [
+    "project-memory",
+    "frontend-refinement"
+  ],
+  "jobs": 7,
+  "unchangedTimeouts": {
+    "native": 45,
+    "root-browser": 45,
+    "browser": 45,
+    "full-shard": 30
+  },
+  "files": {
+    "workflow-before.yml": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+    "workflow-proposed.yml": "05819a7992e6c9933ebbf95b1ef7736265efc07eefde2eba3cd65d6f1f29d250",
+    "workflow.patch": "17f97ae42e7d071e78aab18afda75a0c8d187f2c2399137bf16c8dc81f13ad82",
+    "ingest-ci-artifact-before.py": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+    "ingest-ci-artifact.py": "bfef87043ae4ca8ef358194fa5f4268deb5855ccaf5af16e0833febe97db274f",
+    "ingester.diff": "731f0962d0e208005f6abaefeeb50ad3a4c3b80e86e29acfbb18d9629706dc20"
+  }
+}

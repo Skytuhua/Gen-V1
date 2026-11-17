@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workspace-layout.test.ts",
+    "tests/project-context-owner.test.ts",
+    "tests/research-service-integration.test.ts",
+    "tests/plugin-visuals-retirement.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T02:06:14.500Z",
+  "endedAt": "2026-11-16T02:06:22.000Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-workspace-contracts-01.log",
+  "logDigest": "6d04a1c4220d04ecf4c26e3031536b3d008ab866d49352f1429504ff00a35ac2"
+}

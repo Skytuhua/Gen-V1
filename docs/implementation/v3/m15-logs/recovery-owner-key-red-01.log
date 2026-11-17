@@ -1,0 +1,32 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/workbench-recovery-v3.test.ts (10 tests | 1 failed) 402ms
+     × keeps old workspace context while a replacement workspace starts with an empty companion 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > keeps old workspace context while a replacement workspace starts with an empty companion
+Error: The source draft owner or workspace changed. Existing context was retained.
+ ❯ parseMetadata apps/web/src/workbench-recovery.ts:20:61
+     18|   if (!value || typeof value !== 'object' || Array.isArray(value) || O…
+     19|   const context = draftContextV1Schema.parse({...value, text: ''});
+     20|   if (!sameLogicalOwner(context.logicalOwner, owner)) throw Error('The…
+       |                                                             ^
+     21|   return metadata(context);
+     22| }
+ ❯ Module.readSourceDraft apps/web/src/workbench-recovery.ts:26:26
+ ❯ tests/workbench-recovery-v3.test.ts:90:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 passed (10)
+   Start at  05:42:20
+   Duration  715ms (transform 120ms, setup 0ms, import 76ms, tests 402ms, environment 0ms)
+

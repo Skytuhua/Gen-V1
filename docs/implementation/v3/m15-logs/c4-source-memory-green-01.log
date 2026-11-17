@@ -1,0 +1,16 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-workbench-memory-v3.test.ts","tests/source-composer-v3.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-source-memory-green-01/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/source-workbench-memory-v3.test.ts (14 tests) 515ms
+ ✓ tests/source-composer-v3.test.ts (8 tests) 91ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  11:58:33
+   Duration  3.40s (transform 1.55s, setup 0ms, import 2.36s, tests 606ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-source-memory-green-01/results.json

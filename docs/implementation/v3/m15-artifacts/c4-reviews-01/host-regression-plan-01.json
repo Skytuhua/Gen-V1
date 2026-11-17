@@ -1,0 +1,144 @@
+{
+  "id": "c4-host-regression-01",
+  "status": "PLANNED_NOT_RUN",
+  "sourceCut": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+  "sourceCutSha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/source-workbench-memory-v3.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/source-selection-v3.test.ts",
+    "tests/source-selection-dom-v3.test.ts",
+    "tests/source-composer-v3.test.ts",
+    "tests/source-draft-transfer-v3.test.ts",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "tests/request-preparation-service-v3.test.ts",
+    "tests/context-compiler-v3.test.ts",
+    "tests/accounts.test.ts",
+    "tests/project-memory-v3.test.ts",
+    "tests/project-memory-service-v3.test.ts",
+    "tests/project-memory-http-v3.test.ts",
+    "tests/project-memory-request-http-v3.test.ts",
+    "tests/memory-host-lifecycle-v3.test.ts",
+    "tests/memory-forget-v3.test.ts",
+    "tests/memory-enrollment-recovery-v3.test.ts",
+    "tests/memory-storage-boundary-v3.test.ts",
+    "tests/memory-retrieval-v3.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c4-host-regression-01/results.json"
+  ],
+  "files": [
+    {
+      "path": "tests/source-workbench-memory-v3.test.ts",
+      "bytes": 20849,
+      "sha256": "fe2ff72296655c5e847b6a7c1a696711a511c6bd9245e661410d9a19b81e057d"
+    },
+    {
+      "path": "tests/source-workbench-host-v3.test.ts",
+      "bytes": 64059,
+      "sha256": "c28ed707b387579b851ff37f43f681d56fd9f94362c88681ce4b21254d6fb58a"
+    },
+    {
+      "path": "tests/source-selection-v3.test.ts",
+      "bytes": 7984,
+      "sha256": "d7c7a9791b7fdee2a814977b807f0d7265af59294995756a3d513f9e96efcff2"
+    },
+    {
+      "path": "tests/source-selection-dom-v3.test.ts",
+      "bytes": 795,
+      "sha256": "2e057a5e63b09129ab7cc1051051042d1d5088c4f96ce0832d752d8d1f0cbdc3"
+    },
+    {
+      "path": "tests/source-composer-v3.test.ts",
+      "bytes": 9872,
+      "sha256": "126703e57581bc2de0e43a85e32c4722ea20aa8106316546cb18add5ba751da7"
+    },
+    {
+      "path": "tests/source-draft-transfer-v3.test.ts",
+      "bytes": 14312,
+      "sha256": "474dff1312fb0e9c6b1d7bd4dc7aa7b501f3b568302cb3ce2444eedd07a6f96a"
+    },
+    {
+      "path": "tests/workbench-input-recovery-v3.test.ts",
+      "bytes": 4050,
+      "sha256": "adb1dc04c0d033f5f7c9117244d62c654477a8889ef207c95028eb3995965a07"
+    },
+    {
+      "path": "tests/workbench-recovery-v3.test.ts",
+      "bytes": 11735,
+      "sha256": "61bf76a2dca6b7b0e93686bb5926b691f3dbc76ec4d1254509f3fb7ace984601"
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "bytes": 32486,
+      "sha256": "4335431f23905e4bf0dd9f4c4ea7025e65316c95c6702b956c9e7d83d755c35e"
+    },
+    {
+      "path": "tests/context-compiler-v3.test.ts",
+      "bytes": 5484,
+      "sha256": "5ae96021557ff129c2abc99cfcbc7d1a4da996c2f17536800a1a6a736ab98dd9"
+    },
+    {
+      "path": "tests/accounts.test.ts",
+      "bytes": 16945,
+      "sha256": "dcd14700910ab5c693b164c08e5195d27c0e77cb91967ff1ac0203c59cefbbe3"
+    },
+    {
+      "path": "tests/project-memory-v3.test.ts",
+      "bytes": 9090,
+      "sha256": "ed593877bc75d583751099a8e8056cf7104a1314ca905e2c021e2aa7ee544969"
+    },
+    {
+      "path": "tests/project-memory-service-v3.test.ts",
+      "bytes": 36512,
+      "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0"
+    },
+    {
+      "path": "tests/project-memory-http-v3.test.ts",
+      "bytes": 5581,
+      "sha256": "d92c9a7006535e9b0c465736ba8da6451cb10ee77ffd397e018efb7456ec7ee6"
+    },
+    {
+      "path": "tests/project-memory-request-http-v3.test.ts",
+      "bytes": 16226,
+      "sha256": "1567d3f71050254c46f8c6cbd95be259eba761ae7aa26623f2baa43272187d7c"
+    },
+    {
+      "path": "tests/memory-host-lifecycle-v3.test.ts",
+      "bytes": 9079,
+      "sha256": "1c06f83621de40a9bd8cd6b3960afd61f7fad106dcdbd63eba778d06b6850eea"
+    },
+    {
+      "path": "tests/memory-forget-v3.test.ts",
+      "bytes": 15338,
+      "sha256": "fdcb400a721b1e7ca07632e5fc96ed396aedad131ebf0fffd7279197789b4851"
+    },
+    {
+      "path": "tests/memory-enrollment-recovery-v3.test.ts",
+      "bytes": 2735,
+      "sha256": "4c6d0941e2af1d9eca10735d964ad882b1b66775cc45fe5f71503874856a0192"
+    },
+    {
+      "path": "tests/memory-storage-boundary-v3.test.ts",
+      "bytes": 6602,
+      "sha256": "0a90a4109dd7ad62bd985b85e04053cbb8c7fb92488eda37a8de81d101fa0919"
+    },
+    {
+      "path": "tests/memory-retrieval-v3.test.ts",
+      "bytes": 24620,
+      "sha256": "58dc7e453dd8132cae59509f6206c1685bd3722d59a72f0e35d7981687eb6225"
+    }
+  ],
+  "scope": "Existing source host, selection, draft/input recovery; real Service request custody and account binding; M05 access, HTTP admission, request lifecycle, memory retention and deletion fences.",
+  "limits": [
+    "No native Hermes, Python, packaged runtime, package build, or browser suite selected.",
+    "Existing Windows-only host bodies retain platform skips on Linux; no target-platform PASS is inferred.",
+    "Memory storage namespace-pin case explicitly uses its existing mocked Linux guard.",
+    "The plan records no predicted pass count and is not a test result."
+  ]
+}

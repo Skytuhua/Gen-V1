@@ -1,0 +1,19 @@
+{
+ "argv": [
+  "pnpm",
+  "exec",
+  "playwright",
+  "test",
+  "-c",
+  "tests/e2e/chat-view-modes.playwright.config.ts"
+ ],
+ "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+ "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm.CMD",
+ "startedAt": "2026-11-16T02:25:04.412Z",
+ "endedAt": "2026-11-16T02:25:37.337Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "status": "PASS",
+ "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.log",
+ "logDigest": "089ff9eceba81928da994d719e97e3e71c380cebe30e62a43941759bc9faff58"
+}

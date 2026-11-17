@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/external-adoption-02/prepare-adopt.py",
+    "apply",
+    "--plan",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/external-adoption-02/prepared-01/plan.json",
+    "--expect-plan-sha",
+    "0be977e3fc01fe2a5f970614acc88848442c78afca7647350bbc72e3b5de3c35"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T04:27:34.657Z",
+  "endedAt": "2026-11-16T04:27:36.527Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-external-adoption-02.log",
+  "logDigest": "3d5928a117154ba717df06fe9d8d80365341f690207ffa84ee26826e21cedcf1"
+}

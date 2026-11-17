@@ -155,8 +155,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
    expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(0);
    const floatSurface=page.locator('[data-split-view="thread:thread-a"]');
-   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   const detachBox=(await floatSurface.boundingBox())!;
+   const shrinkBox=(await floatSurface.locator('.split-float-resize').boundingBox())!;
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2,shrinkBox.y+shrinkBox.height/2);await page.mouse.down();
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2-220,shrinkBox.y+shrinkBox.height/2-140,{steps:6});await page.mouse.up();
    const startBox=(await floatSurface.boundingBox())!;
+   expect(detachBox.width-startBox.width).toBeGreaterThan(100);expect(detachBox.height-startBox.height).toBeGreaterThan(60);
+   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
    await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
    await page.mouse.move(gripBox.x+gripBox.width/2+90,gripBox.y+gripBox.height/2+50,{steps:6});await page.mouse.up();
    const movedBox=(await floatSurface.boundingBox())!;
@@ -171,13 +176,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const restoredBox=(await floatSurface.boundingBox())!;
    expect(Math.abs(restoredBox.x-resizedBox.x)).toBeLessThan(3);expect(Math.abs(restoredBox.width-resizedBox.width)).toBeLessThan(3);
    await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
    await bView.getByRole('textbox',{name:'Message',exact:true}).fill('Main draft B');
    await aView.getByRole('button',{name:'Send message',exact:true}).click();
-   await bView.getByRole('button',{name:'Send message',exact:true}).click();
+   await bView.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');
    await page.waitForFunction(()=>{const ta=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
    const sends=host.commands.filter(command=>command.type==='message.send');
    expect(sends.map(command=>command.threadId).sort()).toEqual(['thread-a','thread-b']);
@@ -198,18 +203,239 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ for(const delta of [0,2]) it(`docked grip preserves placement until a drag and opens its menu for ${delta}px click jitter`,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;
+   await draft.fill('Keep this placement menu draft');
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2;
+   await page.mouse.move(x,y);await page.mouse.down();
+   expect(await page.evaluate(key=>{const value=JSON.parse(localStorage.getItem(key)??'null');return {pending:value?.pending??null,floating:Object.keys(value?.floating??{})};},key)).toEqual({pending:null,floating:[]});
+   await page.mouse.move(x+delta,y);await page.mouse.up();
+   await pw(page.getByRole('menuitem',{name:'Detach conversation',exact:true})).toBeVisible();
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(0);
+   await page.keyboard.press('Escape');await pw(grip).toBeFocused();await page.keyboard.press('Enter');
+   await pw(page.getByRole('menuitem',{name:'Detach conversation',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+   expect(await surface.getAttribute('data-floating')).toBeNull();expect(await draft.inputValue()).toBe('Keep this placement menu draft');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ for(const interruption of ['pointercancel','capture-loss','Escape','blur'] as const) it(`docked drag ${interruption} cancels its preview without a placement write`,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;
+   await draft.fill('Keep the cancelled docked draft');await draft.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(5,9));
+   await page.evaluate(()=>{(window as any).cancelledDockInput=document.querySelector('[data-split-view="thread:thread-a"] textarea');window.addEventListener('pointerdown',event=>{(window as any).cancelledDockPointer=event.pointerId;},{once:true,capture:true});});
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),held=(await grip.elementHandle())!,box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2,before=(await surface.boundingBox())!;
+   await page.mouse.move(x,y);await page.mouse.down();
+   const pointerId=await page.evaluate(()=>(window as any).cancelledDockPointer as number);
+   expect(await held.evaluate((node,id)=>node.hasPointerCapture(id),pointerId)).toBe(true);
+   await page.mouse.move(x+60,y+30);await pw(surface).toHaveAttribute('data-floating','true');
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(0);
+   if(interruption==='pointercancel')await held.dispatchEvent('pointercancel',{pointerId,isPrimary:true});
+   else if(interruption==='capture-loss')await held.evaluate((node,id)=>node.releasePointerCapture(id),pointerId);
+   else if(interruption==='Escape')await page.keyboard.press('Escape');else await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+   await pw(surface).not.toHaveAttribute('data-floating','true');await page.mouse.up();await page.mouse.move(x+100,y+80);
+   const after=(await surface.boundingBox())!;expect(after.x).toBeCloseTo(before.x,1);expect(after.width).toBeCloseTo(before.width,1);
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park'||command.type==='split-workspace.pane.split')).toHaveLength(0);
+   expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,key)).toBeNull();
+   expect(await draft.inputValue()).toBe('Keep the cancelled docked draft');expect(await draft.evaluate(node=>[(node as HTMLTextAreaElement).selectionStart,(node as HTMLTextAreaElement).selectionEnd])).toEqual([5,9]);
+   expect(await page.evaluate(()=>(window as any).cancelledDockInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);await grip.focus();await page.keyboard.press('Enter');await pw(page.getByRole('menuitem',{name:'Detach conversation',exact:true})).toBeVisible();await page.keyboard.press('Escape');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('docked drag admits its final rectangle once at release and retains it through a held matching acknowledgement',async()=>{
+  const host=await fixture(),{page}=host;let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});let received!:()=>void;const requested=new Promise<void>(resolve=>{received=resolve;});let attempts=0;
+  try{
+   await page.route('**/api/split-workspace/commands',async route=>{const command=route.request().postDataJSON();if(command.type==='split-workspace.view.park'){attempts++;received();await held;}await route.fallback();});
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;
+   await draft.fill('Keep the acknowledged docked draft');await page.evaluate(()=>(window as any).ackDockInput=document.querySelector('[data-split-view="thread:thread-a"] textarea'));
+   const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+pane.width/2,pane.y+pane.height/2);
+   expect(attempts).toBe(0);await page.mouse.up();await requested;
+   const final=await surface.evaluate(node=>{const el=node as HTMLElement;return {x:parseFloat(el.style.left),y:parseFloat(el.style.top),width:parseFloat(el.style.width),height:parseFloat(el.style.height)};});
+   expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending?.floatingAdd['thread:thread-a']?.rect,key)).toEqual(final);
+   expect(await draft.inputValue()).toBe('Keep the acknowledged docked draft');release();
+   await pw.poll(()=>page.evaluate(key=>{const value=JSON.parse(localStorage.getItem(key)??'null');return value?.pending?null:value?.floating?.['thread:thread-a']?.rect;},key)).toEqual(final);
+   expect(attempts).toBe(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(1);
+   expect(await page.evaluate(()=>(window as any).ackDockInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   await page.reload();await pw(surface).toHaveAttribute('data-floating','true');await pw(draft).toBeEnabled();expect(await draft.inputValue()).toBe('Keep the acknowledged docked draft');
+   expect(await surface.evaluate(node=>{const el=node as HTMLElement;return {x:parseFloat(el.style.left),y:parseFloat(el.style.top),width:parseFloat(el.style.width),height:parseFloat(el.style.height)};})).toEqual(final);expect(host.errors).toEqual([]);
+  }finally{release();await page.close();}
+ },30000);
+
+ for(const focus of ['thread-a','thread-b'] as const) it(`docked drag acknowledgement retains focused Stop owner ${focus}`,async()=>{
+  const host=await fixture(),{page}=host;let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});let received!:()=>void;const requested=new Promise<void>(resolve=>{received=resolve;});
+  try{
+   for(const item of host.snapshot.threads.filter(item=>item.id==='thread-a'||item.id==='thread-b')){item.status='working';item.runId='run-'+item.id;}await host.publish();
+   await page.route('**/api/split-workspace/commands',async route=>{if(route.request().postDataJSON().type==='split-workspace.view.park'){received();await held;}await route.fallback();});
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;
+   await draft.fill('Keep focused drag draft');const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+pane.width/2,pane.y+pane.height/2);await page.mouse.up();await requested;
+   const focused=page.locator(`[data-split-view="thread:${focus}"]`).getByRole('textbox',{name:'Message',exact:true});if(focus==='thread-b')await focused.focus();release();
+   await pw.poll(()=>page.evaluate(key=>{const value=JSON.parse(localStorage.getItem(key)??'null');return !value?.pending&&Boolean(value?.floating?.['thread:thread-a']);},key)).toBe(true);
+   await pw(focused).toBeFocused();await page.keyboard.press('Escape');
+   await pw.poll(()=>host.commands.filter(command=>command.type==='run.stop').map(command=>command.threadId)).toEqual([focus]);expect(await draft.inputValue()).toBe('Keep focused drag draft');expect(host.errors).toEqual([]);
+  }finally{release();await page.close();}
+ },30000);
+
+ it('docked drag preflight failure retains the current view and draft without sending placement',async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep rejected preflight draft');
+   await page.evaluate('import("/src/editor-handoff.ts").then(handoff=>{handoff.registerEditorHandoff("docked-preflight-test",async()=>{throw Error("Docked preflight was rejected.");});})');
+   const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+pane.width/2,pane.y+pane.height/2);await page.mouse.up();
+   await pw(page.getByRole('alert').filter({hasText:'Docked preflight was rejected.'})).toHaveCount(1);await pw(surface).not.toHaveAttribute('data-floating','true');
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park'||command.type==='split-workspace.pane.split')).toHaveLength(0);expect(await draft.inputValue()).toBe('Keep rejected preflight draft');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('a non-primary docked pointer cannot begin or admit placement',async()=>{
+  const host=await fixture(),{page}=host;try{
+   const draft=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary pointer owner');
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/});
+   await grip.dispatchEvent('pointerdown',{pointerId:77,button:0,buttons:1,isPrimary:false});await grip.dispatchEvent('pointerup',{pointerId:77,button:0,isPrimary:false});
+   expect(await page.evaluate(key=>{const value=JSON.parse(localStorage.getItem(key)??'null');return {pending:value?.pending??null,floating:Object.keys(value?.floating??{})};},'harness:conversation-placement:v1:'+host.layout.id)).toEqual({pending:null,floating:[]});expect(await page.locator('[data-split-view="thread:thread-a"]').getAttribute('data-floating')).toBeNull();expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(0);expect(await draft.inputValue()).toBe('Keep the primary pointer owner');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ for(const finalDock of [false,true]) it(`floating drop uses the owning release target instead of its last hint (${finalDock})`,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the terminal drop draft');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');
+   await page.evaluate(()=>{(window as any).terminalDropInput=document.querySelector('[data-split-view="thread:thread-a"] textarea');window.addEventListener('pointerdown',event=>{(window as any).terminalDropPointer=event.pointerId;},{once:true,capture:true});});
+   const left=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,right=(await page.locator('[data-split-pane="right"]').boundingBox())!,edge={x:left.x+6,y:left.y+left.height/2},center={x:right.x+right.width/2,y:right.y+right.height/2},grip=surface.locator('.split-float-grip'),box=(await grip.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();const last=finalDock?center:edge,terminal=finalDock?edge:center;await page.mouse.move(last.x,last.y);
+   await pw(page.locator('.split-drop-preview')).toHaveCount(finalDock?0:1);
+   await grip.dispatchEvent('pointerup',{pointerId:await page.evaluate(()=>(window as any).terminalDropPointer as number),button:0,clientX:terminal.x,clientY:terminal.y});await page.mouse.up();
+   if(finalDock){await pw.poll(()=>host.splitCommands.filter(command=>command.type==='split-workspace.pane.split').length).toBe(1);await pw(surface).not.toHaveAttribute('data-floating','true');}
+   else{await pw(surface).toHaveAttribute('data-floating','true');expect(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,'harness:conversation-placement:v1:'+host.layout.id)).toBeNull();expect(host.splitCommands.filter(command=>command.type==='split-workspace.pane.split')).toHaveLength(0);}
+   expect(await draft.inputValue()).toBe('Keep the terminal drop draft');expect(await page.evaluate(()=>(window as any).terminalDropInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('accepted docked placement with a lost response reconciles without another write',async()=>{
+  const host=await fixture(),{page}=host;let attempts=0;let accepted!:()=>void;const written=new Promise<void>(resolve=>{accepted=resolve;});
+  try{
+   await page.route('**/api/split-workspace/commands',async route=>{const command=route.request().postDataJSON();if(command.type!=='split-workspace.view.park')return route.fallback();attempts++;await host.issue('view.park',{viewId:'thread:thread-a'});await route.abort('failed');accepted();});
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the uncertain placement draft');
+   const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+pane.width/2,pane.y+pane.height/2);expect(attempts).toBe(0);await page.mouse.up();await written;
+   expect(host.layout.parkedViewIds).toContain('thread:thread-a');await page.reload();await pw(surface).toHaveAttribute('data-floating','true');await pw(draft).toBeEnabled();expect(await draft.inputValue()).toBe('Keep the uncertain placement draft');expect(attempts).toBe(1);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ for(const action of ['return','dock'] as const) it('placement ACK retains newer focused Stop owner after '+action,async()=>{
+  const host=await fixture(),{page}=host;let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});let received!:()=>void;const requested=new Promise<void>(resolve=>{received=resolve;});
+  try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]');await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');
+   for(const item of host.snapshot.threads.filter(item=>item.id==='thread-a'||item.id==='thread-b')){item.status='working';item.runId='run-'+item.id;}await host.publish();
+   await page.route('**/api/split-workspace/commands',async route=>{if(route.request().postDataJSON().type===(action==='return'?'split-workspace.view.open':'split-workspace.pane.split')){received();await held;}await route.fallback();});
+   if(action==='return'){await surface.locator('.split-float-grip').click();await page.getByRole('menuitem',{name:'Return to main',exact:true}).click();}
+   else{const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await surface.locator('.split-float-grip').boundingBox())!;await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+6,pane.y+pane.height/2);await page.mouse.up();}
+   await requested;const draft=page.locator('[data-split-view="thread:thread-b"]').getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the newer focused owner');release();
+   await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,'harness:conversation-placement:v1:'+host.layout.id)).toBeNull();await pw(draft).toBeFocused();await page.keyboard.press('Escape');
+   await pw.poll(()=>host.commands.filter(command=>command.type==='run.stop').map(command=>command.threadId)).toEqual(['thread-b']);expect(await draft.inputValue()).toBe('Keep the newer focused owner');expect(host.errors).toEqual([]);
+  }finally{release();await page.close();}
+ },30000);
+
+ it('docked edge release commits one real split without an intermediate park',async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep direct docking draft');await page.evaluate(()=>(window as any).directDockInput=document.querySelector('[data-split-view="thread:thread-a"] textarea'));
+   const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+6,pane.y+pane.height/2);await pw(page.locator('.split-drop-preview')).toHaveCount(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park'||command.type==='split-workspace.pane.split')).toHaveLength(0);
+   await page.mouse.up();await pw.poll(()=>host.splitCommands.filter(command=>command.type==='split-workspace.pane.split').length).toBe(1);await pw(surface).not.toHaveAttribute('data-floating','true');
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park')).toHaveLength(0);expect(Object.keys(host.layout.panes)).toHaveLength(3);expect(await draft.inputValue()).toBe('Keep direct docking draft');expect(await page.evaluate(()=>(window as any).directDockInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ for(const action of ['detach','return','dock'] as const) it('placement preflight retains its captured revision for '+action,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep stale preflight draft');
+   if(action!=='detach'){await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');}
+   await page.evaluate('import("/src/editor-handoff.ts").then(handoff=>{handoff.registerEditorHandoff("held-placement-revision",()=>new Promise(resolve=>{window.placementPreflightHeld=true;window.releasePlacementPreflight=resolve;}));})');
+   const revision=host.layout.revision,type=action==='detach'?'split-workspace.view.park':action==='return'?'split-workspace.view.open':'split-workspace.pane.split';
+   if(action==='detach'){await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();}
+   else if(action==='return'){await surface.locator('.split-float-grip').click();await page.getByRole('menuitem',{name:'Return to main',exact:true}).click();}
+   else{const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await surface.locator('.split-float-grip').boundingBox())!;await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+6,pane.y+pane.height/2);await page.mouse.up();}
+   await page.waitForFunction(()=>(window as any).placementPreflightHeld===true);await host.issue('view.move',{viewId:'thread:thread-a',paneId:'right'});
+   await pw(page.locator('[data-split-pane="right"]').getByRole('tab',{name:'First investigation',exact:true})).toHaveCount(1);const concurrent=structuredClone(host.layout);
+   await page.evaluate(()=>(window as any).releasePlacementPreflight());
+   await pw.poll(()=>host.splitCommands.filter(command=>command.type===type).at(-1)?.payload.baseRevision).toBe(revision);
+   await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(1);await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(0);
+   expect(host.layout).toEqual(concurrent);expect(host.layout.panes.right.viewIds).toContain('thread:thread-a');expect(host.layout.parkedViewIds).not.toContain('thread:thread-a');await pw(draft).toHaveValue('Keep stale preflight draft');expect(host.errors).toEqual([]);
+  }finally{await page.evaluate(()=>(window as any).releasePlacementPreflight?.()).catch(()=>{});await page.close();}
+ },30000);
+
+
+
+ for(const terminal of ['click','jitter','move-cancel','resize-cancel','resize-click'] as const)it('shrunken float preserves raw placement after '+terminal,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;await draft.fill('Preserve the raw floating placement');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,key)).toBeNull();
+   const grip=surface.locator('.split-float-grip');await grip.focus();for(let i=0;i<20;i++)await page.keyboard.press('Shift+ArrowRight');const original=(await surface.boundingBox())!;expect(original.x).toBeGreaterThan(400);const saved=await page.evaluate(key=>localStorage.getItem(key),key);expect(saved).not.toBeNull();
+   await page.setViewportSize({width:900,height:700});await pw.poll(async()=>(await surface.boundingBox())!.x).toBeLessThan(original.x-100);const projected=(await surface.boundingBox())!,root=(await page.locator('.split-root-workarea .split-workspace').boundingBox())!;expect(root.y).toBeGreaterThan(projected.y-root.y);
+   const handle=terminal.startsWith('resize')?surface.locator('.split-float-resize'):grip,box=(await handle.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   if(terminal==='jitter')await page.mouse.move(box.x+box.width/2+2,box.y+box.height/2);else if(terminal.endsWith('cancel'))await page.mouse.move(box.x+box.width/2+20,box.y+box.height/2+20);
+   if(terminal.endsWith('cancel'))await page.keyboard.press('Escape');await page.mouse.up();await page.keyboard.press('Escape');
+   expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(saved);await pw.poll(()=>surface.boundingBox()).toEqual(projected);
+   await page.setViewportSize({width:1600,height:1000});await pw.poll(()=>surface.boundingBox()).toEqual(original);await pw(draft).toHaveValue('Preserve the raw floating placement');expect(host.commands.filter(command=>command.type==='message.send')).toHaveLength(0);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+ for(const held of [false,true]) it('viewport shrink retains a visible moved float while '+(held?'held':'idle'),async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the resized viewport draft');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');
+   const grip=surface.locator('.split-float-grip');await grip.focus();for(let i=0;i<20;i++)await page.keyboard.press('Shift+ArrowRight');
+   await page.evaluate(()=>(window as any).viewportFloatInput=document.querySelector('[data-split-view="thread:thread-a"] textarea'));const before=(await surface.boundingBox())!;
+   expect(before.x).toBeGreaterThan(400);const commands=host.splitCommands.length;
+   if(held){const box=(await grip.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+12,box.y+box.height/2+12);}
+   await page.setViewportSize({width:900,height:900});await pw.poll(async()=>{const view=(await surface.boundingBox())!,root=(await page.locator('.split-root-workarea .split-workspace').boundingBox())!;return view.x+view.width-(root.x+root.width);}).toBeLessThanOrEqual(-18);
+   if(held)await page.mouse.up();await page.setViewportSize({width:1600,height:1000});await pw.poll(async()=>(await surface.boundingBox())!.x).toBeCloseTo(before.x,1);
+   expect(host.splitCommands).toHaveLength(commands);await pw(draft).toHaveValue('Keep the resized viewport draft');expect(await page.evaluate(()=>(window as any).viewportFloatInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+ it('viewport reflow cancels a held docked preview without a placement write',async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the reflowed drag draft');await page.evaluate(()=>(window as any).reflowDockInput=document.querySelector('[data-split-view="thread:thread-a"] textarea'));
+   const pane=(await page.locator('[data-split-pane="pane-main"]').boundingBox())!,grip=(await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).boundingBox())!;
+   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(pane.x+pane.width/2,pane.y+pane.height/2);await pw(surface).toHaveAttribute('data-floating','true');await page.setViewportSize({width:1400,height:900});await pw(surface).not.toHaveAttribute('data-floating','true');await page.mouse.up();
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.view.park'||command.type==='split-workspace.pane.split')).toHaveLength(0);await pw(draft).toHaveValue('Keep the reflowed drag draft');expect(await page.evaluate(()=>(window as any).reflowDockInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect((await surface.boundingBox())!.width).toBeLessThan(pane.width-50);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ for(const terminal of ['pointerup','pointercancel'] as const) it(`docked drag keeps its owning pointer after a foreign ${terminal}`,async()=>{
+  const host=await fixture(),{page}=host;try{
+   const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});
+   await draft.fill('Keep this docked drag draft');
+   await page.evaluate(()=>{(window as any).dockedDragInput=document.querySelector('[data-split-view="thread:thread-a"] textarea');window.addEventListener('pointerdown',event=>{(window as any).dockedPointer=event.pointerId;},{once:true,capture:true});});
+   const grip=page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}),box=(await grip.boundingBox())!,x=box.x+box.width/2,y=box.y+box.height/2,target=(await page.locator('[data-split-pane="right"]').boundingBox())!,targetX=target.x+target.width*.4,targetY=target.y+target.height/2;
+   await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(targetX-20,targetY);
+   await pw(surface).toHaveAttribute('data-floating','true');
+   await page.mouse.move(targetX,targetY);const before=(await surface.boundingBox())!;
+   await page.evaluate(type=>window.dispatchEvent(new PointerEvent(type,{pointerId:(window as any).dockedPointer+100,isPrimary:false,bubbles:true})),terminal);
+   await page.mouse.move(targetX+40,targetY);
+   await pw.poll(async()=>(await surface.boundingBox())!.x).toBeGreaterThan(before.x+20);
+   await page.mouse.up();
+   await pw.poll(()=>host.splitCommands.filter(command=>command.type==='split-workspace.view.park').length).toBe(1);
+   await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,'harness:conversation-placement:v1:'+host.layout.id)).toBeNull();
+   const completed=(await surface.boundingBox())!;
+   await page.mouse.move(targetX+80,targetY);expect((await surface.boundingBox())!.x).toBeCloseTo(completed.x,1);
+   expect(await draft.inputValue()).toBe('Keep this docked drag draft');
+   expect(await page.evaluate(()=>(window as any).dockedDragInput===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)',async()=>{
   const host=await fixture({mode:'default',mainTabs:true}),{page}=host;try{
    const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
    await aView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(2);
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    await page.waitForFunction(()=>!!document.querySelector('[data-split-pane="pane-main"] .split-empty'));
    expect(await bView.isVisible()).toBe(false);
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
-   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
    expect(host.errors).toEqual([]);
@@ -222,10 +448,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await host.publish();
    const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
    await aView.locator('.working-status').waitFor({state:'visible'});
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.locator('.working-status').waitFor({state:'visible'});
    await aView.getByRole('textbox',{name:'Message',exact:true}).focus();
    await page.keyboard.press('Escape');
@@ -243,7 +468,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw(metadata).toContainText('First project');
    await pw(metadata).toContainText('Ready');
    const toggle=async()=>{
-    await page.getByRole('button',{name:'Settings',exact:true}).click();
+    await page.getByRole('button',{name:'Settings',exact:true}).dispatchEvent('click');
     const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
     await dialog.getByRole('button',{name:'Chat & Composer',exact:true}).click();
     await dialog.getByRole('switch',{name:'Thread details',exact:true}).click();
@@ -255,8 +480,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.reload();
    await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"]').waitFor({state:'visible'});
    await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
    await toggle();
@@ -269,8 +493,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
 
  it('docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)',async()=>{
   const host=await fixture({mode:'split'}),{page}=host;try{
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
    const rightSlot=(await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox())!;

@@ -1,0 +1,52 @@
+{
+  "kind": "EXTERNAL_082_LINUX_FAILURE_ADDITIVE_RECORD",
+  "archiveManifest": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/archive-manifest.json",
+    "sha256": "d5105e5f03a2ed111ddde60746070c97b3ce9423d4afb8cc6fd1740168ab26e6",
+    "bytes": 9447
+  },
+  "receipt": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-linux-vitest.json",
+    "sha256": "34ecebc2743f49c96a6e1c25579f07856b1552e98929bd6f3106c0bfca8a8c1a",
+    "bytes": 450
+  },
+  "log": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/external-publication-cut-0822648/m15-logs/reconcile-linux-vitest.log",
+    "sha256": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd",
+    "bytes": 303310
+  },
+  "command": {
+    "argv": [
+      "pnpm",
+      "test:no-lease"
+    ],
+    "cwdIdentity": "/root/gen-v1-linux",
+    "executableIdentity": "/root/node24/bin/pnpm",
+    "startedAt": "2026-11-16T04:09:14.000Z",
+    "endedAt": "2026-11-16T04:12:16.000Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.log",
+    "logDigest": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd"
+  },
+  "counts": {
+    "tests": {
+      "passed": 3644,
+      "failed": 306,
+      "skipped": 196,
+      "total": 4146
+    },
+    "files": {
+      "passed": 307,
+      "failed": 61,
+      "skipped": 5,
+      "total": 373
+    },
+    "unhandledErrors": 4
+  },
+  "sourceScope": "External record retained at082; no exact-current C4 or paired-base parity acceptance.",
+  "distinctFrom": "Retained Windows reconcile-full-vitest receipt49df0d53de454a9a108a66770e8fcfac0cfedbbf6ffa6a31a2969ffdec8b6d27 and C3 Windows43797606300.",
+  "rawArtifactsModified": false,
+  "draft01Modified": false
+}

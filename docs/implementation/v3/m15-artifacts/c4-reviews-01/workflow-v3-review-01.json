@@ -1,0 +1,112 @@
+{
+  "reviewType": "Static YAML/AST/source correspondence only; no workflow, Windows, ingestion or test execution",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "acceptedTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "nativeFileCount": 36,
+  "addedNativeFiles": [
+    "tests/source-workbench-memory-v3.test.ts",
+    "tests/project-memory-service-v3.test.ts",
+    "tests/project-memory-request-http-v3.test.ts",
+    "tests/memory-host-lifecycle-v3.test.ts",
+    "tests/memory-native-file-capture-v3.test.ts",
+    "tests/memory-native-checkpoint-v3.test.ts",
+    "tests/memory-extraction-native-v3.test.ts",
+    "tests/memory-checkpoint-worker-ownership-v3.test.ts",
+    "tests/memory-source-reuse-v3.test.ts"
+  ],
+  "namedBrowserSuites": [
+    "workbench",
+    "workbench-app",
+    "project-memory",
+    "frontend-refinement",
+    "saved-drafts",
+    "chat-view-modes",
+    "scoped-conversation",
+    "ui-shell-overlays",
+    "ui-shell-controls",
+    "usage-context",
+    "agents-workspace",
+    "workspace-host",
+    "saved-layout-chooser",
+    "usage-app-integration",
+    "desktop-surfaces"
+  ],
+  "frontendRefinementDeclaredSpecs": [
+    "artifact-style.spec.ts",
+    "canvas-clarity.spec.ts",
+    "composer-app-refinement.spec.ts",
+    "context-compact.spec.ts",
+    "document-smoothness.spec.ts",
+    "drag-detach.spec.ts",
+    "floating-windows.spec.ts",
+    "free-floating.spec.ts",
+    "frontend-refinement.spec.ts",
+    "no-detach-canvas.spec.ts",
+    "reserved-rail.spec.ts",
+    "right-tools.spec.ts"
+  ],
+  "browserReceiptLabels": [
+    "workbench",
+    "workbench-app",
+    "project-memory",
+    "frontend-refinement",
+    "saved-drafts",
+    "chat-view-modes",
+    "artifact-acknowledgment",
+    "scoped-conversation",
+    "ui-shell-overlays",
+    "ui-shell-controls",
+    "usage-context",
+    "agents-workspace",
+    "agents-actual-app",
+    "workspace-host",
+    "saved-layout-chooser",
+    "usage-app-integration",
+    "desktop-surfaces",
+    "split-browser"
+  ],
+  "jobInstances": 7,
+  "unchangedDeadlines": {
+    "native": "45",
+    "root-browser": "45",
+    "browser": "45",
+    "full-repository": "30"
+  },
+  "unchangedValidatorFunctions": [
+    "normalized_member",
+    "extract_zip",
+    "validate_metadata",
+    "validate_sources",
+    "validate_full_result",
+    "validate_split_result",
+    "kind_contract"
+  ],
+  "exactSplitWrapper": true,
+  "unchangedCanonicalFullShardCommand": true,
+  "ordinaryCIAndLock": {
+    ".github/workflows/ci.yml": {
+      "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "equalsAcceptedBase": true
+    },
+    "pnpm-lock.yaml": {
+      "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+      "equalsAcceptedBase": true
+    }
+  },
+  "reviewedHashes": {
+    "workflow-before.yml": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+    "workflow-proposed.yml": "05819a7992e6c9933ebbf95b1ef7736265efc07eefde2eba3cd65d6f1f29d250",
+    "workflow.patch": "17f97ae42e7d071e78aab18afda75a0c8d187f2c2399137bf16c8dc81f13ad82",
+    "ingest-ci-artifact-before.py": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+    "ingest-ci-artifact.py": "bfef87043ae4ca8ef358194fa5f4268deb5855ccaf5af16e0833febe97db274f",
+    "ingester.diff": "731f0962d0e208005f6abaefeeb50ad3a4c3b80e86e29acfbb18d9629706dc20"
+  },
+  "materialFindings": [],
+  "limits": [
+    "No real C4 Windows artifact exists in this review.",
+    "Native JSON checks establish complete selected-file presence and type validity, not an assertion-level PASS.",
+    "The registered frontend-refinement selection has 12 specs; it is not the entire 15-spec underlying config.",
+    "Existing 45-minute browser job budget remains a runtime/incomplete-evidence limit.",
+    "Existing direct Playwright receipt commands retain their prior validation scope; new strict named-runner checks apply to the 15 registered suite commands."
+  ]
+}

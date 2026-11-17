@@ -1,0 +1,578 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T04:12:20.779102+00:00",
+  "kind": "READ_ONLY_BROWSER_ASSERTION_AUDIT",
+  "runId": 43797606300,
+  "attempt": 1,
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "archive": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/downloads/m15-c3-browser-43797606300-1.zip",
+    "sha256": "33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843",
+    "bytes": 15367240
+  },
+  "preview": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/browser-result-preview-01.json",
+    "sha256": "253dffc6d55fbbb33fed52580b31175ebfcba5b1b26a0abeb2c8ef6013cfabca"
+  },
+  "terminalIngestion": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/ci-run-43797606300-attempt-1/ingested-01/browser/ingestion.json",
+    "sha256": "7e902bc8cabbb4cf14cce607c52241a8b6632f54a9845426fad999e3429d2e1d"
+  },
+  "sources": {
+    "tests/e2e/shell-error-ownership.spec.ts": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "tests/e2e/shell-error-ownership.spec.ts",
+          "bytes": 6061,
+          "sha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+          "blob": "cdba2f38bf5e59d65bc38154a7a69fb6458db490"
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "tests/e2e/shell-error-ownership.spec.ts",
+          "bytes": 6061,
+          "sha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+          "blob": "cdba2f38bf5e59d65bc38154a7a69fb6458db490"
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "tests/e2e/shell-error-ownership.spec.ts",
+          "bytes": 6061,
+          "sha256": "bc05f53eb46751a0cb645ab09455b496b7b159af6d637c0a1c800b27a85b96c4",
+          "blob": "cdba2f38bf5e59d65bc38154a7a69fb6458db490"
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": true
+    },
+    "tests/e2e/desktop-surfaces.spec.ts": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "tests/e2e/desktop-surfaces.spec.ts",
+          "bytes": 30657,
+          "sha256": "8a5770cdb0609fa2bfca573b2825b75c3efbb6bb3d0431a04db67b287fcd5acd",
+          "blob": "ca3346a503e21e64b4217f3066b43fd78646e0a7"
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "tests/e2e/desktop-surfaces.spec.ts",
+          "bytes": 30657,
+          "sha256": "8a5770cdb0609fa2bfca573b2825b75c3efbb6bb3d0431a04db67b287fcd5acd",
+          "blob": "ca3346a503e21e64b4217f3066b43fd78646e0a7"
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "tests/e2e/desktop-surfaces.spec.ts",
+          "bytes": 30657,
+          "sha256": "8a5770cdb0609fa2bfca573b2825b75c3efbb6bb3d0431a04db67b287fcd5acd",
+          "blob": "ca3346a503e21e64b4217f3066b43fd78646e0a7"
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": true
+    },
+    "tests/e2e/usage-app-integration.spec.ts": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "tests/e2e/usage-app-integration.spec.ts",
+          "bytes": 11619,
+          "sha256": "d7ab8d35a4471f4a49ec77e3680ac19fe9f01331e2249798ead284fa25222aaf",
+          "blob": "c9acc9f2fef24e691131a8acb5f5c020d1194a42"
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "tests/e2e/usage-app-integration.spec.ts",
+          "bytes": 11619,
+          "sha256": "d7ab8d35a4471f4a49ec77e3680ac19fe9f01331e2249798ead284fa25222aaf",
+          "blob": "c9acc9f2fef24e691131a8acb5f5c020d1194a42"
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "tests/e2e/usage-app-integration.spec.ts",
+          "bytes": 11619,
+          "sha256": "d7ab8d35a4471f4a49ec77e3680ac19fe9f01331e2249798ead284fa25222aaf",
+          "blob": "c9acc9f2fef24e691131a8acb5f5c020d1194a42"
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": true
+    },
+    "apps/web/src/DesktopEntry.tsx": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "apps/web/src/DesktopEntry.tsx",
+          "bytes": 10077,
+          "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+          "blob": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+          "relevantLines": [
+            {
+              "line": 53,
+              "text": " const workspaceContext={activeArtifactId:layout.activeArtifactId,requestOpenArtifact:(id:string)=>{if(surface.kind==='workspace'&&surface.tab==='artifact'&&surface.artifactId===id){setLayout(value=>({...value,activeArtifactId:id,activeTab:'artifact'}));return;}if(id&&threadId)setError('Open this artifact from the main workspace. Your current editor is kept open.');},closeArtifact:()=>setLayout(value=>({...value,activeArtifactId:null})),rightPanelOpen:true,activeTab:layout.activeTab,setActiveTab:(tab:typeof layout.activeTab)=>setLayout(value=>({...value,activeTab:tab}))};"
+            },
+            {
+              "line": 54,
+              "text": " return <WorkspaceProvider value={workspaceContext}><main inert={desktop.closing} className={`desktop-surface desktop-surface-${surface.kind}`}><header className=\"desktop-surface-header\"><strong>{thread?.title??'Workspace'}</strong><DesktopWindowActions/></header>{desktop.state.backendError&&<p role=\"status\" className=\"error-text\">{desktop.state.backendError}</p>}{error&&<p role=\"status\" className=\"error-text\">{error}</p>}<div className=\"desktop-surface-body\">{content}{['artifact','workspace'].includes(surface.kind)&&snapshot.operations.filter(operation=>operation.threadId===threadId&&(operation.status==='prepared'&&!operation.approved||operation.status==='unknown')).map(operation=><OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={()=>refresh()}/>)}</div></main></WorkspaceProvider>;"
+            }
+          ]
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "apps/web/src/DesktopEntry.tsx",
+          "bytes": 10077,
+          "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+          "blob": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+          "relevantLines": [
+            {
+              "line": 53,
+              "text": " const workspaceContext={activeArtifactId:layout.activeArtifactId,requestOpenArtifact:(id:string)=>{if(surface.kind==='workspace'&&surface.tab==='artifact'&&surface.artifactId===id){setLayout(value=>({...value,activeArtifactId:id,activeTab:'artifact'}));return;}if(id&&threadId)setError('Open this artifact from the main workspace. Your current editor is kept open.');},closeArtifact:()=>setLayout(value=>({...value,activeArtifactId:null})),rightPanelOpen:true,activeTab:layout.activeTab,setActiveTab:(tab:typeof layout.activeTab)=>setLayout(value=>({...value,activeTab:tab}))};"
+            },
+            {
+              "line": 54,
+              "text": " return <WorkspaceProvider value={workspaceContext}><main inert={desktop.closing} className={`desktop-surface desktop-surface-${surface.kind}`}><header className=\"desktop-surface-header\"><strong>{thread?.title??'Workspace'}</strong><DesktopWindowActions/></header>{desktop.state.backendError&&<p role=\"status\" className=\"error-text\">{desktop.state.backendError}</p>}{error&&<p role=\"status\" className=\"error-text\">{error}</p>}<div className=\"desktop-surface-body\">{content}{['artifact','workspace'].includes(surface.kind)&&snapshot.operations.filter(operation=>operation.threadId===threadId&&(operation.status==='prepared'&&!operation.approved||operation.status==='unknown')).map(operation=><OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={()=>refresh()}/>)}</div></main></WorkspaceProvider>;"
+            }
+          ]
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "apps/web/src/DesktopEntry.tsx",
+          "bytes": 10077,
+          "sha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+          "blob": "420f0beea5169dd46f259b6f554940ad22cb17cf",
+          "relevantLines": [
+            {
+              "line": 53,
+              "text": " const workspaceContext={activeArtifactId:layout.activeArtifactId,requestOpenArtifact:(id:string)=>{if(surface.kind==='workspace'&&surface.tab==='artifact'&&surface.artifactId===id){setLayout(value=>({...value,activeArtifactId:id,activeTab:'artifact'}));return;}if(id&&threadId)setError('Open this artifact from the main workspace. Your current editor is kept open.');},closeArtifact:()=>setLayout(value=>({...value,activeArtifactId:null})),rightPanelOpen:true,activeTab:layout.activeTab,setActiveTab:(tab:typeof layout.activeTab)=>setLayout(value=>({...value,activeTab:tab}))};"
+            },
+            {
+              "line": 54,
+              "text": " return <WorkspaceProvider value={workspaceContext}><main inert={desktop.closing} className={`desktop-surface desktop-surface-${surface.kind}`}><header className=\"desktop-surface-header\"><strong>{thread?.title??'Workspace'}</strong><DesktopWindowActions/></header>{desktop.state.backendError&&<p role=\"status\" className=\"error-text\">{desktop.state.backendError}</p>}{error&&<p role=\"status\" className=\"error-text\">{error}</p>}<div className=\"desktop-surface-body\">{content}{['artifact','workspace'].includes(surface.kind)&&snapshot.operations.filter(operation=>operation.threadId===threadId&&(operation.status==='prepared'&&!operation.approved||operation.status==='unknown')).map(operation=><OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={()=>refresh()}/>)}</div></main></WorkspaceProvider>;"
+            }
+          ]
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": true
+    },
+    "apps/web/src/UsageFooter.tsx": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "apps/web/src/UsageFooter.tsx",
+          "bytes": 1602,
+          "sha256": "7af4af9362009073d6a12c042a2ab34bb0d1434fb24e0ecf30ef85f499e23b8b",
+          "blob": "ae83fd6d48d68abb9c7b1526a9eb22acb0c8bd63",
+          "relevantLines": [
+            {
+              "line": 13,
+              "text": "      {(!threadId || !onOpenUsage) && <dl><dt>Input tokens</dt><dd>{usageCount(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(usage?.outputTokens)}</dd>"
+            },
+            {
+              "line": 16,
+              "text": "      {onOpenUsage && <button type=\"button\" className=\"usage-open-details\" onClick={() => onOpenUsage(threadId)}>Open Usage</button>}"
+            }
+          ]
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "apps/web/src/UsageFooter.tsx",
+          "bytes": 1602,
+          "sha256": "7af4af9362009073d6a12c042a2ab34bb0d1434fb24e0ecf30ef85f499e23b8b",
+          "blob": "ae83fd6d48d68abb9c7b1526a9eb22acb0c8bd63",
+          "relevantLines": [
+            {
+              "line": 13,
+              "text": "      {(!threadId || !onOpenUsage) && <dl><dt>Input tokens</dt><dd>{usageCount(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(usage?.outputTokens)}</dd>"
+            },
+            {
+              "line": 16,
+              "text": "      {onOpenUsage && <button type=\"button\" className=\"usage-open-details\" onClick={() => onOpenUsage(threadId)}>Open Usage</button>}"
+            }
+          ]
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "apps/web/src/UsageFooter.tsx",
+          "bytes": 1602,
+          "sha256": "7af4af9362009073d6a12c042a2ab34bb0d1434fb24e0ecf30ef85f499e23b8b",
+          "blob": "ae83fd6d48d68abb9c7b1526a9eb22acb0c8bd63",
+          "relevantLines": [
+            {
+              "line": 13,
+              "text": "      {(!threadId || !onOpenUsage) && <dl><dt>Input tokens</dt><dd>{usageCount(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(usage?.outputTokens)}</dd>"
+            },
+            {
+              "line": 16,
+              "text": "      {onOpenUsage && <button type=\"button\" className=\"usage-open-details\" onClick={() => onOpenUsage(threadId)}>Open Usage</button>}"
+            }
+          ]
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": true
+    },
+    "apps/web/src/App.tsx": {
+      "versions": {
+        "accepted49": {
+          "commit": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "path": "apps/web/src/App.tsx",
+          "bytes": 154724,
+          "sha256": "d48f71c3f2815b0356114ec6a28984048df21e079017481a0cc01f161c84a168",
+          "blob": "aa2ff3d0986a962f58ce1756740b806e9cfbfa07",
+          "relevantExcerpt": {
+            "line": 1056,
+            "text": "{error && <div className=\"workspace-error\" role=\"status\">{error}<button className=\"quiet\" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Refresh</button><button className=\"icon-button\" aria-label=\"Dismiss error\" onClick={() => setError('')}><X size={15} /></button></div>}",
+            "sha256": "c755c3f8391dc311a78966aba21ab575ae80511e8c84cd80f266324711302560"
+          }
+        },
+        "testedC3": {
+          "commit": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "path": "apps/web/src/App.tsx",
+          "bytes": 157534,
+          "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+          "blob": "c231190c823bb82e98b6ee8d626b578b67acc0a6",
+          "relevantExcerpt": {
+            "line": 1070,
+            "text": "{error && <div className=\"workspace-error\" role=\"status\">{error}<button className=\"quiet\" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Refresh</button><button className=\"icon-button\" aria-label=\"Dismiss error\" onClick={() => setError('')}><X size={15} /></button></div>}",
+            "sha256": "c755c3f8391dc311a78966aba21ab575ae80511e8c84cd80f266324711302560"
+          }
+        },
+        "pinnedExternal0f": {
+          "commit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+          "path": "apps/web/src/App.tsx",
+          "bytes": 160299,
+          "sha256": "146d9f75d92209eb6b6a39ac09adc6e65888e0ec4fe9dfa76cb8af24c6a9dec4",
+          "blob": "96cebe901b6dab963c3edec6f2cc834e906d1496",
+          "relevantExcerpt": {
+            "line": 1077,
+            "text": "{error && <div className=\"workspace-error\" role=\"status\">{error}<button className=\"quiet\" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Refresh</button><button className=\"icon-button\" aria-label=\"Dismiss error\" onClick={() => setError('')}><X size={15} /></button></div>}",
+            "sha256": "c755c3f8391dc311a78966aba21ab575ae80511e8c84cd80f266324711302560"
+          }
+        }
+      },
+      "wholeFileIdenticalAcrossThreeCommits": false
+    }
+  },
+  "cases": [
+    {
+      "case": {
+        "title": "shell-error-ownership.spec.ts > failed handoffs have one dismissible shell presenter and keep drafts and commands guarded",
+        "file": "shell-error-ownership.spec.ts",
+        "line": 4,
+        "projectName": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 7673,
+            "retry": 0,
+            "errors": [
+              {
+                "location": {
+                  "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\shell-error-ownership.spec.ts",
+                  "column": 156,
+                  "line": 16
+                },
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');\n  15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);\n> 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);\n     |                                                                                                                                                            ^\n  17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);\n  18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);\n  19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\shell-error-ownership.spec.ts:16:156"
+              }
+            ],
+            "attachments": [
+              {
+                "name": "error-context",
+                "contentType": "text/markdown",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\shell-error-ownership-fail-767c2-drafts-and-commands-guarded\\error-context.md"
+              },
+              {
+                "name": "trace",
+                "contentType": "application/zip",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\shell-error-ownership-fail-767c2-drafts-and-commands-guarded\\trace.zip"
+              }
+            ]
+          }
+        ]
+      },
+      "resultMember": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/results.json",
+      "resultMemberSha256": "9250da748b1b90e1042c736cd8bc6be38445be16a9f7f26c9863f6bf9c861710",
+      "finding": "role mismatch; expected text is rendered in status, while the failed assertion requires alert",
+      "attachments": [
+        {
+          "name": "error-context",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/error-context.md",
+          "bytes": 5742,
+          "sha256": "4191d41911ca7d3f82124fc2961e00e8fded8abc87c018547cdcf1b28dfde7d5",
+          "observedExcerpts": [
+            {
+              "line": 63,
+              "text": "    - status [ref=e88]:\n      - text: The plug-in could not confirm saved state.\n      - button \"Refresh\" [ref=e89] [cursor=pointer]\n      - button \"Dismiss error\" [ref=e90] [cursor=pointer]:\n        - img [ref=e91]\n    - generic [ref=e97]:"
+            }
+          ]
+        },
+        {
+          "name": "trace",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip",
+          "bytes": 661187,
+          "sha256": "d983ae0d7b280bda5519462f51962a34cd7ffdcc20a8af17e68c4317fd7c1113"
+        }
+      ],
+      "limit": "Only the first failed assertion is attributed. The test remains failed; later assertions were not executed."
+    },
+    {
+      "case": {
+        "title": "shell-error-ownership.spec.ts > the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection",
+        "file": "shell-error-ownership.spec.ts",
+        "line": 93,
+        "projectName": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 8749,
+            "retry": 0,
+            "errors": [
+              {
+                "location": {
+                  "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\shell-error-ownership.spec.ts",
+                  "column": 195,
+                  "line": 33
+                },
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n\n\n  31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);\n  32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});\n> 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();\n     |                                                                                                                                                                                                   ^\n  34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);\n  35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();\n  36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\shell-error-ownership.spec.ts:33:195"
+              }
+            ],
+            "attachments": [
+              {
+                "name": "error-context",
+                "contentType": "text/markdown",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\shell-error-ownership-the--6673d-age-preserves-its-selection\\error-context.md"
+              },
+              {
+                "name": "trace",
+                "contentType": "application/zip",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\shell-error-ownership-the--6673d-age-preserves-its-selection\\trace.zip"
+              }
+            ]
+          }
+        ]
+      },
+      "resultMember": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/results.json",
+      "resultMemberSha256": "9250da748b1b90e1042c736cd8bc6be38445be16a9f7f26c9863f6bf9c861710",
+      "finding": "role mismatch; expected text is rendered in status, while the failed assertion requires alert",
+      "attachments": [
+        {
+          "name": "error-context",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md",
+          "bytes": 2650,
+          "sha256": "3df0c39f808a5df98b6368ae4b4340f028973e07832b5225227fd5f37c520ab6",
+          "observedExcerpts": [
+            {
+              "line": 62,
+              "text": "    - status [ref=e88]:\n      - text: Source edits must be confirmed before leaving.\n      - button \"Refresh\" [ref=e89] [cursor=pointer]\n      - button \"Dismiss error\" [ref=e90] [cursor=pointer]:\n        - img [ref=e91]\n    - region \"Studio\" [ref=e94]:"
+            }
+          ]
+        },
+        {
+          "name": "trace",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip",
+          "bytes": 400428,
+          "sha256": "8d4b0ab95d756741bdc7a7b091853744085132e1c692a8192d8973660bfe2bf1"
+        }
+      ],
+      "limit": "Only the first failed assertion is attributed. The test remains failed; later assertions were not executed."
+    },
+    {
+      "case": {
+        "title": "desktop-surfaces.spec.ts > detached workspace selection does not acquire an unacknowledged second artifact editor",
+        "file": "desktop-surfaces.spec.ts",
+        "line": 581,
+        "projectName": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 6562,
+            "retry": 0,
+            "errors": [
+              {
+                "location": {
+                  "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\desktop-surfaces.spec.ts",
+                  "column": 753,
+                  "line": 91
+                },
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Open this artifact from the main workspace. Your current editor is kept open.\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  89 |  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();\n  90 | });\n> 91 | test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Open this artifact from the main workspace. Your current editor is kept open.');await expect(page.locator('[data-artifact-id=\"second-artifact\"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  92 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});\n  93 |\n  94 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\desktop-surfaces.spec.ts:91:753"
+              }
+            ],
+            "attachments": [
+              {
+                "name": "error-context",
+                "contentType": "text/markdown",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519\\desktop-surfaces\\artifacts\\desktop-surfaces-detached--70633-dged-second-artifact-editor\\error-context.md"
+              },
+              {
+                "name": "trace",
+                "contentType": "application/zip",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519\\desktop-surfaces\\artifacts\\desktop-surfaces-detached--70633-dged-second-artifact-editor\\trace.zip"
+              }
+            ]
+          }
+        ]
+      },
+      "resultMember": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/results.json",
+      "resultMemberSha256": "fe36018ed95a59fda1c81a70d99ec078610bfe650fb198b5c5b7f58511428456",
+      "finding": "role mismatch; expected text is rendered in status, while the failed assertion requires alert",
+      "attachments": [
+        {
+          "name": "error-context",
+          "member": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/error-context.md",
+          "bytes": 1906,
+          "sha256": "10e3aea007f672134ad8159cf67e60e9dc338c129fecbdb4a9e44942c5c8789f",
+          "observedExcerpts": [
+            {
+              "line": 9,
+              "text": "      - button \"Return to workspace\" [ref=e6] [cursor=pointer]\n    - status [ref=e7]: Open this artifact from the main workspace. Your current editor is kept open.\n    - generic [ref=e8]:\n      - complementary \"Workspace panel\" [ref=e9]:\n        - generic [ref=e10]:\n          - tablist \"Workspace views\" [ref=e11]:"
+            }
+          ]
+        },
+        {
+          "name": "trace",
+          "member": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-detached--70633-dged-second-artifact-editor/trace.zip",
+          "bytes": 342175,
+          "sha256": "5c5244e90be61b6e9eaf7b7f8f02611521c29f0cf19c42cd38d68901465130dd"
+        }
+      ],
+      "limit": "Only the first failed assertion is attributed. The test remains failed; later assertions were not executed."
+    },
+    {
+      "case": {
+        "title": "desktop-surfaces.spec.ts > review: a failed detached workspace close retains the editable surface",
+        "file": "desktop-surfaces.spec.ts",
+        "line": 1126,
+        "projectName": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 6361,
+            "retry": 0,
+            "errors": [
+              {
+                "location": {
+                  "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\desktop-surfaces.spec.ts",
+                  "column": 40,
+                  "line": 136
+                },
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Dock destination is unavailable\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  134 | test('review: a failed detached workspace close retains the editable surface',async({page})=>{\n  135 |  await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();\n> 136 |  await expect(page.getByRole('alert')).toContainText('Dock destination is unavailable');await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();\n      |                                        ^\n  137 | });\n  138 |\n  139 | test('review: standalone workspace uses native sizing instead of inactive panel maximize controls',async({page})=>{\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\desktop-surfaces.spec.ts:136:40"
+              }
+            ],
+            "attachments": [
+              {
+                "name": "error-context",
+                "contentType": "text/markdown",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519\\desktop-surfaces\\artifacts\\desktop-surfaces-review-a--f34f0-etains-the-editable-surface\\error-context.md"
+              },
+              {
+                "name": "trace",
+                "contentType": "application/zip",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519\\desktop-surfaces\\artifacts\\desktop-surfaces-review-a--f34f0-etains-the-editable-surface\\trace.zip"
+              }
+            ]
+          }
+        ]
+      },
+      "resultMember": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/results.json",
+      "resultMemberSha256": "fe36018ed95a59fda1c81a70d99ec078610bfe650fb198b5c5b7f58511428456",
+      "finding": "role mismatch; expected text is rendered in status, while the failed assertion requires alert",
+      "attachments": [
+        {
+          "name": "error-context",
+          "member": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/error-context.md",
+          "bytes": 1862,
+          "sha256": "1337a4464d99d55bd588b26a9b0e45d3f0f1fa003a11f6ed1cef1241bab063bf",
+          "observedExcerpts": [
+            {
+              "line": 9,
+              "text": "      - button \"Return to workspace\" [ref=e6] [cursor=pointer]\n    - status [ref=e7]: Dock destination is unavailable\n    - generic [ref=e8]:\n      - complementary \"Workspace panel\" [ref=e9]:\n        - generic [ref=e10]:\n          - tablist \"Workspace views\" [ref=e11]:"
+            }
+          ]
+        },
+        {
+          "name": "trace",
+          "member": "test-results/browser/run-1794800606622-c883742c-74b0-457a-93e1-e2d9f4900519/desktop-surfaces/artifacts/desktop-surfaces-review-a--f34f0-etains-the-editable-surface/trace.zip",
+          "bytes": 269830,
+          "sha256": "058d463a6059d7e931c75175fed81a4ea3dc597444e573d890c0ebc296f68697"
+        }
+      ],
+      "limit": "Only the first failed assertion is attributed. The test remains failed; later assertions were not executed."
+    },
+    {
+      "case": {
+        "title": "usage-app-integration.spec.ts > split conversation launchers control the shared summary for the active pane and start closed after reload",
+        "file": "usage-app-integration.spec.ts",
+        "line": 251,
+        "projectName": "",
+        "status": "unexpected",
+        "expectedStatus": "passed",
+        "results": [
+          {
+            "status": "failed",
+            "duration": 8226,
+            "retry": 0,
+            "errors": [
+              {
+                "location": {
+                  "file": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\usage-app-integration.spec.ts",
+                  "column": 97,
+                  "line": 62
+                },
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n\n\n  60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();\n  61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');\n> 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');\n     |                                                                                                 ^\n  63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');\n  64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();\n  65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();\n    at D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\usage-app-integration.spec.ts:62:97"
+              }
+            ],
+            "attachments": [
+              {
+                "name": "error-context",
+                "contentType": "text/markdown",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\usage-app-integration-spli-128e3-d-start-closed-after-reload\\error-context.md"
+              },
+              {
+                "name": "trace",
+                "contentType": "application/zip",
+                "path": "D:\\a\\Gen-V1\\Gen-V1\\test-results\\browser\\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\\usage-app-integration\\artifacts\\usage-app-integration-spli-128e3-d-start-closed-after-reload\\trace.zip"
+              }
+            ]
+          }
+        ]
+      },
+      "resultMember": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/results.json",
+      "resultMemberSha256": "9250da748b1b90e1042c736cd8bc6be38445be16a9f7f26c9863f6bf9c861710",
+      "finding": "conditional DOM mismatch; the test queries a dd that UsageFooter does not render when threadId and onOpenUsage are both supplied",
+      "attachments": [
+        {
+          "name": "error-context",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md",
+          "bytes": 10490,
+          "sha256": "6f4d12d49a19ad04c8bd33fb37245831ac3ed98922896e6f49cd5acbc8a76018",
+          "observedExcerpts": [
+            {
+              "line": 220,
+              "text": "            - img [ref=e340]\n          - region \"Runtime usage details\" [ref=e343]:\n            - button \"Open Usage\" [ref=e344] [cursor=pointer]\n  - region \"Notifications\"\n```"
+            }
+          ]
+        },
+        {
+          "name": "trace",
+          "member": "test-results/browser/run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4/usage-app-integration/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip",
+          "bytes": 2279085,
+          "sha256": "b323d080fc17e1def60a4055ede2bd9caf45c5c8acd03d556368aeddca4bf5de"
+        }
+      ],
+      "limit": "Only the first failed assertion is attributed. The test remains failed; later assertions were not executed."
+    }
+  ],
+  "limits": [
+    "No tests, product files, test files, deadlines, assertions or repository/index contents were changed.",
+    "The whole App file differs among these commits. Only its specific status error presenter excerpt is identical. Other listed source and test files are byte-identical.",
+    "Static identity with accepted49 does not prove accepted49 runtime behavior or classify every browser failure as baseline.",
+    "The separate clipboard case has no trace.zip or retained actual clipboard bytes, so its CRLF cause is not proven by the C3 archive."
+  ]
+}

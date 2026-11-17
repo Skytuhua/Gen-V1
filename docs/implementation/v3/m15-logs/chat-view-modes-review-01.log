@@ -1,0 +1,253 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","chat-view-modes"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780060383-bc318c4a-2619-45f1-97c1-aaeaf5801537
+
+Browser suite: chat-view-modes (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:92) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll (5.5s)
+(node:184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/e2e/chat-view-modes.spec.ts:57:3 › full → popup keeps the live composer, draft, selection, messages, attachments and scroll (4.9s)
+  ✓   3 tests/e2e/chat-view-modes.spec.ts:57:3 › drawer → full keeps the live composer, draft, selection, messages, attachments and scroll (4.5s)
+  ✓   4 tests/e2e/chat-view-modes.spec.ts:57:3 › drawer → popup keeps the live composer, draft, selection, messages, attachments and scroll (7.3s)
+  ✘   5 tests/e2e/chat-view-modes.spec.ts:57:3 › popup → full keeps the live composer, draft, selection, messages, attachments and scroll (2.7s)
+(node:318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/e2e/chat-view-modes.spec.ts:57:3 › popup → drawer keeps the live composer, draft, selection, messages, attachments and scroll (7.1s)
+  ✘   7 tests/e2e/chat-view-modes.spec.ts:97:1 › keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat (5.5s)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/e2e/chat-view-modes.spec.ts:126:1 › rapid switching retargets from the visible rect and reduced motion settles instantly, including mid-flight (6.0s)
+  ✘   9 tests/e2e/chat-view-modes.spec.ts:162:42 › drawer edge/corner resize tracks via transform, clamps, and remembers its own size (5.7s)
+(node:521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/e2e/chat-view-modes.spec.ts:162:42 › popup edge/corner resize tracks via transform, clamps, and remembers its own size (16.3s)
+  ✘  11 tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target (6.8s)
+(node:624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/e2e/chat-view-modes.spec.ts:239:1 › detach/dock button and keyboard paths preserve the live draft and drawer size (8.4s)
+  ✘  13 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1440px and stays usable after viewport shrink (6.3s)
+(node:723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1024px and stays usable after viewport shrink (12.0s)
+  ✓  15 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 768px and stays usable after viewport shrink (8.7s)
+  ✘  16 tests/e2e/chat-view-modes.spec.ts:298:1 › a resized docked drawer keeps its right margin as the viewport grows and reloads (9.9s)
+(node:839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/e2e/chat-view-modes.spec.ts:323:1 › a saved docked drawer from a narrow window restores at the wider right edge (4.4s)
+  ✓  18 tests/e2e/chat-view-modes.spec.ts:342:1 › a pointer transition retargets exactly from its visible bounds and animates only transform (4.8s)
+  ✓  19 tests/e2e/chat-view-modes.spec.ts:390:1 › pointer cancellation rolls back a resize and writes no in-flight preference (7.0s)
+  ✓  20 tests/e2e/chat-view-modes.spec.ts:411:1 › dragging the docked header detaches it and the dock button restores its right anchor (6.9s)
+  ✓  21 tests/e2e/chat-view-modes.spec.ts:433:1 › blocked preference storage keeps every mode and resize usable (7.5s)
+
+
+  1) tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:24:3
+
+  2) tests/e2e/chat-view-modes.spec.ts:57:3 › popup → full keeps the live composer, draft, selection, messages, attachments and scroll 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:24:3
+
+  3) tests/e2e/chat-view-modes.spec.ts:97:1 › keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:40:2
+
+  4) tests/e2e/chat-view-modes.spec.ts:162:42 › drawer edge/corner resize tracks via transform, clamps, and remembers its own size 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:59:2
+
+    Error Context: test-results/browser/run-1794780060383-bc318c4a-2619-45f1-97c1-aaeaf5801537/chat-view-modes/artifacts/chat-view-modes-drawer-edg-29e8d--and-remembers-its-own-size/error-context.md
+
+  5) tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:72:2
+
+    Error Context: test-results/browser/run-1794780060383-bc318c4a-2619-45f1-97c1-aaeaf5801537/chat-view-modes/artifacts/chat-view-modes-header-dra-d4736-nd-snaps-to-the-dock-target/error-context.md
+
+  6) tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1440px and stays usable after viewport shrink 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:91:49
+
+    Error Context: test-results/browser/run-1794780060383-bc318c4a-2619-45f1-97c1-aaeaf5801537/chat-view-modes/artifacts/chat-view-modes-every-mode-df042-sable-after-viewport-shrink/error-context.md
+
+  7) tests/e2e/chat-view-modes.spec.ts:298:1 › a resized docked drawer keeps its right margin as the viewport grows and reloads 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/chat-view-modes.spec.ts:100:54
+
+  7 failed
+    tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll 
+    tests/e2e/chat-view-modes.spec.ts:57:3 › popup → full keeps the live composer, draft, selection, messages, attachments and scroll 
+    tests/e2e/chat-view-modes.spec.ts:97:1 › keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat 
+    tests/e2e/chat-view-modes.spec.ts:162:42 › drawer edge/corner resize tracks via transform, clamps, and remembers its own size 
+    tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target 
+    tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1440px and stays usable after viewport shrink 
+    tests/e2e/chat-view-modes.spec.ts:298:1 › a resized docked drawer keeps its right margin as the viewport grows and reloads 
+  14 passed (3.0m)
+
+Failed browser suites: chat-view-modes (exit 1)

@@ -1,0 +1,186 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "command": "pnpm exec vite --config tests/e2e/workbench.vite.config.ts",
+      "url": "http://127.0.0.1:5591/fixture",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench.spec.ts",
+      "file": "workbench.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "M15 selection action completion",
+          "file": "workbench.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "M15 completed selection action clears its unchanged own range",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1916,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-16T05:23:50.885Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "921e070f285a8b470d11-8bca26300e452194efe4",
+              "file": "workbench.spec.ts",
+              "line": 47,
+              "column": 54
+            },
+            {
+              "title": "M15 completed selection action preserves a newer foreign range",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5215,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3",
+                        "location": {
+                          "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                          "column": 3,
+                          "line": 29
+                        },
+                        "snippet": "  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 | });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                            "column": 3,
+                            "line": 29
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 | });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-16T05:23:53.540Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/artifacts/workbench-M15-selection-ac-21afd-erves-a-newer-foreign-range/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                        "column": 3,
+                        "line": 29
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "921e070f285a8b470d11-a60d74749a261379be51",
+              "file": "workbench.spec.ts",
+              "line": 47,
+              "column": 54
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T05:23:46.334Z",
+    "duration": 12643.896,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, lstatSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Service, type ServiceOptions } from '../packages/core/service.ts';
+import { RequestContextCustody, type RequestContextBasis } from '../packages/core/request-custody.ts';
 import { Store } from '../packages/storage/store.ts';
 import type { RuntimeAdapter, RuntimeCallbacks, StartRun, Thread } from '../packages/contracts/index.ts';
 
@@ -106,6 +107,137 @@ it('prevents token reuse while preserving a retry of the accepted command', asyn
   await expect(f.message('One input', preparation.requestId)).rejects.toThrow();
   await vi.waitFor(() => expect(f.starts).toHaveLength(1));
   expect(f.store.all('outbox')).toHaveLength(1);
+});
+
+it.each(['projection', 'commit'] as const)('retries an explicit preparation after a synchronous %s failure rolls back admission', async boundary => {
+  const f = await fixture(), preparation = await f.prepare('Retry this exact preparation'), before = f.service.thread(f.thread.id);
+  const id = 'rolled-back-' + boundary, failure = new Error('fixture ' + boundary + ' failure');
+  const put = f.store.put.bind(f.store), exec = f.store.db.exec.bind(f.store.db);
+  const fault = boundary === 'projection'
+    ? vi.spyOn(f.store, 'put').mockImplementation((kind, ...args) => {if (kind === 'message') throw failure; return put(kind, ...args);})
+    : vi.spyOn(f.store.db, 'exec').mockImplementation(sql => {if (sql === 'COMMIT') throw failure; return exec(sql);});
+  await expect(f.message('Retry this exact preparation', preparation.requestId, id)).rejects.toBe(failure); fault.mockRestore();
+  expect(f.store.all('outbox')).toEqual([]); expect(f.store.all('message')).toEqual([]); expect(f.service.thread(f.thread.id)).toEqual(before);
+  const accepted = await f.message('Retry this exact preparation', preparation.requestId, id);
+  await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0].requestContext).toMatchObject({requestId: preparation.requestId, contextGeneration: preparation.contextGeneration});
+  expect(await f.message('Retry this exact preparation', preparation.requestId, id)).toEqual(accepted);
+  expect(f.store.all('outbox')).toHaveLength(1);
+});
+
+it('keeps a committed preparation claimed when its acknowledgement fails after commit', async () => {
+  const f = await fixture(), preparation = await f.prepare('Committed input'), id = 'committed-before-ack-failure';
+  const commit = f.store.command.bind(f.store);
+  const fault = vi.spyOn(f.store, 'command').mockImplementation((command, apply) => {
+    const receipt = commit(command, apply);
+    if (command.id === id) throw Error('fixture acknowledgement failed after commit');
+    return receipt;
+  });
+  const accepted = await f.message('Committed input', preparation.requestId, id); fault.mockRestore();
+  expect(accepted.result).toMatchObject({inputId: id}); expect(f.store.all('outbox')).toHaveLength(1);
+  expect(() => f.service.getRequestPreparation(f.thread.id, preparation.requestId)).toThrow();
+  await f.service.deliverOutbox(f.thread.id);
+  expect(f.starts).toHaveLength(1); expect(f.starts[0].requestContext?.requestId).toBe(preparation.requestId);
+  expect(await f.message('Committed input', preparation.requestId, id)).toEqual(accepted);
+});
+
+it.each(['owner', 'epoch', 'grant'] as const)('keeps the original %s fence after an uncommitted preparation claim rolls back', async change => {
+  const f = await fixture();
+  f.store.internal('fixture.grant', f.thread.id, () => f.store.put('resource', 'rollback-grant', f.thread.id, {id: 'rollback-grant', threadId: f.thread.id, kind: 'project', path: f.base, writable: false, createdAt: 'fixture', label: 'Fixture'}));
+  const preparation = await f.prepare('Keep the original authority'), put = f.store.put.bind(f.store), failure = Error('fixture rollback before owner change');
+  const fault = vi.spyOn(f.store, 'put').mockImplementation((kind, ...args) => {if (kind === 'message') throw failure; return put(kind, ...args);});
+  await expect(f.message('Keep the original authority', preparation.requestId, 'owner-fenced-rollback')).rejects.toBe(failure); fault.mockRestore();
+  let target = f.thread.id;
+  if (change === 'owner') target = (await f.create()).id;
+  if (change === 'epoch') f.store.internal('fixture.epoch', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.service.thread(f.thread.id), epoch: 1}));
+  if (change === 'grant') f.store.internal('fixture.revoke', f.thread.id, () => f.store.remove('resource', 'rollback-grant'));
+  await expect(f.send('message.send', {content: 'Keep the original authority', modelId: 'test/model', requestContextId: preparation.requestId}, target, 'owner-fenced-rollback')).rejects.toMatchObject({code: 'STALE_REQUEST_CONTEXT'});
+  expect(f.starts).toEqual([]); expect(f.store.all('outbox')).toEqual([]);
+});
+
+it('rolls back a later failed claim without releasing another accepted request', async () => {
+  const f = await fixture(); let release!: () => void;
+  const gate = new Promise<void>(resolve => {release = resolve;});
+  vi.mocked(f.runtime.start).mockImplementationOnce(async input => {f.starts.push(input); await gate;});
+  try {
+    const first = await f.prepare('Already accepted'), receipt = await f.message('Already accepted', first.requestId, 'accepted-before-rollback');
+    await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+    const second = await f.prepare('Retry the later input'), put = f.store.put.bind(f.store), failure = Error('fixture later admission failure');
+    const fault = vi.spyOn(f.store, 'put').mockImplementation((kind, ...args) => {if (kind === 'message') throw failure; return put(kind, ...args);});
+    await expect(f.message('Retry the later input', second.requestId, 'later-rollback')).rejects.toBe(failure); fault.mockRestore();
+    expect(await f.message('Already accepted', first.requestId, 'accepted-before-rollback')).toEqual(receipt);
+    expect(() => f.service.getRequestPreparation(f.thread.id, first.requestId)).toThrow();
+    await f.message('Retry the later input', second.requestId, 'later-rollback');
+    release(); await f.service.deliverOutbox(f.thread.id);
+    expect(f.starts).toHaveLength(1); expect(f.followUps).toHaveLength(1);
+    expect(f.followUps[0].requestContext?.requestId).toBe(second.requestId); expect(f.store.all('outbox')).toHaveLength(2);
+  } finally {release();}
+});
+
+it('keeps an accepted queued request dispatchable after a later input fails at COMMIT', async () => {
+  let calls = 0, release!: () => void;
+  const gate = new Promise<void>(resolve => {release = resolve;});
+  const f = await fixture({async prepareWorkspace() {if (++calls === 2) await gate;}});
+  try {
+    const first = await f.prepare('Accepted before native admission'), receipt = await f.message('Accepted before native admission', first.requestId, 'queued-before-commit-failure');
+    const second = await f.prepare('Uncommitted later input'), exec = f.store.db.exec.bind(f.store.db), failure = Error('fixture late queued COMMIT failure');
+    expect(f.starts).toEqual([]); expect(f.store.get('outbox', 'queued-before-commit-failure')).toMatchObject({status: 'persisted', runId: null});
+    const fault = vi.spyOn(f.store.db, 'exec').mockImplementation(sql => {if (sql === 'COMMIT') throw failure; return exec(sql);});
+    await expect(f.message('Uncommitted later input', second.requestId, 'failed-queued-commit')).rejects.toBe(failure); fault.mockRestore();
+    expect(f.store.get('outbox', 'failed-queued-commit')).toBeNull();
+    expect(f.service.getRequestPreparation(f.thread.id, second.requestId)).toEqual(second);
+    expect(() => f.service.getRequestPreparation(f.thread.id, first.requestId)).toThrow();
+    release(); await f.service.deliverOutbox(f.thread.id);
+    expect(f.starts).toHaveLength(1); expect(f.starts[0].requestContext?.requestId).toBe(first.requestId); expect(f.followUps).toEqual([]);
+    expect(await f.message('Accepted before native admission', first.requestId, 'queued-before-commit-failure')).toEqual(receipt);
+  } finally {release();}
+});
+
+it('undoes a rolled-back lifecycle advance for every exactly touched claimed preparation', async () => {
+  const f = await fixture(), custody = new RequestContextCustody(f.store), hash = 'a'.repeat(64);
+  // Exercise the custody owner's transaction contract with an explicit epoch-basis
+  // change. Ordinary same-model message admission may leave that basis equal.
+  const before: RequestContextBasis = {profileId: hash, threadId: f.thread.id, projectId: null, workspaceId: 'thread:' + f.thread.id, modelId: 'test/model', accountId: null, thinkingLevel: null, bindingDigest: hash, grantDigest: hash, sourceCutDigest: hash, instructionDigest: hash, toolRegistryDigest: hash, admissionDigest: hash};
+  const after = {...before, admissionDigest: 'b'.repeat(64)};
+  try {
+    const first = await custody.prepare(before, 'First accepted claim', 'First accepted claim', () => before);
+    const second = await custody.prepare(before, 'Second failed claim', 'Second failed claim', () => before);
+    const firstCommand = {id: 'custody-first-accepted', type: 'message.send', threadId: f.thread.id, payload: {content: 'First accepted claim'}};
+    const secondCommand = {id: 'custody-second-failed', type: 'message.send', threadId: f.thread.id, payload: {content: 'Second failed claim'}};
+    const accepted = f.store.command(firstCommand, () => {
+      custody.claim(first.requestId, firstCommand.id, firstCommand.payload.content, before);
+      f.store.put('outbox', firstCommand.id, f.thread.id, {id: firstCommand.id, threadId: f.thread.id, status: 'persisted', runId: null, requestContextId: first.requestId});
+      return {inputId: firstCommand.id};
+    });
+    let rollbackClaim: (() => void) | undefined, rollbackAdmission: (() => void) | undefined;
+    const exec = f.store.db.exec.bind(f.store.db), failure = Error('fixture shared lifecycle COMMIT failure');
+    const fault = vi.spyOn(f.store.db, 'exec').mockImplementation(sql => {if (sql === 'COMMIT') throw failure; return exec(sql);});
+    expect(() => f.store.command(secondCommand, () => {
+      rollbackClaim = custody.claim(second.requestId, secondCommand.id, secondCommand.payload.content, before);
+      f.store.put('outbox', secondCommand.id, f.thread.id, {id: secondCommand.id, threadId: f.thread.id, status: 'persisted', runId: null, requestContextId: second.requestId});
+      rollbackAdmission = custody.advanceAdmission(before, after);
+      return {inputId: secondCommand.id};
+    })).toThrow(failure); fault.mockRestore();
+    expect(f.store.receipt(secondCommand)).toBeNull(); expect(f.store.get('outbox', secondCommand.id)).toBeNull();
+    rollbackAdmission?.(); rollbackClaim?.();
+    expect(f.store.receipt(firstCommand)).toEqual(accepted);
+    expect(custody.assertClaim(first.requestId, firstCommand.id, firstCommand.payload.content, before)).toEqual(first);
+    expect(() => custody.getReady(f.thread.id, first.requestId, () => before)).toThrow();
+    expect(custody.getReady(f.thread.id, second.requestId, () => before)).toEqual(second);
+    const input: StartRun = {threadId: f.thread.id, runId: 'custody-run', epoch: 1, inputId: firstCommand.id, inputIds: [firstCommand.id], modelId: 'test/model', accountId: null, sessionPath: null, resources: [], prompt: firstCommand.payload.content};
+    const finalized = await custody.finalize(first.requestId, input, [{id: firstCommand.id, revision: 1, category: 'USER', text: input.prompt}], () => before);
+    custody.assertFinalized(first.requestId, finalized, before);
+    expect(finalized.requestContext?.requestId).toBe(first.requestId);
+    // Reclaiming the same preparation or advancing again must not let an older
+    // rollback callback rewind the new owner, even when the input ID is equal.
+    const reclaimed = custody.claim(second.requestId, secondCommand.id, secondCommand.payload.content, before);
+    const olderAdvance = custody.advanceAdmission(before, after), later = {...before, admissionDigest: 'c'.repeat(64)};
+    custody.advanceAdmission(after, later);
+    olderAdvance(); rollbackAdmission?.(); rollbackClaim?.(); reclaimed?.();
+    expect(custody.assertClaim(second.requestId, secondCommand.id, secondCommand.payload.content, later)).toEqual(second);
+    expect(() => custody.getReady(f.thread.id, second.requestId, () => later)).toThrow();
+    custody.assertFinalized(first.requestId, finalized, before);
+  } finally {custody.dispose();}
 });
 
 it('fails preparation before message admission when the trusted preparation hook fails', async () => {

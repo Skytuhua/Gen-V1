@@ -1,0 +1,21 @@
+argv: ["pnpm","exec","vitest","run","tests/model-discovery.test.ts","tests/workspace-linked-pr.test.ts","tests/plugin-frame-custody.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+ Test Files  4 passed (4)
+      Tests  72 passed | 1 skipped (73)
+   Start at  06:20:07
+   Duration  23.82s (transform 5.23s, setup 0ms, import 7.26s, tests 15.10s, environment 1ms)
+

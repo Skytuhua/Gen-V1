@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "build:widgets"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/gen-v1",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:35:29.780Z",
+  "endedAt": "2026-11-15T21:35:30.445Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/baseline-build-widgets.log",
+  "logDigest": "d7c21a8a722ab0b0bd2e98f84a46f894b832feb7850851c3671f349b10d39e17"
+}

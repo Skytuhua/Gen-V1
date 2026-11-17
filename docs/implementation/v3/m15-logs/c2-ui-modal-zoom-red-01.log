@@ -1,0 +1,47 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--grep","actual source modal and shared controls","--output","docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom (7.3s)
+
+
+  1) tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m0[39m
+    Received:    [31m-384[39m
+
+      157 |  const withinViewport=async(locator:Locator)=>{
+      158 |   await locator.scrollIntoViewIfNeeded();await expect(locator).toBeVisible();const bounds=await locator.boundingBox();expect(bounds).not.toBeNull();
+    > 159 |   expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.y).toBeGreaterThanOrEqual(0);
+          |                                                                 ^
+      160 |   expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(1280);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(800);
+      161 |  };
+      162 |  const opener=page.getByRole('button',{name:'Sources and evidence',exact:true});await opener.click();
+        at withinViewport (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:159:65)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:169:2
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/workbench-app.spec.ts:1017:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom 

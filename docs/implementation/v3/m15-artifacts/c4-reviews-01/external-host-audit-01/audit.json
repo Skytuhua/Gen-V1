@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-16T03:47:20.518877+00:00",
+  "reviewType": "read-only static source and retained-record audit; no tests or native execution",
+  "externalHead": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "externalTree": "4eda96307edd16e63c4e32c3c3a9d718b117a703",
+  "priorExternalHead": "3566795c057543a117f82fd1b34c7089fba13314",
+  "localHead": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "sourceComparisons": [
+    {
+      "path": "apps/server/server.ts",
+      "equal": true,
+      "local": {
+        "bytes": 28304,
+        "sha256": "304dd8c4e65f009f86744f2039284c22107c54f38041b058b712af3de752b54c"
+      },
+      "external": {
+        "bytes": 28304,
+        "sha256": "304dd8c4e65f009f86744f2039284c22107c54f38041b058b712af3de752b54c"
+      }
+    },
+    {
+      "path": "apps/server/source-workbench-routes.ts",
+      "equal": true,
+      "local": {
+        "bytes": 3531,
+        "sha256": "b6e2e1342b463c0347771baadfdc841a1ca5b2050cb2977dfdc2ccc7965fdcdb"
+      },
+      "external": {
+        "bytes": 3531,
+        "sha256": "b6e2e1342b463c0347771baadfdc841a1ca5b2050cb2977dfdc2ccc7965fdcdb"
+      }
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "equal": false,
+      "local": {
+        "bytes": 9317,
+        "sha256": "1146461e7fe4b9fe120929e3e4a04caa98daab4219c0f15d96e3fc2bf3c5cf02"
+      },
+      "external": {
+        "bytes": 9317,
+        "sha256": "0144bf0aa4fc6436f3ba1304c731083a51f73640f704c3837a659d4fd4def0f0"
+      }
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "equal": true,
+      "local": {
+        "bytes": 7134,
+        "sha256": "2367455abe2d3cd5c3283ff54876ee7c6b66a16ce6ed07979a9ef0e0a18fe603"
+      },
+      "external": {
+        "bytes": 7134,
+        "sha256": "2367455abe2d3cd5c3283ff54876ee7c6b66a16ce6ed07979a9ef0e0a18fe603"
+      }
+    },
+    {
+      "path": "packages/core/service.ts",
+      "equal": false,
+      "local": {
+        "bytes": 159752,
+        "sha256": "e262b7264683159cb9af69a8d298e15e7e83fe881fed441cb279f96bbdbb2eb0"
+      },
+      "external": {
+        "bytes": 159752,
+        "sha256": "9ddcfd42b0ef741484a1b72cb3455d35867e7d960cf0322c1e40afc0a336c508"
+      }
+    },
+    {
+      "path": "packages/core/source-workbench.ts",
+      "equal": true,
+      "local": {
+        "bytes": 51691,
+        "sha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925"
+      },
+      "external": {
+        "bytes": 51691,
+        "sha256": "c1978f2634e6495364eb93e27e02accb0de0180b07d94b604b2b869184e63925"
+      }
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "equal": true,
+      "local": {
+        "bytes": 17511,
+        "sha256": "0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94"
+      },
+      "external": {
+        "bytes": 17511,
+        "sha256": "0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94"
+      }
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "equal": true,
+      "local": {
+        "bytes": 12366,
+        "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81"
+      },
+      "external": {
+        "bytes": 12366,
+        "sha256": "158284c9bd04742ee6bdd7e2ba793aaf24fb26fe176ed58039de6b61fa2fef81"
+      }
+    },
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "equal": true,
+      "local": {
+        "bytes": 15955,
+        "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb"
+      },
+      "external": {
+        "bytes": 15955,
+        "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb"
+      }
+    },
+    {
+      "path": "tests/source-workbench-host-v3.test.ts",
+      "equal": false,
+      "local": {
+        "bytes": 64040,
+        "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281"
+      },
+      "external": {
+        "bytes": 64059,
+        "sha256": "c28ed707b387579b851ff37f43f681d56fd9f94362c88681ce4b21254d6fb58a"
+      }
+    },
+    {
+      "path": "tests/source-workbench-hermes-v3.test.ts",
+      "equal": true,
+      "local": {
+        "bytes": 16941,
+        "sha256": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5"
+      },
+      "external": {
+        "bytes": 16941,
+        "sha256": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5"
+      }
+    },
+    {
+      "path": "vitest.config.ts",
+      "equal": true,
+      "local": {
+        "bytes": 484,
+        "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea"
+      },
+      "external": {
+        "bytes": 484,
+        "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea"
+      }
+    }
+  ],
+  "frozenLocalTest": {
+    "path": "tests/source-workbench-memory-v3.test.ts",
+    "bytes": 20849,
+    "sha256": "fe2ff72296655c5e847b6a7c1a696711a511c6bd9245e661410d9a19b81e057d",
+    "declaredCases": 14,
+    "executionStatus": "NOT_RUN"
+  },
+  "focusedRawRecords": [
+    {
+      "ref": "3566795c057543a117f82fd1b34c7089fba13314",
+      "repositoryPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "copiedTo": "old/reconcile-focused-vitest.json",
+      "bytes": 897,
+      "sha256": "ad8ae63c259f2ea50877ba3c09375938fa9c4b91c33a7d4b3fa42a5b420404d7",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/source-selection-v3.test.ts",
+          "tests/source-selection-dom-v3.test.ts",
+          "tests/source-composer-v3.test.ts",
+          "tests/source-draft-transfer-v3.test.ts",
+          "tests/source-workbench-host-v3.test.ts",
+          "tests/workbench-input-recovery-v3.test.ts",
+          "tests/workbench-performance-v3.test.ts",
+          "tests/workbench-recovery-v3.test.ts"
+        ],
+        "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+        "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
+        "startedAt": "2026-11-16T03:30:31.417Z",
+        "endedAt": "2026-11-16T03:30:59.590Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+        "logDigest": "2be197018ecc608794fa872a64133e10e91865f05fa5a1651f024fb859b39a03"
+      }
+    },
+    {
+      "ref": "3566795c057543a117f82fd1b34c7089fba13314",
+      "repositoryPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "copiedTo": "old/reconcile-focused-vitest.log",
+      "bytes": 1326,
+      "sha256": "2be197018ecc608794fa872a64133e10e91865f05fa5a1651f024fb859b39a03"
+    },
+    {
+      "ref": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+      "repositoryPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "copiedTo": "new/reconcile-focused-vitest.json",
+      "bytes": 897,
+      "sha256": "b6e7ac2619d66a71ea665820c52eab90d243d5499df397ab7b35a3e9c1a16e7c",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/source-selection-v3.test.ts",
+          "tests/source-selection-dom-v3.test.ts",
+          "tests/source-composer-v3.test.ts",
+          "tests/source-draft-transfer-v3.test.ts",
+          "tests/source-workbench-host-v3.test.ts",
+          "tests/workbench-input-recovery-v3.test.ts",
+          "tests/workbench-performance-v3.test.ts",
+          "tests/workbench-recovery-v3.test.ts"
+        ],
+        "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+        "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
+        "startedAt": "2026-11-16T03:34:05.406Z",
+        "endedAt": "2026-11-16T03:34:36.211Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+        "logDigest": "c2875f5a68a36f246fb4d6976fdfc4399979d71e8b4db01a9f65e624a31a4896"
+      }
+    },
+    {
+      "ref": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+      "repositoryPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "copiedTo": "new/reconcile-focused-vitest.log",
+      "bytes": 670,
+      "sha256": "c2875f5a68a36f246fb4d6976fdfc4399979d71e8b4db01a9f65e624a31a4896"
+    }
+  ],
+  "focusedCounts": {
+    "old": {
+      "files": 8,
+      "passedFiles": 7,
+      "failedFiles": 1,
+      "totalTests": 113,
+      "passed": 111,
+      "failed": 1,
+      "skipped": 1
+    },
+    "new": {
+      "files": 8,
+      "passedFiles": 8,
+      "failedFiles": 0,
+      "totalTests": 113,
+      "passed": 112,
+      "failed": 0,
+      "skipped": 1
+    }
+  },
+  "unchangedDerivedManifests": [
+    {
+      "path": "docs/implementation/v3/M15-artifacts.json",
+      "unchangedOldToNew": true,
+      "bytes": 202107,
+      "sha256": "ae1bf2761b0fdbbeb00c84041b06a3bb4740894e001db67586d13098fc111464"
+    },
+    {
+      "path": "docs/implementation/v3/M15-command-index.json",
+      "unchangedOldToNew": true,
+      "bytes": 63871,
+      "sha256": "0e94d7b0434f7ad71d2b9eff13712bf41b51aee3712d6a67b8f51f998c7bb24b"
+    },
+    {
+      "path": "docs/implementation/v3/M15-source-cut.json",
+      "unchangedOldToNew": true,
+      "bytes": 16846,
+      "sha256": "7c43481a94c4cd2ceb1ffa77dc8f33e55a52b140e52fc8c44e3b3ee08ce3cc1a"
+    },
+    {
+      "path": "docs/implementation/v3/M15-source-lock.json",
+      "unchangedOldToNew": true,
+      "bytes": 15571,
+      "sha256": "23e52f6a6453b21658491e4019ae4fdea0217620e53f561029394eb270b73ac2"
+    },
+    {
+      "path": "docs/implementation/v3/M15-validation-summary.json",
+      "unchangedOldToNew": true,
+      "bytes": 341,
+      "sha256": "a868dd0c0459cca132fe43616764d1b67d62d19a5c4b5c4aa6e26021e07a7c8c"
+    },
+    {
+      "path": "docs/implementation/v3/M15-verification.json",
+      "unchangedOldToNew": true,
+      "bytes": 436451,
+      "sha256": "d3e520bb94ff505755b24be05566732b7442900f47850640d79477777a1649c7"
+    }
+  ],
+  "externalFullRun": {
+    "receiptPath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
+    "receiptSha256": "c308ee76e3586cde4dfc76f2ca30e5dd832a58aa5258f12be4ffe12f4d564fc4",
+    "logPath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
+    "logBytes": 48018,
+    "logSha256": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d",
+    "receipt": {
+      "argv": [
+        "pnpm",
+        "test:no-lease"
+      ],
+      "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+      "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
+      "startedAt": "2026-11-16T03:09:56.642Z",
+      "endedAt": "2026-11-16T03:26:34.318Z",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
+      "logDigest": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d"
+    },
+    "files": {
+      "total": 373,
+      "passed": 348,
+      "failed": 23,
+      "skipped": 2
+    },
+    "tests": {
+      "total": 4145,
+      "passed": 4038,
+      "failed": 59,
+      "skipped": 48
+    },
+    "sourceCorrespondenceLimit": "Full log reports 47 host cases; later focused log reports 48. No measured HEAD/tree is in these receipts."
+  },
+  "findings": [
+    "External current derived metadata still points to the replaced failed focused record and prior host-test hash.",
+    "The records establish one failed and one passing eight-file attempt; they do not establish the claimed cold compilation duration, delivery after teardown, or actual a134 baseline execution."
+  ],
+  "resolution": "Retain external contract field ordering and constructor ordering. A retained 45-second test wait must remain labeled a bounded synchronization allowance, with no production fix or baseline-causality claim. Keep both raw attempts and the unchanged full-suite FAIL. Preserve the frozen fourteen-case local test.",
+  "platformLimit": "Parent-reported native CI success for published C3 3f68a8f1 is separate; counts and artifacts were not independently examined here. No combined C4 native result is claimed.",
+  "reportSha256": "864a620a9277ed492a04a034fb7e2cafedf94169a1dd1f9890fe6db56f4010ae"
+}

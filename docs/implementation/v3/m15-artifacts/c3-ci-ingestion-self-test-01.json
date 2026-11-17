@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "scope": "Synthetic offline archives only. No actual CI artifact, connector transfer, repository edit, staging or network mutation.",
+  "checks": [
+    "Raw ZIP, binary members, CRLF logs, metadata and SHA-256 seals preserve exact bytes; failed run/job/command statuses stay failed.",
+    "Missing source metadata and missing command receipts remain explicit incomplete evidence.",
+    "Mismatched source, run, attempt, archive digest and nonzero PASS reject before installing output.",
+    "Push event is mandatory and artifact names bind the exact head, run ID and selected attempt; old C2 names and other-attempt artifacts reject.",
+    "All four full-shard identities bind artifact/job/source/command; counts and failures remain reported, filtered or wrong-shard commands reject, and a missing JSON result remains INCOMPLETE.",
+    "Root comparison validates accepted49 and its exact tree; the prior accepted138 baseline rejects.",
+    "Traversal, absolute/drive/backslash paths, symlinks, duplicate names, case collisions, file/directory collisions and Windows reserved names reject before extraction."
+  ],
+  "ingestionHelperSha256": "971bc3ce8cfde7c44d9176c61d6b0a2a9b20a085cb7b2c0d48fc7d0f4a8ae18f"
+}

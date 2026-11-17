@@ -1,0 +1,152 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (33 tests | 9 failed | 1 skipped) 4447ms
+   × reports definitive rollback source rejection, then admits an ordinary edited send 225ms
+   × reports definitive revoked source rejection, then admits an ordinary edited send 99ms
+   × coalesces same-command admission so a concurrent retry cannot report rejection while the first can commit 234ms
+   × explicitly retains a blocked accepted input without automatic resume (M04 false) 103ms
+   × explicitly retains a blocked accepted input without automatic resume (M04 true) 102ms
+   × cancels only a proven undispatched accepted input after rollback and preserves its canonical message 71ms
+   × does not resurrect a cancelled input captured by asynchronous source preparation 16ms
+   × hides prior-account capture identities and denies recovery once runtime delivery has started 12ms
+   × grades a requirement only from linked evidence authorized to the current account (prior-account) 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reports definitive rollback source rejection, then admits an ordinary edited send
+AssertionError: expected HarnessError: The source workbench is dis… { …(2) } to match object { code: 'CAPABILITY_DENIED', …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
++ HarnessError {
+    "code": "CAPABILITY_DENIED",
+-   "details": {
+-     "sendAccepted": false,
+-   },
++   "details": undefined,
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:268:62
+    266|   if (reason === 'rollback') __setCapabilityFlagForTests('ui.sourceWor…
+    267|   else f.store.internal('fixture.revoke-message-owner', 'other', () =>…
+    268|   await expect(f.send('rejected-source-send', [captured.ref])).rejects…
+       |                                                              ^
+    269|   expect(f.store.get('outbox', 'rejected-source-send')).toBeNull();
+    270|   const accepted = await f.send('edited-ordinary-send', []); expect(ac…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > reports definitive revoked source rejection, then admits an ordinary edited send
+AssertionError: expected HarnessError: The selected source is not … { …(2) } to match object { code: 'CAPABILITY_DENIED', …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
++ HarnessError {
+    "code": "CAPABILITY_DENIED",
+-   "details": {
+-     "sendAccepted": false,
+-   },
++   "details": undefined,
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:268:62
+    266|   if (reason === 'rollback') __setCapabilityFlagForTests('ui.sourceWor…
+    267|   else f.store.internal('fixture.revoke-message-owner', 'other', () =>…
+    268|   await expect(f.send('rejected-source-send', [captured.ref])).rejects…
+       |                                                              ^
+    269|   expect(f.store.get('outbox', 'rejected-source-send')).toBeNull();
+    270|   const accepted = await f.send('edited-ordinary-send', []); expect(ac…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > coalesces same-command admission so a concurrent retry cannot report rejection while the first can commit
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/source-workbench-host-v3.test.ts:280:78
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > explicitly retains a blocked accepted input without automatic resume (M04 false)
+ FAIL  tests/source-workbench-host-v3.test.ts > explicitly retains a blocked accepted input without automatic resume (M04 true)
+AssertionError: expected SourceWorkbench{ …(3) } to have property "inputs"
+ ❯ tests/source-workbench-host-v3.test.ts:296:69
+    294|
+    295| it.each([false, true])('explicitly retains a blocked accepted input wi…
+    296|   const f = await blockedQueuedSource(custody); expect(f.workbench).to…
+       |                                                                     ^
+    297|   const inspected = await f.workbench.inputs(f.thread.id);
+    298|   expect(inspected.inputs).toEqual([expect.objectContaining({inputId: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > cancels only a proven undispatched accepted input after rollback and preserves its canonical message
+AssertionError: expected SourceWorkbench{ …(3) } to have property "recoverInput"
+ ❯ tests/source-workbench-host-v3.test.ts:310:62
+    308|
+    309| it('cancels only a proven undispatched accepted input after rollback a…
+    310|   const f = await blockedQueuedSource(); expect(f.workbench).toHavePro…
+       |                                                              ^
+    311|   __setCapabilityFlagForTests('ui.sourceWorkbenchV1', false);
+    312|   const request = {commandId: 'cancel-accepted', logicalOwner: f.owner…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > does not resurrect a cancelled input captured by asynchronous source preparation
+AssertionError: expected SourceWorkbench{ …(3) } to have property "recoverInput"
+ ❯ tests/source-workbench-host-v3.test.ts:321:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > hides prior-account capture identities and denies recovery once runtime delivery has started
+AssertionError: expected SourceWorkbench{ …(3) } to have property "inputs"
+ ❯ tests/source-workbench-host-v3.test.ts:334:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > grades a requirement only from linked evidence authorized to the current account (prior-account)
+AssertionError: expected { …(10) } to match object { grade: 'REPORTED', …(2) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "freshness": "UNKNOWN",
+-   "grade": "REPORTED",
+-   "outcome": "UNVERIFIED",
++   "freshness": "CURRENT",
++   "grade": "VERIFIED",
++   "outcome": "VERIFIED",
+  }
+
+ ❯ tests/source-workbench-host-v3.test.ts:350:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 23 passed | 1 skipped (33)
+   Start at  06:12:17
+   Duration  7.44s (transform 3.00s, setup 0ms, import 2.63s, tests 4.45s, environment 0ms)
+

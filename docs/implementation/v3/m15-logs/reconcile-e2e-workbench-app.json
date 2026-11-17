@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "-c",
+    "tests/e2e/workbench-app.playwright.config.ts"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
+  "startedAt": "2026-11-16T02:58:14.007Z",
+  "endedAt": "2026-11-16T03:00:44.992Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.log",
+  "logDigest": "4a28ea38c0fe4f3e1e3da6942a9758f42b7236459c859404eff9ed1bd7f26b75"
+}

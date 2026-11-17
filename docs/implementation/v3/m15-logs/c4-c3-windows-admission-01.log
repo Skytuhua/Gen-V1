@@ -1,0 +1,26 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/c3-admission-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T04:39:59.837248+00:00",
+  "operation": "Reviewed immutable historical C3 Windows evidence admission",
+  "planSha256": "4165828cbcf2805265f2c00084e3763c20cc8a9c61551f41f38fd180cffafd8e",
+  "helperSha256": "cbe95121e352ac84d8341b514d6e85c06dce05d4fb7453dd91d72a9725971f30",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "historicalHead": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "runId": 43797606300,
+  "attempt": 1,
+  "filesVerified": 184,
+  "bytesVerified": 6796524,
+  "newFiles": 184,
+  "identicalExistingFiles": [],
+  "unchangedReceiptCount": 23,
+  "memberHashesRetained": 602,
+  "sourcePathsUnchanged": 2664,
+  "indexSha256Unchanged": "014c6b51df99ad861621c17a9ed28a5b52e4d56c335613228719db6f0a07ba72",
+  "originalCheckoutClean": true,
+  "currentC4TestGateCredit": false,
+  "terminalRunConclusion": "failure"
+}

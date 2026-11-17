@@ -1,0 +1,37 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","M15 completed selection action","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-selection-completion-red-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Cannot use({ trace }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at workbench.spec.ts:47
+
+  45 | test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});
+  46 |
+> 47 | test('M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom',async({page})=>{
+     |        ^
+  48 |  for(const zoom of [1,2]){
+  49 |   await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});
+  50 |   await page.goto('/fixture?fixture=selection-modal');await page.evaluate(value=>{document.body.style.zoom=String(value);},zoom);
+
+Cannot use({ trace }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at workbench.spec.ts:47
+
+  45 | test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});
+  46 |
+> 47 | test('M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom',async({page})=>{
+     |        ^
+  48 |  for(const zoom of [1,2]){
+  49 |   await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});
+  50 |   await page.goto('/fixture?fixture=selection-modal');await page.evaluate(value=>{document.body.style.zoom=String(value);},zoom);
+
+[1A[2K

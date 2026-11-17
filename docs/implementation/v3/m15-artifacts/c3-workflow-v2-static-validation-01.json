@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "scope": "Static local proposal checks and synthetic self-test report only; no Windows/PowerShell/browser/connector execution or active repository mutation.",
+  "checks": [
+    "Only five browser-job commands added; all existing steps and other jobs unchanged.",
+    "Workflow, standalone PowerShell source and ingestion expected command are identical.",
+    "Both split flags and explicit supported msedge override are retained in actual argv and source metadata.",
+    "All existing suite deadlines and 45-minute job limit retained; runtime sufficiency is unproven.",
+    "ZIP extraction and existing metadata/full-shard/root-contract routines unchanged.",
+    "V1 files, active workflows and the five frozen documents retain their sealed bytes."
+  ],
+  "requiredBrowserReceipts": 16,
+  "jobTimeoutMinutes": 45,
+  "unchangedFunctions": [
+    "normalized_member",
+    "extract_zip",
+    "validate_metadata",
+    "kind_contract",
+    "full_test_command",
+    "validate_full_result"
+  ],
+  "files": {
+    "m15-evidence.push-draft.yml": {
+      "bytes": 27719,
+      "sha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58"
+    },
+    "ingest-ci-artifact.py": {
+      "bytes": 27299,
+      "sha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8"
+    },
+    "test-ci-ingestion.py": {
+      "bytes": 21705,
+      "sha256": "8791b6412bcdf535ee1bafadd8b2f940e937c74946683057fcd4a03e4a4458ff"
+    },
+    "split-browser-command.ps1": {
+      "bytes": 1440,
+      "sha256": "17b457019a222eb6282360e8de57ac0e70040836a0785995f95f4e33ed70e7b8"
+    },
+    "ci-ingestion-self-test-01.json": {
+      "bytes": 1861,
+      "sha256": "262e4bad01605687b69fb6d2ea61e53e99514869bedad9ba227069e42e47b549"
+    },
+    "README.md": {
+      "bytes": 6216,
+      "sha256": "dee51dddbd17705e9577d4461d7274a118a3c8114891fecf84648fdb3010802f"
+    },
+    "v1-seal.json": {
+      "bytes": 487,
+      "sha256": "4112d3f1bb4f48ca3a115777f0fc9969203f79fd7e662ab5269b530610c8d558"
+    }
+  },
+  "sourceInputs": {
+    "tests/e2e/workspace-host.playwright.config.ts": {
+      "bytes": 592,
+      "sha256": "00ed403cf5ff103af97519e45e910c0003db11e7062bf6f49bc2b948cb13c30e"
+    },
+    "tests/e2e/saved-layout-chooser.playwright.config.ts": {
+      "bytes": 554,
+      "sha256": "43898e25e3781aaeaa659a786281c384b3db7ef7bf2ee7ee34d4d0d6d888b037"
+    },
+    "tests/e2e/usage-app-integration.playwright.config.ts": {
+      "bytes": 654,
+      "sha256": "d9537fb08383c2d0bff2ce90db83d6a4e98a40a57d2e573595be67ed1a8a1673"
+    },
+    "tests/e2e/desktop-surfaces.playwright.config.ts": {
+      "bytes": 459,
+      "sha256": "19d4017efc1aa1be5805d7db37456f92228e5c3d127e2186614a17ff54160d73"
+    },
+    "tests/split-workspace-renderer.test.ts": {
+      "bytes": 16328,
+      "sha256": "8d405ba4df4779bffa13cbe3959c8b196618bc5e1dea1979cdd6e2fcb83ecdeb"
+    },
+    "tests/split-app-browser.test.ts": {
+      "bytes": 68645,
+      "sha256": "83d3d8f2d66172f2de648ca8ee844c71fa0a1ac5411a489ec7c6b09db542088a"
+    },
+    "vitest.config.ts": {
+      "bytes": 484,
+      "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea"
+    },
+    "scripts/browser-suites.ts": {
+      "bytes": 6312,
+      "sha256": "210d98d5d42e5c8a9ee1a242d4aea8c6367404b341a08411388f0ca2d69bde2a"
+    },
+    ".github/actions/setup/action.yml": {
+      "bytes": 4252,
+      "sha256": "fe4863de534c4b8c3a61fceab21a9b00f5bcf0a4387fe457d3c544e90fc2d5ab"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 4132,
+      "sha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2"
+    }
+  },
+  "v1": {
+    "m15-evidence.push-draft.yml": "2f760bcf58d23c4923395687b8bc7891d75285282d6df04ef2db5a3cb254e4a0",
+    "ingest-ci-artifact.py": "971bc3ce8cfde7c44d9176c61d6b0a2a9b20a085cb7b2c0d48fc7d0f4a8ae18f",
+    "test-ci-ingestion.py": "e0789d260c064791daf943cc9bc67667319a13459c95ffca0f38d9452d4e0ef3"
+  },
+  "frozenDocuments": {
+    "M15-handoff.md": "05e7dca09ac661e29af30dde5a8973d480ba75216b9c9d20de98784ec4b546ba",
+    "M15-final-review.md": "2ea2f1c9b1ebf01c51b7c4c7067fb156d898f315717178ba482c7a8fb86e6e37",
+    "M15-original-prompt-audit.md": "26b29ed657343e22687d1f846eb95ba4ffe7dfab6f0ec7e7109370082ceb79e6",
+    "M15-feature-comparison.md": "7708ee07a70501c78fcd61419d3b65daf74ab6f8930d2fdb08bf3c77a6ab928e",
+    "M15-c3-regression-review.md": "225a7f833bbce21a1ba3491d7b6b7eda83ffc8e6d4fd9d71a5c93ff37a823aa6"
+  }
+}

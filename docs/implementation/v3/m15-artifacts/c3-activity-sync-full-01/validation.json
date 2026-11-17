@@ -1,0 +1,295 @@
+{
+  "kind": "Full App validation after one proven activity test sequencing correction",
+  "createdAt": "2026-11-16T02:52:35.951609+00:00",
+  "runId": "c3-activity-sync-full-01",
+  "receipt": {
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/workbench-app.playwright.config.ts",
+      "--output",
+      "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/artifacts",
+      "--reporter=list,json"
+    ],
+    "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+    "startedAt": "2026-11-16T02:46:17.342Z",
+    "endedAt": "2026-11-16T02:48:16.032Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+    "logDigest": "150f5838ba3334eaabbdaf164102cd8e069a278da36057c195e46f8e867b5f0c"
+  },
+  "resultStats": {
+    "startTime": "2026-11-16T02:46:20.132Z",
+    "duration": 115821.45400000001,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "testCount": 22,
+  "testResults": [
+    {
+      "title": "default-off App retains its ordinary composer and hides source actions",
+      "status": "passed",
+      "durationMs": 5965
+    },
+    {
+      "title": "selection attaches bounded immutable context, survives reload and uses the existing durable send",
+      "status": "passed",
+      "durationMs": 5823
+    },
+    {
+      "title": "ask supplies a question only for an empty draft and never dispatches",
+      "status": "passed",
+      "durationMs": 3373
+    },
+    {
+      "title": "stale capture remains exact until explicit keep or refresh and opens retained output",
+      "status": "passed",
+      "durationMs": 6685
+    },
+    {
+      "title": "late source descriptions cannot attach to a replacement workspace",
+      "status": "passed",
+      "durationMs": 3078
+    },
+    {
+      "title": "after-current mode is explicit and queues through message.send while the task is working",
+      "status": "passed",
+      "durationMs": 4006
+    },
+    {
+      "title": "evidence preserves reported and observed grades, freshness and unsupported module state",
+      "status": "passed",
+      "durationMs": 3825
+    },
+    {
+      "title": "rollback leaves retained source inspection and removal reachable",
+      "status": "passed",
+      "durationMs": 3308
+    },
+    {
+      "title": "context and run views use recorded or explicit unavailable states without invented metrics",
+      "status": "passed",
+      "durationMs": 3050
+    },
+    {
+      "title": "real activity integration bounds mounted rows and searches the authorized full read",
+      "status": "passed",
+      "durationMs": 7290
+    },
+    {
+      "title": "source-aware navigation waits for journal handoff and preserves text on reload",
+      "status": "passed",
+      "durationMs": 6580
+    },
+    {
+      "title": "pointing mode does not consume another pane focus or Escape",
+      "status": "passed",
+      "durationMs": 2639
+    },
+    {
+      "title": "selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar",
+      "status": "passed",
+      "durationMs": 3074
+    },
+    {
+      "title": "rollback retains a mode-only draft and permits returning to ordinary delivery",
+      "status": "passed",
+      "durationMs": 3830
+    },
+    {
+      "title": "accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment",
+      "status": "passed",
+      "durationMs": 6809
+    },
+    {
+      "title": "rollback permits cancellation of an undispatched accepted input without exposing revoked sources",
+      "status": "passed",
+      "durationMs": 3278
+    },
+    {
+      "title": "definitive precommit source rejection unlocks removal and ordinary resubmission",
+      "status": "passed",
+      "durationMs": 3566
+    },
+    {
+      "title": "lost cancellation receipt stays retryable after its input disappears and the App reloads",
+      "status": "passed",
+      "durationMs": 6444
+    },
+    {
+      "title": "formatted assistant text opens its exact canonical source even outside the bounded catalogue",
+      "status": "passed",
+      "durationMs": 5741
+    },
+    {
+      "title": "deferred source view failure retains the mounted composer and restores focus",
+      "status": "passed",
+      "durationMs": 6358
+    },
+    {
+      "title": "actual source modal and shared controls remain within the viewport at 200 percent zoom",
+      "status": "passed",
+      "durationMs": 6768
+    },
+    {
+      "title": "native return waits for canonical placement and keeps delayed source work isolated between owners",
+      "status": "passed",
+      "durationMs": 8193
+    }
+  ],
+  "change": {
+    "path": "tests/e2e/workbench-app.spec.ts",
+    "preFixSha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+    "currentSha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449",
+    "scope": "Only activity/full-read case sequencing changed. Before reload, require canonical Other selected, the real return-to-A split command response200 with focused active A, selected A tab, and visible A view. All original mounted-row, full-read search, retained last-row, and reload assertions remain. Original30-second test and5-second expectation deadlines remain. New response wait is bounded at5seconds."
+  },
+  "sourceVerification": {
+    "allRecordedFilesMatchAtReview": true,
+    "files": [
+      {
+        "path": "apps/web/src/App.tsx",
+        "bytes": 157534,
+        "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4"
+      },
+      {
+        "path": "apps/web/src/editor-handoff.ts",
+        "bytes": 600,
+        "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3"
+      },
+      {
+        "path": "tests/e2e/workbench-native-return-fixture.ts",
+        "bytes": 10123,
+        "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb"
+      },
+      {
+        "path": "tests/e2e/workbench-app.spec.ts",
+        "bytes": 38469,
+        "sha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449"
+      },
+      {
+        "path": "tests/e2e/workbench-app.playwright.config.ts",
+        "bytes": 476,
+        "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6"
+      },
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "bytes": 10212,
+        "sha256": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d"
+      }
+    ],
+    "diagnosticInstrumentationActive": false
+  },
+  "nativeAttachmentChecks": {
+    "draftRecordsExactlyEqualBeforeAfterAndFinal": true,
+    "captureCount": 2,
+    "oldADescriptionRequestFailure": {
+      "errorText": "net::ERR_ABORTED"
+    },
+    "scope": "Real App with scripted browser desktop bridge and owner-bound source HTTP; no installed desktop execution",
+    "returnCommand": {
+      "id": "5cb91a9c-05b1-4ea6-9766-4f23810dec5b",
+      "type": "split-workspace.view.open",
+      "payload": {
+        "workspaceId": "workspace",
+        "baseRevision": 2,
+        "paneId": "pane-main",
+        "view": {
+          "id": "thread:task-thread",
+          "kind": "thread",
+          "binding": {
+            "authority": {
+              "kind": "local"
+            },
+            "threadId": "task-thread"
+          }
+        }
+      }
+    },
+    "ordinaryApiCommands": {
+      "endpoint": "/api/commands",
+      "recordedCommands": [],
+      "prohibitedImplicitCommandTypes": [
+        "message.send",
+        "thread.create",
+        "run.stop",
+        "run.resume"
+      ],
+      "scope": "Canonical /api/split-workspace/commands view.open requests are separately recorded and expected."
+    }
+  },
+  "priorResults": [
+    {
+      "id": "c3-workbench-app-01",
+      "result": "FAIL:21passed/1failed",
+      "attribution": "Original native-return A-selection failure remains unresolved. Product and native test/fixture have no demonstrated repair. This later complete pass does not erase it."
+    },
+    {
+      "id": "c3-native-return-diagnostic-01",
+      "result": "FAIL:20passed/2timedOut",
+      "attribution": "Diagnostic-only source cut: native return passed; activity prematurely reloaded before A placement; stale-recovery final click began after whole-test teardown. All four instrumented sources were exactly restored before current activity-only correction. Sealed analysis and restoration remain immutable."
+    }
+  ],
+  "limits": [
+    "Current pass is Linux Chromium against a real App and scripted browser desktop/source host fixtures. It does not execute an installed desktop or native Windows/Edge target.",
+    "Old A request was canceled. Fixture route fulfillment is not proof of stale response delivery to application code.",
+    "No common product or IndexedDB cause for all retained failures was established.",
+    "This is the one authorized validation after the demonstrated activity fixture synchronization repair, not a retry-until-green claim for native return.",
+    "Trace configuration is retain-on-failure; passing current cases do not retain traces. Current results include exact native isolation and zoom geometry attachments."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.json",
+      "bytes": 761,
+      "sha256": "f262d57ab6cb7a2ba8fda3bbf16545f2babbff5002d6067bae881a66da395929"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c3-activity-sync-full-01.log",
+      "bytes": 4217,
+      "sha256": "150f5838ba3334eaabbdaf164102cd8e069a278da36057c195e46f8e867b5f0c"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/results.json",
+      "bytes": 44506,
+      "sha256": "9304ea4cdb6c7f270fb61a7c1ad13194695c8c5b99502b3dfa1c7fcfa8da2444"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-cut.json",
+      "bytes": 2379,
+      "sha256": "8860104046438ce94f9543f5d454b64873803cff1424212cf35d815c93594226"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-source.json",
+      "bytes": 546,
+      "sha256": "101a63c6c93be767f49b68fc7aaea8a59ca903071b020fc7b27595cebe4e7613"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/pre-fix-workbench-app.spec.ts.txt",
+      "bytes": 37558,
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/corrected-workbench-app.spec.ts.txt",
+      "bytes": 38469,
+      "sha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/native-return-source-isolation.json",
+      "bytes": 12328,
+      "sha256": "b2a535019a132f23ea57857b7dbbc7a58884689077cf309d807c81bcdb777e05"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c3-activity-sync-full-01/source-modal-zoom-geometry.json",
+      "bytes": 1568,
+      "sha256": "1e3ddf69bd073a8574a7589718a1b967377b480f0997ff4be16ba807b79072a2"
+    }
+  ]
+}

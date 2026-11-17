@@ -1,0 +1,21 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+ ❯ tests/context-contract-preservation-v6.test.ts (5 tests | 1 failed) 125ms
+   × D05: observer failure leaves foreground bytes unchanged and a stale binding never calls native apply 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/context-contract-preservation-v6.test.ts > D05: observer failure leaves foreground bytes unchanged and a stale binding never calls native apply
+TypeError: createShadowRelevancePhase is not a function
+ ❯ tests/context-contract-preservation-v6.test.ts:204:17
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  04:18:22
+   Duration  1.81s (transform 698ms, setup 0ms, import 1.47s, tests 125ms, environment 0ms)
+

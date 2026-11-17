@@ -1,0 +1,574 @@
+name: M15 evidence
+
+on:
+  push:
+    branches: [agent/m15-v3]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
+
+jobs:
+  native:
+    name: M15 native contracts (Windows, exact branch head)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/agent/m15-v3'
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact branch head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Retain the checked-out branch identity
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the push commit.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            recordedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
+
+      - name: Install the pinned native test toolchain
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+          playwright: 'true'
+
+      - name: Record the tested source and runtime
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the requested branch head.' }
+          $record = [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            node = (node --version)
+            pnpm = (pnpm --version)
+            python = (python --version)
+            startedAt = [DateTime]::UtcNow.ToString('o')
+          }
+          $record | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/native-source.json
+
+      - name: Build required runtime assets
+        id: build
+        run: pnpm build
+
+      - name: Build the native credential helper
+        id: native-setup
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: pnpm build:credential-lease
+
+      - name: Exercise M15 and native runtime contracts
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' && steps.native-setup.outcome == 'success' }}
+        run: |
+          $testArgs = @(
+            'tests/source-selection-v3.test.ts',
+            'tests/source-workbench-host-v3.test.ts',
+            'tests/source-workbench-hermes-v3.test.ts',
+            'tests/source-workbench-memory-v3.test.ts',
+            'tests/project-memory-service-v3.test.ts',
+            'tests/project-memory-request-http-v3.test.ts',
+            'tests/memory-host-lifecycle-v3.test.ts',
+            'tests/memory-native-file-capture-v3.test.ts',
+            'tests/memory-native-checkpoint-v3.test.ts',
+            'tests/memory-extraction-native-v3.test.ts',
+            'tests/memory-checkpoint-worker-ownership-v3.test.ts',
+            'tests/memory-source-reuse-v3.test.ts',
+            'tests/request-preparation-service-v3.test.ts',
+            'tests/source-selection-dom-v3.test.ts',
+            'tests/source-composer-v3.test.ts',
+            'tests/source-draft-transfer-v3.test.ts',
+            'tests/activity-output-v3.test.ts',
+            'tests/workbench-input-recovery-v3.test.ts',
+            'tests/workbench-performance-v3.test.ts',
+            'tests/workbench-recovery-v3.test.ts',
+            'tests/source-handoff-v3.test.ts',
+            'tests/agents-workspace-composer.test.ts',
+            'tests/agents-workspace-dispatch.test.ts',
+            'tests/saved-drafts.test.ts',
+            'tests/draft-transfer.test.ts',
+            'tests/compact-draft-transfer.test.ts',
+            'tests/journal.test.ts',
+            'tests/editor-handoff.test.ts',
+            'tests/public-source.test.ts',
+            'tests/accounts.test.ts',
+            'tests/hermes-client-startup.test.ts',
+            'tests/hermes-client.test.ts',
+            'tests/hermes-original-integration.test.ts',
+            'tests/hermes-multi-original.test.ts',
+            'tests/dev-plugin-runtime.test.ts',
+            'tests/skill-catalog.test.ts',
+            'tests/desktop-host.test.ts',
+            '--maxWorkers=2',
+            '--reporter=default',
+            '--reporter=json',
+            '--outputFile=test-results/m15/native-results.json'
+          )
+          node scripts/m15-record.mjs "c4-windows-native-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/vitest/vitest.mjs run @testArgs
+
+      - name: Retain native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m15-native-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/m15/
+            docs/implementation/v3/m15-logs/c4-windows-*
+          retention-days: 14
+          if-no-files-found: error
+
+  root-browser:
+    name: M15 root browser comparison (Windows, accepted base and exact branch head)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/agent/m15-v3'
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact branch head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Retain the checked-out branch identity
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the push commit.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            recordedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
+
+      - name: Install the pinned browser toolchain
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          playwright: 'true'
+
+      - name: Record the compared sources
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the requested branch head.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            node = (node --version)
+            pnpm = (pnpm --version)
+            startedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/root-comparison-source.json
+
+      - name: Build the candidate application
+        id: candidate-build
+        run: pnpm build
+
+      - name: Check out the accepted base
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: b4aa2caa5a3cedb29a0fddb510e49b5abd802a73
+          path: baseline
+          persist-credentials: false
+
+      - name: Build the accepted base with locked dependencies
+        id: baseline-build
+        working-directory: baseline
+        run: |
+          $baselineHead = git rev-parse HEAD
+          if ($baselineHead -ne 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73') { throw 'The measured baseline differs from the accepted base.' }
+          [ordered]@{
+            head = $baselineHead
+            tree = (git rev-parse 'HEAD^{tree}')
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+          } | ConvertTo-Json | Set-Content -Encoding utf8 ../test-results/m15/root-baseline-source.json
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item ../scripts/m15-record.mjs (Join-Path $env:RUNNER_TEMP 'm15-record.mjs')
+
+      - name: Run the complete accepted-base root suite
+        if: ${{ !cancelled() && steps.baseline-build.outcome == 'success' }}
+        working-directory: baseline
+        run: node (Join-Path $env:RUNNER_TEMP 'm15-record.mjs') "c4-windows-root-baseline-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
+
+      - name: Run the complete candidate root suite
+        if: ${{ !cancelled() && steps.candidate-build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-root-candidate-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite root
+
+      - name: Retain both complete root results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m15-root-browser-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/m15/
+            test-results/browser/
+            baseline/test-results/browser/
+            docs/evidence/ui-clarity-20261031/stats-dark-confirm.png
+            baseline/docs/evidence/ui-clarity-20261031/stats-dark-confirm.png
+            docs/implementation/v3/m15-logs/c4-windows-*
+            baseline/docs/implementation/v3/m15-logs/c4-windows-*
+          retention-days: 14
+          if-no-files-found: error
+
+  browser:
+    name: M15 browser contracts (Windows and installed Edge, exact branch head)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/agent/m15-v3'
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact branch head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Retain the checked-out branch identity
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the push commit.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            recordedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
+
+      - name: Verify the declared Edge browser is installed
+        run: |
+          $candidates = @(
+            "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
+            "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe"
+          )
+          $edge = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $edge) {
+            $cmd = Get-Command msedge -ErrorAction SilentlyContinue
+            if ($cmd) { $edge = $cmd.Source }
+          }
+          if (-not $edge) { throw 'Microsoft Edge is required by the declared suites and is not installed on this runner.' }
+          "M15_EDGE_PATH=$edge" >> $env:GITHUB_ENV
+          "M15_EDGE_VERSION=$((Get-Item $edge).VersionInfo.ProductVersion)" >> $env:GITHUB_ENV
+
+      - name: Install the pinned browser toolchain
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          playwright: 'true'
+
+      - name: Record the tested source and browsers
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the requested branch head.' }
+          $record = [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            node = (node --version)
+            pnpm = (pnpm --version)
+            playwright = (node -p "require('@playwright/test/package.json').version")
+            edgePath = $env:M15_EDGE_PATH
+            edgeVersion = $env:M15_EDGE_VERSION
+            startedAt = [DateTime]::UtcNow.ToString('o')
+          }
+          $record | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/browser-source.json
+
+      - name: Build the application
+        id: build
+        run: pnpm build
+
+      - name: Exercise source selection and output
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-workbench-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench
+
+      - name: Exercise the production App workbench integration
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-workbench-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workbench-app
+
+      - name: Exercise the owning project memory review in Chromium
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-project-memory-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite project-memory
+
+      - name: Exercise current main composer and workspace regressions in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-frontend-refinement-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite frontend-refinement
+
+      - name: Exercise saved drafts
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-saved-drafts-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-drafts
+
+      - name: Exercise canonical chat layout and Escape ownership
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-chat-view-modes-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite chat-view-modes
+
+      - name: Exercise artifact acknowledgment ordering
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        env:
+          GEN_E2E: '1'
+          PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/m15/artifact-acknowledgment/results.json
+        run: node scripts/m15-record.mjs "c4-windows-artifact-acknowledgment-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config playwright.config.ts tests/e2e/artifact-acknowledgment.spec.ts --trace retain-on-failure --output test-results/m15/artifact-acknowledgment/artifacts --reporter=list,json
+
+      - name: Exercise scoped conversations in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-scoped-conversation-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite scoped-conversation
+
+      - name: Exercise shared overlay placement and focus in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-ui-shell-overlays-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-overlays
+
+      - name: Exercise shared selection controls in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-ui-shell-controls-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-controls
+
+      - name: Exercise usage and context in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-usage-context-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-context
+
+      - name: Exercise the agents workspace in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        env:
+          AGENTSUI_EVIDENCE_DIR: test-results/m15/agents-candidate
+        run: |
+          $env:GITHUB_SHA = (git rev-parse HEAD)
+          node scripts/m15-record.mjs "c4-windows-agents-workspace-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite agents-workspace
+
+      - name: Exercise agents against the actual App in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        env:
+          GEN_E2E: '1'
+          AGENTSUI_APP_CANDIDATE: '0'
+          AGENTSUI_EVIDENCE_DIR: test-results/m15/agents-actual-app
+          PLAYWRIGHT_JSON_OUTPUT_FILE: test-results/m15/agents-actual-app/results.json
+        run: node scripts/m15-record.mjs "c4-windows-agents-actual-app-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source node_modules/@playwright/test/cli.js test --config tests/e2e/agents-workspace.playwright.config.ts tests/e2e/agents-workspace.spec.ts --output test-results/m15/agents-actual-app/artifacts --reporter=list,json
+
+      - name: Exercise retained workspace ownership in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-workspace-host-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite workspace-host
+
+      - name: Exercise saved layouts and retired records in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-saved-layout-chooser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-layout-chooser
+
+      - name: Exercise App usage, shell errors and mobile navigation in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-usage-app-integration-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite usage-app-integration
+
+      - name: Exercise declared desktop bridge browser fixtures in Chromium
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: node scripts/m15-record.mjs "c4-windows-desktop-surfaces-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite desktop-surfaces
+
+      - name: Exercise both explicitly enabled split browser suites in Edge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: |
+          $testCommand = @'
+          $ErrorActionPreference = 'Stop'
+          $env:GEN_SPLIT_RENDERER_BROWSER = '1'
+          $env:GEN_SPLIT_APP_BROWSER = '1'
+          $env:GEN_TEST_BROWSER_CHANNEL = 'msedge'
+          $node = (Get-Command node).Source
+          $head = git rev-parse HEAD
+          if ($head -ne $env:GITHUB_SHA) { throw 'The split browser source does not match the pushed head.' }
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = $env:GITHUB_EVENT_NAME
+            ref = $env:GITHUB_REF
+            runId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            runner = "$($env:RUNNER_OS)-$($env:RUNNER_ARCH)"
+            nodeExecutable = $node
+            node = (& $node --version)
+            edgePath = $env:M15_EDGE_PATH
+            edgeVersion = $env:M15_EDGE_VERSION
+            flags = [ordered]@{
+              GEN_SPLIT_RENDERER_BROWSER = $env:GEN_SPLIT_RENDERER_BROWSER
+              GEN_SPLIT_APP_BROWSER = $env:GEN_SPLIT_APP_BROWSER
+              GEN_TEST_BROWSER_CHANNEL = $env:GEN_TEST_BROWSER_CHANNEL
+            }
+            testFiles = @('tests/split-workspace-renderer.test.ts', 'tests/split-app-browser.test.ts')
+            maxWorkers = 1
+            recordedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 test-results/m15/split-browser-source.json
+          & $node node_modules/vitest/vitest.mjs run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=test-results/m15/split-browser-results.json
+          exit $LASTEXITCODE
+          '@
+          node scripts/m15-record.mjs "c4-windows-split-browser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command pwsh).Source -NoLogo -NoProfile -NonInteractive -Command $testCommand
+
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m15-browser-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/m15/
+            test-results/browser/
+            docs/implementation/v3/m15-logs/c4-windows-*
+          retention-days: 14
+          if-no-files-found: error
+
+  full-repository:
+    name: M15 full repository (Windows, exact branch head, shard ${{ matrix.shard }}/4)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/agent/m15-v3'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact branch head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Retain the checked-out branch identity
+        run: |
+          New-Item -ItemType Directory -Force test-results/m15 | Out-Null
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The checked-out source does not match the push commit.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            acceptedBase = 'b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            recordedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/checkout-source.json
+
+      - name: Install the existing CI test toolchain
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+          playwright: 'true'
+
+      - name: Record the full-suite source and runtime
+        run: |
+          $head = git rev-parse HEAD
+          if ($head -ne '${{ github.sha }}') { throw 'The full-suite source does not match the push commit.' }
+          [ordered]@{
+            head = $head
+            tree = (git rev-parse 'HEAD^{tree}')
+            event = '${{ github.event_name }}'
+            ref = '${{ github.ref }}'
+            runId = '${{ github.run_id }}'
+            runAttempt = '${{ github.run_attempt }}'
+            runner = '${{ runner.os }}-${{ runner.arch }}'
+            image = $env:ImageVersion
+            node = (node --version)
+            pnpm = (pnpm --version)
+            python = (python --version)
+            powershell = $PSVersionTable.PSVersion.ToString()
+            shard = ${{ matrix.shard }}
+            shardCount = 4
+            maxWorkers = 2
+            selection = 'all repository Vitest tests; no test-file or test-name filters'
+            packageTestScript = (Get-Content -Raw package.json | ConvertFrom-Json).scripts.test
+            lockSha256 = (Get-FileHash pnpm-lock.yaml -Algorithm SHA256).Hash.ToLowerInvariant()
+            startedAt = [DateTime]::UtcNow.ToString('o')
+          } | ConvertTo-Json | Set-Content -Encoding utf8 test-results/m15/full-source.json
+
+      - name: Build web application with the existing CI command
+        id: build
+        run: pnpm build
+
+      - name: Run the complete repository shard with the existing CI command
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: |
+          $testCommand = @'
+          $ErrorActionPreference = 'Stop'
+          pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4 --reporter=default --reporter=json --outputFile=test-results/m15/full-results.json
+          exit $LASTEXITCODE
+          '@
+          $pwsh = (Get-Command pwsh -ErrorAction Stop).Source
+          node scripts/m15-record.mjs "c4-windows-full-shard-${{ matrix.shard }}-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" $pwsh -NoLogo -NoProfile -NonInteractive -Command $testCommand
+
+      - name: Retain this complete repository shard
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: m15-full-shard-${{ matrix.shard }}-of-4-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/m15/
+            docs/implementation/v3/m15-logs/c4-windows-*
+          retention-days: 14
+          if-no-files-found: error

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-01/apply-fixed-call.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T05:39:54.124Z",
+  "endedAt": "2026-11-16T05:40:01.179Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-review-evidence-admission-01.log",
+  "logDigest": "f0a23c763cd11c4926820771ec7511e64a3b4bbf419f35499cde7c109e1fef3e"
+}

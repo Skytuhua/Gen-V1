@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:20:32.432Z",
+  "endedAt": "2026-11-16T01:21:43.914Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-01.log",
+  "logDigest": "a3c065f19e8ebb1fa2162eb86c7cc9b485fee576a3a915d5cc74bc38f2488a05"
+}

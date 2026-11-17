@@ -152,3 +152,29 @@ for (const theme of ['dark', 'light']) test(`${theme} menu retains shared surfac
   expect((await options(page).boundingBox())!.height).toBe(23);
   await page.screenshot({path: info.outputPath(`${theme}-sidebar-menu.png`)});
 });
+
+
+for(const settled of [false,true])for(const outcome of ['accepted','rejected'] as const){
+ test(`${settled?'return':'settle'} announces success only after an ${outcome} presentation write`,async({page})=>{
+  if(settled)await page.goto('/sidebar-shared-menu-check?settled');
+  await expect(options(page,'Selected conversation')).toBeVisible();
+  await page.evaluate(()=>{window.sidebarPresentation.mode='hold';});
+  await options(page,'Selected conversation').click();
+  await menu(page,'Selected conversation').getByRole('menuitem',{name:settled?'Return to inbox':'Settle thread',exact:true}).click();
+  await expect.poll(()=>calls(page)).toHaveLength(1);
+  const settledRow=page.locator('.thread-group-settled .thread-item[aria-current="page"]');
+  await expect(settledRow).toHaveCount(settled?1:0);
+  expect(await page.locator('.ui-toast').count()).toBe(0);
+  await expect.poll(()=>page.evaluate(()=>typeof window.sidebarPresentation.accept)).toBe('function');
+  if(outcome==='rejected'){
+   await page.evaluate(()=>window.sidebarPresentation.reject!());
+   await expect(page.getByRole('alert')).toHaveText('Presentation was rejected.');
+   await expect(page.locator('.ui-toast[data-tone="info"]')).toHaveCount(0);
+   await expect(settledRow).toHaveCount(settled?1:0);
+  }else{
+   await page.evaluate(()=>window.sidebarPresentation.accept!());
+   await expect(page.getByRole('status').filter({hasText:settled?'returned to your threads':'settled'})).toHaveCount(1);
+   await expect(settledRow).toHaveCount(settled?0:1);
+  }
+ });
+}

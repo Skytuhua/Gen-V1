@@ -1,0 +1,324 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e3]:
+    - paragraph [ref=e4]: Synthetic saved-layout interaction fixture
+    - textbox "Conversation draft" [ref=e5]: Keep this unsent draft
+    - generic "Workspace layouts" [ref=e7]:
+      - button "Workspace" [pressed] [ref=e8] [cursor=pointer]
+      - button "All Agents" [ref=e9] [cursor=pointer]
+      - button "Layouts" [expanded] [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Layouts
+        - img [ref=e16]
+    - button "Change arrangement" [ref=e18] [cursor=pointer]
+    - button "Change saved record" [ref=e19] [cursor=pointer]
+    - status "Calls"
+    - status "Mode" [ref=e20]: split
+    - button "After chooser" [ref=e21] [cursor=pointer]
+  - dialog "Saved layouts" [ref=e22]:
+    - heading "Saved layouts" [level=2] [ref=e23]
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - button "Apply Coding" [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: Coding
+        - button "Actions for Coding" [ref=e28] [cursor=pointer]:
+          - img [ref=e29]
+          - text: Actions for Coding
+      - generic [ref=e33]:
+        - button "Apply Review 1" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]: Review 1
+        - button "Actions for Review 1" [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+          - text: Actions for Review 1
+      - generic [ref=e41]:
+        - button "Apply Review 2" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: Review 2
+        - button "Actions for Review 2" [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - text: Actions for Review 2
+      - generic [ref=e49]:
+        - button "Apply Review 3" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: Review 3
+        - button "Actions for Review 3" [ref=e52] [cursor=pointer]:
+          - img [ref=e53]
+          - text: Actions for Review 3
+      - generic [ref=e57]:
+        - button "Apply Review 4" [ref=e58] [cursor=pointer]:
+          - generic [ref=e59]: Review 4
+        - button "Actions for Review 4" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+          - text: Actions for Review 4
+      - generic [ref=e65]:
+        - button "Apply Review 5" [ref=e66] [cursor=pointer]:
+          - generic [ref=e67]: Review 5
+        - button "Actions for Review 5" [ref=e68] [cursor=pointer]:
+          - img [ref=e69]
+          - text: Actions for Review 5
+      - generic [ref=e73]:
+        - button "Apply Review 6" [ref=e74] [cursor=pointer]:
+          - generic [ref=e75]: Review 6
+        - button "Actions for Review 6" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+          - text: Actions for Review 6
+      - generic [ref=e81]:
+        - button "Apply Review 7" [ref=e82] [cursor=pointer]:
+          - generic [ref=e83]: Review 7
+        - button "Actions for Review 7" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+          - text: Actions for Review 7
+      - generic [ref=e89]:
+        - button "Apply Review 8" [ref=e90] [cursor=pointer]:
+          - generic [ref=e91]: Review 8
+        - button "Actions for Review 8" [ref=e92] [cursor=pointer]:
+          - img [ref=e93]
+          - text: Actions for Review 8
+      - generic [ref=e97]:
+        - button "Apply Review 9" [ref=e98] [cursor=pointer]:
+          - generic [ref=e99]: Review 9
+        - button "Actions for Review 9" [ref=e100] [cursor=pointer]:
+          - img [ref=e101]
+          - text: Actions for Review 9
+      - generic [ref=e105]:
+        - button "Apply Review 10" [ref=e106] [cursor=pointer]:
+          - generic [ref=e107]: Review 10
+        - button "Actions for Review 10" [ref=e108] [cursor=pointer]:
+          - img [ref=e109]
+          - text: Actions for Review 10
+      - generic [ref=e113]:
+        - button "Apply Review 11" [ref=e114] [cursor=pointer]:
+          - generic [ref=e115]: Review 11
+        - button "Actions for Review 11" [ref=e116] [cursor=pointer]:
+          - img [ref=e117]
+          - text: Actions for Review 11
+      - generic [ref=e121]:
+        - button "Apply Review 12" [ref=e122] [cursor=pointer]:
+          - generic [ref=e123]: Review 12
+        - button "Actions for Review 12" [ref=e124] [cursor=pointer]:
+          - img [ref=e125]
+          - text: Actions for Review 12
+      - generic [ref=e129]:
+        - button "Apply Review 13" [ref=e130] [cursor=pointer]:
+          - generic [ref=e131]: Review 13
+        - button "Actions for Review 13" [ref=e132] [cursor=pointer]:
+          - img [ref=e133]
+          - text: Actions for Review 13
+      - generic [ref=e137]:
+        - button "Apply Review 14" [ref=e138] [cursor=pointer]:
+          - generic [ref=e139]: Review 14
+        - button "Actions for Review 14" [ref=e140] [cursor=pointer]:
+          - img [ref=e141]
+          - text: Actions for Review 14
+      - generic [ref=e145]:
+        - button "Apply Review 15" [ref=e146] [cursor=pointer]:
+          - generic [ref=e147]: Review 15
+        - button "Actions for Review 15" [ref=e148] [cursor=pointer]:
+          - img [ref=e149]
+          - text: Actions for Review 15
+      - generic [ref=e153]:
+        - button "Apply Review 16" [ref=e154] [cursor=pointer]:
+          - generic [ref=e155]: Review 16
+        - button "Actions for Review 16" [ref=e156] [cursor=pointer]:
+          - img [ref=e157]
+          - text: Actions for Review 16
+      - generic [ref=e161]:
+        - button "Apply Review 17" [ref=e162] [cursor=pointer]:
+          - generic [ref=e163]: Review 17
+        - button "Actions for Review 17" [ref=e164] [cursor=pointer]:
+          - img [ref=e165]
+          - text: Actions for Review 17
+      - generic [ref=e169]:
+        - button "Apply Review 18" [ref=e170] [cursor=pointer]:
+          - generic [ref=e171]: Review 18
+        - button "Actions for Review 18" [ref=e172] [cursor=pointer]:
+          - img [ref=e173]
+          - text: Actions for Review 18
+      - generic [ref=e177]:
+        - button "Apply Review 19" [ref=e178] [cursor=pointer]:
+          - generic [ref=e179]: Review 19
+        - button "Actions for Review 19" [ref=e180] [cursor=pointer]:
+          - img [ref=e181]
+          - text: Actions for Review 19
+      - generic [ref=e185]:
+        - button "Apply Review 20" [ref=e186] [cursor=pointer]:
+          - generic [ref=e187]: Review 20
+        - button "Actions for Review 20" [ref=e188] [cursor=pointer]:
+          - img [ref=e189]
+          - text: Actions for Review 20
+      - generic [ref=e193]:
+        - button "Apply Review 21" [ref=e194] [cursor=pointer]:
+          - generic [ref=e195]: Review 21
+        - button "Actions for Review 21" [ref=e196] [cursor=pointer]:
+          - img [ref=e197]
+          - text: Actions for Review 21
+      - generic [ref=e201]:
+        - button "Apply Review 22" [ref=e202] [cursor=pointer]:
+          - generic [ref=e203]: Review 22
+        - button "Actions for Review 22" [ref=e204] [cursor=pointer]:
+          - img [ref=e205]
+          - text: Actions for Review 22
+      - generic [ref=e209]:
+        - button "Apply Review 23" [ref=e210] [cursor=pointer]:
+          - generic [ref=e211]: Review 23
+        - button "Actions for Review 23" [ref=e212] [cursor=pointer]:
+          - img [ref=e213]
+          - text: Actions for Review 23
+      - generic [ref=e217]:
+        - button "Apply Review 24" [ref=e218] [cursor=pointer]:
+          - generic [ref=e219]: Review 24
+        - button "Actions for Review 24" [ref=e220] [cursor=pointer]:
+          - img [ref=e221]
+          - text: Actions for Review 24
+      - generic [ref=e225]:
+        - button "Apply Review 25" [ref=e226] [cursor=pointer]:
+          - generic [ref=e227]: Review 25
+        - button "Actions for Review 25" [ref=e228] [cursor=pointer]:
+          - img [ref=e229]
+          - text: Actions for Review 25
+      - generic [ref=e233]:
+        - button "Apply Review 26" [ref=e234] [cursor=pointer]:
+          - generic [ref=e235]: Review 26
+        - button "Actions for Review 26" [ref=e236] [cursor=pointer]:
+          - img [ref=e237]
+          - text: Actions for Review 26
+      - generic [ref=e241]:
+        - button "Apply Review 27" [ref=e242] [cursor=pointer]:
+          - generic [ref=e243]: Review 27
+        - button "Actions for Review 27" [ref=e244] [cursor=pointer]:
+          - img [ref=e245]
+          - text: Actions for Review 27
+      - generic [ref=e249]:
+        - button "Apply Review 28" [ref=e250] [cursor=pointer]:
+          - generic [ref=e251]: Review 28
+        - button "Actions for Review 28" [ref=e252] [cursor=pointer]:
+          - img [ref=e253]
+          - text: Actions for Review 28
+      - generic [ref=e257]:
+        - button "Apply Review 29" [ref=e258] [cursor=pointer]:
+          - generic [ref=e259]: Review 29
+        - button "Actions for Review 29" [ref=e260] [cursor=pointer]:
+          - img [ref=e261]
+          - text: Actions for Review 29
+      - generic [ref=e265]:
+        - button "Apply Review 30" [ref=e266] [cursor=pointer]:
+          - generic [ref=e267]: Review 30
+        - button "Actions for Review 30" [ref=e268] [cursor=pointer]:
+          - img [ref=e269]
+          - text: Actions for Review 30
+      - generic [ref=e273]:
+        - button "Apply Review 31" [ref=e274] [cursor=pointer]:
+          - generic [ref=e275]: Review 31
+        - button "Actions for Review 31" [ref=e276] [cursor=pointer]:
+          - img [ref=e277]
+          - text: Actions for Review 31
+      - generic [ref=e281]:
+        - button "Apply Review 32" [ref=e282] [cursor=pointer]:
+          - generic [ref=e283]: Review 32
+        - button "Actions for Review 32" [ref=e284] [cursor=pointer]:
+          - img [ref=e285]
+          - text: Actions for Review 32
+      - generic [ref=e289]:
+        - button "Apply Review 33" [ref=e290] [cursor=pointer]:
+          - generic [ref=e291]: Review 33
+        - button "Actions for Review 33" [ref=e292] [cursor=pointer]:
+          - img [ref=e293]
+          - text: Actions for Review 33
+      - generic [ref=e297]:
+        - button "Apply Review 34" [ref=e298] [cursor=pointer]:
+          - generic [ref=e299]: Review 34
+        - button "Actions for Review 34" [ref=e300] [cursor=pointer]:
+          - img [ref=e301]
+          - text: Actions for Review 34
+      - generic [ref=e305]:
+        - button "Apply Review 35" [ref=e306] [cursor=pointer]:
+          - generic [ref=e307]: Review 35
+        - button "Actions for Review 35" [ref=e308] [cursor=pointer]:
+          - img [ref=e309]
+          - text: Actions for Review 35
+      - generic [ref=e313]:
+        - button "Apply Review 36" [ref=e314] [cursor=pointer]:
+          - generic [ref=e315]: Review 36
+        - button "Actions for Review 36" [ref=e316] [cursor=pointer]:
+          - img [ref=e317]
+          - text: Actions for Review 36
+      - generic [ref=e321]:
+        - button "Apply Review 37" [ref=e322] [cursor=pointer]:
+          - generic [ref=e323]: Review 37
+        - button "Actions for Review 37" [ref=e324] [cursor=pointer]:
+          - img [ref=e325]
+          - text: Actions for Review 37
+      - generic [ref=e329]:
+        - button "Apply Review 38" [ref=e330] [cursor=pointer]:
+          - generic [ref=e331]: Review 38
+        - button "Actions for Review 38" [ref=e332] [cursor=pointer]:
+          - img [ref=e333]
+          - text: Actions for Review 38
+      - generic [ref=e337]:
+        - button "Apply Review 39" [ref=e338] [cursor=pointer]:
+          - generic [ref=e339]: Review 39
+        - button "Actions for Review 39" [ref=e340] [cursor=pointer]:
+          - img [ref=e341]
+          - text: Actions for Review 39
+      - generic [ref=e345]:
+        - button "Apply Review 40" [ref=e346] [cursor=pointer]:
+          - generic [ref=e347]: Review 40
+        - button "Actions for Review 40" [ref=e348] [cursor=pointer]:
+          - img [ref=e349]
+          - text: Actions for Review 40
+      - generic [ref=e353]:
+        - button "Apply Review 41" [ref=e354] [cursor=pointer]:
+          - generic [ref=e355]: Review 41
+        - button "Actions for Review 41" [ref=e356] [cursor=pointer]:
+          - img [ref=e357]
+          - text: Actions for Review 41
+      - generic [ref=e361]:
+        - button "Apply Review 42" [ref=e362] [cursor=pointer]:
+          - generic [ref=e363]: Review 42
+        - button "Actions for Review 42" [ref=e364] [cursor=pointer]:
+          - img [ref=e365]
+          - text: Actions for Review 42
+      - generic [ref=e369]:
+        - button "Apply Review 43" [ref=e370] [cursor=pointer]:
+          - generic [ref=e371]: Review 43
+        - button "Actions for Review 43" [ref=e372] [cursor=pointer]:
+          - img [ref=e373]
+          - text: Actions for Review 43
+      - generic [ref=e377]:
+        - button "Apply Review 44" [ref=e378] [cursor=pointer]:
+          - generic [ref=e379]: Review 44
+        - button "Actions for Review 44" [ref=e380] [cursor=pointer]:
+          - img [ref=e381]
+          - text: Actions for Review 44
+      - generic [ref=e385]:
+        - button "Apply Review 45" [ref=e386] [cursor=pointer]:
+          - generic [ref=e387]: Review 45
+        - button "Actions for Review 45" [ref=e388] [cursor=pointer]:
+          - img [ref=e389]
+          - text: Actions for Review 45
+      - generic [ref=e393]:
+        - button "Apply Review 46" [ref=e394] [cursor=pointer]:
+          - generic [ref=e395]: Review 46
+        - button "Actions for Review 46" [ref=e396] [cursor=pointer]:
+          - img [ref=e397]
+          - text: Actions for Review 46
+      - generic [ref=e401]:
+        - button "Apply Review 47" [ref=e402] [cursor=pointer]:
+          - generic [ref=e403]: Review 47
+        - button "Actions for Review 47" [ref=e404] [cursor=pointer]:
+          - img [ref=e405]
+          - text: Actions for Review 47
+      - generic [ref=e409]:
+        - button "Apply Review 48" [ref=e410] [cursor=pointer]:
+          - generic [ref=e411]: Review 48
+        - button "Actions for Review 48" [ref=e412] [cursor=pointer]:
+          - img [ref=e413]
+          - text: Actions for Review 48
+      - generic [ref=e417]:
+        - button "Apply Review 49" [ref=e418] [cursor=pointer]:
+          - generic [ref=e419]: Review 49
+        - button "Actions for Review 49" [ref=e420] [cursor=pointer]:
+          - img [ref=e421]
+          - text: Actions for Review 49
+    - button "Save current layout…" [active] [ref=e425] [cursor=pointer]
+```

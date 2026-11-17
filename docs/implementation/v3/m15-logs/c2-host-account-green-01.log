@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1","-t","first-account source custody|unsent captured custody"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 37 skipped (40)
+   Start at  08:23:25
+   Duration  2.54s (transform 1.43s, setup 0ms, import 2.06s, tests 138ms, environment 0ms)
+

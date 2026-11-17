@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "agents-workspace"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:23:26.686Z",
+  "endedAt": "2026-11-15T22:23:56.404Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/agents-workspace-declared-01.log",
+  "logDigest": "e8bf32b8e92150e354bac40a4d1e39908d4c80e5438ba339e2f734f0edc81a27"
+}

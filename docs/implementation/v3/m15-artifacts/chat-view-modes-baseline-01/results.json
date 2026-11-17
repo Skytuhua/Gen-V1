@@ -1,0 +1,856 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122/chat-view-modes/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "chat-view-modes.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --host 127.0.0.1 --port 5491 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/gen-v1",
+      "url": "http://127.0.0.1:5491",
+      "reuseExistingServer": false,
+      "env": {
+        "GEN_E2E": "1"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "chat-view-modes.spec.ts",
+      "file": "chat-view-modes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "full → drawer keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5445,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"disabled\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"disabled\"\u001b[22m\n\n    at open (/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:8:124)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:24:3",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                      "column": 124,
+                      "line": 8
+                    },
+                    "snippet": "   6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});\n   7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n>  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}\n     |                                                                                                                            ^\n   9 | async function mode(page:Page,value:ChatMode){\n  10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();\n  11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                        "column": 124,
+                        "line": 8
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"disabled\"\u001b[22m\n\n\n   6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});\n   7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n>  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}\n     |                                                                                                                            ^\n   9 | async function mode(page:Page,value:ChatMode){\n  10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();\n  11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();\n    at open (/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:8:124)\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:24:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:13.631Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122/chat-view-modes/artifacts/chat-view-modes-full-→-dra-18f80-ages-attachments-and-scroll/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                    "column": 124,
+                    "line": 8
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-481bf1a0a7823d38a4cf",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "full → popup keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4282,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:20.452Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-bd643556eb1cc20a42b4",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "drawer → full keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4558,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:24.889Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-23b77016e139e94243ad",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "drawer → popup keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4241,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:29.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-fa0bb14411f634d2256d",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "popup → full keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4078,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:33.764Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-98a6d4eab6f2713f1a9b",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "popup → drawer keeps the live composer, draft, selection, messages, attachments and scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4184,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:37.872Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-5e1b41015b3d3d37c0fd",
+          "file": "chat-view-modes.spec.ts",
+          "line": 57,
+          "column": 3
+        },
+        {
+          "title": "keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2556,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:42.114Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-9983871f8f947b5198f3",
+          "file": "chat-view-modes.spec.ts",
+          "line": 97,
+          "column": 1
+        },
+        {
+          "title": "rapid switching retargets from the visible rect and reduced motion settles instantly, including mid-flight",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4038,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:44.686Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-959d44042ed0eb761b2b",
+          "file": "chat-view-modes.spec.ts",
+          "line": 126,
+          "column": 1
+        },
+        {
+          "title": "drawer edge/corner resize tracks via transform, clamps, and remembers its own size",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7197,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:48.752Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-87da634917cff659a7ba",
+          "file": "chat-view-modes.spec.ts",
+          "line": 162,
+          "column": 42
+        },
+        {
+          "title": "popup edge/corner resize tracks via transform, clamps, and remembers its own size",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8070,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:05:55.965Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-a0b10e9b8dcb38d51076",
+          "file": "chat-view-modes.spec.ts",
+          "line": 162,
+          "column": 42
+        },
+        {
+          "title": "header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6551,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m850\u001b[39m\nReceived: \u001b[31m770\u001b[39m\n\nExpected precision:    0\nExpected difference: < \u001b[32m0.5\u001b[39m\nReceived difference:   \u001b[31m80\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m850\u001b[39m\nReceived: \u001b[31m770\u001b[39m\n\nExpected precision:    0\nExpected difference: < \u001b[32m0.5\u001b[39m\nReceived difference:   \u001b[31m80\u001b[39m\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:75:140",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                      "column": 140,
+                      "line": 75
+                    },
+                    "snippet": "  73 |  await drag(page,'Move chat panel',-220,-100);const moved=await bounds(page);expect(moved.x).toBeCloseTo(before.x-220,0);expect(moved.y).toBeCloseTo(before.y-100,0);\n  74 |  await page.reload();await expect(input(page)).toBeEnabled();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);\n> 75 |  await drag(page,'Move chat panel',-80,-40,false);await page.keyboard.press('Escape');await page.mouse.up();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);\n     |                                                                                                                                            ^\n  76 |  await page.getByRole('button',{name:'Move chat panel',exact:true}).focus();await page.keyboard.press('Shift+ArrowLeft');expect((await bounds(page)).x).toBeCloseTo(moved.x-32,0);\n  77 |  const handle=await page.getByRole('button',{name:'Move chat panel',exact:true}).boundingBox();if(!handle)throw Error('No header');\n  78 |  await page.mouse.move(handle.x+12,handle.y+12);await page.mouse.down();await page.mouse.move(1420,150,{steps:15});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                        "column": 140,
+                        "line": 75
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeCloseTo\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m, \u001b[22mprecision\u001b[2m)\u001b[22m\n\nExpected: \u001b[32m850\u001b[39m\nReceived: \u001b[31m770\u001b[39m\n\nExpected precision:    0\nExpected difference: < \u001b[32m0.5\u001b[39m\nReceived difference:   \u001b[31m80\u001b[39m\n\n  73 |  await drag(page,'Move chat panel',-220,-100);const moved=await bounds(page);expect(moved.x).toBeCloseTo(before.x-220,0);expect(moved.y).toBeCloseTo(before.y-100,0);\n  74 |  await page.reload();await expect(input(page)).toBeEnabled();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);\n> 75 |  await drag(page,'Move chat panel',-80,-40,false);await page.keyboard.press('Escape');await page.mouse.up();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);\n     |                                                                                                                                            ^\n  76 |  await page.getByRole('button',{name:'Move chat panel',exact:true}).focus();await page.keyboard.press('Shift+ArrowLeft');expect((await bounds(page)).x).toBeCloseTo(moved.x-32,0);\n  77 |  const handle=await page.getByRole('button',{name:'Move chat panel',exact:true}).boundingBox();if(!handle)throw Error('No header');\n  78 |  await page.mouse.move(handle.x+12,handle.y+12);await page.mouse.down();await page.mouse.move(1420,150,{steps:15});\n    at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:75:140"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:04.058Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122/chat-view-modes/artifacts/chat-view-modes-header-dra-d4736-nd-snaps-to-the-dock-target/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts",
+                    "column": 140,
+                    "line": 75
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-a3ce7c19ae63690bbceb",
+          "file": "chat-view-modes.spec.ts",
+          "line": 201,
+          "column": 1
+        },
+        {
+          "title": "detach/dock button and keyboard paths preserve the live draft and drawer size",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:12.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-094ef889efea83e7c834",
+          "file": "chat-view-modes.spec.ts",
+          "line": 239,
+          "column": 1
+        },
+        {
+          "title": "every mode fits 1440px and stays usable after viewport shrink",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5832,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:17.118Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-a902c0e504ab731b75f9",
+          "file": "chat-view-modes.spec.ts",
+          "line": 270,
+          "column": 40
+        },
+        {
+          "title": "every mode fits 1024px and stays usable after viewport shrink",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5994,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:22.989Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-69653a5bb8c890ad5cc8",
+          "file": "chat-view-modes.spec.ts",
+          "line": 270,
+          "column": 40
+        },
+        {
+          "title": "every mode fits 768px and stays usable after viewport shrink",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6070,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:29.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-a783060a2559d7ddb1ed",
+          "file": "chat-view-modes.spec.ts",
+          "line": 270,
+          "column": 40
+        },
+        {
+          "title": "a resized docked drawer keeps its right margin as the viewport grows and reloads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5590,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:35.104Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-3950d1e9cb92c6d729b1",
+          "file": "chat-view-modes.spec.ts",
+          "line": 298,
+          "column": 1
+        },
+        {
+          "title": "a saved docked drawer from a narrow window restores at the wider right edge",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1519,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:40.714Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-6cfecf669d280eaadc9e",
+          "file": "chat-view-modes.spec.ts",
+          "line": 323,
+          "column": 1
+        },
+        {
+          "title": "a pointer transition retargets exactly from its visible bounds and animates only transform",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3014,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:42.251Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-57b9f6498cbbb68b03ca",
+          "file": "chat-view-modes.spec.ts",
+          "line": 342,
+          "column": 1
+        },
+        {
+          "title": "pointer cancellation rolls back a resize and writes no in-flight preference",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3711,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:45.280Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-29c61ed34b64922efb3e",
+          "file": "chat-view-modes.spec.ts",
+          "line": 390,
+          "column": 1
+        },
+        {
+          "title": "dragging the docked header detaches it and the dock button restores its right anchor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3813,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:49.015Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-195553216dd94f446b59",
+          "file": "chat-view-modes.spec.ts",
+          "line": 411,
+          "column": 1
+        },
+        {
+          "title": "blocked preference storage keeps every mode and resize usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5285,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:06:52.848Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-d91af853ccb08efa5e34",
+          "file": "chat-view-modes.spec.ts",
+          "line": 433,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:05:09.910Z",
+    "duration": 108383.246,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

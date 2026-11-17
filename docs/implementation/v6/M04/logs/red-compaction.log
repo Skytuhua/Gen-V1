@@ -1,0 +1,72 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+ ❯ tests/compaction-v3.test.ts (8 tests | 4 failed) 68ms
+   × mints one candidate identity per exact binding and validates the strict metadata sidecar 7ms
+   × never invokes the native apply operation for a stale or cancelled binding 2ms
+   × discards precompute candidates on rewind, instruction change, cancellation and an oversized tail, keeping failed calls in cost accounting 2ms
+   × gates the shadow relevance phase on an approved auxiliary budget and a fixed six-second timeout 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/compaction-v3.test.ts > mints one candidate identity per exact binding and validates the strict metadata sidecar
+TypeError: createCompactionCandidateRegistry is not a function
+ ❯ tests/compaction-v3.test.ts:63:20
+     61|   };
+     62|   const minted: string[] = [];
+     63|   const registry = createCompactionCandidateRegistry({ mintId: () => {…
+       |                    ^
+     64|   const input = { binding: base, unresolvedRefs: fixture.compaction.ke…
+     65|   const first = registry.prepare(input);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/compaction-v3.test.ts > never invokes the native apply operation for a stale or cancelled binding
+TypeError: applyCompactionCandidate is not a function
+ ❯ tests/compaction-v3.test.ts:96:23
+     94|   let applied = 0;
+     95|   const nativeApply = async () => { applied++; return { generation: ba…
+     96|   const stale = await applyCompactionCandidate({ ...options, current: …
+       |                       ^
+     97|   expect(stale.status).toBe('DISCARDED');
+     98|   expect(applied).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/compaction-v3.test.ts > discards precompute candidates on rewind, instruction change, cancellation and an oversized tail, keeping failed calls in cost accounting
+TypeError: createPrecomputeExperiment is not a function
+ ❯ tests/compaction-v3.test.ts:126:22
+    124|   };
+    125|   let enabled = true, failNext = false;
+    126|   const experiment = createPrecomputeExperiment({
+       |                      ^
+    127|     enabled: () => enabled, maxRetainedTailBytes: 1024,
+    128|     summarize: async ({ prefixDigest }) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/compaction-v3.test.ts > gates the shadow relevance phase on an approved auxiliary budget and a fixed six-second timeout
+AssertionError: expected undefined to be 6000 // Object.is equality
+
+- Expected:
+6000
+
++ Received:
+undefined
+
+ ❯ tests/compaction-v3.test.ts:175:38
+    173|     SHADOW_OBSERVER_TIMEOUT_MS: number;
+    174|   };
+    175|   expect(SHADOW_OBSERVER_TIMEOUT_MS).toBe(6000);
+       |                                      ^
+    176|   const cut = Object.freeze({ cutId: 'shadow-cut-1', retainedTailStart…
+    177|     Object.freeze({ id: 'old', inputSequence: 1, bytes: 100, kind: 'to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  04:18:16
+   Duration  671ms (transform 214ms, setup 0ms, import 214ms, tests 68ms, environment 0ms)
+

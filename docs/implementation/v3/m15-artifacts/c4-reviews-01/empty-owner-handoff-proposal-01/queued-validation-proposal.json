@@ -1,0 +1,28 @@
+{
+  "scope": "Outside-only, not executed. Four separate invocation boundaries added to the frozen two-case empty-owner proposal. Actual journal operations, recovery, owner parsing and source envelopes execute. No timeout change; no fake ready value.",
+  "path": "tests/source-handoff-v3.test.ts",
+  "baseCases": 24,
+  "proposedCases": 28,
+  "files": {
+    "queued-validation-addition.ts": {
+      "sha256": "e78e56a0b12439587ae742e71069f46fc8876c320a72a8e35d9fae208cb46057",
+      "bytes": 6793
+    },
+    "source-handoff.fifo-boundaries.test.ts": {
+      "sha256": "9682772148348314b7106e89deb9b63bd1b54fdc6a0ad15ef2c1ce7b7bbee8f1",
+      "bytes": 36854
+    },
+    "queued-validation-tests.patch": {
+      "sha256": "c5c8b5713197006e07582cba43ec578dba5f3fcdd30423dd9b391d9f82c9cae5",
+      "bytes": 7139
+    },
+    "production.patch": {
+      "sha256": "a60c434a3be5915ad523559425722005039467d5e858dd313e064a00bbe85306",
+      "bytes": 1356
+    },
+    "workbench-recovery.fifo.ts": {
+      "sha256": "2c4c50c7300d3960a0be2d8a18f089150b9a5a8b3d3cc5f0776a77de36ecc5a3",
+      "bytes": 13673
+    }
+  }
+}

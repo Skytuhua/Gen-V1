@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "status": "FROZEN_OUTSIDE_REPOSITORY_NOT_RUN",
+  "phase": "B_OWNER_RECOVERY_POLICY",
+  "createdAt": "2026-11-16T04:50:40.408446+00:00",
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "baseSha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+      "phaseASha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "phaseBSha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "phaseBChangesPhaseA": false,
+      "bytes": 17089
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "baseSha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+      "phaseASha256": "bb3bf735759b8cda44163d353d604ffb8ebbdcce9fea2a270cca07cf9f244237",
+      "phaseBSha256": "43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed",
+      "phaseBChangesPhaseA": true,
+      "bytes": 12976
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "baseSha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe",
+      "phaseASha256": "2b2487818ec1badfc9df9cb5a27c01b907f32c83a3532216aa94701aa2fb315d",
+      "phaseBSha256": "1b515e343591ddcfce17b79805feed2bca4dabe82f2f2015107b5c4f8f99f5db",
+      "phaseBChangesPhaseA": true,
+      "bytes": 22419
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "baseSha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d",
+      "phaseASha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "phaseBSha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "phaseBChangesPhaseA": false,
+      "bytes": 161584
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "baseSha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+      "phaseASha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+      "phaseBSha256": "9b6efa9a20e4c5aa0d50d00e1f4df60c18ffd7954ee818f81d8cb6718fbcb52e",
+      "phaseBChangesPhaseA": true,
+      "bytes": 3099
+    },
+    {
+      "path": "apps/web/src/draft-transfer.ts",
+      "baseSha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13",
+      "phaseASha256": "3789712bca7686dcb993e8b90c36dffa9208308b2e1589c3c0d316b9348e6f13",
+      "phaseBSha256": "11cf401b6c4eef64ef0dadedaf939180423592ced7f94865c2adbd7dce5f2b43",
+      "phaseBChangesPhaseA": true,
+      "bytes": 12084
+    }
+  ],
+  "test": {
+    "path": "tests/source-handoff-v3.test.ts",
+    "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df",
+    "declaredCases": 20,
+    "status": "NOT_RUN"
+  },
+  "patches": {
+    "phase-b.patch": {
+      "sha256": "2b1ad03c07dd9c0604dcf42cb52c5c56f6442ea442391235432fb28e8b282f8f",
+      "bytes": 12834
+    },
+    "production.patch": {
+      "sha256": "bb5f47aa047e4d306c119daadb80f852d0c054b1aabae376a0a3892b615abbdd",
+      "bytes": 32046
+    }
+  },
+  "knownRedReceipt": "c4-desktop-regression-01",
+  "limitations": [
+    "Not applied to the repository by this agent.",
+    "No new test execution, collection, typecheck or browser/native run.",
+    "Metadata promises do not persist draft text or grant host/source authority.",
+    "Native close remains governed by the existing allSettled registry; no guard or close deadline is removed.",
+    "The cold allowance is per renderer and exact journal owner, and requires all three initial reads to have failed with no successful recovery, record acquisition or local operation."
+  ]
+}

@@ -1,0 +1,168 @@
+argv: ["pnpm","install","--frozen-lockfile"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1000
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1000, reused 0, downloaded 0, added 0
+Progress: resolved 1000, reused 0, downloaded 1, added 0
+
+   ╭───────────────────────────────────────────────╮
+   │                                               │
+   │     Update available! 10.30.3 → 12.21.0.      │
+   │     Changelog: https://pnpm.io/v/12.21.0      │
+   │   To update, run: corepack use pnpm@12.21.0   │
+   │                                               │
+   ╰───────────────────────────────────────────────╯
+
+Progress: resolved 1000, reused 0, downloaded 24, added 26
+Progress: resolved 1000, reused 0, downloaded 25, added 26
+Progress: resolved 1000, reused 0, downloaded 48, added 50
+Progress: resolved 1000, reused 0, downloaded 49, added 50
+Progress: resolved 1000, reused 0, downloaded 72, added 74
+Progress: resolved 1000, reused 0, downloaded 73, added 74
+Progress: resolved 1000, reused 0, downloaded 95, added 98
+Progress: resolved 1000, reused 0, downloaded 96, added 98
+Progress: resolved 1000, reused 0, downloaded 113, added 116
+Progress: resolved 1000, reused 0, downloaded 115, added 118
+Progress: resolved 1000, reused 0, downloaded 118, added 121
+Progress: resolved 1000, reused 0, downloaded 120, added 123
+Progress: resolved 1000, reused 0, downloaded 143, added 146
+Progress: resolved 1000, reused 0, downloaded 144, added 146
+Progress: resolved 1000, reused 0, downloaded 167, added 170
+Progress: resolved 1000, reused 0, downloaded 168, added 170
+Progress: resolved 1000, reused 0, downloaded 191, added 194
+Progress: resolved 1000, reused 0, downloaded 192, added 194
+Progress: resolved 1000, reused 0, downloaded 215, added 218
+Progress: resolved 1000, reused 0, downloaded 216, added 218
+Progress: resolved 1000, reused 0, downloaded 238, added 241
+Progress: resolved 1000, reused 0, downloaded 239, added 242
+Progress: resolved 1000, reused 0, downloaded 240, added 242
+Progress: resolved 1000, reused 0, downloaded 263, added 266
+Progress: resolved 1000, reused 0, downloaded 264, added 266
+Progress: resolved 1000, reused 0, downloaded 287, added 290
+Progress: resolved 1000, reused 0, downloaded 288, added 290
+Progress: resolved 1000, reused 0, downloaded 311, added 314
+Progress: resolved 1000, reused 0, downloaded 312, added 314
+Progress: resolved 1000, reused 0, downloaded 330, added 333
+Progress: resolved 1000, reused 0, downloaded 335, added 338
+Progress: resolved 1000, reused 0, downloaded 336, added 338
+Progress: resolved 1000, reused 0, downloaded 359, added 362
+Progress: resolved 1000, reused 0, downloaded 360, added 362
+Progress: resolved 1000, reused 0, downloaded 383, added 386
+Progress: resolved 1000, reused 0, downloaded 384, added 386
+Progress: resolved 1000, reused 0, downloaded 407, added 410
+Progress: resolved 1000, reused 0, downloaded 408, added 410
+Progress: resolved 1000, reused 0, downloaded 431, added 434
+Progress: resolved 1000, reused 0, downloaded 432, added 434
+Progress: resolved 1000, reused 0, downloaded 455, added 458
+Progress: resolved 1000, reused 0, downloaded 456, added 458
+Progress: resolved 1000, reused 0, downloaded 479, added 482
+Progress: resolved 1000, reused 0, downloaded 480, added 482
+Progress: resolved 1000, reused 0, downloaded 503, added 506
+Progress: resolved 1000, reused 0, downloaded 504, added 506
+Progress: resolved 1000, reused 0, downloaded 527, added 530
+Progress: resolved 1000, reused 0, downloaded 528, added 530
+Progress: resolved 1000, reused 0, downloaded 551, added 554
+Progress: resolved 1000, reused 0, downloaded 552, added 554
+Progress: resolved 1000, reused 0, downloaded 575, added 578
+Progress: resolved 1000, reused 0, downloaded 576, added 578
+Progress: resolved 1000, reused 0, downloaded 599, added 602
+Progress: resolved 1000, reused 0, downloaded 600, added 602
+Progress: resolved 1000, reused 0, downloaded 623, added 626
+Progress: resolved 1000, reused 0, downloaded 624, added 626
+Progress: resolved 1000, reused 0, downloaded 647, added 650
+Progress: resolved 1000, reused 0, downloaded 648, added 650
+Progress: resolved 1000, reused 0, downloaded 667, added 670
+Progress: resolved 1000, reused 0, downloaded 671, added 674
+Progress: resolved 1000, reused 0, downloaded 672, added 674
+Progress: resolved 1000, reused 0, downloaded 695, added 698
+Progress: resolved 1000, reused 0, downloaded 696, added 698
+Progress: resolved 1000, reused 0, downloaded 719, added 722
+Progress: resolved 1000, reused 0, downloaded 720, added 722
+Progress: resolved 1000, reused 0, downloaded 743, added 746
+Progress: resolved 1000, reused 0, downloaded 744, added 746
+Progress: resolved 1000, reused 0, downloaded 767, added 770
+Progress: resolved 1000, reused 0, downloaded 768, added 770
+Progress: resolved 1000, reused 0, downloaded 791, added 794
+Progress: resolved 1000, reused 0, downloaded 792, added 794
+Progress: resolved 1000, reused 0, downloaded 815, added 818
+Progress: resolved 1000, reused 0, downloaded 816, added 818
+Progress: resolved 1000, reused 0, downloaded 839, added 842
+Progress: resolved 1000, reused 0, downloaded 840, added 842
+Progress: resolved 1000, reused 0, downloaded 863, added 866
+Progress: resolved 1000, reused 0, downloaded 864, added 866
+Progress: resolved 1000, reused 0, downloaded 887, added 890
+Progress: resolved 1000, reused 0, downloaded 888, added 890
+Progress: resolved 1000, reused 0, downloaded 911, added 914
+Progress: resolved 1000, reused 0, downloaded 912, added 914
+Progress: resolved 1000, reused 0, downloaded 935, added 938
+Progress: resolved 1000, reused 0, downloaded 936, added 938
+Progress: resolved 1000, reused 0, downloaded 959, added 962
+Progress: resolved 1000, reused 0, downloaded 960, added 962
+Progress: resolved 1000, reused 0, downloaded 983, added 986
+Progress: resolved 1000, reused 0, downloaded 984, added 986
+Progress: resolved 1000, reused 0, downloaded 997, added 1000, done
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+.../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+
+dependencies:
++ @anthropic-ai/claude-agent-sdk 0.3.316
++ @biomejs/biome 2.6.4
++ @biomejs/cli-win32-x64 2.6.4
++ @cursor/sdk 1.0.38
++ @earendil-works/pi-coding-agent 1.4.0
++ @fontsource-variable/inter 5.3.0
++ @fontsource/caveat 5.3.0
++ @fontsource/dancing-script 5.3.0
++ @google/gemini-cli 0.66.0
++ @json-render/core 0.21.3
++ @json-render/react 0.21.3
++ @modelcontextprotocol/sdk 1.32.2
++ @remote-dom/polyfill 1.6.0
++ @sinclair/typebox 0.34.41
++ @upstash/context7-mcp 4.4.4
++ @xterm/addon-fit 0.11.0
++ @xterm/xterm 6.0.0
++ ajv 8.18.0
++ ajv-formats 3.0.1
++ electron-updater 6.8.11
++ fastify 5.12.7
++ lucide-react 0.468.0
++ node-pty 1.1.0
++ pdf-lib 1.17.1
++ pdfjs-dist 6.4.299
++ promptfoo 0.125.1
++ react 19.2.3
++ react-dom 19.2.3
++ semver 7.8.5
++ tsx 4.20.6
++ zod 4.6.6
+
+devDependencies:
++ @playwright/test 1.56.1
++ @types/node 24.10.0
++ @types/react 19.2.2
++ @types/react-dom 19.2.2
++ @vitejs/plugin-react 5.1.1
++ electron 45.2.0
++ electron-builder 26.18.0
++ esbuild 0.25.12
++ typescript 5.9.3
++ vite 7.3.7
++ vitest 4.1.12
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @github/keytar@7.10.6, @google/genai@2.21.0,        │
+│   electron-winstaller@5.4.0, node-pty@1.0.0, node-pty@1.1.0,                 │
+│   protobufjs@7.6.6.                                                          │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 2m 28.7s using pnpm v10.30.3

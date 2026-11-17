@@ -1,0 +1,91 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (0 test)
+ ❯ tests/source-selection-v3.test.ts (4 tests | 4 failed) 32ms
+     × accepts only the four explicit source kinds and their range encodings 23ms
+     × rejects hidden authority fields, malformed digests and cross-kind range encodings 4ms
+     × limits drafts to eight distinct source identities belonging to the same owner 2ms
+     × stores presentation with a local device identity and no canonical task facts 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts [ tests/source-workbench-host-v3.test.ts ]
+Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.
+ ❯ receiverBytes packages/widgets/document.ts:10:17
+      8| function receiverBytes(): string {
+      9|   try { return readFileSync(resolve('dist/widget-runtime/receiver.js')…
+     10|   catch { throw new Error('Trusted widget receiver is missing. Run pnp…
+       |                 ^
+     11| }
+     12| const bootstrap = receiverBytes();
+ ❯ packages/widgets/document.ts:12:19
+ ❯ apps/server/server.ts:13:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-selection-v3.test.ts > SelectedSourceV1 > accepts only the four explicit source kinds and their range encodings
+AssertionError: M15 strict source contracts must be implemented: expected null not to be null
+ ❯ contract tests/source-selection-v3.test.ts:10:73
+      8| async function contract() {
+      9|   const loaded = await import('../packages/contracts/source-selection.…
+     10|   expect(loaded, 'M15 strict source contracts must be implemented').no…
+       |                                                                         ^
+     11|   return loaded!;
+     12| }
+ ❯ tests/source-selection-v3.test.ts:16:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/source-selection-v3.test.ts > SelectedSourceV1 > rejects hidden authority fields, malformed digests and cross-kind range encodings
+AssertionError: M15 strict source contracts must be implemented: expected null not to be null
+ ❯ contract tests/source-selection-v3.test.ts:10:73
+      8| async function contract() {
+      9|   const loaded = await import('../packages/contracts/source-selection.…
+     10|   expect(loaded, 'M15 strict source contracts must be implemented').no…
+       |                                                                         ^
+     11|   return loaded!;
+     12| }
+ ❯ tests/source-selection-v3.test.ts:26:38
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/source-selection-v3.test.ts > draft and presentation contracts > limits drafts to eight distinct source identities belonging to the same owner
+AssertionError: M15 strict source contracts must be implemented: expected null not to be null
+ ❯ contract tests/source-selection-v3.test.ts:10:73
+      8| async function contract() {
+      9|   const loaded = await import('../packages/contracts/source-selection.…
+     10|   expect(loaded, 'M15 strict source contracts must be implemented').no…
+       |                                                                         ^
+     11|   return loaded!;
+     12| }
+ ❯ tests/source-selection-v3.test.ts:42:36
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/source-selection-v3.test.ts > draft and presentation contracts > stores presentation with a local device identity and no canonical task facts
+AssertionError: M15 strict source contracts must be implemented: expected null not to be null
+ ❯ contract tests/source-selection-v3.test.ts:10:73
+      8| async function contract() {
+      9|   const loaded = await import('../packages/contracts/source-selection.…
+     10|   expect(loaded, 'M15 strict source contracts must be implemented').no…
+       |                                                                         ^
+     11|   return loaded!;
+     12| }
+ ❯ tests/source-selection-v3.test.ts:53:37
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed (4)
+   Start at  05:33:58
+   Duration  2.68s (transform 1.31s, setup 0ms, import 39ms, tests 32ms, environment 1ms)
+

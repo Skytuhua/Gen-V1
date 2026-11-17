@@ -8,7 +8,8 @@ import {serveChatFixture} from './chat-view-modes-fixture';
 test.use({viewport:{width:1600,height:1000}});
 const view=(page:Page)=>page.locator('[data-split-view="thread:task-thread"]');
 const input=(page:Page)=>view(page).getByRole('textbox',{name:'Message',exact:true});
-async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+// Baseline and candidate both exceeded five seconds loading the dev app; this is startup readiness, not a geometry wait.
+async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled({timeout:15000});}
 
 test('the conversation lives in the split plane with its messages, composer and attachments',async({page})=>{
  await open(page,true);
