@@ -7,7 +7,7 @@ test('mobile navigation backdrop remains clickable after a nested Settings dialo
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];
  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
- await page.goto('/');
+ await Promise.all([page.waitForResponse(response=>new URL(response.url()).pathname==='/api/bootstrap'&&response.request().method()==='GET'&&response.status()===200),page.goto('/')]);
  const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');
  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);
  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);
