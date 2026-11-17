@@ -295,10 +295,14 @@ for (const theme of ['dark', 'light'] as const) for (const zoom of [1, 1.25, 1.5
     await longLabel.scrollIntoViewIfNeeded();
     expect(await longLabel.evaluate(node => { const range = document.createRange(); range.selectNodeContents(node); const text = range.getBoundingClientRect(), rect = node.getBoundingClientRect(); return text.right <= rect.right && text.bottom <= rect.bottom && node.scrollWidth <= node.clientWidth; })).toBe(true);
     await dialog.screenshot({ path: info.outputPath('long-label.png') });
-    const search=dialog.getByRole('searchbox',{name:'Search all settings'});await search.fill('chat width');await dialog.getByRole('button',{name:/^Chat width/}).click();
-    const width=dialog.getByRole('combobox',{name:'Chat width',exact:true});await expect(width).toBeFocused();
-    const control=await width.boundingBox(),viewport=await dialog.locator('main').boundingBox(),frame=await dialog.boundingBox(),title=await dialog.getByRole('heading',{name:'Settings',exact:true}).boundingBox();
-    expect(control!.y).toBeGreaterThanOrEqual(viewport!.y);expect(control!.y+control!.height).toBeLessThanOrEqual(viewport!.y+viewport!.height);expect(title!.y).toBeGreaterThanOrEqual(frame!.y);
+    await page.setViewportSize({width:1440,height:520});
+    const search=dialog.getByRole('searchbox',{name:'Search all settings'});
+    for(const label of ['Composer font','Code font','Chat width']){
+      await search.fill(label);await dialog.getByRole('button',{name:new RegExp('^'+label)}).click();
+      const field=dialog.getByRole('combobox',{name:label,exact:true});await expect(field).toBeFocused();
+      const bounds=await field.boundingBox(),content=await dialog.locator('main').boundingBox(),frame=await dialog.boundingBox(),title=await dialog.getByRole('heading',{name:'Settings',exact:true}).boundingBox();
+      expect(bounds!.y).toBeGreaterThanOrEqual(content!.y);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(content!.y+content!.height);expect(title!.y).toBeGreaterThanOrEqual(frame!.y);
+    }
   });
 }
 
@@ -433,8 +437,15 @@ test.describe('touch Settings targets',()=>{
     const host=await openSettings(page),picker=host.dialog.getByRole('combobox',{name:'Settings section',exact:true});await host.dialog.evaluate(node=>Promise.all(node.getAnimations().map(animation=>animation.finished.catch(()=>{}))));
     expect((await host.dialog.locator('.settings-search').boundingBox())!.height).toBeGreaterThanOrEqual(44);
     expect((await picker.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await picker.tap();await host.dialog.getByRole('option',{name:'Appearance',exact:true}).tap();
+    await picker.tap();const option=host.dialog.getByRole('option',{name:'Appearance',exact:true});await expect(option).toBeVisible();await option.evaluate(node=>Promise.all(node.parentElement!.getAnimations().map(animation=>animation.finished)));expect((await option.boundingBox())!.height).toBeGreaterThanOrEqual(44);await option.tap();
     await expect(host.dialog.getByRole('heading',{level:1})).toHaveText('Appearance');
     expect(await host.dialog.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
+  });
+  test('advanced runtime disclosure keeps a full touch target on wide layouts',async({page})=>{
+    await page.setViewportSize({width:1440,height:1000});const host=await openSettings(page);
+    await host.nav.getByRole('button',{name:'Models & Accounts',exact:true}).tap();
+    const summary=host.dialog.locator('.settings-runtime-details>summary');await expect(summary).toBeVisible();
+    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(44);await summary.tap();
+    await expect(host.dialog.getByText('No variables configured.',{exact:true})).toBeVisible();
   });
 });
