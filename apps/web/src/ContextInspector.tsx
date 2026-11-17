@@ -170,6 +170,17 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
         <p className="context-categories-note">Native context is opaque. Provider tokens and roles were not inferred.</p></>}
       {index === 1 && <>
         <p className="context-categories-note">{request.knownInputs} known {request.knownInputs === 1 ? 'input' : 'inputs'} at the broker. Native sources and revisions were not reported.</p>
+        {sources?.projectInstructions && <section aria-label="Approved project instructions">
+          <p className="context-categories-note">{sources.projectInstructions.precedence}</p>
+          <ul>{sources.projectInstructions.entries.map(entry => <li key={entry.resourceId + ':' + entry.filename}>
+            {entry.filename} · resource {entry.resourceId} · scope {entry.scope} · precedence {entry.precedence} · {contextNumber(entry.utf8Bytes)} bytes
+            <span style={{ overflowWrap: 'anywhere' }}> · SHA-256 {entry.digest}</span>
+          </li>)}</ul>
+          {sources.projectInstructions.overlaps.map(overlap => <p key={overlap.scope} className="context-categories-note">Overlapping instruction sources in {overlap.scope}: {overlap.filenames.join(', ')}. Applied in the declared order; semantic contradictions were not inferred.</p>)}
+          {sources.projectInstructions.duplicates.map(duplicate => <p key={duplicate.path} className="context-categories-note">{duplicate.path}: same physical file as {duplicate.retainedPath}; loaded once.</p>)}
+          {sources.projectInstructions.exclusions.map(exclusion => <p key={exclusion.resourceId + ':' + exclusion.filename} className="context-categories-note">{exclusion.filename} · resource {exclusion.resourceId} · excluded: {exclusion.reason.toLowerCase().replaceAll('_', ' ')}</p>)}
+          {Boolean(sources.projectInstructions.omittedRoots) && <p className="context-categories-note">{sources.projectInstructions.omittedRoots} roots outside the instruction discovery limit.</p>}
+        </section>}
         {Boolean(sources?.sources.length) && <ul aria-label="Observed app submission fragments">
           {sources?.sources.map((source, sourceIndex) => <li key={source.category + ':' + sourceIndex}>
             {source.category.toLowerCase()} · revision {source.revision} · {contextNumber(source.utf8Bytes)} bytes

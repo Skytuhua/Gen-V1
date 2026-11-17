@@ -237,6 +237,19 @@ test('shows bounded read-only relevance candidates without claiming native histo
   await expect(observation).toHaveCount(0);
 });
 
+test('shows admitted instruction revisions, overlap precedence and refused directives in the existing Sources tab', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-instructions');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  const instructions = context(page).getByRole('region', { name: 'Approved project instructions' });
+  await expect(instructions).toContainText('AGENTS.md · resource project · scope approved-root · precedence 0 · 120 bytes');
+  await expect(instructions).toContainText('SHA-256 ' + 'c'.repeat(64));
+  await expect(instructions).toContainText('Host authorization always takes precedence');
+  await expect(instructions).toContainText('Overlapping instruction sources');
+  await expect(instructions).toContainText('semantic contradictions were not inferred');
+  await expect(instructions).toContainText('GEMINI.md · resource project · excluded: unsupported directive');
+});
+
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
   await page.goto('/usage-context?requests'); await update(page, 'empty');
   await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

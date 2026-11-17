@@ -9,6 +9,22 @@ import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} f
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
+import {createHash} from 'node:crypto';
+import {projectContextGrantDigest} from '../packages/core/approved-project-context.ts';
+
+it('passes owned project instruction bytes only through the native system prefix and rejects changed active-turn instructions',async()=>{
+ const f=await fixture({systemPrompt:'Host policy'}),input=run(),text='\nApproved project instructions: preserve the API.';
+ const context=(value:string):NonNullable<StartRun['approvedProjectContext']>=>({version:1,owner:{threadId:input.threadId,runId:input.runId,epoch:input.epoch,modelId:input.modelId,accountId:null},grantDigest:projectContextGrantDigest(input.resources),instructionText:value,instructionDigest:createHash('sha256').update(value).digest('hex'),instructions:{entries:[],duplicates:[],overlaps:[],exclusions:[],omittedRoots:0,precedence:'fixture'}});
+ try{
+  const approvedProjectContext=context(text);await f.runtime.start({...input,approvedProjectContext});
+  expect(f.start().systemPrompt).toBe('Host policy'+text);expect(f.start().prompt).not.toContain(text);
+  await f.runtime.followUp({...input,inputId:'next',approvedProjectContext});
+  const before=f.source().calls.filter(call=>call.method==='agent.followUp').length;
+  await expect(f.runtime.followUp({...input,inputId:'changed',approvedProjectContext:context(text+' Changed.')})).rejects.toMatchObject({code:'STALE_REQUEST_CONTEXT'});
+  await expect(f.runtime.followUp({...input,inputId:'forged',approvedProjectContext:{...approvedProjectContext,instructionText:'Replaced without a digest'}})).rejects.toMatchObject({code:'STALE_REQUEST_CONTEXT'});
+  expect(f.source().calls.filter(call=>call.method==='agent.followUp')).toHaveLength(before);await f.settle();
+ }finally{await f.runtime.dispose();}
+});
 
 it('keeps private completed-write metadata off the default/company path and model envelope',async()=>{
  const f=await fixture(),input=run({completedWrites:[{operationId:'op',revision:1,inputId:'operation-result:op',origin:{threadId:'thread',runId:'before',epoch:0,sessionPath:'not-admitted',modelId:'openai/model',accountId:null,projectId:'project',workspaceId:'worktree',projectRoot:'C:/private-project'},path:'C:/private-project/App.tsx',sha256:'a'.repeat(64),bytes:1}]});

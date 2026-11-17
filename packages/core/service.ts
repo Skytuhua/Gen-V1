@@ -6,6 +6,7 @@ import { openContextResultCustody } from './context-result-custody.ts';
 import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
 import { createHostRelevanceObserver } from './context-relevance-host.ts';
+import { withApprovedProjectContext } from './approved-project-context.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
@@ -504,8 +505,20 @@ export class Service {
           if(event.type==='runtime.compaction.end')ended=true;
           if(event.type==='runtime.settled'&&ended)settled=true;
         });
-        try{await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,memoryCheckpoint,snap.sha256);}
-        finally{unsubscribe();}
+        const control=this.aborts.get(thread.id)??new AbortController();this.aborts.set(thread.id,control);this.retainController(control);
+        try{
+          const expected=receipt.segments.find(segment=>segment.sourceId==='approved-project-instructions');
+          const compact=async(projectContext:StartRun['approvedProjectContext'],assertProjectCurrent:()=>void)=>{
+            const current=projectContext?.instructionText?'sha256:'+projectContext.instructionDigest:null;
+            if((expected?.contentRef??null)!==current||expected&&current===null)throw new HarnessError('STALE_REQUEST_CONTEXT','Project instruction sources changed or are unavailable. Start a new turn before compacting.');
+            assertCurrent();assertProjectCurrent();
+            await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,memoryCheckpoint,snap.sha256);
+          };
+          if(expected||capabilityEnabled('context.compilerV1')){
+            const nativeInput:StartRun={...ctx,modelId:thread.modelId!,thinkingLevel:thread.thinkingLevel,sessionPath:thread.sessionPath!,inputId:ctx.runId,prompt:'',resources:this.store.all<ResourceGrant>('resource',thread.id)};
+            await withApprovedProjectContext(this.store,nativeInput,control.signal,compact);
+          }else await compact(undefined,()=>{});
+        }finally{unsubscribe();this.releaseController(thread.id,control);}
         // A queued draft may allocate a request generation while native work is
         // running. Accepted end/settled events prove application to the fenced
         // source; retain that fact and allocate after the latest draft counter.
@@ -1325,34 +1338,40 @@ export class Service {
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
     let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
-    if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
-      try {
-        const current = this.assertRun(ctx);
-        const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
-          guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
-        this.store.internal('runtime.context.host', threadId, () => {
-          const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
-          const usage = { ...old, hostProjection };
-          this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
-          return { runId: ctx.runId, usage };
-        });
-      } catch { /* Shadow observation cannot alter or prevent the submitted request. */ }
-    }
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
     try {
+      const admit = async (approvedProjectContext: StartRun['approvedProjectContext'], assertProjectCurrent: () => void) => {
+      if (approvedProjectContext) input = { ...input, approvedProjectContext };
+      if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
+        try {
+          const current = this.assertRun(ctx);
+          const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
+            guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
+          this.store.internal('runtime.context.host', threadId, () => {
+            const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
+            const usage = { ...old, hostProjection };
+            this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
+            return { runId: ctx.runId, usage };
+          });
+        } catch { /* A metadata projection cannot prevent the admitted request. */ }
+      }
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(approvedProjectContext?.instructionText)sources.splice(1,0,{id:'approved-project-instructions',revision:1,category:'INSTRUCTION',text:approvedProjectContext.instructionText,contentRef:'sha256:'+approvedProjectContext.instructionDigest,inclusionReason:'Recognized project instructions under current explicit resource grants; host authorization takes precedence'});
         if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});
         input=await this.requestCustody.finalize(requestContextId,input,sources,()=>this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
         this.requestCustody.assertFinalized(requestContextId,input,this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
       }
-      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();dispatched=true;
+      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();assertProjectCurrent();dispatched=true;
       if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input);
+      };
+      if(!thread.sideParentId&&capabilityEnabled('context.compilerV1'))await withApprovedProjectContext(this.store,input,control.signal,admit);
+      else await admit(undefined,()=>{});
     }
     catch (error) { if (!dispatched) this.blockSourceInputs(sourceInputs, error, ctx.runId); this.runtimeFailure(ctx, error); }
     finally { if(requestContextId)this.requestCustody.release(requestContextId,dispatched?'dispatched':'failed');this.releaseController(threadId,control); }
