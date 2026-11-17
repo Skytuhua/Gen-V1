@@ -45,6 +45,7 @@ import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
 import {VerificationWorkflow, isVerificationOperation, assertVerificationReadBasis, type VerificationReadBasis} from "./verification-workflow.ts";
 import {VerificationQa, type VerificationQaRuntimeFactory} from "./verification-qa.ts";
+import {VerificationRepair, type PreparedRepair} from './verification-repair.ts';
 import {verificationPanelModel, type VerificationPanelModel} from './verification-read-models.ts';
 import type {VerificationExecutorFactory} from "./verification-executor.ts";
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
@@ -141,6 +142,7 @@ export class Service {
   private readonly verificationEffects:ToolEffectLedger;
   private readonly verification:VerificationWorkflow;
   private readonly verificationQa:VerificationQa;
+  private readonly verificationRepair:VerificationRepair;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
@@ -191,6 +193,7 @@ export class Service {
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.verificationEffects=new ToolEffectLedger(store,this.authority,createToolEffectFlags({"audit.effectsV1":true,"security.authorityV1":true}));
     this.verification=new VerificationWorkflow(store,options.verificationExecutor);
+    this.verificationRepair=new VerificationRepair(store,this.verification);
     this.verificationQa=new VerificationQa({store,work:()=>this.agentWork,runtimeFactory:options.verificationQaRuntimeFactory});
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
@@ -718,7 +721,7 @@ export class Service {
     };
   }
   async command(command: HostCommand): Promise<CommandReceipt> {
-    if (command.type === 'verification.prepare' || command.type === 'verification.rerun') return this.commandAdmitted(structuredClone(command));
+    if (command.type === 'verification.prepare' || command.type === 'verification.rerun' || command.type.startsWith('verification.repair.')) return this.commandAdmitted(structuredClone(command));
     if (command.type !== 'message.send') return this.commandAdmitted(command);
     const accepted = this.store.receipt(command); if (accepted) return accepted;
     const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
@@ -807,6 +810,14 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type === 'verification.repair.stop') {
+      const receipt=this.store.command(command,()=>this.verificationRepair.stop(thread.id,p));
+      this.verificationRepair.cancelOwned((receipt.result as {planId:string}).planId);return receipt;
+    }
+    if (command.type === 'verification.repair.start' || command.type === 'verification.repair.next') {
+      const repair=this.verificationRepair.prepare(ownerFor(thread),command.type==='verification.repair.start'?'start':'next',p);
+      await this.prepareVerification(thread.id,repair.input,undefined,command,repair);return this.store.receipt(command)!;
+    }
     if (command.type === 'verification.prepare' || command.type === 'verification.rerun') {
       const input = command.type === 'verification.rerun' ? this.verification.rerunInput(ownerFor(thread), p) : p;
       await this.prepareVerification(thread.id, input, undefined, command);
@@ -975,7 +986,7 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
-        if (isVerificationOperation(op)) this.verification.assertApproval(op);
+        if (isVerificationOperation(op)) {const intent=this.verification.assertApproval(op);this.verificationRepair.assertApproval(op,intent);}
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
         if (isVerificationOperation(op) || this.effectFlags.enabled("security.authorityV1")) { const approval = (isVerificationOperation(op) ? this.verificationEffects : this.effects).issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
@@ -984,7 +995,7 @@ export class Service {
         const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id || op.status !== "prepared" || op.revision !== p.revision) throw new HarnessError("STALE_REVISION", "This prepared operation is no longer available");
         const next: Operation = { ...op, status: "cancelled", approved: false };
-        this.store.put("operation", op.id, thread.id, next); this.operationData(next);
+        this.store.put("operation", op.id, thread.id, next); if(isVerificationOperation(next))this.verificationRepair.rejected(next); this.operationData(next);
         const input: Outbox = { id: command.id, threadId: thread.id, content: "The user declined prepared operation " + op.id + ": " + op.description, status: "persisted", runId: null };
         this.enqueueInput(input); return next;
       }
@@ -1685,7 +1696,7 @@ export class Service {
     const basis = await this.readVerificationBasis(threadId);
     return verificationPanelModel(this.store, threadId, basis);
   }
-  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext, command?: HostCommand): Promise<Operation> {
+  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext, command?: HostCommand, repair?: PreparedRepair): Promise<Operation> {
     const duplicate = command && this.store.receipt(command); if (duplicate) return duplicate.result as Operation;
     this.assertMutation(threadId);
     const assertPreparation = () => {
@@ -1697,15 +1708,16 @@ export class Service {
     this.aborts.set(threadId,control);this.retainController(control);
     const assertCurrent=()=>{if(this.closed||this.updateClosing||control.signal.aborted||digest(ownerFor(this.thread(threadId)))!==digest(owner))throw new HarnessError('CANCELLED_RUN','Verification preparation lost its current owner.');};
     try {
-      const args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
+      let args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
       const existing = command && this.store.receipt(command); if (existing) return existing.result as Operation;
       if(args.intent.qa)this.verificationQa.assertAvailable();
-      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.${intent.qa?' The QA token budget stops further actions after measured usage reaches its threshold; an in-flight model response may exceed the remaining amount. Its wall-time deadline and 32-tool-call bound are enforced by the host.':''}`;
+      if(repair)args={intent:this.verificationRepair.bind(repair,args.intent)};
+      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.${intent.qa?' The QA token budget stops further actions after measured usage reaches its threshold; an in-flight model response may exceed the remaining amount. Its wall-time deadline and 32-tool-call bound are enforced by the host.':''}${intent.repair?` Repair attempt ${intent.repair.attempt} of at most 3, ending no later than ${intent.repair.deadline}; total QA token allocation ${intent.repair.budget.tokens}. Source edits require their own approval.`:''}`;
       const operation:Operation={id:randomUUID(),threadId,revision:1,kind:'verification.run',args,resourceIds:[],preconditions:{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description,status:'prepared',approved:false,createdAt:now()};
-      const persist=()=>{assertCurrent();assertPreparation();this.store.put('operation',operation.id,threadId,operation);this.operationData(operation);return operation;};
+      const persist=()=>{assertCurrent();assertPreparation();this.store.put('operation',operation.id,threadId,operation);if(repair)this.verificationRepair.prepared(repair,operation);this.operationData(operation);return operation;};
       return command?(this.store.command(command,persist).result as Operation):this.store.internal('operation.prepared',threadId,persist) as Operation;
     } catch(error) {
-      const committed=command&&this.store.receipt(command);if(committed)return committed.result as Operation;throw error;
+      const committed=command&&this.store.receipt(command);if(committed)return committed.result as Operation;if(repair)this.verificationRepair.preparationFailed(repair,error);throw error;
     } finally {this.releaseController(threadId,control);}
   }
   private async executeVerificationOperation(op:Operation,control:AbortController):Promise<unknown> {
@@ -1714,11 +1726,13 @@ export class Service {
     const assertHost=()=>{if(this.closed||this.updateClosing||control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Verification execution was stopped.');};
     try {
       const prepared=await this.verification.preflight(op,control.signal,assertHost);assertHost();
+      this.verificationRepair.assertApproval(op,prepared.intent);
       if(prepared.intent.qa)this.verificationQa.assertAvailable();
       const thread=this.thread(op.threadId),approval=this.verificationEffects.approvalFor(op.id);
       if(!approval||digest(approval.owner)!==digest(prepared.intent.owner))throw new HarnessError('APPROVAL_REQUIRED','The exact verification approval belongs to another owner.');
       this.verificationEffects.verifyOperationApproval(op,thread);
       this.verificationEffects.admitOperationDispatch(op,thread,()=>{
+        this.verificationRepair.admit(op,prepared.intent);
         this.verification.admit(op,prepared);
         const started:Operation={...op,status:'running'};this.store.put('operation',op.id,op.threadId,started);this.operationData(started);
       });
@@ -1727,18 +1741,18 @@ export class Service {
         assertHost();const operation=this.store.get<Operation>('operation',op.id),effect=this.verificationEffects.get(invocationId),grant=this.store.get<import('../contracts/tool-effects.ts').ApprovalV1>('approval',approval.approvalId);
         if(!operation||operation.status!=='running'||operation.revision!==op.revision||!operation.approved||digest(operation.args)!==digest(op.args)||effect?.state!=='DISPATCHED'||!grant||grant.remainingUses!==0||digest(grant.owner)!==digest(prepared.intent.owner)||grant.actionCommitment!==actionCommitment(op,this.thread(op.threadId)))throw new HarnessError('APPROVAL_REQUIRED','Verification operation authority changed after dispatch.');
       };
-      const result=prepared.intent.qa?await this.verificationQa.run(op.id,prepared.intent,control.signal,current,(signal,fence)=>this.verification.run(prepared,signal,fence)):await this.verification.run(prepared,control.signal,current);
+      const result=await this.verificationRepair.run(op,prepared.intent,control.signal,current,(signal,fence)=>prepared.intent.qa?this.verificationQa.run(op.id,prepared.intent,signal,fence,(qaSignal,qaFence)=>this.verification.run(prepared,qaSignal,qaFence)):this.verification.run(prepared,signal,fence));
       const status:Operation['status']=result.cleanupFailures.length?'unknown':result.outcome==='PASS'?'succeeded':result.outcome==='CANCELLED'?'cancelled':'failed';
       const state=status==='unknown'?'UNKNOWN_EXTERNAL_OUTCOME':status==='succeeded'?'SUCCEEDED':status==='cancelled'?'CANCELLED':'FAILED';
       this.verificationEffects.settle(invocationId,{value:result},state);
       if(!this.closed)this.store.internal('verification.operation.settled',op.threadId,()=>{
         const ended:Operation={...op,status,result,...(status==='succeeded'?{}:{error:result.cleanupFailures.length?'Owned verification cleanup could not be confirmed.':'Verification finished with '+result.outcome.toLowerCase()+'.'})};
-        this.store.put('operation',op.id,op.threadId,ended);this.verification.recordResult(ended,prepared,result);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};
+        this.store.put('operation',op.id,op.threadId,ended);this.verification.recordResult(ended,prepared,result);this.verificationRepair.settled(ended,prepared.intent,result);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};
       });
       this.background(this.deliverOutbox(op.threadId));return result;
     } catch(error) {
       const status:Operation['status']=admitted?'unknown':'failed',message=error instanceof Error?error.message.slice(0,2000):'Verification execution was unavailable.';
-      if(!this.closed)this.store.internal('verification.operation.failed',op.threadId,()=>{const latest=this.store.get<Operation>('operation',op.id);if(!latest||latest.revision!==op.revision||digest(latest.args)!==digest(op.args)||!['prepared','running'].includes(latest.status))return{operationId:op.id,status:latest?.status??status};const ended:Operation={...op,status,error:message};this.store.put('operation',op.id,op.threadId,ended);this.verification.recordFailure(ended);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};});
+      if(!this.closed)this.store.internal('verification.operation.failed',op.threadId,()=>{const latest=this.store.get<Operation>('operation',op.id);if(!latest||latest.revision!==op.revision||digest(latest.args)!==digest(op.args)||!['prepared','running'].includes(latest.status))return{operationId:op.id,status:latest?.status??status};const ended:Operation={...op,status,error:message};this.store.put('operation',op.id,op.threadId,ended);this.verification.recordFailure(ended);this.verificationRepair.failed(ended,error);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};});
       if(admitted&&this.verificationEffects.get(invocationId))this.verificationEffects.settle(invocationId,{error:message},'UNKNOWN_EXTERNAL_OUTCOME');
       this.background(this.deliverOutbox(op.threadId));throw error;
     }
@@ -1886,6 +1900,7 @@ export class Service {
       return { inferenceCalls: 0 };
     });
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1") || this.store.all<ToolEffectRecord>("toolEffect").some(effect=>effect.toolId==="operation:verification.run"||effect.toolId==="verification_prepare")) recoverEffects(this.store);
+    this.verificationRepair.recover();
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();

@@ -3,6 +3,7 @@ import {executionProfileV1Schema, rootRelativePathSchema, sha256HexSchema} from 
 import {toolOwnerSchema} from './tool-effects.ts';
 import {browserChecklistSchema, verificationRecipeV1Schema, workspaceIdentityV1Schema} from './verification.ts';
 import {AgentWorkAdmissionV1Schema} from './agent-work.ts';
+import {verificationRepairIntentSchema} from './verification-repair.ts';
 
 const id = z.string().min(1).max(160);
 export const verificationCheckSelectorSchema = z.union([
@@ -60,7 +61,7 @@ export const verificationIntentSchema = z.strictObject({
   version: z.literal(1), owner: toolOwnerSchema, executionId: id, baseRecipeRevision: z.number().int().min(0), priorDeclarationDigest: sha256HexSchema,
   recipe: verificationRecipeV1Schema, binding: verificationBindingMetadataSchema,
   sourceFiles: uniquePaths(512), dependencyFiles: uniquePaths(64), sourceCut: z.strictObject({codeDigest: sha256HexSchema, dependencyDigest: sha256HexSchema}),
-  readiness: readinessSchema.nullable(), checklist: browserChecklistSchema.nullable(), requirements: z.array(verificationRequirementPlanSchema).min(1).max(128), qa: verificationQaIntentSchema.optional(),
+  readiness: readinessSchema.nullable(), checklist: browserChecklistSchema.nullable(), requirements: z.array(verificationRequirementPlanSchema).min(1).max(128), qa: verificationQaIntentSchema.optional(), repair: verificationRepairIntentSchema.optional(),
 });
 export type VerificationIntent = z.infer<typeof verificationIntentSchema>;
 export const verificationOperationArgumentsSchema = z.strictObject({intent: verificationIntentSchema});

@@ -7,13 +7,14 @@ import type {AgentWorkChild, AgentWorkCoordinator, QaProof} from './agent-work.t
 import {hostFlagEnabled} from './host-flags.ts';
 import {ownerFor} from './tool-effects.ts';
 import type {RecipeExecutionResult} from './project-verification.ts';
+import {boundedQaResult, qaObservationArgsSchema, qaSourceRequestSchema, readQaSource, recordQaFinding} from './verification-qa-source.ts';
 
-const empty = z.strictObject({}), contextArgs = z.strictObject({offset: z.number().int().min(0).max(127).optional()});
+const empty = z.strictObject({}), contextArgs = z.union([z.strictObject({offset: z.number().int().min(0).max(127).optional()}), qaSourceRequestSchema]);
 const resultArgs = z.strictObject({output: QaResultV1Schema});
 const tools = [
   {name: 'qa_run', description: 'Invoke the single already approved parent-owned verification execution. Repeated calls return the same execution.', schema: empty},
-  {name: 'qa_observe', description: 'Read bounded observations produced by the parent-owned runner. Model text is never execution evidence.', schema: empty},
-  {name: 'qa_context', description: 'Read bounded approved requirement and source metadata. This grants no filesystem, shell, browser, write or delegation access.', schema: contextArgs},
+  {name: 'qa_observe', description: 'Read bounded parent-runner observations. An optional structured finding is an advisory claim about an exact approved local source path and line; the host validates source bytes and stamps its scope. Never supply source digests, quality, provenance or mitigation status.', schema: qaObservationArgsSchema},
+  {name: 'qa_context', description: 'Read bounded approved requirement metadata. An explicit approved source path reads at most 16 KiB with exact byte offsets and omissions; use nextByteOffset for another bounded range. Native source custody is required. No arbitrary filesystem, shell, browser, write or delegation access is granted.', schema: contextArgs},
   {name: 'qa_result', description: 'Submit an advisory review under the fixed QA output contract. This cannot set an executed PASS or a verified grade.', schema: resultArgs},
 ];
 export interface VerificationQaRuntimePolicy {hostTools: {name: string; description: string; parameters: Record<string, unknown>}[]; systemPrompt: string}
@@ -137,18 +138,24 @@ export class VerificationQa {
       empty.parse(call.args);
       session.execution ??= session.execute(session.controller.signal, () => {this.active(work.workId);}).then(result => {session.result = result; return result;});
       const result = await session.execution;
-      return {evidenceQuality: 'EXECUTED', executionId: result.executionId, outcome: result.outcome, checkIds: result.observations.slice(0, 64).map(value => value.checkId), cleanupFailures: result.cleanupFailures.slice(0, 8)};
+      const view = {evidenceQuality: 'EXECUTED', executionId: result.executionId, outcome: result.outcome, checkIds: result.observations.slice(0, 64).map(value => value.checkId), omittedCheckIds: Math.max(0, result.observations.length - 64), cleanupFailures: result.cleanupFailures.slice(0, 8), omittedCleanupFailures: Math.max(0, result.cleanupFailures.length - 8)};
+      return boundedQaResult(view, () => {if (view.cleanupFailures.length) {view.cleanupFailures.pop(); view.omittedCleanupFailures++; return true;} if (view.checkIds.length) {view.checkIds.pop(); view.omittedCheckIds++; return true;} return false;});
     }
     if (call.name === 'verification.observe') {
-      empty.parse(call.args); const observations = session.result?.observations ?? [];
-      return {evidenceQuality: 'EXECUTED', executionId: session.intent.executionId, observations: observations.slice(0, 64).map(value => ({checkId: value.checkId, outcome: value.outcome, phase: value.phase, detail: value.detail?.slice(0, 500) ?? null})), omitted: Math.max(0, observations.length - 64)};
+      const args = qaObservationArgsSchema.parse(call.args), observations = session.result?.observations ?? [];
+      const finding = args.finding ? await recordQaFinding({store: this.hooks.store, operationId: session.operationId, intent: session.intent, signal: session.controller.signal, assertCurrent: () => {this.active(work.workId);}}, args.finding) : undefined;
+      const view = {evidenceQuality: 'EXECUTED', executionId: session.intent.executionId, observations: observations.slice(0, 64).map(value => ({checkId: value.checkId, outcome: value.outcome, phase: value.phase, detail: value.detail?.slice(0, 500) ?? null})), omitted: Math.max(0, observations.length - 64), ...(finding ? {finding: {findingId: finding.findingId, blobSha: finding.source.blobSha, line: finding.source.line, status: finding.status, evidenceQuality: finding.evidenceQuality}} : {})};
+      return boundedQaResult(view, () => {if (!view.observations.length) return false; view.observations.pop(); view.omitted++; return true;});
     }
     if (call.name === 'context.read') {
-      const offset = contextArgs.parse(call.args).offset ?? 0, intent = session.intent;
-      return {operationId: session.operationId, executionId: intent.executionId, recipeId: intent.recipe.recipeId, recipeDigest: intent.recipe.approvedDigest, sourceCut: intent.sourceCut,
+      const args = contextArgs.parse(call.args);
+      if ('path' in args) return readQaSource({store: this.hooks.store, operationId: session.operationId, intent: session.intent, signal: session.controller.signal, assertCurrent: () => {this.active(work.workId);}}, args);
+      const offset = args.offset ?? 0, intent = session.intent;
+      const view = {operationId: session.operationId, executionId: intent.executionId, recipeId: intent.recipe.recipeId, recipeDigest: intent.recipe.approvedDigest, sourceCut: intent.sourceCut,
         phases: intent.recipe.phases.map(value => ({phase: value.name, executableId: value.executableId, timeoutMs: value.timeoutMs})),
         requirements: intent.requirements.slice(offset, offset + 16).map(value => ({id: value.id, checks: value.checks.slice(0, 8), omittedChecks: Math.max(0, value.checks.length - 8)})), remainingRequirements: Math.max(0, intent.requirements.length - offset - 16),
         sourceFiles: intent.sourceFiles.slice(0, 32), omittedSourceFiles: Math.max(0, intent.sourceFiles.length - 32), budget: intent.qa!.admission.budget};
+      return boundedQaResult(view, () => {if (view.sourceFiles.length) {view.sourceFiles.pop(); view.omittedSourceFiles++; return true;} if (view.requirements.length) {view.requirements.pop(); view.remainingRequirements++; return true;} return false;});
     }
     throw failure('AGENT_TOOL_DENIED', 'QA can only invoke the parent verification service and bounded context.');
   }
@@ -168,10 +175,19 @@ export class VerificationQa {
   }
   private receipt(session: Session, state: 'RUNNING' | 'COMPLETED_REPORTED' | 'FAILED', cleanupConfirmed: boolean | null): void {
     const workId = session.intent.qa!.admission.workId;
-    this.hooks.store.internal('verification.qa.lifecycle', session.parent.threadId, () => this.hooks.store.put('verificationQaLifecycle', workId, session.parent.threadId,
+    this.hooks.store.internal('verification.qa.lifecycle', session.parent.threadId, () => {
+      this.hooks.store.put('verificationQaLifecycle', workId, session.parent.threadId,
       {version: 1, workId, operationId: session.operationId, executionId: session.intent.executionId, owner: session.intent.owner, state, evidenceQuality: 'ADVISORY',
         budget: session.intent.qa!.admission.budget, observedTokens: session.tokens, toolCalls: session.toolCalls, deadline: new Date(session.deadline).toISOString(), cleanupConfirmed,
-        stopReason: session.fault instanceof HarnessError ? session.fault.code : session.fault ? 'QA_RUNTIME_FAILED' : null, updatedAt: new Date().toISOString()}));
+        stopReason: session.fault instanceof HarnessError ? session.fault.code : session.fault ? 'QA_RUNTIME_FAILED' : null, updatedAt: new Date().toISOString()});
+      const child = session.child ? this.hooks.store.get<Thread>('thread', session.child.threadId) : undefined;
+      // Reporting a result is not native teardown. Retire only this completed
+      // child after cleanup, retaining the historical AgentWork child owner.
+      if (cleanupConfirmed === true && session.child && child?.status === 'completed' && child.kind === 'delegate' &&
+        child.parentThreadId === session.parent.threadId && child.jobId === workId && child.modelId === session.intent.qa!.model.modelId &&
+        digest(ownerFor(child)) === digest({...session.intent.owner, ...session.child}))
+        this.hooks.store.put('thread', child.id, child.id, {...child, runId: null});
+    });
   }
   async dispose(): Promise<void> {
     const sessions = [...this.sessions.values()];
