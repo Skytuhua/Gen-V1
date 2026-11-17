@@ -2,7 +2,7 @@ import {useCallback,useEffect,useLayoutEffect,useRef,useState,type CSSProperties
 import type {SurfaceRef} from '../../../packages/contracts/workspace.ts';
 import type {SplitDropEdge,SplitWorkspaceLayout,SplitWorkspaceNode} from '../../../packages/contracts/split-workspace.ts';
 import {minimumSplitSize,minimumViewSize,splitDropEdge,splitPaneIds} from '../../../packages/core/split-workspace-layout.ts';
-import {clampChatRect,type ChatRect} from '../../../packages/ui-shell/chat-layout.ts';
+import {chatBounds,clampChatRect,type ChatRect,type ChatViewport} from '../../../packages/ui-shell/chat-layout.ts';
 import {GripVertical,MoreHorizontal} from 'lucide-react';
 import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
 import {Popover} from '../../../packages/ui-shell/Popover';
@@ -37,6 +37,11 @@ interface CornerGesture {pointerId:number;paneId:string;x:number;y:number;elemen
 const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',top:'Above',bottom:'Below',center:'Open as tab'};
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
+function keepFloatVisible(rect:ChatRect,viewport:ChatViewport):ChatRect{
+ if(viewport.width<=0||viewport.height<=0)return rect;const bounds=chatBounds(viewport);
+ return rect.x>=bounds.left&&rect.y>=bounds.top&&rect.x+rect.width<=bounds.right&&rect.y+rect.height<=bounds.bottom?rect:clampChatRect(rect,viewport);
+}
+
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
 export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsChange,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false),draggingView=useRef<SurfaceRef|null>(null);
@@ -47,12 +52,12 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  const floatGripAnchor=useRef<HTMLElement|null>(null),floatMenuContent=useRef<HTMLDivElement|null>(null),floatMenuItem=useRef<HTMLButtonElement|null>(null);
  const dockedFloatCleanup=useRef<(()=>void)|null>(null);
  const floatGesture=useRef<{viewId:string;mode:'move'|'resize';pointerId:number;startX:number;startY:number;startRect:ChatRect;element:HTMLElement;el:HTMLElement|null;rect:ChatRect;docked?:SurfaceRef}|null>(null);
- const floatRectOf=(viewId:string)=>floatRects[viewId]??floating?.[viewId];
+ const floatRectOf=(viewId:string)=>{const rect=floatRects[viewId]??floating?.[viewId];return rect?keepFloatVisible(rect,size):undefined;};
  const floatSurfaceEl=(g:NonNullable<typeof floatGesture.current>)=>{if(!g.el){for(const node of root.current?.querySelectorAll<HTMLElement>('.split-surface')??[])if(node.dataset.splitView===g.viewId){g.el=node;break;}}return g.el;};
  const paintFloatRect=(el:HTMLElement,rect:ChatRect)=>{el.style.left=`${rect.x}px`;el.style.top=`${rect.y}px`;el.style.width=`${rect.width}px`;el.style.height=`${rect.height}px`;};
  const releaseFloat=useCallback(()=>{const g=floatGesture.current;floatGesture.current=null;if(g&&g.element.hasPointerCapture?.(g.pointerId))g.element.releasePointerCapture(g.pointerId);dockedFloatCleanup.current?.();dockedFloatCleanup.current=null;},[]);
- const cancelFloat=useCallback(()=>{const g=floatGesture.current;if(!g)return;setDrop(null);releaseFloat();if(g.el)paintFloatRect(g.el,g.startRect);setDockedPreview(null);setFloatRects(current=>{const next={...current};if(g.docked)delete next[g.viewId];else next[g.viewId]=g.startRect;return next;});},[releaseFloat]);
- useLayoutEffect(()=>{cancelFloat();},[layout.id,layout.revision,cancelFloat]);
+ const cancelFloat=useCallback(()=>{const g=floatGesture.current;if(!g)return;setDrop(null);releaseFloat();if(g.el){const viewport=root.current?.getBoundingClientRect();paintFloatRect(g.el,!g.docked&&viewport?keepFloatVisible(g.startRect,viewport):g.startRect);}setDockedPreview(null);setFloatRects(current=>{const next={...current};if(g.docked)delete next[g.viewId];else next[g.viewId]=g.startRect;return next;});},[releaseFloat]);
+ useLayoutEffect(()=>{cancelFloat();},[layout.id,layout.revision,size.width,size.height,cancelFloat]);
  const beginFloat=(event:ReactPointerEvent<HTMLElement>,viewId:string,mode:'move'|'resize')=>{if(event.button!==0||event.isPrimary===false||busy||pending.current||floatGesture.current||resize.current||corner.current)return;const rect=floatRectOf(viewId);if(!rect)return;floatDragged.current=false;event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);floatGesture.current={viewId,mode,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startRect:rect,element:event.currentTarget,el:event.currentTarget.closest('.split-surface'),rect};};
  // Preview a docked drag without writing placement until the owning release.
  const beginDockedFloat=(event:ReactPointerEvent<HTMLElement>,view:SurfaceRef,paneId:string)=>{if(!onDetachView||event.button!==0||event.isPrimary===false||busy||pending.current||floatGesture.current||resize.current||corner.current)return;event.preventDefault();floatDragged.current=false;const slot=rects[paneId],startRect:ChatRect=slot?{x:slot.left,y:slot.top,width:slot.width,height:slot.height}:clampChatRect({x:48,y:48,width:480,height:680},{width:size.width,height:size.height});event.currentTarget.setPointerCapture(event.pointerId);floatGesture.current={viewId:view.id,mode:'move',pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startRect,element:event.currentTarget,el:null,rect:startRect,docked:view};const asReact=(e:globalThis.PointerEvent)=>e as unknown as ReactPointerEvent<HTMLElement>;const move=(e:globalThis.PointerEvent)=>moveFloat(asReact(e)),up=(e:globalThis.PointerEvent)=>{if(floatGesture.current?.pointerId!==e.pointerId)return;releaseDocked();endFloat(asReact(e));},cancel=(e:globalThis.PointerEvent)=>{if(floatGesture.current?.pointerId!==e.pointerId)return;releaseDocked();cancelFloat();},releaseDocked=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',cancel);};dockedFloatCleanup.current=releaseDocked;window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel);};

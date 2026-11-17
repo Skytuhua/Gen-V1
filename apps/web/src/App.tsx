@@ -955,13 +955,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.park',{viewId:view.id});
+      const next=await convSplitState.send('view.park',{viewId:view.id,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'empty'},floating:{...base.floating,[view.id]:{view,rect}},mainBasis:mainBasisOf(next,mainPaneId)});
         const focusedThreadId=focusedSplitThread(next);
         placedThread.current=focusedThreadId??null;setSelectedId(focusedThreadId??null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Return replaces the main pane with the floating conversation, parking whatever occupied main (T02/R02).
   const returnConversation=async(view:SurfaceRef)=>{
@@ -974,13 +974,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace'});
+      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace',baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'thread',threadId},floating,mainBasis:mainBasisOf(next,mainPaneId)});
         const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Docking a float into a real pane split is an acknowledged command, never a local geometry change (T03/R03).
   const dockFloat=async(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer=false)=>{
@@ -994,7 +994,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('pane.split',payload);
+      const next=await convSplitState.send('pane.split',{...payload,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
@@ -1002,7 +1002,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
         const focusedThreadId=focusedSplitThread(next)??view.binding.threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Local float geometry persists without a split command; the plane keeps the live rect (T02/R02).
   const moveFloat=(viewId:string,rect:ChatRect)=>{
