@@ -1,4 +1,5 @@
 import {Service} from '../../packages/core/service.ts';
+import type {VerificationExecutorFactory} from '../../packages/core/verification-executor.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import type {Store} from '../../packages/storage/store.ts';
 import type {Message,RuntimeAdapter} from '../../packages/contracts/index.ts';
@@ -15,8 +16,12 @@ import {registerWorkspaceHost} from './workspace-host.ts';
 import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 
+/** Only the host operator may supply these in-memory capabilities. They are
+ * never decoded from model arguments, HTTP bodies or environment settings. */
+export interface HermesHostCapabilities {readonly verificationExecutor?: VerificationExecutorFactory}
+
 /** Production composition. Injected Service runtimes remain available to embedders/tests. */
-export function createHermesService(store:Store,native:RuntimeAdapter):Service{
+export function createHermesService(store:Store,native:RuntimeAdapter,capabilities:HermesHostCapabilities={}):Service{
  let service:Service|undefined;
  const projects=new ProjectTools(store);projects.workspace.migrateProjects();
  let integrations:ReturnType<typeof createIntegrationHost>|undefined;
@@ -30,7 +35,7 @@ export function createHermesService(store:Store,native:RuntimeAdapter):Service{
  const library=new HermesSourceLibrary({store,source:{request:(method,params)=>runtime.sourceRequest(method,params)}});
  const packagedPython=fileURLToPath(new URL('../../hermes-python/python.exe',import.meta.url));
  integrations=createIntegrationHost({store,workspace:projects.workspace,runtime,nodeExecutable:process.execPath,...(existsSync(packagedPython)?{pythonExecutable:packagedPython}:{}),resolveProjectRoot:async(scope,thread,project)=>(await projects.binding(project.id,thread?.id??scope.threadId)).path});
- service=new Service(store,runtime,{approvedWriteHooks:true,memoryExtractionAdmission:async(job,signal)=>{assertMemoryExtractionModel(job.modelId);const permit=await hermesRequestScheduler.acquire(job.modelId.split('/')[0],job.access.accountId,signal,{requestClass:'background'});return permit.release;},memoryExtractionRuntimeFactory:job=>{assertMemoryExtractionModel(job.modelId);return createRuntime({dataDir:store.dataDir,accounts,modelOnly:true,purpose:'memory-extraction'});},source:{runtime,library},planningRuntimeFactory:()=>runtime.createTaskRuntime(),prepareWorkspace:thread=>projects.prepareWorkspace(thread),additionalTool:(call,ctx)=>integrations!.additionalTool(call,ctx),sideRuntimeFactory:()=>createRuntime({dataDir:store.dataDir,accounts}),predictionRuntimeFactory:()=>createRuntime({dataDir:store.dataDir,accounts,modelOnly:true,purpose:'prediction'})});
+ service=new Service(store,runtime,{verificationExecutor:capabilities.verificationExecutor,approvedWriteHooks:true,memoryExtractionAdmission:async(job,signal)=>{assertMemoryExtractionModel(job.modelId);const permit=await hermesRequestScheduler.acquire(job.modelId.split('/')[0],job.access.accountId,signal,{requestClass:'background'});return permit.release;},memoryExtractionRuntimeFactory:job=>{assertMemoryExtractionModel(job.modelId);return createRuntime({dataDir:store.dataDir,accounts,modelOnly:true,purpose:'memory-extraction'});},source:{runtime,library},planningRuntimeFactory:()=>runtime.createTaskRuntime(),prepareWorkspace:thread=>projects.prepareWorkspace(thread),additionalTool:(call,ctx)=>integrations!.additionalTool(call,ctx),sideRuntimeFactory:()=>createRuntime({dataDir:store.dataDir,accounts}),predictionRuntimeFactory:()=>createRuntime({dataDir:store.dataDir,accounts,modelOnly:true,purpose:'prediction'})});
  const terminals=new TerminalHost(projects);registerWorkspaceHost(service,{projects,terminals,integrations:integrations.manager,context7Key:async key=>{await integrations!.configurePrivate({context7ApiKey:key});}});
  const dispose=service.dispose.bind(service);let closing:Promise<void>|undefined;
  service.dispose=()=>closing??=(async()=>{const results=await Promise.allSettled([dispose(),integrations!.close(),terminals.dispose(),projects.dispose()]);const failures=results.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Workspace shutdown could not be confirmed.');})();
