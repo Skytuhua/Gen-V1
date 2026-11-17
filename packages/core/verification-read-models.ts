@@ -5,7 +5,7 @@ import type {
   VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
 import { computeAssessment, observationFreshness } from './verification-gate.ts';
-import { sourceDigestSync } from './project-verification.ts';
+import { assertVerificationSourceRoot, sourceDigestSync } from './project-verification.ts';
 
 /** M06 additive read model for the verification panel. Columns: requirement,
  * observed check, source revision, outcome, freshness, verifier and evidence.
@@ -48,6 +48,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null = null;
   if (declaration) {
     try {
+      assertVerificationSourceRoot(store, threadId, declaration.rootPath);
       current = {
         codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles),
         dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles),
