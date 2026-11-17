@@ -137,6 +137,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
      {id:'split-rows',label:'Split above / below',disabled:busy||narrow,onSelect:()=>{void splitPane(paneId,'bottom');}},
      {id:'join',label:'Join adjacent area',disabled:busy||Object.keys(layout.panes).length<2,onSelect:()=>{void send('pane.join',{paneId});}},
      ...(current?[{id:'park',label:'Park current view',disabled:busy,onSelect:()=>{void send('view.park',{viewId:current.id});}}]:[]),
+     ...(current&&onDetachView&&current.kind==='thread'?[{id:'detach',label:'Detach conversation',disabled:busy,onSelect:()=>{onDetachView(current);}}]:[]),
 
      ...(onSelectEditor?editorOptions.map(option=>({id:`editor:${option.id}`,label:`Editor: ${option.title}`,disabled:busy,onSelect:()=>{void run(()=>onSelectEditor(option.id,paneId));}})):[]),
      ...layout.parkedViewIds.map(viewId=>({id:`recover:${viewId}`,label:`Recover: ${title(layout.views[viewId]!)}`,disabled:busy,onSelect:()=>{void send('view.move',{viewId,paneId});}})),
