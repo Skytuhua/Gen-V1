@@ -234,6 +234,14 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   ]);
   const canVerify = (obs: CheckObservationV1) => !isAuditMarker(obs) &&
     obs.observationKind !== 'review-advisory' && obs.observationKind !== 'visual';
+  // Capture metadata cannot attest continued artifact custody. Until a host
+  // artifact verifier is composed, screenshot-dependent executions stay
+  // blocked. Never read model-supplied references or trust their digest alone.
+  const needsScreenshotCustody = (obs: CheckObservationV1) => obs.observationKind !== 'review-advisory' && (
+    obs.observationKind === 'visual' ||
+    'screenshotDigest' in obs && obs.screenshotDigest !== null ||
+    obs.observationKind === 'browser' && obs.artifactRefs.length > 0
+  );
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
@@ -254,6 +262,8 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       const refExecutions = new Set(checks.map(executionKey));
       const related = executionChecks.filter(obs => refExecutions.has(executionKey(obs)));
       if (!checks.length) missing.push(`no observation bound to ${ref} for ${req.id}`);
+      else if (related.some(needsScreenshotCustody))
+        missing.push(`screenshot custody is unavailable for ${req.id} (${ref})`);
       else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
         missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
       else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
@@ -263,6 +273,8 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
     if (executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
       assessment = executionChecks.some(obs => obs.outcome === 'BLOCKED') && !executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'CANCELLED') ? 'BLOCKED' : 'FAILED';
+    } else if (executionChecks.some(needsScreenshotCustody)) {
+      assessment = 'BLOCKED';
     } else if (req.checkRefs.length && !missing.length) {
       assessment = 'VERIFIED';
     }

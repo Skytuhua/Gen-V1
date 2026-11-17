@@ -488,6 +488,22 @@ describe('complete requirement evidence',()=>{
   expect(result.requirements[0].missing).toEqual([]);
  });
 
+ it('a browser artifact reference cannot attest its own screenshot custody',()=>{
+  const result=assess(['browser'],[observation('browser',{phase:'BROWSER',observationKind:'browser',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.requirements[0].missing).toEqual(['screenshot custody is unavailable for build-and-test (browser)']);
+ });
+
+ it('missing artifact metadata cannot make a visual dependency trusted',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{observationKind:'visual',artifactRefs:[]})]);
+  expect(result.label).toBe('BLOCKED');
+ });
+
+ it('a screenshot from a different complete owner cannot block the selected execution',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{owner:{...owner(),accountBinding:'other-account'},observationKind:'visual',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
  it.each([
   ['failed cleanup',{phase:'TEARDOWN' as const,observationKind:'cleanup' as const,outcome:'FAIL' as const,exitCode:null},'FAILED'],
   ['cancelled execution',{outcome:'CANCELLED' as const,exitCode:null},'FAILED'],
