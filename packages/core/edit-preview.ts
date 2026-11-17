@@ -106,6 +106,9 @@ export class EditPreviewRegistry {
     if (preview.bufferedBytes + bytes.length > this.limits.previewBufferBytes
       || this.aggregate(owner) + bytes.length > this.limits.previewAggregateBytes) {
       preview.state = "INVALID";
+      // The stream is abandoned: holding its bytes would spend the owner's
+      // aggregate budget forever on a preview that can never accept another frame.
+      preview.buffered = []; preview.bufferedBytes = 0;
       throw new HarnessError("RESOURCE_LIMIT", "The streamed edit preview exceeds its byte bound.");
     }
     preview.buffered.push(Buffer.from(bytes));
@@ -129,6 +132,11 @@ export class EditPreviewRegistry {
       proposedDigest: sha(target.proposedContent),
     }));
     preview.state = "READY_UNAPPLIED";
+    // `targetFiles` is the complete result of the stream. Release the inert
+    // buffer here so previews that have stopped streaming stop spending the
+    // owner's aggregate budget; otherwise a long run is refused after a few
+    // settled edits with a misleading byte-bound error.
+    preview.buffered = []; preview.bufferedBytes = 0;
     return this.view(preview);
   }
 

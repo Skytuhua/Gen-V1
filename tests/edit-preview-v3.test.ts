@@ -115,3 +115,29 @@ it('previews are owner-scoped',()=>{
  expect(registry.get(preview.previewId,'run-2')).toBeNull();
  expect(()=>registry.append(preview.previewId,'run-2','x')).toThrowError(HarnessError);
 });
+
+it('a preview that stops streaming releases its share of the aggregate budget',()=>{
+ const registry=new EditPreviewRegistry();
+ // Each sealed and applied edit keeps its receipt, but its inert stream must
+ // stop counting against the run's remaining streaming budget.
+ for(let index=0;index<5;index++){
+  const raw=args('a.ts','x'.repeat(52_000));
+  const preview=registry.begin(owner,schemaDigest);
+  registry.append(preview.previewId,owner,raw);
+  registry.seal(preview.previewId,owner,()=>null);
+  registry.validateFinal(preview.previewId,owner,sha(raw));
+  expect(registry.settle(preview.previewId,owner,'APPLIED').state).toBe('APPLIED');
+ }
+ const next=registry.begin(owner,schemaDigest);
+ expect(()=>registry.append(next.previewId,owner,args('b.ts','x'.repeat(8_000)))).not.toThrow();
+ expect(registry.list(owner)).toHaveLength(6);
+});
+
+it('an abandoned stream also stops counting against the aggregate budget',()=>{
+ const registry=new EditPreviewRegistry();
+ const first=registry.begin(owner,schemaDigest);
+ expect(()=>registry.append(first.previewId,owner,'x'.repeat(CODE_INTELLIGENCE_LIMITS.previewAggregateBytes+1))).toThrowError(/byte bound/i);
+ expect(registry.get(first.previewId,owner)!.state).toBe('INVALID');
+ const next=registry.begin(owner,schemaDigest);
+ expect(()=>registry.append(next.previewId,owner,args('b.ts','x'.repeat(8_000)))).not.toThrow();
+});
