@@ -42,7 +42,7 @@ import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment } from "./verification-gate.ts";
-import { sourceDigestSync } from "./project-verification.ts";
+import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
@@ -1572,6 +1572,7 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }
@@ -1612,15 +1613,20 @@ export class Service {
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
-      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
-      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
+      try {
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
+        sourceAvailable = true;
+      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
       const last = observations.at(-1)!;
       sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
     }
-    return computeAssessment({
+    const assessment = computeAssessment({
       threadId: ctx.threadId,
       sourceCut,
       requirements: declaration?.requirements ?? [],
@@ -1629,6 +1635,14 @@ export class Service {
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
     });
+    if (!sourceAvailable) {
+      for (const requirement of assessment.requirements) {
+        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
+      }
+      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
+    }
+    return assessment;
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);

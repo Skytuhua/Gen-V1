@@ -3184,6 +3184,7 @@
     "tests/update-readiness.test.ts",
     "tests/usage-accounting-v3.test.ts",
     "tests/verification-read-models-v3.test.ts",
+    "tests/verification-source-authority.test.ts",
     "tests/verification-v3.test.ts",
     "tests/widget-isolation.test.ts",
     "tests/windows-credential-lease.test.ts",

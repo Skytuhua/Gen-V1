@@ -1,5 +1,5 @@
 import {afterEach, expect, it} from 'vitest';
-import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdtempSync, rmSync, writeFileSync, lstatSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {Store} from '../packages/storage/store';
@@ -21,6 +21,12 @@ function fixture() {
   writeFileSync(join(root, 'app.ts'), 'export const version = 1;\n');
   writeFileSync(join(root, 'lock.yaml'), 'version: 1\n');
   const stamp = new Date().toISOString();
+  const info = lstatSync(root, {bigint: true});
+  store.internal('test.project', 't1', () => {
+    store.put('workspaceProject', 'p1', null, {id: 'p1', name: 'Project', rootPath: root, authority: {kind: 'local'}, createdAt: stamp});
+    store.put('workspaceProjectRoot', 'p1', null, {path: root, identity: {dev: String(info.dev), ino: String(info.ino)}});
+    store.put('thread', 't1', 't1', {id: 't1', title: 'T', projectName: 'Project', projectId: 'p1', kind: 'main', createdAt: stamp, updatedAt: stamp, status: 'ready', modelId: 'test/model', sessionPath: null, runId: null, epoch: 1});
+  });
   const declaration: VerificationDeclarationV1 = {version: 1, rootPath: root, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId: 'test-host/node/pnpm', requirements: [{id: 'tests-pass', checkRefs: ['exec-1']}]};
   const observation: CheckObservationV1 = {version: 1, checkId: 'check-1', executionId: 'exec-1', owner, codeDigest: sourceDigestSync(root, declaration.sourceFiles), dependencyDigest: sourceDigestSync(root, declaration.dependencyFiles), recipeDigest: 'a'.repeat(64), environmentId: declaration.environmentId, argv: ['node', 'test.js'], cwdIdentity: root, phase: 'TEST', startedAt: stamp, endedAt: stamp, exitCode: 0, outcome: 'PASS', artifactRefs: [], observationKind: 'process'};
   const save = (observations = [observation], declared = true) => {
