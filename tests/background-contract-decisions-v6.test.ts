@@ -27,7 +27,7 @@ function storeFixture(prefix: string) {
   const root = mkdtempSync(join(realpathSync(tmpdir()), prefix));
   const store = new Store(join(root, "state"));
   let clock = 1_700_000_000_000;
-  cleanups.push(() => { store.close(); rmSync(root, { recursive: true, force: true }); });
+  cleanups.push(() => { store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
   return { root, store, now: () => clock, advance: (ms: number) => { clock += ms; } };
 }
 

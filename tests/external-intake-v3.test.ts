@@ -42,7 +42,7 @@ function fixture(options: { fetchImpl?: typeof fetch; auth?: { token(): Promise<
   const executorCalls: unknown[] = [];
   const createTask = Object.hasOwn(options, "createTask") ? options.createTask : (async (request: unknown) => { executorCalls.push(request); return { threadId: "created-thread" }; });
   const intake = new ExternalIntakeCoordinator({ store, auth, fetchImpl, createTask, sleep: async ms => { delays.push(ms); } });
-  cleanups.push(() => { intake.stop(); store.close(); rmSync(root, { recursive: true, force: true }); });
+  cleanups.push(() => { intake.stop(); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
   __setCapabilityFlagForTests("integrations.intakeV1", true);
   intake.configure(command("intake.configure"), { repositoryId: REPO, enabled: true });
   return { root, store, intake, delays, calls, executorCalls };
@@ -182,7 +182,7 @@ describe("M10-T05/D05 untrusted content and approval gates", () => {
     const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [{ id: "test/model", provider: "test", name: "Test" }], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
     const service = new Service(store, runtime);
     const app = await buildServer(service, { port: 4319, dev: false });
-    cleanups.push(async () => { await app.close(); await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true }); });
+    cleanups.push(async () => { await app.close(); await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     const boot = await app.inject({ url: "/api/bootstrap", headers: { host: "127.0.0.1:4319" } });
     const headers = { host: "127.0.0.1:4319", cookie: String(boot.headers["set-cookie"]).split(";")[0], "x-harness-csrf": boot.json().csrfToken };
     const forged = await app.inject({ method: "POST", url: "/api/github/webhook", headers, payload: { action: "opened", issue: issue(), repository: { id: REPO } } });
@@ -205,7 +205,7 @@ describe("M10-S10 approved external tasks use the manual task gates", () => {
       followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {},
     };
     const service = new Service(store, runtime, { background: { intakeAuth: { token: async () => "gh-token", login: "octocat" }, intakeFetch: async () => jsonResponse([issue()]) } });
-    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true }); });
+    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     __setCapabilityFlagForTests("integrations.intakeV1", true);
     await service.command(command("intake.configure", { repositoryId: REPO, enabled: true }));
     const polled = await service.command(command("intake.poll", {}));

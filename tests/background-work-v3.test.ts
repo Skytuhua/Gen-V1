@@ -31,7 +31,7 @@ function fixture(options: { idleExecutor?: ConstructorParameters<typeof Backgrou
   const coordinator = new BackgroundWorkCoordinator({ store, now, gate: options.gate, idleExecutor: options.idleExecutor, executionGate: options.executionGate });
   const thread: Thread = { id: "thread-1", title: "Owner", projectName: null, createdAt: new Date(clock).toISOString(), updatedAt: new Date(clock).toISOString(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null };
   store.internal("fixture.thread", thread.id, () => store.put("thread", thread.id, thread.id, thread));
-  cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true }); });
+  cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
   const owner = { threadId: thread.id, runId: null, epoch: 0, projectId: null, workspaceId: null, accountBinding: null };
   return { root, store, coordinator, now, advance, owner, thread };
 }
@@ -44,6 +44,15 @@ async function waitFor(assertion: () => boolean, timeoutMs = 8_000): Promise<voi
     if (Date.now() > deadline) throw new Error("Timed out waiting for condition");
     await new Promise(resolve => setTimeout(resolve, 20));
   }
+}
+
+/** Terminate a test-owned spawned command. POSIX children run detached in
+ * their own group; Windows has no group signalling, so kill the pid directly. */
+function killOwnedProcess(pid: number): void {
+  try {
+    if (process.platform === "win32") process.kill(pid, "SIGKILL");
+    else process.kill(-pid, "SIGKILL");
+  } catch { /* already gone */ }
 }
 
 describe("M10-C01/C02 strict contracts", () => {
@@ -288,7 +297,7 @@ describe("M10-S02/S03/T02 owned RUN-lifetime commands", () => {
     expect(result.state).toBe("UNKNOWN");
     expect(f.coordinator.work(work.workId).outcome).toBeNull();
     expect(() => process.kill(pid, 0)).not.toThrow();
-    process.kill(-pid, "SIGKILL");
+    killOwnedProcess(pid);
     await waitFor(() => f.coordinator.exitReceipt(work.workId) !== null);
   });
   it("host loss marks RUNNING commands UNKNOWN until the exact owned exit receipt resolves them", async () => {
@@ -300,17 +309,23 @@ describe("M10-S02/S03/T02 owned RUN-lifetime commands", () => {
     f.coordinator.recover();
     expect(f.coordinator.work(work.workId).state).toBe("UNKNOWN");
     expect(() => f.coordinator.resolveProcessExit(work.workId, { pid: identity.pid, creationToken: "wrong", exitCode: 0, signal: null, observedAt: new Date().toISOString() })).toThrowError(expect.objectContaining({ code: "RECONCILIATION_REQUIRED" }));
-    process.kill(-identity.pid, "SIGKILL");
+    killOwnedProcess(identity.pid);
     await waitFor(() => f.coordinator.exitReceipt(work.workId) !== null);
     const receipt = f.coordinator.exitReceipt(work.workId)!;
-    const resolved = f.coordinator.resolveProcessExit(work.workId, receipt);
-    expect(resolved.state).toBe("SETTLED");
-    expect(resolved.outcome).toBe("FAILED");
+    if (process.platform === "linux") {
+      const resolved = f.coordinator.resolveProcessExit(work.workId, receipt);
+      expect(resolved.state).toBe("SETTLED");
+      expect(resolved.outcome).toBe("FAILED");
+    } else {
+      // Without a platform creation token the receipt cannot prove the exact
+      // owned process, so the quarantine holds rather than settling.
+      expect(() => f.coordinator.resolveProcessExit(work.workId, receipt)).toThrowError(expect.objectContaining({ code: "RECONCILIATION_REQUIRED" }));
+    }
   });
   it("identity helpers distinguish match, mismatch, gone and unproven", () => {
     expect(verifyProcessIdentity({ pid: process.pid, creationToken: captureCreationToken(process.pid), platform: process.platform, capturedAt: "now" })).toBe(process.platform === "linux" ? "MATCH" : "UNPROVEN");
     expect(verifyProcessIdentity({ pid: process.pid, creationToken: "not-the-token", platform: process.platform, capturedAt: "now" })).toBe(process.platform === "linux" ? "MISMATCH" : "UNPROVEN");
-    expect(verifyProcessIdentity({ pid: 4_000_000, creationToken: "x", platform: "linux", capturedAt: "now" })).toBe("GONE");
+    expect(verifyProcessIdentity({ pid: 4_000_000, creationToken: "x", platform: "linux", capturedAt: "now" })).toBe(process.platform === "linux" ? "GONE" : "UNPROVEN");
     expect(verifyProcessIdentity({ pid: process.pid, creationToken: null, platform: "linux", capturedAt: "now" })).toBe("UNPROVEN");
   });
 });
@@ -434,7 +449,7 @@ describe("M10 v6 completeness regressions", () => {
     const store = new Store(join(root, "state"));
     let clock = 1_700_000_000_000;
     const coordinator = new BackgroundWorkCoordinator({ store, now: () => clock, revalidateAuthority: () => ({ ok: false, blockedReason: "BUDGET_EXHAUSTED" }) });
-    cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true }); });
+    cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     enable("jobs.backgroundV1");
     const thread: Thread = { id: "thread-1", title: "Owner", projectName: null, createdAt: new Date(clock).toISOString(), updatedAt: new Date(clock).toISOString(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null };
     store.internal("fixture.thread", thread.id, () => store.put("thread", thread.id, thread.id, thread));
@@ -507,12 +522,20 @@ describe("M10 v6 completeness regressions", () => {
     const f = fixture({ executionGate: async () => ({ allowed: true }) });
     enable("jobs.backgroundV1");
     const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "running", command: { executable: process.execPath, argv: ["-e", "setTimeout(()=>{}, 30000)"], cwd: f.root, profileId: "p" } });
-    await f.coordinator.startCommand(work.workId);
+    const started = await f.coordinator.startCommand(work.workId);
     expect(f.coordinator.work(work.workId).state).toBe("RUNNING");
     const result = f.coordinator.pauseAll(command("background.pauseAll"));
     expect(result.stopped).toBeGreaterThanOrEqual(1);
-    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
-    expect(f.coordinator.work(work.workId).outcome).toBe("FAILED");
-    expect(f.coordinator.exitReceipt(work.workId)).not.toBeNull();
+    if (process.platform === "linux") {
+      await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+      expect(f.coordinator.work(work.workId).outcome).toBe("FAILED");
+      expect(f.coordinator.exitReceipt(work.workId)).not.toBeNull();
+    } else {
+      // Off Linux the owned identity is unproven, so rollback quarantines the
+      // process as UNKNOWN without signalling it; tear it down directly.
+      await waitFor(() => f.coordinator.work(work.workId).state === "UNKNOWN");
+      expect(f.coordinator.work(work.workId).outcome).toBeNull();
+      killOwnedProcess(started.processIdentity!.pid);
+    }
   });
 });

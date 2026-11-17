@@ -36,7 +36,7 @@ function fixture() {
   const thread: Thread = { id: "thread-1", title: "Owner", projectName: null, createdAt: new Date(clock).toISOString(), updatedAt: new Date(clock).toISOString(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null };
   const other: Thread = { ...thread, id: "thread-2", title: "Other" };
   store.internal("fixture.threads", null, () => { store.put("thread", thread.id, thread.id, thread); store.put("thread", other.id, other.id, other); });
-  cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true }); });
+  cleanups.push(() => { coordinator.dispose(); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
   __setCapabilityFlagForTests("jobs.backgroundV1", true);
   const owner = { threadId: thread.id, runId: null, epoch: 0, projectId: null, workspaceId: null, accountBinding: null };
   const work = coordinator.admit(command("background.work.admit"), { owner, kind: "MAINTENANCE", title: "blocked step" });
@@ -136,7 +136,7 @@ describe("M10 human handoff host binding", () => {
     const store = new Store(join(root, "state"));
     const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [{ id: "test/model", provider: "test", name: "Test" }], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
     const service = new Service(store, runtime);
-    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true }); });
+    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     __setCapabilityFlagForTests("jobs.backgroundV1", true);
     const thread = (await service.command(command("thread.create", { title: "Handoff" }))).result as Thread;
     const work = (await service.command(command("background.work.admit", { kind: "MAINTENANCE", title: "step" }, thread.id))).result as BackgroundWorkRecord;
@@ -157,7 +157,7 @@ describe("M10 human handoff host binding", () => {
     const starts: string[] = [];
     const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [{ id: "test/model", provider: "test", name: "Test" }], start: async input => { starts.push(input.inputId); }, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
     const service = new Service(store, runtime);
-    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true }); });
+    cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     __setCapabilityFlagForTests("jobs.backgroundV1", true);
     const thread = (await service.command(command("thread.create", { title: "Bound" }))).result as Thread;
     store.internal("fixture.model", thread.id, () => store.put("thread", thread.id, thread.id, { ...thread, modelId: "test/model", accountId: null }));
