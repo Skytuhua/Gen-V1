@@ -187,11 +187,13 @@ export class ControlDispatcher {
         // observed is a cancellation, not a rejection; only failures before
         // dispatch are rejections, and dispatch-stage failures stay UNCERTAIN.
         if (item.outcome === 'QUEUED') {
-          if (!this.permissionLive(item)) { item.outcome = 'CANCELLED'; item.reason = 'grant_revoked'; }
-          else {
-            item.outcome = item.reachedDispatch ? 'UNCERTAIN' : 'REJECTED';
-            item.reason = error instanceof HarnessError ? error.code : 'DRIVER_ERROR';
-          }
+          // Dispatch is the decisive boundary: once input was handed to the
+          // driver the outcome is UNCERTAIN, however permission ended; a
+          // never-dispatched action is CANCELLED when permission died and
+          // REJECTED only for a failure while permission was live.
+          if (item.reachedDispatch) item.outcome = 'UNCERTAIN';
+          else item.outcome = this.permissionLive(item) ? 'REJECTED' : 'CANCELLED';
+          item.reason = item.outcome === 'CANCELLED' ? 'grant_revoked' : (error instanceof HarnessError ? error.code : 'DRIVER_ERROR');
         }
       } finally {
         if (this.inFlight === item) this.inFlight = null;
