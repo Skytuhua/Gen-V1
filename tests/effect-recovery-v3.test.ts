@@ -7,7 +7,6 @@ import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authorit
 import { __setEffectFaultHookForTests, ToolEffectLedger, createToolEffectFlags } from '../packages/core/tool-effects.ts';
 import { disableEffects, observationFreshness, reconcileEffect, recoverEffects, retryDecision } from '../packages/core/effect-recovery.ts';
 import { ToolEffectReadModels } from '../packages/core/tool-effect-read-models.ts';
-import type { ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { Thread, ToolCall } from '../packages/contracts/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
