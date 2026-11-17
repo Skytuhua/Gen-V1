@@ -36,6 +36,13 @@ async function untrackedDigest(path:string,signal:AbortSignal){
  });
 }
 
+/** Remove a working copy that preparation did not bind. The branch is deleted only when this call created it. */
+export async function discardUnboundWorktree(executable:string,commonDirectory:string,path:string,branch?:string){
+ const signal=new AbortController().signal,git=(args:string[])=>nativeGit(executable,commonDirectory,undefined,args,signal);
+ await git(['worktree','remove','--force',path]).catch(()=>rm(path,{recursive:true,force:true}).catch(()=>{}));
+ // A branch stays checked out until its worktree is gone, so this can only land after removal.
+ if(branch)await git(['branch','-D',branch]).catch(()=>{});
+}
 /** Explicit project enrollment and per-main-agent worktrees. Company references never fall back locally. */
 export class ProjectTools{
  readonly workspace:WorkspaceRepository;private readonly queues=new Map<string,Promise<unknown>>();
@@ -102,23 +109,24 @@ export class ProjectTools{
    const family=await importGitFamily(this.store,thread.projectId!,base.path,base.workspace,this.gitExecutable(),new AbortController().signal),workspaceId=randomUUID(),path=join(this.store.dataDir,'worktrees',workspaceId),branch='gen/'+thread.id.replace(/[^a-zA-Z0-9_-]/g,'-')+'-'+workspaceId.slice(0,8);
    await mkdir(dirname(path),{recursive:true});
    const controller=new AbortController();
-   await withPathGuard([{path:family.commonDirectory,leaf:false,allowChildWrites:true},{path:join(family.commonDirectory,'config'),leaf:true,readOnly:true,allowChildWrites:true,childWriteRoot:family.commonDirectory}],controller.signal,async()=>{
-    if(!sameIdentity(await directoryIdentity(family.commonDirectory),family.commonDirectoryIdentity))throw new HarnessError('CAPABILITY_DENIED','Private Git family changed.');
-    const head=(await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['rev-parse','HEAD'],controller.signal)).trim();
-    if(!/^[0-9a-f]{40}$/.test(head))throw new HarnessError('CAPABILITY_DENIED','Private Git HEAD is unavailable.');
-    await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['worktree','add','-b',branch,path,head],controller.signal);
-   },()=>controller.abort());
-   let bound=false;
+   let added=false,bound=false;
    try{
+    await withPathGuard([{path:family.commonDirectory,leaf:false,allowChildWrites:true},{path:join(family.commonDirectory,'config'),leaf:true,readOnly:true,allowChildWrites:true,childWriteRoot:family.commonDirectory}],controller.signal,async()=>{
+     if(!sameIdentity(await directoryIdentity(family.commonDirectory),family.commonDirectoryIdentity))throw new HarnessError('CAPABILITY_DENIED','Private Git family changed.');
+     const head=(await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['rev-parse','HEAD'],controller.signal)).trim();
+     if(!/^[0-9a-f]{40}$/.test(head))throw new HarnessError('CAPABILITY_DENIED','Private Git HEAD is unavailable.');
+     await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['worktree','add','-b',branch,path,head],controller.signal);
+     added=true;
+    },()=>controller.abort());
     const pointer=(await readFile(join(path,'.git'),'utf8')).trim().replace(/^gitdir: /,'');
     const binding:WorkspaceBinding={id:workspaceId,threadId:thread.id,projectId:thread.projectId!,familyId:family.projectId,path,branch,gitDirectory:resolve(pointer),commonDirectory:family.commonDirectory,identity:await identity(path),gitDirectoryIdentity:await identity(resolve(pointer)),commonDirectoryIdentity:await identity(family.commonDirectory)};await this.validateRepository(path,binding);
     this.store.internal('workspace.working-copy.created',thread.id,()=>{const latest=this.store.get<Thread>('thread',thread.id);if(!latest||latest.workspaceId||latest.epoch!==current.epoch||latest.runId!==current.runId)throw new HarnessError('WORKSPACE_CHANGED','Thread changed while creating its working copy.');this.store.put('workspaceBinding',workspaceId,thread.id,binding);this.store.put('thread',thread.id,thread.id,{...latest,workspaceId});const grant:ResourceGrant={id:randomUUID(),threadId:thread.id,kind:'project',path,label:base.project.name,writable:true,createdAt:new Date().toISOString(),identity:binding.identity};this.store.put('resource',grant.id,thread.id,grant);});
     bound=true;
    }finally{
     // The guard aborts controller when custody is lost, which is exactly when
-    // cleanup must still run — a dead signal would skip worktree removal and
-    // re-leak the orphaned worktrees/<id> registration this guards against.
-    if(!bound)await nativeGit(this.gitExecutable(),family.commonDirectory,undefined,['worktree','remove','--force',path],new AbortController().signal).catch(()=>rm(path,{recursive:true,force:true}).catch(()=>{}));
+    // cleanup must still run — a dead signal would skip it. A bound workspace is
+    // the thread's, so only an unbound one is discarded.
+    if(!bound)await discardUnboundWorktree(this.gitExecutable(),family.commonDirectory,path,added?branch:undefined);
    }
   });
  }

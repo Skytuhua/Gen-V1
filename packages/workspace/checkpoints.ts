@@ -70,8 +70,17 @@ const exclusionReason = (path: string, data: Buffer | null, statBytes?: number):
 // Bounded unified diff (context 3) between two utf-8 texts; truncates to the
 // adapter's 128 KiB response limit and reports truncation.
 export function unifiedDiff(path: string, before: Buffer | null, after: Buffer | null): { diff: string | null; truncated: boolean } {
-  const a = (before ?? Buffer.alloc(0)).toString("utf8").split("\n");
-  const b = (after ?? Buffer.alloc(0)).toString("utf8").split("\n");
+  // Split without the phantom empty line a trailing newline produces. A last
+  // line that lacks one is a different line from the same text that ends with
+  // one, so it carries a sentinel: the sentinel is compared, never printed.
+  const lines = (value: Buffer | null) => {
+    const text = (value ?? Buffer.alloc(0)).toString("utf8");
+    if (!text) return [] as string[];
+    const parts = (text.endsWith("\n") ? text.slice(0, -1) : text).split("\n");
+    if (!text.endsWith("\n")) parts[parts.length - 1] += "\n";
+    return parts;
+  };
+  const a = lines(before), b = lines(after);
   const m = a.length, n = b.length;
   // LCS table for modest files; bounded by the 8 MiB file cap but keep it cheap.
   if (m * n > 4_000_000) return { diff: `Binary or oversized content differs for ${path}.`, truncated: true };
@@ -101,7 +110,15 @@ export function unifiedDiff(path: string, before: Buffer | null, after: Buffer |
     const newLines = slice.filter((o) => o.kind !== "-").length;
     const oldStart = oldLines ? oldCursor + 1 : oldCursor, newStart = newLines ? newCursor + 1 : newCursor;
     for (const op of slice) { if (op.kind !== "+") oldCursor++; if (op.kind !== "-") newCursor++; }
-    hunks.push(`@@ -${oldStart},${oldLines} +${newStart},${newLines} @@\n` + slice.map((o) => o.kind + o.text).join("\n"));
+    const body: string[] = [];
+    for (const op of slice) {
+      // The sentinel never reaches the output; the marker line stands in for
+      // the missing newline, exactly as git prints it.
+      const marked = op.text.endsWith("\n");
+      body.push(op.kind + (marked ? op.text.slice(0, -1) : op.text));
+      if (marked) body.push("\\ No newline at end of file");
+    }
+    hunks.push(`@@ -${oldStart},${oldLines} +${newStart},${newLines} @@\n` + body.join("\n"));
     at = end;
     covered = end;
   }
