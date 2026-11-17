@@ -97,6 +97,16 @@ it('rolls back authenticated spending together with dispatch and the operation u
   expect(x.store.sequence).toBe(sequence);
 });
 
+it.each(['id', 'runId', 'epoch', 'accountId', 'projectId', 'workspaceId'])
+  ('refuses a valid signed grant after the current owner %s changes', async field => {
+    const x = await fixture(), approval = x.approve();
+    expect(() => x.ledger.verifyOperationApproval(x.operation, x.thread)).not.toThrow();
+    const current = { ...x.thread, [field]: field === 'epoch' ? 2 : 'different-owner' };
+    expect(() => x.ledger.verifyOperationApproval(x.operation, current)).toThrowError(/owner changed/);
+    expect(x.store.get('approval', approval.approvalId)).toEqual(approval);
+    expect(x.ledger.get('operation:' + x.operation.id + '@1')).toBeNull();
+  });
+
 it('survives Store restart with the same key and preserves the single dispatch receipt', async () => {
   const x = await fixture(), approval = x.approve(); x.reopen(signer());
   const effect = x.dispatch(); x.ledger.settle(effect.invocationId, { value: { writes: 1 } }, 'SUCCEEDED');

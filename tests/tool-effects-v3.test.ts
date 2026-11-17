@@ -38,7 +38,8 @@ async function serviceFixture(toolEffectFlags: Partial<Record<ToolEffectFlag, bo
   const store = new Store(join(root, 'state'));
   let callbacks!: RuntimeCallbacks;
   const runtime: RuntimeAdapter = { configure: value => { callbacks = value; }, models: async () => [{ id: 'test/model', provider: 'test', name: 'Test' }], start: async (_input: StartRun) => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime, { toolEffectFlags, toolEffectAuthenticator: testEffectAuthenticator() });
+  const authenticator = testEffectAuthenticator();
+  const service = new Service(store, runtime, { toolEffectFlags, toolEffectAuthenticator: authenticator });
   const command = (type: string, threadId?: string, payload: Record<string, unknown> = {}) => service.command({ id: crypto.randomUUID(), type, payload, threadId });
   const first = (await command('thread.create')).result as Thread;
   const operation = (id: string) => {
@@ -47,7 +48,7 @@ async function serviceFixture(toolEffectFlags: Partial<Record<ToolEffectFlag, bo
     return op;
   };
   cleanups.push(async () => { await service.dispose(); store.close(); await rm(root, { recursive: true, force: true }); });
-  return { service, store, command, first, operation, get callbacks() { return callbacks; } };
+  return { service, store, command, first, operation, authenticator, get callbacks() { return callbacks; } };
 }
 
 it('admits then persists DISPATCHED before invoking the executor, then settles', async () => {
@@ -152,12 +153,13 @@ it('denies dispatch when the approved owner drifts (epoch bump)', async () => {
   vi.spyOn(domain, 'executeDomainOperation').mockImplementation(async () => ({ verified: true }));
   const approved: Operation = { ...op, approved: true };
   x.store.internal('fixture.approved', x.first.id, () => x.store.put('operation', op.id, x.first.id, approved));
-  const approval = { approvalId: 'ap-drift', operationId: op.id, actionCommitment: '', owner: { threadId: x.first.id, runId: null, epoch: x.first.epoch, projectId: x.first.projectId ?? null, workspaceId: x.first.workspaceId ?? null, accountBinding: x.first.accountId ?? null }, targetPreconditions: [], issuedAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 60_000).toISOString(), remainingUses: 1, issuer: 'authenticated_user' };
-  const { actionCommitment } = await import('../packages/core/tool-effects.ts');
-  x.store.internal('fixture.approval', x.first.id, () => x.store.put('approval', approval.approvalId, x.first.id, { ...approval, actionCommitment: actionCommitment(approved, x.store.get<Thread>('thread', x.first.id)!) }));
   const current = x.store.get<Thread>('thread', x.first.id)!;
+  const grants = new ToolEffectLedger(x.store, new ToolAuthority(buildToolRegistry()), createToolEffectFlags({ 'security.authorityV1': true }), x.authenticator);
+  const approval = grants.issueApproval(approved, current);
+  x.store.internal('fixture.approval', x.first.id, () => x.store.put('approval', approval.approvalId, x.first.id, approval));
+  expect(() => grants.verifyOperationApproval(approved, current)).not.toThrow();
   x.store.internal('fixture.drift', x.first.id, () => x.store.put('thread', current.id, x.first.id, { ...current, epoch: current.epoch + 1 }));
-  await expect(x.service.dispatchOperation(op.id)).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED' });
+  await expect(x.service.dispatchOperation(op.id)).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED', message: expect.stringMatching(/owner changed/) });
   expect(x.store.get<ToolEffectRecord>('toolEffect', 'operation:' + op.id + '@1')).toBeNull();
 });
 
