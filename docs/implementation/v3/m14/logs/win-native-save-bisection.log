@@ -1,4 +1,4 @@
-# W3 native-save bisection — win-x64, 2026-11-17
+# W3 native-save bisection  -  win-x64, 2026-11-17
 
 Goal: find why the installed desktop's project-memory native save
 cancels (DownloadItem `done` -> interrupted, 0 bytes written) after a
@@ -38,4 +38,4 @@ interplay in the harness driver.
 
 Transport change reverted entirely (no proven benefit; do not ship an
 unproven rework of a launch-token custody channel). Status: FAIL,
-root cause deeper than the channel — recorded honestly.
+root cause deeper than the channel  -  recorded honestly.
