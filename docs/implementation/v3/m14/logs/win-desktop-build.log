@@ -1,0 +1,5 @@
+
+> gen-v1@0.6.5 desktop:build C:\Users\Administrator\repos\gen-v1-m14
+> tsx scripts/build-desktop.ts
+
+Desktop shell built: C:\Users\Administrator\repos\gen-v1-m14\dist\desktop-app

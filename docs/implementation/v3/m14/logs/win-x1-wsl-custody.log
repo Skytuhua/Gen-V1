@@ -1,0 +1,18 @@
+M14 X1 custody evidence — Windows x64 host, WSL2 Ubuntu (x86_64, ext4, real root euid=0)
+Repo snapshot: /root/genv1-m14 @ a99f6d07425ed6f7b8586454e970bee4c0eda31f (same tree as worktree HEAD 30b5d649)
+Node: /opt/node24 (v24.22.2); CPython 3.14.10 (python-build-standalone via uv); tsx loader
+Broker: packages/core/linux-path-guard.py --uid 62153 --gid 62153 --state-root /root/m14-custody-root -- node .../native.mjs
+
+== probe 1: idmapped directory custody (under broker) ==
+{"scope":"LOCAL_NATIVE_IDMAPPED_DIRECTORY_CUSTODY","guardedRename":"EBUSY","atomicSave":true,"nestedRelease":true,"outsideBackingAccess":"EACCES","symlinkRejected":true,"hardlinkRejected":true,"originalGuardedHermesHello":{"sourceCommit":"c627ec84664d43e0b18b95d9d86d8963747d56c7","pythonVersion":"3.14.10","engineClass":"run_agent.AIAgent"},"originalPiCredentialLockAndLocalSession":true,"modelCalls":0,"realCredentials":false}
+
+== probe 2: credential alias qualification (root-level) ==
+{"scope": "LOCAL_SYNTHETIC_CREDENTIAL_ALIAS_QUALIFICATION", "hiddenThreadDescriptorAndCwdRejected": true, "coveredAncestorDescriptorRejected": true, "writableMountAliasRejected": true, "unknownSubmountRejected": true, "descendantWriterAdmission": "EBUSY", "recursiveExistingMountFence": true, "fixture": "/var/lib/gen-credential-alias-native-allhioqf"}
+
+== probe 3: unprotected negative control ==
+{"scope":"UNPROTECTED_LINUX","denied":true,"actionEntered":false}
+
+== probe 4: nested account profile under broker ==
+{"scope":"LOCAL_NESTED_ACCOUNT_PROFILE","callbackEntered":true,"modelCalls":0,"realCredentials":false}
+
+RESULT: custody broker launches and all four probes PASS on x86_64+ext4+root — the aarch64 environmental blocker does not apply to WSL2.

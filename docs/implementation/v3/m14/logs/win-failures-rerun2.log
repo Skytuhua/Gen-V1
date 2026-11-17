@@ -1,0 +1,30 @@
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:411:1
+    409| }, 60000);
+    410|
+    411| it('keeps an active prepared reservation uncertain until its owner dur…
+       | ^
+    412|   const f = await fixture(),
+    413|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/30]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:477:1
+    475| }, 60000);
+    476|
+    477| it('supports local unstage and commit through the original revision an…
+       | ^
+    478|   const f = await fixture();
+    479|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/30]⎯
+
+
+ Test Files  6 failed | 4 passed (10)
+      Tests  29 failed | 127 passed (156)
+   Start at  06:53:44
+   Duration  1568.49s (transform 1.81s, setup 0ms, import 4.48s, tests 1562.13s, environment 1ms)
+

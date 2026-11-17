@@ -1,0 +1,294 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/gen-v1-m14
+
+ ❯ tests/code-review-comparisons.test.ts (12 tests | 1 failed) 263832ms
+   × reads staged deletions and renames by exact selected paths 37092ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/private-git-family.test.ts (19 tests | 1 failed) 306114ms
+   × imports once into protected private bare storage and creates three independent native worktrees 69370ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 5 failed) 853316ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 60023ms
+   × serializes same-ID attempts across separate Store connections without a double write 60031ms
+   × inspects original payload/revision without current diff, review reads, or any write 61987ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 60167ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 60012ms
+ ❯ tests/capabilities.test.ts (24 tests | 1 failed) 151470ms
+     × creates fixtures only at an exclusive new destination including real git conflict 30023ms
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 106983ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 60010ms
+   × never supplies completed-write custody for unapproved or failed effects 4707ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 110162ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 7851ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 7396ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 16216ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 20901ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 7945ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 10838ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 7872ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 7911ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 7840ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 7807ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 7584ms
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 97924ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 10501ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 28415ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 7925ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 10694ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 7809ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 7974ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 7976ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 7820ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 7486ms
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 25067ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 2635ms
+ ❯ tests/runtime-router.test.ts (21 tests | 1 failed) 15285ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 2527ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 32 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/32]⎯
+
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+    102|  await x.select('openai',a.id);await x.send('message.send',{content:'I…
+    103|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    104|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    105|  await x.select('openai',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/32]⎯
+
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+    124|  await x.select('gemini-cli',a.id);await x.send('message.send',{conten…
+    125|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    126|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    127|  await x.select('gemini-cli',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/32]⎯
+
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:58:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/32]⎯
+
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/capabilities.test.ts:241:3
+    239|
+    240| describe("disposable fixtures and held-out evaluations", () => {
+    241|   it("creates fixtures only at an exclusive new destination including …
+       |   ^
+    242|     const s = await sandbox(); const destination = join(s.root, "fixtu…
+    243|     const manifest = await createFixtures(destination);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/32]⎯
+
+ FAIL  tests/code-review-comparisons.test.ts > reads staged deletions and renames by exact selected paths
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/file-access.ts:14:22
+     12| interface GuardSession { rpc(request: Record<string, unknown>, startup…
+     13| const sessions = new AsyncLocalStorage<GuardSession>();
+     14| const denied = () => new HarnessError("CAPABILITY_DENIED", "File acces…
+       |                      ^
+     15| // A cold, app-owned Hermes guard may need PowerShell startup and C# i…
+     16| // Extend only its first acquire, not unrelated reads, writes, or leas…
+ ❯ Timeout.<anonymous> packages/core/file-access.ts:57:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/32]⎯
+
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/hermes-service.test.ts:55:1
+     53|  expect(x.store.get('data',op.id)).toMatchObject({value:{postEditHook:…
+     54| });
+     55| it('bounds hook admission while preserving every successful write and …
+       | ^
+     56|  const x=await preparedWrite(),operations=[x.op],resourceId=x.store.ge…
+     57|  for(let index=0;index<33;index++){
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/32]⎯
+
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+AssertionError: expected { …(11) } to match object { status: 'failed' }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "failed",
++   "status": "running",
+  }
+
+ ❯ tests/hermes-service.test.ts:85:197
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/32]⎯
+
+ FAIL  tests/private-git-family.test.ts > imports once into protected private bare storage and creates three independent native worktrees
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/private-git-family.test.ts:29:1
+     27|  return{root,path,store,tools,git,projectId,add};
+     28| }
+     29| it('imports once into protected private bare storage and creates three…
+       | ^
+     30|  const f=await fixture(),bindings=await Promise.all(['one','two','thre…
+     31|  expect(new Set(bindings.map(x=>x.path)).size).toBe(3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/32]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/skills-integration.test.ts:53:70
+     51|  const x=await fixture(),a=await x.account(providerId,'Current task'),…
+     52|  await x.send('account.select',{providerId,accountId:a.id});await x.se…
+     53|  await waitFor(()=>expect(x.started('primary',a,providerId)?.starts).t…
+       |                                                                      ^
+     54|  expect(input).toMatchObject({threadId:thread.id,modelId,accountId:a.i…
+     55|  expect(await primary.tool(input,'skill_manage',{operations:[createOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/32]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > retains interrupted remote write as uncertain across restart without submitting it again
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:198:1
+    196| }, 60000);
+    197|
+    198| it('retains interrupted remote write as uncertain across restart witho…
+       | ^
+    199|   const f = await fixture(),
+    200|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/32]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:222:1
+    220| }, 60000);
+    221|
+    222| it('serializes same-ID attempts across separate Store connections with…
+       | ^
+    223|   const f = await fixture(),
+    224|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/32]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > inspects original payload/revision without current diff, review reads, or any write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:279:1
+    277| );
+    278|
+    279| it('inspects original payload/revision without current diff, review re…
+       | ^
+    280|   const f = await fixture(),
+    281|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/32]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:301:1
+    299| }, 60000);
+    300|
+    301| it('returns revoked after working copy or account access changes, incl…
+       | ^
+    302|   const f = await fixture(),
+    303|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/32]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:477:1
+    475| }, 60000);
+    476|
+    477| it('supports local unstage and commit through the original revision an…
+       | ^
+    478|   const f = await fixture();
+    479|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/32]⎯
+
+
+ Test Files  9 failed | 8 passed (17)
+      Tests  32 failed | 240 passed | 1 skipped (273)
+   Start at  05:00:19
+   Duration  1320.00s (transform 3.11s, setup 0ms, import 8.05s, tests 2607.91s, environment 1ms)
+

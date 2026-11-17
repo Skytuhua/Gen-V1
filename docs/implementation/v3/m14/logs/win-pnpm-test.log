@@ -1,0 +1,828 @@
+
+> gen-v1@0.6.5 test C:\Users\Administrator\repos\gen-v1-m14
+> pnpm build:credential-lease && pnpm build:widgets && vitest run
+
+
+> gen-v1@0.6.5 build:credential-lease C:\Users\Administrator\repos\gen-v1-m14
+> tsx scripts/build-windows-credential-lease.ts
+
+windows-credential-lease.cc
+   Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+Windows credential lease built.
+
+> gen-v1@0.6.5 build:widgets C:\Users\Administrator\repos\gen-v1-m14
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/gen-v1-m14
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ❯ tests/project-search-host.test.ts (51 tests | 1 failed | 1 skipped) 80832ms
+   × stops at 10,000 ordinary files, without visiting the next file 61761ms
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ ❯ tests/runtime-router.test.ts (21 tests | 1 failed) 32784ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 4469ms
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ❯ tests/capabilities.test.ts (24 tests | 1 failed) 295919ms
+     × creates fixtures only at an exclusive new destination including real git conflict 30453ms
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ❯ tests/task-memory-recovery.test.ts (3 tests | 1 failed) 16725ms
+   × keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery 14212ms
+ ❯ tests/skill-catalog.test.ts (23 tests | 1 failed) 317733ms
+   × enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes 60145ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/code-review-comparisons.test.ts (12 tests | 3 failed) 491056ms
+   × reads index and worktree overlap separately and binds selected patches to the complete revision 66310ms
+   × reports clean, untracked text, binary and bounded large patches honestly 63987ms
+   × reads staged deletions and renames by exact selected paths 61452ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 192456ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 60620ms
+   × never supplies completed-write custody for unapproved or failed effects 14346ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/desktop-host.test.ts (13 tests | 2 failed) 48856ms
+   × launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token 19571ms
+   × does not leave its backend running after the owning IPC channel disconnects 20605ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/integration-mcp.test.ts (12 tests | 3 failed) 53334ms
+   × builds a real Graphify code graph, queries its stdio server and exports GraphML without a model 69ms
+   × initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host 10ms
+   × refuses linked Graphify graph input and linked export directories inside the owned fixture 45ms
+ ❯ tests/checkpoint-restore-v3.test.ts (14 tests | 3 failed) 389903ms
+   × rolls written files back on a conflict and reports CONFLICT 60032ms
+   × conflicts rather than overwrite content the recovery checkpoint cannot hold 60251ms
+   × preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback 60121ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 111001ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 12318ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 10751ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 11411ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 11251ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 16027ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 14021ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 10525ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 11603ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 11120ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/review-host.test.ts (8 tests | 1 failed) 47728ms
+     × shows actual before/after SQLite rows and valid row-change annotations 12073ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/integration-host.test.ts (8 tests | 1 failed) 7789ms
+   × keeps Biome write proposals and Spec Kit initialization unavailable in plan mode 250ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 127078ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 11173ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 10821ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 10329ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 11896ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 14508ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 13213ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 11788ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 10026ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 10659ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 10704ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 11959ms
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/private-git-family.test.ts (19 tests | 1 failed) 430649ms
+   × imports once into protected private bare storage and creates three independent native worktrees 73885ms
+ ❯ tests/hermes-original-integration.test.ts (1 test | 1 failed) 5601ms
+   × runs original Python and ACP through the native broker, persists a skill and finishes through the real Service 5600ms
+C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.2
+C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.2
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 56628ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 5218ms
+ ❯ tests/hermes-host.test.ts (1 test | 1 failed) 7378ms
+   × serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host 7376ms
+ ❯ tests/hermes-client.test.ts (13 tests | 2 failed) 64674ms
+   × drains owned host callbacks even when process cancellation fails 5662ms
+   × treats a denied host callback as an ordinary tool result during teardown 6332ms
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+{"evidence":"SYNTHETIC_ONLY","summaryCount":10000,"projects":20,"pageSize":37,"pageBytes":20391,"bootstrapMs":402.3675999999998,"firstPageMs":24.52929999999992,"scopedProgressEvents":100,"scopedProgressMs":612.8292999999999}
+ ❯ tests/integrations.test.ts (4 tests | 1 failed) 4418ms
+   × admits exactly the ten bundled integrations without starting their MCP services 177ms
+ ❯ tests/hermes-multi-original.test.ts (1 test | 1 failed) 5912ms
+   × runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls 5911ms
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'one.txt', LF will be replaced by CRLF the next time Git touches it
+ ❯ tests/workspace-action-outcome-routes.test.ts (5 tests | 3 failed) 269917ms
+   × routes supported writes through durable identity and keeps inspection read-only 60043ms
+   × an exact local stale-head preflight is not-applied before entering a mutation 60064ms
+   × valid Unicode review text fits submission and exact read-only inspection 60201ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 16 failed) 1121860ms
+   × commits intent before local write and private result before event, then replays after Store restart 60049ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 60400ms
+   × serializes same-ID attempts across separate Store connections without a double write 60204ms
+   × denies reuse of an ID with a changed payload 60027ms
+   × denies reuse of an ID with a changed type 60071ms
+   × denies reuse of an ID with a changed projectId 60385ms
+   × inspects original payload/revision without current diff, review reads, or any write 60081ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 60183ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 60043ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 60049ms
+   × records not-applied only after host rejection before starting and never restarts that ID 60152ms
+   × keeps completed external write uncertain if durable result commit fails 60053ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 60074ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 61802ms
+   × rejects a profile replaced between inspection identity capture and credential read 60053ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 60031ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 67 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/68]⎯
+
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+    102|  await x.select('openai',a.id);await x.send('message.send',{content:'I…
+    103|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    104|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    105|  await x.select('openai',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/68]⎯
+
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+    124|  await x.select('gemini-cli',a.id);await x.send('message.send',{conten…
+    125|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    126|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    127|  await x.select('gemini-cli',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/68]⎯
+
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:58:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/68]⎯
+
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/capabilities.test.ts:241:3
+    239|
+    240| describe("disposable fixtures and held-out evaluations", () => {
+    241|   it("creates fixtures only at an exclusive new destination including …
+       |   ^
+    242|     const s = await sandbox(); const destination = join(s.root, "fixtu…
+    243|     const manifest = await createFixtures(destination);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/68]⎯
+
+ FAIL  tests/checkpoint-restore-v3.test.ts > rolls written files back on a conflict and reports CONFLICT
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:100:1
+     98| });
+     99|
+    100| it("rolls written files back on a conflict and reports CONFLICT", asyn…
+       | ^
+    101|   const { project, service, owner } = await fixture();
+    102|   await writeFile(join(project, "a.txt"), "a-old\n");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/68]⎯
+
+ FAIL  tests/checkpoint-restore-v3.test.ts > conflicts rather than overwrite content the recovery checkpoint cannot hold
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:130:1
+    128| });
+    129|
+    130| it("conflicts rather than overwrite content the recovery checkpoint ca…
+       | ^
+    131|   const { project, service, owner } = await fixture();
+    132|   await writeFile(join(project, "a.txt"), "a-old\n");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/68]⎯
+
+ FAIL  tests/checkpoint-restore-v3.test.ts > preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:235:1
+    233| });
+    234|
+    235| it("preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when…
+       | ^
+    236|   const { project, service, owner } = await fixture();
+    237|   await writeFile(join(project, "a.txt"), "a-old\n");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/68]⎯
+
+ FAIL  tests/code-review-comparisons.test.ts > reads index and worktree overlap separately and binds selected patches to the complete revision
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/code-review-comparisons.test.ts:63:1
+     61| }
+     62|
+     63| it("reads index and worktree overlap separately and binds selected pat…
+       | ^
+     64|   const { tools, projectId, path } = await fixture();
+     65|   expect(tools.gitComparison).toBeTypeOf("function");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/68]⎯
+
+ FAIL  tests/code-review-comparisons.test.ts > reports clean, untracked text, binary and bounded large patches honestly
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/code-review-comparisons.test.ts:100:1
+     98| }, 60000);
+     99|
+    100| it("reports clean, untracked text, binary and bounded large patches ho…
+       | ^
+    101|   const { tools, projectId, path } = await fixture();
+    102|   const clean = await tools.gitComparison(projectId, "main", { scope: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/68]⎯
+
+ FAIL  tests/code-review-comparisons.test.ts > reads staged deletions and renames by exact selected paths
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/code-review-comparisons.test.ts:243:1
+    241| }, 60000);
+    242|
+    243| it("reads staged deletions and renames by exact selected paths", async…
+       | ^
+    244|   const { tools, projectId, path } = await fixture();
+    245|   await tools.git(path, ["rm", "--", "one.txt"]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/68]⎯
+
+ FAIL  tests/desktop-host.test.ts > launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token
+ FAIL  tests/desktop-host.test.ts > does not leave its backend running after the owning IPC channel disconnects
+Error: Desktop host reported a startup error before harness.ready
+ ❯ ChildProcess.message tests/desktop-host-ipc.ts:13:12
+     11|     clear();
+     12|     // Report the lifecycle failure without printing raw IPC, paths, o…
+     13|     reject(new Error('Desktop host reported a startup error before '+t…
+       |            ^
+     14|    }
+     15|   };
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/68]⎯
+
+ FAIL  tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ vi.waitFor.timeout tests/hermes-client.test.ts:53:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/68]⎯
+
+ FAIL  tests/hermes-client.test.ts > treats a denied host callback as an ordinary tool result during teardown
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ vi.waitFor.timeout tests/hermes-client.test.ts:63:46
+     61|  let release!:()=>void;const gate=new Promise<void>(done=>{release=don…
+     62|  const {client}=await fixture({onHostCall}),pending=client.request('ho…
+     63|  try{await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce(),{t…
+       |                                              ^
+     64|  finally{release();await client.dispose();await pending;}
+     65| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/68]⎯
+
+ FAIL  tests/hermes-host.test.ts > serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host
+ FAIL  tests/hermes-multi-original.test.ts > runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls
+ FAIL  tests/hermes-original-integration.test.ts > runs original Python and ACP through the native broker, persists a skill and finishes through the real Service
+HarnessError: The Hermes source worker stopped before completing its request.
+ ❯ HermesClient.fail packages/runtime-hermes/client.ts:102:37
+    100|  }
+    101|  private fail(code:string):void {
+    102|   if(this.closed)return;const error=new HarnessError(code,'The Hermes …
+       |                                     ^
+    103|   this.closed=true;for(const pending of this.pending.values()){clearTi…
+    104|   try{this.options.onFailure?.(error);}catch{/* An observer cannot pre…
+ ❯ ChildProcess.<anonymous> packages/runtime-hermes/client.ts:57:48
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/68]⎯
+
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/hermes-service.test.ts:55:1
+     53|  expect(x.store.get('data',op.id)).toMatchObject({value:{postEditHook:…
+     54| });
+     55| it('bounds hook admission while preserving every successful write and …
+       | ^
+     56|  const x=await preparedWrite(),operations=[x.op],resourceId=x.store.ge…
+     57|  for(let index=0;index<33;index++){
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/68]⎯
+
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+AssertionError: expected { …(11) } to match object { status: 'failed' }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "failed",
++   "status": "running",
+  }
+
+ ❯ tests/hermes-service.test.ts:85:197
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/68]⎯
+
+ FAIL  tests/integration-host.test.ts > keeps Biome write proposals and Spec Kit initialization unavailable in plan mode
+AssertionError: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/plan mode/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-integrations-python-deps\\specify_cli'"
+
+ ❯ tests/integration-host.test.ts:67:63
+     65|  const scope={authority:{kind:'local'} as const,threadId:thread.id};
+     66|  await expect(host.manager.command('biome','format',{paths:['.'],write…
+     67|  await expect(host.manager.command('spec-kit','init',{},scope)).reject…
+       |                                                               ^
+     68| });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/68]⎯
+
+ FAIL  tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\Users\Administrator\repos\gen-v1-m14\.harness-integrations-python-deps\graphify'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:39:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/68]⎯
+
+ FAIL  tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\Users\Administrator\repos\gen-v1-m14\.harness-integrations-python-deps\specify_cli'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:55:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/68]⎯
+
+ FAIL  tests/integration-mcp.test.ts > refuses linked Graphify graph input and linked export directories inside the owned fixture
+AssertionError: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/link|guard|resource|access/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat 'C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-integrations-python-deps\\graphify'"
+
+ ❯ tests/integration-mcp.test.ts:92:66
+     90|  // Both ends of each junction belong to this disposable fixture.
+     91|  await symlink(other,join(dataRoot,'graphify-out'),'junction');
+     92|  await expect(manager.callTool('graphify','graph_stats',{},scope)).rej…
+       |                                                                  ^
+     93|  await rm(join(dataRoot,'graphify-out'));await mkdir(join(dataRoot,'gr…
+     94|  await writeFile(join(dataRoot,'graphify-out/graph.json'),'{}');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/68]⎯
+
+ FAIL  tests/integrations.test.ts > admits exactly the ten bundled integrations without starting their MCP services
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/integrations.test.ts:23:84
+     21|  const {manager}=await setup();try{
+     22|   const statuses=await manager.inventory(local);expect(statuses).toHav…
+     23|   expect(statuses.every(item=>item.installed&&item.enabled&&item.state…
+       |                                                                                    ^
+     24|   expect(statuses.find(item=>item.id==='humanizer')?.capabilities.mcp)…
+     25|   expect(statuses.find(item=>item.id==='context7')?.capabilities.mcp).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/68]⎯
+
+ FAIL  tests/private-git-family.test.ts > imports once into protected private bare storage and creates three independent native worktrees
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/private-git-family.test.ts:29:1
+     27|  return{root,path,store,tools,git,projectId,add};
+     28| }
+     29| it('imports once into protected private bare storage and creates three…
+       | ^
+     30|  const f=await fixture(),bindings=await Promise.all(['one','two','thre…
+     31|  expect(new Set(bindings.map(x=>x.path)).size).toBe(3);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/68]⎯
+
+ FAIL  tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/project-search-host.test.ts:178:1
+    176| });
+    177|
+    178| it('stops at 10,000 ordinary files, without visiting the next file', a…
+       | ^
+    179|   const f = await fixture({ now: () => 0, monotonic: () => 0 });
+    180|   for (let batch = 0; batch < 101; batch++) await Promise.all(Array.fr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/68]⎯
+
+ FAIL  tests/review-host.test.ts > isolated actual-host recording fixtures > shows actual before/after SQLite rows and valid row-change annotations
+AssertionError: expected 'working' to match /^(ready|completed|failed|interrupted)$/
+
+- Expected:
+/^(ready|completed|failed|interrupted)$/
+
++ Received:
+"working"
+
+ ❯ settled tests/review-host.test.ts:26:113
+     24|   const command = (scenario: Scenario, type: string, payload: Record<s…
+     25|   async function settled(scenario: Scenario) {
+     26|     await expect.poll(() => host.service.thread(thread(scenario).id).s…
+       |                                                                                                                 ^
+     27|     const current = host.service.thread(thread(scenario).id);
+     28|     expect(current.error ?? null).toBeNull();
+ ❯ send tests/review-host.test.ts:31:182
+ ❯ tests/review-host.test.ts:80:5
+
+Caused by: Error: Matcher did not succeed in time.
+ ❯ settled tests/review-host.test.ts:26:5
+ ❯ send tests/review-host.test.ts:31:176
+ ❯ tests/review-host.test.ts:80:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/68]⎯
+
+ FAIL  tests/skill-catalog.test.ts > enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/skill-catalog.test.ts:26:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/68]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/skills-integration.test.ts:53:70
+     51|  const x=await fixture(),a=await x.account(providerId,'Current task'),…
+     52|  await x.send('account.select',{providerId,accountId:a.id});await x.se…
+     53|  await waitFor(()=>expect(x.started('primary',a,providerId)?.starts).t…
+       |                                                                      ^
+     54|  expect(input).toMatchObject({threadId:thread.id,modelId,accountId:a.i…
+     55|  expect(await primary.tool(input,'skill_manage',{operations:[createOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/68]⎯
+
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+AssertionError: expected 'running' to be 'succeeded' // Object.is equality
+
+Expected: "succeeded"
+Received: "running"
+
+ ❯ vi.waitFor.timeout tests/task-memory-recovery.test.ts:126:85
+    124|   expect(readFileSync(filename, 'utf8')).toBe('before');
+    125|   await x.command('operation.approve', { operationId: op.id, revision:…
+    126|   await vi.waitFor(() => expect(x.store.get<Operation>('operation', op…
+       |                                                                                     ^
+    127|   const receipt = x.store.get<Operation>('operation', op.id)!;
+    128|   const evidence = x.store.get('data', op.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/68]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > routes supported writes through durable identity and keeps inspection read-only
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:55:1
+     53| import {registerWorkspaceHost} from '../apps/server/workspace-host.ts';
+     54| import type {Service} from '../packages/core/service.ts';
+     55| it('routes supported writes through durable identity and keeps inspect…
+       | ^
+     56|  const f=await fixture(),{input,operation}=await f.operation('review-p…
+     57|  remote(f,async()=>{writes++;return{id:77,body:'private remote respons…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/68]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > an exact local stale-head preflight is not-applied before entering a mutation
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:71:28
+     69|
+     70|
+     71| it.each(['head','worktree'])('an exact local stale-%s preflight is not…
+       |                            ^
+     72|  const f=await fixture(),{input,operation}=await f.operation();
+     73|  await writeFile(join(f.binding.path,'one.txt'),'advance the managed h…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/68]⎯
+
+ FAIL  tests/workspace-action-outcome-routes.test.ts > valid Unicode review text fits submission and exact read-only inspection
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcome-routes.test.ts:85:1
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > commits intent before local write and private result before event, then replays after Store restart
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:170:1
+    168| }
+    169|
+    170| it('commits intent before local write and private result before event,…
+       | ^
+    171|   const f = await fixture();
+    172|   await writeFile(join(f.binding.path, 'one.txt'), 'private staged con…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > retains interrupted remote write as uncertain across restart without submitting it again
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:198:1
+    196| }, 60000);
+    197|
+    198| it('retains interrupted remote write as uncertain across restart witho…
+       | ^
+    199|   const f = await fixture(),
+    200|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:222:1
+    220| }, 60000);
+    221|
+    222| it('serializes same-ID attempts across separate Store connections with…
+       | ^
+    223|   const f = await fixture(),
+    224|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed payload
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed type
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed projectId
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:252:62
+    250| }, 60000);
+    251|
+    252| it.each(['payload', 'type', 'threadId', 'projectId'] as const)(
+       |                                                              ^
+    253|   'denies reuse of an ID with a changed %s',
+    254|   async (field) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > inspects original payload/revision without current diff, review reads, or any write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:279:1
+    277| );
+    278|
+    279| it('inspects original payload/revision without current diff, review re…
+       | ^
+    280|   const f = await fixture(),
+    281|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:301:1
+    299| }, 60000);
+    300|
+    301| it('returns revoked after working copy or account access changes, incl…
+       | ^
+    302|   const f = await fixture(),
+    303|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps private intent, result, credentials and errors out of events, receipts and snapshots
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:320:1
+    318| }, 60000);
+    319|
+    320| it('keeps private intent, result, credentials and errors out of events…
+       | ^
+    321|   const f = await fixture(),
+    322|     { input } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps missing and legacy records uncertain without adopting unbound receipts
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:339:1
+    337| }, 60000);
+    338|
+    339| it('keeps missing and legacy records uncertain without adopting unboun…
+       | ^
+    340|   const f = await fixture(),
+    341|     { input, operation } = await f.operation();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > records not-applied only after host rejection before starting and never restarts that ID
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:356:1
+    354| }, 60000);
+    355|
+    356| it('records not-applied only after host rejection before starting and …
+       | ^
+    357|   const f = await fixture(),
+    358|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps completed external write uncertain if durable result commit fails
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:384:1
+    382| }, 60000);
+    383|
+    384| it('keeps completed external write uncertain if durable result commit …
+       | ^
+    385|   const f = await fixture(),
+    386|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > recovers a confirmed review when the remote branch name differs from the managed local branch
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:400:1
+    398| }, 60000);
+    399|
+    400| it('recovers a confirmed review when the remote branch name differs fr…
+       | ^
+    401|   const f = await fixture(),
+    402|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:411:1
+    409| }, 60000);
+    410|
+    411| it('keeps an active prepared reservation uncertain until its owner dur…
+       | ^
+    412|   const f = await fixture(),
+    413|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+Error: EBUSY: resource busy or locked, rmdir 'C:\Users\Administrator\AppData\Local\Temp\gen-action-outcome-Q81KQC'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > rejects a profile replaced between inspection identity capture and credential read
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:462:1
+    460| }, 60000);
+    461|
+    462| it('rejects a profile replaced between inspection identity capture and…
+       | ^
+    463|   const f = await fixture(),
+    464|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/68]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:477:1
+    475| }, 60000);
+    476|
+    477| it('supports local unstage and commit through the original revision an…
+       | ^
+    478|   const f = await fixture();
+    479|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/68]⎯
+
+
+ Test Files  23 failed | 357 passed | 2 skipped (382)
+      Tests  67 failed | 4086 passed | 48 skipped (4201)
+   Start at  04:02:08
+   Duration  1162.75s (transform 45.43s, setup 0ms, import 184.25s, tests 7310.32s, environment 62ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

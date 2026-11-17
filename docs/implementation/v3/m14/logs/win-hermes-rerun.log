@@ -1,0 +1,75 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/gen-v1-m14
+
+ ❯ tests/hermes-client.test.ts (13 tests | 1 failed) 72169ms
+   × drains owned host callbacks even when process cancellation fails 7426ms
+ ❯ tests/integration-mcp.test.ts (12 tests | 2 failed) 50685ms
+   × builds a real Graphify code graph, queries its stdio server and exports GraphML without a model 59ms
+   × initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host 47ms
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 172097ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 61348ms
+   × never supplies completed-write custody for unapproved or failed effects 11745ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ vi.waitFor.timeout tests/hermes-client.test.ts:53:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/hermes-service.test.ts:55:1
+     53|  expect(x.store.get('data',op.id)).toMatchObject({value:{postEditHook:…
+     54| });
+     55| it('bounds hook admission while preserving every successful write and …
+       | ^
+     56|  const x=await preparedWrite(),operations=[x.op],resourceId=x.store.ge…
+     57|  for(let index=0;index<33;index++){
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+AssertionError: expected { …(11) } to match object { status: 'failed' }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "failed",
++   "status": "running",
+  }
+
+ ❯ tests/hermes-service.test.ts:85:197
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+Error: Command failed: C:\Windows\py.exe -3.14 -I -S -B C:\Users\Administrator\repos\gen-v1-m14\packages\integrations\python-entry.py graphify extract C:\Users\Administrator\AppData\Local\Temp\harness-real-mcp-t8e9cu --code-only --max-workers 1 --out C:\Users\Administrator\AppData\Local\Temp\harness-real-mcp-t8e9cu\integrations\graphify-YhY4xB
+No suitable Python runtime found
+Pass --list (-0) to see all detected environments on your machine
+or set environment variable PYLAUNCHER_ALLOW_INSTALL to use winget
+or open the Microsoft Store to the requested version.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+Error: Command failed: C:\Windows\py.exe -3.14 -I -S -B C:\Users\Administrator\repos\gen-v1-m14\packages\integrations\python-entry.py specify init --here --force --non-interactive --integration generic --integration-options=--commands-dir .harness/spec-kit/commands --script py --ignore-agent-tools
+No suitable Python runtime found
+Pass --list (-0) to see all detected environments on your machine
+or set environment variable PYLAUNCHER_ALLOW_INSTALL to use winget
+or open the Microsoft Store to the requested version.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed | 5 passed (8)
+      Tests  5 failed | 50 passed (55)
+   Start at  04:54:42
+   Duration  197.94s (transform 6.67s, setup 0ms, import 9.63s, tests 382.90s, environment 1ms)
+

@@ -115,6 +115,50 @@ response, not inside this artifact.
 - Live UI acceptance: source-bound only (typecheck/lint/build/unit
   dispatch); no live browser proof of `SessionBranchMenu`.
 
+## Windows x64 continuation (receipts in `win-*.log`)
+
+Executed on Windows Server 2025 x64 (node v24.22.2, pnpm 10.30.3,
+CPython 3.14.9 at `C:\Python314`, Edge 157, WSL2 Ubuntu x86_64 for the
+custody class) from worktree `C:\Users\Administrator\repos\gen-v1-m14`
+on `agent/m14-v3` at `30b5d649`.
+
+- Gates: `pnpm typecheck` / `lint` / `build` PASS; consumed contract
+  suites 9/9 files 147 tests PASS (capabilities included — the Windows
+  path guard satisfies the custody class).
+- X1 custody: all 4 `linux-path-guard` fixture probes PASS under WSL2
+  (x86_64 + euid 0 + ext4 state-root owned by a third uid) —
+  idmapped custody, credential-alias qualification, negative control,
+  nested account profile. The aarch64 arch pin does not apply; the
+  ~40 custody test files still fail under WSL vitest because vitest
+  itself is not broker-spawned (fd3/fd4 come from the broker), so the
+  fixture probes are the custody evidence.
+- W1 packaged tests: 27/27 PASS (packaged-providers/rg.exe,
+  desktop-packaging, cursor-offline-executor, cursor-sdk-mcp-metadata).
+- W4 hermes bundle: CPython 3.14.9 provisioned via nuget; `py -3.14`
+  fixed through the legacy-launcher `ExecutablePath` registry value;
+  bundle materialized inside `desktop:package`.
+- `pnpm test`: 4086 passed / 67 failed / 48 skipped (23 of 382 files,
+  1162s) — vs 298 failed on aarch64. Python provisioning cleared all 24
+  integration/hermes failures. Quiet rerun of the residual set: 29 fail
+  / 127 pass, dominated by windows-path-guard acquire latency
+  (powershell+Add-Type ~5–15s per acquire vs the 60s test timeout) and
+  integration-mcp environment gaps. No M14-caused failure.
+- W2 `pnpm test:browser` (real Edge): 35 of 76 suites failed in the
+  loaded run and all 35 fail again in a quiet serial rerun — 417 test
+  failures plus 6 suites whose `config.webServer` uses the Unix
+  `exec timeout` convention and cannot start on Windows at all
+  (file-checkpoints, redundant-ui, terminal-excerpts, conversation-find,
+  project-search, wo5-app-integration). Largest clusters: shell 63,
+  files-reading 46, generated-selects 42. No M14 surface implicated.
+- W3 desktop: `desktop:build` + `desktop:package` PASS —
+  `Gen-V1-Setup-0.6.5-win-x64.exe` produced. `verify-installed-desktop`
+  runs the whole owned matrix (NSIS install, payload custody, provider
+  verification, installed launches, memory proposal review) and fails
+  only at the project-memory native-save export: the real Windows
+  Save-As dialog completes but the `saved` status never appears
+  ("the native save was interrupted or its byte count changed");
+  deterministic across two runs including a quiet-box retry.
+
 ## Holds
 
 - `HOLD_NATIVE_FORK` — no `RuntimeAdapter` implementation exposes a

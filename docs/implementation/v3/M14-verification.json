@@ -92,6 +92,21 @@
           "id": "linux-directory-custody",
           "status": "FAIL",
           "evidence": "capabilities.test.ts: 13 failures of class CAPABILITY_DENIED from packages/core/linux-path-guard.ts. Root cause verified: packages/core/linux-path-guard.py private_profile() requires os.uname().machine==\"x86_64\" plus euid 0 and ext4 \u2014 this aarch64 host cannot launch the custody broker at all; the AppArmor userns restriction is a separate earlier denial now confirmed irrelevant (temporarily relaxed then restored with no effect). x86_64-only environmental gate, not an M14 product failure."
+        },
+        {
+          "id": "windows-consumed-contract-suites",
+          "status": "PASS",
+          "evidence": "win-x64: 9 of 9 consumed contract files pass (147 tests) including capabilities.test.ts \u2014 the Windows path guard satisfies the custody class that aarch64 could not launch."
+        },
+        {
+          "id": "win-x1-wsl2-custody-class",
+          "status": "PASS",
+          "evidence": "linux-path-guard custody broker launches under WSL2 (x86_64 kernel, euid 0, ext4 state-root owned by a third uid): all 4 fixture probes pass \u2014 LOCAL_NATIVE_IDMAPPED_DIRECTORY_CUSTODY (guardedRename EBUSY, atomicSave, nestedRelease, EACCES, symlink/hardlink rejected, Hermes hello pythonVersion 3.14.10), LOCAL_SYNTHETIC_CREDENTIAL_ALIAS_QUALIFICATION, UNPROTECTED_LINUX (denied), LOCAL_NESTED_ACCOUNT_PROFILE. The aarch64 blocker does not apply on x86_64."
+        },
+        {
+          "id": "windows-integrations-python314",
+          "status": "PASS",
+          "evidence": "py -3.14 resolves to C:\\Python314\\python.exe (3.14.9) after provisioning the nuget CPython 3.14 win32-x64 package and adding the legacy-launcher ExecutablePath registry value; integrations suite rerun 24/24 PASS."
         }
       ],
       "commands": [
@@ -121,6 +136,156 @@
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
           "logDigest": "ec2421b75bf96bfd8b2b045f0582a6238c2e6d057a2fc105bc7b30b5e0856c2f"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/store.test.ts",
+            "tests/conversation-read-models.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/m14-evidence-gates.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:59:21Z",
+          "endedAt": "2026-11-17T04:01:49Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-consumed-contract-tests.log",
+          "logDigest": "89c03fb7714d2f037a32fcc12872582fa1605d451fb13e34fc771b1ece5b600a"
+        },
+        {
+          "argv": [
+            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "/root/m14-custody-root",
+            "--",
+            "/opt/node24/bin/node",
+            "--import",
+            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
+            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
+            "/root/genv1-m14"
+          ],
+          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:30:00Z",
+          "endedAt": "2026-11-17T05:40:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+        },
+        {
+          "argv": [
+            "/opt/node24/bin/node",
+            "--import",
+            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
+            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
+            "/root/genv1-m14",
+            "credential-mounts"
+          ],
+          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "/opt/node24/bin/node (v24.22.2, WSL2 Ubuntu)",
+          "startedAt": "2026-11-17T05:40:00Z",
+          "endedAt": "2026-11-17T05:44:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+        },
+        {
+          "argv": [
+            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "/root/m14-custody-root",
+            "--",
+            "/opt/node24/bin/node",
+            "--import",
+            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
+            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
+            "/root/genv1-m14",
+            "unprotected"
+          ],
+          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:44:00Z",
+          "endedAt": "2026-11-17T05:45:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+        },
+        {
+          "argv": [
+            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "/root/m14-custody-root",
+            "--",
+            "/opt/node24/bin/node",
+            "--import",
+            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
+            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
+            "/root/genv1-m14",
+            "account-profile-child"
+          ],
+          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:45:00Z",
+          "endedAt": "2026-11-17T05:46:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/integrations.test.ts",
+            "tests/integration-hermes-python.test.ts",
+            "tests/integration-mcp.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:58:51Z",
+          "endedAt": "2026-11-17T05:00:08Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-integrations-rerun.log",
+          "logDigest": "057bfce89a6dec7e22165ebed4c2c86d90e2fd2e970750ed49722c30154c4e1e"
         }
       ],
       "artifactRefs": []
@@ -179,6 +344,11 @@
           "id": "build",
           "status": "PASS",
           "evidence": "scripts/build.mjs completed; web bundle includes the SessionBranchMenu chunk."
+        },
+        {
+          "id": "windows-gates",
+          "status": "PASS",
+          "evidence": "win-x64 (Windows Server 2025, node v24.22.2, pnpm 10.30.3): tsc --noEmit clean, lint-ui --check 0 violations, vite build PASS."
         }
       ],
       "commands": [
@@ -226,6 +396,51 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-build.log",
           "logDigest": "e69756543a85d4251e965e1949b50691030271d0ede6478eee949a4d38122d53"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:55:30Z",
+          "endedAt": "2026-11-17T03:58:03Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-typecheck.log",
+          "logDigest": "94600ffa1dafce319e07ada78bc964881577719ec8b6d00678772eabccfe43ef"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:58:10Z",
+          "endedAt": "2026-11-17T03:59:06Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-lint.log",
+          "logDigest": "0b2038f364fd5284f83fb2398fde57c30b31e0e4db91190a863202d4da761521"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:58:30Z",
+          "endedAt": "2026-11-17T03:59:15Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-build.log",
+          "logDigest": "60fd432686947b5b83de970b530180abffc4a909714d2819ee79a2ddabf30799"
         }
       ],
       "artifactRefs": []
@@ -238,6 +453,11 @@
           "id": "credential-lease-and-widgets",
           "status": "PASS",
           "evidence": "pnpm build:credential-lease and pnpm build:widgets both exit 0 before test runs."
+        },
+        {
+          "id": "windows-hermes-bundle",
+          "status": "PASS",
+          "evidence": "CPython 3.14.9 win32-x64 provisioned at C:\\Python314 (nuget package, no UAC); the staged hermes host bundle materialized inside desktop:package with HARNESS_HERMES_PYTHON (pnpm install of staged host + projection succeeded)."
         }
       ],
       "commands": [
@@ -292,6 +512,11 @@
           "id": "history-import-decisions-v6",
           "status": "PASS",
           "evidence": "11/11 tests: exact D01-D05 decision cases."
+        },
+        {
+          "id": "windows-packaged-tests",
+          "status": "PASS",
+          "evidence": "win-x64 packaged-native tests that could not run on aarch64 Linux now pass 27/27: packaged-providers (rg.exe), desktop-packaging, cursor-offline-executor, cursor-sdk-mcp-metadata."
         }
       ],
       "commands": [
@@ -348,6 +573,28 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
           "logDigest": "1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/packaged-providers.test.ts",
+            "tests/desktop-packaging.test.ts",
+            "tests/cursor-offline-executor.test.ts",
+            "tests/cursor-sdk-mcp-metadata.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T06:53:21Z",
+          "endedAt": "2026-11-17T06:53:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-w1-packaged-tests.log",
+          "logDigest": "c1656d68c4363996af1b0bab0366328d9258728debccb58bc39d83fa0e0cbffd"
         }
       ],
       "artifactRefs": [
@@ -470,6 +717,11 @@
           "id": "full-vitest",
           "status": "FAIL",
           "evidence": "pnpm test (build:credential-lease + build:widgets + vitest run): 3845 passed / 298 failed / 58 skipped, 45 of 382 files failing in 918s. Environment fixes (node-pty build, win32 SDK install) cleared 21 previously-failing files vs the audited 66. Remaining failures: ~40 files of x86_64-pinned linux-path-guard custody tests (broker requires x86_64+root+ext4; host is aarch64), Windows-only packaged-native tests (rg.exe, vendored win32 .node), missing bundled hermes-python toolchain, and shared-box contention timeouts. No M14-caused failure."
+        },
+        {
+          "id": "windows-unit-baseline",
+          "status": "FAIL",
+          "evidence": "pnpm test on win-x64: 4086 passed / 67 failed / 48 skipped, 23 of 382 files failing in 1162s \u2014 a large improvement over the aarch64 baseline (298 failed). py -3.14 provisioning cleared all 24 integration/hermes python-resolution failures. Quiet single-worker rerun of the residual set: 29 fail / 127 pass, dominated by windows-path-guard Acquire latency (each acquire spawns powershell+Add-Type ~5-15s, exceeding the 60s vitest timeout under multi-acquire tests), plus hermes custody denials and integration-mcp Graphify/spec-kit environment gaps. No failure implicates M14 product code (session-branches, history-import, contracts, routes, SessionBranchMenu all pass)."
         }
       ],
       "commands": [
@@ -490,18 +742,66 @@
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
           "logDigest": "158955462a159313cb6713b4f803e5cb9e8dab3ea835df3f9c3e68be4ebd97ad"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:01:59Z",
+          "endedAt": "2026-11-17T04:21:31Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-pnpm-test.log",
+          "logDigest": "a9757fbe90da7824624fb15fa3b4c26400210854e049427e21f84b7d640ea782"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/hermes-client.test.ts",
+            "tests/hermes-service.test.ts",
+            "tests/account-parity.test.ts",
+            "tests/skills-integration.test.ts",
+            "tests/account-profile.test.ts",
+            "tests/runtime-router.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/code-review-comparisons.test.ts",
+            "tests/private-git-family.test.ts",
+            "tests/workspace-action-outcomes.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T06:53:44Z",
+          "endedAt": "2026-11-17T07:19:52Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-failures-rerun2.log",
+          "logDigest": "da8b9f35e10a8b7330d700bfd2a01da91c6025fe8fe1afcf72f004c803f9e3d1"
         }
       ],
       "artifactRefs": []
     },
     {
       "id": "INTEGRATION.baseline-browser",
-      "status": "BLOCKED",
+      "status": "FAIL",
       "requiredCases": [
         {
           "id": "playwright-gate",
           "status": "FAIL",
           "evidence": "pnpm test:browser now executes real specs after the node-pty build fix (28 passed across projects). Remaining failures are platform/environmental: browser-action.spec.ts needs /opt/google/chrome and ui-shell-overlays.spec.ts needs /opt/microsoft/msedge \u2014 neither Chrome nor Edge exists for aarch64 Linux; plus sibling-worktree dev-server port conflicts (5397/5499/5636) and EACCES on foreign /tmp artifacts. No M14 browser surface is implicated."
+        },
+        {
+          "id": "windows-browser-baseline",
+          "status": "FAIL",
+          "evidence": "win-x64 real Edge (v157): first run 35 of 76 suites failed (~418 test failures, run under parallel load); quiet serial rerun of all 35 failed suites \u2014 all 35 fail again (417 unexpected + 6 suites never start: file-checkpoints, redundant-ui, terminal-excerpts, conversation-find, project-search, wo5-app-integration fail at config.webServer which uses the Unix `exec timeout` convention). Largest test-fail clusters: shell 63, files-reading 46, generated-selects 42, settings-leaf-selects 34, terminal-read 26, memory-recovery 25, graph-popovers/sidebar-shared-menu 24, browser-action 22, pdf 20 \u2014 Windows-specific UI-timing baseline consistent with previously recorded win baselines (shared-panels 6, workspace improved to 1). No failure implicates M14 surfaces (no session-branch/import tests among failures)."
         }
       ],
       "commands": [
@@ -519,21 +819,104 @@
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-test-browser.log",
           "logDigest": "2873d3d6a37d876d098a100f4936ed2ca56945ee32bc08ecc5bd1b1498c1c9c9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T05:00:30Z",
+          "endedAt": "2026-11-17T06:45:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser.log",
+          "logDigest": "8e7605411db96eaa3159cd9555d5791ed666c391c211d888757a4de102a56665"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "<35 previously-failed suites, serial>"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T07:20:00Z",
+          "endedAt": "2026-11-17T08:13:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser-rerun.log",
+          "logDigest": "837b1000d20ece9850908c021638b818d4a230814bcb2a4ffbb37035d49bc54a"
         }
       ],
       "artifactRefs": []
     },
     {
       "id": "PLATFORM.native-and-installed-desktop",
-      "status": "BLOCKED",
+      "status": "FAIL",
       "requiredCases": [
         {
-          "id": "windows-installed-matrix",
-          "status": "NOT_RUN",
-          "evidence": "Windows/installed-desktop evidence cannot run on this Linux host; the Windows build script no-ops here. Not claimed as passing."
+          "id": "windows-native-and-installed-desktop",
+          "status": "FAIL",
+          "evidence": "desktop:build and desktop:package produce Gen-V1-Setup-0.6.5-win-x64.exe + win-unpacked on win-x64. verify-installed-desktop runs the full owned matrix \u2014 NSIS install, payload custody, provider verification, two installed launches with local recovery, memory proposal review/accept/reject \u2014 and fails only at the project-memory native-save export: the real Windows Save-As dialog completes but [data-memory-export-status=\"saved\"] never appears (\"the native save was interrupted or its byte count changed\"); deterministic across two runs including a quiet-box retry. Packaged-providers verification passed (passed:true)."
         }
       ],
-      "commands": [],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "desktop:build"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:40:00Z",
+          "endedAt": "2026-11-17T04:44:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-build.log",
+          "logDigest": "70d1dd1eebb4ccb91ab10cd7287bd08818bd70e86465d3016ba56454825403e4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "desktop:package"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
+          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T05:10:00Z",
+          "endedAt": "2026-11-17T05:24:26Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-package.log",
+          "logDigest": "9d422fc6e7aae95654ed96f8f1b940562667eac14c99500e51ed729469d9a645"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "file:///C:/Users/Administrator/repos/gen-v1-m14/node_modules/tsx/dist/esm/index.mjs",
+            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\scripts\\verify-installed-desktop.ts",
+            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+            "--project-memory-retention"
+          ],
+          "cwdIdentity": "C:\\v",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-17T06:37:09Z",
+          "endedAt": "2026-11-17T06:52:39Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-verify-installed2.log",
+          "logDigest": "0a330f4feadebd87a3715e119cb127107241fba14030ae7ac7f7469dca40d54a"
+        }
+      ],
       "artifactRefs": []
     },
     {
