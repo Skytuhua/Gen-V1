@@ -118,7 +118,7 @@ jobs:
       - name: Exercise project memory and affected context browser flows
         run: |
           $failedSuites = @()
-          foreach ($suite in @('project-memory', 'usage-context', 'verification-host', 'frontend-refinement', 'inbox-controls', 'root')) {
+          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
             pnpm test:browser --suite $suite
             if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
           }
@@ -138,6 +138,60 @@ jobs:
             test-results/browser/**/artifacts/**/*.png
             test-results/browser/**/artifacts/**/trace.zip
             test-results/browser/**/artifacts/**/host-observations.json
+
+  verification-controls:
+    name: M06 verification controls
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        id: setup
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+          playwright: 'true'
+
+      - name: Build web application
+        id: build
+        run: pnpm build
+
+      - name: Verify bounded repair lifecycle
+        run: pnpm exec vitest run tests/verification-workflow.test.ts --maxWorkers=1
+
+      - name: Exercise real host controls and owner-scoped browser states
+        if: ${{ always() && !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: |
+          $failedSuites = @()
+          foreach ($suite in @('verification-host', 'usage-context')) {
+            pnpm test:browser --suite $suite
+            if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+          }
+          if ($failedSuites.Count -gt 0) {
+            throw "Failed verification browser suites: $($failedSuites -join ', ')"
+          }
+
+      - name: Preserve verification reports and traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verification-controls-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            test-results/browser/**/results.json
+            test-results/browser/**/artifacts/**/*.png
+            test-results/browser/**/artifacts/**/trace.zip
+            test-results/browser/**/artifacts/**/host-observations.json
+            test-results/browser/**/artifacts/**/verification-host-observations.json
+            test-results/browser/**/artifacts/**/*-http.json
 
   hermes:
     name: Hermes contracts

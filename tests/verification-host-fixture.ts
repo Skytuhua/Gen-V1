@@ -22,11 +22,13 @@ export const VERIFICATION_FIXTURE_LABEL = 'Verification host contract fixture (n
 export const INJECTED_LOG = 'Injected executor observation only. No native process or provider inference ran.\n<script>window.verificationLogExecuted = true</script>\n';
 export const VERIFICATION_SOURCE = 'export const contractVersion = 1;\n';
 export const VERIFICATION_CHANGED_SOURCE = 'export const contractVersion = 2;\n';
+export const VERIFICATION_REPAIR_PROMPT = 'Prepare the injected contract check for bounded repair review.';
 
 class ForegroundRuntime implements RuntimeAdapter {
   private callbacks!: RuntimeCallbacks;
   readonly deliveries: StartRun[] = [];
-  constructor(private readonly folder: string) {}
+  readonly prepared: {threadId: string; runId: string; epoch: number; operationId: string}[] = [];
+  constructor(private readonly folder: string, private readonly proposal: () => VerificationPrepareInput) {}
   configure(callbacks: RuntimeCallbacks) {this.callbacks = callbacks;}
   async models() {return [{id: 'fixture/verification-contract', provider: 'fixture', name: VERIFICATION_FIXTURE_LABEL}];}
   async history(path: string): Promise<string[]> {try {return JSON.parse(await readFile(path, 'utf8'));} catch (error) {if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []; throw error;}}
@@ -42,6 +44,10 @@ class ForegroundRuntime implements RuntimeAdapter {
     this.callbacks.onEvent({...input, type: 'session', sessionPath});
     this.callbacks.onEvent({...input, type: 'input.processing', inputIds});
     this.callbacks.onEvent({...input, type: 'assistant.message', messageId: randomUUID(), inputIds, content: VERIFICATION_FIXTURE_LABEL});
+    if (input.prompt.includes(VERIFICATION_REPAIR_PROMPT) && !inputIds.some(id => id.startsWith('operation-result:'))) {
+      const operation = await this.callbacks.onTool({name: 'verification_prepare', args: this.proposal()}, input) as Operation;
+      this.prepared.push({threadId: input.threadId, runId: input.runId, epoch: input.epoch, operationId: operation.id});
+    }
     if (inputIds.some(id => id.startsWith('operation-result:')))
       await this.callbacks.onTool({name: 'task_finish', args: {outcome: 'The injected contract check completed.'}}, input);
     // Keep the real parent run active while its approved verification operates.
@@ -58,9 +64,9 @@ export class VerificationHostFixture {
   readonly projectPath: string;
   readonly sourcePath: string;
   readonly requests: {method: string; url: string; status: number; csrf: boolean; body: unknown}[] = [];
-  readonly launches: {argv: string[]; effectId: string; approvalId: string; executionId: string; pid: number; terminated: boolean}[] = [];
+  readonly launches: {argv: string[]; effectId: string; approvalId: string; executionId: string; pid: number; exitCode: number; terminated: boolean}[] = [];
   readonly qa: QaObservation[] = [];
-  constructor(readonly folder: string, readonly configured: boolean) {this.projectPath = join(folder, 'project'); this.sourcePath = join(this.projectPath, 'app.ts');}
+  constructor(readonly folder: string, readonly configured: boolean, private readonly exitCodes: readonly number[] = [], private readonly composerQa = false) {this.projectPath = join(folder, 'project'); this.sourcePath = join(this.projectPath, 'app.ts');}
   async start() {
     await mkdir(this.projectPath);
     await writeFile(this.sourcePath, VERIFICATION_SOURCE);
@@ -73,7 +79,7 @@ export class VerificationHostFixture {
     };
     this.host = await launchHost({dataDir: join(this.folder, 'profile'), port: 5561, widgetPort: 5562, dev: false,
       pluginDir: join(this.folder, 'plugins'), capabilityFlags: {}, ...(this.configured ? {verificationExecutor: forward} : {})}, {
-      createRuntime: () => this.runtime = new ForegroundRuntime(this.folder),
+      createRuntime: () => this.runtime = new ForegroundRuntime(this.folder, () => this.proposal(this.composerQa)),
       createService: (store, runtime, capabilities) => {
         this.store = store;
         return this.service = new Service(store, runtime, {verificationExecutor: capabilities?.verificationExecutor,
@@ -111,9 +117,10 @@ export class VerificationHostFixture {
           throw Error('Fixture launch requires consumed ordinary user approval and durable M02 dispatch.');
         if (request.executable !== executable || JSON.stringify(request.argv) !== JSON.stringify(['check'])) throw Error('Fixture executor received an unapproved command.');
         const intent = operation.args.intent as {executionId: string}, pid = 10_000 + this.launches.length;
-        const observation = {argv: [...request.argv], effectId, approvalId: approval.approvalId, executionId: intent.executionId, pid, terminated: false};
+        const exitCode = this.exitCodes[this.launches.length] ?? 0;
+        const observation = {argv: [...request.argv], effectId, approvalId: approval.approvalId, executionId: intent.executionId, pid, exitCode, terminated: false};
         this.launches.push(observation);
-        return {pid, tree: async () => [pid], wait: async () => ({exitCode: 0, termination: 'NONE' as const}),
+        return {pid, tree: async () => [pid], wait: async () => ({exitCode, termination: 'NONE' as const}),
           log: async () => ({text: INJECTED_LOG, truncated: false}), terminate: async () => {observation.terminated = true;}};
       },
     };
@@ -148,10 +155,12 @@ export class VerificationHostFixture {
   async close() {await this.host?.close();}
 }
 
-export const test = base.extend<{verificationHost: VerificationHostFixture; verificationBackend: boolean}>({
+export const test = base.extend<{verificationHost: VerificationHostFixture; verificationBackend: boolean; verificationExitCodes: number[]; verificationComposerQa: boolean}>({
   verificationBackend: [true, {option: true}],
-  verificationHost: async ({verificationBackend}, use, info) => {
-    const folder = await mkdtemp(join(tmpdir(), 'gen-verify-host-')), host = new VerificationHostFixture(folder, verificationBackend);
+  verificationExitCodes: [[], {option: true}],
+  verificationComposerQa: [false, {option: true}],
+  verificationHost: async ({verificationBackend, verificationExitCodes, verificationComposerQa}, use, info) => {
+    const folder = await mkdtemp(join(tmpdir(), 'gen-verify-host-')), host = new VerificationHostFixture(folder, verificationBackend, verificationExitCodes, verificationComposerQa);
     const prior = process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
     process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1 = '1';
     await mkdir(info.outputDir, {recursive: true});
@@ -161,7 +170,7 @@ export const test = base.extend<{verificationHost: VerificationHostFixture; veri
         await writeFile(info.outputPath('verification-host-observations.json'), JSON.stringify({fixture: VERIFICATION_FIXTURE_LABEL,
           scope: 'Production built App, HTTP session/CSRF, Service, SQLite, M02 approval, executor policy/seals and artifact viewer. Foreground, QA and executor outputs are injected contract observations. No native confinement, installed platform or provider proof.',
           configured: host.configured, ports: [5561, 5562], requests: host.requests, launches: host.launches, qa: host.qa,
-          deliveries: host.runtime?.deliveries, snapshot: host.store?.db.isOpen ? host.store.snapshot() : null}, null, 2));
+          deliveries: host.runtime?.deliveries, preparedFromComposer: host.runtime?.prepared, snapshot: host.store?.db.isOpen ? host.store.snapshot() : null}, null, 2));
       } finally {
         try {await host.close(); await rm(folder, {recursive: true, force: true, maxRetries: 5});}
         finally {if (prior === undefined) delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1; else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1 = prior;}
