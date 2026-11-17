@@ -590,7 +590,6 @@ export class CheckpointService {
       [{ path: directory, leaf: false, allowChildWrites: true }],
       signal,
       async () => {
-        let linked = false;
         try {
           const file = await open(temp, "wx", 0o600);
           let tempIdentity: { dev: bigint; ino: bigint };
@@ -607,7 +606,6 @@ export class CheckpointService {
             // bytes have no recovery backup, so the rename must never clobber.
             try {
               await link(temp, absolute);
-              linked = true;
             } catch (error) {
               if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new HarnessError("REVISION_CHANGED", `The destination ${absolute} appeared during restore.`);
               throw error;
@@ -617,9 +615,11 @@ export class CheckpointService {
           // identity names the verified temp source; the destination preimage is
           // re-verified against the preview digest on a single opened handle.
           await replaceOwnedFile(temp, absolute, tempIdentity, sha256hex(bytes), signal, sha256hex(before));
-          linked = true;
         } finally {
-          if (!linked) await rm(temp, { force: true }).catch(() => {});
+          // A successful link leaves the temp name as a second hardlink, and a
+          // successful replace consumes it via rename — rm covers both plus
+          // every failure path.
+          await rm(temp, { force: true }).catch(() => {});
         }
       },
     );
