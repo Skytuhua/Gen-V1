@@ -46,9 +46,13 @@ export function dropPatch(item: Thread, target: DropTarget, showWorking: boolean
   return sectionOf(item, showWorking, patch) === target.list ? patch : null;
 }
 
-/** Clamp an insertion into the run of rows that shares item's group, the only positions grouping can render. */
-export function withinGroup(rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null): number {
-  const key = groupKey?.(item);
+/**
+ * Clamp an insertion into the run of rows that shares item's group. Only the
+ * flat list renders project runs; the other sections interleave projects, so a
+ * position there means exactly what the indicator showed.
+ */
+export function withinGroup(list: SidebarSection, rows: readonly Thread[], item: Thread, index: number, groupKey?: (item: Thread) => string | null): number {
+  const key = list === 'flat' ? groupKey?.(item) : null;
   if (key === undefined || key === null) return index;
   const run = rows.flatMap((candidate, at) => (groupKey!(candidate) === key ? [at] : []));
   return run.length ? Math.min(Math.max(index, run[0]!), run.at(-1)! + 1) : index;
@@ -64,20 +68,22 @@ function listRows(container: HTMLElement, excludeId: string): { id: string; rect
 }
 
 /** Resolve a pointer position into a concrete insertion target inside the nav. */
-export function insertionAt(nav: HTMLElement, _x: number, y: number, excludeId: string): { target: DropTarget; top: number } | null {
+export function insertionAt(nav: HTMLElement, _x: number, y: number, excludeId: string): { target: DropTarget; top: number; gap: (index: number) => number } | null {
   const container = [...nav.querySelectorAll<HTMLElement>('[data-thread-list]')]
     .find(node => { const rect = node.getBoundingClientRect(); return y >= rect.top && y <= rect.bottom; });
   if (!container) return null;
   const list = container.dataset.threadList as SidebarSection;
   const rows = listRows(container, excludeId);
   const bounds = container.getBoundingClientRect();
-  let index = rows.length, top = bounds.bottom;
+  // The indicator line for any insertion index, so a clamped insertion can still be shown.
+  const gap = (index: number) => index < rows.length
+    ? rows[index]!.rect.top
+    : rows.length ? rows.at(-1)!.rect.bottom : Math.min(bounds.top + 30, bounds.bottom);
+  let index = rows.length;
   for (let n = 0; n < rows.length; n++) {
-    const mid = rows[n]!.rect.top + rows[n]!.rect.height / 2;
-    if (y < mid) { index = n; top = rows[n]!.rect.top; break; }
+    if (y < rows[n]!.rect.top + rows[n]!.rect.height / 2) { index = n; break; }
   }
-  if (index === rows.length) top = rows.length ? rows.at(-1)!.rect.bottom : Math.min(bounds.top + 30, bounds.bottom);
-  return { target: { list, index }, top };
+  return { target: { list, index }, top: gap(index), gap };
 }
 
 export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
@@ -122,11 +128,12 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     if (!hit) return null;
     const patch = dropPatch(item, hit.target, state.current.showWorking);
     if (!patch) return { ...hit, valid: false as const };
-    const rows = state.current.lists()[hit.target.list].filter(row => row.id !== item.id);
-    const index = withinGroup(rows, item, hit.target.index, state.current.groupKey);
+    const { list } = hit.target, rows = state.current.lists()[list].filter(row => row.id !== item.id);
+    const index = withinGroup(list, rows, item, hit.target.index, state.current.groupKey);
     const order = orderFor(rows, index);
-    const writes = order === null ? rebalance(state.current.lists()[hit.target.list], item, index) : [{ id: item.id, order }];
-    return { ...hit, valid: true as const, patch, writes };
+    const writes = order === null ? rebalance(state.current.lists()[list], item, index) : [{ id: item.id, order }];
+    // The indicator follows the clamped insertion, never the gap the pointer found.
+    return { target: { list, index }, top: hit.gap(index), valid: true as const, patch, writes };
   };
 
   const drop = (item: Thread, point: { x: number; y: number }) => {
@@ -144,7 +151,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     const to = from + delta;
     if (to < 0 || to >= rows.length) return false;
     const without = rows.filter(row => row.id !== item.id);
-    const index = withinGroup(without, item, to, state.current.groupKey);
+    const index = withinGroup(section, without, item, to, state.current.groupKey);
     // Grouping keeps runs contiguous, so a move it cannot render is refused rather than saved.
     if (index === from) return false;
     const order = orderFor(without, index);

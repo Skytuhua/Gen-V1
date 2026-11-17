@@ -116,19 +116,25 @@ describe('withinGroup', () => {
   const b1 = row('b1', { projectId: 'B' }), b2 = row('b2', { projectId: 'B' });
   const rows = [a1, b1, b2];
 
-  it('clamps a cross-project drop into the row own project run', () => {
-    expect(withinGroup(rows, a2, 2, project)).toBe(1);
-    expect(withinGroup(rows, a2, 0, project)).toBe(0);
-    expect(withinGroup(rows, a2, 3, project)).toBe(1);
+  it('clamps a cross-project drop into the row own project run in the flat list', () => {
+    expect(withinGroup('flat', rows, a2, 2, project)).toBe(1);
+    expect(withinGroup('flat', rows, a2, 0, project)).toBe(0);
+    expect(withinGroup('flat', rows, a2, 3, project)).toBe(1);
   });
   it('keeps a within-group position unchanged', () => {
-    expect(withinGroup(rows, a2, 1, project)).toBe(1);
+    expect(withinGroup('flat', rows, a2, 1, project)).toBe(1);
+  });
+  it('leaves interleaved sections at the position the user chose', () => {
+    const interleaved = [a1, b1, b2, a2];
+    expect(withinGroup('pinned', interleaved, a2, 2, project)).toBe(2);
+    expect(withinGroup('settled', interleaved, a2, 1, project)).toBe(1);
+    expect(withinGroup('working', interleaved, a2, 3, project)).toBe(3);
   });
   it('leaves positions alone when grouping is off or the row has no group', () => {
-    expect(withinGroup(rows, a2, 3)).toBe(3);
-    expect(withinGroup(rows, a2, 3, () => null)).toBe(3);
+    expect(withinGroup('flat', rows, a2, 3)).toBe(3);
+    expect(withinGroup('flat', rows, a2, 3, () => null)).toBe(3);
   });
   it('leaves an ungrouped row target alone when no other row shares its group', () => {
-    expect(withinGroup([b1, b2], a2, 2, project)).toBe(2);
+    expect(withinGroup('flat', [b1, b2], a2, 2, project)).toBe(2);
   });
 });
