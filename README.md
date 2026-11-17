@@ -2,9 +2,9 @@
 
 <p><strong>GEN V1 · WINDOWS PREVIEW</strong></p>
 
-# AI answers you can work with
+# Agent runs you can inspect, review and recover
 
-Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
+Gen V1 is a developer workspace: an agent harness where plans, diffs, logs and pull requests become typed, interactive controls inside the thread — backed by a local host that records every action as a receipt.
 
 **[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
@@ -14,39 +14,45 @@ Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist
 
 ## See Gen in action
 
-### Turn a deadline into a study plan
-
-Ask for a checklist that fits 30 minutes a night. Check off the first sessions without copying the plan to another app.
-
-![The user sends a study request, Gen displays a four-day checklist, and the user checks two sessions](docs/public/media/launch-study-plan.gif)
-
-[Watch the study plan video](docs/public/media/launch-study-plan.mp4)
-
-### Choose a laptop without comparing three tabs
-
-Ask Gen to put sample laptops side by side. Sort by price, then by weight, and select the one you want to shortlist.
-
-![In Gen V1, the user sends a comparison request, sorts three laptops by price and weight, and selects a row](docs/public/media/launch-laptop-comparison.gif)
-
-[Watch the laptop comparison video](docs/public/media/launch-laptop-comparison.mp4)
-
-### Make a weekend plan, then change it
-
-Ask for a Saturday itinerary with a backup for rain. Open the backup to see the details, then ask Gen to move it to the morning in the same thread.
-
-[Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
-
 ### Review and merge a pull request
 
-Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
+Ask what changed on the branch. Open a commit to inspect conflicting lines, resolve them, follow the checks, and merge when ready.
 
-[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
+![In Gen V1, the user asks for a PR review, opens a conflicting commit, resolves conflicts, and merges](docs/public/media/launch-pr-review-workflow.gif)
+
+[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4)
 
 ### Pinpoint a failed CI check
 
-Search the build log, select the failed step, and open the compiler error right inside the conversation.
+Ask where CI failed. Filter the build log to the first error and open the compiler diagnostic without leaving the thread.
 
-[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
+![The user filters a build log to the failed typecheck step and opens the compiler error](docs/public/media/launch-ci-log-workflow.gif)
+
+[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4)
+
+### Turn a migration into a checklist
+
+Ask Gen to break down the session-store migration. The steps land as an interactive checklist you can work through in place.
+
+![The user asks for a migration plan, then checks off completed steps in the generated checklist](docs/public/media/launch-migration-checklist.gif)
+
+[Watch the migration checklist video](docs/public/media/launch-migration-checklist.mp4)
+
+### Compare deploy options
+
+Ask Gen to put candidate base images side by side. Sort by image size or open CVEs and shortlist the one to deploy.
+
+![The user sorts a base image comparison by size and CVEs, then selects a candidate](docs/public/media/launch-runtime-comparison.gif)
+
+[Watch the runtime comparison video](docs/public/media/launch-runtime-comparison.mp4)
+
+### Plan a staged rollout — with the rollback
+
+Ask for a phased rollout of a cache migration. Expand the rollback step to see the escape path, then refine the plan in the same thread.
+
+![The user expands the rollback phase of a rollout plan and asks a follow-up](docs/public/media/launch-rollout-plan.gif)
+
+[Watch the rollout plan video](docs/public/media/launch-rollout-plan.mp4)
 
 These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
 
