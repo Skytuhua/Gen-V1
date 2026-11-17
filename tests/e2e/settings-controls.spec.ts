@@ -149,7 +149,7 @@ test('provider search selects its detail and repeats without probing unrelated p
   for(const provider of [{id:'gemini-cli',query:'Gemini'},{id:'cursor-sdk',query:'Cursor'},{id:'gemini-cli',query:'Gemini'}]){
     await search.fill(provider.query);await dialog.getByRole('button',{name:new RegExp('^'+provider.query)}).click();
     const target=dialog.locator(`[data-setting-id="provider-${provider.id}"]`);await expect(target).toBeVisible();
-    await expect(target).toContainText('Synthetic selected-provider status.');await expect(dialog.locator('.connection-row')).toHaveCount(1);
+    await expect(target.locator('.connection-account-auth')).toHaveAttribute('data-state','unknown');await expect(target.locator('.connection-auth-summary strong')).toHaveText('Status unknown');await expect(dialog.locator('.connection-row')).toHaveCount(1);
     await expect(dialog.getByRole('navigation',{name:'Subscription providers'}).getByRole('button',{name:provider.query,exact:true})).toHaveAttribute('aria-pressed','true');
     await expect.poll(()=>target.evaluate(node=>node===document.activeElement||node.contains(document.activeElement))).toBe(true);
   }

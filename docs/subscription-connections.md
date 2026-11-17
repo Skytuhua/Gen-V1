@@ -1,10 +1,10 @@
 # Subscription connections
 
-Last updated: 2026-11-01.
+Last updated: 2026-11-16.
 
 ## Multiple subscription accounts
 
-The source build supports named accounts per available provider, using T3 Code's separate-provider-instance model. In **Settings → Models & Accounts**, select a provider, add a local label, connect that account explicitly, then choose **Use** for new tasks. Desktop opens the fixed native sign-in console; browser users receive `pnpm agent:login --provider PROVIDER --account-id SAVED_ID`. The command without an account ID still targets the existing legacy profile. Adding or selecting an account does not start sign-in or a task.
+The source build supports named accounts per available provider, using T3 Code's separate-provider-instance model. In **Settings → Models & Accounts**, select a provider, add a local label, connect that account explicitly, then choose **Use account** for new tasks. Desktop opens the fixed native sign-in console; browser users find `pnpm agent:login --provider PROVIDER --account-id SAVED_ID` under **Connect from a terminal**. A saved credential appears as **Saved, not verified**; **Signed in** requires an authenticated status response. Connection state uses a small status mark with explanatory text; account labels, the default marker, controls and surrounding surfaces remain neutral. The command without an account ID still targets the existing legacy profile. Adding or selecting an account does not start sign-in or a task.
 
 Only the selected provider detail mounts its readiness probes. Leaving that detail aborts its read without cancelling an active sign-in. Desktop sign-in monitoring belongs to the application lifetime, so closing Settings preserves the current account flow and returning to Settings recovers it. Model catalogs refresh for the affected selected account or task account; an unrelated account change does not invalidate every catalog.
 
