@@ -147,6 +147,8 @@ function git(rootDir: string, args: string[]): string {
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
   const issues: EvidenceIssue[] = [];
   sourceLockV3Schema.parse(lock);
+  try { git(rootDir, ['merge-base', '--is-ancestor', lock.auditAncestorSha, lock.executionBaseSha]); }
+  catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
     if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
