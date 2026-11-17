@@ -420,6 +420,10 @@ for (const theme of ['dark','light'] as const) test(`keyboard focus stays neutra
   await page.keyboard.press('Escape');await expect(host.dialog).toHaveCount(0);await host.composer.focus();
   const composer=await host.composer.evaluate(node=>{const style=getComputedStyle(node.closest('.composer')!);return{border:style.borderColor,shadow:style.boxShadow};});
   expect(composer).toEqual({border:search.neutral,shadow:'none'});await expect(host.composer).toHaveValue('Retain this conversation draft');
+  await host.composer.blur();const box=page.locator('form.composer:visible');await box.dispatchEvent('dragover');await expect(box).toHaveClass(/dragging/);
+  expect(await box.evaluate(node=>getComputedStyle(node).borderColor)).toBe(search.neutral);
+  const drop=await box.evaluate(node=>{const probe=document.createElement('span');probe.style.background='var(--hover)';node.append(probe);const neutral=getComputedStyle(probe).backgroundColor;probe.remove();return{neutral,paint:getComputedStyle(node).backgroundColor};});expect(drop.paint).toBe(drop.neutral);
+  await box.dispatchEvent('dragleave');await expect(box).not.toHaveClass(/dragging/);await expect(host.composer).toHaveValue('Retain this conversation draft');
 });
 
 

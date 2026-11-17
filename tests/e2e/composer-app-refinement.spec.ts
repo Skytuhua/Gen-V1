@@ -79,7 +79,7 @@ test('composer removes repeated captions and toggles Build Plan without changing
  for(const text of ['Local workspace','Enter to send · Shift + Enter for a new line','Legacy connection'])await expect(page.getByText(text,{exact:true})).toHaveCount(0);
  const toggle=page.getByRole('button',{name:'Task mode',exact:true});await expect(toggle).toHaveText('Build');await toggle.click();await expect(toggle).toHaveText('Plan');await toggle.click();await expect(toggle).toHaveText('Build');await expect(draft).toHaveValue('Keep this thought');
  expect(host.commands.filter(value=>value.type==='thread.mode').map(value=>value.payload.mode)).toEqual(['plan','build']);
- await draft.focus();expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).boxShadow)).not.toBe('none');
+ await draft.focus();expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).boxShadow)).toBe('none');
  await page.emulateMedia({reducedMotion:'reduce'});expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
  await page.screenshot({path:'.harness-frontend-refinement/shell-desktop.png'});
  await page.setViewportSize({width:390,height:844});await expect(draft).toHaveValue('Keep this thought');
