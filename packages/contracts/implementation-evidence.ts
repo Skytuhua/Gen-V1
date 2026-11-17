@@ -117,8 +117,12 @@ export type BundleStatus = 'PASS' | 'FAIL' | 'PARTIAL' | 'BLOCKED';
 export function bundleStatus(phases: PhaseEvidence[]): BundleStatus {
   if (!phases.length) return 'BLOCKED';
   if (phases.some(phase => phase.status === 'FAIL' || phase.requiredCases.some(item => item.status === 'FAIL'))) return 'FAIL';
-  if (phases.every(phase => phase.status === 'PASS')) return 'PASS';
-  if (phases.some(phase => phase.status === 'PASS')) return 'PARTIAL';
+  // A claimed PASS is not proof when its required cases or command receipts
+  // are missing or contradictory. Preserve observed failures above, and count
+  // only phases that satisfy the same validation used by the manifest checker.
+  const passed = phases.filter(phase => phase.status === 'PASS' && validatePhaseEvidence(phase).length === 0).length;
+  if (passed === phases.length) return 'PASS';
+  if (passed > 0) return 'PARTIAL';
   return 'BLOCKED';
 }
 

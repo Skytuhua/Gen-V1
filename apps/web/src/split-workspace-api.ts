@@ -37,5 +37,5 @@ export function useSplitWorkspaceState(enabled=true,workspaceId='workspace'){
   if(!result.profile)throw Error('The host did not report the saved layout identity. Refresh layouts.');
   return{...result.profile,layout:result.layout};
  },[sendResult]);
- return{layout,error,refresh,send,saveProfile};
+ return{layout,error,refresh,send,saveProfile,dismissError:(message:string)=>setError(current=>current===message?'':current)};
 }
