@@ -6,7 +6,7 @@ import type {Operation, Thread} from '../../packages/contracts/index.ts';
 import type {ApprovalV1, ToolEffectRecord} from '../../packages/contracts/tool-effects.ts';
 import type {VerificationIntent} from '../../packages/contracts/verification-workflow.ts';
 import type {VerificationPanelModel} from '../../packages/core/verification-read-models.ts';
-import {INJECTED_LOG, VERIFICATION_CHANGED_SOURCE, VERIFICATION_FIXTURE_LABEL, VERIFICATION_HOST_URL, type VerificationHostFixture, test, expect} from '../verification-host-fixture.ts';
+import {INJECTED_LOG, VERIFICATION_CHANGED_SOURCE, VERIFICATION_FIXTURE_LABEL, VERIFICATION_HOST_URL, VERIFICATION_REPAIR_PROMPT, type VerificationHostFixture, test, expect} from '../verification-host-fixture.ts';
 
 // No page.route, mocked fetch/SSE, direct approval/observation insert, native
 // guard replacement, user project, provider call or real process execution.
@@ -31,7 +31,7 @@ async function receipt(info: TestInfo, name: string, value: unknown) {
   await writeFile(path, JSON.stringify(value, null, 2) + '\n');
   await info.attach(name, {path, contentType: 'application/json'});
 }
-async function createProject(page: Page, host: VerificationHostFixture) {
+async function createProject(page: Page, host: VerificationHostFixture, prompt = 'Keep this parent task open while its verification is reviewed.') {
   await page.goto(VERIFICATION_HOST_URL);
   await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
   await expect(page.getByRole('combobox', {name: 'Model', exact: true})).toHaveText(VERIFICATION_FIXTURE_LABEL);
@@ -58,13 +58,13 @@ async function createProject(page: Page, host: VerificationHostFixture) {
   await expect(resource).toHaveCount(0);
   expect(host.store.snapshot().resources).toEqual([expect.objectContaining({threadId: thread.id, path: host.sourcePath, writable: false})]);
   if (host.configured) await host.configureProject(thread);
-  await page.getByRole('textbox', {name: 'Message', exact: true}).fill('Keep this parent task open while its verification is reviewed.');
+  await page.getByRole('textbox', {name: 'Message', exact: true}).fill(prompt);
   await page.getByRole('button', {name: 'Send message', exact: true}).click();
   await expect.poll(() => host.runtime.deliveries.length).toBe(1);
   await expect(page.getByText(VERIFICATION_FIXTURE_LABEL, {exact: true}).last()).toBeVisible();
   return host.store.get<Thread>('thread', thread.id)!;
 }
-async function approve(page: Page, host: VerificationHostFixture, operation: Operation) {
+async function approve(page: Page, host: VerificationHostFixture, operation: Operation, outcome: 'succeeded' | 'failed' = 'succeeded') {
   const approval = page.locator(`[data-operation-id="${operation.id}"]`).filter({has: page.getByRole('button', {name: 'Approve operation', exact: true})});
   await expect(approval).toBeVisible();
   await approval.getByText('Changes and preconditions', {exact: true}).click();
@@ -72,9 +72,9 @@ async function approve(page: Page, host: VerificationHostFixture, operation: Ope
   await expect(approval).toContainText('"check"');
   await expect(approval).toContainText('app.ts');
   await approval.getByRole('button', {name: 'Approve operation', exact: true}).click();
-  await expect.poll(() => host.store.get<Operation>('operation', operation.id)?.status).toBe('succeeded');
+  await expect.poll(() => host.store.get<Operation>('operation', operation.id)?.status).toBe(outcome);
   const effect = host.store.get<ToolEffectRecord>('toolEffect', `operation:${operation.id}@${operation.revision}`)!;
-  expect(effect.state).toBe('SUCCEEDED');
+  expect(effect.state).toBe(outcome === 'succeeded' ? 'SUCCEEDED' : 'FAILED');
   expect(host.store.get<ApprovalV1>('approval', effect.approvalId!)).toMatchObject({issuer: 'authenticated_user', remainingUses: 0});
   expect(host.requests.some(request => request.method === 'POST' && request.url === '/api/commands' && request.status === 200 && request.csrf &&
     (request.body as {type?: string; payload?: {operationId?: string}})?.type === 'operation.approve' &&
@@ -150,9 +150,10 @@ test('ordinary approval records injected checks and advisory QA; primary convers
   await expect(page.getByLabel('Current freshness', {exact: true})).toHaveText('STALE');
   await page.screenshot({path: info.outputPath('verification-stale-source.png'), fullPage: true});
 
-  const rerun = await post(page, 'verification.rerun', {executionId: intent.executionId}, thread.id);
-  expect(rerun.status).toBe(200);
-  const next = rerun.body.result as Operation, nextIntent = next.args.intent as VerificationIntent;
+  await panel(page).getByRole('button', {name: 'Rerun checks', exact: true}).click();
+  await expect.poll(() => host.store.all<Operation>('operation', thread.id).filter(value => value.kind === 'verification.run' && value.id !== operation.id).length).toBe(1);
+  const next = host.store.all<Operation>('operation', thread.id).find(value => value.kind === 'verification.run' && value.id !== operation.id)!, nextIntent = next.args.intent as VerificationIntent;
+  await expect.poll(() => host.requests.some(request => request.csrf && request.status === 200 && (request.body as {type?: string})?.type === 'verification.rerun')).toBe(true);
   expect(next.id).not.toBe(operation.id); expect(nextIntent.executionId).not.toBe(intent.executionId);
   expect(nextIntent.sourceCut.codeDigest).not.toBe(intent.sourceCut.codeDigest);
   expect(host.launches).toHaveLength(1); expect(host.store.all('approval')).toHaveLength(1);
@@ -205,4 +206,112 @@ test('ordinary approval records injected checks and advisory QA; primary convers
   await page.screenshot({path: info.outputPath('verification-missing-log.png'), fullPage: true});
   await panel(page).getByText('Blocked', {exact: true}).scrollIntoViewIfNeeded();
   await page.screenshot({path: info.outputPath('verification-missing-log-grade.png'), fullPage: true});
+});
+
+
+async function failedComposerCheck(page: Page, host: VerificationHostFixture) {
+  const thread = await createProject(page, host, VERIFICATION_REPAIR_PROMPT);
+  await expect.poll(() => host.runtime.prepared.length).toBe(1);
+  expect(host.runtime.prepared[0]).toMatchObject({threadId: thread.id, runId: thread.runId, epoch: thread.epoch});
+  const operation = host.store.get<Operation>('operation', host.runtime.prepared[0]!.operationId)!;
+  expect(operation).toMatchObject({kind: 'verification.run', status: 'prepared', approved: false});
+  expect(host.requests.some(request => (request.body as {type?: string})?.type === 'verification.prepare')).toBe(false);
+  expect(host.store.all('approval')).toEqual([]); expect(host.launches).toEqual([]);
+  await approve(page, host, operation, 'failed');
+  await expect(panel(page).getByRole('button', {name: 'Start bounded repair', exact: true})).toBeEnabled();
+  return {thread, operation};
+}
+async function preparedRepair(host: VerificationHostFixture, count: number) {
+  const operations = () => host.store.all<Operation>('operation').filter(value => value.kind === 'verification.run' && (value.args.intent as VerificationIntent).repair);
+  await expect.poll(() => operations().length).toBe(count);
+  return operations().at(-1)!;
+}
+
+test.describe('visible bounded repair from an ordinary composer message', () => {
+  test.use({verificationExitCodes: [1, 2, 3, 4], verificationComposerQa: true});
+  test('requires visible approval for each of three attempts and keeps its failures after the limit', async ({page, verificationHost: host}, info) => {
+    const {thread, operation: baseline} = await failedComposerCheck(page, host);
+    const initial = await readVerification(page, thread.id), baselineRow = initial.rows.find(row => row.phase === 'TEST')!;
+    const priorObservation = host.store.get('checkObservation', baselineRow.checkId!);
+    await panel(page).getByRole('spinbutton', {name: 'Repair time limit (seconds)', exact: true}).fill('180');
+    await panel(page).getByRole('spinbutton', {name: 'Repair QA token budget', exact: true}).fill('4000');
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await writeFile(host.sourcePath, `export const contractVersion = ${attempt + 1};\n`);
+      await panel(page).getByRole('button', {name: attempt === 1 ? 'Start bounded repair' : 'Prepare next attempt', exact: true}).click();
+      const prepared = await preparedRepair(host, attempt), intent = prepared.args.intent as VerificationIntent;
+      expect(intent.repair).toMatchObject({attempt, budget: {tokens: 4000, ms: 180_000}});
+      expect(prepared.approved).toBe(false);
+      expect(host.store.all('approval')).toHaveLength(attempt);
+      expect(host.launches).toHaveLength(attempt); expect(host.qa).toHaveLength(attempt);
+      await expect(panel(page)).toContainText('Awaiting approval');
+      await expect(panel(page)).toContainText(`${attempt - 1} of 3 attempts used`);
+      await approve(page, host, prepared, 'failed');
+      await expect(panel(page)).toContainText(`${attempt} of 3 attempts used`);
+      if (attempt < 3) await expect(panel(page).getByRole('button', {name: 'Prepare next attempt', exact: true})).toBeEnabled();
+    }
+    await expect(panel(page)).toContainText('Stop reason: Budget exhausted');
+    await expect(panel(page)).toContainText('1000 QA tokens remaining');
+    await expect(panel(page).getByRole('button', {name: 'Prepare next attempt', exact: true})).toHaveCount(0);
+    await expect(panel(page).getByRole('button', {name: 'Start bounded repair', exact: true})).toHaveCount(0);
+    await expect(panel(page).getByRole('button', {name: 'Stop repair', exact: true})).toBeDisabled();
+    expect(host.launches.map(value => value.exitCode)).toEqual([1, 2, 3, 4]);
+    expect(host.launches.every(value => value.terminated)).toBe(true);
+    expect(host.store.all('approval')).toHaveLength(4);
+    expect(host.store.get('checkObservation', baselineRow.checkId!)).toEqual(priorObservation);
+    const current = await readVerification(page, thread.id);
+    expect(current.rows.filter(row => row.phase === 'TEST')).toHaveLength(4);
+    expect(current.rows.find(row => row.checkId === baselineRow.checkId)).toMatchObject({outcome: 'FAIL', freshness: 'STALE'});
+    expect(current.workflow?.repair).toMatchObject({attempts: 3, maxAttempts: 3, stopped: 'BUDGET', remainingTokens: 1000});
+    expect(host.requests.filter(request => ['verification.repair.start', 'verification.repair.next'].includes((request.body as {type?: string})?.type ?? '')).map(request => ({status: request.status, csrf: request.csrf}))).toEqual(Array.from({length: 3}, () => ({status: 200, csrf: true})));
+    await receipt(info, 'visible-repair-limit-http.json', {baselineOperationId: baseline.id, current});
+    await page.reload();
+    await expect(panel(page)).toContainText('3 of 3 attempts used');
+    await expect(panel(page)).toContainText('Stop reason: Budget exhausted');
+    await panel(page).getByText('Bounded repair', {exact: true}).scrollIntoViewIfNeeded();
+    await page.screenshot({path: info.outputPath('verification-visible-repair-limit.png'), fullPage: true});
+  });
+
+  for (const action of ['stop', 'decline'] as const) test(`visible ${action} cancels pending repair without another execution or approval`, async ({page, verificationHost: host}, info) => {
+    const {thread} = await failedComposerCheck(page, host);
+    await panel(page).getByRole('button', {name: 'Start bounded repair', exact: true}).click();
+    const prepared = await preparedRepair(host, 1);
+    await expect(panel(page)).toContainText('Awaiting approval');
+    if (action === 'stop') {
+      await panel(page).getByRole('button', {name: 'Stop repair', exact: true}).focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await page.locator(`[data-operation-id="${prepared.id}"]`).getByRole('button', {name: 'Decline operation', exact: true}).click();
+    }
+    await expect.poll(() => host.store.get<Operation>('operation', prepared.id)?.status).toBe('cancelled');
+    await expect(panel(page)).toContainText('Stop reason: Cancelled');
+    await expect(panel(page)).toContainText('0 of 3 attempts used');
+    expect(host.launches).toHaveLength(1); expect(host.qa).toHaveLength(1); expect(host.store.all('approval')).toHaveLength(1);
+    expect((await readVerification(page, thread.id)).rows.filter(row => row.phase === 'TEST')).toEqual([expect.objectContaining({outcome: 'FAIL'})]);
+    await page.reload(); await expect(panel(page)).toContainText('Stop reason: Cancelled');
+    await page.getByRole('button', {name: 'New thread', exact: true}).click();
+    await page.getByRole('dialog', {name: 'Select project', exact: true}).getByRole('option', {name: 'Verification contract project', exact: true}).click();
+    await expect(panel(page)).toHaveCount(0);
+    await expect(page.getByRole('button', {name: 'Stop repair', exact: true})).toHaveCount(0);
+    await receipt(info, `visible-repair-${action}-http.json`, await readVerification(page, thread.id));
+  });
+
+  test('stale prepared source stops repair before approval consumption and preserves the previous failure', async ({page, verificationHost: host}, info) => {
+    const {thread} = await failedComposerCheck(page, host);
+    await panel(page).getByRole('button', {name: 'Start bounded repair', exact: true}).click();
+    const prepared = await preparedRepair(host, 1);
+    await writeFile(host.sourcePath, VERIFICATION_CHANGED_SOURCE);
+    const approval = page.locator(`[data-operation-id="${prepared.id}"]`).filter({has: page.getByRole('button', {name: 'Approve operation', exact: true})});
+    await approval.getByRole('button', {name: 'Approve operation', exact: true}).click();
+    await expect.poll(() => host.store.get<Operation>('operation', prepared.id)?.status).toBe('failed');
+    await expect(panel(page)).toContainText('Stop reason: Source or owner changed');
+    expect(host.store.get<Operation>('operation', prepared.id)).toMatchObject({approved: true, error: expect.stringMatching(/source|changed/i)});
+    expect(host.store.all<ApprovalV1>('approval').map(value => value.remainingUses).sort()).toEqual([0, 1]);
+    expect(host.launches).toHaveLength(1); expect(host.qa).toHaveLength(1);
+    await expect(panel(page).getByRole('button', {name: 'Stop repair', exact: true})).toBeDisabled();
+    const current = await readVerification(page, thread.id);
+    expect(current.workflow?.repair).toMatchObject({stopped: 'CONFLICT', attempts: 0, canContinue: false});
+    expect(current.rows.filter(row => row.phase === 'TEST')).toEqual([expect.objectContaining({outcome: 'FAIL', freshness: 'STALE'})]);
+    await receipt(info, 'visible-repair-stale-approval-http.json', current);
+    await page.screenshot({path: info.outputPath('verification-visible-repair-stale-approval.png'), fullPage: true});
+  });
 });
