@@ -155,7 +155,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
     const drift = approved.get(inspected.path);
     if (actual === inspected.blobSha) continue;
-    if (drift && drift.fromBlob === inspected.blobSha)
+    if (drift && drift.fromBlob === inspected.blobSha && drift.toBlob === actual)
       issues.push({ code: 'APPROVED_DRIFT_PRESENT', message: `${inspected.path}: recorded approved drift to ${drift.toBlob} — ${drift.note}` });
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
