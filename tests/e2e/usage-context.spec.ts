@@ -88,6 +88,61 @@ test('verification does not color a historical pass green when freshness is inde
   await expect(verification(page)).toContainText('INDETERMINATE');
   await expect(verification(page).locator('.verification-outcome.pass')).toHaveCount(0);
 });
+const findingModel = (freshness = 'CURRENT') => ({verification: {
+  label: null, staleBanner: false, summary: {verified: 0, failed: 0, unverified: 0, blocked: 0, missing: []}, rows: [],
+  securityFindings: {truncated: false, invalid: 0, items: [{version: 1, findingId: 'review-input',
+    source: {path: 'src/' + 'long-source-'.repeat(12) + '.ts', blobSha: 'a'.repeat(40), line: 17},
+    authorizedScope: 'Read-only approved workspace source', observation: '<img src=x onerror="window.findingExecuted=true">',
+    impact: 'Input reaches the reviewed operation', status: 'OPEN', reproduction: 'Inspect the named source at line 17',
+    createdAt: '2026-11-17T07:00:00.000Z', updatedAt: '2026-11-17T07:01:00.000Z', evidenceQuality: 'ADVISORY',
+    freshness, scopeAuthority: 'HOST_RECORDED', executionId: 'qa-review-execution'}]},
+}});
+test('security findings reveal source evidence with the keyboard without grading the task or executing observation text', async ({page}, info) => {
+  await page.setViewportSize({width: 340, height: 420});
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: findingModel()}));
+  await page.goto('/usage-context?verification&canvas');
+  const findings = verification(page).getByRole('region', {name: 'Security findings', exact: true});
+  await expect(findings.getByRole('heading', {name: 'Security findings', exact: true})).toBeVisible();
+  const trigger = findings.locator('summary'); await trigger.focus(); await page.keyboard.press('Enter');
+  await expect(findings.getByLabel('Source blob', {exact: true})).toHaveText('a'.repeat(40));
+  await expect(findings.getByLabel('Source line', {exact: true})).toHaveText('17');
+  await expect(findings.getByLabel('Evidence quality', {exact: true})).toHaveText('ADVISORY');
+  await expect(findings.getByLabel('Recorded observation', {exact: true})).toHaveText('<img src=x onerror="window.findingExecuted=true">');
+  await expect(findings.getByLabel('Scope authority', {exact: true})).toHaveText('Recorded by host');
+  await page.keyboard.press('Tab');
+  await expect(findings.getByLabel('Recorded observation', {exact: true}).locator('pre')).toBeFocused();
+  await expect(findings.getByLabel('Recorded observation', {exact: true}).locator('pre')).toBeInViewport();
+  await page.screenshot({path: info.outputPath('security-finding-observation.png'), fullPage: true});
+  await expect(verification(page).getByText('Verified', {exact: true})).toHaveCount(0);
+  await expect(verification(page).locator('.verification-outcome.pass')).toHaveCount(0);
+  expect(await page.evaluate(() => Reflect.get(window, 'findingExecuted'))).toBeUndefined();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(page.getByRole('textbox', {name: 'Reply', exact: true})).toBeInViewport();
+  await page.getByRole('textbox', {name: 'Reply', exact: true}).fill('Findings remain advisory.');
+  await page.screenshot({path: info.outputPath('security-finding-short-canvas.png'), fullPage: true});
+});
+test('security finding refresh reports stale evidence and bounded results, then clears on conversation change', async ({page}) => {
+  let reads = 0;
+  await page.clock.install();
+  await page.route('**/api/threads/thread-one/verification', route => {
+    const model = findingModel(++reads === 1 ? 'CURRENT' : 'STALE');
+    model.verification.securityFindings.truncated = true; model.verification.securityFindings.invalid = 1;
+    return route.fulfill({json: model});
+  });
+  await page.route('**/api/threads/thread-two/verification', () => {});
+  await page.goto('/usage-context?verification');
+  const findings = verification(page).getByRole('region', {name: 'Security findings', exact: true});
+  await findings.locator('summary').click();
+  await expect(findings.getByLabel('Current source freshness', {exact: true})).toHaveText('CURRENT');
+  await expect(findings).toContainText('Showing the 50 most recent stored records.');
+  await expect(findings).toContainText('1 stored record could not be read.');
+  await page.clock.runFor(4000);
+  await expect(findings.getByLabel('Current source freshness', {exact: true})).toHaveText('STALE');
+  await expect(findings.getByLabel('Recorded status', {exact: true})).toHaveText('OPEN');
+  await page.getByRole('button', {name: 'Second conversation', exact: true}).click();
+  await expect(page.getByRole('region', {name: 'Security findings', exact: true})).toHaveCount(0);
+});
+
 const exactCheckDetails = () => ({
   argv: ['node', 'checks/argument boundaries.mjs', '', 'a b', '"quoted"', 'line\nbreak', '--target=' + 'tail'.repeat(70)],
   cwdIdentity: '/fixture/physical-workspace/with spaces/dev=17/ino=2039',
