@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "test"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:00:39.943Z",
+  "endedAt": "2026-11-15T22:00:42.154Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/full-repository-test-01.log",
+  "logDigest": "ee22c1a7b3840d2ad617bd841773c96082e81680bee10db0b9b9b5293802242e"
+}

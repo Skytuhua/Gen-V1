@@ -1,0 +1,22 @@
+{
+  "sourceCutSha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+  "run": "c4-desktop-regression-01",
+  "test": "export refuses pending signature assets instead of silently omitting the mark",
+  "observedFailure": "Expected .draft-transfer [role=\"alert\"] containing signature; locator absent at the existing 5-second assertion deadline.",
+  "observedContext": [
+    {
+      "line": 257,
+      "text": "            - status [ref=e373]: Save or clear the pending signature mark before exporting drafts. The original mark stays in this browser."
+    }
+  ],
+  "currentErrorRole": "status",
+  "c3ErrorRole": "status",
+  "contextSha256": "d124700ac0a24cb4fd552fa97ef9731bb766154d354a10fece8d4444ca466b45",
+  "tracePath": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts/desktop-surfaces-export-re-7e205--silently-omitting-the-mark/trace.zip",
+  "traceSha256": "569c9298fef6fcba5250c987d6ba0bf035d443cab5d2a835bd37f4bcc5ce61d3",
+  "currentSourceSha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191",
+  "c3SourceSha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191",
+  "conclusion": "The expected error text is rendered under status, so this failure establishes an accessible-role mismatch. It does not establish missing error feedback or an export that silently discarded the pending signature. Later assertions were not reached.",
+  "sourceEdited": false,
+  "rerun": false
+}

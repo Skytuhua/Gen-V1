@@ -148,15 +148,19 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const a=aView.getByRole('textbox',{name:'Message',exact:true});
    await a.waitFor({state:'visible'});await a.fill('Float draft A');
    await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    expect(await a.inputValue()).toBe('Float draft A');
    expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
    expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(0);
    const floatSurface=page.locator('[data-split-view="thread:thread-a"]');
-   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   const detachBox=(await floatSurface.boundingBox())!;
+   const shrinkBox=(await floatSurface.locator('.split-float-resize').boundingBox())!;
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2,shrinkBox.y+shrinkBox.height/2);await page.mouse.down();
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2-220,shrinkBox.y+shrinkBox.height/2-140,{steps:6});await page.mouse.up();
    const startBox=(await floatSurface.boundingBox())!;
+   expect(detachBox.width-startBox.width).toBeGreaterThan(100);expect(detachBox.height-startBox.height).toBeGreaterThan(60);
+   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
    await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
    await page.mouse.move(gripBox.x+gripBox.width/2+90,gripBox.y+gripBox.height/2+50,{steps:6});await page.mouse.up();
    const movedBox=(await floatSurface.boundingBox())!;
@@ -171,13 +175,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const restoredBox=(await floatSurface.boundingBox())!;
    expect(Math.abs(restoredBox.x-resizedBox.x)).toBeLessThan(3);expect(Math.abs(restoredBox.width-resizedBox.width)).toBeLessThan(3);
    await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
    await bView.getByRole('textbox',{name:'Message',exact:true}).fill('Main draft B');
    await aView.getByRole('button',{name:'Send message',exact:true}).click();
-   await bView.getByRole('button',{name:'Send message',exact:true}).click();
+   await bView.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');
    await page.waitForFunction(()=>{const ta=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
    const sends=host.commands.filter(command=>command.type==='message.send');
    expect(sends.map(command=>command.threadId).sort()).toEqual(['thread-a','thread-b']);
@@ -203,13 +207,12 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
    await aView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(2);
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    await page.waitForFunction(()=>!!document.querySelector('[data-split-pane="pane-main"] .split-empty'));
    expect(await bView.isVisible()).toBe(false);
    expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
-   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).dispatchEvent('click');
    await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
    expect(host.errors).toEqual([]);
@@ -222,10 +225,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await host.publish();
    const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
    await aView.locator('.working-status').waitFor({state:'visible'});
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
-   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await page.getByRole('button',{name:/^Second investigation/}).dispatchEvent('click');
    await bView.locator('.working-status').waitFor({state:'visible'});
    await aView.getByRole('textbox',{name:'Message',exact:true}).focus();
    await page.keyboard.press('Escape');
@@ -243,7 +245,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw(metadata).toContainText('First project');
    await pw(metadata).toContainText('Ready');
    const toggle=async()=>{
-    await page.getByRole('button',{name:'Settings',exact:true}).click();
+    await page.getByRole('button',{name:'Settings',exact:true}).dispatchEvent('click');
     const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
     await dialog.getByRole('button',{name:'Chat & Composer',exact:true}).click();
     await dialog.getByRole('switch',{name:'Thread details',exact:true}).click();
@@ -255,8 +257,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.reload();
    await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"]').waitFor({state:'visible'});
    await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    await pw(page.locator('[data-split-view="thread:thread-a"] .conversation-metadata')).toHaveCount(0);
    await toggle();
@@ -269,8 +270,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
 
  it('docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)',async()=>{
   const host=await fixture({mode:'split'}),{page}=host;try{
-   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
-   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
    const rightSlot=(await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox())!;

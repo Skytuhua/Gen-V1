@@ -1,0 +1,168 @@
+{
+  "scope": "Read-only static comparison; no active source/index edits, no browser/unit/build/typecheck jobs",
+  "externalCommit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "externalTree": "4eda96307edd16e63c4e32c3c3a9d718b117a703",
+  "localHead": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "localMergeHead": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "comparison": "Frozen local C4 conflict resolution and proposed26/8 tests versus external C3+M05 union",
+  "inputs": {
+    "apps/web/src/App.tsx": {
+      "externalBlob": "96cebe901b6dab963c3edec6f2cc834e906d1496",
+      "externalSha256": "146d9f75d92209eb6b6a39ac09adc6e65888e0ec4fe9dfa76cb8af24c6a9dec4",
+      "localSha256": "66eb8862e42a6a1b80c2215830cd6e36b2e83cfc3f3079c24e8e4252d33e7ad0",
+      "equal": false
+    },
+    "apps/web/src/ContextInspector.tsx": {
+      "externalBlob": "28dd7615789a0ac7aeab466b5bb8200e04f911df",
+      "externalSha256": "fb2d49fa36127065cc1a65c7b6f388afedbb1f85e12d7a71461279e800b4e796",
+      "localSha256": "2152849d602364b58ad14aefd398bd504013f53b71026c150bf7939b11140f9b",
+      "equal": false
+    },
+    "apps/web/src/agents-workspace/composer.ts": {
+      "externalBlob": "82ccb45631f6870ece88939718631f46aa989c23",
+      "externalSha256": "cb45da090074eb8b84dec3223644c6295a220f8a2355f8424c7e2389d4bb5c23",
+      "localSha256": "cb45da090074eb8b84dec3223644c6295a220f8a2355f8424c7e2389d4bb5c23",
+      "equal": true
+    },
+    "tests/e2e/task-interface-fixture.ts": {
+      "externalBlob": "44ba90452223dd7901181493d0063f14e3493d9b",
+      "externalSha256": "adc55dd5ef0139db13b2e4c6174e1a4c1a50aa40851d0e51c2942dc344909753",
+      "localSha256": "e72b0c2ee5cb9dc10ab9e9cb99bc6593fb4db75c8aa9cdab62a5f0944b9eb4b0",
+      "equal": false
+    },
+    "tests/e2e/artifact-acknowledgment.spec.ts": {
+      "externalBlob": "bdeaf4f5db0f0651ac5aa78d881f14c440052d51",
+      "externalSha256": "ddf00a7fda80f8a076af87a391ebc0ffd8a1482ec3a407684f1b67c549eab978",
+      "localSha256": "2ed39087c71600824b291ec0eb663d819ee5bc8949ae04629b5b4710a80aef63",
+      "equal": false
+    },
+    "tests/e2e/workbench-app.spec.ts": {
+      "externalBlob": "ff72896758d339ccdfcfb79549932e8136479b84",
+      "externalSha256": "8d04a76f53259f4b6778b01d0d59509a1c6f7cd509bb5fdfecb903e3963e4449",
+      "localSha256": "0532ea8364fa8984fa368232e72f467704f53366d72149bac3ab26dbf993fae7",
+      "equal": false
+    },
+    "tests/e2e/workbench-native-return-fixture.ts": {
+      "externalBlob": "193c2bedae2b63f1aa8e47b546a29ed0cdf02a25",
+      "externalSha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "localSha256": "213f2f68ee1d2ec4d273a691a226ffe9fc8a45ca79a69a8ab02183d25adca3db",
+      "equal": false
+    },
+    "tests/e2e/chat-view-modes.spec.ts": {
+      "externalBlob": "b3f59c789c3a054271386fd5689449202593ec1a",
+      "externalSha256": "f747d376d49a85fbc5a9f544d29c59ba513c43cf77f357a5b00d30b76c591ecf",
+      "localSha256": "fd2eba2ec4afadf42c82c35dc54e6910fcaf135bfa88f8b241f6a8294f593fa1",
+      "equal": false
+    },
+    "tests/e2e/workbench.spec.ts": {
+      "externalBlob": "ce08feab2dbe1f0a10fbbb6ee585f00cc10d6a79",
+      "externalSha256": "f5e7a26bdb830ac77967796dd6091cdb09714aee11ca7a65550fdbe1243d1fde",
+      "localSha256": "56dbae9c54d6fbafdfa02d3ee8f0e6303f508a7642a2496eee7d325a4e15b2bd",
+      "equal": false
+    },
+    "tests/source-composer-v3.test.ts": {
+      "externalBlob": "64cd4164f836947283a8256a026c008fbaad644d",
+      "externalSha256": "34d3633be795a639b609cecd407d6ff98a6394ad73112a766733fbc083ea4625",
+      "localSha256": "126703e57581bc2de0e43a85e32c4722ea20aa8106316546cb18add5ba751da7",
+      "equal": false
+    },
+    "apps/web/src/SourceSelectionActions.tsx": {
+      "externalBlob": "a75c0d641f050d22fbec7d4dd694125712f20e8e",
+      "externalSha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+      "localSha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+      "equal": true
+    },
+    "apps/web/src/SourceWorkbench.tsx": {
+      "externalBlob": "26786c8e3072e8dd7b0a991b40516f4d61498eb0",
+      "externalSha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+      "localSha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+      "equal": true
+    },
+    "apps/web/src/WorkbenchPanelContent.tsx": {
+      "externalBlob": "bff7c99a6941667c89434d2630d262cac25640d7",
+      "externalSha256": "baf2e842d74dbbb66a02ecaf25a25299fa42da5fae8c5c6a951be34c2a4bfa33",
+      "localSha256": "baf2e842d74dbbb66a02ecaf25a25299fa42da5fae8c5c6a951be34c2a4bfa33",
+      "equal": true
+    },
+    "apps/web/src/source-workbench.css": {
+      "externalBlob": "8873575026a0dff51ed05e64f11fdb876bf12f77",
+      "externalSha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+      "localSha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+      "equal": true
+    },
+    "packages/ui-shell/Popover.tsx": {
+      "externalBlob": "7d2db3c71990e1bf754de402169e67c5695c895f",
+      "externalSha256": "fb5c94be1a32ba8d77d0dd919fab3a2917d207cba8096e56f47622535c9b6b4a",
+      "localSha256": "fb5c94be1a32ba8d77d0dd919fab3a2917d207cba8096e56f47622535c9b6b4a",
+      "equal": true
+    },
+    "packages/ui-shell/Modal.tsx": {
+      "externalBlob": "8feed2a14d3a4f3806aebe79550f16128a815338",
+      "externalSha256": "3b07a74846a4c15c9e7497ee8d8d1ffee8e17ea95d089d2db68026b018cba4eb",
+      "localSha256": "3b07a74846a4c15c9e7497ee8d8d1ffee8e17ea95d089d2db68026b018cba4eb",
+      "equal": true
+    },
+    "packages/ui-shell/controls.css": {
+      "externalBlob": "9434b0d5f9a067931abb3abc7d08589c242e1230",
+      "externalSha256": "bc7748d1ebc5d3992823ce92c93058a2f3ee18b47e70206cd3e1fefcd25cb424",
+      "localSha256": "bc7748d1ebc5d3992823ce92c93058a2f3ee18b47e70206cd3e1fefcd25cb424",
+      "equal": true
+    },
+    "packages/ui-shell/ChatView.tsx": {
+      "externalBlob": "df1074a23c15c3fc27d508274f73afd9cacb38ad",
+      "externalSha256": "e9d4fd98678770b6778cb77cb48d07aaf9cba5e19225610b8ee723957e90bc3a",
+      "localSha256": "e9d4fd98678770b6778cb77cb48d07aaf9cba5e19225610b8ee723957e90bc3a",
+      "equal": true
+    },
+    "apps/web/src/WorkspaceControls.tsx": {
+      "externalBlob": "55302102ad9694b908c39844c00a8e867c8e3525",
+      "externalSha256": "e9f40b5055d01973f782ff7c77bcef6a9a09c4fd1f03f50a3f449f0e8c4bd8e0",
+      "localSha256": "e9f40b5055d01973f782ff7c77bcef6a9a09c4fd1f03f50a3f449f0e8c4bd8e0",
+      "equal": true
+    },
+    "tests/e2e/chat-view-escape.spec.ts": {
+      "externalBlob": "13f53d5f9eea4d0dcd6fa6e8092adca3978f8f78",
+      "externalSha256": "c5f23bdbb70a96a444e6621a1557692306b8f988306ffb291058cb56cf003b35",
+      "localSha256": "c5f23bdbb70a96a444e6621a1557692306b8f988306ffb291058cb56cf003b35",
+      "equal": true
+    },
+    "tests/e2e/agents-workspace.spec.ts": {
+      "externalBlob": "e90700886c60d859afc9cb2985cdc5ae449ac614",
+      "externalSha256": "bfa2aa195779467520fa2116174bc826aef9c221a7320ed2f07dcb99816a1b3e",
+      "localSha256": "bfa2aa195779467520fa2116174bc826aef9c221a7320ed2f07dcb99816a1b3e",
+      "equal": true
+    },
+    "scripts/browser-suites.ts": {
+      "externalBlob": "2ae33b51287a053faa3b2c669f9eb2d78fd59675",
+      "externalSha256": "33104c6c0de571ec021245d8110cb3cc454ba5efb3d60d29177788dfa26c158a",
+      "localSha256": "33104c6c0de571ec021245d8110cb3cc454ba5efb3d60d29177788dfa26c158a",
+      "equal": true
+    },
+    ".github/workflows/ci.yml": {
+      "externalBlob": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a",
+      "externalSha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "localSha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+      "equal": true
+    }
+  },
+  "diffSha256": "be9cceb115b4d86b4b7b717828ee908c188dd6ba7c929e047e658bdebbdc4316",
+  "findings": [
+    {
+      "id": "UI-1",
+      "severity": "bounded integration risk",
+      "path": "apps/web/src/App.tsx",
+      "detail": "External non-embedded ChatView header restores a panel opener needed by pinned native thread windows, but its condition overlaps main fallback WorkspaceControls; both share the same accessible name. Preserve native access with one opener per rendered branch. Static source finding, not reproduced."
+    },
+    {
+      "id": "UI-2",
+      "severity": "semantic union",
+      "detail": "Retain external helper string compatibility and local Snapshot callers so project-aware thread.reconcile has canonical snapshot input."
+    },
+    {
+      "id": "UI-3",
+      "severity": "provenance",
+      "detail": "Retain external CRLF clipboard normalization and15s initial ChatView readiness as externally authored test changes. Existing geometry/output assertions remain. No prior failed receipt is superseded."
+    }
+  ],
+  "ciAttribution": "No Windows CI log or artifact inspected in this audit. No cause inferred for parent-reported C3 source-workbench browser failure."
+}

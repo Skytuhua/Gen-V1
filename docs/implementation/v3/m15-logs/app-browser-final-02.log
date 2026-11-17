@@ -1,0 +1,117 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","workbench-app"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa
+
+Browser suite: workbench-app (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:88) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench-app.spec.ts:315:1 › default-off App retains its ordinary composer and hides source actions (11.9s)
+  ✓   2 tests/e2e/workbench-app.spec.ts:332:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (7.1s)
+  ✓   3 tests/e2e/workbench-app.spec.ts:358:1 › ask supplies a question only for an empty draft and never dispatches (4.4s)
+  ✓   4 tests/e2e/workbench-app.spec.ts:370:1 › stale capture remains exact until explicit keep or refresh and opens retained output (7.1s)
+  ✓   5 tests/e2e/workbench-app.spec.ts:404:1 › late source descriptions cannot attach to a replacement workspace (3.8s)
+  ✓   6 tests/e2e/workbench-app.spec.ts:429:1 › after-current mode is explicit and queues through message.send while the task is working (4.8s)
+  ✓   7 tests/e2e/workbench-app.spec.ts:448:1 › evidence preserves reported and observed grades, freshness and unsupported module state (4.5s)
+  ✓   8 tests/e2e/workbench-app.spec.ts:489:1 › rollback leaves retained source inspection and removal reachable (4.3s)
+  ✓   9 tests/e2e/workbench-app.spec.ts:520:1 › context and run views use recorded or explicit unavailable states without invented metrics (3.5s)
+  ✓  10 tests/e2e/workbench-app.spec.ts:548:1 › real activity integration bounds mounted rows and searches the authorized full read (9.2s)
+  ✘  11 tests/e2e/workbench-app.spec.ts:611:1 › source-aware navigation waits for journal handoff and preserves text on reload (11.2s)
+(node:351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/e2e/workbench-app.spec.ts:639:1 › pointing mode does not consume another pane focus or Escape (6.5s)
+  ✓  13 tests/e2e/workbench-app.spec.ts:653:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (8.7s)
+  ✓  14 tests/e2e/workbench-app.spec.ts:692:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (3.8s)
+  ✓  15 tests/e2e/workbench-app.spec.ts:712:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (11.6s)
+  ✓  16 tests/e2e/workbench-app.spec.ts:767:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (4.1s)
+  ✓  17 tests/e2e/workbench-app.spec.ts:806:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (4.5s)
+  ✓  18 tests/e2e/workbench-app.spec.ts:853:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (12.0s)
+  ✘  19 tests/e2e/workbench-app.spec.ts:899:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (7.2s)
+
+
+  1) tests/e2e/workbench-app.spec.ts:611:1 › source-aware navigation waits for journal handoff and preserves text on reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: [32m"Retain this source-aware draft"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+    [2m    - locator resolved to <textarea disabled rows="1" aria-label="Message" placeholder="Ask anything…"></textarea>[22m
+    [2m    - unexpected value ""[22m
+
+
+      82 | });
+      83 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{
+    > 84 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toHaveValue('Retain this source-aware draft');
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      85 | });
+      86 |
+      87 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:84:640
+
+    Error Context: test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/workbench-app.spec.ts:899:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 2[39m
+    [31m+ Received  + 2[39m
+
+    [2m  Object {[22m
+    [2m    "encoding": "UTF16",[22m
+    [32m-   "end": 32,[39m
+    [32m-   "start": 21,[39m
+    [31m+   "end": 58,[39m
+    [31m+   "start": 0,[39m
+    [2m  }[22m
+
+      122 | test('formatted assistant text opens its exact canonical source even outside the bounded catalogue',async({page})=>{
+      123 |  const h=await fixture(page);const canonical='| Column |\n| --- |\n| left\\|right |\n\nPlain later left|right';h.snapshot.messages[0].content=canonical;h.state.omitMessage=true;h.snapshot.threads[0].epoch++;await h.publish();
+    > 124 |  await page.getByRole('button',{name:'Select canonical source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('No supported sources are available');const content=dialog.locator('.source-selection-text');await expect(content).toHaveText(canonical);await content.focus();await content.evaluate((element,text)=>{const node=element.querySelector('pre')!.firstChild!,range=document.createRange(),start=text.indexOf('left\\|right');range.setStart(node,start);range.setEnd(node,start+'left\\|right'.length);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));},canonical);await dialog.getByRole('button',{name:'Attach to prompt',exact:true}).first().click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toContainText('left\\|right');expect(h.captures.get('capture-1')?.ref.source.range).toMatchObject({encoding:'UTF16',start:canonical.indexOf('left\\|right'),end:canonical.indexOf('left\\|right')+'left\\|right'.length});expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      125 | });
+      126 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:124:963
+
+    Error Context: test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/e2e/workbench-app.spec.ts:611:1 › source-aware navigation waits for journal handoff and preserves text on reload 
+    tests/e2e/workbench-app.spec.ts:899:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue 
+  17 passed (2.4m)
+
+Failed browser suites: workbench-app (exit 1)

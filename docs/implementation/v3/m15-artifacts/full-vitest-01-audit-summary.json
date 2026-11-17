@@ -1,0 +1,1562 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-15T22:20:07.648825+00:00",
+  "source": "docs/implementation/v3/m15-artifacts/full-vitest-01-results.json",
+  "sourceSha256": "e204484cf2decc6abce5c5ac141adb0e9448d64a42b3c026b354bf3583d98a94",
+  "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+  "baseHead": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "sourceCut": "Files were edited during execution. These results do not verify the final candidate source cut.",
+  "rawTotals": {
+    "numTotalTestSuites": 536,
+    "numPassedTestSuites": 473,
+    "numFailedTestSuites": 63,
+    "numPendingTestSuites": 0,
+    "numTotalTests": 3542,
+    "numPassedTests": 3202,
+    "numFailedTests": 289,
+    "numPendingTests": 51,
+    "numTodoTests": 0
+  },
+  "newM15UnitTests": [
+    {
+      "file": "tests/activity-output-v3.test.ts",
+      "status": "NOT_DISCOVERED_IN_THIS_RUN",
+      "assertionCount": 0
+    },
+    {
+      "file": "tests/source-composer-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 7
+      },
+      "assertionCount": 7
+    },
+    {
+      "file": "tests/source-draft-transfer-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 21
+      },
+      "assertionCount": 21
+    },
+    {
+      "file": "tests/source-selection-dom-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 4
+      },
+      "assertionCount": 4
+    },
+    {
+      "file": "tests/source-selection-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 7
+      },
+      "assertionCount": 7
+    },
+    {
+      "file": "tests/source-workbench-host-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 22,
+        "skipped": 1
+      },
+      "assertionCount": 23
+    },
+    {
+      "file": "tests/workbench-input-recovery-v3.test.ts",
+      "status": "NOT_DISCOVERED_IN_THIS_RUN",
+      "assertionCount": 0
+    },
+    {
+      "file": "tests/workbench-performance-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 7
+      },
+      "assertionCount": 7
+    },
+    {
+      "file": "tests/workbench-recovery-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 11
+      },
+      "assertionCount": 11
+    }
+  ],
+  "changedExistingUnitTestFiles": [
+    {
+      "file": "tests/agents-workspace-composer.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 26
+      },
+      "assertionCount": 26
+    },
+    {
+      "file": "tests/agents-workspace-dispatch.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 4
+      },
+      "assertionCount": 4
+    }
+  ],
+  "relatedExistingTests": [
+    {
+      "file": "tests/research-baseline.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 26
+      },
+      "assertionCount": 26
+    },
+    {
+      "file": "tests/regression-selection.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 13
+      },
+      "assertionCount": 13
+    },
+    {
+      "file": "tests/m01-m02-compatibility.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 2
+      },
+      "assertionCount": 2
+    },
+    {
+      "file": "tests/tool-authority-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 6
+      },
+      "assertionCount": 6
+    },
+    {
+      "file": "tests/tool-effects-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 13
+      },
+      "assertionCount": 13
+    },
+    {
+      "file": "tests/effect-recovery-v3.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 11
+      },
+      "assertionCount": 11
+    },
+    {
+      "file": "tests/draft-transfer.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 4
+      },
+      "assertionCount": 4
+    },
+    {
+      "file": "tests/compact-draft-transfer.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 6
+      },
+      "assertionCount": 6
+    },
+    {
+      "file": "tests/saved-drafts.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 41
+      },
+      "assertionCount": 41
+    },
+    {
+      "file": "tests/journal.test.ts",
+      "status": "passed",
+      "assertions": {
+        "passed": 6
+      },
+      "assertionCount": 6
+    },
+    {
+      "file": "tests/service.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 17
+      },
+      "assertionCount": 19
+    },
+    {
+      "file": "tests/server.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 11
+      },
+      "assertionCount": 12
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 4,
+        "passed": 7
+      },
+      "assertionCount": 11
+    },
+    {
+      "file": "tests/model-discovery.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 9,
+        "passed": 10
+      },
+      "assertionCount": 19
+    },
+    {
+      "file": "tests/workspace-linked-pr.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 12
+      },
+      "assertionCount": 14
+    },
+    {
+      "file": "tests/plugin-frame-custody.test.ts",
+      "status": "failed",
+      "assertions": {
+        "skipped": 4
+      },
+      "assertionCount": 4,
+      "setupMessage": "Cannot read properties of undefined (reading 'bindProjectReaders')"
+    }
+  ],
+  "failureSymptomGroups": {
+    "native_file_access_denial": {
+      "failedAssertions": 188,
+      "files": [
+        "tests/account-login.test.ts",
+        "tests/account-parity.test.ts",
+        "tests/account-profile.test.ts",
+        "tests/capabilities.test.ts",
+        "tests/checkpoint-restore-v3.test.ts",
+        "tests/code-review-comparisons.test.ts",
+        "tests/code-review-reader.test.ts",
+        "tests/git-metadata-guard.test.ts",
+        "tests/github-workspace.test.ts",
+        "tests/hermes-client.test.ts",
+        "tests/hermes-host.test.ts",
+        "tests/hermes-service.test.ts",
+        "tests/integration-mcp.test.ts",
+        "tests/managed-git-family.test.ts",
+        "tests/path-access.test.ts",
+        "tests/private-git-family.test.ts",
+        "tests/project-tools.test.ts",
+        "tests/project-trust-v3.test.ts",
+        "tests/research-capture.test.ts",
+        "tests/research-workspace.test.ts",
+        "tests/review-host.test.ts",
+        "tests/runtime-router.test.ts",
+        "tests/selective-commit-v3.test.ts",
+        "tests/service.test.ts",
+        "tests/skills-integration.test.ts",
+        "tests/task-memory-recovery.test.ts",
+        "tests/workspace-action-outcome-routes.test.ts",
+        "tests/workspace-action-outcomes.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/account-login.test.ts",
+          "test": "reserves the exact named profile for sign-in and releases it after a failed native login",
+          "error": "Error: expected [Function] to throw error including 'Synthetic native cancellation' but got 'File access check failed — the folder…'"
+        },
+        {
+          "file": "tests/account-login.test.ts",
+          "test": "retains a durable account hold when native login shutdown is unconfirmed",
+          "error": "Error: expected HarnessError: File access check failed — … { …(2) } to be HarnessError: Synthetic shutdown could no… { …(2) } // Object.is equality"
+        },
+        {
+          "file": "tests/account-parity.test.ts",
+          "test": "keeps openai task routing through compaction and history-aware recovery after its default changes",
+          "error": "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        }
+      ],
+      "fileCount": 28,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "skill_inventory_empty_missing_or_unavailable": {
+      "failedAssertions": 58,
+      "files": [
+        "tests/skill-catalog-apps.test.ts",
+        "tests/skill-catalog-http.test.ts",
+        "tests/skill-catalog.test.ts",
+        "tests/skill-invocation.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/skill-catalog-apps.test.ts",
+          "test": "discovers only declared installed metadata with verified package custody and never activates the host",
+          "error": "AssertionError: expected [] to have a length of 1 but got +0"
+        },
+        {
+          "file": "tests/skill-catalog-apps.test.ts",
+          "test": "invalidates installed references after content tampering, registry revocation, or untracked additions",
+          "error": "TypeError: Cannot read properties of undefined (reading 'ref')"
+        },
+        {
+          "file": "tests/skill-catalog-http.test.ts",
+          "test": "requires the existing host/session gate and returns metadata without bodies or file paths",
+          "error": "AssertionError: expected undefined to match object { name: 'Test procedure', …(2) }"
+        }
+      ],
+      "fileCount": 4,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "introduced_project_reader_binding": {
+      "failedAssertions": 11,
+      "files": [
+        "tests/model-discovery.test.ts",
+        "tests/workspace-linked-pr.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/model-discovery.test.ts",
+          "test": "model refresh API accepts refresh=1 and forwards explicit refresh",
+          "error": "TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')"
+        },
+        {
+          "file": "tests/model-discovery.test.ts",
+          "test": "model refresh API accepts refresh=true and forwards explicit refresh",
+          "error": "TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')"
+        },
+        {
+          "file": "tests/model-discovery.test.ts",
+          "test": "model refresh API uses cached discovery by default and preserves useful discovery errors",
+          "error": "TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')"
+        }
+      ],
+      "fileCount": 2,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "windows_cursor_sdk_package_missing": {
+      "failedAssertions": 5,
+      "files": [
+        "tests/cursor-offline-executor.test.ts",
+        "tests/cursor-sdk-mcp-metadata.test.ts",
+        "tests/packaged-providers.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/cursor-offline-executor.test.ts",
+          "test": "self-tests the offline boundary in a separate child before importing any SDK",
+          "error": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        },
+        {
+          "file": "tests/cursor-offline-executor.test.ts",
+          "test": "loads the actual lazy local executor and native parser, then fails closed before account/inference transport",
+          "error": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        },
+        {
+          "file": "tests/cursor-sdk-mcp-metadata.test.ts",
+          "test": "self-tests child transport denial and parent broker rejection without importing the SDK",
+          "error": "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        }
+      ],
+      "fileCount": 3,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "bundled_integration_dependency_or_windows_binary": {
+      "failedAssertions": 5,
+      "files": [
+        "tests/integration-host.test.ts",
+        "tests/integration-mcp.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/integration-host.test.ts",
+          "test": "keeps Biome write proposals and Spec Kit initialization unavailable in plan mode",
+          "error": "Error: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'"
+        },
+        {
+          "file": "tests/integration-mcp.test.ts",
+          "test": "builds a real Graphify code graph, queries its stdio server and exports GraphML without a model",
+          "error": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/1b47eb428672/m15-v3/.harness-integrations-python-deps/graphify'"
+        },
+        {
+          "file": "tests/integration-mcp.test.ts",
+          "test": "initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host",
+          "error": "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/1b47eb428672/m15-v3/.harness-integrations-python-deps/specify_cli'"
+        }
+      ],
+      "fileCount": 2,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "runner_serialized_stack_trace_error": {
+      "failedAssertions": 4,
+      "files": [
+        "tests/account-login.test.ts",
+        "tests/github-workspace.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/account-login.test.ts",
+          "test": "does not admit a successor sign-in when an expired lease still has a live owner",
+          "error": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "tests/github-workspace.test.ts",
+          "test": "fences cancel during private credential writing before rename and preserves the prior token",
+          "error": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "tests/github-workspace.test.ts",
+          "test": "fences replace during private credential writing before rename and preserves the prior token",
+          "error": "Error: STACK_TRACE_ERROR"
+        }
+      ],
+      "fileCount": 2,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "http_access_status_mismatch": {
+      "failedAssertions": 4,
+      "files": [
+        "tests/path-access.test.ts",
+        "tests/research-routes.test.ts",
+        "tests/resource-tree.test.ts",
+        "tests/server.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/path-access.test.ts",
+          "test": "serves approved ordinary bytes and holds every directory ancestor through final access",
+          "error": "AssertionError: expected 403 to be 200 // Object.is equality"
+        },
+        {
+          "file": "tests/research-routes.test.ts",
+          "test": "captures only an explicitly selected granted file and denies material reads after revocation",
+          "error": "AssertionError: expected 403 to be 200 // Object.is equality"
+        },
+        {
+          "file": "tests/resource-tree.test.ts",
+          "test": "lists one granted directory lazily, omits unsafe leaves and denies traversal",
+          "error": "AssertionError: expected 403 to be 200 // Object.is equality"
+        }
+      ],
+      "fileCount": 4,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "introduced_public_source_export_closure": {
+      "failedAssertions": 4,
+      "files": [
+        "tests/public-source.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/public-source.test.ts",
+          "test": "reviewed public source allowlist resolves the staged host and worker entries using only admitted runtime sources",
+          "error": "Error: Build failed with 3 errors:"
+        },
+        {
+          "file": "tests/public-source.test.ts",
+          "test": "reviewed public source allowlist resolves the staged browser entry using only admitted public sources",
+          "error": "Error: Build failed with 11 errors:"
+        },
+        {
+          "file": "tests/public-source.test.ts",
+          "test": "reviewed public source allowlist admits every browser suite spec and configuration with complete spec coverage",
+          "error": "AssertionError: expected [Function] to not throw an error but 'Error: Browser spec coverage: missing…' was thrown"
+        }
+      ],
+      "fileCount": 1,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "other_assertion_requires_diagnosis": {
+      "failedAssertions": 3,
+      "files": [
+        "tests/expanded-review-fixtures.test.ts",
+        "tests/integrations.test.ts",
+        "tests/path-access.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/expanded-review-fixtures.test.ts",
+          "test": "explicit expanded recording fixtures runs the named local test only after exact native approval and derives failure from exit status",
+          "error": "AssertionError: expected undefined to match object { kind: 'repository.test', …(2) }"
+        },
+        {
+          "file": "tests/integrations.test.ts",
+          "test": "admits exactly the ten bundled integrations without starting their MCP services",
+          "error": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "file": "tests/path-access.test.ts",
+          "test": "denies alternate streams and device namespace spellings at grant admission",
+          "error": "Error: expected HarnessError: The selected path is unavai… { …(2) } to match object { code: 'CAPABILITY_DENIED' }"
+        }
+      ],
+      "fileCount": 3,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "desktop_sidecar_startup_error": {
+      "failedAssertions": 2,
+      "files": [
+        "tests/desktop-host.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/desktop-host.test.ts",
+          "test": "launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token",
+          "error": "Error: Desktop host reported a startup error before harness.ready"
+        },
+        {
+          "file": "tests/desktop-host.test.ts",
+          "test": "does not leave its backend running after the owning IPC channel disconnects",
+          "error": "Error: Desktop host reported a startup error before harness.ready"
+        }
+      ],
+      "fileCount": 1,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "hermes_cleanup_unconfirmed": {
+      "failedAssertions": 2,
+      "files": [
+        "tests/hermes-multi-original.test.ts",
+        "tests/hermes-original-integration.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/hermes-multi-original.test.ts",
+          "test": "runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls",
+          "error": "AggregateError: Hermes cleanup could not be confirmed."
+        },
+        {
+          "file": "tests/hermes-original-integration.test.ts",
+          "test": "runs original Python and ACP through the native broker, persists a skill and finishes through the real Service",
+          "error": "AggregateError: Hermes task pool cleanup could not be confirmed."
+        }
+      ],
+      "fileCount": 2,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "dev_runtime_http_503": {
+      "failedAssertions": 1,
+      "files": [
+        "tests/dev-plugin-runtime.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/dev-plugin-runtime.test.ts",
+          "test": "prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children",
+          "error": "AssertionError: expected [ 503, 503 ] to deeply equal [ 200, 200 ]"
+        }
+      ],
+      "fileCount": 1,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "runtime_storage_path_rejected": {
+      "failedAssertions": 1,
+      "files": [
+        "tests/official-runtime-storage.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/official-runtime-storage.test.ts",
+          "test": "official runtime storage and subprocess isolation uses published commands and isolated homes without inheriting provider or Node injection variables",
+          "error": "HarnessError: Cursor storage path cannot contain \":\". Choose another storage folder."
+        }
+      ],
+      "fileCount": 1,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    },
+    "browser_control_timeout": {
+      "failedAssertions": 1,
+      "files": [
+        "tests/widget-isolation.test.ts"
+      ],
+      "examples": [
+        {
+          "file": "tests/widget-isolation.test.ts",
+          "test": "real browser worker isolation rejects a huge sparse children in Chromium without blocking host controls",
+          "error": "locator.click: Timeout 30000ms exceeded."
+        }
+      ],
+      "fileCount": 1,
+      "baselineAttribution": "UNESTABLISHED",
+      "classification": "Observed error signature only; not a root-cause or baseline-parity determination."
+    }
+  },
+  "failedFiles": [
+    {
+      "file": "tests/account-login.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 3,
+        "passed": 3
+      },
+      "assertionCount": 6,
+      "symptomCounts": {
+        "native_file_access_denial": 2,
+        "runner_serialized_stack_trace_error": 1
+      },
+      "representativeErrors": {
+        "runner_serialized_stack_trace_error": [
+          "Error: STACK_TRACE_ERROR"
+        ],
+        "native_file_access_denial": [
+          "Error: expected [Function] to throw error including 'Synthetic native cancellation' but got 'File access check failed — the folder…'",
+          "Error: expected HarnessError: File access check failed — … { …(2) } to be HarnessError: Synthetic shutdown could no… { …(2) } // Object.is equality"
+        ]
+      }
+    },
+    {
+      "file": "tests/account-parity.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 11
+      },
+      "assertionCount": 11,
+      "symptomCounts": {
+        "native_file_access_denial": 11
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/account-profile.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 4,
+        "passed": 6
+      },
+      "assertionCount": 10,
+      "symptomCounts": {
+        "native_file_access_denial": 4
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/capabilities.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 13,
+        "passed": 11
+      },
+      "assertionCount": 24,
+      "symptomCounts": {
+        "native_file_access_denial": 13
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action",
+          "Error: expected [Function] to throw error matching /read only/i but got 'File access check failed — the folder…'"
+        ]
+      }
+    },
+    {
+      "file": "tests/checkpoint-restore-v3.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 13,
+        "passed": 1
+      },
+      "assertionCount": 14,
+      "symptomCounts": {
+        "native_file_access_denial": 13
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/code-review-comparisons.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 12
+      },
+      "assertionCount": 12,
+      "symptomCounts": {
+        "native_file_access_denial": 12
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/code-review-reader.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 15
+      },
+      "assertionCount": 16,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }"
+        ]
+      }
+    },
+    {
+      "file": "tests/cursor-offline-executor.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 1
+      },
+      "assertionCount": 3,
+      "symptomCounts": {
+        "windows_cursor_sdk_package_missing": 2
+      },
+      "representativeErrors": {
+        "windows_cursor_sdk_package_missing": [
+          "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        ]
+      }
+    },
+    {
+      "file": "tests/cursor-sdk-mcp-metadata.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 2
+      },
+      "assertionCount": 4,
+      "symptomCounts": {
+        "windows_cursor_sdk_package_missing": 2
+      },
+      "representativeErrors": {
+        "windows_cursor_sdk_package_missing": [
+          "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        ]
+      }
+    },
+    {
+      "file": "tests/desktop-host.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 11
+      },
+      "assertionCount": 13,
+      "symptomCounts": {
+        "desktop_sidecar_startup_error": 2
+      },
+      "representativeErrors": {
+        "desktop_sidecar_startup_error": [
+          "Error: Desktop host reported a startup error before harness.ready"
+        ]
+      }
+    },
+    {
+      "file": "tests/dev-plugin-runtime.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 2
+      },
+      "assertionCount": 3,
+      "symptomCounts": {
+        "dev_runtime_http_503": 1
+      },
+      "representativeErrors": {
+        "dev_runtime_http_503": [
+          "AssertionError: expected [ 503, 503 ] to deeply equal [ 200, 200 ]"
+        ]
+      }
+    },
+    {
+      "file": "tests/expanded-review-fixtures.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 10
+      },
+      "assertionCount": 11,
+      "symptomCounts": {
+        "other_assertion_requires_diagnosis": 1
+      },
+      "representativeErrors": {
+        "other_assertion_requires_diagnosis": [
+          "AssertionError: expected undefined to match object { kind: 'repository.test', …(2) }"
+        ]
+      }
+    },
+    {
+      "file": "tests/git-metadata-guard.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1
+      },
+      "assertionCount": 1,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/github-workspace.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 23,
+        "passed": 14
+      },
+      "assertionCount": 37,
+      "symptomCounts": {
+        "native_file_access_denial": 20,
+        "runner_serialized_stack_trace_error": 3
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action",
+          "Error: expected [Function] to throw error matching /GitHub branch/ but got 'File access check failed — the folder…'",
+          "Error: promise rejected \"HarnessError: File access check failed — … { …(2) }\" instead of resolving"
+        ],
+        "runner_serialized_stack_trace_error": [
+          "Error: STACK_TRACE_ERROR"
+        ]
+      }
+    },
+    {
+      "file": "tests/hermes-client.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 8,
+        "passed": 5
+      },
+      "assertionCount": 13,
+      "symptomCounts": {
+        "native_file_access_denial": 8
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action",
+          "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'HERMES_PROTOCOL' }"
+        ]
+      }
+    },
+    {
+      "file": "tests/hermes-host.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1
+      },
+      "assertionCount": 1,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/hermes-multi-original.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1
+      },
+      "assertionCount": 1,
+      "symptomCounts": {
+        "hermes_cleanup_unconfirmed": 1
+      },
+      "representativeErrors": {
+        "hermes_cleanup_unconfirmed": [
+          "AggregateError: Hermes cleanup could not be confirmed."
+        ]
+      }
+    },
+    {
+      "file": "tests/hermes-original-integration.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1
+      },
+      "assertionCount": 1,
+      "symptomCounts": {
+        "hermes_cleanup_unconfirmed": 1
+      },
+      "representativeErrors": {
+        "hermes_cleanup_unconfirmed": [
+          "AggregateError: Hermes task pool cleanup could not be confirmed."
+        ]
+      }
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 10,
+        "passed": 5
+      },
+      "assertionCount": 15,
+      "symptomCounts": {
+        "native_file_access_denial": 10
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/integration-host.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 7
+      },
+      "assertionCount": 8,
+      "symptomCounts": {
+        "bundled_integration_dependency_or_windows_binary": 1
+      },
+      "representativeErrors": {
+        "bundled_integration_dependency_or_windows_binary": [
+          "Error: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'"
+        ]
+      }
+    },
+    {
+      "file": "tests/integration-mcp.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 5,
+        "passed": 7
+      },
+      "assertionCount": 12,
+      "symptomCounts": {
+        "bundled_integration_dependency_or_windows_binary": 4,
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "bundled_integration_dependency_or_windows_binary": [
+          "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/1b47eb428672/m15-v3/.harness-integrations-python-deps/graphify'",
+          "Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/workspace/scratch/1b47eb428672/m15-v3/.harness-integrations-python-deps/specify_cli'",
+          "Error: Command failed: /workspace/scratch/1b47eb428672/m15-v3/node_modules/@biomejs/cli-win32-x64/biome.exe --version"
+        ],
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/integrations.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 3
+      },
+      "assertionCount": 4,
+      "symptomCounts": {
+        "other_assertion_requires_diagnosis": 1
+      },
+      "representativeErrors": {
+        "other_assertion_requires_diagnosis": [
+          "AssertionError: expected false to be true // Object.is equality"
+        ]
+      }
+    },
+    {
+      "file": "tests/managed-git-family.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 3,
+        "passed": 12
+      },
+      "assertionCount": 15,
+      "symptomCounts": {
+        "native_file_access_denial": 3
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "Error: promise rejected \"HarnessError: File access check failed — … { …(2) }\" instead of resolving",
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/model-discovery.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 9,
+        "passed": 10
+      },
+      "assertionCount": 19,
+      "symptomCounts": {
+        "introduced_project_reader_binding": 9
+      },
+      "representativeErrors": {
+        "introduced_project_reader_binding": [
+          "TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')"
+        ]
+      }
+    },
+    {
+      "file": "tests/official-runtime-storage.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 4
+      },
+      "assertionCount": 5,
+      "symptomCounts": {
+        "runtime_storage_path_rejected": 1
+      },
+      "representativeErrors": {
+        "runtime_storage_path_rejected": [
+          "HarnessError: Cursor storage path cannot contain \":\". Choose another storage folder."
+        ]
+      }
+    },
+    {
+      "file": "tests/packaged-providers.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 8
+      },
+      "assertionCount": 9,
+      "symptomCounts": {
+        "windows_cursor_sdk_package_missing": 1
+      },
+      "representativeErrors": {
+        "windows_cursor_sdk_package_missing": [
+          "Error: Cannot find module '@cursor/sdk-win32-x64/package.json'"
+        ]
+      }
+    },
+    {
+      "file": "tests/path-access.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 12,
+        "passed": 19
+      },
+      "assertionCount": 31,
+      "symptomCounts": {
+        "http_access_status_mismatch": 1,
+        "native_file_access_denial": 10,
+        "other_assertion_requires_diagnosis": 1
+      },
+      "representativeErrors": {
+        "other_assertion_requires_diagnosis": [
+          "Error: expected HarnessError: The selected path is unavai… { …(2) } to match object { code: 'CAPABILITY_DENIED' }"
+        ],
+        "http_access_status_mismatch": [
+          "AssertionError: expected 403 to be 200 // Object.is equality"
+        ],
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/plugin-frame-custody.test.ts",
+      "status": "failed",
+      "assertions": {
+        "skipped": 4
+      },
+      "assertionCount": 4,
+      "setupMessage": "Cannot read properties of undefined (reading 'bindProjectReaders')",
+      "symptomCounts": {},
+      "representativeErrors": {}
+    },
+    {
+      "file": "tests/private-git-family.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 12,
+        "passed": 7
+      },
+      "assertionCount": 19,
+      "symptomCounts": {
+        "native_file_access_denial": 12
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action",
+          "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }"
+        ]
+      }
+    },
+    {
+      "file": "tests/project-tools.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 3,
+        "passed": 1
+      },
+      "assertionCount": 4,
+      "symptomCounts": {
+        "native_file_access_denial": 3
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/project-trust-v3.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 8
+      },
+      "assertionCount": 9,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 4,
+        "passed": 7
+      },
+      "assertionCount": 11,
+      "symptomCounts": {
+        "introduced_public_source_export_closure": 4
+      },
+      "representativeErrors": {
+        "introduced_public_source_export_closure": [
+          "Error: Build failed with 3 errors:",
+          "Error: Build failed with 11 errors:",
+          "AssertionError: expected [Function] to not throw an error but 'Error: Browser spec coverage: missing…' was thrown"
+        ]
+      }
+    },
+    {
+      "file": "tests/research-capture.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 7,
+        "passed": 2
+      },
+      "assertionCount": 9,
+      "symptomCounts": {
+        "native_file_access_denial": 7
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action",
+          "Error: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }"
+        ]
+      }
+    },
+    {
+      "file": "tests/research-routes.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 3
+      },
+      "assertionCount": 4,
+      "symptomCounts": {
+        "http_access_status_mismatch": 1
+      },
+      "representativeErrors": {
+        "http_access_status_mismatch": [
+          "AssertionError: expected 403 to be 200 // Object.is equality"
+        ]
+      }
+    },
+    {
+      "file": "tests/research-workspace.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 8
+      },
+      "assertionCount": 9,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "Error: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/resource-tree.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1
+      },
+      "assertionCount": 1,
+      "symptomCounts": {
+        "http_access_status_mismatch": 1
+      },
+      "representativeErrors": {
+        "http_access_status_mismatch": [
+          "AssertionError: expected 403 to be 200 // Object.is equality"
+        ]
+      }
+    },
+    {
+      "file": "tests/review-host.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 6
+      },
+      "assertionCount": 8,
+      "symptomCounts": {
+        "native_file_access_denial": 2
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "AssertionError: expected 'File access check failed — the folder…' to be null"
+        ]
+      }
+    },
+    {
+      "file": "tests/runtime-router.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 3,
+        "passed": 15
+      },
+      "assertionCount": 18,
+      "symptomCounts": {
+        "native_file_access_denial": 3
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/selective-commit-v3.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 13
+      },
+      "assertionCount": 13,
+      "symptomCounts": {
+        "native_file_access_denial": 13
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/server.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 11
+      },
+      "assertionCount": 12,
+      "symptomCounts": {
+        "http_access_status_mismatch": 1
+      },
+      "representativeErrors": {
+        "http_access_status_mismatch": [
+          "AssertionError: expected 403 to be 200 // Object.is equality"
+        ]
+      }
+    },
+    {
+      "file": "tests/service.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 17
+      },
+      "assertionCount": 19,
+      "symptomCounts": {
+        "native_file_access_denial": 2
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/skill-catalog-apps.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 2
+      },
+      "assertionCount": 4,
+      "symptomCounts": {
+        "skill_inventory_empty_missing_or_unavailable": 2
+      },
+      "representativeErrors": {
+        "skill_inventory_empty_missing_or_unavailable": [
+          "AssertionError: expected [] to have a length of 1 but got +0",
+          "TypeError: Cannot read properties of undefined (reading 'ref')"
+        ]
+      }
+    },
+    {
+      "file": "tests/skill-catalog-http.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 1
+      },
+      "assertionCount": 2,
+      "symptomCounts": {
+        "skill_inventory_empty_missing_or_unavailable": 1
+      },
+      "representativeErrors": {
+        "skill_inventory_empty_missing_or_unavailable": [
+          "AssertionError: expected undefined to match object { name: 'Test procedure', …(2) }"
+        ]
+      }
+    },
+    {
+      "file": "tests/skill-catalog.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 19,
+        "passed": 4
+      },
+      "assertionCount": 23,
+      "symptomCounts": {
+        "skill_inventory_empty_missing_or_unavailable": 19
+      },
+      "representativeErrors": {
+        "skill_inventory_empty_missing_or_unavailable": [
+          "AssertionError: expected [ { …(7) } ] to have a length of 26 but got 1",
+          "TypeError: Cannot read properties of undefined (reading 'files')",
+          "AssertionError: expected null to be truthy"
+        ]
+      }
+    },
+    {
+      "file": "tests/skill-invocation.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 36
+      },
+      "assertionCount": 36,
+      "symptomCounts": {
+        "skill_inventory_empty_missing_or_unavailable": 36
+      },
+      "representativeErrors": {
+        "skill_inventory_empty_missing_or_unavailable": [
+          "TypeError: Cannot read properties of undefined (reading 'ref')"
+        ]
+      }
+    },
+    {
+      "file": "tests/skills-integration.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 9,
+        "passed": 2
+      },
+      "assertionCount": 11,
+      "symptomCounts": {
+        "native_file_access_denial": 9
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/task-memory-recovery.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 2
+      },
+      "assertionCount": 3,
+      "symptomCounts": {
+        "native_file_access_denial": 1
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/widget-isolation.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 1,
+        "passed": 21
+      },
+      "assertionCount": 22,
+      "symptomCounts": {
+        "browser_control_timeout": 1
+      },
+      "representativeErrors": {
+        "browser_control_timeout": [
+          "locator.click: Timeout 30000ms exceeded."
+        ]
+      }
+    },
+    {
+      "file": "tests/workspace-action-outcome-routes.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 5
+      },
+      "assertionCount": 5,
+      "symptomCounts": {
+        "native_file_access_denial": 5
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/workspace-action-outcomes.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 19,
+        "passed": 1
+      },
+      "assertionCount": 20,
+      "symptomCounts": {
+        "native_file_access_denial": 19
+      },
+      "representativeErrors": {
+        "native_file_access_denial": [
+          "HarnessError: File access check failed — the folder could not be opened safely for this action"
+        ]
+      }
+    },
+    {
+      "file": "tests/workspace-linked-pr.test.ts",
+      "status": "failed",
+      "assertions": {
+        "failed": 2,
+        "passed": 12
+      },
+      "assertionCount": 14,
+      "symptomCounts": {
+        "introduced_project_reader_binding": 2
+      },
+      "representativeErrors": {
+        "introduced_project_reader_binding": [
+          "TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')"
+        ]
+      }
+    }
+  ],
+  "unhandledErrors": {
+    "count": 4,
+    "logRef": "docs/implementation/v3/m15-logs/full-vitest-01.log",
+    "observations": [
+      {
+        "count": 3,
+        "file": "tests/github-workspace.test.ts",
+        "symptom": "Auth-expiry expectation received native file-access denial",
+        "testNames": [
+          "fences cancel during private credential writing before rename and preserves the prior token",
+          "fences replace during private credential writing before rename and preserves the prior token",
+          "fences expire during private credential writing before rename and preserves the prior token"
+        ]
+      },
+      {
+        "count": 1,
+        "file": "tests/account-login.test.ts",
+        "symptom": "CAPABILITY_DENIED from withLinuxDirectoryGuard through withAccountLogin",
+        "testNames": [
+          "does not admit a successor sign-in when an expired lease still has a live owner"
+        ]
+      }
+    ],
+    "baselineAttribution": "UNESTABLISHED"
+  },
+  "introducedFailuresAndCorrections": [
+    {
+      "category": "introduced_project_reader_binding",
+      "observedFailedAssertions": 11,
+      "additionalFailedSetupFile": "tests/plugin-frame-custody.test.ts",
+      "correctionOwner": "m15_host",
+      "correctionStatus": "PASS",
+      "correctionReceiptRef": "docs/implementation/v3/m15-logs/host-route-composition-green-08.json",
+      "correctionLogDigest": "4ab83056e45a2471a77fa2dd46a1197814a8445947bcc722e6cb8072cc8ff440",
+      "correctionExitCode": 0,
+      "correctionScope": "Reported targeted run: 72 passed and one Windows-only skip across model discovery, linked PR routes, plugin custody, and source-workbench host contracts. Original full-run failures and failed setup are retained."
+    },
+    {
+      "category": "introduced_public_source_export_closure",
+      "observedFailedAssertions": 4,
+      "correctionOwner": "root",
+      "correctionStatus": "PASS",
+      "correctionReceiptId": "packaging-import-closure-green",
+      "correctionReceiptRef": "docs/implementation/v3/m15-logs/packaging-import-closure-green.json",
+      "correctionLogDigest": "4eeb2af67d4ef8ff6f47c6de53ab9b1d3e24054c1bffe845d94c0a857c7b690c",
+      "correctionExitCode": 0,
+      "correctionScope": "Only the targeted correction receipt is updated. The original four full-run failures remain in this report."
+    }
+  ],
+  "rawJsonFileStatuses": {
+    "passed": 287,
+    "failed": 51
+  },
+  "derivedFileOutcomes": {
+    "passed": 284,
+    "failed": 51,
+    "skipped": 3
+  },
+  "allSkippedFiles": [
+    "tests/split-app-browser.test.ts",
+    "tests/split-workspace-renderer.test.ts",
+    "tests/windows-credential-lease.test.ts"
+  ],
+  "fileOutcomeNote": "Vitest JSON marks wholly skipped files passed. Derived outcomes separate those files while preserving setup-failed files as failed, matching the CLI file summary."
+}

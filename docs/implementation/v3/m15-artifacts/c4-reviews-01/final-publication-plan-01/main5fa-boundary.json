@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "kind": "STATIC_FUTURE_MERGE_CONTRACT_BOUNDARY",
+  "execution": "NOT_RUN",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "from": "109797cb195b842d44dfc05dafaa6100531396df",
+  "to": "5fa29135068f98a1a1045ae33fefc8a34f565e43",
+  "tree": "a25658fe94df242cca90bbcad9d74aec60b3e291",
+  "changedPaths": [
+    "tests/e2e/desktop-surfaces.spec.ts"
+  ],
+  "parentVerified": "109797cb195b842d44dfc05dafaa6100531396df",
+  "rawDelta": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-main-delta.json",
+    "bytes": 24999,
+    "sha256": "318761f45aa1e8a85e08b2cc95aa34acf618389891c79a361c36e86e18ebecf7"
+  },
+  "exactThreeHunks": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/main5fa-desktop.patch",
+    "bytes": 10097,
+    "sha256": "4b64cbd56b4386421d38cb33ddecc998db03462b47d0fa231850de24fcfa9723"
+  },
+  "currentRelevantSources": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/apps/web/src/DesktopEntry.tsx",
+      "bytes": 10076,
+      "sha256": "da0b285af5b935f26ecf69fb891f8e216d95918710ec4a02a5a1af6bbd157ee8"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/apps/web/src/DraftTransfer.tsx",
+      "bytes": 3099,
+      "sha256": "9b6efa9a20e4c5aa0d50d00e1f4df60c18ffd7954ee818f81d8cb6718fbcb52e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/apps/web/src/draft-transfer.ts",
+      "bytes": 12084,
+      "sha256": "11cf401b6c4eef64ef0dadedaf939180423592ced7f94865c2adbd7dce5f2b43"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/desktop-surfaces.spec.ts",
+      "bytes": 39513,
+      "sha256": "07f9b179504a44fc6297f4050663630dd95fd240a58fac756d5eccb9daef773d"
+    }
+  ],
+  "boundaries": [
+    {
+      "case": "detached workspace selection does not acquire an unacknowledged second artifact editor",
+      "current": "DesktopEntry.tsx rejection error renders role=alert; accepted current assertion selects alert",
+      "incoming": "status filtered by exact rejection text must be visible"
+    },
+    {
+      "case": "export refuses pending signature assets instead of silently omitting the mark",
+      "current": "DraftTransfer.tsx export failure renders role=alert; accepted current assertion selects .draft-transfer [role=alert]",
+      "incoming": "Browser draft transfer region status must contain Save or clear the pending signature mark; downloaded filenames must remain empty"
+    },
+    {
+      "case": "review: a failed detached workspace close retains the editable surface",
+      "current": "DesktopEntry.tsx reattach failure renders the same role=alert error node; accepted current assertion selects alert",
+      "incoming": "status filtered by Dock destination is unavailable must be visible"
+    }
+  ],
+  "conclusion": "Test-only does not mean no impact. A future merge of incoming status assertions with current C4 alert output must reconcile the accessibility and test contract. Preserve the stronger no-download assertion. No merge, test run or role change is authorized by this report."
+}

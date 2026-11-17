@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/desktop-surfaces.playwright.config.ts",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-desktop-regression-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T04:05:45.699Z",
+  "endedAt": "2026-11-16T04:07:21.037Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-desktop-regression-01.log",
+  "logDigest": "68ce9cf53bdce1e5fb9b3267a4fa2755ff9d509de93776edf4d7277c7c481015"
+}

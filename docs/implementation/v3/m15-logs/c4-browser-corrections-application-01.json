@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/browser-corrections-application-01/apply.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T04:27:43.242Z",
+  "endedAt": "2026-11-16T04:27:43.436Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-browser-corrections-application-01.log",
+  "logDigest": "d7b468b77deef65192a64280114b53f2748448ba3527b1bf797674754f63231e"
+}

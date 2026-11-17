@@ -76,8 +76,9 @@
   position: fixed;
   inset: 0;
   box-sizing: border-box;
-  width: min(560px, calc(100vw - 16px));
-  max-height: calc(100dvh - 16px);
+  /* The fixed containing block already accounts for inherited CSS zoom. */
+  width: min(560px, calc(100% - 16px));
+  max-height: calc(100% - 16px);
   margin: auto;
   padding: var(--ui-dialog-inset);
   overflow: auto;
@@ -103,7 +104,7 @@
   .ui-modal, .ui-modal[open] { transform: none; transition-duration: var(--ui-motion-press); }
 }
 @media (prefers-reduced-motion: reduce) { @starting-style { .ui-modal[open] { transform: none; } } }
-html[data-native-titlebar="true"] .ui-modal { top: 42px; max-height: calc(100dvh - 58px); }
+html[data-native-titlebar="true"] .ui-modal { top: 42px; max-height: calc(100% - 58px); }
 .ui-modal-header { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-3); margin-bottom: var(--ui-space-4); }
 .ui-modal-header h2 { margin: 0; font-size: 17px; }
 .ui-modal-close { flex-shrink: 0; min-width: 32px; min-height: 32px; color: var(--danger, #ff6b7e); }

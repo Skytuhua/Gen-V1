@@ -1,0 +1,322 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","usage-app-integration"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 1
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4
+
+Browser suite: usage-app-integration (3 spec files)
+
+Running 15 tests using 1 worker
+
+  ok  1 tests\e2e\mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes (5.7s)
+  x   2 tests\e2e\shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded (7.7s)
+  x   3 tests\e2e\shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection (8.7s)
+  x   4 tests\e2e\usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft (7.3s)
+  ok  5 tests\e2e\usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 375px (4.2s)
+  ok  6 tests\e2e\usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 768px (3.9s)
+  ok  7 tests\e2e\usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 1440px (3.9s)
+  ok  8 tests\e2e\usage-app-integration.spec.ts:217:1 › actual App Live usage preference controls the composer launcher without opening the summary (2.4s)
+  x   9 tests\e2e\usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload (8.2s)
+  ok 10 tests\e2e\usage-app-integration.spec.ts:337:1 › actual App dock header remains a disclosure and its body opens the same Usage modal (2.6s)
+  x  11 tests\e2e\usage-app-integration.spec.ts:364:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt (15.1s)
+  x  12 tests\e2e\usage-app-integration.spec.ts:395:1 › actual App captured usage scope does not switch to another thread on snapshots (8.6s)
+  x  13 tests\e2e\usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable (7.4s)
+  ok 14 tests\e2e\usage-app-integration.spec.ts:447:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch (1.7s)
+  x  15 tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope (7.4s)
+
+
+  1) tests\e2e\shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })
+    Expected: [32m1[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })[22m
+    [2m    9 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');
+      15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);
+    > 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);
+         |                                                                                                                                                            ^
+      17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);
+      18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);
+      19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\shell-error-ownership.spec.ts:16:156
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-fail-767c2-drafts-and-commands-guarded\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-fail-767c2-drafts-and-commands-guarded\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-fail-767c2-drafts-and-commands-guarded\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })[22m
+
+
+      31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);
+      32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
+    > 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
+         |                                                                                                                                                                                                   ^
+      34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+      35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
+      36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\shell-error-ownership.spec.ts:33:195
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-the--6673d-age-preserves-its-selection\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-the--6673d-age-preserves-its-selection\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\shell-error-ownership-the--6673d-age-preserves-its-selection\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e\usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"7"[39m
+    Received string:    [31m"UsageCostTokensLimitsRequestsAll scopesAll scopesAll providersAll providersRefreshNo usage reported yetCost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.Refresh"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_a_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsRequestsAll scopesAll scopesAll providersAll providersRefreshNo usage reported yetCost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.Refresh"[22m
+
+
+      26 |  const h=await host(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Preserve this draft');
+      27 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(modal(page)).toBeVisible();
+    > 28 |  await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Not reported');
+         |                                                                                                  ^
+      29 |  await expect(modal(page)).not.toContainText('Thread memory');await page.keyboard.press('Escape');await expect(draft).toHaveValue('Preserve this draft');
+      30 |  expect(h.commands.filter(x=>x.type==='thread.create'||x.type==='message.send')).toHaveLength(0);
+      31 | });
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:28:98
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-7abb1-ains-the-conversation-draft\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-7abb1-ains-the-conversation-draft\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-7abb1-ains-the-conversation-draft\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests\e2e\usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()
+    Expected: [32m"999"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()[22m
+
+
+      60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+      61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
+    > 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');
+         |                                                                                                 ^
+      63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+      64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
+      65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:62:97
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-spli-128e3-d-start-closed-after-reload\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-spli-128e3-d-start-closed-after-reload\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-spli-128e3-d-start-closed-after-reload\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests\e2e\usage-app-integration.spec.ts:364:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt 
+
+    [31mTest timeout of 15000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 15000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Context inspector' }).getByRole('button', { name: 'Compact now', exact: true })[22m
+    [2m    - locator resolved to <button disabled type="button" title="Start a session before compacting context.">Compact now</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not stable[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is not stable[22m
+    [2m  2 × retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m      - waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m  25 × retrying click action[22m
+    [2m       - waiting 500ms[22m
+    [2m       - waiting for element to be visible, enabled and stable[22m
+    [2m       - element is not enabled[22m
+    [2m  - retrying click action[22m
+    [2m    - waiting 500ms[22m
+
+
+      80 |  const popup=page.getByRole('dialog',{name:'Context inspector'}),compact=popup.getByRole('button',{name:'Compact now',exact:true});
+      81 |  await compact.focus();await compact.dispatchEvent('keydown',{key:'Escape',isComposing:true});await expect(popup).toBeVisible();
+    > 82 |  await compact.click();await expect(popup).toBeVisible();await expect.poll(()=>h.commands.filter(x=>x.type==='run.compact').map(x=>x.threadId)).toEqual(['task-thread']);
+         |                ^
+      83 |  h.snapshot.usage['task-thread'].contextTokens=4000;await h.publish();await expect(popup).not.toContainText('Freed');
+      84 |  await page.keyboard.press('Escape');await expect(opener).toBeFocused();
+      85 | });
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:82:16
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-6c7a6--and-never-infers-a-receipt\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-6c7a6--and-never-infers-a-receipt\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-6c7a6--and-never-infers-a-receipt\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests\e2e\usage-app-integration.spec.ts:395:1 › actual App captured usage scope does not switch to another thread on snapshots 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"Source-bound task fixture"[39m
+    Received string:    [31m"UsageCostTokensLimitsRequestsAll scopesAll scopesAll providersAll providersRefreshNo usage reported yetCost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.Refresh"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_a_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsRequestsAll scopesAll scopesAll providersAll providersRefreshNo usage reported yetCost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.Refresh"[22m
+
+
+      87 |  const h=await host(page);await page.getByRole('button',{name:'Usage',exact:true}).click();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
+      88 |  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other synthetic owner'});h.snapshot.usage.other={...h.snapshot.usage['task-thread'],inputTokens:999};h.snapshot.activeThreadId='other';await h.publish();
+    > 89 |  await expect(modal(page)).toContainText('Source-bound task fixture');await expect(modal(page)).not.toContainText('999');
+         |                            ^
+      90 | });
+      91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{
+      92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:89:28
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-3f659-another-thread-on-snapshots\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-3f659-another-thread-on-snapshots\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-3f659-another-thread-on-snapshots\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests\e2e\usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+
+
+      91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{
+      92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));
+    > 93 |  await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');
+         |                                             ^
+      94 |  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
+      95 |  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);
+      96 |  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:93:45
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-1c879-ved-Thread-memory-reachable\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-1c879-ved-Thread-memory-reachable\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-actu-1c879-ved-Thread-memory-reachable\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+
+
+      104 | test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{
+      105 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
+    > 106 |  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
+          |                                             ^
+      107 |  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');
+      108 | });
+      109 |
+        at D:\a\Gen-V1\Gen-V1\tests\e2e\usage-app-integration.spec.ts:106:45
+
+    Error Context: test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-revi-f858d-s-loaded-conversation-scope\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-revi-f858d-s-loaded-conversation-scope\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794800495363-d0890d86-bf07-40bb-8769-52f5a05d90d4\usage-app-integration\artifacts\usage-app-integration-revi-f858d-s-loaded-conversation-scope\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests\e2e\shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded 
+    tests\e2e\shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection 
+    tests\e2e\usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft 
+    tests\e2e\usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload 
+    tests\e2e\usage-app-integration.spec.ts:364:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt 
+    tests\e2e\usage-app-integration.spec.ts:395:1 › actual App captured usage scope does not switch to another thread on snapshots 
+    tests\e2e\usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
+    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
+  7 passed (1.8m)
+
+Failed browser suites: usage-app-integration (exit 1)

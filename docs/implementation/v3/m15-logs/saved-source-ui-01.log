@@ -1,0 +1,83 @@
+argv: ["node","node_modules/@playwright/test/cli.js","test","--config","tests/e2e/saved-drafts.playwright.config.ts","--grep","source-only named metadata","--reporter=line,json","--output","test-results/m15-saved-source-ui"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:26) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:38) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+[1A[2K(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode
+[1A[2K[2m[WebServer] [22m(!) Failed to run dependency scan. Skipping dependency pre-bundling. Error:   Failed to scan for dependencies from entries:
+[2m[WebServer] [22m  /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts-fixture.tsx
+[2m[WebServer] [22m
+[2m[WebServer] [22m  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mNo matching export in "packages/contracts/source-selection.ts" for import "outputReadResultV1Schema"[0m
+[2m[WebServer] [22m
+[2m[WebServer] [22m    apps/web/src/workbench-api.ts:4:129:
+[2m[WebServer] [22m[37m      4 │ ...ModuleV1Schema, sourceCapabilityV1Schema, [32moutputReadResultV1Schema[37m,
+[2m[WebServer] [22m        ╵                                              [32m~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[2m[WebServer] [22m
+[2m[WebServer] [22m
+[2m[WebServer] [22m    at failureErrorWithLog (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752:15)
+[2m[WebServer] [22m    at /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1211:25
+[2m[WebServer] [22m    at runOnEndCallbacks (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1592:45)
+[2m[WebServer] [22m    at buildResponseToResult (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1209:7)
+[2m[WebServer] [22m    at /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1221:9
+[2m[WebServer] [22m    at new Promise (<anonymous>)
+[2m[WebServer] [22m    at requestCallbacks.on-end (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1220:54)
+[2m[WebServer] [22m    at handleRequest (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+[2m[WebServer] [22m    at handleIncomingPacket (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+[2m[WebServer] [22m    at Socket.readFromStdout (/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+[2m[WebServer] [22m    at Socket.emit (node:events:514:28)
+[2m[WebServer] [22m    at addChunk (node:internal/streams/readable:569:12)
+[2m[WebServer] [22m    at readableAddChunkPushByteMode (node:internal/streams/readable:520:3)
+[2m[WebServer] [22m    at Readable.push (node:internal/streams/readable:400:5)
+[2m[WebServer] [22m    at Pipe.onStreamRead (node:internal/stream_base_commons:194:23)
+
+[1A[2K  1) tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+      39 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      40 | async function setup(page:Page,query=''){
+    > 41 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                                                                                                             ^
+      42 | }
+      43 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      44 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:41:349)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:112:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m15-saved-source-ui/saved-drafts-source-only-n-847a1-nging-the-current-send-mode/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m15-saved-source-ui/saved-drafts-source-only-n-847a1-nging-the-current-send-mode/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode 

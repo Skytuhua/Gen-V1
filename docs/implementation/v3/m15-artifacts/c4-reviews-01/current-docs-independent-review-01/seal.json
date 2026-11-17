@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "kind": "READ_ONLY_REVIEW_SEAL",
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/current-docs-independent-review-01/review.md",
+      "bytes": 5209,
+      "sha256": "8c8a2c8c808b1d3f40b40a0193cef4564733267c6c3803ce553462fbc75c365b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/current-docs-independent-review-01/review.json",
+      "bytes": 42086,
+      "sha256": "633573fe8e9a36674383ebfaf6131d9c9050e7e3d2acf0d051a5974a4910f9bd"
+    }
+  ],
+  "documentInputHashes": {
+    "M15-dependency-review.md": "463d1a057894860dce7914b4d6313a30db41c0c075b32ace53a5f795bd8982be",
+    "M15-feature-comparison.md": "6f23912f1dc3da249c1fb18c79590a196e7d432eba60250224c940265bddcb27",
+    "M15-final-review.md": "417146e77f79f0d17619c5834bd8ad9a9ee7990003ed38b73067f70901d212df",
+    "M15-handoff.md": "ff8482cbc20418003fb63790c4bb2287a2c4ff2090655edb7298ce0894ef8b6e",
+    "M15-original-prompt-audit.md": "637ccfa3492b2defb71b08697601ffd4ac04a1955ede7768bd29009e07008e5f",
+    "M15-plan.md": "b23b9d9b34fcee974086d6a86320974f706bd9ab3a6683fd3f2a7adb53d45632"
+  },
+  "repositoryEdits": false,
+  "testJobs": false
+}

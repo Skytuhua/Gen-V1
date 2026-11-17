@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workbench-input-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:14:00.275Z",
+  "endedAt": "2026-11-15T22:14:01.813Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/input-recovery-client-green.log",
+  "logDigest": "e230ef69e221cac714de54ccfff622410b3034e7102f2d519dc860c1b49b9401"
+}

@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "playwright.config.ts",
+    "tests/e2e/artifact-acknowledgment.spec.ts",
+    "--output",
+    "test-results/browser/candidate-root-artifact-quiet-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:38:51.552Z",
+  "endedAt": "2026-11-15T22:39:03.814Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.log",
+  "logDigest": "d5bc14c7f01ce8a62ef42456d497f2325dad3b04ad3de2cd1179b4fad33f2c34"
+}

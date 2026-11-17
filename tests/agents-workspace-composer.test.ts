@@ -10,6 +10,7 @@ const records = vi.hoisted(() => new Map<string, {value: unknown; generation: st
 const writes = vi.hoisted(() => ({pause: undefined as Promise<void> | undefined}));
 const recovery = vi.hoisted(() => ({error: undefined as Error | undefined, pause: undefined as Promise<void> | undefined, reads: [] as string[], subscriptions: new Set<() => void>()}));
 vi.mock('../apps/web/src/journal', () => ({
+ journalEntries: async () => [...records].map(([key,record])=>({key,record})),
  journalReadRecord: async (key: string) => {recovery.reads.push(key); if (recovery.pause) await recovery.pause; if (recovery.error) throw recovery.error; return records.get(key);},
  journalWrite: async (key: string, value: unknown) => {if (key.startsWith('agents-pending:') && writes.pause) await writes.pause; const generation = crypto.randomUUID(); records.set(key, {value, generation}); return generation;},
  journalGeneration: (key: string) => records.get(key)?.generation,

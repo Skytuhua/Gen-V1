@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-workbench-app-02/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:16:25.623Z",
+  "endedAt": "2026-11-16T01:19:02.512Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-workbench-app-02.log",
+  "logDigest": "7f350fb7dfcbbbd6dc4f28de5264abc57c5d82b837732397d4882151191cf447"
+}

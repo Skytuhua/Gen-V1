@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "status": "OBSERVED_NOT_ACCEPTED",
+  "from": "5fa29135068f98a1a1045ae33fefc8a34f565e43",
+  "to": "5f5276816deacdf896369f608045f993b00f2827",
+  "tree": "b8a80f555649f70aa0073d8cd1338f19e56b944a",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "publicationParent": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "patchSha256": "147bb670d54452c45a1496b2d683fa9babe416ad403ace7fa1ca5f016e553d5f",
+  "files": [
+    {
+      "path": "apps/web/src/ImageCompare.tsx",
+      "fromBlob": "096f5536a4006dc529605837e2562899411a7bce",
+      "toBlob": "7cb3cd3172a9690f432f5550c9d88b4f49f84fa1"
+    },
+    {
+      "path": "apps/web/src/SignaturePad.tsx",
+      "fromBlob": "18abd4f820d5dc7cfd30de6f70959a1f76204084",
+      "toBlob": "cedc14a7b9d9b095098932d0ee954c7ec9719687"
+    },
+    {
+      "path": "tests/e2e/file-checkpoints.spec.ts",
+      "fromBlob": "270f259593f05e4a82bfc62958beb70d6d17bfbc",
+      "toBlob": "6aa8ca73a49012dd321ae6c8ef9093f18534d330"
+    },
+    {
+      "path": "tests/e2e/image-compare.spec.ts",
+      "fromBlob": "f5b6f1d0a868a65fbceb33047ad1434029f1b2b0",
+      "toBlob": "9e73995ea1488bfe3e04a271803e97493f6b4781"
+    },
+    {
+      "path": "tests/e2e/sidebar-shared-menu.spec.ts",
+      "fromBlob": "e26a67b11c3e7ecd243197a8124e2f8e6cf13e94",
+      "toBlob": "69c43e46479d6a19a3a2f7a9340664a71bff1ca0"
+    },
+    {
+      "path": "tests/e2e/signing-fidelity.spec.ts",
+      "fromBlob": "db2d3c5f5bca6827143df4174d598afa205b6caf",
+      "toBlob": "cf591239c8ab9e5d740a2fa6b47eb952336d9bf3"
+    },
+    {
+      "path": "tests/e2e/tabs-identity.spec.ts",
+      "fromBlob": "cb652bdbc19e1ed79ebf0ab84684434f3d0d6e4a",
+      "toBlob": "07be614120914266f2e4bc5c50859e2ccb0a2bd2"
+    }
+  ],
+  "limit": "Root read the complete seven-file delta. This bounded static observation is not acceptance of later main or evidence of merged runtime compatibility."
+}

@@ -1,0 +1,883 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\workbench-app.playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/browser/run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991/workbench-app/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench-app.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5592 --strictPort",
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "url": "http://127.0.0.1:5592",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench-app.spec.ts",
+      "file": "workbench-app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "default-off App retains its ordinary composer and hides source actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4503,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:21.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-36ae1a642c6d0d067730",
+          "file": "workbench-app.spec.ts",
+          "line": 331,
+          "column": 1
+        },
+        {
+          "title": "selection attaches bounded immutable context, survives reload and uses the existing durable send",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5121,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:25.900Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-4d4ec1f8d0a8bc6580f4",
+          "file": "workbench-app.spec.ts",
+          "line": 353,
+          "column": 1
+        },
+        {
+          "title": "ask supplies a question only for an empty draft and never dispatches",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:31.046Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c835d135265b273d81ba",
+          "file": "workbench-app.spec.ts",
+          "line": 379,
+          "column": 1
+        },
+        {
+          "title": "stale capture remains exact until explicit keep or refresh and opens retained output",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5335,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:33.793Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-489805ce8bf883437c07",
+          "file": "workbench-app.spec.ts",
+          "line": 391,
+          "column": 1
+        },
+        {
+          "title": "late source descriptions cannot attach to a replacement workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:39.142Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c436364264902892f378",
+          "file": "workbench-app.spec.ts",
+          "line": 425,
+          "column": 1
+        },
+        {
+          "title": "after-current mode is explicit and queues through message.send while the task is working",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3618,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:41.950Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-52b95231ce67396803cf",
+          "file": "workbench-app.spec.ts",
+          "line": 450,
+          "column": 1
+        },
+        {
+          "title": "evidence preserves reported and observed grades, freshness and unsupported module state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:45.580Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-0cc746a2eebc3ac05cd3",
+          "file": "workbench-app.spec.ts",
+          "line": 488,
+          "column": 1
+        },
+        {
+          "title": "rollback leaves retained source inspection and removal reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3123,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:48.772Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-a29495d9eca7d5aad061",
+          "file": "workbench-app.spec.ts",
+          "line": 529,
+          "column": 1
+        },
+        {
+          "title": "context and run views use recorded or explicit unavailable states without invented metrics",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2904,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:51.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-9831c482c2393cf7dc42",
+          "file": "workbench-app.spec.ts",
+          "line": 560,
+          "column": 1
+        },
+        {
+          "title": "real activity integration bounds mounted rows and searches the authorized full read",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6237,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:32:54.827Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c7dec3a318124a5fedaf",
+          "file": "workbench-app.spec.ts",
+          "line": 588,
+          "column": 1
+        },
+        {
+          "title": "source-aware navigation waits for journal handoff and preserves text on reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:01.077Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-129bdaf95fbbbf1f903e",
+          "file": "workbench-app.spec.ts",
+          "line": 671,
+          "column": 1
+        },
+        {
+          "title": "pointing mode does not consume another pane focus or Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2380,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:06.787Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-8732cebf29f053ef0488",
+          "file": "workbench-app.spec.ts",
+          "line": 702,
+          "column": 1
+        },
+        {
+          "title": "selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:09.182Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-3cb1dde798b3a79177cb",
+          "file": "workbench-app.spec.ts",
+          "line": 716,
+          "column": 1
+        },
+        {
+          "title": "rollback retains a mode-only draft and permits returning to ordinary delivery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3231,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:11.795Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-26877aa03d506f314bda",
+          "file": "workbench-app.spec.ts",
+          "line": 755,
+          "column": 1
+        },
+        {
+          "title": "accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5857,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:15.036Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-1bd49f80b5d613c29604",
+          "file": "workbench-app.spec.ts",
+          "line": 791,
+          "column": 1
+        },
+        {
+          "title": "rollback permits cancellation of an undispatched accepted input without exposing revoked sources",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:20.913Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-70e9e70acb8ff34dbb5a",
+          "file": "workbench-app.spec.ts",
+          "line": 846,
+          "column": 1
+        },
+        {
+          "title": "definitive precommit source rejection unlocks removal and ordinary resubmission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3127,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:23.774Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-ed3904a10753b44c19ac",
+          "file": "workbench-app.spec.ts",
+          "line": 885,
+          "column": 1
+        },
+        {
+          "title": "lost cancellation receipt stays retryable after its input disappears and the App reloads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:26.912Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-2a41b5a29ca305d70856",
+          "file": "workbench-app.spec.ts",
+          "line": 932,
+          "column": 1
+        },
+        {
+          "title": "formatted assistant text opens its exact canonical source even outside the bounded catalogue",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:31.660Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-281144155dac1ace451b",
+          "file": "workbench-app.spec.ts",
+          "line": 978,
+          "column": 1
+        },
+        {
+          "title": "deferred source view failure retains the mounted composer and restores focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4506,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:34.511Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c49ba4f635dd3e45e76a",
+          "file": "workbench-app.spec.ts",
+          "line": 1025,
+          "column": 1
+        },
+        {
+          "title": "actual source modal and shared controls remain within the viewport at 200 percent zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3873,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:39.029Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "source-modal-zoom-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VzIjogewogICAgInZpZXdwb3J0IjogewogICAgICAid2lkdGgiOiAxMjgwLAogICAgICAiaGVpZ2h0IjogODAwCiAgICB9LAogICAgInpvb20iOiAiMiIsCiAgICAicGFuZWwiOiB7CiAgICAgICJ4IjogMzQsCiAgICAgICJ5IjogOTkuNjI1LAogICAgICAid2lkdGgiOiAxMjEyLAogICAgICAiaGVpZ2h0IjogNjAwLjc1LAogICAgICAidG9wIjogOTkuNjI1LAogICAgICAicmlnaHQiOiAxMjQ2LAogICAgICAiYm90dG9tIjogNzAwLjM3NSwKICAgICAgImxlZnQiOiAzNAogICAgfSwKICAgICJjbG9zZSI6IHsKICAgICAgIngiOiAxMTMyLAogICAgICAieSI6IDE0OS42MjUsCiAgICAgICJ3aWR0aCI6IDY0LAogICAgICAiaGVpZ2h0IjogNjQsCiAgICAgICJ0b3AiOiAxNDkuNjI1LAogICAgICAicmlnaHQiOiAxMTk2LAogICAgICAiYm90dG9tIjogMjEzLjYyNSwKICAgICAgImxlZnQiOiAxMTMyCiAgICB9LAogICAgIm5hdmlnYXRpb24iOiB7CiAgICAgICJ4IjogODQsCiAgICAgICJ5IjogMzM5LjgxMjUsCiAgICAgICJ3aWR0aCI6IDExMTIsCiAgICAgICJoZWlnaHQiOiAzOCwKICAgICAgInRvcCI6IDMzOS44MTI1LAogICAgICAicmlnaHQiOiAxMTk2LAogICAgICAiYm90dG9tIjogMzc3LjgxMjUsCiAgICAgICJsZWZ0IjogODQKICAgIH0sCiAgICAiaGVpZ2h0IjogIjMwMC4zNzVweCIsCiAgICAibWF4SGVpZ2h0IjogImNhbGMoMTAwJSAtIDY0cHgpIiwKICAgICJjbGllbnRIZWlnaHQiOiAyOTgsCiAgICAic2Nyb2xsSGVpZ2h0IjogMjk4LAogICAgInNjcm9sbFRvcCI6IDAKICB9LAogICJldmlkZW5jZSI6IHsKICAgICJ2aWV3cG9ydCI6IHsKICAgICAgIndpZHRoIjogMTI4MCwKICAgICAgImhlaWdodCI6IDgwMAogICAgfSwKICAgICJ6b29tIjogIjIiLAogICAgInBhbmVsIjogewogICAgICAieCI6IDM0LAogICAgICAieSI6IDY0LAogICAgICAid2lkdGgiOiAxMjEyLAogICAgICAiaGVpZ2h0IjogNjcyLAogICAgICAidG9wIjogNjQsCiAgICAgICJyaWdodCI6IDEyNDYsCiAgICAgICJib3R0b20iOiA3MzYsCiAgICAgICJsZWZ0IjogMzQKICAgIH0sCiAgICAiY2xvc2UiOiB7CiAgICAgICJ4IjogMTEzMiwKICAgICAgInkiOiAxMTQsCiAgICAgICJ3aWR0aCI6IDY0LAogICAgICAiaGVpZ2h0IjogNjQsCiAgICAgICJ0b3AiOiAxMTQsCiAgICAgICJyaWdodCI6IDExOTYsCiAgICAgICJib3R0b20iOiAxNzgsCiAgICAgICJsZWZ0IjogMTEzMgogICAgfSwKICAgICJuYXZpZ2F0aW9uIjogewogICAgICAieCI6IDg0LAogICAgICAieSI6IDMwNC4xODc1LAogICAgICAid2lkdGgiOiAxMTEyLAogICAgICAiaGVpZ2h0IjogMzgsCiAgICAgICJ0b3AiOiAzMDQuMTg3NSwKICAgICAgInJpZ2h0IjogMTE5NiwKICAgICAgImJvdHRvbSI6IDM0Mi4xODc1LAogICAgICAibGVmdCI6IDg0CiAgICB9LAogICAgImhlaWdodCI6ICIzMzZweCIsCiAgICAibWF4SGVpZ2h0IjogImNhbGMoMTAwJSAtIDY0cHgpIiwKICAgICJjbGllbnRIZWlnaHQiOiAzMzQsCiAgICAic2Nyb2xsSGVpZ2h0IjogOTA5LAogICAgInNjcm9sbFRvcCI6IDAKICB9Cn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c8cb6a031d2e48093528",
+          "file": "workbench-app.spec.ts",
+          "line": 1057,
+          "column": 1
+        },
+        {
+          "title": "native return waits for canonical placement and keeps delayed source work isolated between owners",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6706,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:33:42.918Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "native-return-source-isolation.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJSZWFsIEFwcCB3aXRoIHNjcmlwdGVkIGJyb3dzZXIgZGVza3RvcCBicmlkZ2UgYW5kIG93bmVyLWJvdW5kIHNvdXJjZSBIVFRQOyBubyBpbnN0YWxsZWQgZGVza3RvcCBleGVjdXRpb24iLAogICJkZWxheWVkRGVzY3JpcHRpb25PdXRjb21lIjogImZ1bGZpbGxlZCIsCiAgImJlZm9yZVJldHVybiI6IFsKICAgIHsKICAgICAgImRyYWZ0SWQiOiAiZjE2MzRlNjUtYzEyOS00NDUyLWExYjAtN2VkMmQ1NWQyOGYwIiwKICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICB9LAogICAgICAicmV2aXNpb24iOiAxNzk0ODAwMDI1MTg5LAogICAgICAidGV4dCI6ICJBdXRob3JlZCBkcmFmdCBvd25lZCBieSBBIiwKICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgewogICAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0xIiwKICAgICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAgICJraW5kIjogIk1FU1NBR0UiLAogICAgICAgICAgICAic291cmNlSWQiOiAicmVwbHkiLAogICAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDM6MzM6NDUuNTI5WiIsCiAgICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiNDBlMWVhZmJkYzY2ZjBlMjlhOGQ3Y2Y0NDU2Mjc5MDY5Mzg0YjBjODExNTk1ZjkxNDEyODVlZmJmZDYxZTQ1ZSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlbmRNb2RlIjogIk5PVyIsCiAgICAgICJjb25mbGljdFN0YXRlIjogIk5PTkUiCiAgICB9LAogICAgewogICAgICAiZHJhZnRJZCI6ICIwYzkxMjdhOS0wMDdkLTQzY2UtYTQ2Zi0zOTE1OGZmYWRjNGYiLAogICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgfSwKICAgICAgInJldmlzaW9uIjogMTc5NDgwMDAyNjkzNiwKICAgICAgInRleHQiOiAiRGlmZmVyZW50IGF1dGhvcmVkIGRyYWZ0IG93bmVkIGJ5IEIiLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTIiLAogICAgICAgICAgInNvdXJjZSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseS1iIiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogImJkNTg2NTk3M2NjYmVlYjQyNDMzYjFmNzFhNzNkN2YzNzM4MDQ3NzZhNDVjNmY4NmE5MGZmMTllMGZhYTg1ODkiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIiwKICAgICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDM6MzM6NDcuMjc5WiIsCiAgICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiMjIzYzM1YTg5ZWEzMGZiYTdkZjk0NWUwMGRmMWI5ZDU0ZGFiNjAyYmQ2MjFiYmZkY2Y0MTA3OGQxNjQ1NWJmOCIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlbmRNb2RlIjogIk5PVyIsCiAgICAgICJjb25mbGljdFN0YXRlIjogIk5PTkUiCiAgICB9CiAgXSwKICAiYWZ0ZXJSZXR1cm4iOiBbCiAgICB7CiAgICAgICJkcmFmdElkIjogImYxNjM0ZTY1LWMxMjktNDQ1Mi1hMWIwLTdlZDJkNTVkMjhmMCIsCiAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgfSwKICAgICAgInJldmlzaW9uIjogMTc5NDgwMDAyNTE4OSwKICAgICAgInRleHQiOiAiQXV0aG9yZWQgZHJhZnQgb3duZWQgYnkgQSIsCiAgICAgICJzb3VyY2VSZWZzIjogWwogICAgICAgIHsKICAgICAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMSIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjA0ZmQxODI2NjY5Mzk4ZjRiYjgyNDVhNWEzMmRhZDY5YmE1ZDdjMWFlNDIwNDlmY2VlZjNiNmQyZGFmZjk4MGUiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjA0ZmQxODI2NjY5Mzk4ZjRiYjgyNDVhNWEzMmRhZDY5YmE1ZDdjMWFlNDIwNDlmY2VlZjNiNmQyZGFmZjk4MGUiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDAzOjMzOjQ1LjUyOVoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogIjQwZTFlYWZiZGM2NmYwZTI5YThkN2NmNDQ1NjI3OTA2OTM4NGIwYzgxMTU5NWY5MTQxMjg1ZWZiZmQ2MWU0NWUiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgICAiY29uZmxpY3RTdGF0ZSI6ICJOT05FIgogICAgfSwKICAgIHsKICAgICAgImRyYWZ0SWQiOiAiMGM5MTI3YTktMDA3ZC00M2NlLWE0NmYtMzkxNThmZmFkYzRmIiwKICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgIH0sCiAgICAgICJyZXZpc2lvbiI6IDE3OTQ4MDAwMjY5MzYsCiAgICAgICJ0ZXh0IjogIkRpZmZlcmVudCBhdXRob3JlZCBkcmFmdCBvd25lZCBieSBCIiwKICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgewogICAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0yIiwKICAgICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAgICJraW5kIjogIk1FU1NBR0UiLAogICAgICAgICAgICAic291cmNlSWQiOiAicmVwbHktYiIsCiAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogImJkNTg2NTk3M2NjYmVlYjQyNDMzYjFmNzFhNzNkN2YzNzM4MDQ3NzZhNDVjNmY4NmE5MGZmMTllMGZhYTg1ODkiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDAzOjMzOjQ3LjI3OVoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogIjIyM2MzNWE4OWVhMzBmYmE3ZGY5NDVlMDBkZjFiOWQ1NGRhYjYwMmJkNjIxYmJmZGNmNDEwNzhkMTY0NTViZjgiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgICAiY29uZmxpY3RTdGF0ZSI6ICJOT05FIgogICAgfQogIF0sCiAgImZpbmFsRHJhZnRzIjogWwogICAgewogICAgICAiZHJhZnRJZCI6ICJmMTYzNGU2NS1jMTI5LTQ0NTItYTFiMC03ZWQyZDU1ZDI4ZjAiLAogICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgIH0sCiAgICAgICJyZXZpc2lvbiI6IDE3OTQ4MDAwMjUxODksCiAgICAgICJ0ZXh0IjogIkF1dGhvcmVkIGRyYWZ0IG93bmVkIGJ5IEEiLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTEiLAogICAgICAgICAgInNvdXJjZSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseSIsCiAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICIwNGZkMTgyNjY2OTM5OGY0YmI4MjQ1YTVhMzJkYWQ2OWJhNWQ3YzFhZTQyMDQ5ZmNlZWYzYjZkMmRhZmY5ODBlIiwKICAgICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICIwNGZkMTgyNjY2OTM5OGY0YmI4MjQ1YTVhMzJkYWQ2OWJhNWQ3YzFhZTQyMDQ5ZmNlZWYzYjZkMmRhZmY5ODBlIiwKICAgICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwMzozMzo0NS41MjlaIiwKICAgICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICI0MGUxZWFmYmRjNjZmMGUyOWE4ZDdjZjQ0NTYyNzkwNjkzODRiMGM4MTE1OTVmOTE0MTI4NWVmYmZkNjFlNDVlIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgICAgfQogICAgICBdLAogICAgICAic2VuZE1vZGUiOiAiTk9XIiwKICAgICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICAgIH0sCiAgICB7CiAgICAgICJkcmFmdElkIjogIjBjOTEyN2E5LTAwN2QtNDNjZS1hNDZmLTM5MTU4ZmZhZGM0ZiIsCiAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInNlY29uZC10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1iIgogICAgICB9LAogICAgICAicmV2aXNpb24iOiAxNzk0ODAwMDI2OTM2LAogICAgICAidGV4dCI6ICJEaWZmZXJlbnQgYXV0aG9yZWQgZHJhZnQgb3duZWQgYnkgQiIsCiAgICAgICJzb3VyY2VSZWZzIjogWwogICAgICAgIHsKICAgICAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMiIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5LWIiLAogICAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgICAgICAgInRocmVhZElkIjogInNlY29uZC10aHJlYWQiLAogICAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1iIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwMzozMzo0Ny4yNzlaIiwKICAgICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICIyMjNjMzVhODllYTMwZmJhN2RmOTQ1ZTAwZGYxYjlkNTRkYWI2MDJiZDYyMWJiZmRjZjQxMDc4ZDE2NDU1YmY4IgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgICAgfQogICAgICBdLAogICAgICAic2VuZE1vZGUiOiAiTk9XIiwKICAgICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICAgIH0KICBdLAogICJjYXB0dXJlcyI6IFsKICAgIHsKICAgICAgInJlZiI6IHsKICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTEiLAogICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseSIsCiAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgICAgICB9LAogICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDAzOjMzOjQ1LjUyOVoiLAogICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiNDBlMWVhZmJkYzY2ZjBlMjlhOGQ3Y2Y0NDU2Mjc5MDY5Mzg0YjBjODExNTk1ZjkxNDEyODVlZmJmZDYxZTQ1ZSIKICAgICAgICAgIH0KICAgICAgICB9LAogICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICB9LAogICAgICAibGFiZWwiOiAiT3duZXIgQSBtZXNzYWdlIiwKICAgICAgInByZXZpZXciOiAiT3duZXIgQSBrZWVwcyB0aGlzIHIiLAogICAgICAicHJldmlld1RydW5jYXRlZCI6IGZhbHNlLAogICAgICAic2VsZWN0ZWRCeXRlcyI6IDIwLAogICAgICAicmV0YWluZWQiOiB0cnVlLAogICAgICAic3RhdGUiOiAiQ1VSUkVOVCIKICAgIH0sCiAgICB7CiAgICAgICJyZWYiOiB7CiAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0yIiwKICAgICAgICAic291cmNlIjogewogICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAic291cmNlSWQiOiAicmVwbHktYiIsCiAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgICAgIH0sCiAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDM6MzM6NDcuMjc5WiIsCiAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICIyMjNjMzVhODllYTMwZmJhN2RmOTQ1ZTAwZGYxYjlkNTRkYWI2MDJiZDYyMWJiZmRjZjQxMDc4ZDE2NDU1YmY4IgogICAgICAgICAgfQogICAgICAgIH0sCiAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgIH0sCiAgICAgICJsYWJlbCI6ICJPd25lciBCIG1lc3NhZ2UiLAogICAgICAicHJldmlldyI6ICJPd25lciBCIGhhcyBhIGRpZmZlciIsCiAgICAgICJwcmV2aWV3VHJ1bmNhdGVkIjogZmFsc2UsCiAgICAgICJzZWxlY3RlZEJ5dGVzIjogMjAsCiAgICAgICJyZXRhaW5lZCI6IHRydWUsCiAgICAgICJzdGF0ZSI6ICJDVVJSRU5UIgogICAgfQogIF0sCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImtpbmQiOiAiY2FwdHVyZWQiLAogICAgICAib3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgfSwKICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0xIgogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAiZGVzY3JpcHRpb24taGVsZCIsCiAgICAgICJvd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICB9CiAgICB9LAogICAgewogICAgICAia2luZCI6ICJzcGxpdC1jb21tYW5kIiwKICAgICAgImNvbW1hbmQiOiB7CiAgICAgICAgImlkIjogImRjMjQxZGYzLTVmNmItNGJiNi1iYjQ5LWJjZGNhMDc5NTBmOCIsCiAgICAgICAgInR5cGUiOiAic3BsaXQtd29ya3NwYWNlLnZpZXcub3BlbiIsCiAgICAgICAgInBheWxvYWQiOiB7CiAgICAgICAgICAid29ya3NwYWNlSWQiOiAid29ya3NwYWNlIiwKICAgICAgICAgICJiYXNlUmV2aXNpb24iOiAxLAogICAgICAgICAgInBhbmVJZCI6ICJwYW5lLW1haW4iLAogICAgICAgICAgInZpZXciOiB7CiAgICAgICAgICAgICJpZCI6ICJ0aHJlYWQ6c2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICJraW5kIjogInRocmVhZCIsCiAgICAgICAgICAgICJiaW5kaW5nIjogewogICAgICAgICAgICAgICJhdXRob3JpdHkiOiB7CiAgICAgICAgICAgICAgICAia2luZCI6ICJsb2NhbCIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIgogICAgICAgICAgICB9CiAgICAgICAgICB9CiAgICAgICAgfQogICAgICB9CiAgICB9LAogICAgewogICAgICAia2luZCI6ICJjYXB0dXJlZCIsCiAgICAgICJvd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgIH0sCiAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMiIKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImRlc2NyaXB0aW9uLXJlbGVhc2VkIgogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAiZGVzY3JpcHRpb24tY29tcGxldGVkIiwKICAgICAgIm93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgIH0sCiAgICAgICJvdXRjb21lIjogImZ1bGZpbGxlZCIsCiAgICAgICJyZXF1ZXN0RmFpbHVyZSI6IHsKICAgICAgICAiZXJyb3JUZXh0IjogIm5ldDo6RVJSX0FCT1JURUQiCiAgICAgIH0KICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImxheW91dC1yZWFkLWhlbGQiCiAgICB9LAogICAgewogICAgICAia2luZCI6ICJuYXRpdmUtcmV0dXJuLWludGVudCIsCiAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImxheW91dC1yZWFkcy1yZWxlYXNlZCIsCiAgICAgICJyZWFkcyI6IDEKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogInNwbGl0LWNvbW1hbmQiLAogICAgICAiY29tbWFuZCI6IHsKICAgICAgICAiaWQiOiAiNjQxZjljZGItMjg4Yy00ZWMyLWE0MTYtNzE1ZjQ3NWVmZTc3IiwKICAgICAgICAidHlwZSI6ICJzcGxpdC13b3Jrc3BhY2Uudmlldy5vcGVuIiwKICAgICAgICAicGF5bG9hZCI6IHsKICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJ3b3Jrc3BhY2UiLAogICAgICAgICAgImJhc2VSZXZpc2lvbiI6IDIsCiAgICAgICAgICAicGFuZUlkIjogInBhbmUtbWFpbiIsCiAgICAgICAgICAidmlldyI6IHsKICAgICAgICAgICAgImlkIjogInRocmVhZDp0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICJraW5kIjogInRocmVhZCIsCiAgICAgICAgICAgICJiaW5kaW5nIjogewogICAgICAgICAgICAgICJhdXRob3JpdHkiOiB7CiAgICAgICAgICAgICAgICAia2luZCI6ICJsb2NhbCIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIH0KICAgICAgfQogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAic3BsaXQtY29tbWFuZCIsCiAgICAgICJjb21tYW5kIjogewogICAgICAgICJpZCI6ICJiZTI2MThlZS04NzJmLTQ0YWQtOGQwOS1jYzVlYjFlYmZiMzQiLAogICAgICAgICJ0eXBlIjogInNwbGl0LXdvcmtzcGFjZS52aWV3Lm9wZW4iLAogICAgICAgICJwYXlsb2FkIjogewogICAgICAgICAgIndvcmtzcGFjZUlkIjogIndvcmtzcGFjZSIsCiAgICAgICAgICAiYmFzZVJldmlzaW9uIjogMywKICAgICAgICAgICJwYW5lSWQiOiAicGFuZS1tYWluIiwKICAgICAgICAgICJ2aWV3IjogewogICAgICAgICAgICAiaWQiOiAidGhyZWFkOnNlY29uZC10aHJlYWQiLAogICAgICAgICAgICAia2luZCI6ICJ0aHJlYWQiLAogICAgICAgICAgICAiYmluZGluZyI6IHsKICAgICAgICAgICAgICAiYXV0aG9yaXR5IjogewogICAgICAgICAgICAgICAgImtpbmQiOiAibG9jYWwiCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImNvbW1hbmRzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-3ac76a66a02c9fdcbb09",
+          "file": "workbench-app.spec.ts",
+          "line": 1177,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:32:18.065Z",
+    "duration": 91809.509,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

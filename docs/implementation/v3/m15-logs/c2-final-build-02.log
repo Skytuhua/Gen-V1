@@ -1,0 +1,109 @@
+argv: ["pnpm","build"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 build /workspace/scratch/1b47eb428672/m15-v3
+> node scripts/build.mjs
+
+vite v7.3.7 building client environment for production...
+transforming...
+vite v7.3.7 building client environment for production...
+transforming...
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 1789 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/plugin-runtime/assets/pdf-draft.worker-BsXEv1s_.js    438.34 kB
+dist/plugin-runtime/runtime.css                          1,055.53 kB │ gzip: 667.07 kB
+dist/plugin-runtime/runtime.js                           2,961.73 kB │ gzip: 959.31 kB
+✓ built in 13.51s
+✓ 2153 modules transformed.
+rendering chunks...
+computing gzip size...
+../../dist/web/index.html                                                      0.55 kB │ gzip:   0.34 kB
+../../dist/web/assets/dancing-script-vietnamese-400-normal-lz8MlVep.woff2      4.94 kB
+../../dist/web/assets/dancing-script-vietnamese-400-normal-D2srOv8f.woff       6.72 kB
+../../dist/web/assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2             10.25 kB
+../../dist/web/assets/inter-greek-ext-wght-normal-DlzME5K_.woff2              11.23 kB
+../../dist/web/assets/dancing-script-latin-ext-400-normal-C917Kz-3.woff2      13.56 kB
+../../dist/web/assets/dancing-script-latin-ext-400-normal-DaWfpMsu.woff       18.19 kB
+../../dist/web/assets/caveat-latin-ext-400-normal-D7hBUiug.woff2              18.60 kB
+../../dist/web/assets/inter-cyrillic-wght-normal-DqGufNeO.woff2               18.75 kB
+../../dist/web/assets/inter-greek-wght-normal-CkhJZR-_.woff2                  19.00 kB
+../../dist/web/assets/dancing-script-latin-400-normal--YrtvvVF.woff2          23.82 kB
+../../dist/web/assets/caveat-latin-ext-400-normal-DtiRFvw0.woff               24.09 kB
+../../dist/web/assets/caveat-cyrillic-ext-400-normal-3iEGd-c5.woff2           24.23 kB
+../../dist/web/assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2           25.96 kB
+../../dist/web/assets/dancing-script-latin-400-normal-BY5FxJb0.woff           29.13 kB
+../../dist/web/assets/caveat-cyrillic-ext-400-normal-Cg0RnRQ5.woff            29.73 kB
+../../dist/web/assets/caveat-cyrillic-400-normal-9cDH9rLW.woff2               45.12 kB
+../../dist/web/assets/inter-latin-wght-normal-Dx4kXJAl.woff2                  48.26 kB
+../../dist/web/assets/caveat-latin-400-normal-D6LQsQ_v.woff2                  48.84 kB
+../../dist/web/assets/caveat-cyrillic-400-normal-CebvvJET.woff                53.10 kB
+../../dist/web/assets/caveat-latin-400-normal-BzhAQZkN.woff                   60.11 kB
+../../dist/web/assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2              85.07 kB
+../../dist/web/assets/pdf-draft.worker-BsXEv1s_.js                           438.34 kB
+../../dist/web/assets/pdf.worker.min-Dkey6ZUl.mjs                          1,321.31 kB
+../../dist/web/assets/WorkbenchOutput-Dwbhzl4A.css                             1.57 kB │ gzip:   0.60 kB
+../../dist/web/assets/SignaturePad-DAcKZblR.css                                2.68 kB │ gzip:   0.65 kB
+../../dist/web/assets/xterm-DDGTF8rc.css                                       3.62 kB │ gzip:   0.99 kB
+../../dist/web/assets/ImageCompare-RPgQ1nt1.css                                3.69 kB │ gzip:   1.19 kB
+../../dist/web/assets/Settings-BRmCrfp5.css                                    5.42 kB │ gzip:   1.42 kB
+../../dist/web/assets/EverydayData-73YFHHqC.css                                9.21 kB │ gzip:   2.16 kB
+../../dist/web/assets/InteractionTools-DVgicenx.css                           13.41 kB │ gzip:   2.89 kB
+../../dist/web/assets/ExplorationTools-nl79hqvf.css                           13.54 kB │ gzip:   3.06 kB
+../../dist/web/assets/SoftwareDevelopment-w-F-TgOD.css                        14.19 kB │ gzip:   3.09 kB
+../../dist/web/assets/WorkObjects-Bhzs1ppu.css                                14.84 kB │ gzip:   3.28 kB
+../../dist/web/assets/index-B1lpzUV3.css                                      44.04 kB │ gzip:   9.96 kB
+../../dist/web/assets/DesktopEntry-D__79HJf.css                              271.36 kB │ gzip:  47.55 kB
+../../dist/web/assets/pdf.worker.min-OGYDhRwp.js                               0.07 kB │ gzip:   0.09 kB
+../../dist/web/assets/chevron-left-CxTNzN1o.js                                 0.13 kB │ gzip:   0.15 kB
+../../dist/web/assets/focus-BerWHZjP.js                                        0.34 kB │ gzip:   0.23 kB
+../../dist/web/assets/addon-fit-DX4qG4td.js                                    1.21 kB │ gzip:   0.51 kB
+../../dist/web/assets/WorkbenchActivity-DNX_vQWt.js                            1.55 kB │ gzip:   0.87 kB
+../../dist/web/assets/CompactSettings-sX1FniQm.js                              3.35 kB │ gzip:   1.40 kB
+../../dist/web/assets/ImageCompare-CbGHhopz.js                                 6.27 kB │ gzip:   2.53 kB
+../../dist/web/assets/WorkbenchOutput-Crmg-rjp.js                              7.23 kB │ gzip:   2.91 kB
+../../dist/web/assets/SignaturePad-C74guIQr.js                                11.97 kB │ gzip:   4.85 kB
+../../dist/web/assets/WorkbenchPanelContent-gYx1uyMu.js                       15.81 kB │ gzip:   5.36 kB
+../../dist/web/assets/EverydayData-DnCAk_vl.js                                16.14 kB │ gzip:   5.71 kB
+../../dist/web/assets/InteractionTools-BW4MTe_z.js                            21.53 kB │ gzip:   7.14 kB
+../../dist/web/assets/ExplorationTools-BF0oiljj.js                            21.98 kB │ gzip:   7.61 kB
+../../dist/web/assets/SoftwareDevelopment-DsNROcp3.js                         24.49 kB │ gzip:   7.37 kB
+../../dist/web/assets/DocumentPreview-CHMdtHQ1.js                             25.19 kB │ gzip:   9.54 kB
+../../dist/web/assets/WorkObjects-9jS1_LKw.js                                 28.16 kB │ gzip:   9.56 kB
+../../dist/web/assets/Settings-DyWGHRkg.js                                    69.87 kB │ gzip:  21.81 kB
+../../dist/web/assets/index-BlHEn71y.js                                      194.76 kB │ gzip:  61.38 kB
+../../dist/web/assets/xterm-B-qIQCd3.js                                      329.31 kB │ gzip:  83.04 kB
+../../dist/web/assets/pdf-CL8ynlU4.js                                        495.58 kB │ gzip: 151.29 kB
+../../dist/web/assets/DesktopEntry-BRk31Bzq.js                             1,195.87 kB │ gzip: 370.04 kB
+✓ built in 23.95s
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

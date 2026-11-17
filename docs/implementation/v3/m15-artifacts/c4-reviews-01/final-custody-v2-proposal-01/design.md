@@ -1,0 +1,9 @@
+# Narrow C4 final-custody v2 proposal
+
+This proposal is not executed. The original helper remains byte-identical at1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419. The new helper accepts a required --published-parent separately from --parent. Both identities are pinned for this one continuation: tested-context parent eeda and actual publication parent98. No arbitrary parent/source-drift exception is introduced.
+
+The new checks require98 to be the exact direct child of eeda and an ancestry descendant, then compare both full Git trees. Exactly M15-source-cut.json and M15-validation-summary.json may differ. The dedicated incoming archive manifest has a fixed SHA-256 and must name those exact source paths, previous/source commits and tree. Both destinations must be canonical regular files with no symlink ancestors, exact Git mode/kind/blob identities, exact sizes/digests and exact Git bytes. The incoming source-cut metadata retains its historical34d8 base; the checker does not rewrite it to accepted b4aa or infer a new execution.
+
+All existing six complete publication archives, original clean checkout, pinned lock/ordinary CI, hash-bound tested-cut membership/bytes/modes, unchanged runtime/source admission constraints and whitespace checks remain. Retained published log/artifact identity is read from98. Tested source continuity still requires local HEAD and cut.head to equal eeda, preserving the actual0c execution context. The two-file incoming delta is reported separately from the six full archives.
+
+Only Python syntax parsing and proposal construction occurred. No checker, test, repository mutation, staging or publication ran. The parent must independently review this narrow delta, then execute it with the actual final admitted metadata and tested-manifest preimage. A new remote publication delta or parent requires another reviewed proposal; it cannot pass this pinned helper silently.

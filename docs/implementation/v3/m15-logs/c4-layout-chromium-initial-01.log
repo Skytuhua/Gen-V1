@@ -1,0 +1,100 @@
+argv: ["pnpm","exec","playwright","test","--config","/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/saved-layout-chooser.chromium.playwright.config.mts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 15 tests using 1 worker
+
+[1A[2K(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/15] tests/e2e/saved-layout-chooser.spec.ts:13:1 › saved rows replace the name/action bank and apply only on explicit activation
+[1A[2K[2/15] tests/e2e/saved-layout-chooser.spec.ts:41:1 › save asks for a name on demand, selects its exact ID, and reports current then modified
+[1A[2K[3/15] tests/e2e/saved-layout-chooser.spec.ts:86:1 › same-task repeated activation is locked, and an already current row does not apply twice
+[1A[2K[4/15] tests/e2e/saved-layout-chooser.spec.ts:109:1 › failed apply keeps the chooser, arrangement, current identity and conversation draft
+[1A[2K[5/15] tests/e2e/saved-layout-chooser.spec.ts:129:1 › row overflow updates, renames and confirms deletion without applying on focus
+[1A[2K[6/15] tests/e2e/saved-layout-chooser.spec.ts:214:1 › cancel and IME keys preserve the name draft and unwind one overlay at a time
+[1A[2K[7/15] tests/e2e/saved-layout-chooser.spec.ts:254:1 › empty, loading and failed lists stay distinct and offer retry
+[1A[2K[8/15] tests/e2e/saved-layout-chooser.spec.ts:293:1 › historical records are explicit recovery rows and never inferred as the current split
+[1A[2K[9/15] tests/e2e/saved-layout-chooser.spec.ts:316:1 › a stale metadata failure from the old workspace cannot replace the new workspace state
+[1A[2K[10/15] tests/e2e/saved-layout-chooser.spec.ts:362:1 › keyboard users can reach row overflow with Tab and Escape returns through both layers
+[1A[2K[11/15] tests/e2e/saved-layout-chooser.spec.ts:386:1 › externally changed saved metadata invalidates an observed current badge
+[1A[2K[12/15] tests/e2e/saved-layout-chooser.spec.ts:408:1 › reopening reveals and focuses the observed selected row
+[1A[2K[13/15] tests/e2e/saved-layout-chooser.spec.ts:426:1 › pending layout application cannot race a workspace preset change
+[1A[2K[14/15] tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states
+[1A[2K  1) tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m32[39m
+    Received:    [31m31.99517059326172[39m
+
+      55 | });
+      56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{
+    > 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      58 | });
+      59 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts:57:1383
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-07f37--access-and-distinct-states/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[15/15] tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states
+[1A[2K  2) tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m32[39m
+    Received:    [31m31.999969482421875[39m
+
+      55 | });
+      56 | for(const theme of ['dark','light'])test(`short narrow ${theme} chooser scrolls with row gaps, keyboard access and distinct states`,async({page},info)=>{
+    > 57 |  await page.setViewportSize({width:360,height:300});await page.goto('/saved-layouts?large=1');await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);const trigger=page.getByRole('button',{name:'Layouts',exact:true});await trigger.focus();await trigger.press('ArrowDown');const popup=page.getByRole('dialog',{name:'Saved layouts',exact:true});await expect(popup).toBeVisible();await expect(page.getByRole('button',{name:'Apply Coding',exact:true})).toBeFocused();await page.keyboard.press('r');await expect(page.getByRole('button',{name:'Apply Review 1',exact:true})).toBeFocused();await page.keyboard.press('End');await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeFocused();const bounds=await popup.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(8);expect(bounds!.y).toBeGreaterThanOrEqual(50);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(352);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(292);const geometry=await popup.evaluate(node=>{const list=node.querySelector('.saved-layout-list')!,rows=[...list.querySelectorAll('.saved-layout-row')];return{overflow:getComputedStyle(list).overflowY,gap:parseFloat(getComputedStyle(list).rowGap),height:rows[0].getBoundingClientRect().height};});expect(geometry.overflow).toBe('auto');expect(geometry.gap).toBeGreaterThanOrEqual(4);expect(geometry.height).toBeGreaterThanOrEqual(32);expect(await popup.evaluate(node=>getComputedStyle(node).fontFamily)).toContain('Inter');await page.keyboard.press('ArrowUp');await expect(page.getByRole('button',{name:'Apply Review 49',exact:true})).toBeFocused();await page.screenshot({path:info.outputPath(`layouts-${theme}.png`)});await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      58 | });
+      59 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.spec.ts:57:1383
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-layout-chromium-initial-01/artifacts/saved-layout-chooser-short-072e8--access-and-distinct-states/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  2 failed
+    tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states 
+    tests/e2e/saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states 
+  13 passed (25.7s)

@@ -1,0 +1,38 @@
+argv: ["pnpm","exec","playwright","test","--config","/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-usage-owner-chromium-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 16 tests using 1 worker
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/16] tests/e2e/mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes
+[1A[2K[2/16] tests/e2e/shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded
+[1A[2K[3/16] tests/e2e/shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection
+[1A[2K[4/16] tests/e2e/usage-app-integration.spec.ts:146:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft
+[1A[2K[5/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 375px
+[1A[2K[6/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 768px
+[1A[2K[7/16] tests/e2e/usage-app-integration.spec.ts:171:39 › actual App live usage launcher starts closed and toggles the summary at 1440px
+[1A[2K[8/16] tests/e2e/usage-app-integration.spec.ts:217:1 › actual App Live usage preference controls the composer launcher without opening the summary
+[1A[2K[9/16] tests/e2e/usage-app-integration.spec.ts:251:1 › split conversation launchers control the shared summary for the active pane and start closed after reload
+[1A[2K[10/16] tests/e2e/usage-app-integration.spec.ts:356:1 › actual App dock header remains a disclosure and its body opens the same Usage modal
+[1A[2K[11/16] tests/e2e/usage-app-integration.spec.ts:383:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt
+[1A[2K[12/16] tests/e2e/usage-app-integration.spec.ts:414:1 › actual App captured usage scope does not switch to another thread on snapshots
+[1A[2K[13/16] tests/e2e/usage-app-integration.spec.ts:440:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable
+[1A[2K[14/16] tests/e2e/usage-app-integration.spec.ts:466:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch
+[1A[2K[15/16] tests/e2e/usage-app-integration.spec.ts:476:1 › review: an open restored Usage tab resolves its loaded conversation scope
+[1A[2K[16/16] tests/e2e/usage-app-integration.spec.ts:492:1 › review: an open restored Usage tab stays closed in split workspace and keeps both composers available
+[1A[2K  16 passed (1.3m)

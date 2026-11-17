@@ -1,0 +1,37 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-workbench-app-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench-app.spec.ts:316:1 › default-off App retains its ordinary composer and hides source actions (6.0s)
+  ✓   2 tests/e2e/workbench-app.spec.ts:338:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (5.2s)
+  ✓   3 tests/e2e/workbench-app.spec.ts:364:1 › ask supplies a question only for an empty draft and never dispatches (2.5s)
+  ✓   4 tests/e2e/workbench-app.spec.ts:376:1 › stale capture remains exact until explicit keep or refresh and opens retained output (5.3s)
+  ✓   5 tests/e2e/workbench-app.spec.ts:410:1 › late source descriptions cannot attach to a replacement workspace (2.6s)
+  ✓   6 tests/e2e/workbench-app.spec.ts:435:1 › after-current mode is explicit and queues through message.send while the task is working (3.1s)
+  ✓   7 tests/e2e/workbench-app.spec.ts:454:1 › evidence preserves reported and observed grades, freshness and unsupported module state (2.8s)
+  ✓   8 tests/e2e/workbench-app.spec.ts:495:1 › rollback leaves retained source inspection and removal reachable (2.9s)
+  ✓   9 tests/e2e/workbench-app.spec.ts:526:1 › context and run views use recorded or explicit unavailable states without invented metrics (3.1s)
+  ✓  10 tests/e2e/workbench-app.spec.ts:554:1 › real activity integration bounds mounted rows and searches the authorized full read (6.6s)
+  ✓  11 tests/e2e/workbench-app.spec.ts:617:1 › source-aware navigation waits for journal handoff and preserves text on reload (7.8s)
+  ✓  12 tests/e2e/workbench-app.spec.ts:648:1 › pointing mode does not consume another pane focus or Escape (2.3s)
+  ✓  13 tests/e2e/workbench-app.spec.ts:662:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.5s)
+  ✓  14 tests/e2e/workbench-app.spec.ts:701:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (2.7s)
+  ✓  15 tests/e2e/workbench-app.spec.ts:721:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (5.5s)
+  ✓  16 tests/e2e/workbench-app.spec.ts:776:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (2.7s)
+  ✓  17 tests/e2e/workbench-app.spec.ts:815:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (3.2s)
+  ✓  18 tests/e2e/workbench-app.spec.ts:862:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (4.6s)
+  ✓  19 tests/e2e/workbench-app.spec.ts:908:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (2.8s)
+  ✓  20 tests/e2e/workbench-app.spec.ts:955:1 › deferred source view failure retains the mounted composer and restores focus (4.7s)
+
+  20 passed (1.4m)

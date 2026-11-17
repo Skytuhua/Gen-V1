@@ -1,0 +1,19 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--output","test-results/browser/m15-view-race-green-01","--grep","rapid presentation|reachable controls"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/workbench.spec.ts:298:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor (3.1s)
+  ✓  2 tests/e2e/workbench.spec.ts:340:1 › M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom (4.2s)
+
+  2 passed (15.5s)

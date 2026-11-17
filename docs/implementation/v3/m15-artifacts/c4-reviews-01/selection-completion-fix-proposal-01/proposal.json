@@ -1,0 +1,14 @@
+{
+  "status": "PROPOSED_NOT_APPLIED_NOT_VALIDATED",
+  "path": "apps/web/src/SourceSelectionActions.tsx",
+  "beforeSha256": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+  "proposedSha256": "25ff6913518ae694ec629802d0ba4ca17cb5a4f56feed13e050d74d6764f02e5",
+  "patchSha256": "cfbf672945376079bdd20ceacb84ffa1c9bb226b31837245af230187f0ed8469",
+  "behavior": [
+    "Capture original DOM boundary node identities and offsets before onAction awaits.",
+    "After success and the existing revision fence, remove only a current single range matching those original boundaries.",
+    "Clear only a candidate that still matches the original range; preserve a newer candidate in the same component.",
+    "Existing authority revalidation, revision increments, errors, busy and IME behavior remain unchanged."
+  ],
+  "evidenceState": "red01 executed zero cases because nested trace override was rejected; red02 result awaited. No reproduced defect is claimed by this proposal."
+}

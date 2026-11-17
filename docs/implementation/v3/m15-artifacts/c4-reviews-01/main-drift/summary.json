@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "kind": "BOUNDED_UNACCEPTED_MAIN_DRIFT",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "acceptedBaseTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "reviewedHostMain": "109797cb195b842d44dfc05dafaa6100531396df",
+  "observedLatestMain": "5fa29135068f98a1a1045ae33fefc8a34f565e43",
+  "observedAt": "2026-11-16 05:19:36 UTC",
+  "branchHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "commitsTo109": [
+    {
+      "sha": "678893a3019cde5496ab8573de4b0b950c73be61",
+      "parents": [
+        "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73"
+      ],
+      "subject": "Retry recovery from retired workspace layouts (#401)"
+    },
+    {
+      "sha": "b4170f7f26a9fb117ca7cba9535d4ae46c4a71a2",
+      "parents": [
+        "678893a3019cde5496ab8573de4b0b950c73be61"
+      ],
+      "subject": "Align source workspace guide with supported layouts and detachment (#402)"
+    },
+    {
+      "sha": "42f137366516c8f0a739e11d8cab1f8d4d5bc087",
+      "parents": [
+        "b4170f7f26a9fb117ca7cba9535d4ae46c4a71a2"
+      ],
+      "subject": "Fix conversation scrollbar pointer ownership (#404)"
+    },
+    {
+      "sha": "cd9d83235aebf3bcc2eb5dde637c82e871c1fae3",
+      "parents": [
+        "42f137366516c8f0a739e11d8cab1f8d4d5bc087"
+      ],
+      "subject": "Guard canvas gesture ownership and capture loss (#406)"
+    },
+    {
+      "sha": "bbaeddbdce965e218c61a31c865083ec286b14b8",
+      "parents": [
+        "cd9d83235aebf3bcc2eb5dde637c82e871c1fae3"
+      ],
+      "subject": "Remove retired research execution (#408)"
+    },
+    {
+      "sha": "8b4d0e9621da93f8642c96325128b523b53a8694",
+      "parents": [
+        "bbaeddbdce965e218c61a31c865083ec286b14b8"
+      ],
+      "subject": "Select the requested pull request when opening review (#409)"
+    },
+    {
+      "sha": "7792d1f5e03c01e5cde09ae86e888e41f8f62add",
+      "parents": [
+        "8b4d0e9621da93f8642c96325128b523b53a8694"
+      ],
+      "subject": "Clean up document window move ownership (#412)"
+    },
+    {
+      "sha": "109797cb195b842d44dfc05dafaa6100531396df",
+      "parents": [
+        "7792d1f5e03c01e5cde09ae86e888e41f8f62add"
+      ],
+      "subject": "test: restore image access status coverage (#420)"
+    }
+  ],
+  "changedPathsTo109": [
+    {
+      "status": "M",
+      "path": "CHANGELOG.md"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/App.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/ChatScrollIndicator.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/DocumentWindow.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/WorkspaceCanvas.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/WorkspaceHost.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/WorkspacePanel.tsx"
+    },
+    {
+      "status": "M",
+      "path": "apps/web/src/WorkspaceSurfaceBody.tsx"
+    },
+    {
+      "status": "M",
+      "path": "docs/visual-workspace.md"
+    },
+    {
+      "status": "M",
+      "path": "packages/contracts/research.ts"
+    },
+    {
+      "status": "M",
+      "path": "packages/core/service.ts"
+    },
+    {
+      "status": "M",
+      "path": "packages/research/capture.ts"
+    },
+    {
+      "status": "M",
+      "path": "packages/research/repository.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/e2e/canvas-clarity.spec.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/e2e/exploration-ui.spec.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/e2e/frontend-refinement.spec.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/e2e/workspace-host.spec.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/ime-artifact-dismissal.test.ts"
+    },
+    {
+      "status": "D",
+      "path": "tests/research-artifacts.test.ts"
+    },
+    {
+      "status": "D",
+      "path": "tests/research-capture.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/research-fixture.ts"
+    },
+    {
+      "status": "D",
+      "path": "tests/research-review-regressions.test.ts"
+    },
+    {
+      "status": "M",
+      "path": "tests/research-service-integration.test.ts"
+    }
+  ],
+  "latestDelta": {
+    "parent": "109797cb195b842d44dfc05dafaa6100531396df",
+    "sha": "5fa29135068f98a1a1045ae33fefc8a34f565e43",
+    "tree": "a25658fe94df242cca90bbcad9d74aec60b3e291",
+    "changedPaths": [
+      "tests/e2e/desktop-surfaces.spec.ts"
+    ],
+    "rawDeltaSha256": "318761f45aa1e8a85e08b2cc95aa34acf618389891c79a361c36e86e18ebecf7"
+  },
+  "hostReview": "../main109-host-audit-01/audit.md",
+  "frontend109Review": "PENDING; no full main compatibility approval",
+  "latestRoleBoundary": "../main5fa-boundary.json",
+  "limits": [
+    "Main109 and5fa remain unaccepted. Accepted b4aa root comparison is unchanged.",
+    "Incoming status assertions conflict with current C4 alert output in three desktop error paths. Preserve the stronger no-download assertion in any future reconciliation.",
+    "No current-main merge or test execution is established by this report."
+  ]
+}

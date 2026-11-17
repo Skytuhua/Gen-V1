@@ -1,0 +1,21 @@
+--- a/apps/web/src/SourceSelectionActions.tsx
++++ b/apps/web/src/SourceSelectionActions.tsx
+@@ -85,8 +85,17 @@
+   async function act(action:SourceSelectionAction){
+     const value=candidateRef.current,element=root.current,version=revision.current;
+     if(!value||!element||busy||!latest.current.enabled||authored.current!==latest.current.text||element.textContent!==value.rendered||!visible(value.range,element))return;
++    const {startContainer,startOffset,endContainer,endOffset}=value.range;
++    const sameRange=(range:Range)=>range.startContainer===startContainer&&range.startOffset===startOffset&&range.endContainer===endContainer&&range.endOffset===endOffset;
+     setBusy(true);setError('');
+-    try{await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});if(version===revision.current){setCandidate(null);getSelection()?.removeAllRanges();}}
++    try{
++      await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});
++      if(version===revision.current){
++        const selection=getSelection();
++        if(selection?.rangeCount===1&&sameRange(selection.getRangeAt(0)))selection.removeAllRanges();
++        setCandidate(current=>current&&sameRange(current.range)?null:current);
++      }
++    }
+     catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
+     finally{if(version===revision.current)setBusy(false);}
+   }

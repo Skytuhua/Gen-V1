@@ -1,0 +1,80 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","clipped interior|transformed Markdown","--reporter=list","--output=test-results/m15-selection-review-red-01"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench.spec.ts:77:1 › M15 refuses a clipped interior span even when both selection endpoints are visible (6.0s)
+(node:162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/e2e/workbench.spec.ts:105:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence (6.1s)
+
+
+  1) tests/e2e/workbench.spec.ts:77:1 › M15 refuses a clipped interior span even when both selection endpoints are visible 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('toolbar', { name: 'Selected source' })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('toolbar', { name: 'Selected source' })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      12 | test('M15 refuses a clipped interior span even when both selection endpoints are visible',async({page})=>{
+      13 |  await page.goto('/fixture');await page.locator('#source-text').evaluate(element=>{element.replaceChildren(document.createTextNode('Visible '),Object.assign(document.createElement('span'),{textContent:'selected text'}),document.createTextNode(' from an assistant.'));const span=element.querySelector('span')!;Object.assign(span.style,{display:'inline-block',width:'2px',overflow:'hidden',whiteSpace:'nowrap'});const range=document.createRange();range.setStart(element.firstChild!,0);range.setEnd(element.lastChild!,5);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+    > 14 |  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');
+         |                                                                                                                                                                                        ^
+      15 | });
+      16 | test('M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence',async({page})=>{
+      17 |  await page.goto('/fixture');const cell=page.locator('#transformed-source td');await expect(cell).toHaveText('left|right');await cell.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:14:184
+
+    Error Context: test-results/m15-selection-review-red-01/workbench-M15-refuses-a-cl-456db-ction-endpoints-are-visible/error-context.md
+
+  2) tests/e2e/workbench.spec.ts:105:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('toolbar', { name: 'Selected source' })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('toolbar', { name: 'Selected source' })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      16 | test('M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence',async({page})=>{
+      17 |  await page.goto('/fixture');const cell=page.locator('#transformed-source td');await expect(cell).toHaveText('left|right');await cell.evaluate(element=>{const range=document.createRange();range.selectNodeContents(element);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
+    > 18 |  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');
+         |                                                                                                                                                                                        ^
+      19 | });
+      20 | test('M15 Escape respects IME and dismisses pointing without activating buttons',async({page})=>{await page.goto('/fixture');await select(page);const attach=page.getByRole('button',{name:'Attach to prompt',exact:true});await expect(attach).toBeVisible();await attach.focus();await attach.dispatchEvent('keydown',{key:'Escape',isComposing:true});await expect(attach).toBeVisible();await page.keyboard.press('Escape');await expect(attach).toHaveCount(0);await expect(page.locator('output')).toHaveText('');});
+      21 | test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:18:184
+
+    Error Context: test-results/m15-selection-review-red-01/workbench-M15-refuses-tran-12294-ferent-canonical-occurrence/error-context.md
+
+  2 failed
+    tests/e2e/workbench.spec.ts:77:1 › M15 refuses a clipped interior span even when both selection endpoints are visible 
+    tests/e2e/workbench.spec.ts:105:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence 

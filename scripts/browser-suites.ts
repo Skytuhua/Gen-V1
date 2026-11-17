@@ -15,7 +15,9 @@ const suite = (name:string, specs=[`${name}.spec.ts`], options:Partial<BrowserSu
 // channels and timeouts; their overlapping caller projects run in their full suites.
 export const browserSuites:BrowserSuite[] = [
   {name:'root', config:'playwright.config.ts', specs:rootBrowserSpecs},
-  suite('agents-workspace', ['agents-workspace.spec.ts', 'agents-workspace-evidence.spec.ts']),
+  suite('workbench'),
+  suite('workbench-app'),
+  suite('agents-workspace', ['agents-workspace.spec.ts', 'agents-workspace-evidence.spec.ts'], {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
   suite('artifact-settle', ['artifact-settle.spec.ts']),
   suite('browser-action'),
   suite('compact-model-picker', ['compact-model-picker.spec.ts', 'model-composer-refinement.spec.ts', 'subscription-accounts.spec.ts']),
@@ -77,7 +79,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('shell', ['frontend.spec.ts']),
   suite('short-tool-overflow'),
   suite('side-chat'),
-  suite('chat-view-modes'),
+  suite('chat-view-modes', ['chat-view-modes.spec.ts','chat-view-escape.spec.ts']),
   suite('smooth-operational', ['operational-smoothness.spec.ts']),
   suite('smooth-pdf', ['image-compare.spec.ts']),
   suite('snapshot-performance'),

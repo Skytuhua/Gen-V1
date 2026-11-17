@@ -1,0 +1,222 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 26 tests using 1 worker
+
+[1A[2K(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/26] tests/e2e/workbench-app.spec.ts:335:1 › default-off App retains its ordinary composer and hides source actions
+[1A[2K[2/26] tests/e2e/workbench-app.spec.ts:357:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send
+[1A[2K[3/26] tests/e2e/workbench-app.spec.ts:383:1 › ask supplies a question only for an empty draft and never dispatches
+[1A[2K[4/26] tests/e2e/workbench-app.spec.ts:395:1 › stale capture remains exact until explicit keep or refresh and opens retained output
+[1A[2K  1) tests/e2e/workbench-app.spec.ts:395:1 › stale capture remains exact until explicit keep or refresh and opens retained output 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('The source has changed.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('The source has changed.')[22m
+
+
+      70 | });
+      71 | test('stale capture remains exact until explicit keep or refresh and opens retained output',async({page},info)=>{
+    > 72 |  const h=await fixture(page);await attach(page);const captured=h.captures.get('capture-1')!;h.snapshot.messages[0].content+=' A later revision.';await h.publish();await page.reload();await expect(page.getByText('The source has changed.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Keep captured source',exact:true}).click();await expect(page.getByText('Using the retained capture.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('exact retained capture');await expect(dialog).toContainText(captured.ref.source.sourceRevision);await expect(dialog.locator('[data-output-row-id]').first()).toContainText(captured.preview);
+         |                                                                                                                                                                                                                                                              ^
+      73 |  await page.screenshot({path:info.outputPath('retained-source.png'),fullPage:true});
+      74 | });
+      75 | test('late source descriptions cannot attach to a replacement workspace',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:72:254
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[5/26] tests/e2e/workbench-app.spec.ts:429:1 › late source descriptions cannot attach to a replacement workspace
+[1A[2K[6/26] tests/e2e/workbench-app.spec.ts:454:1 › after-current mode is explicit and queues through message.send while the task is working
+[1A[2K[7/26] tests/e2e/workbench-app.spec.ts:492:1 › evidence preserves reported and observed grades, freshness and unsupported module state
+[1A[2K[8/26] tests/e2e/workbench-app.spec.ts:533:1 › rollback leaves retained source inspection and removal reachable
+[1A[2K[9/26] tests/e2e/workbench-app.spec.ts:564:1 › context and run views use recorded or explicit unavailable states without invented metrics
+[1A[2K[10/26] tests/e2e/workbench-app.spec.ts:592:1 › real activity integration bounds mounted rows and searches the authorized full read
+[1A[2K  2) tests/e2e/workbench-app.spec.ts:592:1 › real activity integration bounds mounted rows and searches the authorized full read 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('tab', { name: 'Other task', exact: true })
+    Expected: [32m"true"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('tab', { name: 'Other task', exact: true })[22m
+
+
+      108 |  await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1200');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output.locator('[data-output-row-id="activity:1199"]')).toBeVisible();
+      109 |  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();
+    > 110 |  await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');
+          |                                                                     ^
+      111 |  const [returned]=await Promise.all([
+      112 |   page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.kind==='thread'&&command.payload.view.binding?.threadId==='task-thread';},{timeout:5000}),
+      113 |   page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:110:69
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[11/26] tests/e2e/workbench-app.spec.ts:675:1 › source-aware navigation waits for journal handoff and preserves text on reload
+[1A[2K  3) tests/e2e/workbench-app.spec.ts:675:1 › source-aware navigation waits for journal handoff and preserves text on reload 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('textbox', { name: 'Message', exact: true })
+    Expected: [32m"Retain this source-aware draft"[39m
+    Received: [31m""[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+    [2m    9 × locator resolved to <textarea rows="1" aria-label="Message" placeholder="Ask anything…"></textarea>[22m
+    [2m      - unexpected value ""[22m
+
+
+      119 | });
+      120 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{
+    > 121 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toBeEnabled({timeout:15000});await expect(editor(page)).toHaveValue('Retain this source-aware draft');
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+      122 | });
+      123 |
+      124 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:121:450
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[12/26] tests/e2e/workbench-app.spec.ts:706:1 › pointing mode does not consume another pane focus or Escape
+[1A[2K[13/26] tests/e2e/workbench-app.spec.ts:720:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar
+[1A[2K[14/26] tests/e2e/workbench-app.spec.ts:759:1 › rollback retains a mode-only draft and permits returning to ordinary delivery
+[1A[2K[15/26] tests/e2e/workbench-app.spec.ts:795:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment
+[1A[2K[16/26] tests/e2e/workbench-app.spec.ts:850:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources
+[1A[2K  4) tests/e2e/workbench-app.spec.ts:850:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 15000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+
+
+      42 |  });
+      43 |  await setup.routes?.(snapshot);
+    > 44 |  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+         |                                                                                           ^
+      45 |  return {...host,state,captures,owner,recoveries};
+      46 | }
+      47 | const editor=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+        at fixture (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:44:91)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:145:10
+
+    Error Context: docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[17/26] tests/e2e/workbench-app.spec.ts:889:1 › definitive precommit source rejection unlocks removal and ordinary resubmission
+[1A[2K[18/26] tests/e2e/workbench-app.spec.ts:936:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads
+[1A[2K[19/26] tests/e2e/workbench-app.spec.ts:982:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue
+[1A[2K[20/26] tests/e2e/workbench-app.spec.ts:1029:1 › deferred source view failure retains the mounted composer and restores focus
+[1A[2K[21/26] tests/e2e/workbench-app.spec.ts:1061:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom
+[1A[2K[22/26] tests/e2e/workbench-app.spec.ts:1181:1 › native return waits for canonical placement and keeps delayed source work isolated between owners
+[1A[2K[23/26] tests/e2e/workbench-app.spec.ts:1742:1 › prepared memory and selected sources queue together while working and clear only after acknowledgment
+[1A[2K[24/26] tests/e2e/workbench-app.spec.ts:1849:1 › M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft
+[1A[2K[25/26] tests/e2e/workbench-app.spec.ts:1974:1 › M15 memory review opens retained disabled records and an empty current-owner module
+[1A[2K[26/26] tests/e2e/workbench-app.spec.ts:2011:1 › M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner
+[1A[2K  4 failed
+    tests/e2e/workbench-app.spec.ts:395:1 › stale capture remains exact until explicit keep or refresh and opens retained output 
+    tests/e2e/workbench-app.spec.ts:592:1 › real activity integration bounds mounted rows and searches the authorized full read 
+    tests/e2e/workbench-app.spec.ts:675:1 › source-aware navigation waits for journal handoff and preserves text on reload 
+    tests/e2e/workbench-app.spec.ts:850:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources 
+  22 passed (4.1m)

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/research-baseline.test.ts",
+    "tests/regression-selection.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:19:14.933Z",
+  "endedAt": "2026-11-16T00:19:50.929Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-core-prerequisites.log",
+  "logDigest": "0f6fc91ce2bd0348dc35a31cc78e65f4dd44fa200f3e503c6027ab2d8ac767f5"
+}

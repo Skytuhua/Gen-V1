@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/scoped-conversation.chromium.playwright.config.ts",
+    "--output",
+    "test-results/m15-scoped-conversation-chromium-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:27:40.260Z",
+  "endedAt": "2026-11-15T22:28:12.708Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.log",
+  "logDigest": "020ee22a2d89b0803f7d765f9ac3577b4abcca6984d63b65fb29d1e617898695"
+}

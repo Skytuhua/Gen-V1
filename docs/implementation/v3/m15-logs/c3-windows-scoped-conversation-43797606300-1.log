@@ -1,0 +1,27 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","scoped-conversation"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794800161237-17f55a81-de13-4da8-b667-802b25f2060d
+
+Browser suite: scoped-conversation (1 spec files)
+
+Running 15 tests using 1 worker
+
+  ok  1 tests\e2e\scoped-conversation.spec.ts:151:1 › uses the actual module with a supplied composer and real epoch, with no global reads (2.6s)
+  ok  2 tests\e2e\scoped-conversation.spec.ts:166:1 › preserves an earlier reading anchor and composer focus on refresh, with a jump hint (957ms)
+  ok  3 tests\e2e\scoped-conversation.spec.ts:186:1 › prepends older pages without moving the visible message or losing keyboard focus (643ms)
+  ok  4 tests\e2e\scoped-conversation.spec.ts:206:1 › keeps hidden chat mounted and invalidates the parent context on resync and revocation (724ms)
+  ok  5 tests\e2e\scoped-conversation.spec.ts:228:1 › follows new messages only while already at the bottom (596ms)
+  ok  6 tests\e2e\scoped-conversation.spec.ts:237:1 › stays within short narrow light and dark panes at 200% zoom with reduced motion (851ms)
+  ok  7 tests\e2e\scoped-conversation.spec.ts:266:1 › delivers invalidation while reacquisition is still pending and removes stale transcript (673ms)
+  ok  8 tests\e2e\scoped-conversation.spec.ts:282:1 › automatically polls owner status while chat is hidden and keeps the same supplied node (2.5s)
+  ok  9 tests\e2e\scoped-conversation.spec.ts:300:1 › renders bounded Unicode continuation exactly and restores keyboard focus (1.2s)
+  ok 10 tests\e2e\scoped-conversation.spec.ts:315:1 › clears context and transcript on explicit close (539ms)
+  ok 11 tests\e2e\scoped-conversation.spec.ts:323:1 › shows concise loading, error, retry and empty states using real API failures (787ms)
+  ok 12 tests\e2e\scoped-conversation.spec.ts:361:1 › fences the rendered owner during canonical navigation, then uses the next exact real epoch (577ms)
+  ok 13 tests\e2e\scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=false) (705ms)
+  ok 14 tests\e2e\scoped-conversation.spec.ts:407:37 › automatic transcript refresh preserves keyboard message focus (strict=true) (657ms)
+  ok 15 tests\e2e\scoped-conversation.spec.ts:447:1 › automatic refresh does not take focus back from the supplied composer (659ms)
+
+  15 passed (18.1s)

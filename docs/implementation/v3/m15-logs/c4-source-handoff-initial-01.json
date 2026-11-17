@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/source-handoff-v3.test.ts",
+    "tests/editor-handoff.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=docs/implementation/v3/m15-artifacts/c4-source-handoff-initial-01/results.json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T04:51:27.616Z",
+  "endedAt": "2026-11-16T04:51:29.757Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-source-handoff-initial-01.log",
+  "logDigest": "c66134bb95a99e050c92585600f048e4a3024d0813432995375c3148255e4d4c"
+}

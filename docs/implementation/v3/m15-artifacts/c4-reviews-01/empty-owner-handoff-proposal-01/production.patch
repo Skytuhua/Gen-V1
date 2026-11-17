@@ -1,0 +1,24 @@
+--- a/apps/web/src/workbench-recovery.ts
++++ b/apps/web/src/workbench-recovery.ts
+@@ -110,9 +110,20 @@
+   journalNoteLocalWork([sourceDraftKey(logicalOwnerV1Schema.parse(logicalOwner))]);
+ }
+ 
++// Logical owners on one thread share the composer and pending-send keys. Each
++// invocation validates independently, in order, so concurrent guards cannot
++// mistake a peer's empty IndexedDB read for newly pending local work.
++const sourceHandoffs = new Map<string, Promise<void>>();
++
+ /** Shared source portion of browser and native handoff; no registry recursion. */
+ export async function prepareSourceOwnerHandoff(logicalOwner: LogicalOwnerV1): Promise<void> {
+-  const owner = logicalOwnerV1Schema.parse(logicalOwner);
++  const owner = logicalOwnerV1Schema.parse(logicalOwner), previous = sourceHandoffs.get(owner.threadId);
++  const work = (previous?.catch(() => undefined) ?? Promise.resolve()).then(() => validateSourceOwnerHandoff(owner));
++  sourceHandoffs.set(owner.threadId, work);
++  try {await work;} finally {if (sourceHandoffs.get(owner.threadId) === work) sourceHandoffs.delete(owner.threadId);}
++}
++
++async function validateSourceOwnerHandoff(owner: LogicalOwnerV1): Promise<void> {
+   const keys = [sourceDraftKey(owner), `draft:${owner.threadId}`, `agents-pending:${owner.threadId}`];
+   for (;;) {
+     await settleJournalHandoff(keys);

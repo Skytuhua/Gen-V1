@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--grep",
+    "prepared memory and selected sources|M15 memory review",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-workbench-memory-green-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T03:58:47.137Z",
+  "endedAt": "2026-11-16T03:59:15.555Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-workbench-memory-green-01.log",
+  "logDigest": "5290cf750b5c9a8b3c64c0a129c83091eb8159abbf2d375ee8eedffd8ceb4c68"
+}

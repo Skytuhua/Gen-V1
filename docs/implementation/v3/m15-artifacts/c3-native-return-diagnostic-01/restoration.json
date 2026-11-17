@@ -1,0 +1,84 @@
+{
+  "kind": "Exact restoration after one diagnostic-only browser run; no product repair",
+  "restoredAt": "2026-11-16T02:40:00.799448+00:00",
+  "preSourceManifestSha256": "fe4bebc18509e7de6467e4d2edcc0f106a2ee05e3e860c8a5307c79b85bc1f56",
+  "diagnosticSourceCutSha256": "1c35abd3514576d73e345cb65d81c04a372fe26a4f78bd8b4d55ba0bddca1654",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "restoredSha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+      "diagnosticSha256": "8d86fa738f1a7f0c1a43f0edf68071f8fde8c5852c71085045e00375246152c4",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/App.tsx.txt",
+          "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+          "bytes": 157534
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/App.tsx.txt",
+          "sha256": "8d86fa738f1a7f0c1a43f0edf68071f8fde8c5852c71085045e00375246152c4",
+          "bytes": 161351
+        }
+      ]
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "restoredSha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+      "diagnosticSha256": "aa86d70c3decd93f93ef51a1ad48e757c67c876f80312b8b7b2116dc8be6e856",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/apps/web/src/editor-handoff.ts.txt",
+          "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+          "bytes": 600
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/apps/web/src/editor-handoff.ts.txt",
+          "sha256": "aa86d70c3decd93f93ef51a1ad48e757c67c876f80312b8b7b2116dc8be6e856",
+          "bytes": 1839
+        }
+      ]
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "restoredSha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "diagnosticSha256": "6c57fe685518916719cd4ea33b8d664614ef85d7b16c9fa7b80f5bf2c8f6684a",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+          "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+          "bytes": 10123
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-native-return-fixture.ts.txt",
+          "sha256": "6c57fe685518916719cd4ea33b8d664614ef85d7b16c9fa7b80f5bf2c8f6684a",
+          "bytes": 13508
+        }
+      ]
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "restoredSha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+      "diagnosticSha256": "c586933ae2d6167d93261ca2193835fc9a5a7df79cb797574aa1c788a3ef57af",
+      "copies": [
+        {
+          "phase": "pre-diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/pre-diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+          "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+          "bytes": 37558
+        },
+        {
+          "phase": "diagnostic",
+          "path": "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/source-snapshots/diagnostic/tests/e2e/workbench-app.spec.ts.txt",
+          "sha256": "c586933ae2d6167d93261ca2193835fc9a5a7df79cb797574aa1c788a3ef57af",
+          "bytes": 38297
+        }
+      ]
+    }
+  ]
+}

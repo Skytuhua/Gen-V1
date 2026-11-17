@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  05:42:29
+   Duration  703ms (transform 121ms, setup 0ms, import 73ms, tests 350ms, environment 0ms)
+

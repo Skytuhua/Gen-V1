@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_STATIC_FULL_SOURCE",
+  "reviewedHelperSha256": "86a0c096d0968f502befa220edfb3e7c43c1c9eacc462166b254c07682843999",
+  "helperSha256AtSeal": "412a38d91ad3a9dada9edbdf4b0f4c43e519b9310bc2c7452da674affd896682",
+  "helperExecution": "NOT_RUN",
+  "repositoryMutation": false,
+  "outcome": "CORRECTIONS_REQUESTED",
+  "observedArtifactLoss": false,
+  "findings": [
+    {
+      "id": "C4-CUSTODY-ARCHIVE-MEMBERSHIP",
+      "scope": "archive loop, source membership and destination",
+      "finding": "Only top-level M15 required subset and row count are fixed. External archive extra historical logs are not an exact pinned source set; lexical is_relative_to does not establish canonical destination.",
+      "evidence": "Three external manifests have18 top-level documents plus16,2,4 named historical log rows; current rows and mappings are intended. C3 predecessor required exact sorted source paths and canonical destination.",
+      "requiredCorrection": "Pin the exact extra source log lists or exact trusted archive manifest identities, compare complete membership, require canonical path derived from source relative to docs/implementation/v3 and regular file."
+    },
+    {
+      "id": "C4-CUSTODY-RUNTIME-MEMBERSHIP",
+      "scope": "public manifest excluded from tested-source continuity",
+      "finding": "A count of228 and runtime subset of source do not bind the exact reviewed runtime list. Same-count replacement after validation can pass.",
+      "requiredCorrection": "Bind runtime membership to an approved exact list/digest; retain metadata-only source additions as explicit reviewed changes."
+    },
+    {
+      "id": "C4-CUSTODY-MANIFEST-SCHEMA",
+      "scope": "manifest data validation",
+      "finding": "Comparing public-source.ts with accepted bytes does not apply its version1/canonical path data requirements to the exempted manifest.",
+      "requiredCorrection": "Mirror the narrow version/path checks or bind to a separately validated manifest identity."
+    }
+  ],
+  "limits": [
+    "No helper execution or synthetic mutation tests.",
+    "No current manifest/archive corruption asserted.",
+    "Retained published evidence index/blob/mode checks and nonmanifest tested source comparison reviewed positively.",
+    "Final root-supplied parent and stable tested cut are not yet assessed by this review."
+  ]
+}

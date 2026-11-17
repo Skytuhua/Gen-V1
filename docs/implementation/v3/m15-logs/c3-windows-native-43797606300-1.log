@@ -1,0 +1,97 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-workbench-hermes-v3.test.ts","tests/request-preparation-service-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/activity-output-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","tests/saved-drafts.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/journal.test.ts","tests/editor-handoff.test.ts","tests/public-source.test.ts","tests/accounts.test.ts","tests/hermes-client-startup.test.ts","tests/hermes-client.test.ts","tests/hermes-original-integration.test.ts","tests/hermes-multi-original.test.ts","tests/dev-plugin-runtime.test.ts","tests/skill-catalog.test.ts","tests/desktop-host.test.ts","--maxWorkers=2","--reporter=default","--reporter=json","--outputFile=test-results/m15/native-results.json"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/a/Gen-V1/Gen-V1[39m
+
+ [32m✓[39m tests/request-preparation-service-v3.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 13502[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps the original epoch fence after an uncommitted preparation claim rolls back [33m 532[2mms[22m[39m
+   [33m[2m✓[22m[39m allocates default-send identity but leaves the default-off path unchanged [33m 357[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds abandoned preparations and retains only the newest 128 metadata receipts [33m 5276[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps expired, hung preparation jobs in the admission bound until they actually settle [33m 1406[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-composer.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-host-v3.test.ts [2m([22m[2m48 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 17192[2mms[22m[39m
+   [33m[2m✓[22m[39m rolls back initial source-account custody with a failed input commit and retries the same identity [33m 314[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves initial source custody when the admitted account is the default profile [33m 321[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps historical bytes immutable and requires explicit retained-version send after source changes [33m 533[2mms[22m[39m
+   [33m[2m✓[22m[39m reauthorizes retained file bytes after grant revocation and never grants source context [Windows required] [33m 6025[2mms[22m[39m
+   [33m[2m✓[22m[39m admits the first captured file under its selected account [Windows native guard, runtime fixture] [33m 2260[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture] [33m 394[2mms[22m[39m
+   [33m[2m✓[22m[39m queues AFTER_CURRENT and starts the next native epoch after settlement (context custody false) [33m 315[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the existing authenticated host and CSRF boundaries for captures and source reads [33m 1065[2mms[22m[39m
+ [32m✓[39m tests/saved-drafts.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m tests/accounts.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 2071[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-hermes-v3.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 11520[2mms[22m[39m
+   [33m[2m✓[22m[39m retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport] [33m 11518[2mms[22m[39m
+ [32m✓[39m tests/source-draft-transfer-v3.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 401[2mms[22m[39m
+ [32m✓[39m tests/skill-catalog.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 26088[2mms[22m[39m
+   [33m[2m✓[22m[39m enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes [33m 5688[2mms[22m[39m
+   [33m[2m✓[22m[39m pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal [33m 1875[2mms[22m[39m
+   [33m[2m✓[22m[39m binds authenticated cursors to inventory, search, page size and connection context [33m 980[2mms[22m[39m
+   [33m[2m✓[22m[39m denies file/directory symlinks and hardlinks while retaining other safe packages [33m 420[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds file counts and bytes without truncating a package into an available reference [33m 862[2mms[22m[39m
+   [33m[2m✓[22m[39m marks an exhausted root inventory unavailable instead of silently presenting a partial catalog [33m 415[2mms[22m[39m
+   [33m[2m✓[22m[39m counts bytes consumed by rejected packages against the root budget [33m 446[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects namespace escalation and source substitution without resolving a display name [33m 860[2mms[22m[39m
+   [33m[2m✓[22m[39m accepts bound references for the full declared source-identity length [33m 879[2mms[22m[39m
+   [33m[2m✓[22m[39m includes nested installed skill entries beneath another skill package [33m 480[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps a root skill distinct from a child named after the root directory [33m 459[2mms[22m[39m
+   [33m[2m✓[22m[39m detects replacement during capture and never returns mixed metadata/custody [33m 437[2mms[22m[39m
+   [33m[2m✓[22m[39m uses canonical connected project/worktree bindings and separates unavailable project authority [33m 526[2mms[22m[39m
+   [33m[2m✓[22m[39m discovers only the selected worktree and invalidates its references after rebinding or revocation [33m 1057[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated title updates [33m 2003[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated status updates [33m 2037[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated project metadata updates [33m 2030[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated working-copy branch updates [33m 2201[2mms[22m[39m
+   [33m[2m✓[22m[39m reuses the real bundled integration inventory and covers all declared skills across pages [33m 1876[2mms[22m[39m
+   [33m[2m✓[22m[39m requires composition to supply the installed registry instead of guessing a host plugin directory [33m 551[2mms[22m[39m
+ [32m✓[39m tests/workbench-recovery-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+ [32m✓[39m tests/dev-plugin-runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 12823[2mms[22m[39m
+   [33m[2m✓[22m[39m returns 503 for fixed runtime routes in a source-only checkout [33m 807[2mms[22m[39m
+   [33m[2m✓[22m[39m prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children [33m 11483[2mms[22m[39m
+   [33m[2m✓[22m[39m does not launch development children when the shared runtime build fails [33m 531[2mms[22m[39m
+ [32m✓[39m tests/desktop-host.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 20332[2mms[22m[39m
+   [33m[2m✓[22m[39m launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token [33m 9107[2mms[22m[39m
+   [33m[2m✓[22m[39m reports a real startup collision without adopting an unrelated HTTP service [33m 2788[2mms[22m[39m
+   [33m[2m✓[22m[39m does not leave its backend running after the owning IPC channel disconnects [33m 8155[2mms[22m[39m
+ [32m✓[39m tests/source-selection-v3.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m tests/workbench-performance-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 281[2mms[22m[39m
+ [32m✓[39m tests/source-composer-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m tests/journal.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 3191[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 494[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 931[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 1179[2mms[22m[39m
+ [32m✓[39m tests/hermes-client.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 6315[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves Unicode through chunked replies and resolves concurrent request IDs independently [33m 702[2mms[22m[39m
+   [33m[2m✓[22m[39m uses an isolated home and does not pass provider credentials to Python [33m 611[2mms[22m[39m
+   [33m[2m✓[22m[39m awaits owned host callbacks and returns their results over the private channel [33m 624[2mms[22m[39m
+   [33m[2m✓[22m[39m forwards source events without inventing entry or settlement events [33m 585[2mms[22m[39m
+   [33m[2m✓[22m[39m fails pending requests safely on malformed worker output [33m 562[2mms[22m[39m
+   [33m[2m✓[22m[39m closes its worker and revokes unanswered requests when disposed [33m 456[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: home [33m 426[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: nested [33m 418[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: hardlink [33m 439[2mms[22m[39m
+   [33m[2m✓[22m[39m drains owned host callbacks even when process cancellation fails [33m 689[2mms[22m[39m
+   [33m[2m✓[22m[39m treats a denied host callback as an ordinary tool result during teardown [33m 657[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-dispatch.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 386[2mms[22m[39m
+ [32m✓[39m tests/compact-draft-transfer.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/workbench-input-recovery-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/hermes-client-startup.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+ [32m✓[39m tests/hermes-original-integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 11241[2mms[22m[39m
+   [33m[2m✓[22m[39m runs original Python and ACP through the native broker, persists a skill and finishes through the real Service [33m 11239[2mms[22m[39m
+ [32m✓[39m tests/draft-transfer.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/activity-output-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 238[2mms[22m[39m
+ [32m✓[39m tests/editor-handoff.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/source-selection-dom-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/hermes-multi-original.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 9134[2mms[22m[39m
+   [33m[2m✓[22m[39m runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls [33m 9132[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m      Tests [22m [1m[32m326 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (327)[39m
+[2m   Start at [22m 03:36:29
+[2m   Duration [22m 78.00s[2m (transform 3.71s, setup 0ms, import 10.25s, tests 136.02s, environment 4ms)[22m
+
+JSON report written to D:/a/Gen-V1/Gen-V1/test-results/m15/native-results.json

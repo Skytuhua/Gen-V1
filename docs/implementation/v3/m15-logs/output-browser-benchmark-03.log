@@ -1,0 +1,46 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","measures paired controlled"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench.spec.ts:391:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines (10.3s)
+
+
+  1) tests/e2e/workbench.spec.ts:391:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('[data-fixture-ready]')
+    Expected: [32m"Ready"[39m
+    Received: [31m"Loading"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-fixture-ready]')[22m
+    [2m    - locator resolved to <output data-fixture-ready="true">Loading</output>[22m
+    [2m    - unexpected value "Loading"[22m
+
+
+      15 | async function openOutput(page: Page, mode = 'windowed') {
+      16 |   await page.goto(`/fixture?fixture=output&mode=${mode}`);
+    > 17 |   await expect(page.locator('[data-fixture-ready]')).toHaveText('Ready');
+         |                                                      ^
+      18 | }
+      19 | async function settleOutput(page: Page) {
+      20 |   await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        at openOutput (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:17:54)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:160:5
+
+  1 failed
+    tests/e2e/workbench.spec.ts:391:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines 

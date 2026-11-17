@@ -1,0 +1,9 @@
+{
+  "scope": "Generated report destination correction only; no source edit or test rerun",
+  "observedAt": "2026-11-16T03:54:50.517377+00:00",
+  "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/results.json",
+  "retainedPath": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/results.json",
+  "bytes": 29397,
+  "sha256": "4060590577b93f2fbb450923df9c2870a173fbd856adde03dfb477f1cdd904df",
+  "reason": "Playwright resolved relative PLAYWRIGHT_JSON_OUTPUT_NAME from its configuration directory. The initial post-run source verifier flagged this generated JSON only. Later runs use absolute reporter paths."
+}

@@ -1,0 +1,25 @@
+{
+ "argv": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/source-selection-v3.test.ts",
+  "tests/source-selection-dom-v3.test.ts",
+  "tests/source-composer-v3.test.ts",
+  "tests/source-draft-transfer-v3.test.ts",
+  "tests/source-workbench-host-v3.test.ts",
+  "tests/workbench-input-recovery-v3.test.ts",
+  "tests/workbench-performance-v3.test.ts",
+  "tests/workbench-recovery-v3.test.ts"
+ ],
+ "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+ "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm.CMD",
+ "startedAt": "2026-11-16T02:20:11.786Z",
+ "endedAt": "2026-11-16T02:20:41.750Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "status": "PASS",
+ "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+ "logDigest": "a8722c4a6dfbc39acd8118a54f99b5a50e4334500cc8d786ffb2482d8d7b7449"
+}

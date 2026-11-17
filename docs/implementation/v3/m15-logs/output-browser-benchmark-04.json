@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "--output",
+    "test-results/browser/m15-benchmark-04",
+    "--grep",
+    "measures paired controlled"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:49:51.637Z",
+  "endedAt": "2026-11-15T21:51:31.661Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/output-browser-benchmark-04.log",
+  "logDigest": "039a36800fdf25761bc23e0f5a6429aa33cf07c86774bb736bbd297638055cab"
+}

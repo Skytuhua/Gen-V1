@@ -1,0 +1,34 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","workbench-app"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794799936957-32f51cc6-6cc6-49cf-b037-ea1daf4ca991
+
+Browser suite: workbench-app (1 spec files)
+
+Running 22 tests using 1 worker
+
+  ok  1 tests\e2e\workbench-app.spec.ts:331:1 › default-off App retains its ordinary composer and hides source actions (4.5s)
+  ok  2 tests\e2e\workbench-app.spec.ts:353:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (5.1s)
+  ok  3 tests\e2e\workbench-app.spec.ts:379:1 › ask supplies a question only for an empty draft and never dispatches (2.7s)
+  ok  4 tests\e2e\workbench-app.spec.ts:391:1 › stale capture remains exact until explicit keep or refresh and opens retained output (5.3s)
+  ok  5 tests\e2e\workbench-app.spec.ts:425:1 › late source descriptions cannot attach to a replacement workspace (2.8s)
+  ok  6 tests\e2e\workbench-app.spec.ts:450:1 › after-current mode is explicit and queues through message.send while the task is working (3.6s)
+  ok  7 tests\e2e\workbench-app.spec.ts:488:1 › evidence preserves reported and observed grades, freshness and unsupported module state (3.2s)
+  ok  8 tests\e2e\workbench-app.spec.ts:529:1 › rollback leaves retained source inspection and removal reachable (3.1s)
+  ok  9 tests\e2e\workbench-app.spec.ts:560:1 › context and run views use recorded or explicit unavailable states without invented metrics (2.9s)
+  ok 10 tests\e2e\workbench-app.spec.ts:588:1 › real activity integration bounds mounted rows and searches the authorized full read (6.2s)
+  ok 11 tests\e2e\workbench-app.spec.ts:671:1 › source-aware navigation waits for journal handoff and preserves text on reload (5.7s)
+  ok 12 tests\e2e\workbench-app.spec.ts:702:1 › pointing mode does not consume another pane focus or Escape (2.4s)
+  ok 13 tests\e2e\workbench-app.spec.ts:716:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.6s)
+  ok 14 tests\e2e\workbench-app.spec.ts:755:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (3.2s)
+  ok 15 tests\e2e\workbench-app.spec.ts:791:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (5.9s)
+  ok 16 tests\e2e\workbench-app.spec.ts:846:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (2.8s)
+  ok 17 tests\e2e\workbench-app.spec.ts:885:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (3.1s)
+  ok 18 tests\e2e\workbench-app.spec.ts:932:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (4.7s)
+  ok 19 tests\e2e\workbench-app.spec.ts:978:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (2.8s)
+  ok 20 tests\e2e\workbench-app.spec.ts:1025:1 › deferred source view failure retains the mounted composer and restores focus (4.5s)
+  ok 21 tests\e2e\workbench-app.spec.ts:1057:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom (3.9s)
+  ok 22 tests\e2e\workbench-app.spec.ts:1177:1 › native return waits for canonical placement and keeps delayed source work isolated between owners (6.7s)
+
+  22 passed (1.5m)

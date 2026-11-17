@@ -1,0 +1,14 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/workbench-recovery-v3.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:16:54
+   Duration  738ms (transform 150ms, setup 0ms, import 76ms, tests 449ms, environment 0ms)
+

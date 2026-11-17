@@ -1,0 +1,37 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/workbench-recovery-v3.test.ts (11 tests | 1 failed) 531ms
+     × prevents a pending legacy text-only import from joining a newly attached source 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > prevents a pending legacy text-only import from joining a newly attached source
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/workbench-recovery-v3.test.ts:92:122
+     90|     expect(importObserved).toBeUndefined();
+     91|     await recovery.updateSourceDraft(owner, state => ({...state, sourc…
+     92|     expect(await journal.journalCompareAndSwap('draft:thread-a', impor…
+       |                                                                                                                          ^
+     93|     expect(storage.rows.get('draft:thread-a')?.value).toBe('');
+     94|     expect((await recovery.readSourceDraft(owner)).sourceRefs).toEqual…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  05:52:43
+   Duration  932ms (transform 183ms, setup 0ms, import 116ms, tests 531ms, environment 0ms)
+

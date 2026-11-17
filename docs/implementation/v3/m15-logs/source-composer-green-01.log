@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-composer-v3.test.ts","tests/agents-workspace-composer.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  05:42:06
+   Duration  1.32s (transform 302ms, setup 0ms, import 585ms, tests 146ms, environment 0ms)
+

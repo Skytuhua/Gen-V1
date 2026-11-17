@@ -1,0 +1,33 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","workbench-app"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780251082-39c990f1-1f72-4a7d-881b-6a8eef8caa7e
+
+Browser suite: workbench-app (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench-app.spec.ts:280:1 › default-off App retains its ordinary composer and hides source actions (7.7s)
+  ✓   2 tests/e2e/workbench-app.spec.ts:297:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (5.2s)
+  ✓   3 tests/e2e/workbench-app.spec.ts:323:1 › ask supplies a question only for an empty draft and never dispatches (2.5s)
+  ✓   4 tests/e2e/workbench-app.spec.ts:335:1 › stale capture remains exact until explicit keep or refresh and opens retained output (5.3s)
+  ✓   5 tests/e2e/workbench-app.spec.ts:365:1 › late source descriptions cannot attach to a replacement workspace (2.7s)
+  ✓   6 tests/e2e/workbench-app.spec.ts:390:1 › after-current mode is explicit and queues through message.send while the task is working (3.4s)
+  ✓   7 tests/e2e/workbench-app.spec.ts:409:1 › evidence preserves reported and observed grades, freshness and unsupported module state (2.4s)
+  ✓   8 tests/e2e/workbench-app.spec.ts:436:1 › rollback leaves retained source inspection and removal reachable (3.6s)
+  ✓   9 tests/e2e/workbench-app.spec.ts:467:1 › context and run views use recorded or explicit unavailable states without invented metrics (3.4s)
+  ✓  10 tests/e2e/workbench-app.spec.ts:495:1 › real activity integration bounds mounted rows and searches the authorized full read (3.7s)
+  ✓  11 tests/e2e/workbench-app.spec.ts:531:1 › source-aware navigation waits for journal handoff and preserves text on reload (6.3s)
+  ✓  12 tests/e2e/workbench-app.spec.ts:559:1 › pointing mode does not consume another pane focus or Escape (2.7s)
+  ✓  13 tests/e2e/workbench-app.spec.ts:573:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.8s)
+
+  13 passed (59.5s)

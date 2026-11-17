@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/usage-context.chromium.playwright.config.ts",
+    "--output",
+    "test-results/m15-usage-context-chromium-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:24:39.620Z",
+  "endedAt": "2026-11-15T22:25:07.498Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/usage-context-chromium-01.log",
+  "logDigest": "8170c21c8ca1419e9920eb3ec6ae6f0938d053f2d151d7036d5a9ac42162b330"
+}

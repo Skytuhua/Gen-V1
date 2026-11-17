@@ -1,0 +1,804 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\agents-workspace.playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/m15/agents-actual-app/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "agents-workspace.spec.ts",
+          "agents-workspace-evidence.spec.ts"
+        ],
+        "timeout": 20000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/agents-workspace.vite.config.ts --port 5636 --strictPort",
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "url": "http://127.0.0.1:5636",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "agents-workspace.spec.ts",
+      "file": "agents-workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1440",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:20.734Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-b6848ccd0225fe08ed54",
+          "file": "agents-workspace.spec.ts",
+          "line": 303,
+          "column": 40
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 1024",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2207,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:25.562Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-5429b11b5fbc64475d93",
+          "file": "agents-workspace.spec.ts",
+          "line": 303,
+          "column": 40
+        },
+        {
+          "title": "first agent reads reserve project rows and parent conversations at 768",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2100,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:27.788Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-9171ad8840c1446381e5",
+          "file": "agents-workspace.spec.ts",
+          "line": 303,
+          "column": 40
+        },
+        {
+          "title": "missing history remains reachable after offscreen bursts without moving the message being read",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:29.905Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-e77423d73997f544fae4",
+          "file": "agents-workspace.spec.ts",
+          "line": 351,
+          "column": 1
+        },
+        {
+          "title": "a slower evidence request cannot replace the latest selected child",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1595,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:32.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-9393a841530c90979614",
+          "file": "agents-workspace.spec.ts",
+          "line": 401,
+          "column": 1
+        },
+        {
+          "title": "project rows expose working parent and nested child transcripts before any details click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1169,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:33.972Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-f76c64bdcabde741a098",
+          "file": "agents-workspace.spec.ts",
+          "line": 479,
+          "column": 1
+        },
+        {
+          "title": "all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1688,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:35.156Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-5882676aa07ef616efe3",
+          "file": "agents-workspace.spec.ts",
+          "line": 510,
+          "column": 1
+        },
+        {
+          "title": "IME does not send, working parents send, uncertain retries keep identity and later drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1465,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:36.861Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-133aa4fdbf2b8d52c2a0",
+          "file": "agents-workspace.spec.ts",
+          "line": 544,
+          "column": 1
+        },
+        {
+          "title": "filtered children retain their completed owning parent and local reading state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1750,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:38.341Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-706dcd1cf57baaf25475",
+          "file": "agents-workspace.spec.ts",
+          "line": 580,
+          "column": 1
+        },
+        {
+          "title": "the actual App candidate opens and restores compact routing without mounting snapshot bootstrap",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5955,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:40.108Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-0b2287e272440b750b28",
+          "file": "agents-workspace.spec.ts",
+          "line": 616,
+          "column": 1
+        },
+        {
+          "title": "child follow-up uses the published parent/run target and current ticket through handled",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3255,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:46.080Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-991673e4233a6f2a16ba",
+          "file": "agents-workspace.spec.ts",
+          "line": 633,
+          "column": 1
+        },
+        {
+          "title": "agent task progress exposes its name and unknown share to assistive technology",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1329,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:49.350Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-7838384c3f42f05346fb",
+          "file": "agents-workspace.spec.ts",
+          "line": 676,
+          "column": 1
+        },
+        {
+          "title": "output while reading earlier retains position and exposes an explicit new-output action",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3400,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:50.695Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-95cba497c26927cf4a5e",
+          "file": "agents-workspace.spec.ts",
+          "line": 744,
+          "column": 1
+        },
+        {
+          "title": "readable geometry dark 1440x900 at 1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1204,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:54.109Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-5b151d2287d3726564a3",
+          "file": "agents-workspace.spec.ts",
+          "line": 783,
+          "column": 3
+        },
+        {
+          "title": "readable geometry light 1024x768 at 1.25",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1272,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:55.328Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-381ac5617980c28eaaad",
+          "file": "agents-workspace.spec.ts",
+          "line": 783,
+          "column": 3
+        },
+        {
+          "title": "readable geometry dark 640x520 at 1.5",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 869,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:56.615Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-80565226754c5e4b9e28",
+          "file": "agents-workspace.spec.ts",
+          "line": 783,
+          "column": 3
+        },
+        {
+          "title": "readable geometry light 390x700 at 1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:57.499Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-c658c4eec20b96cb49cb",
+          "file": "agents-workspace.spec.ts",
+          "line": 783,
+          "column": 3
+        },
+        {
+          "title": "a child input acknowledgement preserves a newer draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:58.413Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-0483c1b8e5af492203b0",
+          "file": "agents-workspace.spec.ts",
+          "line": 818,
+          "column": 1
+        },
+        {
+          "title": "a message board post acknowledgement preserves edits for the next post",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1863,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:38:59.912Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-e03ba9a9e4a50e3c35f0",
+          "file": "agents-workspace.spec.ts",
+          "line": 910,
+          "column": 1
+        },
+        {
+          "title": "keyboard entry into a virtual agent keeps focus on that card",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 20000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1488,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:39:01.789Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4c97d61e3f8ae9a9d885-f28376757edbf4d22ccb",
+          "file": "agents-workspace.spec.ts",
+          "line": 1016,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:38:18.629Z",
+    "duration": 45034.263,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

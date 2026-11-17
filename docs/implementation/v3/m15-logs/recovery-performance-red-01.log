@@ -1,0 +1,213 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/workbench-recovery-v3.test.ts (9 tests | 9 failed) 61ms
+     × rejects delayed old-owner reads including an A to B to A transition 15ms
+     × keeps canonical text in the existing journal while source metadata survives reload 31ms
+     × clears accepted attachments only for the exact submitted generation 3ms
+     × refuses a companion record from another workspace and preserves the stored bytes 1ms
+     × retains the source context and text on failed flush instead of permitting owner handoff 1ms
+     × waits for flush before handoff acknowledgment and preserves uncertain acknowledgments 3ms
+     × reports memory-only retention when both durable storage and handoff fail 2ms
+     × caps owner/view entries at 64 without storing canonical task fields 2ms
+     × keeps a newer revision and restores scroll anchors after journal reload 1ms
+ ❯ tests/workbench-performance-v3.test.ts (6 tests | 6 failed) 35ms
+     × windows retained output without dropping immutable 10,000-message and 500-task read models 12ms
+     × enforces the mounted-row ceiling even when viewport or overscan requests exceed it 2ms
+     × preserves a logical row and intra-row offset when retained output streams or earlier rows arrive 2ms
+     × copies and searches the reauthorized full model beyond mounted rows 3ms
+     × rejects stale, cross-owner, incomplete and aborted full reads instead of copying misleading output 11ms
+     × renders fewer than 301 output rows and preserves source-owned row IDs 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > windows retained output without dropping immutable 10,000-message and 500-task read models
+Error: Cannot find module '/apps/web/src/workbench-window' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:13:36
+     11| describe('M15 bounded workbench presentation', () => {
+     12|   it('windows retained output without dropping immutable 10,000-messag…
+     13|     const {windowWorkbenchItems} = await import('../apps/web/src/workb…
+       |                                    ^
+     14|     const messages = Object.freeze(Array.from({length: 10_000}, (_, in…
+     15|     const tasks = Object.freeze(Array.from({length: 500}, (_, index) =…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > enforces the mounted-row ceiling even when viewport or overscan requests exceed it
+Error: Cannot find module '/apps/web/src/workbench-window' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:33:36
+     31|
+     32|   it('enforces the mounted-row ceiling even when viewport or overscan …
+     33|     const {windowWorkbenchItems} = await import('../apps/web/src/workb…
+       |                                    ^
+     34|     for (const scrollTop of [0, 20, 400_000, 1_999_999]) {
+     35|       const window = windowWorkbenchItems(rows, {scrollTop, viewportHe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > preserves a logical row and intra-row offset when retained output streams or earlier rows arrive
+Error: Cannot find module '/apps/web/src/workbench-window' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:46:56
+     44|
+     45|   it('preserves a logical row and intra-row offset when retained outpu…
+     46|     const {captureOutputAnchor, restoreOutputAnchor} = await import('.…
+       |                                                        ^
+     47|     const anchor = captureOutputAnchor(rows, 999_993, 20);
+     48|     expect(anchor).toEqual({itemId: 'line:49999', offset: 13});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > copies and searches the reauthorized full model beyond mounted rows
+Error: Cannot find module '/apps/web/src/workbench-window' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:58:70
+     56|
+     57|   it('copies and searches the reauthorized full model beyond mounted r…
+     58|     const {readAuthorizedOutput, fullOutputText, searchOutputRows} = a…
+       |                                                                      ^
+     59|     let reads = 0;
+     60|     const readFull = async () => {reads++; return {identity, rows, com…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > rejects stale, cross-owner, incomplete and aborted full reads instead of copying misleading output
+Error: Cannot find module '/apps/web/src/workbench-window' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:73:36
+     71|
+     72|   it('rejects stale, cross-owner, incomplete and aborted full reads in…
+     73|     const {readAuthorizedOutput} = await import('../apps/web/src/workb…
+       |                                    ^
+     74|     for (const changed of [
+     75|       {...identity, sourceRevision: 'revision-b'},
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > renders fewer than 301 output rows and preserves source-owned row IDs
+Error: Cannot find module '/apps/web/src/WorkbenchOutput' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-performance-v3.test.ts
+ ❯ tests/workbench-performance-v3.test.ts:86:31
+     84|
+     85|   it('renders fewer than 301 output rows and preserves source-owned ro…
+     86|     const {WorkbenchOutput} = await import('../apps/web/src/WorkbenchO…
+       |                               ^
+     87|     const markup = renderToStaticMarkup(createElement(WorkbenchOutput,…
+     88|       identity, rows, state: 'ready', initialAnchor: {itemId: 'line:49…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > rejects delayed old-owner reads including an A to B to A transition
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:41:41
+     39| describe('M15 owner-fenced recovery', () => {
+     40|   it('rejects delayed old-owner reads including an A to B to A transit…
+     41|     const {createWorkbenchOwnerFence} = await import('../apps/web/src/…
+       |                                         ^
+     42|     const fence = createWorkbenchOwnerFence(owner), old = fence.captur…
+     43|     let visible = 'A';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > keeps canonical text in the existing journal while source metadata survives reload
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:57:22
+     55|     const storage = installStorage();
+     56|     const journal = await import('../apps/web/src/journal');
+     57|     const recovery = await import('../apps/web/src/workbench-recovery'…
+       |                      ^
+     58|     await journal.journalWrite('draft:thread-a', 'Canonical composer t…
+     59|     await recovery.updateSourceDraft(owner, state => ({...state, sourc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > clears accepted attachments only for the exact submitted generation
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:73:22
+     71|   it('clears accepted attachments only for the exact submitted generat…
+     72|     installStorage();
+     73|     const recovery = await import('../apps/web/src/workbench-recovery'…
+       |                      ^
+     74|     const submitted = await recovery.updateSourceDraft(owner, state =>…
+     75|     const nextRef = {...sourceRef, captureId: 'capture-b'};
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > refuses a companion record from another workspace and preserves the stored bytes
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:86:22
+     84|   it('refuses a companion record from another workspace and preserves …
+     85|     const storage = installStorage();
+     86|     const recovery = await import('../apps/web/src/workbench-recovery'…
+       |                      ^
+     87|     await recovery.updateSourceDraft(owner, state => ({...state, sourc…
+     88|     const before = storage.rows.get(recovery.sourceDraftKey(owner));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > retains the source context and text on failed flush instead of permitting owner handoff
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:95:39
+     93|   it('retains the source context and text on failed flush instead of p…
+     94|     installStorage();
+     95|     const {prepareWorkbenchHandoff} = await import('../apps/web/src/wo…
+       |                                       ^
+     96|     const {journalRead} = await import('../apps/web/src/journal');
+     97|     const result = await prepareWorkbenchHandoff({draft, flush: async …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > waits for flush before handoff acknowledgment and preserves uncertain acknowledgments
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:108:39
+    106|   it('waits for flush before handoff acknowledgment and preserves unce…
+    107|     installStorage();
+    108|     const {prepareWorkbenchHandoff} = await import('../apps/web/src/wo…
+       |                                       ^
+    109|     let release!: () => void;
+    110|     const order: string[] = [];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 owner-fenced recovery > reports memory-only retention when both durable storage and handoff fail
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:127:39
+    125|     vi.stubGlobal('indexedDB', {open: () => {throw Error('Unavailable'…
+    126|     vi.stubGlobal('localStorage', {getItem: () => null, setItem: () =>…
+    127|     const {prepareWorkbenchHandoff} = await import('../apps/web/src/wo…
+       |                                       ^
+    128|     const result = await prepareWorkbenchHandoff({draft, flush: async …
+    129|     expect(result.status).toBe('CONFLICT');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 local presentation cache > caps owner/view entries at 64 without storing canonical task fields
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:142:40
+    140|
+    141|   it('caps owner/view entries at 64 without storing canonical task fie…
+    142|     const {updateWorkbenchViewCache} = await import('../apps/web/src/w…
+       |                                        ^
+    143|     let entries: ReturnType<typeof view>[] = [];
+    144|     for (let index = 0; index < 500; index++) entries = updateWorkbenc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  tests/workbench-recovery-v3.test.ts > M15 local presentation cache > keeps a newer revision and restores scroll anchors after journal reload
+Error: Cannot find module '/apps/web/src/workbench-recovery' imported from /workspace/scratch/1b47eb428672/m15-v3/tests/workbench-recovery-v3.test.ts
+ ❯ tests/workbench-recovery-v3.test.ts:154:22
+    152|   it('keeps a newer revision and restores scroll anchors after journal…
+    153|     installStorage();
+    154|     const recovery = await import('../apps/web/src/workbench-recovery'…
+       |                      ^
+    155|     const current = view(5);
+    156|     await recovery.saveWorkbenchView(current);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  15 failed (15)
+   Start at  05:35:24
+   Duration  737ms (transform 110ms, setup 0ms, import 162ms, tests 97ms, environment 0ms)
+

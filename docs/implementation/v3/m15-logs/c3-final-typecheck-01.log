@@ -1,0 +1,17 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+tests/e2e/workbench-native-return-fixture.ts(20,11): error TS2352: Conversion of type 'Window & typeof globalThis' to type 'NativeFixtureWindow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property '__m15NativeCalls' is missing in type 'Window & typeof globalThis' but required in type 'NativeFixtureWindow'.
+tests/e2e/workbench-native-return-fixture.ts(116,44): error TS2352: Conversion of type 'Window & typeof globalThis' to type 'NativeFixtureWindow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property '__m15NativeCalls' is missing in type 'Window & typeof globalThis' but required in type 'NativeFixtureWindow'.
+tests/e2e/workbench-native-return-fixture.ts(118,29): error TS2352: Conversion of type 'Window & typeof globalThis' to type 'NativeFixtureWindow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property '__m15NativeCalls' is missing in type 'Window & typeof globalThis' but required in type 'NativeFixtureWindow'.
+tests/e2e/workbench-native-return-fixture.ts(120,38): error TS2352: Conversion of type 'Window & typeof globalThis' to type 'NativeFixtureWindow' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property '__m15NativeCalls' is missing in type 'Window & typeof globalThis' but required in type 'NativeFixtureWindow'.
+ ELIFECYCLE  Command failed with exit code 2.

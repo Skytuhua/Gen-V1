@@ -1,0 +1,9 @@
+argv: ["python3","/workspace/scratch/1b47eb428672/m15-publication/c4/preserve-incoming-98db97d.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Traceback (most recent call last):
+  File "/workspace/scratch/1b47eb428672/m15-publication/c4/preserve-incoming-98db97d.py", line 19, in <module>
+    assert before['executionBaseSha']==after['executionBaseSha']=='b4aa2caa5a3cedb29a0fddb510e49b5abd802a73'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

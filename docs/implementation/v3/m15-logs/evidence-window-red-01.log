@@ -1,0 +1,30 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--testNamePattern","bound failure falls outside","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (37 tests | 1 failed | 36 skipped) 51ms
+   × does not verify an execution when a bound failure falls outside the displayed observation window 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > does not verify an execution when a bound failure falls outside the displayed observation window
+AssertionError: expected 'VERIFIED' not to be 'VERIFIED' // Object.is equality
+ ❯ tests/source-workbench-host-v3.test.ts:398:34
+    396|   const evidence = await workbench.evidence(f.thread.id), requirement …
+    397|   expect(evidence.items.filter(item => item.kind === 'CHECK').length).…
+    398|   expect(requirement?.grade).not.toBe('VERIFIED');
+       |                                  ^
+    399|   expect(requirement?.outcome).not.toBe('VERIFIED');
+    400| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 36 skipped (37)
+   Start at  06:29:10
+   Duration  4.17s (transform 2.95s, setup 0ms, import 3.78s, tests 51ms, environment 0ms)
+

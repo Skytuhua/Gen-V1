@@ -1,0 +1,45 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1","-t","first-account source custody|unsent captured custody"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (40 tests | 3 failed | 37 skipped) 153ms
+   × admits first-account source custody for a truly empty task (host artifact fixture, M04 false) 100ms
+   × admits first-account source custody for a truly empty task (host artifact fixture, M04 true) 26ms
+   × preserves unsent captured custody when an ordinary first input pins its account 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > admits first-account source custody for a truly empty task (host artifact fixture, M04 false)
+ FAIL  tests/source-workbench-host-v3.test.ts > admits first-account source custody for a truly empty task (host artifact fixture, M04 true)
+HarnessError: The source owner or access grant changed.
+ ❯ packages/core/service.ts:569:92
+
+ ❯ Service.command packages/core/service.ts:574:17
+ ❯ tests/source-workbench-host-v3.test.ts:55:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > preserves unsent captured custody when an ordinary first input pins its account
+HarnessError: The captured source has lost its owner or access grant.
+ ❯ denied packages/core/source-workbench.ts:20:95
+     18|
+     19| const hash = (value: string | Buffer) => createHash('sha256').update(v…
+     20| function denied(message = 'The selected source is not available to thi…
+       |                                                                                               ^
+     21| function stale(): never {throw new HarnessError('STALE_SOURCE', 'The s…
+     22| function unavailable(): never {throw new HarnessError('SOURCE_UNAVAILA…
+ ❯ SourceWorkbench.record packages/core/source-workbench.ts:227:126
+ ❯ SourceWorkbench.open packages/core/source-workbench.ts:248:71
+ ❯ tests/source-workbench-host-v3.test.ts:69:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 37 skipped (40)
+   Start at  08:20:40
+   Duration  2.30s (transform 1.19s, setup 0ms, import 1.83s, tests 153ms, environment 0ms)
+

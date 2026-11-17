@@ -1,0 +1,115 @@
+{
+  "schema": "m15-public-ci-archive-retention-supplement-v1",
+  "recordedAt": "2026-11-16T04:40:34.623235+00:00",
+  "runId": 43797606300,
+  "attempt": 1,
+  "headSha": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "treeSha": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "workflowConclusion": "failure",
+  "custodyStatus": "DURABLY_SAVED_AND_BYTE_MATCHED",
+  "archiveCount": 7,
+  "totalOriginalBytes": 82050695,
+  "totalReadbackBytes": 82050695,
+  "privateCustodyRecordSha256": "51c6e99e134762489dbf789ff1e270d1196fa033fd90b94a14a77998e7b1dfcc",
+  "priorCohortFileMapSha256": "9c7e30fbf8d6239bcf8b34c5960480aa6c86fb1cc4b21a84d7882215ff09530a",
+  "archives": [
+    {
+      "cohort": "native",
+      "githubArtifactId": 14195328865,
+      "original": {
+        "bytes": 21565,
+        "sha256": "211a50f3e45ad0b1687a16b7c2561cd8bb5c6579e53d2aab78c7b941dd0d7da0"
+      },
+      "retainedReadback": {
+        "bytes": 21565,
+        "sha256": "211a50f3e45ad0b1687a16b7c2561cd8bb5c6579e53d2aab78c7b941dd0d7da0"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "full-shard-1",
+      "githubArtifactId": 14195937360,
+      "original": {
+        "bytes": 57304,
+        "sha256": "97b616d424698b0a924b8681fd9573b09cc7af94985dee92e62e879509538486"
+      },
+      "retainedReadback": {
+        "bytes": 57304,
+        "sha256": "97b616d424698b0a924b8681fd9573b09cc7af94985dee92e62e879509538486"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "full-shard-2",
+      "githubArtifactId": 14195687155,
+      "original": {
+        "bytes": 49817,
+        "sha256": "c6ec7b5fd3404049e4f8bf00bd1e82678889a35afd269c9d48eebb8eed888a81"
+      },
+      "retainedReadback": {
+        "bytes": 49817,
+        "sha256": "c6ec7b5fd3404049e4f8bf00bd1e82678889a35afd269c9d48eebb8eed888a81"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "full-shard-3",
+      "githubArtifactId": 14196040668,
+      "original": {
+        "bytes": 49759,
+        "sha256": "234287a6c66b497954315b54615e34dec8638e76278fe4b225ce530caecc0cbb"
+      },
+      "retainedReadback": {
+        "bytes": 49759,
+        "sha256": "234287a6c66b497954315b54615e34dec8638e76278fe4b225ce530caecc0cbb"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "full-shard-4",
+      "githubArtifactId": 14196155256,
+      "original": {
+        "bytes": 53272,
+        "sha256": "1766e070d82093214d8bd793985bf2c852459538f9ff50778bd43598528264d3"
+      },
+      "retainedReadback": {
+        "bytes": 53272,
+        "sha256": "1766e070d82093214d8bd793985bf2c852459538f9ff50778bd43598528264d3"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "browser",
+      "githubArtifactId": 14195684579,
+      "original": {
+        "bytes": 15367240,
+        "sha256": "33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843"
+      },
+      "retainedReadback": {
+        "bytes": 15367240,
+        "sha256": "33846c64de73c59cf21f2ad29dc09d5165361986def4f7fadee9ec96cb179843"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    },
+    {
+      "cohort": "root-browser",
+      "githubArtifactId": 14197300687,
+      "original": {
+        "bytes": 66451738,
+        "sha256": "3aa515f7d1d92eca11038c99da28a44db1b4f2185a3139c046d4b2d2d6457432"
+      },
+      "retainedReadback": {
+        "bytes": 66451738,
+        "sha256": "3aa515f7d1d92eca11038c99da28a44db1b4f2185a3139c046d4b2d2d6457432"
+      },
+      "status": "DURABLY_SAVED_AND_BYTE_MATCHED"
+    }
+  ],
+  "notes": [
+    "This supplements the earlier preparation-time NOT_UPLOADED statement. The original cohort-file-map bytes remain unchanged.",
+    "All seven original ZIP archives were saved privately in one ordered batch and independently materialized again using the returned file identities. Every readback size and SHA-256 matches the original.",
+    "No archive contents were changed; no separate screenshots were uploaded and no sharing occurred.",
+    "Durable custody does not change the C3 failed workflow conclusion, confer test PASS, or establish acceptance for the later C4 source cut.",
+    "Private identities and transfer details are intentionally kept outside repository evidence."
+  ]
+}

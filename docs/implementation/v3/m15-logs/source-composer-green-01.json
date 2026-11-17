@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-composer-v3.test.ts",
+    "tests/agents-workspace-composer.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:42:05.695Z",
+  "endedAt": "2026-11-15T21:42:08.214Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/source-composer-green-01.log",
+  "logDigest": "10836cb412ad478231f235e11b4696c9d1be464f89cb624dd917db4477e71980"
+}

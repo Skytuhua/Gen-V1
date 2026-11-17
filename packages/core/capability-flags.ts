@@ -79,9 +79,13 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey;
+export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
+export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
   { key: "memory.projectV1", owner: "m05", description: "Opt-in source-linked project memory; reviewed request integration required." },
   { key: "memory.externalRecallExperimentV1", owner: "m05", description: "Separate bounded external recall experiment; provider and egress consent required." },

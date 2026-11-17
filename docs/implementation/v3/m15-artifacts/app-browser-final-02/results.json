@@ -1,0 +1,795 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench-app.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5592 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5592",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench-app.spec.ts",
+      "file": "workbench-app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "default-off App retains its ordinary composer and hides source actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11936,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:29:58.404Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-36ae1a642c6d0d067730",
+          "file": "workbench-app.spec.ts",
+          "line": 315,
+          "column": 1
+        },
+        {
+          "title": "selection attaches bounded immutable context, survives reload and uses the existing durable send",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7120,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:10.464Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-4d4ec1f8d0a8bc6580f4",
+          "file": "workbench-app.spec.ts",
+          "line": 332,
+          "column": 1
+        },
+        {
+          "title": "ask supplies a question only for an empty draft and never dispatches",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4444,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:17.606Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c835d135265b273d81ba",
+          "file": "workbench-app.spec.ts",
+          "line": 358,
+          "column": 1
+        },
+        {
+          "title": "stale capture remains exact until explicit keep or refresh and opens retained output",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:22.066Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-489805ce8bf883437c07",
+          "file": "workbench-app.spec.ts",
+          "line": 370,
+          "column": 1
+        },
+        {
+          "title": "late source descriptions cannot attach to a replacement workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3802,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:29.254Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c436364264902892f378",
+          "file": "workbench-app.spec.ts",
+          "line": 404,
+          "column": 1
+        },
+        {
+          "title": "after-current mode is explicit and queues through message.send while the task is working",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4788,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:33.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-52b95231ce67396803cf",
+          "file": "workbench-app.spec.ts",
+          "line": 429,
+          "column": 1
+        },
+        {
+          "title": "evidence preserves reported and observed grades, freshness and unsupported module state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4463,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:37.905Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-0cc746a2eebc3ac05cd3",
+          "file": "workbench-app.spec.ts",
+          "line": 448,
+          "column": 1
+        },
+        {
+          "title": "rollback leaves retained source inspection and removal reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4253,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:42.406Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-a29495d9eca7d5aad061",
+          "file": "workbench-app.spec.ts",
+          "line": 489,
+          "column": 1
+        },
+        {
+          "title": "context and run views use recorded or explicit unavailable states without invented metrics",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3493,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:46.687Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-9831c482c2393cf7dc42",
+          "file": "workbench-app.spec.ts",
+          "line": 520,
+          "column": 1
+        },
+        {
+          "title": "real activity integration bounds mounted rows and searches the authorized full read",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9204,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:50.197Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c7dec3a318124a5fedaf",
+          "file": "workbench-app.spec.ts",
+          "line": 548,
+          "column": 1
+        },
+        {
+          "title": "source-aware navigation waits for journal handoff and preserves text on reload",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11192,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:84:640",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 640,
+                      "line": 84
+                    },
+                    "snippet": "  82 | });\n  83 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{\n> 84 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toHaveValue('Retain this source-aware draft');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^\n  85 | });\n  86 |\n  87 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 640,
+                        "line": 84
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <textarea disabled rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m    - unexpected value \"\"\u001b[22m\n\n\n  82 | });\n  83 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{\n> 84 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toHaveValue('Retain this source-aware draft');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^\n  85 | });\n  86 |\n  87 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:84:640"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:30:59.415Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 640,
+                    "line": 84
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-129bdaf95fbbbf1f903e",
+          "file": "workbench-app.spec.ts",
+          "line": 611,
+          "column": 1
+        },
+        {
+          "title": "pointing mode does not consume another pane focus or Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6477,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:12.709Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-8732cebf29f053ef0488",
+          "file": "workbench-app.spec.ts",
+          "line": 639,
+          "column": 1
+        },
+        {
+          "title": "selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8735,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:19.746Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-3cb1dde798b3a79177cb",
+          "file": "workbench-app.spec.ts",
+          "line": 653,
+          "column": 1
+        },
+        {
+          "title": "rollback retains a mode-only draft and permits returning to ordinary delivery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3818,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:28.523Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-26877aa03d506f314bda",
+          "file": "workbench-app.spec.ts",
+          "line": 692,
+          "column": 1
+        },
+        {
+          "title": "accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11601,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:32.361Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-1bd49f80b5d613c29604",
+          "file": "workbench-app.spec.ts",
+          "line": 712,
+          "column": 1
+        },
+        {
+          "title": "rollback permits cancellation of an undispatched accepted input without exposing revoked sources",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4102,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:43.976Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-70e9e70acb8ff34dbb5a",
+          "file": "workbench-app.spec.ts",
+          "line": 767,
+          "column": 1
+        },
+        {
+          "title": "definitive precommit source rejection unlocks removal and ordinary resubmission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4464,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:48.110Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-ed3904a10753b44c19ac",
+          "file": "workbench-app.spec.ts",
+          "line": 806,
+          "column": 1
+        },
+        {
+          "title": "lost cancellation receipt stays retryable after its input disappears and the App reloads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12013,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:31:52.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-2a41b5a29ca305d70856",
+          "file": "workbench-app.spec.ts",
+          "line": 853,
+          "column": 1
+        },
+        {
+          "title": "formatted assistant text opens its exact canonical source even outside the bounded catalogue",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7193,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"encoding\": \"UTF16\",\u001b[22m\n\u001b[32m-   \"end\": 32,\u001b[39m\n\u001b[32m-   \"start\": 21,\u001b[39m\n\u001b[31m+   \"end\": 58,\u001b[39m\n\u001b[31m+   \"start\": 0,\u001b[39m\n\u001b[2m  }\u001b[22m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"encoding\": \"UTF16\",\u001b[22m\n\u001b[32m-   \"end\": 32,\u001b[39m\n\u001b[32m-   \"start\": 21,\u001b[39m\n\u001b[31m+   \"end\": 58,\u001b[39m\n\u001b[31m+   \"start\": 0,\u001b[39m\n\u001b[2m  }\u001b[22m\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:124:963",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 963,
+                      "line": 124
+                    },
+                    "snippet": "  122 | test('formatted assistant text opens its exact canonical source even outside the bounded catalogue',async({page})=>{\n  123 |  const h=await fixture(page);const canonical='| Column |\\n| --- |\\n| left\\\\|right |\\n\\nPlain later left|right';h.snapshot.messages[0].content=canonical;h.state.omitMessage=true;h.snapshot.threads[0].epoch++;await h.publish();\n> 124 |  await page.getByRole('button',{name:'Select canonical source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('No supported sources are available');const content=dialog.locator('.source-selection-text');await expect(content).toHaveText(canonical);await content.focus();await content.evaluate((element,text)=>{const node=element.querySelector('pre')!.firstChild!,range=document.createRange(),start=text.indexOf('left\\\\|right');range.setStart(node,start);range.setEnd(node,start+'left\\\\|right'.length);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));},canonical);await dialog.getByRole('button',{name:'Attach to prompt',exact:true}).first().click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toContainText('left\\\\|right');expect(h.captures.get('capture-1')?.ref.source.range).toMatchObject({encoding:'UTF16',start:canonical.indexOf('left\\\\|right'),end:canonical.indexOf('left\\\\|right')+'left\\\\|right'.length});expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);\n      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^\n  125 | });\n  126 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 963,
+                        "line": 124
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatchObject\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[32m- Expected  - 2\u001b[39m\n\u001b[31m+ Received  + 2\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[2m    \"encoding\": \"UTF16\",\u001b[22m\n\u001b[32m-   \"end\": 32,\u001b[39m\n\u001b[32m-   \"start\": 21,\u001b[39m\n\u001b[31m+   \"end\": 58,\u001b[39m\n\u001b[31m+   \"start\": 0,\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  122 | test('formatted assistant text opens its exact canonical source even outside the bounded catalogue',async({page})=>{\n  123 |  const h=await fixture(page);const canonical='| Column |\\n| --- |\\n| left\\\\|right |\\n\\nPlain later left|right';h.snapshot.messages[0].content=canonical;h.state.omitMessage=true;h.snapshot.threads[0].epoch++;await h.publish();\n> 124 |  await page.getByRole('button',{name:'Select canonical source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('No supported sources are available');const content=dialog.locator('.source-selection-text');await expect(content).toHaveText(canonical);await content.focus();await content.evaluate((element,text)=>{const node=element.querySelector('pre')!.firstChild!,range=document.createRange(),start=text.indexOf('left\\\\|right');range.setStart(node,start);range.setEnd(node,start+'left\\\\|right'.length);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));},canonical);await dialog.getByRole('button',{name:'Attach to prompt',exact:true}).first().click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toContainText('left\\\\|right');expect(h.captures.get('capture-1')?.ref.source.range).toMatchObject({encoding:'UTF16',start:canonical.indexOf('left\\\\|right'),end:canonical.indexOf('left\\\\|right')+'left\\\\|right'.length});expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);\n      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^\n  125 | });\n  126 |\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:124:963"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:32:04.659Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781788036-374eef14-9208-4549-95ab-1896d3096efa/workbench-app/artifacts/workbench-app-formatted-as-9d082-tside-the-bounded-catalogue/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 963,
+                    "line": 124
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-281144155dac1ace451b",
+          "file": "workbench-app.spec.ts",
+          "line": 899,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:29:49.466Z",
+    "duration": 143470.42,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

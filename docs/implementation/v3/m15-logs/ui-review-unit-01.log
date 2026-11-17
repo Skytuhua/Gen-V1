@@ -1,0 +1,30 @@
+argv: ["pnpm","exec","vitest","run","tests/source-composer-v3.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","tests/source-selection-dom-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-composer-v3.test.ts (7 tests | 1 failed) 176ms
+   × does not leak old source metadata into a replaced workspace and preserves the old record 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-composer-v3.test.ts > does not leak old source metadata into a replaced workspace and preserves the old record
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/source-composer-v3.test.ts:43:15
+     41|  const send = vi.fn(async (_input: ParentSend) => {}), composer = crea…
+     42|  const replacement = {...target, workspaceId: 'replacement'}; await co…
+     43|  expect(send).toHaveBeenCalledOnce(); expect(send.mock.calls[0][0]).no…
+       |               ^
+     44|  expect((await readSourceDraft(logicalOwner)).sourceRefs).toHaveLength…
+     45| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 40 passed (41)
+   Start at  05:58:53
+   Duration  5.85s (transform 532ms, setup 0ms, import 1.53s, tests 1.38s, environment 1ms)
+

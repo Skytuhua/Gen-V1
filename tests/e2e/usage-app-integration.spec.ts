@@ -58,12 +58,14 @@ test('split conversation launchers control the shared summary for the active pan
  await expect(first.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
  await expect(summary).toBeVisible();await expect(summary).toContainText('7 input tokens');
  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
- await expect(summary).toContainText('999 input tokens');
+ await summary.getByRole('button',{name:'Minimize live usage',exact:true}).click();
+ await expect(summary.getByText('999 input tokens',{exact:true})).toBeVisible();
  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
- await expect(summary.getByRole('button',{name:'Open Usage',exact:true})).toBeVisible();
  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+ await summary.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(summary.getByText('999 input tokens',{exact:true})).toBeVisible();
+ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  await summary.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(modal(page)).toBeVisible();
  await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('Other synthetic owner');await expect(modal(page)).toContainText('999');
  await page.keyboard.press('Escape');await page.reload();await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();
@@ -106,4 +108,19 @@ test('review: an open restored Usage tab resolves its loaded conversation scope'
  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();
  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');
+});
+
+
+test('review: an open restored Usage tab stays closed in split workspace and keeps both composers available',async({page})=>{
+ await page.setViewportSize({width:1920,height:900});
+ await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));
+ const h=await host(page,{split:true});
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');
+ await expect(modal(page)).toHaveCount(0);
+ const first=page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true}),second=page.locator('[data-split-view="thread:other"]').getByRole('textbox',{name:'Message',exact:true});
+ for(const draft of [first,second]){await expect(draft).toBeVisible();await expect(draft).toBeEnabled();}
+ await first.fill('Keep the first split draft');await second.fill('Keep the second split draft');
+ await expect(first).toHaveValue('Keep the first split draft');await expect(second).toHaveValue('Keep the second split draft');
+ await expect(modal(page)).toHaveCount(0);
+ expect(h.commands.filter(command=>command.type==='thread.create'||command.type==='message.send')).toHaveLength(0);
 });

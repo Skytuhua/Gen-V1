@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-workspace-chromium-initial-01/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T04:11:44.753Z",
+  "endedAt": "2026-11-16T04:13:57.385Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-workspace-chromium-initial-01.log",
+  "logDigest": "1540f33f6c5ff12e2e10c4532b37b332261bb077c424a9aa37a57f59b330a019"
+}

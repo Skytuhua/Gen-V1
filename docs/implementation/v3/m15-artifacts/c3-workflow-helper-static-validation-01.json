@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "scope": "Read-only AST/source/YAML contracts and synthetic local fixtures; no active-repository edit, index write, CI execution or remote mutation.",
+  "createdAt": "2026-11-16T02:00:48.471266+00:00",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "acceptedTree": "2ecdb4c95fc6b604159257a125064ad585b966e5",
+  "unchangedPublicationNodes": [
+    "require",
+    "sha256",
+    "object_sha",
+    "json_bytes",
+    "js_sorted",
+    "checked_path",
+    "validate_command",
+    "validate_phase_status",
+    "Entry",
+    "tree_sha",
+    "Snapshot",
+    "request_bytes",
+    "payload_file"
+  ],
+  "reviewValidationChange": "Only diagnostic cut2 label changes to cut3; AST otherwise identical.",
+  "unchangedIngestionNodes": [
+    "require",
+    "sha256",
+    "read_json",
+    "write_json",
+    "normalized_member",
+    "extract_zip"
+  ],
+  "workflowChecks": [
+    "Push-only exact branch filter and exact github.sha checkout",
+    "Separate native, browser, paired root and full-repository jobs",
+    "Four full shards with fail-fast:false and no test filters",
+    "Every artifact name and job name matches C3 ingester, including run/attempt/shard",
+    "Full-shard here-string exactly equals ingester command contract",
+    "Always-retained artifacts and per-head noncancelling concurrency",
+    "Ordinary ci.yml bytes unchanged"
+  ],
+  "c2Unchanged": [
+    {
+      "file": "prepare-payload.py",
+      "bytes": 37279,
+      "sha256": "7922ce3c9ecc0570ae6b8813742a1a3bf9ce11ae729ca1dec7c3fe3fd49087ea"
+    },
+    {
+      "file": "read-payload.py",
+      "bytes": 3995,
+      "sha256": "bf209d4098673ee77ad6dda455b9b0d6788c9c3d7bc0156343d658a4de4f5e05"
+    },
+    {
+      "file": "ingest-ci-artifact.py",
+      "bytes": 16861,
+      "sha256": "a256be4f6c8af16431bd68c8416a804af857cf87f5a5c308af02493532497ac9"
+    }
+  ],
+  "files": [
+    {
+      "file": "prepare-payload.py",
+      "bytes": 39289,
+      "sha256": "8f74b038122602759439ebeccc68da253db0d3b73092b178d48ef58c4c2f92dc"
+    },
+    {
+      "file": "read-payload.py",
+      "bytes": 4059,
+      "sha256": "b5a66502abf829ce17c9f556d54713bd15d7d40ecde130790560357507c66c77"
+    },
+    {
+      "file": "self-test.py",
+      "bytes": 16679,
+      "sha256": "f145c0b65e6a157d772f0f53ba744c272a9673858060c22d96e530786102493f"
+    },
+    {
+      "file": "self-test-results-01.json",
+      "bytes": 2312,
+      "sha256": "905ec48bab595f6cbfd2da919dc1823cc8f88e85abb5d11e4ab18ad8b8a4a514"
+    },
+    {
+      "file": "m15-evidence.push-draft.yml",
+      "bytes": 24021,
+      "sha256": "2f760bcf58d23c4923395687b8bc7891d75285282d6df04ef2db5a3cb254e4a0"
+    },
+    {
+      "file": "ingest-ci-artifact.py",
+      "bytes": 21261,
+      "sha256": "971bc3ce8cfde7c44d9176c61d6b0a2a9b20a085cb7b2c0d48fc7d0f4a8ae18f"
+    },
+    {
+      "file": "test-ci-ingestion.py",
+      "bytes": 13819,
+      "sha256": "e0789d260c064791daf943cc9bc67667319a13459c95ffca0f38d9452d4e0ef3"
+    },
+    {
+      "file": "ci-ingestion-self-test-01.json",
+      "bytes": 1233,
+      "sha256": "c6336f686d2f88ecc0a5aaeb23374669228e5a3cf30a55009f6fe36eca887e2f"
+    }
+  ],
+  "ordinaryCI": {
+    "file": "ci.yml",
+    "bytes": 4132,
+    "sha256": "4ac906f2a1b060b47971267bab60f0b2b66fed846f3b71f9eabafc7cdc66dca2"
+  },
+  "limitations": [
+    "Actual C2 published parent/tree have not been supplied.",
+    "No final C3 staged payload has been prepared.",
+    "Workflow syntax parsed locally; PowerShell and GitHub runner execution remain unverified.",
+    "No real C3 workflow, artifact ZIP, connector transfer or GitHub publication round trip has occurred."
+  ]
+}

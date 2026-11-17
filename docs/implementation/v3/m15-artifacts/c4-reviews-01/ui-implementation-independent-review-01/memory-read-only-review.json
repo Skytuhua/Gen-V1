@@ -1,0 +1,109 @@
+{
+  "scope": "Real App with typed fixture memory and source HTTP; no host authorization claim",
+  "before": {
+    "draftId": "34a3ae4c-e09e-4c94-8cdd-ad42d31c410e",
+    "logicalOwner": {
+      "threadId": "task-thread",
+      "projectId": "memory-project",
+      "workspaceId": "memory-working-copy"
+    },
+    "revision": 1794801543354,
+    "text": "Retain authored text while reviewing memory",
+    "sourceRefs": [
+      {
+        "captureId": "capture-1",
+        "source": {
+          "kind": "MESSAGE",
+          "sourceId": "reply",
+          "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": "memory-project",
+            "workspaceId": "memory-working-copy"
+          },
+          "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+          "capturedAt": "2026-11-16T03:59:03.181Z",
+          "range": {
+            "encoding": "UTF16",
+            "start": 0,
+            "end": 20,
+            "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+          }
+        },
+        "keepCaptured": false
+      }
+    ],
+    "sendMode": "NOW",
+    "conflictState": "NONE"
+  },
+  "after": {
+    "draftId": "34a3ae4c-e09e-4c94-8cdd-ad42d31c410e",
+    "logicalOwner": {
+      "threadId": "task-thread",
+      "projectId": "memory-project",
+      "workspaceId": "memory-working-copy"
+    },
+    "revision": 1794801543354,
+    "text": "Retain authored text while reviewing memory",
+    "sourceRefs": [
+      {
+        "captureId": "capture-1",
+        "source": {
+          "kind": "MESSAGE",
+          "sourceId": "reply",
+          "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": "memory-project",
+            "workspaceId": "memory-working-copy"
+          },
+          "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+          "capturedAt": "2026-11-16T03:59:03.181Z",
+          "range": {
+            "encoding": "UTF16",
+            "start": 0,
+            "end": 20,
+            "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+          }
+        },
+        "keepCaptured": false
+      }
+    ],
+    "sendMode": "NOW",
+    "conflictState": "NONE"
+  },
+  "sourceRequests": [
+    {
+      "threadId": "task-thread",
+      "itemId": "accepted",
+      "revision": 1,
+      "sourceDigest": "261e7c262464c4d7dfcdf854e5beb8fc0c3d43919db2ee39b23ec64c9f13913d",
+      "sourceRef": {
+        "ownerThreadId": "task-thread",
+        "sourceKind": "MESSAGE",
+        "sourceId": "memory-source-accepted",
+        "sourceRevision": "memory-r1",
+        "capturedSeq": 4,
+        "digest": "261e7c262464c4d7dfcdf854e5beb8fc0c3d43919db2ee39b23ec64c9f13913d",
+        "observedStatus": "REPORTED"
+      }
+    },
+    {
+      "threadId": "task-thread",
+      "itemId": "conflict",
+      "revision": 2,
+      "sourceDigest": "c28d85e22d55070291ff158f535c98648a680b7af690fbd74ceb383272e28b12",
+      "sourceRef": {
+        "ownerThreadId": "task-thread",
+        "sourceKind": "MESSAGE",
+        "sourceId": "memory-source-conflict",
+        "sourceRevision": "memory-r2",
+        "capturedSeq": 4,
+        "digest": "c28d85e22d55070291ff158f535c98648a680b7af690fbd74ceb383272e28b12",
+        "observedStatus": "REPORTED"
+      }
+    }
+  ],
+  "memoryActions": [],
+  "ordinaryCommands": []
+}

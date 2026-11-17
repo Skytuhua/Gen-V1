@@ -1,0 +1,18 @@
+argv: ["pnpm","exec","vitest","run","tests/workspace-layout.test.ts","tests/project-context-owner.test.ts","tests/research-service-integration.test.ts","tests/plugin-visuals-retirement.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/research-service-integration.test.ts (4 tests) 641ms
+ ✓ tests/workspace-layout.test.ts (10 tests) 128ms
+ ✓ tests/plugin-visuals-retirement.test.ts (1 test) 125ms
+ ✓ tests/project-context-owner.test.ts (2 tests) 117ms
+
+ Test Files  4 passed (4)
+      Tests  17 passed (17)
+   Start at  10:06:15
+   Duration  5.95s (transform 2.43s, setup 0ms, import 3.70s, tests 1.01s, environment 1ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c3-workspace-contracts-01-results.json

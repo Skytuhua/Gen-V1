@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "-NoLogo",
+    "-NoProfile",
+    "-NonInteractive",
+    "-Command",
+    "$ErrorActionPreference = 'Stop'\r\npnpm test --maxWorkers=2 --shard=4/4 --reporter=default --reporter=json --outputFile=test-results/m15/full-results.json\r\nexit $LASTEXITCODE"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+  "startedAt": "2026-11-16T03:31:33.698Z",
+  "endedAt": "2026-11-16T03:35:08.113Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-windows-full-shard-4-43797606300-1.log",
+  "logDigest": "eed497d7b00f694302f9ced59f4da2d2f1c448d14b92da87c13ed8f52448ba0d"
+}
