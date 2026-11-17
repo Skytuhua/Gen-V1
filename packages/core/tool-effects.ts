@@ -253,7 +253,7 @@ export class ToolEffectLedger {
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     if (approval.actionCommitment !== actionCommitment(operation, thread)) throw new HarnessError("APPROVAL_REQUIRED", "The approved action changed; approve the current intent again");
-    if (approval.owner.accountBinding !== (thread.accountId ?? null) || approval.owner.projectId !== (thread.projectId ?? null) || approval.owner.workspaceId !== (thread.workspaceId ?? null) || approval.owner.epoch !== thread.epoch)
+    if (approval.owner.threadId !== thread.id || approval.owner.runId !== (thread.runId ?? null) || approval.owner.accountBinding !== (thread.accountId ?? null) || approval.owner.projectId !== (thread.projectId ?? null) || approval.owner.workspaceId !== (thread.workspaceId ?? null) || approval.owner.epoch !== thread.epoch)
       throw new HarnessError("APPROVAL_REQUIRED", "The approved owner changed; approve the current intent again");
   }
 
