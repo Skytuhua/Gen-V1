@@ -7,9 +7,9 @@ import {
  ProjectVerificationService,recipeDigest,recipeApprovalCommitment,sourceDigest,environmentId,
  type VerificationLauncher,type LaunchedProcess,type ListenerProbe,
 } from '../packages/core/project-verification';
-import {computeAssessment,observationFreshness} from '../packages/core/verification-gate';
+import {BoundedRepairLoop,computeAssessment,observationFreshness} from '../packages/core/verification-gate';
 import {verificationRecipeV1Schema,type CheckObservationV1,type VerificationRecipeV1} from '../packages/contracts/verification';
-import type {ApprovalV1,ToolOwner} from '../packages/contracts/tool-effects';
+import type {ApprovalV1,ToolEffectRecord,ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
@@ -98,6 +98,53 @@ it('recipe registration requires an exact M02 approval for this recipe and owner
  expect(recorded.recipeId).toBe('recipe-1');expect(recorded.revision).toBe(1);
  // The approval was consumed; re-registration of the identical recipe needs a new approval.
  expect(code(()=>service.registerRecipe(r,ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
+});
+
+it.each([{runId:'r2'},{epoch:2},{projectId:'project-other'},{workspaceId:'workspace-other'},{accountBinding:'account-other'}])('recipe approval cannot cross the owner binding %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe(r,ap.approvalId,{...o,...changed}))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ expect(service.recipe(r.recipeId)).toBeNull();
+});
+
+it.each([{recipeId:'recipe-other'},{revision:2}])('recipe approval binds the exact recipe identity %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe({...r,...changed},ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('recipe registration preserves the exact approved next revision',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),first=approval(store,r,o);
+ service.registerRecipe(r,first.approvalId,o);
+ const skipped={...r,revision:7},ap=approval(store,skipped,o);
+ expect(code(()=>service.registerRecipe(skipped,ap.approvalId,o))).toBe('RECIPE_REVISION');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ const next={...r,revision:2},nextApproval=approval(store,next,o);
+ expect(service.registerRecipe(next,nextApproval.approvalId,o).revision).toBe(2);
+});
+
+it('one thread cannot replace another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const originalOwner=owner(),r=await recipe(root);
+ service.registerRecipe(r,approval(store,r,originalOwner).approvalId,originalOwner);
+ const foreign=owner('t2'),replacement={...r,revision:2},ap=approval(store,replacement,foreign);
+ expect(code(()=>service.registerRecipe(replacement,ap.approvalId,foreign))).toBe('CAPABILITY_DENIED');
+ expect(service.recipe(r.recipeId)?.revision).toBe(1);
+ expect(store.all<VerificationRecipeV1>('verificationRecipe','t1')).toHaveLength(1);
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('one thread cannot execute another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const launched=launcher([{exitCode:0}]);
+ expect(await codeAsync(service.runRecipe(owner('t2'),request(r.recipeId),launched.fn))).toBe('NOT_FOUND');
+ expect(launched.launched).toHaveLength(0);
+ expect(service.observations('t2')).toEqual([]);
 });
 
 it('an approved recipe runs the fixed phase order and records bound observations',async()=>{
@@ -190,6 +237,34 @@ it('cleanup failures are recorded as their own observation',async()=>{
  expect(result.cleanupFailures.length).toBeGreaterThan(0);
  const teardown=result.observations.filter(obs=>obs.observationKind==='cleanup').at(-1)!;
  expect(teardown.outcome).toBe('FAIL');
+});
+
+it('a passing recipe cannot report success when its owned process cleanup fails',async()=>{
+ const root=workspace();const store=stateStore();
+ const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root);
+ const r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ const o=owner();service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const failing:VerificationLauncher={launch:async()=>({pid:1,tree:async()=>[1],wait:async()=>({exitCode:0,termination:'NONE'}),terminate:async()=>{throw new Error('owned process still running');},log:async()=>({text:'',truncated:false})})};
+ const result=await service.runRecipe(o,request('recipe-1'),failing);
+ expect(result.observations.find(obs=>obs.phase==='TEST')?.outcome).toBe('PASS');
+ expect(result.outcome).toBe('FAIL');
+ expect(result.cleanupFailures).toEqual(['owned process still running']);
+ expect(result.observations.find(obs=>obs.phase==='TEARDOWN')?.outcome).toBe('FAIL');
+});
+
+it('identical runner failures stop repair despite fresh observation IDs on every execution',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const loop=new BoundedRepairLoop(store,o,r.recipeId,['tests-pass']),checkIds:string[]=[];
+ for(let attempt=0;attempt<2;attempt++){
+  const result=await service.runRecipe(o,request(r.recipeId),launcher([{exitCode:1}]).fn);
+  const failures=result.observations.filter(obs=>obs.outcome==='FAIL');checkIds.push(failures[0].checkId);
+  loop.recordAttempt({requirementIds:['tests-pass'],failures,outcome:result.outcome});
+ }
+ expect(new Set(checkIds).size).toBe(2);
+ expect(loop.nextDecision()).toEqual({allowed:false,reason:'UNCHANGED_FAILURE'});
 });
 
 it('the completion projection marks fresh trusted evidence verified and names missing checks',async()=>{
@@ -370,4 +445,140 @@ describe('M07 advisory evidence feed',()=>{
   const service=new ProjectVerificationService(store,{});
   expect(code(()=>service.recordAdvisory(owner(),{version:1,executionId:'x',codeDigest:'a'.repeat(64),dependencyDigest:'a'.repeat(64),recipeDigest:'a'.repeat(64),environmentId:'e',argv:['x'],cwdIdentity:root,phase:'BUILD',startedAt:new Date().toISOString(),endedAt:new Date().toISOString(),exitCode:null,outcome:'PASS',artifactRefs:[]}))).toBe('CAPABILITY_DENIED');
  });
+});
+
+describe('complete requirement evidence',()=>{
+ const sourceCut={headSha:null,codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),environmentId:'linux/test'};
+ const observation=(checkId:string,over:Partial<CheckObservationV1>={}):CheckObservationV1=>({
+  version:1,checkId,executionId:'exec-complete',owner:owner(),codeDigest:sourceCut.codeDigest,dependencyDigest:sourceCut.dependencyDigest,environmentId:sourceCut.environmentId,recipeDigest:'c'.repeat(64),
+  argv:['node','test.mjs'],cwdIdentity:'/trusted/project',phase:'TEST',startedAt:'2026-11-17T00:00:00Z',endedAt:'2026-11-17T00:00:01Z',
+  exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process',...over,
+ });
+ const assess=(checkRefs:string[],observations:CheckObservationV1[])=>computeAssessment({
+  threadId:'t1',sourceCut,requirements:[{id:'build-and-test',checkRefs}],observations,
+  unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test',
+ });
+
+ it('one passing check cannot hide a missing required reference',()=>{
+  const result=assess(['build','test'],[observation('build')]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('test'))).toBe(true);
+ });
+
+ it.each([
+  ['unknown',{outcome:'UNKNOWN' as const,exitCode:null}],
+  ['stale',{codeDigest:'d'.repeat(64)}],
+  ['advisory',{observationKind:'review-advisory' as const}],
+ ])('one passing check cannot hide a required %s check',(_reason,over)=>{
+  const result=assess(['build','test'],[observation('build'),observation('test',over)]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].assessment).toBe('UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('test'))).toBe(true);
+ });
+
+ it('an execution reference requires all of its observed checks to be current and settled',()=>{
+  const result=assess(['exec-complete'],[observation('build'),observation('test',{outcome:'UNKNOWN',exitCode:null})]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('exec-complete'))).toBe(true);
+ });
+
+ it('every required check with fresh executed PASS evidence verifies',()=>{
+  const result=assess(['build','test'],[observation('build'),observation('test')]);
+  expect(result.label).toBe('VERIFIED');
+  expect(result.requirements[0].missing).toEqual([]);
+ });
+
+ it('a browser artifact reference cannot attest its own screenshot custody',()=>{
+  const result=assess(['browser'],[observation('browser',{phase:'BROWSER',observationKind:'browser',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.requirements[0].missing).toEqual(['screenshot custody is unavailable for build-and-test (browser)']);
+ });
+
+ it('missing artifact metadata cannot make a visual dependency trusted',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{observationKind:'visual',artifactRefs:[]})]);
+  expect(result.label).toBe('BLOCKED');
+ });
+
+ it('a screenshot from a different complete owner cannot block the selected execution',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{owner:{...owner(),accountBinding:'other-account'},observationKind:'visual',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it.each([
+  ['failed cleanup',{phase:'TEARDOWN' as const,observationKind:'cleanup' as const,outcome:'FAIL' as const,exitCode:null},'FAILED'],
+  ['cancelled execution',{outcome:'CANCELLED' as const,exitCode:null},'FAILED'],
+  ['blocked execution',{outcome:'BLOCKED' as const,exitCode:null},'BLOCKED'],
+  ['unsettled execution',{outcome:'UNKNOWN' as const,exitCode:null},'COMPLETED_UNVERIFIED'],
+ ])('a direct passing check reference cannot hide %s',(_reason,over,label)=>{
+  const result=assess(['build'],[observation('build'),observation('execution-status',over)]);
+  expect(result.label).toBe(label);
+ });
+
+ it('failures from a separate execution remain historical when a fresh check is bound',()=>{
+  const result=assess(['build'],[observation('build'),observation('prior-failure',{executionId:'exec-prior',outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it.each([
+  {threadId:'another-thread'}, {runId:'another-run'}, {epoch:2},
+  {projectId:'another-project'}, {workspaceId:'another-workspace'}, {accountBinding:'another-account'},
+ ])('an execution ID collision cannot import failure from owner %j',changedOwner=>{
+  const result=assess(['build'],[observation('build'),observation('foreign-failure',{owner:{...owner(),...changedOwner},outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it('the largest requirement still reports incomplete execution evidence within the contract bound',()=>{
+  const refs=Array.from({length:64},(_,index)=>`check-${index}`);
+  const result=assess(refs,[observation('check-0',{outcome:'UNKNOWN',exitCode:null})]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing).toHaveLength(64);
+ });
+});
+
+describe('bounded unresolved effect projection',()=>{
+ const assess=(count:number,provenance='test')=>computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),environmentId:'test'},
+  requirements:[],observations:[],unresolvedEffects:Array.from({length:count},(_,index)=>`effect-${index}`),
+  verifierIdentity:'test',provenance,
+ });
+ it.each([65,128,1024])('keeps %i unresolved effects blocked with bounded references and the full count',count=>{
+  const result=assess(count);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.unresolvedEffects).toEqual(Array.from({length:64},(_,index)=>`effect-${index}`));
+  expect(result.provenance).toContain(`Unresolved effects: ${count}`);
+  expect(result.provenance).toContain('references shown: 64');
+ });
+ it('keeps the effect count visible when existing provenance fills its bound',()=>{
+  const result=assess(65,'p'.repeat(500));
+  expect(result.label).toBe('BLOCKED');
+  expect(result.provenance.length).toBeLessThanOrEqual(500);
+  expect(result.provenance).toContain('Unresolved effects: 65');
+  expect(result.provenance).toContain('provenance shortened');
+ });
+});
+
+it('task_finish and the live panel keep 65 unresolved ledger effects blocked without dropping records',async()=>{
+ const {Service}=await import('../packages/core/service');
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const root=workspace(),identity=await statIdentity(root),store=stateStore(),stamp=new Date().toISOString();
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{});
+ store.internal('test.fixture','t1',()=>{
+  store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectId:'p1',workspaceId:null,accountId:null,projectName:'P',status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1});
+  store.put('workspaceProject','p1',null,{id:'p1',name:'P',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','p1',null,{path:root,identity:{dev:identity.dev,ino:identity.ino}});
+  store.put('verificationDeclaration','t1','t1',{version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'test',requirements:[]});
+  for(let index=0;index<65;index++){
+   const id=`effect-${index}`;
+   const effect:ToolEffectRecord={effectId:id,invocationId:id,attemptId:1,parentInvocationId:null,owner:{...owner(),projectId:'p1'},toolId:'repository_read',definitionDigest:'c'.repeat(64),privateArgumentCommitment:'d'.repeat(64),publicRedactedSummary:'pending read',targetPreconditions:[],approvalId:null,state:'DISPATCHED',providerReceiptRef:null,createdAt:stamp,updatedAt:stamp,threadId:'t1',transitions:[{from:null,to:'PREPARED',at:stamp},{from:'PREPARED',to:'DISPATCHED',at:stamp}]};
+   store.put('toolEffect',id,'t1',effect);
+  }
+ });
+ const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{await service.tool({name:'task_finish',args:{commandId:'finish-overflow',outcome:'done'}},{threadId:'t1',runId:'r1',epoch:1});}
+ finally{if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+ const assessment=store.all<{label:string;unresolvedEffects:string[];provenance:string}>('assessment','t1').at(-1)!;
+ expect(assessment.label).toBe('BLOCKED');expect(assessment.unresolvedEffects).toHaveLength(64);expect(assessment.provenance).toContain('Unresolved effects: 65');
+ expect(verificationPanelModel(store,'t1').label).toBe('BLOCKED');
+ expect(store.all<ToolEffectRecord>('toolEffect','t1')).toHaveLength(65);
 });
