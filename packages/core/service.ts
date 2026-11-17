@@ -57,7 +57,7 @@ import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
-import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
+import { nativeContextProjectionSchema, type RequestPreparationV1, type RequestContextV1, type CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
@@ -1508,9 +1508,11 @@ export class Service {
         const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
           typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
           ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
-        const relevance = this.observeReadRelevance(thread, sequence);
+        const relevance = this.observeReadRelevance(thread, sequence), native = nativeContextProjectionSchema.safeParse(event.nativeSources);
+        const nativeSourcesUnavailable = ['SOURCE_LIMIT', 'UNSUPPORTED_SOURCE', 'UNSUPPORTED_ADAPTER'].includes(String(event.nativeSourcesUnavailable)) ? event.nativeSourcesUnavailable as 'SOURCE_LIMIT' | 'UNSUPPORTED_SOURCE' | 'UNSUPPORTED_ADAPTER' : event.nativeSources !== undefined && !native.success ? 'UNSUPPORTED_SOURCE' as const : undefined;
         const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
-          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}), ...(relevance ? { relevance } : {}) };
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}), ...(relevance ? { relevance } : {}),
+          ...(native.success ? { nativeSources: native.data } : nativeSourcesUnavailable ? { nativeSourcesUnavailable } : {}) };
         const usage = { ...old, lastRequest: observation };
         this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
         return { runId: event.runId, usage };

@@ -8,6 +8,34 @@ import {createHermesRuntime} from '../packages/runtime-hermes/index.ts';
 import {HermesSourceLibrary} from '../packages/runtime-hermes/library.ts';
 import {hermesSettings} from '../packages/runtime-hermes/settings.ts';
 import type {RuntimeAdapter,RuntimeCallbacks,Thread} from '../packages/contracts/index.ts';
+import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
+import type {ContextRequestObservationV1} from '../packages/contracts/request-context.ts';
+
+// Full native host custody is exercised by Windows CI. The portable worker and
+// broker/Service suites remain separate evidence, without a Linux guard fallback.
+it.skipIf(process.platform!=='win32')('persists actual original-worker source generations through the real broker and Service without copying native content',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'m04-original-context-')),store=new Store(directory),prompts:string[]=[],nativeCuts:unknown[]=[];
+ const native=():RuntimeAdapter=>{let callbacks!:RuntimeCallbacks;return{configure:value=>{callbacks=value;},models:async()=>[{id:'openai/source-context',provider:'openai',name:'Scripted native source context'}],start:async input=>{
+  prompts.push(input.prompt);callbacks.onEvent({...input,type:'input.processing',inputIds:[input.inputId]});
+  callbacks.onEvent({...input,type:'assistant.message',content:'The original source retained this completed response.'});
+  callbacks.onEvent({...input,type:'usage',usage:{inputTokens:111,outputTokens:9,contextTokens:120,contextWindow:200000,cost:null}});callbacks.onEvent({...input,type:'settled'});
+ },followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};};
+ __setCapabilityFlagForTests('context.compilerV1',true);
+ const runtime=createHermesRuntime({dataDir:directory,nativeCatalog:native(),systemPrompt:'Stable host-owned system policy.',hostTools:[],skillPolicy:{enabled:false},onSourceEvent:event=>{if(event.event==='model_request')nativeCuts.push((event.data as {nativeContextCut?:unknown})?.nativeContextCut);}},{createNativeRuntime:()=>native()});
+ const service=new Service(store,runtime);
+ try{
+  await runtime.sourceRequest('skills.list');await service.recover();const thread=(await service.command({id:crypto.randomUUID(),type:'thread.create',payload:{}})).result as Thread;
+  const send=async(id:string,content:string)=>{await service.command({id,threadId:thread.id,type:'message.send',payload:{content,modelId:'openai/source-context'}});await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)?.status).toBe('handled'),{timeout:60000,interval:100});return structuredClone(store.get<{value:{lastRequest:ContextRequestObservationV1}}>('usage',thread.id)!.value.lastRequest);};
+  const first=await send('native-context-one','PRIVATE_NATIVE_INPUT_ONE');
+  expect(first).toMatchObject({sequence:1,visibility:'OPAQUE_NATIVE_CONTEXT',nativeSources:{source:'ORIGINAL_ACP_MESSAGES',generation:1,change:'RESET',reusedSources:0}});
+  const second=await send('native-context-two','PRIVATE_NATIVE_INPUT_TWO');
+  expect(second).toMatchObject({sequence:2,visibility:'OPAQUE_NATIVE_CONTEXT',nativeSources:{generation:1,change:'APPEND',reusedSources:first.nativeSources!.sourceCount}});
+  expect(second.nativeSources!.compiledSources).toBeGreaterThan(0);expect(second.nativeSources!.compiledSources).toBeLessThan(second.nativeSources!.sourceCount);
+  expect(nativeCuts).toHaveLength(2);expect(prompts[1]).toContain('PRIVATE_NATIVE_INPUT_ONE');expect(prompts[1]).toContain('PRIVATE_NATIVE_INPUT_TWO');
+  expect(JSON.stringify([first,second,nativeCuts])).not.toContain('PRIVATE_NATIVE_INPUT_');
+  expect(first.nativeSources!.change).toBe('RESET');expect(first.nativeSources!.compiledSources).toBe(first.nativeSources!.sourceCount);
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);await service.dispose();store.close();await rm(directory,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
+},90000);
 
 it('runs original Python and ACP through the native broker, persists a skill and finishes through the real Service',async()=>{
  const directory=await mkdtemp(join(tmpdir(),'hermes-original-host-')),store=new Store(directory),events:string[]=[],prompts:string[]=[],sourceErrors:unknown[]=[],instances:string[]=[],sequences:number[]=[];

@@ -169,7 +169,15 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
       {index === 0 && <><p className="context-categories-note">{contextNumber(request.promptBytes)} observed prompt bytes.</p>
         <p className="context-categories-note">Native context is opaque. Provider tokens and roles were not inferred.</p></>}
       {index === 1 && <>
-        <p className="context-categories-note">{request.knownInputs} known {request.knownInputs === 1 ? 'input' : 'inputs'} at the broker. Native sources and revisions were not reported.</p>
+        <p className="context-categories-note">{request.knownInputs} known {request.knownInputs === 1 ? 'input' : 'inputs'} at the broker.{!request.nativeSources && ' Native sources and revisions were not reported.'}</p>
+        {request.nativeSources && <section aria-label="Original Hermes source metadata">
+          <p className="context-categories-note">Source generation {request.nativeSources.generation} · {request.nativeSources.sourceCount} source records · {contextNumber(request.nativeSources.sourceBytes)} serialized source bytes.</p>
+          <p className="context-categories-note">{request.nativeSources.reusedSources} compiled records reused · {request.nativeSources.compiledSources} new records compiled. The native worker fingerprinted {request.nativeSources.inspectedSources} records to verify the cut.</p>
+          <p className="context-categories-note">These are original Hermes source records before ACP flattening. Provider context remains opaque; tokens were not inferred.</p>
+          <ul>{request.nativeSources.sources.map(source => <li key={source.sourceId}>{source.category.toLowerCase()} · {source.sourceId} · revision {source.sourceRevision} · {contextNumber(source.utf8Bytes)} bytes · SHA-256 <span style={{ overflowWrap: 'anywhere' }}>{source.sha256}</span></li>)}</ul>
+          {Boolean(request.nativeSources.omittedSources) && <p className="context-categories-note">{request.nativeSources.omittedSources} source records omitted from this bounded view.</p>}
+        </section>}
+        {request.nativeSourcesUnavailable && <p className="context-categories-note">Native source capture unavailable: {request.nativeSourcesUnavailable.toLowerCase().replaceAll('_', ' ')}.</p>}
         {sources?.projectInstructions && <section aria-label="Approved project instructions">
           <p className="context-categories-note">{sources.projectInstructions.precedence}</p>
           <ul>{sources.projectInstructions.entries.map(entry => <li key={entry.resourceId + ':' + entry.filename}>

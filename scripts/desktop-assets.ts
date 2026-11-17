@@ -27,6 +27,7 @@ export const REQUIRED_RUNTIME_FILES=[
  'host/third-party/t3code/LICENSE',
  'host/third-party/hermes-agent/LICENSE',
  'host/packages/runtime-hermes/worker.py','host/packages/runtime-hermes/memory_checkpoint.py','host/packages/runtime-hermes/acp-server.ts',
+ 'host/packages/runtime-hermes/context_capture.py','host/packages/runtime-hermes/context.ts',
  'host/hermes-python/python.exe','host/hermes-python/python314.dll','host/hermes-python/python314._pth','host/hermes-python/LICENSE.txt',
  'host/hermes-python/Lib/encodings/__init__.py','host/hermes-python/DLLs/_ssl.pyd',
  'host/.harness-hermes-python-deps/openai/__init__.py','host/.harness-hermes-python-deps/pydantic_core/__init__.py',

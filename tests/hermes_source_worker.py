@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import importlib.util
 import os
 from pathlib import Path
 import queue
@@ -14,6 +15,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "packages/runtime-hermes/worker.py"
+sys.dont_write_bytecode = True
 
 
 def scripted_acp() -> None:
@@ -69,6 +71,76 @@ def scripted_acp() -> None:
             result = {"stopReason": "end_turn"}
         if "id" in msg:
             print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": result}), flush=True)
+
+
+class ContextCaptureFixture(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("context_capture_fixture", ROOT / "packages/runtime-hermes/context_capture.py")
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        self.capture = self.module.NativeContextCapture()
+
+    def test_append_reports_only_new_tool_metadata_and_exact_unicode_bytes(self):
+        messages = [{"role": "system", "content": "Stable policy"}, {"role": "user", "content": "Private 日本語"}]
+        first = self.capture.capture(messages, "a" * 64, [])
+        expected = sum(len(json.dumps(message, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) for message in messages)
+        self.assertEqual(first["sourceBytes"], expected)
+        tool = {"role": "tool", "tool_call_id": "call-one", "content": "Private result 日本語"}
+        messages.append(tool)
+        next_cut = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(next_cut["reusedSources"], 2)
+        self.assertEqual(len(next_cut["sources"]), 1)
+        self.assertEqual(next_cut["inspectedSources"], 3)
+        self.assertEqual(next_cut["newToolResults"], 1)
+        self.assertEqual(next_cut["newToolResultBytes"], len(json.dumps(tool, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")))
+        self.assertNotIn("Private", json.dumps(next_cut))
+        unchanged = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(unchanged["change"], "UNCHANGED")
+        self.assertEqual(unchanged["sources"], [])
+
+    def test_in_place_native_mutation_rebuilds_instead_of_reusing_object_identity(self):
+        messages = [{"role": "user", "content": "Before"}]
+        first = self.capture.capture(messages, "a" * 64, [])
+        messages[0]["content"] = "After"
+        next_cut = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(next_cut["change"], "RESET")
+        self.assertEqual(next_cut["reusedSources"], 0)
+        self.assertGreater(next_cut["generation"], first["generation"])
+        self.assertNotEqual(next_cut["sources"][0]["sha256"], first["sources"][0]["sha256"])
+
+    def test_rewind_binding_and_native_schema_changes_retire_the_prefix(self):
+        messages = [{"role": "user", "content": "One"}, {"role": "assistant", "content": "Two"}]
+        prior = self.capture.capture(messages, "a" * 64, [])
+        for next_messages, binding, tools in [(messages[:1], "a" * 64, []), (messages[:1], "b" * 64, []), (messages[:1], "b" * 64, [{"name": "new-tool"}])]:
+            current = self.capture.capture(next_messages, binding, tools)
+            self.assertEqual(current["change"], "RESET")
+            self.assertGreater(current["generation"], prior["generation"])
+            self.assertIsNone(current["newToolResults"])
+            prior = current
+
+    def test_source_limits_and_unsupported_shapes_retire_metadata_without_returning_content(self):
+        first = self.capture.capture([{"role": "user", "content": "Before"}], "a" * 64, [])
+        self.assertEqual(self.capture.capture([{}] * 4097, "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "SOURCE_LIMIT"})
+        self.assertEqual(self.capture.capture(["Private source"], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        next_cut = self.capture.capture([{"role": "user", "content": "Before"}], "a" * 64, [])
+        self.assertEqual(next_cut["change"], "RESET")
+        self.assertGreater(next_cut["generation"], first["generation"])
+        with self.assertRaises(OverflowError):
+            self.module.fingerprint({"content": "Native source too large for remaining bytes"}, 8)
+
+    def test_deep_or_cyclic_native_content_is_unavailable_without_escaping_the_observer(self):
+        first = self.capture.capture([{"role": "user", "content": "Original"}], "a" * 64, [])
+        deep = []
+        for _ in range(1100):
+            deep = [deep]
+        self.assertEqual(self.capture.capture([{"role": "tool", "content": deep}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "SOURCE_LIMIT"})
+        cycle = []
+        cycle.append(cycle)
+        self.assertEqual(self.capture.capture([{"role": "tool", "content": cycle}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        self.assertEqual(self.capture.capture([{"role": "user", "content": "\ud800"}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        recovered = self.capture.capture([{"role": "user", "content": "Original"}], "a" * 64, [])
+        self.assertEqual(recovered["change"], "RESET")
+        self.assertGreater(recovered["generation"], first["generation"])
 
 
 class WorkerFixture(unittest.TestCase):
@@ -247,6 +319,41 @@ class WorkerFixture(unittest.TestCase):
         third = self.until_settled()[-1]["data"]
         self.assertEqual(third["agentInstance"], second["agentInstance"])
         self.assertEqual(third["text"], "Project instructions: first=0, second=1")
+
+    def test_m04_original_request_cut_reuses_only_an_unchanged_native_prefix(self):
+        self.hello()
+        params = {"ctx": {"threadId": "m04-native-cut", "runId": "one", "epoch": 1},
+                  "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY private-first-input",
+                  "systemPrompt": "Stable host policy.", "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-native-cut"),
+                  "contextCapture": {"apiVersion": 1, "bindingDigest": "a" * 64}}
+        self.request("agent.start", params)
+        first_events = self.until_settled()
+        first = next(event["data"] for event in first_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(first["change"], "RESET")
+        self.assertGreater(first["sourceCount"], 0)
+        self.assertEqual(first["reusedSources"], 0)
+        self.assertNotIn("private-first-input", json.dumps(first))
+        params["ctx"] = {"threadId": "m04-native-cut", "runId": "two", "epoch": 2}
+        params["prompt"] = "PLAIN_REPLY_ONLY private-next-input"
+        self.request("agent.start", params)
+        second_events = self.until_settled()
+        second = next(event["data"] for event in second_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(second["change"], "APPEND")
+        self.assertEqual(second["generation"], first["generation"])
+        self.assertEqual(second["previousDigest"], first["revisionDigest"])
+        self.assertEqual(second["reusedSources"], first["sourceCount"])
+        self.assertEqual(len(second["sources"]), second["sourceCount"] - first["sourceCount"])
+        self.assertNotIn("private-next-input", json.dumps(second))
+        params["ctx"] = {"threadId": "m04-native-cut", "runId": "three", "epoch": 3}
+        params["systemPrompt"] = "Changed approved instructions."
+        params["contextCapture"]["bindingDigest"] = "b" * 64
+        self.request("agent.start", params)
+        third_events = self.until_settled()
+        third = next(event["data"] for event in third_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(third["change"], "RESET")
+        self.assertGreater(third["generation"], second["generation"])
+        self.assertEqual(third["reusedSources"], 0)
 
     def test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest(self):
         self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
