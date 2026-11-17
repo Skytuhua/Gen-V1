@@ -33,10 +33,12 @@ export interface AgentWorkHooks {
   store: Store;
   assertRun: (ctx: RunContext) => void;
   isEnabled: (key: CapabilityFlagKey) => boolean;
+  /** M06 host composition may enable QA only. The exact role proof remains required. */
+  qaEnabled?: () => boolean;
   /** Registered host capabilities proving a role may run. Absent => ROLE_UNAVAILABLE. */
   roleProofs?: {
     codeWorktree?: (ctx: RunContext) => Promise<CodeWorktreeProof> | CodeWorktreeProof;
-    qa?: (ctx: RunContext) => Promise<QaProof> | QaProof;
+    qa?: (ctx: RunContext, admission: AgentWorkAdmissionV1) => Promise<QaProof> | QaProof;
   };
   /** Effect entry points scoped to each gated role. Read roles never reach these. */
   roleHandlers?: {
@@ -91,7 +93,7 @@ export class AgentWorkCoordinator {
     this.inbox = new AgentInbox({store: hooks.store});
   }
 
-  private enabled(): boolean { return this.hooks.isEnabled('agents.workV1'); }
+  private enabled(role?: AgentWorkRole): boolean { return this.hooks.isEnabled('agents.workV1') || role === 'QA' && this.hooks.qaEnabled?.() === true; }
 
   private parent(ctx: RunContext): Thread {
     const thread = this.hooks.store.get<Thread>('thread', ctx.threadId);
@@ -102,7 +104,7 @@ export class AgentWorkCoordinator {
   }
 
   roleAvailability(_ctx: RunContext, role: AgentWorkRole): {available: boolean; reason?: string} {
-    if (!this.enabled()) return {available: false, reason: 'agents.workV1 disabled'};
+    if (!this.enabled(role)) return {available: false, reason: 'agents.workV1 disabled'};
     switch (role) {
       case 'PLAN_READ':
       case 'RESEARCH_READ': return {available: true};
@@ -126,7 +128,7 @@ export class AgentWorkCoordinator {
    * intersected with role policy and, for CODE_WORKTREE, the proven
    * worktree's path bound. Recomputed at every dispatch so revoked or
    * re-scoped parent rights never leak into a child. */
-  private async admittedAuthority(ctx: RunContext, spec: {role: AgentWorkRole; grantSubset: string[]}, denyCode: string): Promise<{grants: ResourceGrant[]; proofMeta: Record<string, unknown>}> {
+  private async admittedAuthority(ctx: RunContext, spec: AgentWorkAdmissionV1, denyCode: string): Promise<{grants: ResourceGrant[]; proofMeta: Record<string, unknown>}> {
     const parentGrants = this.hooks.store.all<ResourceGrant>('resource', ctx.threadId);
     const selected = spec.grantSubset.map(id => {
       const grant = parentGrants.find(item => item.id === id);
@@ -137,16 +139,16 @@ export class AgentWorkCoordinator {
     const proofMeta: Record<string, unknown> = {};
     const worktreeProof = spec.role === 'CODE_WORKTREE' ? await this.hooks.roleProofs!.codeWorktree!(ctx) : null;
     if (worktreeProof) proofMeta.worktree = worktreeProof;
-    if (spec.role === 'QA') proofMeta.qa = await this.hooks.roleProofs!.qa!(ctx);
+    if (spec.role === 'QA') proofMeta.qa = await this.hooks.roleProofs!.qa!(ctx, spec);
     const grants = selected.map(grant => (readOnly || (worktreeProof !== null && !pathWithin(grant.path, worktreeProof.path))) ? {...grant, writable: false} : grant);
     return {grants, proofMeta};
   }
 
   async admit(ctx: RunContext, raw: unknown, signal: AbortSignal): Promise<AgentWorkV1> {
-    if (!this.enabled()) throw new HarnessError('CAPABILITY_DENIED', 'agents.workV1 is disabled');
+    const spec = AgentWorkAdmissionV1Schema.parse(raw);
+    if (!this.enabled(spec.role)) throw new HarnessError('CAPABILITY_DENIED', 'agents.workV1 is disabled');
     this.hooks.assertRun(ctx);
     const parent = this.parent(ctx);
-    const spec = AgentWorkAdmissionV1Schema.parse(raw);
     const availability = this.roleAvailability(ctx, spec.role);
     if (!availability.available) throw new HarnessError('ROLE_UNAVAILABLE', `Role ${spec.role} is unavailable: ${availability.reason}`);
     const priorAdmission = this.hooks.store.get<AdmissionRecord>(ADMISSION_KIND, spec.workId);
@@ -164,6 +166,7 @@ export class AgentWorkCoordinator {
     // never reach the child. Role proofs are bound into the admission.
     const {grants: effectiveGrants, proofMeta} = await this.admittedAuthority(ctx, spec, 'CAPABILITY_DENIED');
     this.hooks.assertRun(ctx);
+    if (signal.aborted) throw new HarnessError('CANCELLED_RUN', 'Admission was cancelled during its role proof');
 
     // Global budget reservation; completed, failed and cancelled work all
     // still count against the lifetime budget.
@@ -445,9 +448,9 @@ export class AgentWorkCoordinator {
    * after the durable admission's account, project, schema and grant bindings
    * all re-verify against the current parent. */
   async resume(ctx: RunContext, workId: string): Promise<AgentWorkV1> {
-    if (!this.enabled()) throw new HarnessError('CAPABILITY_DENIED', 'agents.workV1 is disabled');
     this.hooks.assertRun(ctx);
     const work = this.hooks.store.get<AgentWorkV1>(WORK_KIND, workId);
+    if (!this.enabled(work?.role)) throw new HarnessError('CAPABILITY_DENIED', 'agents.workV1 is disabled');
     if (!work || work.parentOwner.threadId !== ctx.threadId) throw new HarnessError('INVALID_AGENT_WORK', `Unknown work ${workId}`);
     if (work.state === 'COMPLETED_REPORTED' || work.state === 'VERIFIED') throw new HarnessError('INVALID_AGENT_WORK', `Work ${workId} already reported`);
     if (!AGENT_WORK_TERMINAL_STATES.has(work.state)) throw new HarnessError('INVALID_AGENT_WORK', `Work ${workId} is still ${work.state}`);
@@ -463,7 +466,7 @@ export class AgentWorkCoordinator {
     // Authority is rebuilt against the current parent — revoked grants refuse
     // resume outright and re-scoped rights (including a narrowed worktree
     // binding) flow into the refreshed admission, never the stale snapshot.
-    const {grants: effectiveGrants, proofMeta} = await this.admittedAuthority(ctx, {role: work.role, grantSubset: work.grantSubset}, 'STALE_AGENT_AUTHORITY');
+    const {grants: effectiveGrants, proofMeta} = await this.admittedAuthority(ctx, {...admission.admission, role: work.role, grantSubset: work.grantSubset, budget: work.budget}, 'STALE_AGENT_AUTHORITY');
     // A parent stop during the awaited authority check must not let this
     // pending resume start a child on the revoked run.
     this.hooks.assertRun(ctx);
