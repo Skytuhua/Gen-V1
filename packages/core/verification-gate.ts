@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, type Thread } from '../contracts/index.ts';
 import type { ToolOwner } from '../contracts/tool-effects.ts';
 import {
   type AssessedRequirement, type CheckObservationV1, type CompletionLabel,
@@ -27,6 +27,15 @@ export function observationFreshness(observation: Pick<CheckObservationV1, 'code
   if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId) return 'CURRENT';
   if (!observation.codeDigest || !observation.dependencyDigest) return 'INDETERMINATE';
   return 'STALE';
+}
+
+/** Historical runs can prove unchanged code, but their evidence never moves
+ * to another project, working copy or account when a thread changes owner. */
+export function observationMatchesThreadOwner(observation: Pick<CheckObservationV1, 'owner'>, thread: Pick<Thread, 'id' | 'projectId' | 'workspaceId' | 'accountId'> | null): boolean {
+  return !!thread && observation.owner.threadId === thread.id &&
+    observation.owner.projectId === (thread.projectId ?? null) &&
+    observation.owner.workspaceId === (thread.workspaceId ?? null) &&
+    observation.owner.accountBinding === (thread.accountId ?? null);
 }
 
 /* ------------------------------------------------------------------ */

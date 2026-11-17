@@ -1,15 +1,32 @@
 import type { Store } from '../storage/store.ts';
+import type { Thread } from '../contracts/index.ts';
+import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
   VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
-import { computeAssessment, observationFreshness } from './verification-gate.ts';
-import { sourceDigestSync } from './project-verification.ts';
+import { computeAssessment, observationFreshness, observationMatchesThreadOwner } from './verification-gate.ts';
+import { assertVerificationSourceRoot, sourceDigestSync } from './project-verification.ts';
 
 /** M06 additive read model for the verification panel. Columns: requirement,
  * observed check, source revision, outcome, freshness, verifier and evidence.
  * A stale result is a result attached to a different source cut — it never
  * renders as a green badge, and the panel shows a Stale banner. */
+
+export interface VerificationCheckDetails {
+  argv: string[];
+  cwdIdentity: string;
+  codeDigest: string;
+  dependencyDigest: string;
+  recipeDigest: string;
+  environmentId: string;
+  startedAt: string;
+  endedAt: string;
+  exitCode: number | null;
+  observationKind: CheckObservationV1['observationKind'];
+  detail: string | null;
+  visual: Pick<VisualObservationV1, 'checklistItemId' | 'actionTraceId' | 'origin' | 'viewport' | 'assertion' | 'observed' | 'screenshotDigest'> | null;
+}
 
 export interface VerificationPanelRow {
   requirement: string;
@@ -22,6 +39,7 @@ export interface VerificationPanelRow {
   verifier: string | null;
   evidence: string[];
   missing: string[];
+  details?: VerificationCheckDetails;
 }
 
 export interface VerificationPanelModel {
@@ -33,7 +51,23 @@ export interface VerificationPanelModel {
 
 const short = (value: string) => (value.length > 12 ? value.slice(0, 12) : value);
 
+function checkDetails(obs: CheckObservationV1 | VisualObservationV1): VerificationCheckDetails {
+  // Functional browser assertions also carry visual fields. Their recorded
+  // kind must not hide the expected/observed behavior or tested viewport.
+  const visual = 'checklistItemId' in obs ? {
+    checklistItemId: obs.checklistItemId, actionTraceId: obs.actionTraceId, origin: obs.origin,
+    viewport: {...obs.viewport}, assertion: obs.assertion, observed: obs.observed, screenshotDigest: obs.screenshotDigest,
+  } : null;
+  return {
+    argv: [...obs.argv], cwdIdentity: obs.cwdIdentity, codeDigest: obs.codeDigest,
+    dependencyDigest: obs.dependencyDigest, recipeDigest: obs.recipeDigest, environmentId: obs.environmentId,
+    startedAt: obs.startedAt, endedAt: obs.endedAt, exitCode: obs.exitCode,
+    observationKind: obs.observationKind, detail: obs.detail?.slice(0, 2000) ?? null, visual,
+  };
+}
+
 export function verificationPanelModel(store: Store, threadId: string): VerificationPanelModel {
+  const thread = store.get<Thread>('thread', threadId);
   const declaration = store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
   const assessments = store.all<DeliverableAssessmentV1>('assessment', threadId);
   const latest = assessments.at(-1) ?? null;
@@ -41,13 +75,14 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     ...store.all<CheckObservationV1>('checkObservation', threadId),
     ...store.all<VisualObservationV1>('visualObservation', threadId),
   ];
+  const ownedObservations = observations.filter(observation => observationMatchesThreadOwner(observation, thread));
   // The current source cut describes the workspace at READ time, not when an
   // assessment was saved: with a declaration, re-digest the declared inputs
   // live. Unavailable inputs make freshness indeterminate — never verified.
-  let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null;
-  let recomputed: DeliverableAssessmentV1 | null = null;
+  let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null = null;
   if (declaration) {
     try {
+      assertVerificationSourceRoot(store, threadId, declaration.rootPath);
       current = {
         codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles),
         dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles),
@@ -56,45 +91,48 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     } catch {
       current = null;
     }
-    // The stored assessment is immutable; the displayed label/summary is
-    // recomputed against the live cut so a source edit cannot keep a green
-    // Verified badge.
-    recomputed = computeAssessment({
+  }
+  // Completion snapshots cannot attest today's source or external effects.
+  // Recompute the projection without rewriting any saved observation/assessment.
+  const unresolvedEffects = store.all<ToolEffectRecord>('toolEffect', threadId)
+    .filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state))
+    .map(effect => effect.invocationId);
+  const recomputed = declaration || latest ? computeAssessment({
       threadId,
       sourceCut: {
         headSha: latest?.sourceCut.headSha ?? null,
         codeDigest: current?.codeDigest ?? '0'.repeat(64),
         dependencyDigest: current?.dependencyDigest ?? '0'.repeat(64),
-        environmentId: declaration.environmentId,
+        environmentId: declaration?.environmentId ?? latest!.sourceCut.environmentId,
       },
-      requirements: declaration.requirements,
-      observations,
-      unresolvedEffects: latest?.unresolvedEffects ?? [],
+      requirements: declaration?.requirements ?? latest!.requirements,
+      observations: ownedObservations,
+      unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',
-    });
-  } else {
-    current = latest
-      ? { codeDigest: latest.sourceCut.codeDigest, dependencyDigest: latest.sourceCut.dependencyDigest, environmentId: latest.sourceCut.environmentId }
-      : observations.length
-        ? { codeDigest: observations.at(-1)!.codeDigest, dependencyDigest: observations.at(-1)!.dependencyDigest, environmentId: observations.at(-1)!.environmentId }
-        : null;
+    }) : null;
+  if (!current && recomputed) {
+    // A fallback digest is serialization plumbing, never evidence that a live
+    // source matches. Even a matching historical value cannot establish this.
+    for (const requirement of recomputed.requirements) {
+      if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+      requirement.missing = [...requirement.missing, declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
+    }
+    if (recomputed.label === 'VERIFIED') recomputed.label = 'COMPLETED_UNVERIFIED';
   }
 
-  const byRef = new Map<string, CheckObservationV1>();
-  for (const obs of observations) {
-    byRef.set(obs.checkId, obs);
-    byRef.set(obs.executionId, obs);
-  }
-  const freshnessOf = (obs: CheckObservationV1) => (current ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
+  const matches = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
+  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
   const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
   if (declaration) {
     for (const req of declaration.requirements) {
-      const bound = req.checkRefs.map(ref => byRef.get(ref)).filter((obs): obs is CheckObservationV1 => Boolean(obs));
+      const bound = observations.filter(obs => req.checkRefs.some(ref => matches(obs, ref)));
       const state = assessed.get(req.id);
-      if (!bound.length) {
+      const missingRefs = req.checkRefs.filter(ref => !ownedObservations.some(obs => matches(obs, ref)));
+      for (const ref of missingRefs) rows.push({requirement: req.id, checkId: null, check: ref, phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: [`no current-owner observation bound to ${ref} for ${req.id}`]});
+      if (!bound.length && !missingRefs.length) {
         rows.push({ requirement: req.id, checkId: null, check: '—', phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: state?.missing ?? [`no observation bound to ${req.id}`] });
         continue;
       }
@@ -102,8 +140,8 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
         const freshness = freshnessOf(obs);
         rows.push({
           requirement: req.id, checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
-          sourceRevision: short(obs.codeDigest), outcome: freshness === 'STALE' ? 'STALE' : obs.outcome,
-          freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
+          sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
+          freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [], details: checkDetails(obs),
         });
       }
     }
@@ -116,8 +154,8 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     const freshness = freshnessOf(obs);
     rows.push({
       requirement: '—', checkId: obs.checkId, check: obs.argv.join(' ').slice(0, 200), phase: obs.phase,
-      sourceRevision: short(obs.codeDigest), outcome: freshness === 'STALE' ? 'STALE' : obs.outcome,
-      freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [],
+      sourceRevision: short(obs.codeDigest), outcome: obs.outcome,
+      freshness, verifier: obs.executionId, evidence: [...obs.artifactRefs], missing: [], details: checkDetails(obs),
     });
   }
 

@@ -9,7 +9,9 @@ import {__setCapabilityFlagForTests, capabilityEnabled} from '../packages/core/c
 import type {ArtifactRecord, DataRecord, Message, ResourceGrant, RuntimeAdapter, RuntimeCallbacks, StartRun, Thread} from '../packages/contracts/index.ts';
 import {sourceDigestSync} from '../packages/core/project-verification.ts';
 import {computeAssessment} from '../packages/core/verification-gate.ts';
+import {SourceWorkbench} from '../packages/core/source-workbench.ts';
 import type {CheckObservationV1} from '../packages/contracts/verification.ts';
+import type {ToolEffectRecord} from '../packages/contracts/tool-effects.ts';
 import type {ConnectionAccount} from '../packages/contracts/accounts.ts';
 import {createWorkspaceCanvas, WorkspaceRepository} from '../packages/core/workspace-layout.ts';
 import type {WorkspaceProfile} from '../packages/contracts/workspace.ts';
@@ -33,6 +35,33 @@ function fixture(options: ServiceOptions = {}, seedAssistant = true) {
   const workbench = () => {expect(service, 'M15 must use a host source service').toHaveProperty('sourceWorkbench'); __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true); return service.sourceWorkbench;};
   const send = (id: string, sourceRefs: unknown[], sendMode = 'NOW') => service.command({id, type: 'message.send', threadId: thread.id, payload: {content: 'Explain the source', modelId: 'test/model', sourceRefs, sendMode}});
   return {root, store, service, runtime, starts, followUps, thread, assistant, owner, source, workbench, send, event: (event: Record<string, unknown>) => callbacks.onEvent(event as Parameters<RuntimeCallbacks['onEvent']>[0])};
+}
+
+function verificationProject(f: ReturnType<typeof fixture>) {
+  const projectRoot = join(f.root, 'project'); mkdirSync(projectRoot);
+  writeFileSync(join(projectRoot, 'app.ts'), 'export const value = 1;'); writeFileSync(join(projectRoot, 'lock.yaml'), 'version: 1');
+  const identity = statSync(projectRoot, {bigint: true}), projectId = 'verification-project';
+  f.store.internal('fixture.verification-project', f.thread.id, () => {
+    f.store.put('workspaceProject', projectId, null, {id: projectId, name: 'Verification project', rootPath: projectRoot, authority: {kind: 'local'}, createdAt: f.thread.createdAt});
+    f.store.put('workspaceProjectRoot', projectId, null, {path: projectRoot, identity: {dev: String(identity.dev), ino: String(identity.ino)}});
+    f.store.put('thread', f.thread.id, f.thread.id, {...f.thread, projectId, kind: 'main'});
+  });
+  return {projectRoot, owner: {...f.owner, projectId}};
+}
+
+function verificationEvidenceFixture(unresolvedEffects: string[] = []) {
+  const f = fixture(), workbench = f.workbench(), {projectRoot, owner} = verificationProject(f);
+  const codeDigest = sourceDigestSync(projectRoot, ['app.ts']), dependencyDigest = sourceDigestSync(projectRoot, ['lock.yaml']), environmentId = 'test-environment';
+  const observation: CheckObservationV1 = {version: 1, checkId: 'current-check', executionId: 'current-execution', owner: {...owner, runId: null, epoch: 0, accountBinding: null}, codeDigest, dependencyDigest, recipeDigest: 'a'.repeat(64), environmentId, argv: ['node', 'check.mjs'], cwdIdentity: projectRoot, phase: 'TEST', startedAt: f.thread.createdAt, endedAt: f.thread.createdAt, exitCode: 0, outcome: 'PASS', artifactRefs: ['check.log'], observationKind: 'process'};
+  const requirements = [{id: 'current-requirement', checkRefs: [observation.checkId]}];
+  const declaration = {version: 1, rootPath: projectRoot, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId, requirements};
+  const assessment = computeAssessment({threadId: f.thread.id, sourceCut: {headSha: null, codeDigest, dependencyDigest, environmentId}, requirements, observations: [observation], unresolvedEffects, verifierIdentity: 'test', provenance: 'stored assessment fixture'});
+  f.store.internal('fixture.verification-evidence', f.thread.id, () => {f.store.put('verificationDeclaration', f.thread.id, f.thread.id, declaration); f.store.put('checkObservation', observation.checkId, f.thread.id, observation); f.store.put('assessment', assessment.assessmentId, f.thread.id, assessment);});
+  const addEffect = (id: string) => {
+    const effect: ToolEffectRecord = {effectId: id, invocationId: id, attemptId: 1, parentInvocationId: null, owner: observation.owner, toolId: 'repository_read', definitionDigest: 'c'.repeat(64), privateArgumentCommitment: 'd'.repeat(64), publicRedactedSummary: 'Pending read', targetPreconditions: [], approvalId: null, state: 'DISPATCHED', providerReceiptRef: null, createdAt: f.thread.createdAt, updatedAt: f.thread.createdAt, threadId: f.thread.id, transitions: [{from: null, to: 'PREPARED', at: f.thread.createdAt}, {from: 'PREPARED', to: 'DISPATCHED', at: f.thread.createdAt}]};
+    f.store.internal('fixture.pending-effect', f.thread.id, () => f.store.put('toolEffect', id, f.thread.id, effect)); return effect;
+  };
+  return {...f, workbench, projectRoot, owner, observation, declaration, assessment, addEffect};
 }
 
 async function emptyTaskAccountFixture(requestContextEnabled = false) {
@@ -568,31 +597,30 @@ it('hides prior-account capture identities and denies recovery once runtime deli
 });
 
 it.each([null, 'prior-account'])('grades a requirement only from linked evidence authorized to the current account (%s)', async accountBinding => {
-  const f = fixture(), workbench = f.workbench(); writeFileSync(join(f.root, 'app.ts'), 'export const value = 1;'); writeFileSync(join(f.root, 'lock.yaml'), 'version: 1');
-  const codeDigest = sourceDigestSync(f.root, ['app.ts']), dependencyDigest = sourceDigestSync(f.root, ['lock.yaml']), environmentId = 'test-environment';
-  const observation: CheckObservationV1 = {version: 1, checkId: 'owned-check', executionId: 'owned-execution', owner: {...f.owner, runId: null, epoch: 0, accountBinding}, codeDigest, dependencyDigest, recipeDigest: 'a'.repeat(64), environmentId, argv: ['node', 'check.mjs'], cwdIdentity: f.root, phase: 'TEST', startedAt: f.thread.createdAt, endedAt: f.thread.createdAt, exitCode: 0, outcome: 'PASS', artifactRefs: ['check.log'], observationKind: 'process'};
+  const f = fixture(), workbench = f.workbench(), {projectRoot, owner} = verificationProject(f);
+  const codeDigest = sourceDigestSync(projectRoot, ['app.ts']), dependencyDigest = sourceDigestSync(projectRoot, ['lock.yaml']), environmentId = 'test-environment';
+  const observation: CheckObservationV1 = {version: 1, checkId: 'owned-check', executionId: 'owned-execution', owner: {...owner, runId: null, epoch: 0, accountBinding}, codeDigest, dependencyDigest, recipeDigest: 'a'.repeat(64), environmentId, argv: ['node', 'check.mjs'], cwdIdentity: projectRoot, phase: 'TEST', startedAt: f.thread.createdAt, endedAt: f.thread.createdAt, exitCode: 0, outcome: 'PASS', artifactRefs: ['check.log'], observationKind: 'process'};
   const requirements = [{id: 'requires-current-owner', checkRefs: [observation.checkId]}];
   const assessment = computeAssessment({threadId: f.thread.id, sourceCut: {headSha: null, codeDigest, dependencyDigest, environmentId}, requirements, observations: [observation], unresolvedEffects: [], verifierIdentity: 'test', provenance: 'actual stored assessment fixture'});
-  f.store.internal('fixture.owned-evidence', f.thread.id, () => {f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {version: 1, rootPath: f.root, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId, requirements}); f.store.put('checkObservation', observation.checkId, f.thread.id, observation); f.store.put('assessment', assessment.assessmentId, f.thread.id, assessment);});
+  f.store.internal('fixture.owned-evidence', f.thread.id, () => {f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {version: 1, rootPath: projectRoot, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId, requirements}); f.store.put('checkObservation', observation.checkId, f.thread.id, observation); f.store.put('assessment', assessment.assessmentId, f.thread.id, assessment);});
   const evidence = await workbench.evidence(f.thread.id), requirement = evidence.items.find(item => item.kind === 'REQUIREMENT');
   expect(requirement).toMatchObject(accountBinding === null ? {grade: 'VERIFIED', freshness: 'CURRENT', outcome: 'VERIFIED'} : {grade: 'REPORTED', freshness: 'UNKNOWN', outcome: 'UNVERIFIED'});
 });
 
 it('does not verify an execution when a bound failure falls outside the displayed observation window', async () => {
-  const f = fixture(), workbench = f.workbench();
-  writeFileSync(join(f.root, 'app.ts'), 'export const value = 1;'); writeFileSync(join(f.root, 'lock.yaml'), 'version: 1');
-  const codeDigest = sourceDigestSync(f.root, ['app.ts']), dependencyDigest = sourceDigestSync(f.root, ['lock.yaml']), environmentId = 'test-environment';
+  const f = fixture(), workbench = f.workbench(), {projectRoot, owner} = verificationProject(f);
+  const codeDigest = sourceDigestSync(projectRoot, ['app.ts']), dependencyDigest = sourceDigestSync(projectRoot, ['lock.yaml']), environmentId = 'test-environment';
   const observations: CheckObservationV1[] = Array.from({length: 101}, (_, index) => ({
     version: 1, checkId: index === 0 ? 'early-bound-failure' : `later-bound-pass-${index}`, executionId: 'bounded-execution',
-    owner: {...f.owner, runId: null, epoch: 0, accountBinding: null}, codeDigest, dependencyDigest, recipeDigest: 'a'.repeat(64), environmentId,
-    argv: ['node', 'check.mjs'], cwdIdentity: f.root, phase: 'TEST', startedAt: f.thread.createdAt, endedAt: f.thread.createdAt,
+    owner: {...owner, runId: null, epoch: 0, accountBinding: null}, codeDigest, dependencyDigest, recipeDigest: 'a'.repeat(64), environmentId,
+    argv: ['node', 'check.mjs'], cwdIdentity: projectRoot, phase: 'TEST', startedAt: f.thread.createdAt, endedAt: f.thread.createdAt,
     exitCode: index === 0 ? 1 : 0, outcome: index === 0 ? 'FAIL' : 'PASS', artifactRefs: [], observationKind: 'process',
   }));
   const requirements = [{id: 'requires-complete-execution', checkRefs: ['bounded-execution']}];
   const assessment = computeAssessment({threadId: f.thread.id, sourceCut: {headSha: null, codeDigest, dependencyDigest, environmentId}, requirements, observations, unresolvedEffects: [], verifierIdentity: 'test', provenance: 'complete authorized assessment fixture'});
   expect(assessment.requirements[0].assessment).toBe('FAILED');
   f.store.internal('fixture.bounded-evidence', f.thread.id, () => {
-    f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {version: 1, rootPath: f.root, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId, requirements});
+    f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {version: 1, rootPath: projectRoot, sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], environmentId, requirements});
     for (const observation of observations) f.store.put('checkObservation', observation.checkId, f.thread.id, observation);
     f.store.put('assessment', assessment.assessmentId, f.thread.id, assessment);
   });
@@ -602,6 +630,54 @@ it('does not verify an execution when a bound failure falls outside the displaye
   expect(requirement?.outcome).not.toBe('VERIFIED');
   expect(requirement).toMatchObject({grade:'REPORTED',freshness:'UNKNOWN',outcome:'UNVERIFIED_PARTIAL'});
   expect(evidence.items.find(item=>item.id==='verification-partial')).toMatchObject({outcome:'PARTIAL'});
+});
+
+it('does not verify a legacy declaration outside the current attested project', async () => {
+  const f = verificationEvidenceFixture(), outside = join(f.root, 'unselected-project'); mkdirSync(outside);
+  writeFileSync(join(outside, 'app.ts'), 'export const value = 1;'); writeFileSync(join(outside, 'lock.yaml'), 'version: 1');
+  f.store.internal('fixture.unselected-declaration', f.thread.id, () => f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {...f.declaration, rootPath: outside}));
+  const evidence = await f.workbench.evidence(f.thread.id);
+  expect(evidence.items.find(item => item.kind === 'REQUIREMENT')).toMatchObject({grade: 'REPORTED', freshness: 'UNKNOWN', outcome: 'UNVERIFIED'});
+  expect(evidence.items.some(item => item.grade === 'VERIFIED')).toBe(false);
+  expect(f.store.get('assessment', f.assessment.assessmentId)).toEqual(f.assessment);
+});
+
+it.each([1, 65])('blocks workbench verification from %i current unresolved effects instead of a saved empty list', async count => {
+  const f = verificationEvidenceFixture();
+  for (let index = 0; index < count; index++) f.addEffect(`pending-${index}`);
+  const evidence = await f.workbench.evidence(f.thread.id);
+  expect(evidence.items.find(item => item.kind === 'REQUIREMENT')).toMatchObject({grade: 'REPORTED', freshness: 'CURRENT', outcome: 'BLOCKED'});
+  expect(evidence.items.some(item => item.grade === 'VERIFIED')).toBe(false);
+  expect(evidence.items.find(item => item.id === 'verification-effects')).toMatchObject({kind: 'CLAIM', outcome: 'BLOCKED', label: expect.stringContaining(String(count))});
+  expect(f.store.all('toolEffect', f.thread.id)).toHaveLength(count);
+  expect(f.store.get('assessment', f.assessment.assessmentId)).toEqual(f.assessment);
+  expect(f.store.get('checkObservation', f.observation.checkId)).toEqual(f.observation);
+});
+
+it('recovers current verification after the ledger settles without changing the saved blocked assessment', async () => {
+  const f = verificationEvidenceFixture(['settled-effect']), effect = f.addEffect('settled-effect');
+  expect(f.assessment.label).toBe('BLOCKED');
+  f.store.internal('fixture.settled-effect', f.thread.id, () => f.store.put('toolEffect', effect.effectId, f.thread.id, {...effect, state: 'SUCCEEDED', transitions: [...effect.transitions, {from: 'DISPATCHED', to: 'SUCCEEDED', at: f.thread.createdAt}]}));
+  const evidence = await f.workbench.evidence(f.thread.id);
+  expect(evidence.items.find(item => item.kind === 'REQUIREMENT')).toMatchObject({grade: 'VERIFIED', freshness: 'CURRENT', outcome: 'VERIFIED'});
+  expect(evidence.items.find(item => item.id === 'verification-effects')).toBeUndefined();
+  expect(f.store.get('assessment', f.assessment.assessmentId)).toEqual(f.assessment);
+});
+
+it.each(['source', 'declaration', 'effect'] as const)('recomputes verification after a %s change while metadata is pending', async change => {
+  const f = verificationEvidenceFixture(); let entered!: () => void, release!: () => void;
+  const began = new Promise<void>(resolve => {entered = resolve;}), gate = new Promise<void>(resolve => {release = resolve;});
+  const workbench = new SourceWorkbench(f.store, () => {}, {readMemoryModule: async () => {entered(); await gate; return {state: 'DISABLED', reason: 'fixture', href: null, assertCurrent: () => {}};}});
+  const pending = workbench.evidence(f.thread.id); await began;
+  try {
+    if (change === 'source') writeFileSync(join(f.projectRoot, 'app.ts'), 'export const value = 2;');
+    else if (change === 'declaration') f.store.internal('fixture.changed-declaration', f.thread.id, () => f.store.put('verificationDeclaration', f.thread.id, f.thread.id, {...f.declaration, rootPath: f.root}));
+    else f.addEffect('mid-read-effect');
+  } finally {release();}
+  const evidence = await pending;
+  expect(evidence.items.some(item => item.grade === 'VERIFIED')).toBe(false);
+  expect(evidence.items.find(item => item.kind === 'REQUIREMENT')).toMatchObject({grade: 'REPORTED', freshness: change === 'source' ? 'STALE' : change === 'declaration' ? 'UNKNOWN' : 'CURRENT', outcome: change === 'effect' ? 'BLOCKED' : 'UNVERIFIED'});
+  expect(f.store.get('assessment', f.assessment.assessmentId)).toEqual(f.assessment);
 });
 
 

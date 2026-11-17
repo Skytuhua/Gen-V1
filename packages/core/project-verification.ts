@@ -1,8 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream, readFileSync, realpathSync, statSync } from 'node:fs';
+import { createReadStream, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
-import { HarnessError } from '../contracts/index.ts';
+import { join, resolve } from 'node:path';
+import { HarnessError, type Thread } from '../contracts/index.ts';
+import type { ProjectSummary } from '../contracts/workspace.ts';
 import { approvalSchema, type ApprovalV1, type ToolOwner } from '../contracts/tool-effects.ts';
 import {
   checkObservationV1Schema, verificationRecipeV1Schema, type CheckObservationV1, type RecipePhase,
@@ -97,6 +98,28 @@ export function sourceDigestSync(root: string, files: readonly string[]): string
 function canonicalSync(path: string): string {
   // Resolves symlinks/junctions to the real path; inside() still guards the root boundary.
   return realpathSync.native(path);
+}
+
+/** A model-supplied declaration is not a filesystem grant. Validate the
+ * current main-thread project and physical working copy before hashing it. */
+export function assertVerificationSourceRoot(store: Store, threadId: string, rootPath: string): void {
+  const denied = () => new HarnessError('CAPABILITY_DENIED', 'Verification sources require the current attested project working copy.');
+  try {
+    const thread = store.get<Thread>('thread', threadId);
+    const project = thread?.projectId ? store.get<ProjectSummary>('workspaceProject', thread.projectId) : null;
+    type PhysicalRoot = {path: string; identity: {dev: string; ino: string}};
+    const root = project ? store.get<PhysicalRoot>('workspaceProjectRoot', project.id) : null;
+    if (!thread || !project || project.authority.kind !== 'local' || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate' || store.get('archivedThread', threadId) || !root) throw denied();
+    const attest = (value: PhysicalRoot) => {
+      const info = lstatSync(value.path, {bigint: true});
+      if (!info.isDirectory() || info.isSymbolicLink() || resolve(canonicalSync(value.path)) !== resolve(value.path) || String(info.dev) !== value.identity.dev || String(info.ino) !== value.identity.ino) throw denied();
+    };
+    attest(root);
+    const workspace = thread.workspaceId ? store.get<PhysicalRoot & {id: string; threadId: string; projectId: string}>('workspaceBinding', thread.workspaceId) : null;
+    if (thread.workspaceId && (!workspace || workspace.id !== thread.workspaceId || workspace.threadId !== threadId || workspace.projectId !== project.id)) throw denied();
+    if (workspace) attest(workspace);
+    if (resolve(rootPath) !== resolve((workspace ?? root).path)) throw denied();
+  } catch { throw denied(); }
 }
 
 export function recipeDigest(recipe: VerificationRecipeV1): string {

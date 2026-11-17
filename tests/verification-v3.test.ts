@@ -1,5 +1,5 @@
 import {describe,it,expect,afterEach} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
@@ -31,6 +31,15 @@ function workspace(){
  writeFileSync(join(root,'app.ts'),'export const v=1;\n');
  writeFileSync(join(root,'pnpm-lock.yaml'),'lockfileVersion: 1\n');
  return root;
+}
+function attestProject(store:Store,root:string){
+ const stamp=new Date().toISOString(),info=lstatSync(root,{bigint:true});
+ const prior=store.get<import('../packages/contracts').Thread>('thread','t1');
+ store.internal('test.project','t1',()=>{
+  store.put('workspaceProject','project-1',null,{id:'project-1',name:'Project',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','project-1',null,{path:root,identity:{dev:String(info.dev),ino:String(info.ino)}});
+  store.put('thread','t1','t1',{id:'t1',title:'T',projectName:'Project',createdAt:stamp,updatedAt:stamp,status:'working',modelId:'test/model',sessionPath:null,runId:'r1',epoch:1,...prior,kind:'main',projectId:'project-1'});
+ });
 }
 async function statIdentity(root:string){
  const info=await import('node:fs/promises').then(fs=>fs.stat(root,{bigint:true}));
@@ -346,10 +355,11 @@ it('an audited task_finish does not block its own completion assessment',async()
  const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  // Audited path admits this very task_finish as DISPATCHED before the body
  // runs; the assessment must exclude it by argument commitment.
@@ -369,6 +379,7 @@ it('verification_declare accepts commandId for receipts without polluting the de
  const service=new Service(store,runtime as never,{});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ attestProject(store,root);
  const args={commandId:'decl-1',rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'win32/24.10.0/pnpm@10.30.3',requirements:[{id:'tests-pass',checkRefs:['exec-1']}]};
  const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
  process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
@@ -386,10 +397,11 @@ it('verification_declare accepts commandId for receipts without polluting the de
 it('the panel shows no completion label until task_finish saved an assessment',async()=>{
  const {verificationPanelModel}=await import('../packages/core/verification-read-models');
  const root=workspace();const store=stateStore();
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  const model=verificationPanelModel(store,'t1');
  // Rows and freshness still compute against the live cut; the label stays
@@ -401,10 +413,11 @@ it('the panel shows no completion label until task_finish saved an assessment',a
 it('the panel read model re-digests declared inputs so edits never keep a green Verified',async()=>{
  const {verificationPanelModel}=await import('../packages/core/verification-read-models');
  const root=workspace();const store=stateStore();
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:declaration.requirements,observations:[obs],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);store.put('assessment',assessment.assessmentId,'t1',assessment);});
  const before=verificationPanelModel(store,'t1');
