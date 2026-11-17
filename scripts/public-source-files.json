@@ -3108,6 +3108,7 @@
     "tests/project-memory-fixture.ts",
     "tests/project-memory-host-fixture.ts",
     "tests/project-memory-http-v3.test.ts",
+    "tests/project-memory-maintenance-host.test.ts",
     "tests/project-memory-preparation-ui.test.ts",
     "tests/project-memory-request-http-v3.test.ts",
     "tests/project-memory-service-v3.test.ts",
