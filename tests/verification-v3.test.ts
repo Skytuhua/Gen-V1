@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import {describe,it,expect,afterEach} from 'vitest';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -268,7 +269,7 @@ it('an audited task_finish does not block its own completion assessment',async()
  const {Service}=await import('../packages/core/service');
  const root=workspace();const store=stateStore();
  const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
- const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
+ const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true},toolEffectAuthenticator:testEffectAuthenticator()});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);

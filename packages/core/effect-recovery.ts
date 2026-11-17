@@ -84,11 +84,18 @@ export function retryDecision(effect: ToolEffectRecord, definition: RegistryEntr
   if (!ownerValid) return { retry: false, reason: "owner_revoked" };
   if (!definition) return { retry: false, reason: "unregistered" };
   if (effect.state !== "UNKNOWN_EXTERNAL_OUTCOME" && effect.state !== "FAILED") return { retry: false, reason: "not_retryable_state" };
+  if (effect.toolId !== definition.id || effect.definitionDigest !== definition.schemaDigest)
+    return { retry: false, reason: "definition_changed" };
   switch (definition.replayClass) {
-    case "READ_RETRYABLE": return { retry: true, reason: "read_retryable" };
-    case "PROVIDER_IDEMPOTENT": return { retry: true, reason: "provider_idempotent_same_key" };
+    case "READ_RETRYABLE": return definition.risk === "READ"
+      ? { retry: true, reason: "read_retryable" }
+      : { retry: false, reason: "not_read_only" };
+    // A classification does not prove a provider contract or the original key.
+    // This API has neither, so provider writes remain quarantined.
+    case "PROVIDER_IDEMPOTENT": return { retry: false, reason: "provider_idempotency_unproven" };
     case "PROCESS_BOUND":
     case "NONREPLAYABLE": return { retry: false, reason: "not_replayable" };
+    default: return { retry: false, reason: "unclassified_replay" };
   }
 }
 

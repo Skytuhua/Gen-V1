@@ -4,6 +4,7 @@ const { tmpdir } = await import('node:os');
 const { join } = await import('node:path');
 const { Service } = await import('../packages/core/service.ts');
 const { Store } = await import('../packages/storage/store.ts');
+const { testEffectAuthenticator } = await import('./fixtures/effect-authenticator.ts');
 
 const cleanups = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0).reverse()) await cleanup(); });
@@ -32,6 +33,7 @@ async function fixture(options = {}) {
   const executors = options.executors ?? { 'integration.fixture': execute };
   const service = new Service(store, runtime, {
     toolEffectFlags: options.toolEffectFlags ?? { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectAuthenticator: testEffectAuthenticator(),
     hostOperationExecutors: executors,
     additionalTool: async (call, _ctx, host) => {
       hostContext = host;
