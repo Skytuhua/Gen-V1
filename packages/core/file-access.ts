@@ -9,7 +9,7 @@ import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectM
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
-interface GuardSession { rpc(request: Record<string, unknown>, startupAcquisition?: boolean): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
+interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
 // A cold, app-owned Hermes guard may need PowerShell startup and C# initialization.
@@ -17,10 +17,84 @@ const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check fa
 export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean): number {
   return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
 }
+
+// One guard process is shared for the life of this host process: each Add-Type
+// compile is paid once instead of once per guarded operation, and the C# helper
+// already multiplexes acquire/release by request id. The first acquire after a
+// spawn is provably still initializing, so it counts as a startup acquisition;
+// silence on a warm guard keeps the strict ordinary deadline because it can
+// only mean the helper is hung.
+interface PooledGuard { session: GuardSession; cold: boolean }
+let pooled: PooledGuard | undefined;
+
+function sharedGuard(): PooledGuard {
+  if (pooled && !pooled.session.exited) return pooled;
+  // Use the system binary and a fixed script: no shell, profiles, PATH lookup or command interpolation.
+  const executable = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+  const child = spawn(executable, ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", fileURLToPath(new URL("./windows-path-guard.ps1", import.meta.url))], { stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
+  child.stdout.setEncoding("utf8");
+  // The pooled child must not keep this process alive; it exits when stdin reaches EOF.
+  child.unref?.();
+  for (const stream of child.stdio ?? []) (stream as unknown as { unref?: () => void }).unref?.();
+  const current: GuardSession = { exited: false, rpc: async () => [], loss: new Set() };
+  const entry: PooledGuard = { session: current, cold: true };
+  pooled = entry;
+  const lost = () => { current.exited = true; if (pooled === entry) pooled = undefined; for (const notify of current.loss) try { notify(); } catch { /* A loss observer cannot stop guard teardown. */ } };
+  child.once("exit", lost);
+  child.once("error", lost);
+  let diagnostics = "";
+  child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
+  child.once("close", () => { current.exited = true; if (pooled === entry) pooled = undefined; });
+  const exit = () => { try { child.kill(); } catch { /* Teardown is best-effort. */ } };
+  process.once("exit", exit);
+  child.once("close", () => process.removeListener("exit", exit));
+  let queue = Promise.resolve();
+  current.rpc = request => {
+    const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
+      if (current.exited) return reject(denied());
+      let output = "";
+      const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
+      // The deadline is read at dispatch: a request queued while cold keeps the
+      // startup budget only if the helper still has not answered when it runs.
+      const timer = setTimeout(() => fault(), pathGuardRpcDeadline(request.command, metadataImport, entry.cold));
+      const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics) ? "RESOURCE_LIMIT" : "CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable", nativeMessage: /GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
+      const data = (bytes: string) => {
+        output += bytes;
+        if (output.length > (metadataImport ? 64 : 16) * 1024 * 1024) return fault();
+        if (!output.endsWith("\n")) return;
+        if (output.trim() === request.id) { entry.cold = false; return finish(); }
+        try {
+          const response = JSON.parse(output);
+          if (response.id !== request.id) return fault();
+          // A request-level failure replies as data and leaves the helper alive;
+          // only protocol violations (unmatched id, malformed output, silence) are fatal.
+          if (typeof response.error === "string") { entry.cold = false; return finish(new HarnessError(/limit exceeded/i.test(response.error) ? "RESOURCE_LIMIT" : "CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: String(response.code ?? "unavailable"), nativeMessage: response.error })); }
+          if (!Array.isArray(response.entries) || response.entries.length > (metadataImport ? 100000 : 10000)) return fault();
+          for (const e of response.entries) {
+            if (typeof e.path !== "string" || typeof e.directory !== "boolean" || !/^\d+$/.test(e.dev) || !/^\d+$/.test(e.ino) || !Number.isSafeInteger(e.size) || e.size < 0) return fault();
+            Object.freeze(e);
+          }
+          entry.cold = false;
+          finish(undefined, Object.freeze(response.entries));
+        } catch { fault(); }
+      };
+      // A transport-level denial retires the child: a hung or protocol-breaking
+      // helper cannot hold orphaned locks or poison later requests with stale replies.
+      const fault = (error: Error = denied()) => { try { child.kill(); } catch { /* Teardown is best-effort. */ } finish(error); };
+      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
+      child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
+      child.stdin.write(JSON.stringify(request) + "\n");
+    }));
+    queue = pending.then(() => {}, () => {}); return pending;
+  };
+  const onError = () => {}; child.stdin.on("error", onError);
+  child.stderr.resume();
+  return entry;
+}
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
 /** Application-scoped namespace guard; never an OS sandbox for project code. */
-export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void,options?:{startupAcquisition?:boolean}): Promise<T> {
+export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void): Promise<T> {
   if(paths.some(path=>path.allowChildWrites&&path.leaf&&!path.childWriteRoot))throw new HarnessError('CAPABILITY_DENIED','A pinned file requires an explicit ancestor write scope.');
   active(signal);
   const session = sessions.getStore();
@@ -36,60 +110,19 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     return withLinuxDirectoryGuard(paths,signal,(current,manifest)=>sessions.run(current,()=>action(manifest)),onLoss);
   }
   if (process.platform !== "win32") throw denied();
-  // Use the system binary and a fixed script: no shell, profiles, PATH lookup or command interpolation.
-  const executable = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
-  const child = spawn(executable, ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", fileURLToPath(new URL("./windows-path-guard.ps1", import.meta.url))], { stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
-  child.stdout.setEncoding("utf8");
-  const current: GuardSession = { exited: false, rpc: async () => [],loss:new Set(onLoss?[onLoss]:[]) };
-  let releasing=false;
-  const lost=()=>{current.exited=true;if(!releasing)for(const notify of current.loss)try{notify();}catch{/* A loss observer cannot stop guard teardown. */}};
-  child.once("exit", lost);
-  child.once("error", lost);
-  let diagnostics = "";
-  child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
-  const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
-  let queue = Promise.resolve();
-  current.rpc = (request,startupAcquisition=false) => {
-    const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
-      if (current.exited) return reject(denied());
-      let output = "";
-      const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
-      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition));
-      const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
-      const data = (bytes: string) => {
-        output += bytes;
-        if (output.length > (metadataImport ? 64 : 16) * 1024 * 1024) return finish(denied());
-        if (!output.endsWith("\n")) return;
-        if (output.trim() === request.id) return finish();
-        try {
-          const response = JSON.parse(output);
-          if (response.id !== request.id || !Array.isArray(response.entries) || response.entries.length > (metadataImport ? 100000 : 10000)) return finish(denied());
-          for (const entry of response.entries) {
-            if (typeof entry.path !== "string" || typeof entry.directory !== "boolean" || !/^\d+$/.test(entry.dev) || !/^\d+$/.test(entry.ino) || !Number.isSafeInteger(entry.size) || entry.size < 0) return finish(denied());
-            Object.freeze(entry);
-          }
-          finish(undefined, Object.freeze(response.entries));
-        } catch { finish(denied()); }
-      };
-      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
-      child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
-      child.stdin.write(JSON.stringify(request) + "\n");
-    }));
-    queue = pending.then(() => {}, () => {}); return pending;
-  };
-  const onError = () => {}; child.stdin.on("error", onError);
+  const shared = sharedGuard().session;
+  const id = randomUUID();
+  const manifest = await shared.rpc({ command: "acquire", id, paths });
+  if (onLoss) shared.loss.add(onLoss);
   try {
-    child.stderr.resume();
-    const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths },options?.startupAcquisition===true);
-    active(signal); if (current.exited) throw denied();
-    const value = await sessions.run(current, () => action(manifest));
-    if (current.exited) throw denied();
+    active(signal);
+    if (shared.exited) throw denied();
+    const value = await sessions.run(shared, () => action(manifest));
+    if (shared.exited) throw denied();
     return value;
   } finally {
-    releasing=true;current.loss.clear();
-    child.stdin.end();
-    const timer = setTimeout(() => child.kill(), 2000);
-    await closed; clearTimeout(timer);
+    if (onLoss) shared.loss.delete(onLoss);
+    if (!shared.exited) await shared.rpc({ command: "release", id });
   }
 }
 
