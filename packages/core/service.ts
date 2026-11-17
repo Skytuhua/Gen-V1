@@ -43,14 +43,15 @@ import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
-import {VerificationWorkflow, isVerificationOperation} from "./verification-workflow.ts";
+import {VerificationWorkflow, isVerificationOperation, assertVerificationReadBasis, type VerificationReadBasis} from "./verification-workflow.ts";
+import {verificationPanelModel, type VerificationPanelModel} from './verification-read-models.ts';
 import type {VerificationExecutorFactory} from "./verification-executor.ts";
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, ownerFor, actionCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
@@ -175,6 +176,7 @@ export class Service {
     });
     this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
       requestContextEnabled: () => this.requestContextEnabled(),
+      readVerificationBasis: threadId => this.readVerificationBasis(threadId),
       readMemoryModule: async owner => {
         const memory = this.projectMemory, access = await memory.access(owner.projectId, owner.threadId), view = memory.read(access);
         return {state: !view.available ? 'DISABLED' : view.items.length || view.tombstones.length ? 'AVAILABLE' : 'EMPTY', reason: view.available ? null : view.disabledReason,
@@ -1534,6 +1536,7 @@ export class Service {
         throw error;
       }
     }
+    const verificationBasis = call.name === "task_finish" ? await this.readVerificationBasis(ctx.threadId) : null;
     const widget = call.name === "ui_create_widget" ? widgetDefinition(a) : null;
     this.assertRun(ctx);
     const apply = () => {
@@ -1596,7 +1599,7 @@ export class Service {
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
         if (hostFlagEnabled("verification.workflowV1")) {
-          const assessment = this.completionAssessment(ctx, call);
+          const assessment = this.completionAssessment(ctx, call, verificationBasis);
           if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
         }
         return { accepted: true, settlesAfterRuntime: true };
@@ -1609,7 +1612,7 @@ export class Service {
    * task_finish store transaction — no awaits. Verified only when every
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
-  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+  private completionAssessment(ctx: RunContext, call: ToolCall, basis: VerificationReadBasis | null): DeliverableAssessmentV1 | null {
     const thread = this.assertRun(ctx);
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
@@ -1627,13 +1630,16 @@ export class Service {
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    const managed = Boolean(this.store.get("verificationManaged", ctx.threadId));
     let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
       sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
       try {
+        if (managed) assertVerificationReadBasis(this.store, ctx.threadId, basis);
         assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
-        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: basis?.environmentId ?? declaration.environmentId };
+        if (managed) assertVerificationReadBasis(this.store, ctx.threadId, basis);
         sourceAvailable = true;
       } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
@@ -1649,15 +1655,25 @@ export class Service {
       unresolvedEffects,
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
+      recipeDigest: basis?.recipeDigest,
     });
     if (!sourceAvailable) {
       for (const requirement of assessment.requirements) {
         if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
-        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
+        requirement.missing = [...requirement.missing, managed ? 'current approved execution authority or source inputs are unavailable' : 'current authorized source inputs are unavailable'].slice(0, 64);
+        if (managed && requirement.assessment === 'UNVERIFIED') requirement.assessment = 'BLOCKED';
       }
-      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
+      if (assessment.label === 'VERIFIED' || managed && assessment.label === 'COMPLETED_UNVERIFIED') assessment.label = managed ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
     }
     return assessment;
+  }
+  private async readVerificationBasis(threadId: string): Promise<VerificationReadBasis | null> {
+    const signal = this.aborts.get(threadId)?.signal ?? new AbortController().signal;
+    return this.verification.readBasis(threadId, signal, () => {if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Verification evidence is unavailable while the host closes.');});
+  }
+  async verificationPanel(threadId: string): Promise<VerificationPanelModel> {
+    const basis = await this.readVerificationBasis(threadId);
+    return verificationPanelModel(this.store, threadId, basis);
   }
   async prepareVerification(threadId: string, input: unknown, ctx?: RunContext): Promise<Operation> {
     this.assertMutation(threadId);
@@ -1669,6 +1685,40 @@ export class Service {
       const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.`;
       return this.context(threadId,control.signal,undefined,ctx).prepareOperation('verification.run',args,[],{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description);
     } finally {this.releaseController(threadId,control);}
+  }
+  private async executeVerificationOperation(op:Operation,control:AbortController):Promise<unknown> {
+    let admitted=false;
+    const invocationId='operation:'+op.id+'@'+op.revision;
+    const assertHost=()=>{if(this.closed||this.updateClosing||control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Verification execution was stopped.');};
+    try {
+      const prepared=await this.verification.preflight(op,control.signal,assertHost);assertHost();
+      const thread=this.thread(op.threadId),approval=this.verificationEffects.approvalFor(op.id);
+      if(!approval||digest(approval.owner)!==digest(prepared.intent.owner))throw new HarnessError('APPROVAL_REQUIRED','The exact verification approval belongs to another owner.');
+      this.verificationEffects.verifyOperationApproval(op,thread);
+      this.verificationEffects.admitOperationDispatch(op,thread,()=>{
+        this.verification.admit(op,prepared);
+        const started:Operation={...op,status:'running'};this.store.put('operation',op.id,op.threadId,started);this.operationData(started);
+      });
+      admitted=true;
+      const current=()=>{
+        assertHost();const operation=this.store.get<Operation>('operation',op.id),effect=this.verificationEffects.get(invocationId),grant=this.store.get<import('../contracts/tool-effects.ts').ApprovalV1>('approval',approval.approvalId);
+        if(!operation||operation.status!=='running'||operation.revision!==op.revision||!operation.approved||digest(operation.args)!==digest(op.args)||effect?.state!=='DISPATCHED'||!grant||grant.remainingUses!==0||digest(grant.owner)!==digest(prepared.intent.owner)||grant.actionCommitment!==actionCommitment(op,this.thread(op.threadId)))throw new HarnessError('APPROVAL_REQUIRED','Verification operation authority changed after dispatch.');
+      };
+      const result=await this.verification.run(prepared,control.signal,current);
+      const status:Operation['status']=result.cleanupFailures.length?'unknown':result.outcome==='PASS'?'succeeded':result.outcome==='CANCELLED'?'cancelled':'failed';
+      const state=status==='unknown'?'UNKNOWN_EXTERNAL_OUTCOME':status==='succeeded'?'SUCCEEDED':status==='cancelled'?'CANCELLED':'FAILED';
+      this.verificationEffects.settle(invocationId,{value:result},state);
+      if(!this.closed)this.store.internal('verification.operation.settled',op.threadId,()=>{
+        const ended:Operation={...op,status,result,...(status==='succeeded'?{}:{error:result.cleanupFailures.length?'Owned verification cleanup could not be confirmed.':'Verification finished with '+result.outcome.toLowerCase()+'.'})};
+        this.store.put('operation',op.id,op.threadId,ended);this.verification.recordResult(ended,prepared,result);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};
+      });
+      this.background(this.deliverOutbox(op.threadId));return result;
+    } catch(error) {
+      const status:Operation['status']=admitted?'unknown':'failed',message=error instanceof Error?error.message.slice(0,2000):'Verification execution was unavailable.';
+      if(!this.closed)this.store.internal('verification.operation.failed',op.threadId,()=>{const latest=this.store.get<Operation>('operation',op.id);if(!latest||latest.revision!==op.revision||digest(latest.args)!==digest(op.args)||!['prepared','running'].includes(latest.status))return{operationId:op.id,status:latest?.status??status};const ended:Operation={...op,status,error:message};this.store.put('operation',op.id,op.threadId,ended);this.verification.recordFailure(ended);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};});
+      if(admitted&&this.verificationEffects.get(invocationId))this.verificationEffects.settle(invocationId,{error:message},'UNKNOWN_EXTERNAL_OUTCOME');
+      this.background(this.deliverOutbox(op.threadId));throw error;
+    }
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
@@ -1694,7 +1744,7 @@ export class Service {
     if (op.status !== "prepared") throw new HarnessError("RECONCILIATION_REQUIRED", "An operation is already running or has an uncertain outcome");
     this.assertMutation(op.threadId);
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
-    if (isVerificationOperation(op)) throw new HarnessError('VERIFICATION_EXECUTION_UNAVAILABLE', 'The managed verification dispatch bridge is not available on this host. No approval was consumed and no command ran.');
+    if (isVerificationOperation(op)) return this.executeVerificationOperation(op, control);
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
       this.effects.verifyOperationApproval(op, this.thread(op.threadId));
