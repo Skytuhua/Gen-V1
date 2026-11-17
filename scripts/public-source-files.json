@@ -4257,6 +4257,7 @@
     "packages/core/capability-flags.ts",
     "packages/core/code-intelligence.ts",
     "packages/core/composer-prediction.ts",
+    "packages/core/context-compaction.ts",
     "packages/core/context-compiler.ts",
     "packages/core/context-progressive-tools.ts",
     "packages/core/context-result-custody.ts",

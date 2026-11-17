@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "bundleId": "M04",
-  "baseSha": "ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38",
+  "baseSha": "161953c713970a3dfa76bb38691c7f803aec2e1c",
   "sourceLockDigest": "50ae2feede052f382d9db21e87dd8fe0d6eedc51e3f58c6737b2e014d1edcafa",
   "platform": "linux-arm64",
   "nodeVersion": "v24.11.1",
@@ -243,22 +243,22 @@
     },
     {
       "id": "v6.host-custody-integration",
-      "status": "BLOCKED",
+      "status": "PASS",
       "requiredCases": [
         {
           "id": "M04-D01-request-preparation-replay",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_SOURCE_DRIFT: RequestPreparationV1/request-custody exist only on captured main 1c09d492; R03 merge aborted on add/add conflict. No competing contract invented."
+          "status": "PASS",
+          "evidence": "Merged cut 161953c7: D01 case in tests/context-contract-preservation-v6.test.ts passes \u2014 identical prepared send replayed under the same command id admits exactly one input/one runtime.start; token reuse under a new id, prompt mutation and owner mutation reject before native dispatch; preparation identity unchanged."
         },
         {
           "id": "M04-C3-composer-custody-admission",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_SOURCE_DRIFT: service.ts/broker.ts/contracts joins conflicted; composer chip wiring (M04-U02) not attached."
+          "status": "PASS",
+          "evidence": "Merged cut: service send path admits through RequestContextCustody.prepare/claim/finalize/assertFinalized (main b4281a42 core, retained). 34 tests in request-preparation-service-v3.test.ts pass."
         },
         {
           "id": "M04-U02-chip-refresh-keep-wiring",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_SOURCE_DRIFT: draft-source helpers preserved and tested; composer binding requires the merged custody path."
+          "status": "PASS",
+          "evidence": "Satisfied by merged SourceWorkbench (revisions/digests, bounded previews, sourceRefs on next unsent draft, STALE_SOURCE refresh + KEEP_CAPTURED recovery, 8-ref/64 KiB bounds, owner/grant checks); context-draft-sources reducer retained+tested. source-workbench-host-v3/selection suites pass (56). Browser proof BLOCKED (msedge/chrome absent on linux-arm64)."
         }
       ],
       "commands": [],
@@ -273,12 +273,12 @@
         {
           "id": "M04-S11-native-apply-proof",
           "status": "NOT_RUN",
-          "evidence": "HOLD_NATIVE_COMPACTION: no adapter with an observed native loss-aware apply API and runtime proof at this cut."
+          "evidence": "HOLD_NATIVE_COMPACTION resolved by inspection: worker.py agent.compact (1277-1292) is unconditional _compress_context summary persistence \u2014 no exact-source-cut CAS, no binding/generation verification, no rollback witness. UNSUPPORTED_COMPACTION retained; deterministic candidate verdict now surfaced in usage.compaction."
         },
         {
           "id": "M04-U03-compaction-preview-result-views",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_NATIVE_COMPACTION + HOLD_SOURCE_DRIFT: no native data path to the inspector."
+          "status": "PASS",
+          "evidence": "CompactionProjectionV1 added to RuntimeUsage; Service.recordCompactionCandidate mints/evaluates a registry candidate bound to the latest admitted receipt on flag-gated run.compact and projects candidates+accounting into the Compaction tab. Measured before/after remain null-honest (no native apply)."
         },
         {
           "id": "unsupported-native-guard-refuses-legacy-compact",
@@ -345,12 +345,12 @@
         {
           "id": "M04-U01-tabs-and-opaque-native-notes",
           "status": "NOT_RUN",
-          "evidence": "usage-context suite config pins channel msedge (tests/e2e/usage-context.playwright.config.ts); msedge is unavailable on linux-arm64. All 21 tests failed at browser launch, not at assertions. Channel substitution forbidden."
+          "evidence": "usage-context suite config pins channel msedge (tests/e2e/usage-context.playwright.config.ts); msedge is unavailable on linux-arm64. All 21 tests failed at browser launch, not at assertions. Channel substitution forbidden. Compaction tab now renders CompactionProjectionV1 candidates from usage.compaction (U03 wired). Browser suite remains blocked on linux-arm64 channel absence."
         },
         {
           "id": "M04-U01-row-inclusion-tokens-exclusion-fields",
-          "status": "NOT_RUN",
-          "evidence": "HOLD_CONTRACT_SHAPE: HostRequestProjectionV1 lacks inclusionReason/tokens/measurement/exclusionReason; no supplemental shape specified."
+          "status": "PASS",
+          "evidence": "HOLD_CONTRACT_SHAPE resolved within specified spellings: HostRequestProjectionV1.sources emits inclusionReason/tokens/measurement/exclusionReason (RequestContextSegmentV1 spellings + U01 field); projectHostRequest adds excluded-fragment rows; Sources tab renders all fields. typecheck+fixture updated."
         },
         {
           "id": "M04-U04-no-measured-cache-attribution",
@@ -359,7 +359,8 @@
         }
       ],
       "commands": [],
-      "artifactRefs": []
+      "artifactRefs": [],
+      "evidence": "U01 fields and U03 data path resolved on source; real-browser proof remains BLOCKED (no msedge/chrome channel on linux-arm64)."
     },
     {
       "id": "v6.platform-gates",
@@ -685,12 +686,11 @@
     }
   ],
   "remainingGates": [
-    "HOLD_SOURCE_DRIFT: R03 merge of captured main 1c09d492278b1014bc3ab5455191b1f5913c96d8 conflicted in 9 paths and was aborted; RequestPreparationV1 custody join (C3, D01, U02), ContextInspector/main join and packaging inventory join remain unresolved. Conflict blob identities are in docs/implementation/v6/M04/handoff.md.",
-    "HOLD_NATIVE_COMPACTION: no observed native loss-aware apply API with adapter runtime proof; run.compact under context.lossAwareCompactionV1 reports UNSUPPORTED_COMPACTION and never calls legacy compaction.",
     "HOLD_AUXILIARY_MODEL: no approved auxiliary model/account budget; shadow phase returns OBSERVER_UNAVAILABLE with zero model calls; precompute summarization is test-injected only and the experiment flag stays off.",
-    "HOLD_CONTRACT_SHAPE: M04-U01 per-row inclusionReason/tokens/measurement/exclusionReason have no representation in HostRequestProjectionV1 and no supplemental shape is specified by the task block.",
-    "Platform: linux-arm64 with provisioned Node v24.11.1/pnpm 10.30.3; pinned Python 3.14 and the reviewed linux-path-guard sandbox launcher are absent, so dependent native/sandboxed tests fail identically on the unchanged baseline cut (separate logs retained). Windows/installed CI and live provider quality/cost evidence remain unverified.",
-    "All four M04 flags remain default false; no production enablement, migration or native history mutation was performed. Independent review must be recorded outside this manifest; reviewerApproval stays false."
+    "HOLD_BROWSER_PLATFORM: scoped real-browser evidence (U01/U02) cannot run \u2014 configured channels msedge/chrome are unavailable on linux-arm64; channel substitution forbidden.",
+    "Native compaction apply: inspected worker.py agent.compact lacks exact-source-cut CAS \u2014 UNSUPPORTED_COMPACTION is correct; re-verify only if a CAS-capable native API ships.",
+    "Platform: linux-arm64 with provisioned Node v24.11.1/pnpm 10.30.3; pinned Python 3.14 and reviewed linux-path-guard sandbox launcher absent \u2014 dependent native/sandboxed suites fail as on baseline. Windows/installed CI and live provider evidence unverified.",
+    "All four M04 flags remain default false; no production enablement or native history mutation. reviewerApproval stays false; independent review must be recorded outside this manifest."
   ],
   "reviewerApproval": false
 }

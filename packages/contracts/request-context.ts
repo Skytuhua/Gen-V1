@@ -86,8 +86,28 @@ export interface HostRequestProjectionV1 {
   readonly epoch: number;
   readonly sourceCutDigest: string;
   readonly measurement: 'BYTE_ONLY';
-  readonly sources: readonly { readonly category: ContextCategory; readonly revision: number; readonly utf8Bytes: number }[];
+  readonly sources: readonly {
+    readonly category: ContextCategory; readonly revision: number; readonly utf8Bytes: number;
+    readonly inclusionReason: string | null; readonly tokens: number | null;
+    readonly measurement: ContextMeasurement; readonly exclusionReason: string | null;
+  }[];
   readonly omittedSources: number;
+}
+
+/** Host projection of the compaction candidate registry into usage; metadata only, never a grant or history change. */
+export interface CompactionProjectionV1 {
+  readonly version: 1;
+  readonly candidates: readonly {
+    readonly metadata: CompactionMetadataV1;
+    readonly status: CompactionCandidateV1['status'];
+    readonly verdict: 'ELIGIBLE' | 'DISCARDED' | 'UNSUPPORTED_COMPACTION' | 'FAILED' | 'APPLIED' | null;
+    readonly retainedConstraints: readonly string[];
+    readonly toolPairs: number;
+    readonly estimatedByteReduction: number | null;
+    readonly measuredBeforeBytes: number | null;
+    readonly measuredAfterBytes: number | null;
+  }[];
+  readonly accounting: { readonly attempts: number; readonly failed: number; readonly discarded: number; readonly costBytes: number };
 }
 
 /** Host-issued draft custody. Hashes attest a cut; they never authorize access. */

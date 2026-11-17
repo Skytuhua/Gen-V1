@@ -28,10 +28,17 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
     modelBinding: { modelId: input.modelId, accountId: input.accountId ?? null },
     contextGeneration: input.epoch, instructionDigest: hash(guidance), toolRegistryDigest, sources,
   });
+  const omitted = fragments.slice(32);
   return {
     threadId: input.threadId, runId: input.runId, epoch: input.epoch,
     sourceCutDigest: measured.sourceCut.revisionDigest, measurement: 'BYTE_ONLY',
-    sources: measured.segments.map(source => ({ category: source.category, revision: source.sourceRevision, utf8Bytes: source.utf8Bytes })),
-    omittedSources: Math.max(0, fragments.length - 32),
+    sources: [
+      ...measured.segments.map(source => ({ category: source.category, revision: source.sourceRevision, utf8Bytes: source.utf8Bytes,
+        inclusionReason: source.inclusionReason ?? null, tokens: source.tokens, measurement: source.measurement, exclusionReason: null as string | null })),
+      ...omitted.map(fragment => ({ category: (fragment.isToolResult ? 'TOOL' : 'USER') as ContextSource['category'], revision: 1,
+        utf8Bytes: Buffer.byteLength(fragment.content, 'utf8'), inclusionReason: null, tokens: null,
+        measurement: 'BYTE_ONLY' as const, exclusionReason: 'Beyond the bounded host projection fragment count' as string | null })),
+    ],
+    omittedSources: omitted.length,
   };
 }

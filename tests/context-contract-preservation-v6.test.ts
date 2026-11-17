@@ -214,3 +214,42 @@ it('D05: observer failure leaves foreground bytes unchanged and a stale binding 
   expect(applyCalls).toBe(0);
   expect(candidate.status).toBe('READY');
 });
+
+it('D01: replays an identical prepared send once and rejects prompt or owner mutation before native dispatch', async () => {
+  const { Service } = await import('../packages/core/service.ts');
+  const { Store } = await import('../packages/storage/store.ts');
+  const { mkdtempSync, rmSync } = await import('node:fs');
+  const base = mkdtempSync(join(tmpdir(), 'm04-d01-')), store = new Store(join(base, 'profile'));
+  const starts: StartRun[] = [], followUps: StartRun[] = [];
+  const runtime: RuntimeAdapter = {
+    configure() {},
+    models: vi.fn(async () => [{ id: 'test/model', provider: 'test', name: 'Fixture' }]),
+    start: vi.fn(async (input: StartRun) => { starts.push(input); }),
+    followUp: vi.fn(async (input: StartRun) => { followUps.push(input); }),
+    cancel: vi.fn(async () => {}), compact: vi.fn(async () => {}), history: vi.fn(async () => []), dispose: vi.fn(async () => {}),
+  };
+  const service = new Service(store, runtime, { requestContextEnabled: true });
+  try {
+    const send = (type: string, payload: Record<string, unknown> = {}, threadId?: string, id: string = crypto.randomUUID()) => service.command({ id, type, threadId, payload });
+    const thread = (await send('thread.create', {})).result as { id: string };
+    const other = (await send('thread.create', {})).result as { id: string };
+    const preparation = await service.prepareRequestContext(thread.id, 'Prepared send', { modelId: 'test/model' });
+    const identity = JSON.parse(JSON.stringify({ requestId: preparation.requestId, contextGeneration: preparation.contextGeneration, promptDigest: preparation.promptDigest, bindingDigest: preparation.bindingDigest }));
+    const commandId = crypto.randomUUID();
+    const admitted = await send('message.send', { content: 'Prepared send', modelId: 'test/model', requestContextId: preparation.requestId }, thread.id, commandId);
+    expect(await send('message.send', { content: 'Prepared send', modelId: 'test/model', requestContextId: preparation.requestId }, thread.id, commandId)).toEqual(admitted);
+    await vi.waitFor(() => expect(starts).toHaveLength(1));
+    expect(followUps).toEqual([]);
+    expect(store.all('outbox')).toHaveLength(1);
+    await expect(send('message.send', { content: 'Prepared send', modelId: 'test/model', requestContextId: preparation.requestId }, thread.id)).rejects.toThrow();
+    expect(JSON.parse(JSON.stringify({ requestId: preparation.requestId, contextGeneration: preparation.contextGeneration, promptDigest: preparation.promptDigest, bindingDigest: preparation.bindingDigest }))).toEqual(identity);
+    const next = await service.prepareRequestContext(thread.id, 'Bound prompt', { modelId: 'test/model' });
+    await expect(send('message.send', { content: 'Mutated prompt', modelId: 'test/model', requestContextId: next.requestId }, thread.id)).rejects.toThrow();
+    await expect(send('message.send', { content: 'Bound prompt', modelId: 'test/model', requestContextId: next.requestId }, other.id)).rejects.toThrow();
+    expect(starts).toHaveLength(1);
+    expect(followUps).toEqual([]);
+    expect(store.all('outbox')).toHaveLength(1);
+  } finally {
+    await service.dispose(); store.close(); rmSync(base, { recursive: true, force: true });
+  }
+});

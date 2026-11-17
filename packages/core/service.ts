@@ -53,7 +53,8 @@ import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import type { RequestPreparationV1 } from '../contracts/request-context.ts';
+import { createCompactionCandidateRegistry, evaluateCompactionCandidate } from './context-compaction.ts';
+import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
@@ -114,6 +115,9 @@ export class Service {
   private skillIndexes=new Map<string,string>();
   private learningSupported:boolean;
   private lastActivity=Date.now();
+  private readonly compactionRegistry = createCompactionCandidateRegistry();
+  private readonly compactionCandidateIds = new Map<string, string[]>();
+  private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -393,6 +397,30 @@ export class Service {
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
   private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
+  /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
+   * Never mutates native history; candidates carry metadata only. */
+  private recordCompactionCandidate(threadId:string):void {
+    const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
+    if(!row)return;
+    const stored=JSON.parse(row.body) as {receipt?:RequestContextV1};
+    const receipt=stored.receipt;
+    if(!receipt)return;
+    const binding={generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
+    if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
+    const verdict=evaluateCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeCasAvailable:false});
+    this.compactionVerdicts.set(metadata.candidateId,verdict.status);
+    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==metadata.candidateId),metadata.candidateId].slice(-8);
+    this.compactionCandidateIds.set(threadId,ids);
+    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);return entry?{
+      metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
+      retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
+      estimatedByteReduction:null,measuredBeforeBytes:entry.metadata.usageObservationRef?receipt.budget.utf8Bytes:null,measuredAfterBytes:null,
+    }:null;}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
+    const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
+    const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
+  }
   private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
@@ -755,7 +783,10 @@ export class Service {
       });
     }
     if (command.type === "run.compact") {
-      if (capabilityEnabled('context.lossAwareCompactionV1')) throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+      if (capabilityEnabled('context.lossAwareCompactionV1')) {
+        this.recordCompactionCandidate(thread.id);
+        throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+      }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
       this.assertNoOtherRun(thread.id);
@@ -1319,7 +1350,7 @@ export class Service {
       }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }

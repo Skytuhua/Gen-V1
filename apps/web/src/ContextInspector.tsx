@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
-import type { ContextRequestObservationV1, HostRequestProjectionV1, Thread } from '../../../packages/contracts';
+import type { CompactionProjectionV1, ContextRequestObservationV1, HostRequestProjectionV1, Thread } from '../../../packages/contracts';
 import { Popover } from '../../../packages/ui-shell/Popover';
 import { command } from './api';
 import { ContextMeter, contextNumber, contextSegments, contextTokenCount, type ContextUsage } from './ContextMeter';
@@ -129,7 +129,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
-      {lastRequest && <RequestEvidence request={lastRequest} sources={hostSources} />}
+      {lastRequest && <RequestEvidence request={lastRequest} sources={hostSources} compaction={usage?.compaction} />}
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
       {memoryPreparation?.pending && <p role="status">Preparing project memory…</p>}
       {memoryPreparation?.error && <ErrorState message={memoryPreparation.error}/>}
@@ -145,7 +145,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
 
 const requestViews = ['Last request', 'Sources', 'Tools', 'Compaction'] as const;
 
-function RequestEvidence({ request, sources }: { request: ContextRequestObservationV1; sources?: HostRequestProjectionV1 }) {
+function RequestEvidence({ request, sources, compaction }: { request: ContextRequestObservationV1; sources?: HostRequestProjectionV1; compaction?: CompactionProjectionV1 }) {
   const id = useId();
   const [selected, select] = useState(0);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
@@ -173,12 +173,28 @@ function RequestEvidence({ request, sources }: { request: ContextRequestObservat
         {Boolean(sources?.sources.length) && <ul aria-label="Observed app submission fragments">
           {sources?.sources.map((source, sourceIndex) => <li key={source.category + ':' + sourceIndex}>
             {source.category.toLowerCase()} · revision {source.revision} · {contextNumber(source.utf8Bytes)} bytes
+            {source.inclusionReason && <> · {source.inclusionReason}</>}
+            {source.exclusionReason && <> · excluded: {source.exclusionReason}</>}
+            {source.tokens === null ? ' · tokens not measured' : <> · {contextNumber(source.tokens)} tokens</>} · {source.measurement.toLowerCase().replace('_', ' ')}
           </li>)}
           {Boolean(sources?.omittedSources) && <li>{sources?.omittedSources} additional fragments omitted from this view.</li>}
         </ul>}
       </>}
       {index === 2 && <p className="context-categories-note">{request.toolSnapshot ? `${request.toolSnapshot.count} host tool schemas · ${contextNumber(request.toolSnapshot.schemaBytes)} serialized bytes.` : 'Schema counts were not reported by this adapter.'}</p>}
-      {index === 3 && <p className="context-categories-note">No loss-aware compaction receipt. An observation is not a history change.</p>}
+      {index === 3 && <>
+        {!compaction?.candidates.length && <p className="context-categories-note">No loss-aware compaction receipt. An observation is not a history change.</p>}
+        {Boolean(compaction?.candidates.length) && <ul aria-label="Compaction candidates">
+          {compaction?.candidates.map(entry => <li key={entry.metadata.candidateId}>
+            candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replace('_', ' ')}` : ''}
+            {' · '}{entry.retainedConstraints.length ? `${entry.retainedConstraints.length} retained constraints` : 'no retained constraints'} · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
+            {' · '}est. reduction {entry.estimatedByteReduction === null ? 'not estimated' : `${contextNumber(entry.estimatedByteReduction)} bytes (estimate)`}
+            {entry.measuredBeforeBytes !== null && ` · measured ${contextNumber(entry.measuredBeforeBytes)} → ${entry.measuredAfterBytes === null ? 'unavailable' : contextNumber(entry.measuredAfterBytes)} bytes`}
+          </li>)}
+        </ul>}
+        {Boolean(compaction?.candidates.length) && <p className="context-categories-note">
+          {compaction?.accounting.attempts} {compaction?.accounting.attempts === 1 ? 'attempt' : 'attempts'} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed · cost {compaction?.accounting.costBytes ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'not measured'}
+        </p>}
+      </>}
     </div>)}
   </section>;
 }
