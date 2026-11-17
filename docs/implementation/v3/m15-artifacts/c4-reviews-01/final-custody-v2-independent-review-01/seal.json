@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "STATIC_REVIEW_SEAL",
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-independent-review-01/review.md",
+      "bytes": 3801,
+      "sha256": "2d3aabade8c96f887dcbae335d4f81c64018553590a406a19d8dcbc143041203"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-independent-review-01/review.json",
+      "bytes": 4625,
+      "sha256": "1e026775da9e912d133c441ad9350d1bcf05064bde4c1666ba2f8579270d5579"
+    }
+  ],
+  "reviewedHelper": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2.py",
+    "bytes": 14618,
+    "sha256": "facae1b76710059ef7bf4c2c50c0642acf91d318dba18446e24100aaa3083634"
+  },
+  "checkerExecuted": false,
+  "repositoryEdits": false
+}

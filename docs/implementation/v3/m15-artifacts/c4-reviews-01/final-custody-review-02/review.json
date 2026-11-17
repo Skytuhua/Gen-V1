@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_STATIC_CORRECTION_REVIEW",
+  "outcome": "NO_REMAINING_MATERIAL_DEFECT_FOUND",
+  "helperSha256": "1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419",
+  "helperBytes": 10456,
+  "helperExecution": "NOT_RUN",
+  "repositoryMutation": false,
+  "initialReviewedHelperSha256": "86a0c096d0968f502befa220edfb3e7c43c1c9eacc462166b254c07682843999",
+  "correctedFullReadSha256": "412a38d91ad3a9dada9edbdf4b0f4c43e519b9310bc2c7452da674affd896682",
+  "finalDelta": "Only numeric-int type guards for current and tested manifest version fields; removing that exact guard reproduces412a38 bytes.",
+  "previousFindings": [
+    {
+      "id": "C4-CUSTODY-ARCHIVE-MEMBERSHIP",
+      "status": "CLOSED_BY_STATIC_REVIEW",
+      "basis": "Exact source equality to immutable top-level documents plus pinned extra log IDs; exact raw canonical destination and no symlink parent."
+    },
+    {
+      "id": "C4-CUSTODY-RUNTIME-MEMBERSHIP",
+      "status": "CLOSED_BY_STATIC_REVIEW",
+      "basis": "Required tested-public-manifest raw bytes hash matches unique tested-cut row; exact runtime array equality and228 expected entries."
+    },
+    {
+      "id": "C4-CUSTODY-MANIFEST-SCHEMA",
+      "status": "CLOSED_BY_STATIC_REVIEW",
+      "basis": "Exact version/source/runtime keys, int version1, unique sorted paths, canonical syntax, runtime subset and preservation of all earlier source admissions."
+    }
+  ],
+  "archiveFilesByManifest": [
+    16,
+    17,
+    18,
+    34,
+    20,
+    22
+  ],
+  "archiveFilesTotal": 127,
+  "inspectedTestedManifest": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/public-admission-01/public-source-files.before.json",
+    "sha256": "f9cb5f536f5808fbb741ac5c57b2f0511ee29da35653fa68a71f634b3b18c9fc",
+    "bytes": 219989,
+    "sourceEntries": 3275,
+    "runtimeEntries": 228,
+    "runtimeArrayCompactJsonSha256": "9c87203dacc77624f428f9940aad3921c000728850d83e8a4f5dbf58f230bb1d"
+  },
+  "limits": [
+    "Static code and data-shape review only; no checker or test execution.",
+    "No observed loss or corruption of current archives in the initial findings.",
+    "Final dynamic parent/tested-cut execution and whole repository custody remain pending root gates.",
+    "Only public manifest content has a controlled continuity exception; current product/native behavior is not approved by this review."
+  ]
+}

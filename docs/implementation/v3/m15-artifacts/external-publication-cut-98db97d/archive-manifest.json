@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "kind": "EXACT_INCOMING_DOCUMENT_DELTA",
+  "sourceCommit": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+  "sourceTree": "19d92af279985a059bbda7a9be4f5bb95b70f842",
+  "previousCommit": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "deltaPaths": [
+    "docs/implementation/v3/M15-source-cut.json",
+    "docs/implementation/v3/M15-validation-summary.json"
+  ],
+  "files": [
+    {
+      "sourcePath": "docs/implementation/v3/M15-source-cut.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/M15-source-cut.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "8f23f2ddfb67f512bd8f70e92aa97cbbbf946b7a",
+      "bytes": 16846,
+      "sha256": "a3af48b45c2d50f33241e3905383fc7ae05c2ef94aa25e39678c95820a30d2c4"
+    },
+    {
+      "sourcePath": "docs/implementation/v3/M15-validation-summary.json",
+      "archivedPath": "docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/M15-validation-summary.json",
+      "mode": "100644",
+      "kind": "blob",
+      "blob": "e3405c2edffb8e7a72de99b9ab15d027c2085be5",
+      "bytes": 341,
+      "sha256": "38f92519022261148049332bc04e399ea1dc6da34a2fb82d381c00efbe67664c"
+    }
+  ],
+  "productSourceDelta": [],
+  "testExecutionCreated": false,
+  "historicalBundleStatus": "FAIL",
+  "notes": "This two-file archive preserves the exact incoming regenerated metadata. Current C4 evidence will be regenerated separately from actual local receipts. No product source, test, published log or artifact changed in the incoming commit."
+}

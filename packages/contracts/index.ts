@@ -1,7 +1,7 @@
 export type TaskStatus = "ready" | "working" | "awaiting_input" | "stopped" | "interrupted" | "completed" | "failed";
 export interface ModelInfo { id: string; provider: string; name: string; thinkingLevels?: string[] }
 export interface Thread { id: string; title: string; projectName: string | null; createdAt: string; updatedAt: string; status: TaskStatus; epoch: number; runId: string | null; modelId: string | null; sessionPath: string | null; accountId?: string | null; mode?: 'plan' | 'build'; kind?:'main'|'side'|'delegate'; parentThreadId?:string;jobId?:string;projectId?:string;workspaceId?:string;sideParentId?:string; thinkingLevel?:string|null; error?: string | null; presentation?: { pinned?: boolean; unread?: boolean; settled?: boolean; order?: number } }
-export interface Message { id: string; threadId: string; role: "user" | "assistant" | "activity"; content: string; createdAt: string; runId: string | null }
+export interface Message { id: string; threadId: string; role: "user" | "assistant" | "activity"; content: string; createdAt: string; runId: string | null; sourceRefs?: import('./source-selection.ts').SourceRefV1[]; sendMode?: import('./source-selection.ts').SendModeV1 }
 export interface TaskMemory { id: string; threadId: string; key: string; content: string; revision: number; author: 'user' | 'agent'; updatedAt: string }
 export interface ElementSpec { type: string; props: Record<string, unknown>; children?: string[] }
 export interface SurfaceSpec { root: string; elements: Record<string, ElementSpec> }
@@ -16,7 +16,7 @@ export interface UserStateRecord { id: string; threadId: string; revision: numbe
 export interface InputRequest { id: string; threadId: string; artifactId: string | null; revision: number; title: string; prompt: string; responseSchema: Record<string, unknown>; basis: DataRef[]; status: "pending" | "accepted" | "withdrawn" | "superseded"; response?: unknown; presentation?: import('./planning-question.ts').PlanningQuestionDefinition; detailRequests?: {id:string;kind:'explain'|'examples'|'more-options';optionId?:string;status:'pending'|'resolved'|'failed';error?:string}[] }
 export interface Operation { id: string; threadId: string; revision: number; kind: string; description: string; args: Record<string, unknown>; resourceIds: string[]; preconditions: Record<string, string>; status: "prepared" | "running" | "succeeded" | "failed" | "cancelled" | "unknown"; approved: boolean; result?: unknown; error?: string; createdAt: string }
 export interface ResourceGrant { id: string; threadId: string; kind: "project" | "file" | "database" | "export" | "attachment"; path: string; label: string; writable: boolean; createdAt: string; identity?: {dev:string;ino:string} }
-export interface RuntimeUsage { contextTokens: number | null; contextWindow: number | null; inputTokens: number | null; outputTokens: number | null; cacheReadTokens?: number | null; cacheWriteTokens?: number | null; cost: number | null; activity: "idle" | "running" | "compacting" | "retrying" | "queued" | "starting" | "generating" | "tool" | "cleanup"; sessionPercent: number | null; weeklyPercent: number | null; contextBreakdown?: { label: string; tokens: number }[] }
+export interface RuntimeUsage { contextTokens: number | null; contextWindow: number | null; inputTokens: number | null; outputTokens: number | null; cacheReadTokens?: number | null; cacheWriteTokens?: number | null; cost: number | null; activity: "idle" | "running" | "compacting" | "retrying" | "queued" | "starting" | "generating" | "tool" | "cleanup"; sessionPercent: number | null; weeklyPercent: number | null; contextBreakdown?: { label: string; tokens: number }[]; lastRequest?: import("./request-context.ts").ContextRequestObservationV1; hostProjection?: import("./request-context.ts").HostRequestProjectionV1; compaction?: import("./request-context.ts").CompactionProjectionV1 }
 export interface LearningReviewSummary {sourceThreadId:string;sourceRunId:string;modelId:string;accountId:string|null;status:'reviewing'|'completed'|'settled'|'cancelled'|'failed'|'limit'|'timeout';startedAt:string;finishedAt?:string;toolCalls:number;inputBytes:number;appliedChanges:number;usage?:Partial<RuntimeUsage>;error?:string;cleanupConfirmed?:boolean;engine?:'hermes-source';summary?:string}
 export interface LearningStatus {supported:boolean;status:'idle'|'reviewing'|'blocked';lastReview:LearningReviewSummary|null;lastCuratedAt?:string}
 export interface WorkspaceEvent { seq: number; id: string; type: string; threadId: string | null; payload: unknown; occurredAt: string }
@@ -31,7 +31,7 @@ export interface CommandReceipt { commandId: string; eventSeq: number; result: u
 export interface ToolCall { name: string; args: Record<string, unknown> }
 export interface RuntimeEvent { type: string; threadId: string; runId: string; epoch: number; [key: string]: unknown }
 export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown>; onMemoryCheckpoint?: (request: import('./memory-checkpoint.ts').MemoryCheckpointRequestV1) => Promise<import('./memory-checkpoint.ts').MemoryCheckpointAckV1> }
-export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1 }
+export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1; sourceRefs?:import('./source-selection.ts').SourceRefV1[] }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
   models(options?: { refresh?: boolean; accountId?: string | null; providerId?: import('./connections.ts').ConnectionProviderId }): Promise<ModelInfo[]>;
@@ -40,11 +40,14 @@ export interface RuntimeAdapter {
   start(input: StartRun): Promise<void>;
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;
-  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1): Promise<void>;
+  compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1, expectedHistorySha256?: string): Promise<void>;
   history(sessionPath: string, accountId?: string | null): Promise<string[]>;
+  /** Live native history digest for exact-source-cut compare-and-swap compaction; absent when the adapter has no CAS channel. */
+  nativeHistoryDigest?(ctx: RunContext, sessionPath: string, accountId?: string | null): Promise<{ sha256: string; messages: unknown[] } | null>;
   dispose(): Promise<void>;
 }
 export interface Capability { name: string; category: string; description: string; props: Record<string, unknown>; example?: unknown }
 export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
 export class HarnessError extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
 export * from "./tool-effects.ts";
+export type * from "./request-context.ts";

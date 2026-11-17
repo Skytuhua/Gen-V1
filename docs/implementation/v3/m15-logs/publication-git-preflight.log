@@ -1,0 +1,5 @@
+argv: ["git","push","--dry-run","origin","399cde39ff4ee82272c7a7700944325c44b36070:refs/heads/agent/m15-v3"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 128
+termination: NONE
+fatal: could not read Username for 'https://github.com': terminal prompts disabled

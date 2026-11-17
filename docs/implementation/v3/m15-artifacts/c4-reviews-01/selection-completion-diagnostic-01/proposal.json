@@ -1,0 +1,39 @@
+{
+  "status": "PROPOSED_TEST_ONLY_NOT_APPLIED_NOT_RUN",
+  "sourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-incoming-ux-01/source-cut.json",
+    "sha256": "c8a95c7ff8ae1daf6f5ff9b5b9dd930ee570e50cb86e271410c98535657dab8d"
+  },
+  "files": [
+    {
+      "path": "tests/e2e/workbench-fixture.tsx",
+      "beforeSha256": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71",
+      "proposedSha256": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9"
+    },
+    {
+      "path": "tests/e2e/workbench.spec.ts",
+      "beforeSha256": "f5e7a26bdb830ac77967796dd6091cdb09714aee11ca7a65550fdbe1243d1fde",
+      "proposedSha256": "d9db1c91ba7e39850a2cd77d1937631b9ec87f3e9ab47a3b0c66e551d833f608"
+    }
+  ],
+  "patchSha256": "6240e39f4e4288875a0e089eaaea0b163912f72f3a0bd956b0e0c7aa66d7bdc6",
+  "newCases": 2,
+  "grep": "M15 completed selection action",
+  "command": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "--grep",
+    "M15 completed selection action",
+    "--reporter=line,json"
+  ],
+  "limits": [
+    "No deadline, production-source, existing-case or global trace changes.",
+    "Trace retained on failure only for the new describe block; benchmark trace settings remain unchanged.",
+    "Uses actual SourceSelectionActions and Popover; the fixture controls the asynchronous onAction acknowledgment.",
+    "A suspected foreign-selection cleanup defect is not claimed as reproduced before execution."
+  ]
+}

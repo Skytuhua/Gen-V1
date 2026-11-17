@@ -1,0 +1,21 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+tests/source-workbench-host-v3.test.ts(3,22): error TS6133: 'mkdirSync' is declared but its value is never read.
+tests/source-workbench-host-v3.test.ts(13,143): error TS2345: Argument of type '"ui.sourceWorkbenchV1"' is not assignable to parameter of type 'CapabilityFlagKey'.
+tests/source-workbench-host-v3.test.ts(26,145): error TS2345: Argument of type '"ui.sourceWorkbenchV1"' is not assignable to parameter of type 'CapabilityFlagKey'.
+tests/source-workbench-host-v3.test.ts(26,191): error TS2339: Property 'sourceWorkbench' does not exist on type 'Service'.
+tests/source-workbench-host-v3.test.ts(103,34): error TS2345: Argument of type '"ui.sourceWorkbenchV1"' is not assignable to parameter of type 'CapabilityFlagKey'.
+tests/source-workbench-host-v3.test.ts(103,99): error TS2345: Argument of type '"ui.sourceWorkbenchV1"' is not assignable to parameter of type 'CapabilityFlagKey'.
+tests/source-workbench-host-v3.test.ts(105,31): error TS2345: Argument of type '"ui.sourceWorkbenchV1"' is not assignable to parameter of type 'CapabilityFlagKey'.
+tests/workbench-recovery-v3.test.ts(144,47): error TS2322: Type '{ logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; revision: number; viewType: "CONVERSATION" | "SOURCES" | "EVIDENCE" | "RUN"; selectedItem: string | null; scrollAnchor: { ...; } | null; deviceId: string; updatedAt: string; panelGeometry?: { ...; } | undefined; }[]' is not assignable to type '{ logicalOwner: { threadId: string; projectId: null; workspaceId: null; }; revision: number; viewType: "CONVERSATION"; selectedItem: string; scrollAnchor: { itemId: string; offset: number; }; deviceId: string; updatedAt: string; }[]'.
+  Type '{ logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; revision: number; viewType: "CONVERSATION" | "SOURCES" | "EVIDENCE" | "RUN"; selectedItem: string | null; scrollAnchor: { ...; } | null; deviceId: string; updatedAt: string; panelGeometry?: { ...; } | undefined; }' is not assignable to type '{ logicalOwner: { threadId: string; projectId: null; workspaceId: null; }; revision: number; viewType: "CONVERSATION"; selectedItem: string; scrollAnchor: { itemId: string; offset: number; }; deviceId: string; updatedAt: string; }'.
+    The types of 'logicalOwner.projectId' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'null'.
+        Type 'string' is not assignable to type 'null'.
+ ELIFECYCLE  Command failed with exit code 2.

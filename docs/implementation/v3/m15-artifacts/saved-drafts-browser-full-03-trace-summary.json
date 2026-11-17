@@ -1,0 +1,253 @@
+[
+  {
+    "source": "test-results/browser/run-1794780755520-959ea6bf-4d68-4b75-9b10-6c7046d0e65c/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/trace.zip",
+    "retainedTrace": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-focus-trace.zip",
+    "sha256": "f0a23b3a93c21f17e0a86cfa248a99d07cc293d3fb68c264f15740ca89b8d547",
+    "updateEvents": []
+  },
+  {
+    "source": "test-results/browser/run-1794780755520-959ea6bf-4d68-4b75-9b10-6c7046d0e65c/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip",
+    "retainedTrace": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-03-hmr-trace.zip",
+    "sha256": "2bbb568ea9047b9d70659af7b7675031c8639ada661518131bfb26b8141bb17a",
+    "updateEvents": [
+      {
+        "type": "console",
+        "messageType": "error",
+        "text": "You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.",
+        "args": [
+          {
+            "preview": "You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.",
+            "value": "You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it."
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/test-results/browser/run-1794780755520-959ea6bf-4d68-4b75-9b10-6c7046d0e65c/saved-drafts/artifacts/node_modules/.vite/deps/react-dom_client.js?v=5fc791b5",
+          "lineNumber": 17253,
+          "columnNumber": 20
+        },
+        "time": 61637.948,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/WorkspaceHost.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/WorkspaceHost.tsx",
+            "value": "hot updated: /apps/web/src/WorkspaceHost.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61660.492,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] invalidate /tests/e2e/saved-drafts-fixture.tsx: Could not Fast Refresh (\"true\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "invalidate /tests/e2e/saved-drafts-fixture.tsx: Could not Fast Refresh (\"true\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports",
+            "value": "invalidate /tests/e2e/saved-drafts-fixture.tsx: Could not Fast Refresh (\"true\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.599,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /tests/e2e/saved-drafts-fixture.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /tests/e2e/saved-drafts-fixture.tsx",
+            "value": "hot updated: /tests/e2e/saved-drafts-fixture.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.648,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] invalidate /apps/web/src/SourceWorkbench.tsx: Could not Fast Refresh (\"useSourceWorkbench\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "invalidate /apps/web/src/SourceWorkbench.tsx: Could not Fast Refresh (\"useSourceWorkbench\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports",
+            "value": "invalidate /apps/web/src/SourceWorkbench.tsx: Could not Fast Refresh (\"useSourceWorkbench\" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.705,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/SourceWorkbench.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/SourceWorkbench.tsx",
+            "value": "hot updated: /apps/web/src/SourceWorkbench.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.73,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/App.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/App.tsx",
+            "value": "hot updated: /apps/web/src/App.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.754,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/SavedDrafts.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/SavedDrafts.tsx",
+            "value": "hot updated: /apps/web/src/SavedDrafts.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.777,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/WorkbenchOutput.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/WorkbenchOutput.tsx",
+            "value": "hot updated: /apps/web/src/WorkbenchOutput.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.85,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/WorkbenchPanels.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/WorkbenchPanels.tsx",
+            "value": "hot updated: /apps/web/src/WorkbenchPanels.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.879,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      },
+      {
+        "type": "console",
+        "messageType": "debug",
+        "text": "[vite] hot updated: /apps/web/src/WorkbenchActivity.tsx",
+        "args": [
+          {
+            "preview": "[vite]",
+            "value": "[vite]"
+          },
+          {
+            "preview": "hot updated: /apps/web/src/WorkbenchActivity.tsx",
+            "value": "hot updated: /apps/web/src/WorkbenchActivity.tsx"
+          }
+        ],
+        "location": {
+          "url": "http://127.0.0.1:5522/@vite/client",
+          "lineNumber": 809,
+          "columnNumber": 28
+        },
+        "time": 61661.909,
+        "pageId": "page@6a532a3e843e47f5be4f74147a9c99df"
+      }
+    ]
+  }
+]

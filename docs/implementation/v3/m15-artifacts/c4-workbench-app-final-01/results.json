@@ -1,0 +1,1128 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench-app.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5592 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5592",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench-app.spec.ts",
+      "file": "workbench-app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "default-off App retains its ordinary composer and hides source actions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7925,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:37:16.049Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-36ae1a642c6d0d067730",
+          "file": "workbench-app.spec.ts",
+          "line": 335,
+          "column": 1
+        },
+        {
+          "title": "selection attaches bounded immutable context, survives reload and uses the existing durable send",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:37:24.306Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-4d4ec1f8d0a8bc6580f4",
+          "file": "workbench-app.spec.ts",
+          "line": 357,
+          "column": 1
+        },
+        {
+          "title": "ask supplies a question only for an empty draft and never dispatches",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16875,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:37:30.710Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c835d135265b273d81ba",
+          "file": "workbench-app.spec.ts",
+          "line": 383,
+          "column": 1
+        },
+        {
+          "title": "stale capture remains exact until explicit keep or refresh and opens retained output",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21739,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The source has changed.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The source has changed.')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The source has changed.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The source has changed.')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:72:254",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 254,
+                      "line": 72
+                    },
+                    "snippet": "  70 | });\n  71 | test('stale capture remains exact until explicit keep or refresh and opens retained output',async({page},info)=>{\n> 72 |  const h=await fixture(page);await attach(page);const captured=h.captures.get('capture-1')!;h.snapshot.messages[0].content+=' A later revision.';await h.publish();await page.reload();await expect(page.getByText('The source has changed.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Keep captured source',exact:true}).click();await expect(page.getByText('Using the retained capture.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('exact retained capture');await expect(dialog).toContainText(captured.ref.source.sourceRevision);await expect(dialog.locator('[data-output-row-id]').first()).toContainText(captured.preview);\n     |                                                                                                                                                                                                                                                              ^\n  73 |  await page.screenshot({path:info.outputPath('retained-source.png'),fullPage:true});\n  74 | });\n  75 | test('late source descriptions cannot attach to a replacement workspace',async({page})=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 254,
+                        "line": 72
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('The source has changed.')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('The source has changed.')\u001b[22m\n\n\n  70 | });\n  71 | test('stale capture remains exact until explicit keep or refresh and opens retained output',async({page},info)=>{\n> 72 |  const h=await fixture(page);await attach(page);const captured=h.captures.get('capture-1')!;h.snapshot.messages[0].content+=' A later revision.';await h.publish();await page.reload();await expect(page.getByText('The source has changed.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Keep captured source',exact:true}).click();await expect(page.getByText('Using the retained capture.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await expect(dialog).toContainText('exact retained capture');await expect(dialog).toContainText(captured.ref.source.sourceRevision);await expect(dialog.locator('[data-output-row-id]').first()).toContainText(captured.preview);\n     |                                                                                                                                                                                                                                                              ^\n  73 |  await page.screenshot({path:info.outputPath('retained-source.png'),fullPage:true});\n  74 | });\n  75 | test('late source descriptions cannot attach to a replacement workspace',async({page})=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:72:254"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:37:47.601Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 254,
+                    "line": 72
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-489805ce8bf883437c07",
+          "file": "workbench-app.spec.ts",
+          "line": 395,
+          "column": 1
+        },
+        {
+          "title": "late source descriptions cannot attach to a replacement workspace",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4280,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:15.744Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c436364264902892f378",
+          "file": "workbench-app.spec.ts",
+          "line": 429,
+          "column": 1
+        },
+        {
+          "title": "after-current mode is explicit and queues through message.send while the task is working",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5228,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:20.313Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-52b95231ce67396803cf",
+          "file": "workbench-app.spec.ts",
+          "line": 454,
+          "column": 1
+        },
+        {
+          "title": "evidence preserves reported and observed grades, freshness and unsupported module state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5664,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:25.579Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-0cc746a2eebc3ac05cd3",
+          "file": "workbench-app.spec.ts",
+          "line": 492,
+          "column": 1
+        },
+        {
+          "title": "rollback leaves retained source inspection and removal reachable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:31.277Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-a29495d9eca7d5aad061",
+          "file": "workbench-app.spec.ts",
+          "line": 533,
+          "column": 1
+        },
+        {
+          "title": "context and run views use recorded or explicit unavailable states without invented metrics",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3820,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:34.650Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-9831c482c2393cf7dc42",
+          "file": "workbench-app.spec.ts",
+          "line": 564,
+          "column": 1
+        },
+        {
+          "title": "real activity integration bounds mounted rows and searches the authorized full read",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12013,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('tab', { name: 'Other task', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('tab', { name: 'Other task', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('tab', { name: 'Other task', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('tab', { name: 'Other task', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:110:69",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 69,
+                      "line": 110
+                    },
+                    "snippet": "  108 |  await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1200');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output.locator('[data-output-row-id=\"activity:1199\"]')).toBeVisible();\n  109 |  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();\n> 110 |  await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');\n      |                                                                     ^\n  111 |  const [returned]=await Promise.all([\n  112 |   page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.kind==='thread'&&command.payload.view.binding?.threadId==='task-thread';},{timeout:5000}),\n  113 |   page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 69,
+                        "line": 110
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('tab', { name: 'Other task', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('tab', { name: 'Other task', exact: true })\u001b[22m\n\n\n  108 |  await output.getByRole('searchbox',{name:'Search full result',exact:true}).fill('retained line 1200');await output.getByRole('button',{name:'Search full result',exact:true}).click();await expect(output.locator('[data-output-row-id=\"activity:1199\"]')).toBeVisible();\n  109 |  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();\n> 110 |  await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');\n      |                                                                     ^\n  111 |  const [returned]=await Promise.all([\n  112 |   page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.kind==='thread'&&command.payload.view.binding?.threadId==='task-thread';},{timeout:5000}),\n  113 |   page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:110:69"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:38.497Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 69,
+                    "line": 110
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c7dec3a318124a5fedaf",
+          "file": "workbench-app.spec.ts",
+          "line": 592,
+          "column": 1
+        },
+        {
+          "title": "source-aware navigation waits for journal handoff and preserves text on reload",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9750,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to <textarea rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to <textarea rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:121:450",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 450,
+                      "line": 121
+                    },
+                    "snippet": "  119 | });\n  120 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{\n> 121 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toBeEnabled({timeout:15000});await expect(editor(page)).toHaveValue('Retain this source-aware draft');\n      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^\n  122 | });\n  123 |\n  124 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 450,
+                        "line": 121
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('textbox', { name: 'Message', exact: true })\nExpected: \u001b[32m\"Retain this source-aware draft\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\u001b[2m    9 × locator resolved to <textarea rows=\"1\" aria-label=\"Message\" placeholder=\"Ask anything…\"></textarea>\u001b[22m\n\u001b[2m      - unexpected value \"\"\u001b[22m\n\n\n  119 | });\n  120 | test('source-aware navigation waits for journal handoff and preserves text on reload',async({page})=>{\n> 121 |  const h=await fixture(page);h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await editor(page).fill('Retain this source-aware draft');await attach(page);await page.getByRole('button',{name:'Other task',exact:false}).first().click();await expect(editor(page)).toHaveValue('');await page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click();await expect(editor(page)).toHaveValue('Retain this source-aware draft');await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();await page.reload();await expect(editor(page)).toBeEnabled({timeout:15000});await expect(editor(page)).toHaveValue('Retain this source-aware draft');\n      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^\n  122 | });\n  123 |\n  124 | test('pointing mode does not consume another pane focus or Escape',async({page})=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:121:450"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:38:58.565Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 450,
+                    "line": 121
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-129bdaf95fbbbf1f903e",
+          "file": "workbench-app.spec.ts",
+          "line": 675,
+          "column": 1
+        },
+        {
+          "title": "pointing mode does not consume another pane focus or Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4368,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:39:10.405Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-8732cebf29f053ef0488",
+          "file": "workbench-app.spec.ts",
+          "line": 706,
+          "column": 1
+        },
+        {
+          "title": "selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:39:14.911Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-3cb1dde798b3a79177cb",
+          "file": "workbench-app.spec.ts",
+          "line": 720,
+          "column": 1
+        },
+        {
+          "title": "rollback retains a mode-only draft and permits returning to ordinary delivery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4477,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:39:18.374Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-26877aa03d506f314bda",
+          "file": "workbench-app.spec.ts",
+          "line": 759,
+          "column": 1
+        },
+        {
+          "title": "accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8545,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:39:22.866Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-1bd49f80b5d613c29604",
+          "file": "workbench-app.spec.ts",
+          "line": 795,
+          "column": 1
+        },
+        {
+          "title": "rollback permits cancellation of an undispatched accepted input without exposing revoked sources",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 23486,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n    at fixture (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:44:91)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:145:10",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 91,
+                      "line": 44
+                    },
+                    "snippet": "  42 |  });\n  43 |  await setup.routes?.(snapshot);\n> 44 |  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});\n     |                                                                                           ^\n  45 |  return {...host,state,captures,owner,recoveries};\n  46 | }\n  47 | const editor=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 91,
+                        "line": 44
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n  42 |  });\n  43 |  await setup.routes?.(snapshot);\n> 44 |  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});\n     |                                                                                           ^\n  45 |  return {...host,state,captures,owner,recoveries};\n  46 | }\n  47 | const editor=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});\n    at fixture (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:44:91)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:145:10"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:39:31.429Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 91,
+                    "line": 44
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-70e9e70acb8ff34dbb5a",
+          "file": "workbench-app.spec.ts",
+          "line": 850,
+          "column": 1
+        },
+        {
+          "title": "definitive precommit source rejection unlocks removal and ordinary resubmission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10015,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:05.311Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-ed3904a10753b44c19ac",
+          "file": "workbench-app.spec.ts",
+          "line": 889,
+          "column": 1
+        },
+        {
+          "title": "lost cancellation receipt stays retryable after its input disappears and the App reloads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15668,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:15.664Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-2a41b5a29ca305d70856",
+          "file": "workbench-app.spec.ts",
+          "line": 936,
+          "column": 1
+        },
+        {
+          "title": "formatted assistant text opens its exact canonical source even outside the bounded catalogue",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:31.392Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-281144155dac1ace451b",
+          "file": "workbench-app.spec.ts",
+          "line": 982,
+          "column": 1
+        },
+        {
+          "title": "deferred source view failure retains the mounted composer and restores focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7985,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:34.908Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c49ba4f635dd3e45e76a",
+          "file": "workbench-app.spec.ts",
+          "line": 1029,
+          "column": 1
+        },
+        {
+          "title": "actual source modal and shared controls remain within the viewport at 200 percent zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5771,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:42.908Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "source-modal-zoom-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VzIjogewogICAgInZpZXdwb3J0IjogewogICAgICAid2lkdGgiOiAxMjgwLAogICAgICAiaGVpZ2h0IjogODAwCiAgICB9LAogICAgInpvb20iOiAiMiIsCiAgICAicGFuZWwiOiB7CiAgICAgICJ4IjogMzQsCiAgICAgICJ5IjogOTkuNjI1LAogICAgICAid2lkdGgiOiAxMjEyLAogICAgICAiaGVpZ2h0IjogNjAwLjc1LAogICAgICAidG9wIjogOTkuNjI1LAogICAgICAicmlnaHQiOiAxMjQ2LAogICAgICAiYm90dG9tIjogNzAwLjM3NSwKICAgICAgImxlZnQiOiAzNAogICAgfSwKICAgICJjbG9zZSI6IHsKICAgICAgIngiOiAxMTMyLAogICAgICAieSI6IDE0OS42MjUsCiAgICAgICJ3aWR0aCI6IDY0LAogICAgICAiaGVpZ2h0IjogNjQsCiAgICAgICJ0b3AiOiAxNDkuNjI1LAogICAgICAicmlnaHQiOiAxMTk2LAogICAgICAiYm90dG9tIjogMjEzLjYyNSwKICAgICAgImxlZnQiOiAxMTMyCiAgICB9LAogICAgIm5hdmlnYXRpb24iOiB7CiAgICAgICJ4IjogODQsCiAgICAgICJ5IjogMzM5LjgxMjUsCiAgICAgICJ3aWR0aCI6IDExMTIsCiAgICAgICJoZWlnaHQiOiAzOCwKICAgICAgInRvcCI6IDMzOS44MTI1LAogICAgICAicmlnaHQiOiAxMTk2LAogICAgICAiYm90dG9tIjogMzc3LjgxMjUsCiAgICAgICJsZWZ0IjogODQKICAgIH0sCiAgICAiaGVpZ2h0IjogIjMwMC4zNzVweCIsCiAgICAibWF4SGVpZ2h0IjogImNhbGMoMTAwJSAtIDY0cHgpIiwKICAgICJjbGllbnRIZWlnaHQiOiAyOTgsCiAgICAic2Nyb2xsSGVpZ2h0IjogMjk4LAogICAgInNjcm9sbFRvcCI6IDAKICB9LAogICJldmlkZW5jZSI6IHsKICAgICJ2aWV3cG9ydCI6IHsKICAgICAgIndpZHRoIjogMTI4MCwKICAgICAgImhlaWdodCI6IDgwMAogICAgfSwKICAgICJ6b29tIjogIjIiLAogICAgInBhbmVsIjogewogICAgICAieCI6IDM0LAogICAgICAieSI6IDY0LAogICAgICAid2lkdGgiOiAxMjEyLAogICAgICAiaGVpZ2h0IjogNjcyLAogICAgICAidG9wIjogNjQsCiAgICAgICJyaWdodCI6IDEyNDYsCiAgICAgICJib3R0b20iOiA3MzYsCiAgICAgICJsZWZ0IjogMzQKICAgIH0sCiAgICAiY2xvc2UiOiB7CiAgICAgICJ4IjogMTEzMiwKICAgICAgInkiOiAxMTQsCiAgICAgICJ3aWR0aCI6IDY0LAogICAgICAiaGVpZ2h0IjogNjQsCiAgICAgICJ0b3AiOiAxMTQsCiAgICAgICJyaWdodCI6IDExOTYsCiAgICAgICJib3R0b20iOiAxNzgsCiAgICAgICJsZWZ0IjogMTEzMgogICAgfSwKICAgICJuYXZpZ2F0aW9uIjogewogICAgICAieCI6IDg0LAogICAgICAieSI6IDMwNC4xODc1LAogICAgICAid2lkdGgiOiAxMTEyLAogICAgICAiaGVpZ2h0IjogMzgsCiAgICAgICJ0b3AiOiAzMDQuMTg3NSwKICAgICAgInJpZ2h0IjogMTE5NiwKICAgICAgImJvdHRvbSI6IDM0Mi4xODc1LAogICAgICAibGVmdCI6IDg0CiAgICB9LAogICAgImhlaWdodCI6ICIzMzZweCIsCiAgICAibWF4SGVpZ2h0IjogImNhbGMoMTAwJSAtIDY0cHgpIiwKICAgICJjbGllbnRIZWlnaHQiOiAzMzQsCiAgICAic2Nyb2xsSGVpZ2h0IjogOTA5LAogICAgInNjcm9sbFRvcCI6IDAKICB9Cn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c8cb6a031d2e48093528",
+          "file": "workbench-app.spec.ts",
+          "line": 1061,
+          "column": 1
+        },
+        {
+          "title": "native return waits for canonical placement and keeps delayed source work isolated between owners",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8714,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:48.691Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "native-return-source-isolation.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJSZWFsIEFwcCB3aXRoIHNjcmlwdGVkIGJyb3dzZXIgZGVza3RvcCBicmlkZ2UgYW5kIG93bmVyLWJvdW5kIHNvdXJjZSBIVFRQOyBubyBpbnN0YWxsZWQgZGVza3RvcCBleGVjdXRpb24iLAogICJkZWxheWVkRGVzY3JpcHRpb25PdXRjb21lIjogImZ1bGZpbGxlZCIsCiAgImJlZm9yZVJldHVybiI6IFsKICAgIHsKICAgICAgImRyYWZ0SWQiOiAiOWQ4NzU5YmYtMTkxMi00ZTUzLTgyOGItYWU5OTFiYmMyM2Q2IiwKICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICB9LAogICAgICAicmV2aXNpb24iOiAxNzk0ODA3NjUwOTI0LAogICAgICAidGV4dCI6ICJBdXRob3JlZCBkcmFmdCBvd25lZCBieSBBIiwKICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgewogICAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0xIiwKICAgICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAgICJraW5kIjogIk1FU1NBR0UiLAogICAgICAgICAgICAic291cmNlSWQiOiAicmVwbHkiLAogICAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDU6NDA6NTEuMzI4WiIsCiAgICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiNDBlMWVhZmJkYzY2ZjBlMjlhOGQ3Y2Y0NDU2Mjc5MDY5Mzg0YjBjODExNTk1ZjkxNDEyODVlZmJmZDYxZTQ1ZSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlbmRNb2RlIjogIk5PVyIsCiAgICAgICJjb25mbGljdFN0YXRlIjogIk5PTkUiCiAgICB9LAogICAgewogICAgICAiZHJhZnRJZCI6ICJiM2NlOTg4Ni00NjM2LTQxYTktYjA5ZC1mYTMwMGM3YWEzODkiLAogICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgfSwKICAgICAgInJldmlzaW9uIjogMTc5NDgwNzY1NDA1MiwKICAgICAgInRleHQiOiAiRGlmZmVyZW50IGF1dGhvcmVkIGRyYWZ0IG93bmVkIGJ5IEIiLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTIiLAogICAgICAgICAgInNvdXJjZSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseS1iIiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogImJkNTg2NTk3M2NjYmVlYjQyNDMzYjFmNzFhNzNkN2YzNzM4MDQ3NzZhNDVjNmY4NmE5MGZmMTllMGZhYTg1ODkiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIiwKICAgICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDU6NDA6NTQuNjAwWiIsCiAgICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiMjIzYzM1YTg5ZWEzMGZiYTdkZjk0NWUwMGRmMWI5ZDU0ZGFiNjAyYmQ2MjFiYmZkY2Y0MTA3OGQxNjQ1NWJmOCIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlbmRNb2RlIjogIk5PVyIsCiAgICAgICJjb25mbGljdFN0YXRlIjogIk5PTkUiCiAgICB9CiAgXSwKICAiYWZ0ZXJSZXR1cm4iOiBbCiAgICB7CiAgICAgICJkcmFmdElkIjogIjlkODc1OWJmLTE5MTItNGU1My04MjhiLWFlOTkxYmJjMjNkNiIsCiAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgfSwKICAgICAgInJldmlzaW9uIjogMTc5NDgwNzY1MDkyNCwKICAgICAgInRleHQiOiAiQXV0aG9yZWQgZHJhZnQgb3duZWQgYnkgQSIsCiAgICAgICJzb3VyY2VSZWZzIjogWwogICAgICAgIHsKICAgICAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMSIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjA0ZmQxODI2NjY5Mzk4ZjRiYjgyNDVhNWEzMmRhZDY5YmE1ZDdjMWFlNDIwNDlmY2VlZjNiNmQyZGFmZjk4MGUiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjA0ZmQxODI2NjY5Mzk4ZjRiYjgyNDVhNWEzMmRhZDY5YmE1ZDdjMWFlNDIwNDlmY2VlZjNiNmQyZGFmZjk4MGUiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDA1OjQwOjUxLjMyOFoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogIjQwZTFlYWZiZGM2NmYwZTI5YThkN2NmNDQ1NjI3OTA2OTM4NGIwYzgxMTU5NWY5MTQxMjg1ZWZiZmQ2MWU0NWUiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgICAiY29uZmxpY3RTdGF0ZSI6ICJOT05FIgogICAgfSwKICAgIHsKICAgICAgImRyYWZ0SWQiOiAiYjNjZTk4ODYtNDYzNi00MWE5LWIwOWQtZmEzMDBjN2FhMzg5IiwKICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgIH0sCiAgICAgICJyZXZpc2lvbiI6IDE3OTQ4MDc2NTQwNTIsCiAgICAgICJ0ZXh0IjogIkRpZmZlcmVudCBhdXRob3JlZCBkcmFmdCBvd25lZCBieSBCIiwKICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgewogICAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0yIiwKICAgICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAgICJraW5kIjogIk1FU1NBR0UiLAogICAgICAgICAgICAic291cmNlSWQiOiAicmVwbHktYiIsCiAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogImJkNTg2NTk3M2NjYmVlYjQyNDMzYjFmNzFhNzNkN2YzNzM4MDQ3NzZhNDVjNmY4NmE5MGZmMTllMGZhYTg1ODkiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDA1OjQwOjU0LjYwMFoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogIjIyM2MzNWE4OWVhMzBmYmE3ZGY5NDVlMDBkZjFiOWQ1NGRhYjYwMmJkNjIxYmJmZGNmNDEwNzhkMTY0NTViZjgiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgICAiY29uZmxpY3RTdGF0ZSI6ICJOT05FIgogICAgfQogIF0sCiAgImZpbmFsRHJhZnRzIjogWwogICAgewogICAgICAiZHJhZnRJZCI6ICI5ZDg3NTliZi0xOTEyLTRlNTMtODI4Yi1hZTk5MWJiYzIzZDYiLAogICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgIH0sCiAgICAgICJyZXZpc2lvbiI6IDE3OTQ4MDc2NTA5MjQsCiAgICAgICJ0ZXh0IjogIkF1dGhvcmVkIGRyYWZ0IG93bmVkIGJ5IEEiLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTEiLAogICAgICAgICAgInNvdXJjZSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseSIsCiAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICIwNGZkMTgyNjY2OTM5OGY0YmI4MjQ1YTVhMzJkYWQ2OWJhNWQ3YzFhZTQyMDQ5ZmNlZWYzYjZkMmRhZmY5ODBlIiwKICAgICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICIwNGZkMTgyNjY2OTM5OGY0YmI4MjQ1YTVhMzJkYWQ2OWJhNWQ3YzFhZTQyMDQ5ZmNlZWYzYjZkMmRhZmY5ODBlIiwKICAgICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwNTo0MDo1MS4zMjhaIiwKICAgICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICI0MGUxZWFmYmRjNjZmMGUyOWE4ZDdjZjQ0NTYyNzkwNjkzODRiMGM4MTE1OTVmOTE0MTI4NWVmYmZkNjFlNDVlIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgICAgfQogICAgICBdLAogICAgICAic2VuZE1vZGUiOiAiTk9XIiwKICAgICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICAgIH0sCiAgICB7CiAgICAgICJkcmFmdElkIjogImIzY2U5ODg2LTQ2MzYtNDFhOS1iMDlkLWZhMzAwYzdhYTM4OSIsCiAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInNlY29uZC10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1iIgogICAgICB9LAogICAgICAicmV2aXNpb24iOiAxNzk0ODA3NjU0MDUyLAogICAgICAidGV4dCI6ICJEaWZmZXJlbnQgYXV0aG9yZWQgZHJhZnQgb3duZWQgYnkgQiIsCiAgICAgICJzb3VyY2VSZWZzIjogWwogICAgICAgIHsKICAgICAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMiIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5LWIiLAogICAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgICAgICAgInRocmVhZElkIjogInNlY29uZC10aHJlYWQiLAogICAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1iIgogICAgICAgICAgICB9LAogICAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwNTo0MDo1NC42MDBaIiwKICAgICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICIyMjNjMzVhODllYTMwZmJhN2RmOTQ1ZTAwZGYxYjlkNTRkYWI2MDJiZDYyMWJiZmRjZjQxMDc4ZDE2NDU1YmY4IgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgICAgfQogICAgICBdLAogICAgICAic2VuZE1vZGUiOiAiTk9XIiwKICAgICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICAgIH0KICBdLAogICJjYXB0dXJlcyI6IFsKICAgIHsKICAgICAgInJlZiI6IHsKICAgICAgICAiY2FwdHVyZUlkIjogIm5hdGl2ZS1jYXB0dXJlLTEiLAogICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseSIsCiAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgICAgICB9LAogICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiMDRmZDE4MjY2NjkzOThmNGJiODI0NWE1YTMyZGFkNjliYTVkN2MxYWU0MjA0OWZjZWVmM2I2ZDJkYWZmOTgwZSIsCiAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDA1OjQwOjUxLjMyOFoiLAogICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiNDBlMWVhZmJkYzY2ZjBlMjlhOGQ3Y2Y0NDU2Mjc5MDY5Mzg0YjBjODExNTk1ZjkxNDEyODVlZmJmZDYxZTQ1ZSIKICAgICAgICAgIH0KICAgICAgICB9LAogICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICB9LAogICAgICAibGFiZWwiOiAiT3duZXIgQSBtZXNzYWdlIiwKICAgICAgInByZXZpZXciOiAiT3duZXIgQSBrZWVwcyB0aGlzIHIiLAogICAgICAicHJldmlld1RydW5jYXRlZCI6IGZhbHNlLAogICAgICAic2VsZWN0ZWRCeXRlcyI6IDIwLAogICAgICAicmV0YWluZWQiOiB0cnVlLAogICAgICAic3RhdGUiOiAiQ1VSUkVOVCIKICAgIH0sCiAgICB7CiAgICAgICJyZWYiOiB7CiAgICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0yIiwKICAgICAgICAic291cmNlIjogewogICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAic291cmNlSWQiOiAicmVwbHktYiIsCiAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiYmQ1ODY1OTczY2NiZWViNDI0MzNiMWY3MWE3M2Q3ZjM3MzgwNDc3NmE0NWM2Zjg2YTkwZmYxOWUwZmFhODU4OSIsCiAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYiIKICAgICAgICAgIH0sCiAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICJiZDU4NjU5NzNjY2JlZWI0MjQzM2IxZjcxYTczZDdmMzczODA0Nzc2YTQ1YzZmODZhOTBmZjE5ZTBmYWE4NTg5IiwKICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDU6NDA6NTQuNjAwWiIsCiAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICIyMjNjMzVhODllYTMwZmJhN2RmOTQ1ZTAwZGYxYjlkNTRkYWI2MDJiZDYyMWJiZmRjZjQxMDc4ZDE2NDU1YmY4IgogICAgICAgICAgfQogICAgICAgIH0sCiAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgIH0sCiAgICAgICJsYWJlbCI6ICJPd25lciBCIG1lc3NhZ2UiLAogICAgICAicHJldmlldyI6ICJPd25lciBCIGhhcyBhIGRpZmZlciIsCiAgICAgICJwcmV2aWV3VHJ1bmNhdGVkIjogZmFsc2UsCiAgICAgICJzZWxlY3RlZEJ5dGVzIjogMjAsCiAgICAgICJyZXRhaW5lZCI6IHRydWUsCiAgICAgICJzdGF0ZSI6ICJDVVJSRU5UIgogICAgfQogIF0sCiAgImV2ZW50cyI6IFsKICAgIHsKICAgICAgImtpbmQiOiAiY2FwdHVyZWQiLAogICAgICAib3duZXIiOiB7CiAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAicHJvamVjdElkIjogbnVsbCwKICAgICAgICAid29ya3NwYWNlSWQiOiAic291cmNlLWNvcHktYSIKICAgICAgfSwKICAgICAgImNhcHR1cmVJZCI6ICJuYXRpdmUtY2FwdHVyZS0xIgogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAiZGVzY3JpcHRpb24taGVsZCIsCiAgICAgICJvd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJwcm9qZWN0SWQiOiBudWxsLAogICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJzb3VyY2UtY29weS1hIgogICAgICB9CiAgICB9LAogICAgewogICAgICAia2luZCI6ICJzcGxpdC1jb21tYW5kIiwKICAgICAgImNvbW1hbmQiOiB7CiAgICAgICAgImlkIjogIjdlMjI2ZTM0LTJjMWUtNDE4YS04ZGE0LWI0OWE2NDdjOThlMCIsCiAgICAgICAgInR5cGUiOiAic3BsaXQtd29ya3NwYWNlLnZpZXcub3BlbiIsCiAgICAgICAgInBheWxvYWQiOiB7CiAgICAgICAgICAid29ya3NwYWNlSWQiOiAid29ya3NwYWNlIiwKICAgICAgICAgICJiYXNlUmV2aXNpb24iOiAxLAogICAgICAgICAgInBhbmVJZCI6ICJwYW5lLW1haW4iLAogICAgICAgICAgInZpZXciOiB7CiAgICAgICAgICAgICJpZCI6ICJ0aHJlYWQ6c2Vjb25kLXRocmVhZCIsCiAgICAgICAgICAgICJraW5kIjogInRocmVhZCIsCiAgICAgICAgICAgICJiaW5kaW5nIjogewogICAgICAgICAgICAgICJhdXRob3JpdHkiOiB7CiAgICAgICAgICAgICAgICAia2luZCI6ICJsb2NhbCIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJzZWNvbmQtdGhyZWFkIgogICAgICAgICAgICB9CiAgICAgICAgICB9CiAgICAgICAgfQogICAgICB9CiAgICB9LAogICAgewogICAgICAia2luZCI6ICJjYXB0dXJlZCIsCiAgICAgICJvd25lciI6IHsKICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWIiCiAgICAgIH0sCiAgICAgICJjYXB0dXJlSWQiOiAibmF0aXZlLWNhcHR1cmUtMiIKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImRlc2NyaXB0aW9uLXJlbGVhc2VkIgogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAiZGVzY3JpcHRpb24tY29tcGxldGVkIiwKICAgICAgIm93bmVyIjogewogICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICAgIndvcmtzcGFjZUlkIjogInNvdXJjZS1jb3B5LWEiCiAgICAgIH0sCiAgICAgICJvdXRjb21lIjogImZ1bGZpbGxlZCIsCiAgICAgICJyZXF1ZXN0RmFpbHVyZSI6IHsKICAgICAgICAiZXJyb3JUZXh0IjogIm5ldDo6RVJSX0FCT1JURUQiCiAgICAgIH0KICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImxheW91dC1yZWFkLWhlbGQiCiAgICB9LAogICAgewogICAgICAia2luZCI6ICJuYXRpdmUtcmV0dXJuLWludGVudCIsCiAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogImxheW91dC1yZWFkcy1yZWxlYXNlZCIsCiAgICAgICJyZWFkcyI6IDEKICAgIH0sCiAgICB7CiAgICAgICJraW5kIjogInNwbGl0LWNvbW1hbmQiLAogICAgICAiY29tbWFuZCI6IHsKICAgICAgICAiaWQiOiAiNDBmYWM1OTgtNGY1Yy00M2Q4LTk1NzQtZDYyMDc3MDIzZGZlIiwKICAgICAgICAidHlwZSI6ICJzcGxpdC13b3Jrc3BhY2Uudmlldy5vcGVuIiwKICAgICAgICAicGF5bG9hZCI6IHsKICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJ3b3Jrc3BhY2UiLAogICAgICAgICAgImJhc2VSZXZpc2lvbiI6IDIsCiAgICAgICAgICAicGFuZUlkIjogInBhbmUtbWFpbiIsCiAgICAgICAgICAidmlldyI6IHsKICAgICAgICAgICAgImlkIjogInRocmVhZDp0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICJraW5kIjogInRocmVhZCIsCiAgICAgICAgICAgICJiaW5kaW5nIjogewogICAgICAgICAgICAgICJhdXRob3JpdHkiOiB7CiAgICAgICAgICAgICAgICAia2luZCI6ICJsb2NhbCIKICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIH0KICAgICAgfQogICAgfSwKICAgIHsKICAgICAgImtpbmQiOiAic3BsaXQtY29tbWFuZCIsCiAgICAgICJjb21tYW5kIjogewogICAgICAgICJpZCI6ICJiMGE2NDdmNi1iMmM0LTRlNjgtYmZkMi01NTFjNjBlYjhkYmUiLAogICAgICAgICJ0eXBlIjogInNwbGl0LXdvcmtzcGFjZS52aWV3Lm9wZW4iLAogICAgICAgICJwYXlsb2FkIjogewogICAgICAgICAgIndvcmtzcGFjZUlkIjogIndvcmtzcGFjZSIsCiAgICAgICAgICAiYmFzZVJldmlzaW9uIjogMywKICAgICAgICAgICJwYW5lSWQiOiAicGFuZS1tYWluIiwKICAgICAgICAgICJ2aWV3IjogewogICAgICAgICAgICAiaWQiOiAidGhyZWFkOnNlY29uZC10aHJlYWQiLAogICAgICAgICAgICAia2luZCI6ICJ0aHJlYWQiLAogICAgICAgICAgICAiYmluZGluZyI6IHsKICAgICAgICAgICAgICAiYXV0aG9yaXR5IjogewogICAgICAgICAgICAgICAgImtpbmQiOiAibG9jYWwiCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAidGhyZWFkSWQiOiAic2Vjb25kLXRocmVhZCIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImNvbW1hbmRzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-3ac76a66a02c9fdcbb09",
+          "file": "workbench-app.spec.ts",
+          "line": 1181,
+          "column": 1
+        },
+        {
+          "title": "prepared memory and selected sources queue together while working and clear only after acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4135,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:40:57.426Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "memory-source-queued-command.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJSZWFsIEFwcCBhbmQgdHlwZWQgZGV0ZXJtaW5pc3RpYyBzb3VyY2UvbWVtb3J5IEhUVFA7IGhvc3QgYWRtaXNzaW9uIGlzIHNlcGFyYXRlIiwKICAicHJlcGFyYXRpb24iOiB7CiAgICAiYm9keSI6IHsKICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgInByb21wdCI6ICJVc2UgdGhpcyBzb3VyY2UgYWZ0ZXIgdGhlIGN1cnJlbnQgcnVuIiwKICAgICAgIm1vZGVsSWQiOiAidGVzdC9tb2RlbCIsCiAgICAgICJ0aGlua2luZ0xldmVsIjogbnVsbAogICAgfSwKICAgICJyZXF1ZXN0IjogewogICAgICAic2NvcGUiOiB7CiAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgInByb2plY3RJZGVudGl0eSI6ICJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJhY2NvdW50SWQiOiAibWVtb3J5LWFjY291bnQtYSIsCiAgICAgICAgImJpbmRpbmdEaWdlc3QiOiAiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIKICAgICAgfSwKICAgICAgInJlcXVlc3RJZCI6ICJwcmVwYXJlZC1zb3VyY2UtcXVldWUtMSIsCiAgICAgICJjb250ZXh0R2VuZXJhdGlvbiI6IDEsCiAgICAgICJwaGFzZSI6ICJQUkVQQVJJTkciLAogICAgICAicmVjYWxsIjogewogICAgICAgICJyZXF1ZXN0SWQiOiAicHJlcGFyZWQtc291cmNlLXF1ZXVlLTEiLAogICAgICAgICJwcm9qZWN0SWRlbnRpdHkiOiAiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsCiAgICAgICAgImNvbnRleHRHZW5lcmF0aW9uIjogMSwKICAgICAgICAicXVlcnlEaWdlc3QiOiAiNzRjNWIwZjEzODhjNGZiZmVkYTBmYWRlZDAyNWU0YjM0ZTc3NWJmOWY1NDEwNTE0MjMzNDM4YmJiMjI0Mzk3ZSIsCiAgICAgICAgImNhbmRpZGF0ZUlkcyI6IFsKICAgICAgICAgICJhY2NlcHRlZCIKICAgICAgICBdLAogICAgICAgICJzZWxlY3RlZFJldmlzaW9ucyI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgIml0ZW1JZCI6ICJhY2NlcHRlZCIsCiAgICAgICAgICAgICJyZXZpc2lvbiI6IDEKICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJzY29yZXMiOiBbXSwKICAgICAgICAiZXhjbHVzaW9ucyI6IFtdLAogICAgICAgICJidWRnZXRCeXRlcyI6IDQwOTYsCiAgICAgICAgInByb2R1Y2VkQXQiOiAiMjAyNi0xMS0xNlQwMDowMDowMC4wMDBaIiwKICAgICAgICAic3RhdHVzIjogIkNPTVBMRVRFIgogICAgICB9LAogICAgICAiaXRlbXMiOiBbCiAgICAgICAgewogICAgICAgICAgImlkIjogImFjY2VwdGVkIiwKICAgICAgICAgICJwcm9qZWN0SWRlbnRpdHkiOiAiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsCiAgICAgICAgICAic2NvcGUiOiAiUFJPSkVDVCIsCiAgICAgICAgICAia2luZCI6ICJDT05TVFJBSU5UIiwKICAgICAgICAgICJ0ZXh0IjogIkZpeHR1cmUgYWNjZXB0ZWQgbWVtb3J5IHJldmlzaW9uIDEuIiwKICAgICAgICAgICJyZXZpc2lvbiI6IDEsCiAgICAgICAgICAic3RhdGUiOiAiQUNDRVBURUQiLAogICAgICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAib3duZXJUaHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInNvdXJjZUtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICAgInNvdXJjZUlkIjogIm1lbW9yeS1zb3VyY2UtYWNjZXB0ZWQiLAogICAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICJtZW1vcnktcjEiLAogICAgICAgICAgICAgICJjYXB0dXJlZFNlcSI6IDQsCiAgICAgICAgICAgICAgImRpZ2VzdCI6ICIyNjFlN2MyNjI0NjRjNGQ3ZGZjZGY4NTRlNWJlYjhmYzBjM2Q0MzkxOWRiMmVlMzliMjNlYzY0YzlmMTM5MTNkIiwKICAgICAgICAgICAgICAib2JzZXJ2ZWRTdGF0dXMiOiAiUkVQT1JURUQiCiAgICAgICAgICAgIH0KICAgICAgICAgIF0sCiAgICAgICAgICAiYXNzZXJ0ZWRCeSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiQUdFTlQiLAogICAgICAgICAgICAiaWQiOiAiZml4dHVyZS1hZ2VudCIKICAgICAgICAgIH0sCiAgICAgICAgICAib2JzZXJ2ZWRBdCI6ICIyMDI2LTExLTE2VDAwOjAwOjAwLjAwMFoiLAogICAgICAgICAgImV4cGlyZXNBdCI6IG51bGwsCiAgICAgICAgICAic3VwZXJzZWRlcyI6IFtdLAogICAgICAgICAgInNlbnNpdGl2aXR5IjogIk5PUk1BTCIsCiAgICAgICAgICAicmV2aWV3RGVjaXNpb24iOiBudWxsCiAgICAgICAgfQogICAgICBdLAogICAgICAiaW5qZWN0ZWRCeXRlcyI6IDI0MCwKICAgICAgImV4cGlyZXNBdCI6ICIyMDI2LTExLTE2VDA1OjQyOjAwLjk5NloiCiAgICB9CiAgfSwKICAiY2FwdHVyZWQiOiB7CiAgICAicmVmIjogewogICAgICAiY2FwdHVyZUlkIjogImNhcHR1cmUtMSIsCiAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAic291cmNlUmV2aXNpb24iOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAicHJvamVjdElkIjogIm1lbW9yeS1wcm9qZWN0IiwKICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJtZW1vcnktd29ya2luZy1jb3B5IgogICAgICAgIH0sCiAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwNTo0MTowMC4zMTlaIiwKICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiZjYzYjY4NzI3NjMxM2EzZTdhMjBmYTMwNzJhYWZlZGIxYTk3NGViYmE3NWFjYTk5ZDJhNzUyZDI2ZGQ2ZTJlYSIKICAgICAgICB9CiAgICAgIH0sCiAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgfSwKICAgICJsYWJlbCI6ICJBc3Npc3RhbnQgbWVzc2FnZSIsCiAgICAicHJldmlldyI6ICJWaXNpYmxlIGV4YWN0IHNvdXJjZSIsCiAgICAicHJldmlld1RydW5jYXRlZCI6IGZhbHNlLAogICAgInNlbGVjdGVkQnl0ZXMiOiAyMCwKICAgICJyZXRhaW5lZCI6IHRydWUsCiAgICAic3RhdGUiOiAiQ1VSUkVOVCIKICB9LAogICJjb21tYW5kIjogewogICAgImlkIjogIjYxZjZlMGU3LTlkZWEtNDE3ZC1iOWJhLTJkMjhkZjI2MGM5YyIsCiAgICAidHlwZSI6ICJtZXNzYWdlLnNlbmQiLAogICAgInBheWxvYWQiOiB7CiAgICAgICJjb250ZW50IjogIlVzZSB0aGlzIHNvdXJjZSBhZnRlciB0aGUgY3VycmVudCBydW4iLAogICAgICAibW9kZWxJZCI6ICJ0ZXN0L21vZGVsIiwKICAgICAgInRoaW5raW5nTGV2ZWwiOiBudWxsLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogImNhcHR1cmUtMSIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogIm1lbW9yeS13b3JraW5nLWNvcHkiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDA1OjQxOjAwLjMxOVoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogImY2M2I2ODcyNzYzMTNhM2U3YTIwZmEzMDcyYWFmZWRiMWE5NzRlYmJhNzVhY2E5OWQyYTc1MmQyNmRkNmUyZWEiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJBRlRFUl9DVVJSRU5UIiwKICAgICAgInJlcXVlc3RDb250ZXh0SWQiOiAicHJlcGFyZWQtc291cmNlLXF1ZXVlLTEiCiAgICB9LAogICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIgogIH0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-ddfed96affde252e4851",
+          "file": "workbench-app.spec.ts",
+          "line": 1742,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5555,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:41:01.605Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "memory-read-only-review.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJSZWFsIEFwcCB3aXRoIHR5cGVkIGZpeHR1cmUgbWVtb3J5IGFuZCBzb3VyY2UgSFRUUDsgbm8gaG9zdCBhdXRob3JpemF0aW9uIGNsYWltIiwKICAiYmVmb3JlIjogewogICAgImRyYWZ0SWQiOiAiMDhiYjQ5ZDQtNTQ1My00ZTNmLTgyNDgtMGE5NzIyN2ZmY2FmIiwKICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICJwcm9qZWN0SWQiOiAibWVtb3J5LXByb2plY3QiLAogICAgICAid29ya3NwYWNlSWQiOiAibWVtb3J5LXdvcmtpbmctY29weSIKICAgIH0sCiAgICAicmV2aXNpb24iOiAxNzk0ODA3NjY0NjU1LAogICAgInRleHQiOiAiUmV0YWluIGF1dGhvcmVkIHRleHQgd2hpbGUgcmV2aWV3aW5nIG1lbW9yeSIsCiAgICAic291cmNlUmVmcyI6IFsKICAgICAgewogICAgICAgICJjYXB0dXJlSWQiOiAiY2FwdHVyZS0xIiwKICAgICAgICAic291cmNlIjogewogICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAic291cmNlSWQiOiAicmVwbHkiLAogICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJtZW1vcnktd29ya2luZy1jb3B5IgogICAgICAgICAgfSwKICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwNTo0MTowNC40NzdaIiwKICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogImY2M2I2ODcyNzYzMTNhM2U3YTIwZmEzMDcyYWFmZWRiMWE5NzRlYmJhNzVhY2E5OWQyYTc1MmQyNmRkNmUyZWEiCiAgICAgICAgICB9CiAgICAgICAgfSwKICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgfQogICAgXSwKICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICB9LAogICJhZnRlciI6IHsKICAgICJkcmFmdElkIjogIjA4YmI0OWQ0LTU0NTMtNGUzZi04MjQ4LTBhOTcyMjdmZmNhZiIsCiAgICAibG9naWNhbE93bmVyIjogewogICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAicHJvamVjdElkIjogIm1lbW9yeS1wcm9qZWN0IiwKICAgICAgIndvcmtzcGFjZUlkIjogIm1lbW9yeS13b3JraW5nLWNvcHkiCiAgICB9LAogICAgInJldmlzaW9uIjogMTc5NDgwNzY2NDY1NSwKICAgICJ0ZXh0IjogIlJldGFpbiBhdXRob3JlZCB0ZXh0IHdoaWxlIHJldmlld2luZyBtZW1vcnkiLAogICAgInNvdXJjZVJlZnMiOiBbCiAgICAgIHsKICAgICAgICAiY2FwdHVyZUlkIjogImNhcHR1cmUtMSIsCiAgICAgICAgInNvdXJjZSI6IHsKICAgICAgICAgICJraW5kIjogIk1FU1NBR0UiLAogICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICI4MDkxNmU3MGU4OGNhNjU3Nzk0ZDY0MTljM2MxZjljNDM2OTk2YzMzMWI2YjBmMWU0NGI1MWJhY2M1ZWZkN2UwIiwKICAgICAgICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICJwcm9qZWN0SWQiOiAibWVtb3J5LXByb2plY3QiLAogICAgICAgICAgICAid29ya3NwYWNlSWQiOiAibWVtb3J5LXdvcmtpbmctY29weSIKICAgICAgICAgIH0sCiAgICAgICAgICAiY29udGVudERpZ2VzdCI6ICI4MDkxNmU3MGU4OGNhNjU3Nzk0ZDY0MTljM2MxZjljNDM2OTk2YzMzMWI2YjBmMWU0NGI1MWJhY2M1ZWZkN2UwIiwKICAgICAgICAgICJjYXB0dXJlZEF0IjogIjIwMjYtMTEtMTZUMDU6NDE6MDQuNDc3WiIsCiAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICJlbmNvZGluZyI6ICJVVEYxNiIsCiAgICAgICAgICAgICJzdGFydCI6IDAsCiAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgInNlbGVjdGVkVGV4dERpZ2VzdCI6ICJmNjNiNjg3Mjc2MzEzYTNlN2EyMGZhMzA3MmFhZmVkYjFhOTc0ZWJiYTc1YWNhOTlkMmE3NTJkMjZkZDZlMmVhIgogICAgICAgICAgfQogICAgICAgIH0sCiAgICAgICAgImtlZXBDYXB0dXJlZCI6IGZhbHNlCiAgICAgIH0KICAgIF0sCiAgICAic2VuZE1vZGUiOiAiTk9XIiwKICAgICJjb25mbGljdFN0YXRlIjogIk5PTkUiCiAgfSwKICAic291cmNlUmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICJpdGVtSWQiOiAiYWNjZXB0ZWQiLAogICAgICAicmV2aXNpb24iOiAxLAogICAgICAic291cmNlRGlnZXN0IjogIjI2MWU3YzI2MjQ2NGM0ZDdkZmNkZjg1NGU1YmViOGZjMGMzZDQzOTE5ZGIyZWUzOWIyM2VjNjRjOWYxMzkxM2QiLAogICAgICAic291cmNlUmVmIjogewogICAgICAgICJvd25lclRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAic291cmNlS2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAic291cmNlSWQiOiAibWVtb3J5LXNvdXJjZS1hY2NlcHRlZCIsCiAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIm1lbW9yeS1yMSIsCiAgICAgICAgImNhcHR1cmVkU2VxIjogNCwKICAgICAgICAiZGlnZXN0IjogIjI2MWU3YzI2MjQ2NGM0ZDdkZmNkZjg1NGU1YmViOGZjMGMzZDQzOTE5ZGIyZWUzOWIyM2VjNjRjOWYxMzkxM2QiLAogICAgICAgICJvYnNlcnZlZFN0YXR1cyI6ICJSRVBPUlRFRCIKICAgICAgfQogICAgfSwKICAgIHsKICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgIml0ZW1JZCI6ICJjb25mbGljdCIsCiAgICAgICJyZXZpc2lvbiI6IDIsCiAgICAgICJzb3VyY2VEaWdlc3QiOiAiYzI4ZDg1ZTIyZDU1MDcwMjkxZmYxNThmNTM1Yzk4NjQ4YTY4MGI3YWY2OTBmYmQ3NGNlYjM4MzI3MmUyOGIxMiIsCiAgICAgICJzb3VyY2VSZWYiOiB7CiAgICAgICAgIm93bmVyVGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJzb3VyY2VLaW5kIjogIk1FU1NBR0UiLAogICAgICAgICJzb3VyY2VJZCI6ICJtZW1vcnktc291cmNlLWNvbmZsaWN0IiwKICAgICAgICAic291cmNlUmV2aXNpb24iOiAibWVtb3J5LXIyIiwKICAgICAgICAiY2FwdHVyZWRTZXEiOiA0LAogICAgICAgICJkaWdlc3QiOiAiYzI4ZDg1ZTIyZDU1MDcwMjkxZmYxNThmNTM1Yzk4NjQ4YTY4MGI3YWY2OTBmYmQ3NGNlYjM4MzI3MmUyOGIxMiIsCiAgICAgICAgIm9ic2VydmVkU3RhdHVzIjogIlJFUE9SVEVEIgogICAgICB9CiAgICB9CiAgXSwKICAibWVtb3J5QWN0aW9ucyI6IFtdLAogICJvcmRpbmFyeUNvbW1hbmRzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-7db6500ea5526f0a8a9b",
+          "file": "workbench-app.spec.ts",
+          "line": 1849,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review opens retained disabled records and an empty current-owner module",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4090,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:41:07.174Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-04c0850a833786e3610c",
+          "file": "workbench-app.spec.ts",
+          "line": 1974,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5820,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T05:41:11.280Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "memory-owner-transition.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJBY3R1YWwgTTA1IGNsaWVudCBvd25lciB2YWxpZGF0aW9uIGluIHJlYWwgQXBwIHdpdGggdHlwZWQgZml4dHVyZSBIVFRQOyBvbGQgaW4tZmxpZ2h0IGNhbmNlbGxhdGlvbiBpcyBkaXN0aW5jdCBmcm9tIHdyb25nLW93bmVyIHJlc3BvbnNlIHJlamVjdGlvbiIsCiAgIm9sZE93bmVyIjogewogICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAicHJvamVjdElkZW50aXR5IjogImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLAogICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICJhY2NvdW50SWQiOiAibWVtb3J5LWFjY291bnQtYSIsCiAgICAiYmluZGluZ0RpZ2VzdCI6ICJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIgogIH0sCiAgImN1cnJlbnRPd25lciI6IHsKICAgICJwcm9qZWN0SWQiOiAibWVtb3J5LXByb2plY3QiLAogICAgInByb2plY3RJZGVudGl0eSI6ICJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwKICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAiYWNjb3VudElkIjogIm1lbW9yeS1hY2NvdW50LWIiLAogICAgImJpbmRpbmdEaWdlc3QiOiAiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIKICB9LAogICJldmVudHMiOiBbCiAgICB7CiAgICAgICJraW5kIjogInNvdXJjZS1yZXNwb25zZS1zZXR0bGVkIiwKICAgICAgInNjb3BlIjogewogICAgICAgICJwcm9qZWN0SWQiOiAibWVtb3J5LXByb2plY3QiLAogICAgICAgICJwcm9qZWN0SWRlbnRpdHkiOiAiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsCiAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAiYWNjb3VudElkIjogIm1lbW9yeS1hY2NvdW50LWEiLAogICAgICAgICJiaW5kaW5nRGlnZXN0IjogImJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIiCiAgICAgIH0sCiAgICAgICJyZXF1ZXN0RmFpbHVyZSI6IHsKICAgICAgICAiZXJyb3JUZXh0IjogIm5ldDo6RVJSX0FCT1JURUQiCiAgICAgIH0KICAgIH0KICBdLAogICJiZWZvcmUiOiB7CiAgICAiZHJhZnRJZCI6ICJlODhmYmE4OC1jN2Y4LTQ1YjAtOTY5OS1hNGUyZjZiM2E4NjQiLAogICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICJ3b3Jrc3BhY2VJZCI6ICJtZW1vcnktd29ya2luZy1jb3B5IgogICAgfSwKICAgICJyZXZpc2lvbiI6IDE3OTQ4MDc2NzQ2NTgsCiAgICAidGV4dCI6ICJBY2NvdW50IHRyYW5zaXRpb24gcmV0YWlucyBteSBzb3VyY2UgYW5kIGRyYWZ0IiwKICAgICJzb3VyY2VSZWZzIjogWwogICAgICB7CiAgICAgICAgImNhcHR1cmVJZCI6ICJjYXB0dXJlLTEiLAogICAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICJzb3VyY2VJZCI6ICJyZXBseSIsCiAgICAgICAgICAic291cmNlUmV2aXNpb24iOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICAgICAicHJvamVjdElkIjogIm1lbW9yeS1wcm9qZWN0IiwKICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogIm1lbW9yeS13b3JraW5nLWNvcHkiCiAgICAgICAgICB9LAogICAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDA1OjQxOjE0LjQ5MFoiLAogICAgICAgICAgInJhbmdlIjogewogICAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAiZW5kIjogMjAsCiAgICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiZjYzYjY4NzI3NjMxM2EzZTdhMjBmYTMwNzJhYWZlZGIxYTk3NGViYmE3NWFjYTk5ZDJhNzUyZDI2ZGQ2ZTJlYSIKICAgICAgICAgIH0KICAgICAgICB9LAogICAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgICB9CiAgICBdLAogICAgInNlbmRNb2RlIjogIk5PVyIsCiAgICAiY29uZmxpY3RTdGF0ZSI6ICJOT05FIgogIH0sCiAgImFmdGVyIjogewogICAgImRyYWZ0SWQiOiAiZTg4ZmJhODgtYzdmOC00NWIwLTk2OTktYTRlMmY2YjNhODY0IiwKICAgICJsb2dpY2FsT3duZXIiOiB7CiAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICJwcm9qZWN0SWQiOiAibWVtb3J5LXByb2plY3QiLAogICAgICAid29ya3NwYWNlSWQiOiAibWVtb3J5LXdvcmtpbmctY29weSIKICAgIH0sCiAgICAicmV2aXNpb24iOiAxNzk0ODA3Njc0NjU4LAogICAgInRleHQiOiAiQWNjb3VudCB0cmFuc2l0aW9uIHJldGFpbnMgbXkgc291cmNlIGFuZCBkcmFmdCIsCiAgICAic291cmNlUmVmcyI6IFsKICAgICAgewogICAgICAgICJjYXB0dXJlSWQiOiAiY2FwdHVyZS0xIiwKICAgICAgICAic291cmNlIjogewogICAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAic291cmNlSWQiOiAicmVwbHkiLAogICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJtZW1vcnktd29ya2luZy1jb3B5IgogICAgICAgICAgfSwKICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwNTo0MToxNC40OTBaIiwKICAgICAgICAgICJyYW5nZSI6IHsKICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICAgImVuZCI6IDIwLAogICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogImY2M2I2ODcyNzYzMTNhM2U3YTIwZmEzMDcyYWFmZWRiMWE5NzRlYmJhNzVhY2E5OWQyYTc1MmQyNmRkNmUyZWEiCiAgICAgICAgICB9CiAgICAgICAgfSwKICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgfQogICAgXSwKICAgICJzZW5kTW9kZSI6ICJOT1ciLAogICAgImNvbmZsaWN0U3RhdGUiOiAiTk9ORSIKICB9LAogICJzb3VyY2VSZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgIml0ZW1JZCI6ICJhY2NlcHRlZCIsCiAgICAgICJyZXZpc2lvbiI6IDEsCiAgICAgICJzb3VyY2VEaWdlc3QiOiAiMjYxZTdjMjYyNDY0YzRkN2RmY2RmODU0ZTViZWI4ZmMwYzNkNDM5MTlkYjJlZTM5YjIzZWM2NGM5ZjEzOTEzZCIsCiAgICAgICJzb3VyY2VSZWYiOiB7CiAgICAgICAgIm93bmVyVGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJzb3VyY2VLaW5kIjogIk1FU1NBR0UiLAogICAgICAgICJzb3VyY2VJZCI6ICJtZW1vcnktc291cmNlLWFjY2VwdGVkIiwKICAgICAgICAic291cmNlUmV2aXNpb24iOiAibWVtb3J5LXIxIiwKICAgICAgICAiY2FwdHVyZWRTZXEiOiA0LAogICAgICAgICJkaWdlc3QiOiAiMjYxZTdjMjYyNDY0YzRkN2RmY2RmODU0ZTViZWI4ZmMwYzNkNDM5MTlkYjJlZTM5YjIzZWM2NGM5ZjEzOTEzZCIsCiAgICAgICAgIm9ic2VydmVkU3RhdHVzIjogIlJFUE9SVEVEIgogICAgICB9CiAgICB9CiAgXSwKICAibWVtb3J5QWN0aW9ucyI6IFtdLAogICJvcmRpbmFyeUNvbW1hbmRzIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-0e20a77fa269113ce035",
+          "file": "workbench-app.spec.ts",
+          "line": 2011,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T05:37:11.998Z",
+    "duration": 245380.97,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

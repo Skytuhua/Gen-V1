@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-performance-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  05:39:58
+   Duration  685ms (transform 142ms, setup 0ms, import 136ms, tests 317ms, environment 0ms)
+

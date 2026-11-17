@@ -13,6 +13,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
+
 jobs:
   checks:
     name: Windows checks
@@ -113,7 +118,7 @@ jobs:
       - name: Exercise project memory and affected context browser flows
         run: |
           $failedSuites = @()
-          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
             pnpm test:browser --suite $suite
             if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
           }

@@ -1,0 +1,39 @@
+argv: ["pnpm","exec","vitest","run","tests/hermes-client-startup.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-setup-hermes-red-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/hermes-client-startup.test.ts (4 tests | 1 failed) 214ms
+   × disposes after home admission fails before lending custody to the worker 15ms
+   ✓ retains an acquired namespace guard release failure 95ms
+   ✓ retains an acquired guard failure when startup is revoked before worker creation 2ms
+   ✓ keeps acquired guard custody when descendant cancellation is unconfirmed 99ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-client-startup.test.ts > disposes after home admission fails before lending custody to the worker
+AssertionError: promise rejected "HarnessError: Source storage requires an … { …(2) }" instead of resolving
+ ❯ tests/hermes-client-startup.test.ts:22:32
+     20|   startupError=await client.request('echo',{}).catch(error=>error);
+     21|   expect(startupError).toMatchObject({code:'CAPABILITY_DENIED'});
+     22|   await expect(client.dispose()).resolves.toBeUndefined();
+       |                                ^
+     23|   await expect(client.dispose()).resolves.toBeUndefined();
+     24|   expect(await readFile(parent,'utf8')).toBe('retained');
+
+Caused by: HarnessError: Source storage requires an ordinary app-owned parent.
+ ❯ withHermesHome packages/runtime-hermes/home.ts:20:85
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  08:23:14
+   Duration  868ms (transform 207ms, setup 0ms, import 334ms, tests 214ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-setup-hermes-red-01-results.json

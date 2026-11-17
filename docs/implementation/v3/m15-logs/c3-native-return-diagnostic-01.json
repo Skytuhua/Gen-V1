@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c3-native-return-diagnostic-01/artifacts",
+    "--reporter=list,json",
+    "--trace=on"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T02:34:15.460Z",
+  "endedAt": "2026-11-16T02:37:53.540Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-native-return-diagnostic-01.log",
+  "logDigest": "52033ae9a880a57360a1fd9790e9c81ebfed5e4ea0fa70ee7dfc900cd49e6548"
+}

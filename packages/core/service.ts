@@ -1,4 +1,10 @@
 import { randomUUID, createHash } from "node:crypto";
+import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
+import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
+import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
+import { openContextResultCustody } from './context-result-custody.ts';
+import { contextResultReadArgs } from './context-result-tool.ts';
+import { projectHostRequest } from './host-context-projection.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
@@ -47,7 +53,10 @@ import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import type { RequestPreparationV1 } from '../contracts/request-context.ts';
+import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
+import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
+import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
+import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
@@ -56,7 +65,7 @@ import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
 import type {ModelRequestGate} from '../runtime/model-capacity.ts';
 import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
-type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; requestContextId?:string; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -94,6 +103,7 @@ export interface ServiceOptions {
   };
 }
 export class Service {
+  readonly sourceWorkbench: SourceWorkbench;
   readonly research:PersonalResearchRepository;
   readonly planning: PlanningCoordinator;
   readonly agentWork: AgentWorkCoordinator;
@@ -119,16 +129,47 @@ export class Service {
   private skillIndexes=new Map<string,string>();
   private learningSupported:boolean;
   private lastActivity=Date.now();
+  private readonly compactionRegistry = createCompactionCandidateRegistry();
+  private readonly compactionCandidateIds = new Map<string, string[]>();
+  private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
+  private readonly compactionInflight = new Map<string, Promise<void>>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
   private readonly deliveries=new Map<string,Promise<void>>();
+  private readonly messageAdmissions=new Map<string,{commitment:string;work:Promise<CommandReceipt>}>();
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
   private readonly authority:ToolAuthority;
+  private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
+  private contextStorage?: Promise<ContextResultStorage>;
+  private contextResults?: ReturnType<typeof createContextResults>;
+  private contextResultsEnabled() { return capabilityEnabled('context.compilerV1') && capabilityEnabled('tools.deferredV1'); }
+  private contextResultOwner(thread: Thread) {
+    return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
+  }
+  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null]); }
+  private contextResultVault() {
+    const open = () => this.contextStorage ??= openContextResultCustody(this.store.dataDir).catch(cause => { this.contextStorage = undefined; throw cause; });
+    return this.contextResults ??= createContextResults({
+      now: Date.now,
+      isAuthorized: (owner, invocation) => {
+        const thread = this.store.get<Thread>('thread', owner.threadId);
+        if (this.closed || !this.contextResultsEnabled() || !thread?.runId || thread.kind === 'delegate' || thread.sideParentId) return false;
+        const current = this.contextResultOwner(thread);
+        return invocation.startsWith(this.contextResultInvocation(thread) + ':') && current.workspaceId === owner.workspaceId && current.accountId === owner.accountId;
+      },
+      storage: {
+        put: async (key, bytes, record) => (await open()).put(key, bytes, record),
+        get: async key => (await open()).get(key),
+        getRecord: async key => (await open()).getRecord?.(key),
+        pruneExpired: async now => (await open()).pruneExpired?.(now) ?? 0,
+      },
+    });
+  }
   private readonly requestCustody:RequestContextCustody;
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
@@ -139,8 +180,17 @@ export class Service {
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
       released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
     });
+    this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
+      requestContextEnabled: () => this.requestContextEnabled(),
+      readMemoryModule: async owner => {
+        const memory = this.projectMemory, access = await memory.access(owner.projectId, owner.threadId), view = memory.read(access);
+        return {state: !view.available ? 'DISABLED' : view.items.length || view.tombstones.length ? 'AVAILABLE' : 'EMPTY', reason: view.available ? null : view.disabledReason,
+          href: '/api/projects/' + encodeURIComponent(owner.projectId) + '/memory?threadId=' + encodeURIComponent(owner.threadId), assertCurrent: () => memory.assertAccess(access)};
+      },
+    });
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
-    this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
+    this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
@@ -330,7 +380,7 @@ export class Service {
   private enqueueInput(input: Outbox): void {
     const thread = this.store.get<Thread>("thread", input.threadId);
     const finish = thread?.runId ? this.store.get<FinishRecord>("finish", thread.runId) : null;
-    if (finish && thread?.runId) this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
+    if (finish && thread?.runId && input.sendMode !== 'AFTER_CURRENT') this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
     this.store.put("outbox", input.id, input.threadId, input);
   }
   private afterMaintenance(threadId: string, previous: Thread["status"]): Thread["status"] {
@@ -376,6 +426,68 @@ export class Service {
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
   private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
+  /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
+   * Never mutates native history; candidates carry metadata only. */
+  private latestRequestReceipt(threadId:string):RequestContextV1|null {
+    const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
+    if(!row)return null;
+    const receipt=(JSON.parse(row.body) as {receipt?:RequestContextV1}).receipt;
+    return receipt??null;
+  }
+  private compactionBindingOf(receipt:RequestContextV1){
+    return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+  }
+  private async applyLossAwareCompaction(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+    const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(thread));
+    const tail=run.then(()=>undefined,()=>undefined);
+    this.compactionInflight.set(thread.id,tail);
+    tail.finally(()=>{if(this.compactionInflight.get(thread.id)===tail)this.compactionInflight.delete(thread.id);});
+    return run;
+  }
+  private async applyLossAwareCompactionInner(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+    const receipt=this.latestRequestReceipt(thread.id);
+    if(!receipt)return {status:'UNSUPPORTED_COMPACTION',candidateId:'',usageEntity:null};
+    const binding=this.compactionBindingOf(receipt);
+    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
+    if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
+    this.trackCompactionCandidate(thread.id,metadata.candidateId);
+    const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch,accountId:binding.accountId??null};
+    const bytes=(list:unknown[])=>list.reduce((n:number,m)=>n+Buffer.byteLength(JSON.stringify(m),'utf8'),0);
+    const outcome:{usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}={usageEntity:null};
+    const freshReceipt=this.latestRequestReceipt(thread.id);
+    const current=freshReceipt?this.compactionBindingOf(freshReceipt):binding;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
+      const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
+      if(!snap)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
+      const beforeBytes=bytes(snap.messages);
+      await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,undefined,snap.sha256);
+      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null).catch(()=>null);
+      outcome.usageEntity={id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:after?bytes(after.messages):null};
+      return {generation:binding.generation+1,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
+    }:undefined});
+    this.compactionVerdicts.set(metadata.candidateId,verdict.status);
+    if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
+    else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
+    else this.compactionRegistry.markDiscarded(metadata.candidateId);
+    return {status:verdict.status,candidateId:metadata.candidateId,usageEntity:outcome.usageEntity};
+  }
+  private trackCompactionCandidate(threadId:string,candidateId:string):void {
+    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==candidateId),candidateId].slice(-8);
+    this.compactionCandidateIds.set(threadId,ids);
+  }
+  private writeCompactionProjection(threadId:string):void {
+    const ids=this.compactionCandidateIds.get(threadId)??[];
+    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);if(!entry)return null;
+      const usage=this.store.get<{beforeBytes:number;afterBytes:number|null}>('compactionUsage',id);return {
+      metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
+      retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
+      estimatedByteReduction:null,measuredBeforeBytes:usage?usage.beforeBytes:null,measuredAfterBytes:usage?usage.afterBytes:null,
+    };}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
+    const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
+    const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
+  }
   private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
@@ -618,7 +730,26 @@ export class Service {
       }
     };
   }
-  async command(command: HostCommand) {
+  async command(command: HostCommand): Promise<CommandReceipt> {
+    if (command.type !== 'message.send') return this.commandAdmitted(command);
+    const accepted = this.store.receipt(command); if (accepted) return accepted;
+    const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
+    if (pending) {if (pending.commitment !== commitment) throw new HarnessError('DUPLICATE_COMMAND', 'A pending send command already belongs to different content.'); return pending.work;}
+    if (this.messageAdmissions.size >= 128) throw new HarnessError('SEND_BUSY', 'Too many messages are being admitted.', {sendAccepted: false});
+    const captured = structuredClone(command);
+    const work = Promise.resolve().then(async () => {
+      try {return await this.commandAdmitted(captured);} catch (error) {
+        const receipt = this.store.receipt(captured); if (receipt) return receipt;
+        // There is exactly one matching admission while this entry is held.
+        // Typed precommit denial can therefore unlock an edited new command.
+        if (error instanceof HarnessError && !this.store.get('outbox', captured.id)) throw new HarnessError(error.code, error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), sendAccepted: false});
+        throw error;
+      }
+    });
+    this.messageAdmissions.set(command.id, {commitment, work});
+    try {return await work;} finally {if (this.messageAdmissions.get(command.id)?.work === work) this.messageAdmissions.delete(command.id);}
+  }
+  private async commandAdmitted(command: HostCommand): Promise<CommandReceipt> {
     if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
     if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
     // Retired commands must not replay old write receipts.
@@ -720,6 +851,21 @@ export class Service {
       });
     }
     if (command.type === "run.compact") {
+      if (capabilityEnabled('context.lossAwareCompactionV1')) {
+        if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
+        if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
+        this.assertNoOtherRun(thread.id);
+        const compactionOutcome = await this.applyLossAwareCompaction(thread);
+        if (compactionOutcome.status === 'UNSUPPORTED_COMPACTION')
+          throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+        const receipt = this.store.command(command, () => {
+          if (compactionOutcome.usageEntity) this.store.put('compactionUsage', compactionOutcome.candidateId, thread.id, compactionOutcome.usageEntity);
+          this.writeCompactionProjection(thread.id);
+          return { verdict: compactionOutcome.status };
+        });
+        if (compactionOutcome.status === 'APPLIED') return receipt;
+        throw new HarnessError('COMPACTION_FAILED', 'The verified native compaction apply failed.');
+      }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
       this.assertNoOtherRun(thread.id);
@@ -995,15 +1141,23 @@ export class Service {
     if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
+    let rollbackClaim: (() => void) | undefined, rollbackAdmission: (() => void) | undefined;
+    try {
     // Replaced by explicit verified admission when the runtime adapter is connected.
     // Until then a selected reference must never become an ordinary unpinned send.
     if (command.payload.skills !== undefined) throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE', 'Selected skills are unavailable for this runtime. Your draft is retained.', {sendAccepted: false});
+    const sourceRefs = sourceRefsV1Schema.parse(command.payload.sourceRefs ?? []), sendMode = sendModeV1Schema.parse(command.payload.sendMode ?? 'NOW');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && !capabilityEnabled('ui.sourceWorkbenchV1')) throw new HarnessError('CAPABILITY_DENIED', 'The source workbench is disabled on this host.');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && (thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit source workbench mutations.');
+    const sourceOwner = sourceRefs.length ? this.sourceWorkbench.owner(thread.id) : null;
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
-    const model=(await this.runtime.models({accountId:binding.accountId})).find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
+    const availableModels = await this.runtime.models({accountId:binding.accountId});
+    const concurrentReceipt = this.store.receipt(command); if (concurrentReceipt) return concurrentReceipt;
+    const model=availableModels.find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
     if(this.reviewing)await this.cancelReview();
     this.assertNoOtherRun(thread.id);
     let current = this.thread(thread.id);
@@ -1016,19 +1170,42 @@ export class Service {
     if(command.payload.requestContextId!==undefined){requestContextId=text(command.payload,'requestContextId',200);if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');this.getRequestPreparation(thread.id,requestContextId);}
     else if(this.requestContextEnabled())requestContextId=(await this.prepareRequestContext(thread.id,content,{modelId,thinkingLevel})).requestId;
     if(requestContextId){this.assertNoOtherRun(thread.id);current=this.thread(thread.id);this.assertBinding(current,providerId,binding);}
+    // Source I/O completes before the single synchronous accepted-input commit.
+    // Its final checks run again inside that commit and at runtime dispatch.
+    const preparedSources = sourceOwner ? await this.sourceWorkbench.prepareSend(sourceOwner, sourceRefs) : null;
+    if (preparedSources) {current = this.thread(thread.id); if (current.epoch !== thread.epoch || current.runId !== thread.runId || ['stopped', 'interrupted'].includes(current.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while validating the selected sources.');}
     const receipt = this.store.command(command, () => {
       this.assertBinding(this.thread(thread.id),providerId,binding);
+      if (sourceRefs.length || sendMode === 'AFTER_CURRENT') {
+        const latest = this.thread(thread.id);
+        if (!capabilityEnabled('ui.sourceWorkbenchV1') || latest.sideParentId || latest.kind === 'side' || latest.kind === 'delegate') throw new HarnessError('CAPABILITY_DENIED', 'This task no longer admits source workbench mutations.');
+        if (latest.epoch !== thread.epoch || ['stopped', 'interrupted'].includes(latest.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing this input.');
+        this.assertNoOtherRun(thread.id);
+      }
+      preparedSources?.assertCurrent();
+      const bindCapturedAccount = this.sourceWorkbench.prepareInitialAccountBinding(thread.id, command.id, binding.accountId);
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
-      if(requestContextId)this.requestCustody.claim(requestContextId,command.id,content,before!);
-      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId };
-      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}) };
+      if(requestContextId)rollbackClaim=this.requestCustody.claim(requestContextId,command.id,content,before!);
+      const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
+      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
+      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
       this.store.put("thread", thread.id, thread.id, { ...current, accountId:binding.accountId,modelId, thinkingLevel, error: null, ...(["completed", "failed"].includes(current.status) ? { status: "ready" } : {}), updatedAt: now(), ...(current.title === "New thread" ? { title: content.slice(0, 65) } : {}) });
-      if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
+      bindCapturedAccount?.();
+      preparedSources?.assertCurrent();
+      if(before)rollbackAdmission=this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
       return { messageId: message.id, inputId: input.id };
     });
     this.backgroundWork.noteForegroundAdmission(thread.id);
     this.background(this.deliverOutbox(thread.id)); return receipt;
+    } catch (error) {
+      // A concurrent replay can finish its asynchronous admission after the
+      // original input has already advanced the run. A prior matching receipt
+      // acknowledges that accepted input; it does not send it a second time.
+      const accepted = this.store.receipt(command); if (accepted) return accepted;
+      if ((rollbackAdmission || rollbackClaim) && !this.store.get('outbox', command.id)) {rollbackAdmission?.(); rollbackClaim?.();}
+      throw error;
+    }
   }
   private async resume(command: HostCommand, thread: Thread) {
     this.assertNoOtherRun(thread.id);
@@ -1051,7 +1228,7 @@ export class Service {
       const current = this.thread(thread.id);
       this.assertBinding(current,providerId,binding);
       if (current.epoch !== thread.epoch || current.runId !== thread.runId || current.status !== thread.status) throw new HarnessError("CANCELLED_RUN", "Thread authority changed while preparing resume");
-      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
+      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, sourceFailure:undefined, ...(input.sourceRecovery?{sourceRecovery:{...input.sourceRecovery,resumeRequired:false}}:{}), status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
       if (!this.store.all<Outbox>("outbox", thread.id).some(i => i.status === "persisted")) this.store.put("outbox", command.id, thread.id, { id: command.id, threadId: thread.id, content: "Resume this task from saved state and evidence.", status: "persisted", runId: null });
       this.store.put("thread", thread.id, thread.id, { ...thread,accountId:binding.accountId, modelId,thinkingLevel,status: this.hasGate(thread.id) ? "awaiting_input" : "ready", updatedAt: now(), error: null }); return { resumed: true };
     }); this.backgroundWork.noteForegroundAdmission(thread.id); this.background(this.deliverOutbox(thread.id)); return receipt;
@@ -1061,12 +1238,34 @@ export class Service {
     this.deliveries.set(threadId,work);
     try{await work;}finally{if(this.deliveries.get(threadId)===work)this.deliveries.delete(threadId);}
   }
+  private assertSavedInput(input: Outbox): void {
+    const current = this.store.get<Outbox>('outbox', input.id);
+    if (!current || current.status !== 'persisted' || digest(current) !== digest(input)) throw new HarnessError('INPUT_CHANGED', 'The accepted input changed during preparation.');
+  }
+  /** A failed preparation is recoverable only with local proof that the
+   * runtime call was never entered. A dispatched input remains ambiguous. */
+  private blockSourceInputs(inputs: Outbox[], error: unknown, undispatchedRunId?: string): void {
+    if (!inputs.length) return;
+    this.store.internal('input.source_blocked', inputs[0].threadId, () => {
+      const blocked: string[] = [];
+      for (const input of inputs) {
+        if (input.runId !== null || input.enteredRuntime === true) continue;
+        const current = this.store.get<Outbox>('outbox', input.id);
+        if (!current || current.threadId !== input.threadId || current.content !== input.content || digest(current.sourceRefs) !== digest(input.sourceRefs) || current.enteredRuntime === true || current.status === 'handled') continue;
+        const proven = current.status === 'persisted' && current.runId === null || undispatchedRunId !== undefined && current.status === 'processing' && current.runId === undispatchedRunId;
+        if (!proven) continue;
+        this.store.put('outbox', current.id, current.threadId, {...current, status: 'persisted', runId: null, enteredRuntime: false, sourceFailure: {code: error instanceof HarnessError ? error.code : 'SOURCE_PREPARATION_FAILED', reason: (error instanceof Error ? error.message : 'Source preparation failed.').slice(0, 1000)}});
+        blocked.push(input.id);
+      }
+      return {inputIds: blocked, reason: 'Source preparation failed before runtime entry; explicit recovery is available.'};
+    });
+  }
   private async deliverInputs(threadId:string):Promise<void>{
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
     this.assertNoOtherRun(threadId);
-    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite)))return;
+    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT')))return;
     // Executor completions can enqueue input without a user command. Re-read
     // the thread after teardown; no captured state survives the async boundary.
     if(this.predictions.busy||this.memoryHostInstance?.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
@@ -1074,10 +1273,14 @@ export class Service {
     if(preparing)this.mainAdmissions.add(threadId);
     const preparingEpoch=thread.epoch;
     let requestContextId:string|undefined;
+    let separatedSourceInputs = false;
+    let sourceInputs: Outbox[] = [];
     try{
     if(preparing&&this.options.prepareWorkspace){const captured=thread;await this.options.prepareWorkspace(thread);thread=this.thread(threadId);if(thread.epoch!==captured.epoch||thread.runId!==captured.runId||thread.status!==captured.status)throw new HarnessError('CANCELLED_RUN','The task changed while preparing its workspace.');}
-    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite));
-    const inputs=this.requestContextEnabled()?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT'));
+    separatedSourceInputs = eligible.some(input=>input.sourceRefs?.length);
+    const inputs=this.requestContextEnabled()||separatedSourceInputs?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    sourceInputs = inputs.filter(input => input.sourceRefs?.length);
     const modelId=thread.modelId;if(!modelId)throw new HarnessError('MODEL_UNAVAILABLE','Choose a model before starting the prepared workspace.');
     if(this.requestContextEnabled()){
       requestContextId=inputs[0].requestContextId;
@@ -1085,16 +1288,21 @@ export class Service {
         requestContextId=(await this.prepareRequestContext(threadId,inputs[0].content,{modelId,thinkingLevel:thread.thinkingLevel})).requestId;
         thread=this.thread(threadId);
         const basis=this.requestBasis(thread,modelId,thread.thinkingLevel);
-        this.store.internal('request.context.claimed',threadId,()=>{this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
+        this.store.internal('request.context.claimed',threadId,()=>{this.assertSavedInput(inputs[0]);this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
         inputs[0]={...inputs[0],requestContextId};
       }
       this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,this.requestBasis(thread,modelId,thread.thinkingLevel));
     }else if(inputs.some(input=>input.requestContextId))throw new HarnessError('REQUEST_CONTEXT_DISABLED','This accepted input requires request context custody.');
+    const sourceContexts: PreparedSourceContext[] = [];
+    for (const input of inputs) if (input.sourceRefs?.length) sourceContexts.push(await this.sourceWorkbench.prepareSend(this.sourceWorkbench.owner(threadId), input.sourceRefs, {accepted: true}));
+    if (sourceContexts.length) {const latest = this.thread(threadId); if (latest.epoch !== thread.epoch || latest.runId !== thread.runId || latest.status !== thread.status) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing source evidence.');}
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
     const binding=this.binding(thread,modelProvider(modelId));
     const completedWrites:CompletedWriteReceipt[]=[];
     this.store.internal("input.processing", threadId, () => {
+      for (const input of inputs) this.assertSavedInput(input);
       this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
+      for (const context of sourceContexts) context.assertCurrent();
       const before=requestContextId?this.requestBasis(this.thread(threadId),modelId,thread.thinkingLevel):null;
       if(requestContextId)this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,before!);
       this.store.put("thread", threadId, threadId, { ...thread, ...ctx,accountId:binding.accountId, id: threadId, status: this.hasGate(threadId) ? "awaiting_input" : "working", updatedAt: now() });
@@ -1121,7 +1329,21 @@ export class Service {
     let contents=requestContextId?[this.requestCustody.resolvedPrompt(requestContextId,inputs[0].id)]:inputs.map(input=>input.content);
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
-    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}),prompt: guidance+userPrompt };
+    const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
+    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
+      try {
+        const current = this.assertRun(ctx);
+        const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
+          guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
+        this.store.internal('runtime.context.host', threadId, () => {
+          const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
+          const usage = { ...old, hostProjection };
+          this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
+          return { runId: ctx.runId, usage };
+        });
+      } catch { /* Shadow observation cannot alter or prevent the submitted request. */ }
+    }
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -1130,23 +1352,27 @@ export class Service {
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});
         input=await this.requestCustody.finalize(requestContextId,input,sources,()=>this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
         this.requestCustody.assertFinalized(requestContextId,input,this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
       }
-      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);dispatched=true;
+      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();dispatched=true;
       if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input);
     }
-    catch (error) { this.runtimeFailure(ctx, error); }
+    catch (error) { if (!dispatched) this.blockSourceInputs(sourceInputs, error, ctx.runId); this.runtimeFailure(ctx, error); }
     finally { if(requestContextId)this.requestCustody.release(requestContextId,dispatched?'dispatched':'failed');this.releaseController(threadId,control); }
     }catch(error){
       const current=this.store.get<Thread>('thread',threadId);
       if(requestContextId)this.requestCustody.release(requestContextId,'failed');
+      if (error instanceof HarnessError && error.code === 'INPUT_CHANGED') return;
+      this.blockSourceInputs(sourceInputs, error);
       if(!this.closed&&preparing&&current?.epoch===preparingEpoch&&!current.runId&&!['stopped','interrupted'].includes(current.status))this.store.internal('input.preparation_failed',threadId,()=>{this.store.put('thread',threadId,threadId,{...current,status:'interrupted',error:error instanceof Error?error.message:String(error),updatedAt:now()});return{error:'Workspace preparation failed; the input remains saved.'};});
       else if(this.requestContextEnabled()&&current?.runId&&current.epoch===thread.epoch&&current.runId===thread.runId)this.runtimeFailure({threadId,epoch:current.epoch,runId:current.runId},error);
       else throw error;
     }finally{if(preparing)this.mainAdmissions.delete(threadId);}
-    if(this.requestContextEnabled()&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'))await this.deliverInputs(threadId);
+    const activeRun = this.thread(threadId).runId;
+    if((this.requestContextEnabled()||separatedSourceInputs)&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'&&!input.sourceFailure&&!input.sourceRecovery?.resumeRequired&&(!activeRun||!input.completedWrite&&input.sendMode!=='AFTER_CURRENT')))await this.deliverInputs(threadId);
   }
   private runtimeFailure(ctx: RunContext, error: unknown): void {
     if (this.closed) return;
@@ -1201,6 +1427,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
+    if (event.type === 'context.request' && !capabilityEnabled('context.compilerV1')) return;
     if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
     if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
     // Preserve event order: buffered deltas precede every other commit here.
@@ -1254,9 +1481,27 @@ export class Service {
         // snapshot instead of re-fetching it for every streamed chunk.
         return { runId: event.runId, message };
       }
+      if (event.type === 'context.request') {
+        const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
+        const { sequence, promptBytes, knownInputs } = event;
+        const old = this.store.get<{ value: RuntimeUsage }>('usage', thread.id)?.value ?? EMPTY_USAGE;
+        const last = old.lastRequest;
+        if (event.provider !== 'hermes' || !count(sequence, Number.MAX_SAFE_INTEGER) || sequence < 1 ||
+          !count(promptBytes, MODEL_ONLY_MAX_PROMPT_BYTES) || !count(knownInputs, 4096) ||
+          (last?.runId === event.runId && last.epoch === event.epoch && last.sequence >= sequence)) return { runId: event.runId };
+        const tool = event.toolSnapshot as Record<string, unknown> | undefined;
+        const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
+          typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
+          ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
+        const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}) };
+        const usage = { ...old, lastRequest: observation };
+        this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
+        return { runId: event.runId, usage };
+      }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }
@@ -1284,7 +1529,8 @@ export class Service {
         for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.runId === event.runId && i.status !== "handled" && i.enteredRuntime && handled.has(i.id))) this.store.put("outbox", input.id, thread.id, { ...input, status:"handled" });
         const unresolved = this.store.all<Outbox>("outbox", thread.id).some(i => i.runId === event.runId && i.status !== "handled");
         if(intent?.kind!=="compaction")this.planning.endRun(event,event.aborted?"cancelled":unresolved?"interrupted":"review_required");
-        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated ? "completed" : "ready", updatedAt: now() });
+        const queuedNext = this.store.all<Outbox>('outbox', thread.id).some(input => input.status === 'persisted' && (input.sendMode === 'AFTER_CURRENT' || input.sourceFailure || input.sourceRecovery?.resumeRequired));
+        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated && !queuedNext ? "completed" : "ready", updatedAt: now() });
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE; this.store.put("usage", thread.id, thread.id, { id: thread.id, value: { ...old, activity: "idle" } });
         advanceLifecycle();
         if(!event.aborted&&!unresolved&&intent?.kind!=='compaction')this.memoryHostInstance?.scheduleSettled(event);
@@ -1325,7 +1571,30 @@ export class Service {
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
-    if (call.name === "ui_discover") return discoverCapabilities(args);
+    if (call.name === 'context_result_read') {
+      if (!this.contextResultsEnabled()) throw new HarnessError('CAPABILITY_UNAVAILABLE', 'Context result retrieval is disabled');
+      const parsed = contextResultReadArgs.safeParse(args);
+      if (!parsed.success) throw new HarnessError('INVALID_INPUT', 'Choose a valid context result range');
+      const result = await this.contextResultVault().read({ owner: this.contextResultOwner(owningThread), ...parsed.data });
+      this.assertRun(ctx);
+      if (result.status !== 'OK') return result;
+      const { bytes, ...summary } = result;
+      try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
+      catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
+    }
+    if (call.name === "ui_discover") {
+      const value = await discoverCapabilities(args);
+      if (!this.contextResultsEnabled()) return value;
+      const bytes = Buffer.from(JSON.stringify(value));
+      if (bytes.length <= CONTEXT_PREVIEW_CAP_BYTES) return value;
+      const current = this.assertRun(ctx);
+      const result = await this.contextResultVault().spill({
+        owner: this.contextResultOwner(current), invocationId: this.contextResultInvocation(current) + ':' + randomUUID(),
+        bytes, mediaType: 'application/json', expiresAtMs: Date.now() + 60 * 60_000,
+      });
+      this.assertRun(ctx);
+      return { ...result, totalBytes: bytes.length };
+    }
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
@@ -1408,7 +1677,7 @@ export class Service {
       }
       if (call.name === "task_finish") {
         if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
-        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled");
+        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled" && !(i.status === 'persisted' && (i.sendMode === 'AFTER_CURRENT' || i.sourceFailure || i.sourceRecovery?.resumeRequired) && i.runId === null));
         const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });

@@ -1,0 +1,13 @@
+argv: ["node","--import","tsx","/workspace/scratch/1b47eb428672/m15-publication/c4/empty-owner-diagnostic-01/diagnostic.mts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+{"outcome":{"status":"REJECTED","message":"Empty-owner handoff exceeded 64 asynchronous source reads without settling.","sentinel":true},"allReads":68,"sourceReads":66,"source":{"apps/web/src/journal.ts":"a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580","apps/web/src/workbench-recovery.ts":"43466b7cb5c40326c704c56ae1024af07a3a88137ba09bf0c557aa89eaf947ed","apps/web/src/editor-handoff.ts":"57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3","apps/web/src/App.tsx":"ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b","apps/web/src/SourceWorkbench.tsx":"de0cac5c3f3575621a12822d8c1b963932bc47911591f78ffbead2a61cd34965","tests/source-handoff-v3.test.ts":"a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd"},"started":["App-start","SourceWorkbench-start"],"ready":[]}
+/workspace/scratch/1b47eb428672/m15-publication/c4/empty-owner-diagnostic-01/diagnostic.mts:48
+if (outcome.status !== 'READY') throw Error('Both healthy empty-owner guards must settle: ' + JSON.stringify(outcome));
+                                      ^
+
+Error: Both healthy empty-owner guards must settle: {"status":"REJECTED","message":"Empty-owner handoff exceeded 64 asynchronous source reads without settling.","sentinel":true}
+    at <anonymous> (/workspace/scratch/1b47eb428672/m15-publication/c4/empty-owner-diagnostic-01/diagnostic.mts:48:39)
+
+Node.js v24.22.1

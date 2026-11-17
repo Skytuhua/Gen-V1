@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "--grep",
+    "clipped interior|transformed Markdown",
+    "--reporter=list",
+    "--output=test-results/m15-selection-review-red-01"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:27:21.465Z",
+  "endedAt": "2026-11-15T22:27:42.242Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/selection-review-red-01.log",
+  "logDigest": "0be2235c281a2db302a2882d443873794f6e6f631ac5b59ffc0cc9d2cf01fc33"
+}

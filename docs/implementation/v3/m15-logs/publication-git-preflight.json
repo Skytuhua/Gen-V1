@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "--dry-run",
+    "origin",
+    "399cde39ff4ee82272c7a7700944325c44b36070:refs/heads/agent/m15-v3"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/usr/local/bin/git",
+  "startedAt": "2026-11-15T22:35:06.873Z",
+  "endedAt": "2026-11-15T22:35:12.668Z",
+  "exitCode": 128,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/publication-git-preflight.log",
+  "logDigest": "568b211840dc20e01270c42f185db3bb4f6f64d76a10c111f81e23b915335ed3"
+}

@@ -1,0 +1,21 @@
+
+> gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m04-v6
+> tsx scripts/test-browser.ts --suite terminal-excerpts
+
+Browser results: /home/piadmin/Gen-V1-m04-v6/test-results/browser/run-1794860830368-75eb5b27-b9f1-4fc8-9afb-9d669899349e
+
+Browser suite: terminal-excerpts (1 spec files)
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/e2e/terminal-excerpts.spec.ts:52:1 › real xterm selection is copied before focus/scroll, edited and persisted without terminal input or Send (20.5s)
+  ✓  2 tests/e2e/terminal-excerpts.spec.ts:56:1 › keyboard selection and action are immediate; remove releases geometry immediately (5.9s)
+  ✓  3 tests/e2e/terminal-excerpts.spec.ts:59:1 › uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment (8.3s)
+  ✓  4 tests/e2e/terminal-excerpts.spec.ts:62:1 › owner switch and read-only/unavailable composer do not transfer excerpts (17.7s)
+  ✓  5 tests/e2e/terminal-excerpts.spec.ts:65:1 › renders approved leaf UI at 1440/1024/768 and immediate reduced-motion attachment geometry (9.7s)
+  ✓  6 tests/e2e/terminal-excerpts.spec.ts:70:1 › authenticated precommit rejection retains excerpts for review and a fresh Send (6.8s)
+  ✓  7 tests/e2e/terminal-excerpts.spec.ts:74:1 › expired host output is captured from the current xterm selection, without rereading old output (6.4s)
+  ✓  8 tests/e2e/terminal-excerpts.spec.ts:82:1 › uncertain retry retains a newer A to B to A generation from another window after reload (19.4s)
+  ✓  9 tests/e2e/terminal-excerpts.spec.ts:89:1 › real scoped retry permits review, edit and removal without changing the frozen send (11.1s)
+
+  9 passed (1.8m)

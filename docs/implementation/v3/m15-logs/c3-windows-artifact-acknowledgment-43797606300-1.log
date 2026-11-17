@@ -1,0 +1,10 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","node_modules/@playwright/test/cli.js","test","--config","playwright.config.ts","tests/e2e/artifact-acknowledgment.spec.ts","--trace","retain-on-failure","--output","test-results/m15/artifact-acknowledgment/artifacts","--reporter=list,json"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+
+Running 1 test using 1 worker
+
+  ok 1 tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (6.6s)
+
+  1 passed (9.5s)

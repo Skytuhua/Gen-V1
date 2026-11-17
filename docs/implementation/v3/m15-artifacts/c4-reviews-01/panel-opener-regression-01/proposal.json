@@ -1,0 +1,15 @@
+{
+  "scope": "Private test-only proposal, not applied or executed",
+  "baseCommit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "path": "tests/e2e/desktop-surfaces.spec.ts",
+  "baseSha256": "8a5770cdb0609fa2bfca573b2825b75c3efbb6bb3d0431a04db67b287fcd5acd",
+  "proposedSha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2",
+  "patchSha256": "c951f97ff775dce4c9615bf3fba6ddf40b5d2522a16842ab12ef463f3f161a00",
+  "selectedCases": 2,
+  "declaredConfiguration": "tests/e2e/desktop-surfaces.playwright.config.ts",
+  "port": 5248,
+  "testDeadlineMs": 30000,
+  "assertionTimeout": "Unchanged declared/default",
+  "command": "PATH=/workspace/scratch/1b47eb428672/tool-bin:$PATH PLAYWRIGHT_JSON_OUTPUT_NAME=docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/results.json node scripts/m15-record.mjs c4-panel-opener-initial-01 pnpm exec playwright test --config tests/e2e/desktop-surfaces.playwright.config.ts --grep 'M15 panel opener:' --reporter=line,json --output docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/artifacts",
+  "evidenceLimit": "Real App plus existing scripted native bridge. No installed desktop proof. Main duplicate expected from source inspection, not yet reproduced."
+}

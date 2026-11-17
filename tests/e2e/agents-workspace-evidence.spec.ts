@@ -17,6 +17,9 @@ const agents = [agent('parent-00'), agent('child-00', {parentId: 'parent-00', ro
 async function mount(page: Page) {
  await page.route('**/api/**', async route => {
   const url = new URL(route.request().url());
+  if (url.pathname === '/api/plugins') return route.fulfill({json: {plugins: []}});
+  if (url.pathname === '/api/shell/navigation') return route.fulfill({json: {items: [], total: 0, nextCursor: null, sequence: 10}});
+  if (url.pathname === '/api/attention') return route.fulfill({json: {items: [], unreadCount: 0, sequence: 10}});
   if (url.pathname === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'synthetic'}});
   if (url.pathname === '/api/shell-settings') return route.fulfill({json: {theme: 'dark', preferences: {}}});
   if (url.pathname === '/api/workspace') return route.fulfill({json: {state: {version: 1, revision: 1, activeCanvasId: 'agents', canvases: [{id: 'agents', name: 'All Agents', preset: 'all-agents', version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}, projects: []}});
@@ -33,8 +36,9 @@ async function mount(page: Page) {
   return route.fulfill({status: 500, json: {error: {code: 'UNEXPECTED', message: url.pathname}}});
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
- await page.goto('/agents-workspace-check');
- await expect(page.locator('.agents-grid-slot').first()).toBeVisible({timeout: 15000});
+ await page.goto('/agents-workspace-check?app=1');
+ await expect(page.locator('.workspace-host')).toBeVisible();
+ await expect(page.locator('.agents-grid-slot > .agents-agent').first()).toBeVisible({timeout: 15000});
 }
 
 const rgb = (value: string) => {const parts = value.match(/[\d.]+/g)!.map(Number); return {r: parts[0]! / 255, g: parts[1]! / 255, b: parts[2]! / 255, a: parts[3] ?? 1};};
@@ -51,7 +55,7 @@ for (const width of [1440, 768]) test(`populated grid evidence at ${width} (${la
   const s = slot.getBoundingClientRect(), c = card ? card.getBoundingClientRect() : null;
   return {slotW: Math.round(s.width * 10) / 10, cardW: c ? Math.round(c.width * 10) / 10 : null};
  }));
- const fills = metrics.every(m => m.cardW !== null && Math.abs(m.slotW - m.cardW) <= 1);
+ const mounted = metrics.filter(m => m.cardW !== null), fills = mounted.every(m => Math.abs(m.slotW - m.cardW!) <= 1);
  const colors = await page.locator('.agents-grid-slot > .agents-agent').first().evaluate(card => {
   const cs = getComputedStyle(card);
   const title = card.querySelector('.agents-agent-title h3'), activity = card.querySelector('.agents-activity');
@@ -69,7 +73,7 @@ for (const width of [1440, 768]) test(`populated grid evidence at ${width} (${la
  });
  writeFileSync(join(outDir, `metrics-${label}-${width}.json`), JSON.stringify({head: process.env.GITHUB_SHA ?? 'local', label, viewport: width, slots: metrics, allSlotsFilled: fills, colors, contrastRatios: ratios, keyboard: focused}, null, 2));
  await page.screenshot({path: join(outDir, `grid-${label}-${width}.png`)});
- expect(metrics.length).toBeGreaterThan(0);
+ expect(metrics.length).toBeGreaterThan(0); expect(mounted.length).toBeGreaterThan(0); expect(fills).toBe(true);
  expect(focused.label).toBeTruthy();
  expect(ratios.titleVsCard).toBeGreaterThanOrEqual(4.5);
 });

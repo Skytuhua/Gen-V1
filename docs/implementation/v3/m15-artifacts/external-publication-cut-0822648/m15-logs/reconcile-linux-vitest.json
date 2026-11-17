@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "test:no-lease"
+  ],
+  "cwdIdentity": "/root/gen-v1-linux",
+  "executableIdentity": "/root/node24/bin/pnpm",
+  "startedAt": "2026-11-16T04:09:14.000Z",
+  "endedAt": "2026-11-16T04:12:16.000Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-linux-vitest.log",
+  "logDigest": "4c65db170b3ad6e65d935a44ea1e13f412d2f37e39b4070c58ad77fdecede0fd"
+}

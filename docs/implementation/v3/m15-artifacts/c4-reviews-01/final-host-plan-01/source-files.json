@@ -1,0 +1,405 @@
+[
+  {
+    "path": "tests/source-workbench-memory-v3.test.ts",
+    "bytes": 20849,
+    "sha256": "fe2ff72296655c5e847b6a7c1a696711a511c6bd9245e661410d9a19b81e057d",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 14,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/source-workbench-host-v3.test.ts",
+    "bytes": 64059,
+    "sha256": "c28ed707b387579b851ff37f43f681d56fd9f94362c88681ce4b21254d6fb58a",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 46,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 2,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [
+      "reauthorizes retained file bytes after grant revocation and never grants source context [Windows required]",
+      "admits the first captured file under its selected account [Windows native guard, runtime fixture]"
+    ],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/source-selection-v3.test.ts",
+    "bytes": 7984,
+    "sha256": "d7c7a9791b7fdee2a814977b807f0d7265af59294995756a3d513f9e96efcff2",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 8,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/source-selection-dom-v3.test.ts",
+    "bytes": 795,
+    "sha256": "2e057a5e63b09129ab7cc1051051042d1d5088c4f96ce0832d752d8d1f0cbdc3",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 4,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/source-composer-v3.test.ts",
+    "bytes": 9872,
+    "sha256": "126703e57581bc2de0e43a85e32c4722ea20aa8106316546cb18add5ba751da7",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 8,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/source-draft-transfer-v3.test.ts",
+    "bytes": 14312,
+    "sha256": "474dff1312fb0e9c6b1d7bd4dc7aa7b501f3b568302cb3ce2444eedd07a6f96a",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 21,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/workbench-input-recovery-v3.test.ts",
+    "bytes": 4050,
+    "sha256": "adb1dc04c0d033f5f7c9117244d62c654477a8889ef207c95028eb3995965a07",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 7,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/workbench-recovery-v3.test.ts",
+    "bytes": 11735,
+    "sha256": "61bf76a2dca6b7b0e93686bb5926b691f3dbc76ec4d1254509f3fb7ace984601",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 11,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/request-preparation-service-v3.test.ts",
+    "bytes": 32486,
+    "sha256": "4335431f23905e4bf0dd9f4c4ea7025e65316c95c6702b956c9e7d83d755c35e",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 34,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/context-compiler-v3.test.ts",
+    "bytes": 5484,
+    "sha256": "5ae96021557ff129c2abc99cfcbc7d1a4da996c2f17536800a1a6a736ab98dd9",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 11,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/accounts.test.ts",
+    "bytes": 16945,
+    "sha256": "dcd14700910ab5c693b164c08e5195d27c0e77cb91967ff1ac0203c59cefbbe3",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 16,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/project-memory-v3.test.ts",
+    "bytes": 9090,
+    "sha256": "ed593877bc75d583751099a8e8056cf7104a1314ca905e2c021e2aa7ee544969",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 10,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/project-memory-service-v3.test.ts",
+    "bytes": 36512,
+    "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 29,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/project-memory-http-v3.test.ts",
+    "bytes": 5581,
+    "sha256": "d92c9a7006535e9b0c465736ba8da6451cb10ee77ffd397e018efb7456ec7ee6",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 3,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/project-memory-request-http-v3.test.ts",
+    "bytes": 16226,
+    "sha256": "1567d3f71050254c46f8c6cbd95be259eba761ae7aa26623f2baa43272187d7c",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 12,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/memory-host-lifecycle-v3.test.ts",
+    "bytes": 9079,
+    "sha256": "1c06f83621de40a9bd8cd6b3960afd61f7fad106dcdbd63eba778d06b6850eea",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 7,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/memory-forget-v3.test.ts",
+    "bytes": 15338,
+    "sha256": "fdcb400a721b1e7ca07632e5fc96ed396aedad131ebf0fffd7279197789b4851",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 17,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/memory-enrollment-recovery-v3.test.ts",
+    "bytes": 2735,
+    "sha256": "4c6d0941e2af1d9eca10735d964ad882b1b66775cc45fe5f71503874856a0192",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 1,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/memory-storage-boundary-v3.test.ts",
+    "bytes": 6602,
+    "sha256": "0a90a4109dd7ad62bd985b85e04053cbb8c7fb92488eda37a8de81d101fa0919",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 9,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/memory-retrieval-v3.test.ts",
+    "bytes": 24620,
+    "sha256": "58dc7e453dd8132cae59509f6206c1685bd3722d59a72f0e35d7981687eb6225",
+    "selection": "RETAINED_PRIOR_HOST",
+    "priorObservedCounts": {
+      "passed": 23,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "unchangedSincePriorHostCut": true,
+    "priorExcludedIdentities": [],
+    "reviewBasis": "Prior reviewed host command, retained assertion identities and unchanged test bytes"
+  },
+  {
+    "path": "tests/journal.test.ts",
+    "bytes": 6554,
+    "sha256": "806bec98641077c07d6e8f632cafaa92417a4ba523e91c5419ddcaee00520041",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 6,
+    "boundary": "Actual journal with controlled IndexedDB",
+    "reason": "Open failure retry, shared pending open, atomic CAS, notification timing, and durable generation mismatch.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/source-handoff-v3.test.ts",
+    "bytes": 27654,
+    "sha256": "a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 22,
+    "boundary": "Actual journal/recovery/import/registry with controlled storage",
+    "reason": "Cold recovery, first in-flight reads and CAS, sticky source failure, exact retry, import preprocessing, record acquisition, owner transitions, and concurrent owner guards.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/editor-handoff.test.ts",
+    "bytes": 1654,
+    "sha256": "d6e108588b923f75bf1bb60d211abf4510b20910727990e11c5086145cffb03c",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 3,
+    "boundary": "Actual registry with scripted guard promises",
+    "reason": "Duplicate-key registrations, allSettled completion before reporting failure, and unregister/current guard behavior.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/draft-transfer.test.ts",
+    "bytes": 2995,
+    "sha256": "4c408f357f88264cf70f4556c0964466c20364c5ecfc1fd0cb3ededf476ca149",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 4,
+    "boundary": "Actual import/export with mocked journal",
+    "reason": "Legacy non-source skill backup handling must retain its three-argument CAS and collision/revision behavior.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/compact-draft-transfer.test.ts",
+    "bytes": 5120,
+    "sha256": "825ea8fa08ebdc0f0301cb1e2dbf4c14b22415f238ce52924ceb262f0f9c9d46",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 6,
+    "boundary": "Actual import/export with mocked journal and signature boundary",
+    "reason": "Bounded key-only references, cancellation before writes, pending-signature refusal, and non-source text/decision/state/skill imports.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/saved-drafts.test.ts",
+    "bytes": 17584,
+    "sha256": "14c1b7c00ed41c7cfdf6652e59dfc6d29b68e33c3c61defdbfd4df8124b93b00",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 41,
+    "boundary": "Actual saved-draft owner/restore logic with mocked journal",
+    "reason": "Owner-isolated libraries, active prompt retention, multi-key restore/expiry/quota, and concurrent generation checks remain intact alongside source-aware journal operations.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/agents-workspace-composer.test.ts",
+    "bytes": 30483,
+    "sha256": "863fb2bb2b181b69fe25d916cbe9a29ac14a4c863978668ee9f7142d59bba894",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 27,
+    "boundary": "Actual shared composer with mocked journal and transport",
+    "reason": "Recovery/subscription ownership, exact pending command/request context, send/Stop ordering, source/excerpt generation custody, and owner ABA.",
+    "reviewBasis": "Full current caller test source read"
+  },
+  {
+    "path": "tests/agents-workspace-dispatch.test.ts",
+    "bytes": 5691,
+    "sha256": "1f9d51e065b1e2df566d306cdce51a21c8a3eb57e8c61a5619718eb3a0064b0d",
+    "selection": "ADDED_CALLER",
+    "declaredCases": 4,
+    "boundary": "Actual personal composer/API with mocked journal and HTTP",
+    "reason": "Late bootstrap and renewal recheck owner before dispatch and retain exact ambiguous-send identity.",
+    "reviewBasis": "Full current caller test source read"
+  }
+]

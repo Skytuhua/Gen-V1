@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/m15-evidence.mts",
+    "--assemble"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-16T06:27:39.670Z",
+  "endedAt": "2026-11-16T06:27:44.855Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-evidence-assemble-01.log",
+  "logDigest": "fdfe3ef753393a41280eff5ff90fc08faa2a831ee352d1e03ca3ff694f82f931"
+}

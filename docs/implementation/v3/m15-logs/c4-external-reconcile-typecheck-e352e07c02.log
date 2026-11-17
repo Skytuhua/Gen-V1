@@ -1,0 +1,8 @@
+argv: ["pnpm","typecheck"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 typecheck C:\Users\Administrator\repos\Gen-V1-m15
+> tsc --noEmit
+

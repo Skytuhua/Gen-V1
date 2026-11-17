@@ -1,0 +1,55 @@
+argv: ["pnpm","exec","playwright","test","--config","docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts","--grep","IME does not send, working parents send, uncertain retries keep identity and later drafts","--trace","on","--output","docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/agents-workspace.spec.ts:536:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts (7.9s)
+
+
+  1) tests/e2e/agents-workspace.spec.ts:536:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Retry send to parent-00', exact: true })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Retry send to parent-00', exact: true })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      162 |  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');
+      163 |  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);
+    > 164 |  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);
+          |                                                                                         ^
+      165 | });
+      166 | test('filtered children retain their completed owning parent and local reading state', async ({page}) => {
+      167 |  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/agents-workspace.spec.ts:164:89
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-red-01/artifacts/agents-workspace-IME-does--9f5b5-p-identity-and-later-drafts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/agents-workspace.spec.ts:536:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts 

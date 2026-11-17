@@ -1,6 +1,7 @@
 import { test as base, expect, type Page, type TestInfo } from '@playwright/test';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { buildServer, buildWidgetServer, type MountRegistry } from '../apps/server/server.ts';
@@ -147,9 +148,11 @@ export class HostFixture {
   readonly commands: HostCommand[] = [];
   readonly generations: ContractRuntime[] = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
+  private closing?: Promise<void>;
   constructor(readonly folder: string, readonly sourceFile: string) {}
   async start() {
     this.store = new Store(join(this.folder, 'storage'));
+    this.closing = undefined;
     this.runtime = new ContractRuntime(this.folder); this.generations.push(this.runtime);
     this.service = new Service(this.store, this.runtime); await this.service.recover();
     const mounts: MountRegistry = new Map();
@@ -162,7 +165,17 @@ export class HostFixture {
       await this.widgets.listen({ port: 4338, host: 'localhost' });
     } catch (error) { await this.close(); throw error; }
   }
-  async close() { await this.host?.close(); await this.widgets?.close(); await this.service?.dispose(); this.store?.close(); }
+  close(): Promise<void> {
+    // A test restart and runner teardown can both try to close this generation.
+    // Share its outcome rather than disposing the same SQLite connection again.
+    const { host, widgets, service, store } = this;
+    return this.closing ??= (async () => {
+      await host?.close();
+      await widgets?.close();
+      await service?.dispose();
+      store?.close();
+    })();
+  }
   async restart() { await this.close(); await this.start(); }
   snapshot(): Snapshot { return this.store.snapshot(); }
   artifact(kind: 'structured' | 'widget'): ArtifactRecord { const item = this.snapshot().artifacts.find(value => value.kind === kind); if (!item) throw new Error(`Missing ${kind} artifact`); return item; }
@@ -171,11 +184,12 @@ export class HostFixture {
 export const test = base.extend<{ host: HostFixture }>({
   host: async ({}, use, info) => {
     await mkdir(info.outputDir, { recursive: true });
-    const folder = await mkdtemp(join(info.outputDir, 'isolated-host-'));
+    // Keep native guard and SQLite paths below Windows path limits.
+    const folder = await mkdtemp(join(tmpdir(), 'gen-host-'));
     const sourceFile = join(folder, 'evidence-ledger.md'); await writeFile(sourceFile, BEFORE, { flag: 'wx' });
     const host = new HostFixture(folder, sourceFile); await host.start();
     try { await use(host); } finally {
-      await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), snapshot: host.snapshot() }, null, 2));
+      await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, folder, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), snapshot: host.snapshot() }, null, 2));
       await host.close();
     }
   },

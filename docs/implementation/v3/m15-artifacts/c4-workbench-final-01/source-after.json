@@ -1,0 +1,19 @@
+{
+  "kind": "SOURCE_CUT_VERIFICATION",
+  "run": "c4-workbench-final-01",
+  "phase": "after",
+  "startedAt": "2026-11-16T05:51:05.351929+00:00",
+  "endedAt": "2026-11-16T05:51:06.163430+00:00",
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/source-cut-v2.py",
+    "verify",
+    "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json"
+  ],
+  "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+  "expectedManifestSha256": "5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a",
+  "actualManifestSha256": "5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a",
+  "exitCode": 0,
+  "stdout": "{\"mode\": \"verify\", \"sourceFiles\": 2391, \"bytes\": 55481040, \"sourceCutSha256\": \"5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a\", \"head\": \"eeda4a89879aa1f3baaa04e60dd4a2d9c520761c\", \"acceptedBase\": \"b4aa2caa5a3cedb29a0fddb510e49b5abd802a73\"}\n",
+  "stderr": ""
+}

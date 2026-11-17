@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport hashlib, subprocess, json\nrepo=Path('/workspace/scratch/1b47eb428672/m15-v3')\nproposal=repo.parent/'m15-publication/c4/empty-owner-handoff-proposal-01'\ntarget=repo/'tests/source-handoff-v3.test.ts'\npatch=proposal/'empty-owner-tests.patch'\nsha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()\nassert sha(target)=='a67dea903018123ba825dd63f81d49ef19de775492155f51be4bc8f0e84400bd'\nassert sha(patch)=='16d1445cbbe3539e65613a718d798fd898c50d57d3e6ae96e54a87f1fca7abc8'\nsubprocess.run(['git','apply','--check',str(patch)],cwd=repo,check=True)\nsubprocess.run(['git','apply',str(patch)],cwd=repo,check=True)\nassert sha(target)=='7d74aed76c5f0c93fd88982dfc792eed143ea57795a4240206bfaeff15ceef40'\nprint(json.dumps({'status':'APPLIED_TEST_ONLY','path':str(target.relative_to(repo)),'sha256':sha(target),'originalCases':22,'addedCases':2,'productSourceUnchanged':True}))\n"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T05:53:36.286Z",
+  "endedAt": "2026-11-16T05:53:36.423Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-empty-owner-tests-application-01.log",
+  "logDigest": "148ad70a16d26eccda731c5a7d32adfeef694bb853b5c2918dd1516a222d256c"
+}

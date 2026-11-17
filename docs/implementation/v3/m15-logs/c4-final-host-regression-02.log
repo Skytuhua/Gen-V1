@@ -1,0 +1,55 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/source-workbench-memory-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-selection-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/request-preparation-service-v3.test.ts","tests/context-compiler-v3.test.ts","tests/accounts.test.ts","tests/project-memory-v3.test.ts","tests/project-memory-service-v3.test.ts","tests/project-memory-http-v3.test.ts","tests/project-memory-request-http-v3.test.ts","tests/memory-host-lifecycle-v3.test.ts","tests/memory-forget-v3.test.ts","tests/memory-enrollment-recovery-v3.test.ts","tests/memory-storage-boundary-v3.test.ts","tests/memory-retrieval-v3.test.ts","tests/journal.test.ts","tests/source-handoff-v3.test.ts","tests/editor-handoff.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/saved-drafts.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-final-host-regression-02/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/source-workbench-host-v3.test.ts (48 tests | 2 skipped) 4400ms
+   ✓ denies captured source reuse after a settled account is replaced, even when captured bytes are retained  669ms
+   ✓ uses the existing authenticated host and CSRF boundaries for captures and source reads  1316ms
+ ✓ tests/project-memory-service-v3.test.ts (29 tests) 6328ms
+   ✓ carries the same prepared memory request identity through actual Service send and final dispatch  581ms
+   ✓ automatically recalls into the first send of a new unbound thread without borrowing an older request identity  403ms
+   ✓ cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals  382ms
+   ✓ drains auxiliary extraction before dispatching an executor-generated outbox input  639ms
+   ✓ drains scheduled source cleanup before cancellation completes even before an extraction runtime exists  343ms
+ ✓ tests/source-draft-transfer-v3.test.ts (21 tests) 1081ms
+     ✓ uses a new format version for source bundles so older clients cannot import their text alone  525ms
+ ✓ tests/request-preparation-service-v3.test.ts (34 tests) 2446ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  1777ms
+ ✓ tests/project-memory-request-http-v3.test.ts (12 tests) 2494ms
+   ✓ requires the Personal host session and CSRF before preparing or excluding memory  368ms
+   ✓ returns only captured requests from latest and does not start a runtime during preview  427ms
+   ✓ returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request  619ms
+ ✓ tests/source-handoff-v3.test.ts (28 tests) 602ms
+ ✓ tests/accounts.test.ts (16 tests) 1466ms
+   ✓ bounds persisted account records and preserves disabled metadata across store reopen  760ms
+ ✓ tests/agents-workspace-dispatch.test.ts (4 tests) 370ms
+ ✓ tests/source-selection-v3.test.ts (8 tests) 206ms
+ ✓ tests/source-workbench-memory-v3.test.ts (14 tests) 778ms
+ ✓ tests/workbench-recovery-v3.test.ts (11 tests) 332ms
+ ✓ tests/memory-forget-v3.test.ts (17 tests) 996ms
+ ✓ tests/project-memory-http-v3.test.ts (3 tests) 328ms
+ ✓ tests/saved-drafts.test.ts (41 tests) 216ms
+ ✓ tests/memory-host-lifecycle-v3.test.ts (7 tests) 157ms
+ ✓ tests/project-memory-v3.test.ts (10 tests) 194ms
+ ✓ tests/agents-workspace-composer.test.ts (27 tests) 195ms
+ ✓ tests/source-composer-v3.test.ts (8 tests) 96ms
+ ✓ tests/memory-retrieval-v3.test.ts (23 tests) 80ms
+ ✓ tests/memory-storage-boundary-v3.test.ts (9 tests) 49ms
+ ✓ tests/compact-draft-transfer.test.ts (6 tests) 16ms
+ ✓ tests/memory-enrollment-recovery-v3.test.ts (1 test) 86ms
+ ✓ tests/journal.test.ts (6 tests) 19ms
+ ✓ tests/workbench-input-recovery-v3.test.ts (7 tests) 20ms
+ ✓ tests/context-compiler-v3.test.ts (11 tests) 16ms
+ ✓ tests/draft-transfer.test.ts (4 tests) 15ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 17ms
+ ✓ tests/source-selection-dom-v3.test.ts (4 tests) 14ms
+
+ Test Files  28 passed (28)
+      Tests  410 passed | 2 skipped (412)
+   Start at  13:59:16
+   Duration  46.37s (transform 4.45s, setup 0ms, import 12.90s, tests 23.02s, environment 3ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-final-host-regression-02/results.json

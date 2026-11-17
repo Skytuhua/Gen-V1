@@ -1,0 +1,177 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - button "Source-bound task fixture Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: RT
+                - generic [ref=e36]: Reusable task surfaces
+              - time [ref=e38]: 17d
+            - generic [ref=e39]: Source-bound task fixture
+            - generic [ref=e40]: Ready
+          - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e47]:
+          - button "Other synthetic owner Ready" [ref=e48]:
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: RT
+                - generic [ref=e52]: Reusable task surfaces
+              - time [ref=e54]: 17d
+            - generic [ref=e55]: Other synthetic owner
+            - generic [ref=e56]: Ready
+          - button "Options for Other synthetic owner" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+    - generic "App controls" [ref=e63]:
+      - button "Settings" [ref=e64] [cursor=pointer]:
+        - img [ref=e65]
+        - generic [ref=e68]: Settings
+      - button "Pull requests" [ref=e69] [cursor=pointer]:
+        - img [ref=e70]
+        - generic [ref=e74]: PRs
+      - button "Usage" [ref=e75] [cursor=pointer]:
+        - img [ref=e76]
+        - generic [ref=e78]: Usage
+      - button "Update" [disabled] [ref=e79]:
+        - img [ref=e80]
+        - generic [ref=e83]: Update
+  - separator "Resize sidebar" [ref=e84]
+  - generic [ref=e85]:
+    - generic [ref=e86]:
+      - status [ref=e87]:
+        - generic [ref=e88]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e89] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e90]:
+        - button "Workspace" [pressed] [ref=e91] [cursor=pointer]
+        - button "All Agents" [ref=e92] [cursor=pointer]
+        - button "Hide workspace panel" [pressed] [ref=e93] [cursor=pointer]:
+          - img [ref=e94]
+        - button "Layouts" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+          - text: Layouts
+          - img [ref=e102]
+    - generic [ref=e105]:
+      - generic [ref=e109]:
+        - generic [ref=e111]:
+          - text: Area
+          - generic [ref=e112]:
+            - combobox "Active workspace area" [ref=e113] [cursor=pointer]:
+              - generic [ref=e114]: Other synthetic owner
+              - img [ref=e115]
+            - combobox [ref=e117]
+        - region "Other synthetic owner" [ref=e119]:
+          - generic [ref=e120]:
+            - button "Split this area" [ref=e121]: ◩
+            - tablist "Area views" [ref=e122]:
+              - tab "Other synthetic owner" [selected] [ref=e123] [cursor=pointer]:
+                - generic [ref=e124]: Other synthetic owner
+            - button "Area actions" [ref=e126] [cursor=pointer]:
+              - img [ref=e127]
+            - button "Minimize area" [expanded] [ref=e131] [cursor=pointer]: ▴
+        - generic [ref=e142]:
+          - main "Chat" [ref=e143]:
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - generic [ref=e148]: Reusable task surfaces
+                - generic [ref=e149]: /
+                - strong [ref=e150]: Other synthetic owner
+              - button "Find in conversation" [ref=e153] [cursor=pointer]:
+                - img [ref=e154]
+            - generic "Conversation" [ref=e158]:
+              - generic [ref=e161]:
+                - img [ref=e163]
+                - heading "What are we working on?" [level=1] [ref=e165]
+                - paragraph [ref=e166]: Start with a question, file, or project.
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - textbox "Message" [ref=e173]:
+                  - /placeholder: Ask anything…
+                - group "Task actions" [ref=e174]:
+                  - button "Inspect changes" [ref=e175] [cursor=pointer]:
+                    - img [ref=e176]
+                    - generic [ref=e178]: Changes
+                  - button "Create PR" [ref=e179] [cursor=pointer]:
+                    - img [ref=e180]
+                    - generic [ref=e185]: Create PR
+              - status [ref=e186]
+              - generic [ref=e188]:
+                - group "Project and runtime" [ref=e189]:
+                  - button "Saved drafts" [ref=e190] [cursor=pointer]
+                  - button "Attach files" [ref=e191] [cursor=pointer]:
+                    - img [ref=e192]
+                  - button "Select project" [ref=e193] [cursor=pointer]:
+                    - img [ref=e194]
+                    - generic [ref=e196]: Reusable task surfaces
+                  - generic "Local workspace" [ref=e197]:
+                    - img [ref=e198]
+                    - text: Local
+                  - button "Task mode" [ref=e200] [cursor=pointer]:
+                    - img [ref=e201]
+                  - button "Show live usage" [ref=e204] [cursor=pointer]:
+                    - img [ref=e205]
+                - group "Model and voice" [ref=e207]:
+                  - combobox "Model" [ref=e208] [cursor=pointer]:
+                    - img [ref=e209]
+                    - generic [ref=e212]: Fixture
+                    - img [ref=e213]
+                  - button "Inspect context usage" [ref=e216] [cursor=pointer]:
+                    - img [ref=e217]
+                  - button "Start voice input" [ref=e218] [cursor=pointer]:
+                    - img [ref=e219]
+                  - button "Send message" [disabled] [ref=e223]:
+                    - img [ref=e224]
+          - generic:
+            - img
+            - generic: Dock chat
+      - complementary "Workspace panel" [ref=e228]:
+        - separator "Resize workspace panel" [ref=e229]
+        - generic [ref=e230]:
+          - tablist "Workspace views" [ref=e231]:
+            - tab "Usage" [ref=e232] [cursor=pointer]
+          - button "Add surface" [ref=e233] [cursor=pointer]:
+            - img [ref=e234]
+        - tabpanel [ref=e235]:
+          - region "Thread memory" [ref=e236]:
+            - generic [ref=e237]:
+              - img [ref=e238]
+              - heading "Thread memory" [level=3] [ref=e240]
+              - button "Add memory note" [ref=e241] [cursor=pointer]:
+                - img [ref=e242]
+            - paragraph [ref=e243]: Brief notes retained across sessions and compaction. Only this thread can use them. Notes never authorize actions.
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - strong [ref=e246]: preserved
+                - generic [ref=e247]: Your note
+              - generic [ref=e248]:
+                - generic [ref=e249]: Note preserved
+                - textbox "Note preserved" [ref=e250]:
+                  - /placeholder: A decision or constraint to remember…
+                  - text: Keep the existing source decision.
+              - generic [ref=e251]:
+                - button "Forget preserved" [ref=e252] [cursor=pointer]:
+                  - img [ref=e253]
+                - button "Save note" [ref=e256] [cursor=pointer]
+  - region "Notifications"
+```

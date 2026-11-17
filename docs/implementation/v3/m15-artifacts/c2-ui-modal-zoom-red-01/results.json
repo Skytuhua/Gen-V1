@@ -1,0 +1,153 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench-app.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5592 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5592",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench-app.spec.ts",
+      "file": "workbench-app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "actual source modal and shared controls remain within the viewport at 200 percent zoom",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7287,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m0\u001b[39m\nReceived:    \u001b[31m-384\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m0\u001b[39m\nReceived:    \u001b[31m-384\u001b[39m\n    at withinViewport (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:159:65)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:169:2",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 65,
+                      "line": 159
+                    },
+                    "snippet": "  157 |  const withinViewport=async(locator:Locator)=>{\n  158 |   await locator.scrollIntoViewIfNeeded();await expect(locator).toBeVisible();const bounds=await locator.boundingBox();expect(bounds).not.toBeNull();\n> 159 |   expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.y).toBeGreaterThanOrEqual(0);\n      |                                                                 ^\n  160 |   expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(1280);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(800);\n  161 |  };\n  162 |  const opener=page.getByRole('button',{name:'Sources and evidence',exact:true});await opener.click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 65,
+                        "line": 159
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m0\u001b[39m\nReceived:    \u001b[31m-384\u001b[39m\n\n  157 |  const withinViewport=async(locator:Locator)=>{\n  158 |   await locator.scrollIntoViewIfNeeded();await expect(locator).toBeVisible();const bounds=await locator.boundingBox();expect(bounds).not.toBeNull();\n> 159 |   expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.y).toBeGreaterThanOrEqual(0);\n      |                                                                 ^\n  160 |   expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(1280);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(800);\n  161 |  };\n  162 |  const opener=page.getByRole('button',{name:'Sources and evidence',exact:true});await opener.click();\n    at withinViewport (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:159:65)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:169:2"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T01:22:21.494Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "source-modal-zoom-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzb3VyY2VzIjogewogICAgInZpZXdwb3J0IjogewogICAgICAid2lkdGgiOiAxMjgwLAogICAgICAiaGVpZ2h0IjogODAwCiAgICB9LAogICAgInpvb20iOiAiMiIsCiAgICAicGFuZWwiOiB7CiAgICAgICJ4IjogODAsCiAgICAgICJ5IjogNzYuNTMxMjUsCiAgICAgICJ3aWR0aCI6IDExMjAsCiAgICAgICJoZWlnaHQiOiA2NDYuOTM3NSwKICAgICAgInRvcCI6IDc2LjUzMTI1LAogICAgICAicmlnaHQiOiAxMjAwLAogICAgICAiYm90dG9tIjogNzIzLjQ2ODc1LAogICAgICAibGVmdCI6IDgwCiAgICB9LAogICAgImNsb3NlIjogewogICAgICAieCI6IDEwODYsCiAgICAgICJ5IjogMTI2LjUzMTI1LAogICAgICAid2lkdGgiOiA2NCwKICAgICAgImhlaWdodCI6IDY0LAogICAgICAidG9wIjogMTI2LjUzMTI1LAogICAgICAicmlnaHQiOiAxMTUwLAogICAgICAiYm90dG9tIjogMTkwLjUzMTI1LAogICAgICAibGVmdCI6IDEwODYKICAgIH0sCiAgICAibmF2aWdhdGlvbiI6IHsKICAgICAgIngiOiAxMzAsCiAgICAgICJ5IjogMzE2LjcxODc1LAogICAgICAid2lkdGgiOiAxMDIwLAogICAgICAiaGVpZ2h0IjogMzgsCiAgICAgICJ0b3AiOiAzMTYuNzE4NzUsCiAgICAgICJyaWdodCI6IDExNTAsCiAgICAgICJib3R0b20iOiAzNTQuNzE4NzUsCiAgICAgICJsZWZ0IjogMTMwCiAgICB9LAogICAgImhlaWdodCI6ICIzMjMuNDY5cHgiLAogICAgIm1heEhlaWdodCI6ICI3ODRweCIsCiAgICAiY2xpZW50SGVpZ2h0IjogMzIxLAogICAgInNjcm9sbEhlaWdodCI6IDMyMSwKICAgICJzY3JvbGxUb3AiOiAwCiAgfSwKICAiZXZpZGVuY2UiOiB7CiAgICAidmlld3BvcnQiOiB7CiAgICAgICJ3aWR0aCI6IDEyODAsCiAgICAgICJoZWlnaHQiOiA4MDAKICAgIH0sCiAgICAiem9vbSI6ICIyIiwKICAgICJwYW5lbCI6IHsKICAgICAgIngiOiA4MCwKICAgICAgInkiOiAtMzg0LAogICAgICAid2lkdGgiOiAxMTIwLAogICAgICAiaGVpZ2h0IjogMTU2OCwKICAgICAgInRvcCI6IC0zODQsCiAgICAgICJyaWdodCI6IDEyMDAsCiAgICAgICJib3R0b20iOiAxMTg0LAogICAgICAibGVmdCI6IDgwCiAgICB9LAogICAgImNsb3NlIjogewogICAgICAieCI6IDEwODYsCiAgICAgICJ5IjogLTMzNCwKICAgICAgIndpZHRoIjogNjQsCiAgICAgICJoZWlnaHQiOiA2NCwKICAgICAgInRvcCI6IC0zMzQsCiAgICAgICJyaWdodCI6IDExNTAsCiAgICAgICJib3R0b20iOiAtMjcwLAogICAgICAibGVmdCI6IDEwODYKICAgIH0sCiAgICAibmF2aWdhdGlvbiI6IHsKICAgICAgIngiOiAxMzAsCiAgICAgICJ5IjogLTE0My44MTI1LAogICAgICAid2lkdGgiOiAxMDIwLAogICAgICAiaGVpZ2h0IjogMzgsCiAgICAgICJ0b3AiOiAtMTQzLjgxMjUsCiAgICAgICJyaWdodCI6IDExNTAsCiAgICAgICJib3R0b20iOiAtMTA1LjgxMjUsCiAgICAgICJsZWZ0IjogMTMwCiAgICB9LAogICAgImhlaWdodCI6ICI3ODRweCIsCiAgICAibWF4SGVpZ2h0IjogIjc4NHB4IiwKICAgICJjbGllbnRIZWlnaHQiOiA3ODIsCiAgICAic2Nyb2xsSGVpZ2h0IjogOTMyLAogICAgInNjcm9sbFRvcCI6IDAKICB9Cn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-red-01/artifacts/workbench-app-actual-sourc-08327-iewport-at-200-percent-zoom/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 65,
+                    "line": 159
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-c8cb6a031d2e48093528",
+          "file": "workbench-app.spec.ts",
+          "line": 1017,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T01:22:17.398Z",
+    "duration": 11770.983,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

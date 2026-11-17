@@ -1,0 +1,73 @@
+argv: ["pnpm","exec","playwright","test","--config","/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/workspace-host.chromium.playwright.config.mts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-workspace-chromium-corrected-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 48 tests using 1 worker
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/48] tests/e2e/workspace-host.spec.ts:473:1 › cold restored monitor resolves its owner before any global conversation read
+[1A[2K[2/48] tests/e2e/workspace-host.spec.ts:503:1 › native progress never installs the legacy snapshot refresh subscription in the monitor
+[1A[2K[3/48] tests/e2e/workspace-host.spec.ts:518:1 › explicit conversation navigation preserves its draft and returns to the project-row monitor
+[1A[2K[4/48] tests/e2e/workspace-host.spec.ts:550:1 › a monitor model intent is scoped to its conversation and consumed once before another Composer mounts
+[1A[2K[5/48] tests/e2e/workspace-host.spec.ts:593:1 › workspace resolution failure stays retryable without falling back to a global snapshot
+[1A[2K[6/48] tests/e2e/workspace-host.spec.ts:612:1 › compact Settings reserves sections while metadata loads and retains its search on refresh
+[1A[2K[7/48] tests/e2e/workspace-host.spec.ts:667:1 › Settings opens over the monitor with compact metadata and preserves the owner
+[1A[2K[8/48] tests/e2e/workspace-host.spec.ts:703:1 › invalid restored owner reports recovery instead of an endless opening state
+[1A[2K[9/48] tests/e2e/workspace-host.spec.ts:721:1 › one pending send owner survives opening the ordinary conversation and retains later text
+[1A[2K[10/48] tests/e2e/workspace-host.spec.ts:788:1 › a native attention destination opens its exact conversation from the monitor
+[1A[2K[11/48] tests/e2e/workspace-host.spec.ts:806:1 › compact Settings Add resource opens the existing resource grant flow
+[1A[2K[12/48] tests/e2e/workspace-host.spec.ts:831:111 › resource kind file uses the modal-owned shared selector and preserves exact grant
+[1A[2K[13/48] tests/e2e/workspace-host.spec.ts:831:111 › resource kind database uses the modal-owned shared selector and preserves exact grant
+[1A[2K[14/48] tests/e2e/workspace-host.spec.ts:831:111 › resource kind export uses the modal-owned shared selector and preserves exact grant
+[1A[2K[15/48] tests/e2e/workspace-host.spec.ts:904:1 › monitor preserves unpin confirmation with a shared dialog and cancellation
+[1A[2K[16/48] tests/e2e/workspace-host.spec.ts:931:1 › monitor honors disabled archive confirmation without creating an extra dialog
+[1A[2K[17/48] tests/e2e/workspace-host.spec.ts:952:1 › a consumed New thread intent is not replayed after returning through the monitor
+[1A[2K[18/48] tests/e2e/workspace-host.spec.ts:985:1 › the Settings keyboard shortcut opens compact Settings in the monitor
+[1A[2K[19/48] tests/e2e/workspace-host.spec.ts:1000:1 › a rejected overlapping handoff preserves the accepted New thread intent
+[1A[2K[20/48] tests/e2e/workspace-host.spec.ts:1032:1 › Settings close waits for an accepted preference save before applying monitor confirmation
+[1A[2K[21/48] tests/e2e/workspace-host.spec.ts:1089:1 › keyboard and status Stop share the ordinary composer pending owner
+[1A[2K[22/48] tests/e2e/workspace-host.spec.ts:1123:1 › monitor Stop shortcut stops the focused working agent exactly once (AUD-06)
+[1A[2K[23/48] tests/e2e/workspace-host.spec.ts:1140:1 › review: returning through All Agents retains the latest conversation selection
+[1A[2K[24/48] tests/e2e/workspace-host.spec.ts:1186:1 › the workspace switcher offers only supported presets (T05/R12)
+[1A[2K[25/48] tests/e2e/workspace-host.spec.ts:1205:49 › a saved code-review canvas resolves to Workspace without rewriting the retired record (T05/R12)
+[1A[2K[26/48] tests/e2e/workspace-host.spec.ts:1205:49 › a saved custom canvas resolves to Workspace without rewriting the retired record (T05/R12)
+[1A[2K[27/48] tests/e2e/workspace-host.spec.ts:1225:1 › explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12)
+[1A[2K[28/48] tests/e2e/workspace-host.spec.ts:1240:1 › PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12)
+[1A[2K[29/48] tests/e2e/workspace-host.spec.ts:1327:1 › review: restored archived conversation becomes available in monitor navigation
+[1A[2K[30/48] tests/e2e/workspace-host.spec.ts:1463:1 › review: restored native thread owner keeps the monitor composer inert
+[1A[2K[31/48] tests/e2e/workspace-host.spec.ts:1511:1 › desktop ownership updates hold monitor send and Stop then preserve the draft on return
+[1A[2K[32/48] tests/e2e/workspace-host.spec.ts:1584:1 › desktop ownership change prevents a slash mode retry after authentication renewal
+[1A[2K[33/48] tests/e2e/workspace-host.spec.ts:1672:1 › a native owner roundtrip before auth retry still rejects the stale mode
+[1A[2K[34/48] tests/e2e/workspace-host.spec.ts:1731:1 › unmounting the monitor before native takeover rejects a stale mode retry
+[1A[2Ktests/e2e/workspace-host.spec.ts:1731:1 › unmounting the monitor before native takeover rejects a stale mode retry
+{"scenario":"unmount-then-native-takeover","attempts":1,"sent":[{"id":"3a66a946-6252-46c5-b3ef-36baf9b8a231","type":"thread.mode","payload":{"mode":"plan"},"threadId":"parent-a"}]}
+
+[1A[2K[35/48] tests/e2e/workspace-host.spec.ts:1800:1 › synchronous native owner roundtrip fences the pending mode retry and permits a later explicit attempt
+[1A[2K[36/48] tests/e2e/workspace-host.spec.ts:1880:1 › native takeover immediately before the mode callback prevents its initial dispatch
+[1A[2K[37/48] tests/e2e/workspace-host.spec.ts:1915:1 › unrelated native owner roundtrip preserves a pending mode retry and its command identity
+[1A[2K[38/48] tests/e2e/workspace-host.spec.ts:1971:50 › synchronous native owner roundtrip fences the pending message.send auth retry
+[1A[2K[39/48] tests/e2e/workspace-host.spec.ts:1971:50 › synchronous native owner roundtrip fences the pending run.stop auth retry
+[1A[2K[40/48] tests/e2e/workspace-host.spec.ts:2067:1 › Workspace artifact uses the shared chooser and retains the anchored chat draft
+[1A[2K[41/48] tests/e2e/workspace-host.spec.ts:2115:1 › monitor Settings code loads only on open and remains reusable after closing during loading
+[1A[2K[42/48] tests/e2e/workspace-host.spec.ts:2186:57 › monitor Settings chunk recovery retains assets before reloading
+[1A[2K[43/48] tests/e2e/workspace-host.spec.ts:2186:57 › monitor Settings chunk recovery retains journal before reloading
+[1A[2K[44/48] tests/e2e/workspace-host.spec.ts:2186:57 › monitor Settings chunk recovery retains handoff before reloading
+[1A[2K[45/48] tests/e2e/workspace-host.spec.ts:2277:1 › plugin workspace tabs stay reachable from All Agents and open through the conversation owner
+[1A[2K[46/48] tests/e2e/workspace-host.spec.ts:2301:1 › a failed plug-in catalog keeps a dismissible toast and a persistent inline retry in All Agents
+[1A[2K[47/48] tests/e2e/workspace-host.spec.ts:2334:1 › All Agents empty copy reconciles with existing conversations and shows a live status dot
+[1A[2K[48/48] tests/e2e/workspace-host.spec.ts:2350:1 › an unavailable main layout gives the user a retry without reloading the page
+[1A[2K  48 passed (1.8m)

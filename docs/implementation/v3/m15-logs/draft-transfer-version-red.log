@@ -1,0 +1,46 @@
+argv: ["pnpm","exec","vitest","run","tests/source-draft-transfer-v3.test.ts","--testNamePattern","format version|version two","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-draft-transfer-v3.test.ts (21 tests | 2 failed | 19 skipped) 553ms
+     × uses a new format version for source bundles so older clients cannot import their text alone 538ms
+     × imports version two source bundles atomically while accepting legacy version one text backups 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > uses a new format version for source bundles so older clients cannot import their text alone
+AssertionError: expected 1 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 1
+
+ ❯ tests/source-draft-transfer-v3.test.ts:57:65
+     55|     expect(JSON.parse(await exportDraftTransfer(refs)).version).toBe(1…
+     56|     local.put(sourceKey, context);
+     57|     expect(JSON.parse(await exportDraftTransfer(refs)).version).toBe(2…
+       |                                                                 ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > imports version two source bundles atomically while accepting legacy version one text backups
+Error: This is not a supported harness draft backup.
+ ❯ importDraftTransfer apps/web/src/draft-transfer.ts:81:143
+
+ ❯ tests/source-draft-transfer-v3.test.ts:64:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 19 skipped (21)
+   Start at  05:58:08
+   Duration  1.21s (transform 575ms, setup 0ms, import 266ms, tests 553ms, environment 0ms)
+

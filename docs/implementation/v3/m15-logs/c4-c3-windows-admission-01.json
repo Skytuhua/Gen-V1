@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/c3-admission-application-01/apply.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T04:39:58.731Z",
+  "endedAt": "2026-11-16T04:39:59.849Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-c3-windows-admission-01.log",
+  "logDigest": "6c11b7dee9430d0397b0cb18816ab13731719ae840a82c25e80c8523eec5d03b"
+}

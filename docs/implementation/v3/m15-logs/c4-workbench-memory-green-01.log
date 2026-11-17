@@ -1,0 +1,26 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench-app.playwright.config.ts","--grep","prepared memory and selected sources|M15 memory review","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-workbench-memory-green-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 4 tests using 1 worker
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:82) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/4] tests/e2e/workbench-app.spec.ts:1742:1 › prepared memory and selected sources queue together while working and clear only after acknowledgment
+[1A[2K[2/4] tests/e2e/workbench-app.spec.ts:1849:1 › M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft
+[1A[2K[3/4] tests/e2e/workbench-app.spec.ts:1974:1 › M15 memory review opens retained disabled records and an empty current-owner module
+[1A[2K[4/4] tests/e2e/workbench-app.spec.ts:2011:1 › M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner
+[1A[2K  4 passed (26.9s)

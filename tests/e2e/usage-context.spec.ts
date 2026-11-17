@@ -118,7 +118,7 @@ test('reported categories reveal token/share/subitems on focus after dwell; IME 
 test('unknown and invalid category measurements never retain stale values', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
   await expect(context(page)).toContainText('System'); await update(page, 'unknown');
-  await expect(context(page)).toContainText('once the runtime measures this session'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
+  await expect(context(page)).toContainText('Not reported'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
 });
 test('scope/provider filters remain in the owning modal and refresh preserves tab and selection', async ({ page }) => {
   await page.goto('/usage-context'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
@@ -194,6 +194,30 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   expect(await context(page).locator('.context-measurement-accepted').count()).toBe(0);
   expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
   await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
+});
+
+test('last request shows observed broker bytes, then drops them on a new epoch', async ({ page }) => {
+  await page.goto('/usage-context');
+  await update(page, 'request-proof');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const last = context(page).getByRole('region', { name: 'Last request' });
+  await expect(last).toContainText('13 observed prompt bytes');
+  await expect(last).toContainText('Provider tokens and roles were not inferred');
+  const tabs = last.getByRole('tablist');
+  await expect(tabs.getByRole('tab')).toHaveCount(4);
+  await tabs.getByRole('tab', { name: 'Last request' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(tabs.getByRole('tab', { name: 'Sources' })).toHaveAttribute('aria-selected', 'true');
+  await expect(last.getByRole('tabpanel')).toContainText('1 known input');
+  await expect(last.getByRole('tabpanel')).toContainText('user · revision 1 · 13 bytes');
+  await tabs.getByRole('tab', { name: 'Tools' }).click();
+  await expect(last.getByRole('tabpanel')).toContainText('Schema counts were not reported');
+  await update(page, 'request-schemas');
+  await expect(last.getByRole('tabpanel')).toContainText('7 host tool schemas · 428 serialized bytes');
+  await tabs.getByRole('tab', { name: 'Compaction' }).click();
+  await expect(last.getByRole('tabpanel')).toContainText('No loss-aware compaction receipt');
+  await update(page, 'restart');
+  await expect(last).toHaveCount(0);
 });
 
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {

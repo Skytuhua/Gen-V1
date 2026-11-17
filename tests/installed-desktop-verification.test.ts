@@ -14,6 +14,16 @@ import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
 
 const directory='C:\\verification\\exclusive\\installed';
 const clear=():InstallPreflight=>({entries:[],runningAppPids:[],shortcuts:[],updaterCache:{path:'C:\\fixture\\generative-harness-desktop-updater',present:false}});
+describe('installed subscription readiness',()=>{
+ it('names the provider whose Connect button stayed blocked without accepting the blocked state',async()=>{
+  const guard=installedVerification.assertInstalledConnectionReady;
+  expect(typeof guard).toBe('function');
+  await expect(guard('cursor-sdk',async()=> 'disabled:blocked',20)).rejects
+    .toThrow(/installed subscription cursor-sdk[\s\S]*disabled:blocked/i);
+  await expect(guard('gemini-cli',async()=> 'enabled',20)).resolves.toBeUndefined();
+ });
+});
+
 describe('installed desktop verification custody',()=>{
  it('records installer exit separately from close and never copies child text into lifecycle evidence',()=>{
   const observe=(installedVerification as unknown as {observeOwnedProcess:(child:ChildProcess,phase:'installer',timeoutMs:number,clock:()=>number)=>{status:string;pid:number|null;spawnElapsedMs:number|null;exit:{elapsedMs:number;code:number|null;signal:string|null}|null;close:{elapsedMs:number;code:number|null;signal:string|null}|null;stdoutBytes:number;stderrBytes:number}}).observeOwnedProcess;

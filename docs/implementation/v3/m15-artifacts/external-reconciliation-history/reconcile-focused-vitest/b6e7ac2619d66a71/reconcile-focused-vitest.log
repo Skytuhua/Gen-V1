@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15
+
+
+ Test Files  8 passed (8)
+      Tests  112 passed | 1 skipped (113)
+   Start at  03:34:06
+   Duration  29.66s (transform 3.34s, setup 0ms, import 3.16s, tests 29.38s, environment 1ms)
+

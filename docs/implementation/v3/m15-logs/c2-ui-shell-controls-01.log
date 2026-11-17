@@ -1,0 +1,67 @@
+argv: ["pnpm","exec","playwright","test","--config","docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-controls.chromium.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/ui-shell-controls.spec.ts:23:1 › required validation retains visible focus and blocks submission until corrected (2.4s)
+  ✓   2 tests/e2e/ui-shell-controls.spec.ts:51:1 › shared Select preserves caller-owned invalid feedback for an otherwise valid choice (1.4s)
+  ✓   3 tests/e2e/ui-shell-controls.spec.ts:68:1 › a fieldset disabling an open Select closes it and blocks a queued selection (2.5s)
+  ✓   4 tests/e2e/ui-shell-controls.spec.ts:101:1 › a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling (1.5s)
+  ✓   5 tests/e2e/ui-shell-controls.spec.ts:132:1 › Panels supports keyboard typeahead, invokes the existing tool owner and returns focus (2.2s)
+  ✓   6 tests/e2e/ui-shell-controls.spec.ts:157:1 › Select skips disabled choices, preserves form name/disabled semantics and resets to its initial value (2.1s)
+  ✓   7 tests/e2e/ui-shell-controls.spec.ts:194:1 › menu arrows wrap enabled rows, typeahead and checkbox selection do not submit a form (1.2s)
+  ✘   8 tests/e2e/ui-shell-controls.spec.ts:221:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time (28.5s)
+(node:275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/e2e/ui-shell-controls.spec.ts:270:1 › modal Shift+Tab wraps past rendered but unavailable controls (1.1s)
+  ✓  10 tests/e2e/ui-shell-controls.spec.ts:307:1 › Tab leaves a popup for the next field and outside focus does not get stolen (919ms)
+  ✓  11 tests/e2e/ui-shell-controls.spec.ts:329:1 › IME legacy keycode cannot dismiss Select or ActionMenu (1.1s)
+  ✓  12 tests/e2e/ui-shell-controls.spec.ts:359:1 › disabling an open Select closes it through re-enabling (855ms)
+  ✓  13 tests/e2e/ui-shell-controls.spec.ts:377:40 › selected, hovered and focused states stay distinct with spaced 32px rows in dark (1.2s)
+  ✓  14 tests/e2e/ui-shell-controls.spec.ts:377:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light (1.1s)
+  ✓  15 tests/e2e/ui-shell-controls.spec.ts:412:1 › a large selected catalog is visible on the first modal popup frame in a short window (1.3s)
+  ✓  16 tests/e2e/ui-shell-controls.spec.ts:460:1 › the actual resource selector renders first-party options and retains its value/callback (818ms)
+  ✓  17 tests/e2e/ui-shell-controls.spec.ts:478:1 › Panels failures stay visible and Layouts keeps its saved-layout controls (1.1s)
+  ✓  18 tests/e2e/ui-shell-controls.spec.ts:509:1 › Panels fits a short window with a visible scrollbar and reachable last action (603ms)
+
+
+  1) tests/e2e/ui-shell-controls.spec.ts:221:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time 
+
+    [31mTest timeout of 15000ms exceeded.[39m
+
+    Error: locator.evaluate: Target page, context or browser has been closed
+
+      112 |   await opener.click();
+      113 |   const dialog = page.getByRole('dialog', { name: 'Controls dialog' });
+    > 114 |   expect(await dialog.evaluate(node => node.matches(':modal'))).toBe(true);
+          |                       ^
+      115 |   await expect(page.getByRole('button', { name: 'Background action' })).not.toBeFocused();
+      116 |   const trigger = page.getByRole('combobox', { name: 'Choice' });
+      117 |   await trigger.click();
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/ui-shell-controls.spec.ts:114:23
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-01/artifacts/ui-shell-controls-IME-keys-c84fb-unwinds-one-layer-at-a-time/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-01/artifacts/ui-shell-controls-IME-keys-c84fb-unwinds-one-layer-at-a-time/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-ui-shell-controls-01/artifacts/ui-shell-controls-IME-keys-c84fb-unwinds-one-layer-at-a-time/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/ui-shell-controls.spec.ts:221:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time 
+  17 passed (1.0m)

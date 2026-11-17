@@ -16,6 +16,6 @@
 .composer-skill-bindings{display:flex;gap:5px;flex-wrap:wrap;padding:5px 8px 0;max-height:88px;overflow:auto}
 .composer-skill-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 4px 2px 7px;min-width:0;max-width:240px;font-size:12px;border:1px solid var(--border,#333);border-radius:7px;background:var(--surface,#161616)}
 .composer-skill-chip>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.composer-command-option:focus-visible,.composer-skill-chip button:focus-visible{outline:2px solid var(--accent,#8b83ff);outline-offset:1px}
+.composer-command-option:focus-visible,.composer-skill-chip button:focus-visible{outline:2px solid var(--ui-focus-ring,#808080);outline-offset:1px}
 @media(max-width:480px){.composer-command-option{gap:6px;padding:7px}.composer-command-description{font-size:12px}.composer-command-name{max-width:57%}.composer-command-hint{font-size:10px}}
 @media(forced-colors:active){.composer-command-option[aria-selected=true]{outline:1px solid Highlight;background:Highlight;color:HighlightText}.composer-command-source,.composer-skill-chip{border-color:ButtonText}}

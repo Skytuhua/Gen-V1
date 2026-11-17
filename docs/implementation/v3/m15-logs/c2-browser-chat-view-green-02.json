@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/chat-view-modes.playwright.config.ts",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:35:32.465Z",
+  "endedAt": "2026-11-16T01:35:58.896Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.log",
+  "logDigest": "d429d7ba9bee9447c973de06a0b54b1fd30c9e0b9fb10d1a85d2d384bb1c5132"
+}

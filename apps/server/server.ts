@@ -17,6 +17,7 @@ import { streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
+import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerBackgroundRoutes} from './background-routes.ts';
@@ -193,6 +194,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
+  registerSourceWorkbenchRoutes(app,service);
   registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
   registerAttentionRoutes(app,service);

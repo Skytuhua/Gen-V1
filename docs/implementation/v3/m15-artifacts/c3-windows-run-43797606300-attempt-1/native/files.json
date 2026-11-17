@@ -1,0 +1,97 @@
+[
+  {
+    "path": "test-results/m15/native-results.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      46
+    ],
+    "compressedBytes": 16028,
+    "bytes": 108105,
+    "crc32": "d90c001b",
+    "sha256": "a7b26a95f12bc63cb00ef3512ab23d4cdc64afc738f70adc4d5474424845150e",
+    "gitBlob": "8c0e0b37586e06c31980c49aba1cf90e1edd436b"
+  },
+  {
+    "path": "test-results/m15/checkout-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      35,
+      0
+    ],
+    "compressedBytes": 304,
+    "bytes": 476,
+    "crc32": "9a16d365",
+    "sha256": "196a786faebc275d1d31806ef1dfb2837d45def9f45889c8e89cf2076c42d37b",
+    "gitBlob": "1decbfa087a15a387410f396bb4f0b0ec737cba7"
+  },
+  {
+    "path": "test-results/m15/native-source.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      36,
+      0
+    ],
+    "compressedBytes": 256,
+    "bytes": 403,
+    "crc32": "a063033e",
+    "sha256": "889b4771ffb14a5484cc5f20e1d104cb439531d768878186d8195e2aae526922",
+    "gitBlob": "04016cf31f9c69bbd028c8d4a1b2c59620f43c97"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-native-43797606300-1.json",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      46
+    ],
+    "compressedBytes": 666,
+    "bytes": 1822,
+    "crc32": "e95ead1b",
+    "sha256": "b78e82faad1e17359efa79d0b0c5a79d6894db70bb68fb915131e4183ce30840",
+    "gitBlob": "51b95de225c96ea8d8b44f73e541ab5fbc2221d8"
+  },
+  {
+    "path": "docs/implementation/v3/m15-logs/c3-windows-native-43797606300-1.log",
+    "kind": "file",
+    "zipMode": "0o100666",
+    "zipCreateSystem": 3,
+    "zipDateTime": [
+      2026,
+      11,
+      16,
+      3,
+      37,
+      46
+    ],
+    "compressedBytes": 3343,
+    "bytes": 12431,
+    "crc32": "4e13e34e",
+    "sha256": "4264dcb8cd4c1a83019e69632c4d27e386b335e2721049d7b4a021768236ba8a",
+    "gitBlob": "f0b4b45422a1a1682599f1870d9aa17f8d486522"
+  }
+]

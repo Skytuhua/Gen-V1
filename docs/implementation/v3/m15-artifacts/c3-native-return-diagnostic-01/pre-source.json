@@ -1,0 +1,29 @@
+{
+  "kind": "Exact source before temporary native-return diagnostic instrumentation",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 157534,
+      "sha256": "9eb5a0241349cdf64c6860b63080fea3ca29c155dd1c6ffed7ccf6a6cf7e3ee4",
+      "copy": "/workspace/scratch/1b47eb428672/m15-publication/c3/native-return-diagnostic-01/pre-source/apps/web/src/App.tsx"
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "bytes": 600,
+      "sha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+      "copy": "/workspace/scratch/1b47eb428672/m15-publication/c3/native-return-diagnostic-01/pre-source/apps/web/src/editor-handoff.ts"
+    },
+    {
+      "path": "tests/e2e/workbench-native-return-fixture.ts",
+      "bytes": 10123,
+      "sha256": "73b87d3a1f3a46978052777c2cac2335928f447f2ba93ff6a718e7e6267e7ffb",
+      "copy": "/workspace/scratch/1b47eb428672/m15-publication/c3/native-return-diagnostic-01/pre-source/tests/e2e/workbench-native-return-fixture.ts"
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "bytes": 37558,
+      "sha256": "ef9c4c806be3f007830e08fd85f2c6d64c86fe4e6bda4fcf911ef4d153ac4feb",
+      "copy": "/workspace/scratch/1b47eb428672/m15-publication/c3/native-return-diagnostic-01/pre-source/tests/e2e/workbench-app.spec.ts"
+    }
+  ]
+}

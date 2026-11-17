@@ -1,5 +1,6 @@
 import {useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {Toaster} from '../../packages/ui-shell/Toast';
 import {ShellSidebar} from '../../apps/web/src/ShellSidebar';
 import {DesktopProvider} from '../../apps/web/src/desktop-context';
 import {WorkspaceProvider} from '../../apps/web/src/workspace-context';
@@ -10,6 +11,8 @@ import type {ShellLayout} from '../../apps/web/src/shell-layout';
 import '../../apps/web/src/styles.css';
 import '../../apps/web/src/shell.css';
 
+declare global {interface Window {sidebarPresentation:{mode:'success'|'reject'|'hold';accept?:()=>void;reject?:()=>void}}}
+window.sidebarPresentation={mode:'success'};
 const calls: unknown[] = [];
 Object.assign(window, {sidebarMenuCalls: calls});
 const query = new URLSearchParams(location.search);
@@ -20,7 +23,7 @@ const threads: ThreadNavigationRow[] = ['Selected conversation', 'Other conversa
   kind: index === 3 ? 'side' : index === 4 ? 'delegate' : 'main', parentThreadId: index === 4 ? 'thread-0' : undefined,
   status: index === 1 || index === 2 ? 'working' : 'ready', runId: index === 1 ? 'run-other' : null,
   sessionPath: null, epoch: 0, createdAt: '2026-11-06T12:00:00Z', updatedAt: '2026-11-06T12:00:00Z',
-  presentation: {pinned: query.has('flags'), unread: query.has('flags'), settled: query.has('flags'), order: index - 4},
+  presentation: {pinned: query.has('flags'), unread: query.has('flags'), settled: query.has('flags')||query.has('settled'), order: index - 4},
 } as ThreadNavigationRow));
 
 function Fixture() {
@@ -35,11 +38,15 @@ function Fixture() {
         toggleCollapsed={() => setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}))}
         setFolded={(key, folded) => setLayout(value => ({...value, folded: {...value.folded, [key]: folded}}))}
         select={id => calls.push({select: id})} create={() => {}} settings={() => {}}
-        presentation={(thread, value) => calls.push({presentation: thread, value})} rename={thread => calls.push({rename: thread})}
+        presentation={async(thread,value)=>{calls.push({presentation:thread,value});const mode=window.sidebarPresentation.mode;
+          if(mode==='reject')throw Error('Presentation was rejected.');
+          if(mode==='hold')await new Promise<void>((resolve,reject)=>{window.sidebarPresentation.accept=resolve;window.sidebarPresentation.reject=()=>reject(Error('Presentation was rejected.'));});
+          if(mode==='hold')setRows(current=>current.map(row=>row.id===thread.id?{...row,presentation:{...row.presentation,...value}}:row));return true;
+        }} rename={thread => calls.push({rename: thread})}
         archive={id => calls.push({archive: id})} detachThread={() => calls.push({detach: true})}
         {...(!query.has('custom') ? {onPlaceThread: (thread: ThreadNavigationRow) => calls.push({place: thread})} : {})}
         {...(!query.has('fallback') ? {orderBounds: {minOrder: -50, maxOrder: 80}} : {})}/>
-      <main><p>Synthetic sidebar menu fixture</p><button onClick={() => setVisible(false)}>Hide mobile sidebar</button>
+      <Toaster/><main><p>Synthetic sidebar menu fixture</p><button onClick={() => setVisible(false)}>Hide mobile sidebar</button>
         <button onClick={() => setLayout(value => ({...value, sidebarCollapsed: true}))}>Collapse sidebar</button>
         <button onClick={() => setRows([])}>Remove threads</button><button>Outside target</button></main>
     </div>

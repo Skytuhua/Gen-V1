@@ -1,0 +1,5 @@
+argv: ["python3","/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-03/apply-current-ledger.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{"status": "PASS", "source": "/workspace/scratch/1b47eb428672/m15-publication/c4/regression-review-draft-03/M15-c4-regression-review.md", "destination": "docs/implementation/v3/M15-c4-regression-review.md", "bytes": 53088, "sha256": "ad20c6630a0b1644dca1f449a8de5f43f42e7780ee8d64ff0f1689a32e33e716", "sourceCutSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260", "newExecutionClaim": false, "priorSetupCommand": "c4-current-ledger-application-01 launched python with no input because the recorder ignores stdin; no copy occurred"}

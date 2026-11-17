@@ -1,0 +1,53 @@
+argv: ["pnpm","exec","playwright","test","--config","playwright.config.ts","tests/e2e/artifact-acknowledgment.spec.ts","--trace","on","--output","docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (5.7s)
+
+
+  1) tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeChecked[2m([22m[2m)[22m failed
+
+    Locator: getByRole('checkbox', { name: 'Select row 1', exact: true })
+    Expected: checked
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeChecked" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })[22m
+
+
+      31 |     await page.goto('/');
+      32 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });
+    > 33 |     await expect(selected).toBeChecked();
+         |                            ^
+      34 |     await selected.click();
+      35 |     await expect.poll(() => saves.length).toBe(1);
+      36 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:33:28
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-browser-artifact-green-02/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection 

@@ -27,11 +27,15 @@ usage and Inbox views. Thread areas ask for a sidebar drag. The desktop host can
 open one genuine in-app browser; moving its tab preserves the same browser.
 Browser builds show an unavailable state rather than a simulated desktop view.
 
-In the desktop source preview, a conversation can be detached into its own
-native window. The main window can still open another conversation while the
-original is detached. Docking the window returns to the original conversation
-and keeps its draft. Canvas panels cannot be newly detached. See the
-[release notes](public/release-notes.md) for download and verification limits.
+In the source preview, choose **Detach conversation** from the conversation
+pane menu to float it inside Gen. Use the floating pane's title menu to
+**Return to main**, or drag the title to a highlighted edge to dock in a split.
+The sidebar remains available to open a different conversation.
+
+On Windows desktop, **Detach thread** in a thread's sidebar menu is a separate
+action: it opens a pinned native window. Canvas panels cannot be newly detached
+into native windows. See the [release notes](public/release-notes.md) for
+download and verification limits.
 
 **Workspace** and **All Agents** are the supported built-in layouts. Code
 Review, Research and Custom are no longer offered as new presets. Saved canvas

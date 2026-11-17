@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import json,subprocess; original=\"/workspace/scratch/1b47eb428672/gen-v1\"; run=lambda *args:subprocess.check_output([\"git\",\"-C\",original,*args],text=True).strip(); status=run(\"status\",\"--porcelain=v1\"); head=run(\"rev-parse\",\"HEAD\"); print(json.dumps({\"originalRoot\":run(\"rev-parse\",\"--show-toplevel\"),\"originalHead\":head,\"originalStatus\":status,\"canonicalOrigin\":run(\"remote\",\"get-url\",\"origin\")},indent=2)); assert not status; assert head==\"399cde39ff4ee82272c7a7700944325c44b36070\""
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-15T22:40:21.117Z",
+  "endedAt": "2026-11-15T22:40:21.411Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/final-checkout-custody-01.log",
+  "logDigest": "d91d558b6255fdea7c0e5b598458a5f90d9df533e15067e3644f78ff35674e77"
+}

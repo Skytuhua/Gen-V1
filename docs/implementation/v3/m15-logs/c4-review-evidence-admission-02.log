@@ -1,0 +1,37 @@
+argv: ["python3","-c","from pathlib import Path\nimport hashlib,subprocess\np=Path('/workspace/scratch/1b47eb428672/m15-publication/c4/review-admission-02/apply-fixed-admission.py')\nassert hashlib.sha256(p.read_bytes()).hexdigest()=='7071179c0f8cb561b803acedec0e881097bd30c821ca3dee049ad39dbc0ecced'\nsubprocess.run(['python3',str(p),'--apply'],check=True)\n"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "schemaVersion": 1,
+  "operation": "APPLY",
+  "status": "PASS",
+  "manifestDigests": {
+    "admission-manifest.json": "0f3587320e84e918195ac3001ed70feebddac33b5354b989fc93fd937e626a9c",
+    "final-addendum-manifest.json": "60f98c3019ca2792fbb23bad4599893fc77039c4dfb35d524e2d43862d5980b9",
+    "metadata-admission-manifest.json": "ba5691f6c1c5a1e38027fff8a907e275b1c21311460dcfed4d489efae50a9d43"
+  },
+  "files": 43,
+  "bytes": 2418407,
+  "sourceCut": {
+    "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+    "files": 2391,
+    "bytes": 55491032
+  },
+  "before": {
+    "head": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+    "indexSha256": "b7e5d01a49bb04af4e8804adb705d29ebda18aee1c2e97f91dc9b21ced30b8cb"
+  },
+  "prior134Preserved": true,
+  "publicManifestModified": false,
+  "indexWrites": 0,
+  "sourceWrites": 0,
+  "remoteMutations": 0,
+  "after": {
+    "head": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+    "indexSha256": "b7e5d01a49bb04af4e8804adb705d29ebda18aee1c2e97f91dc9b21ced30b8cb"
+  },
+  "repositoryWrites": 43,
+  "sourceUnchanged": true,
+  "completedAt": "2026-11-16T06:17:49.708732+00:00"
+}

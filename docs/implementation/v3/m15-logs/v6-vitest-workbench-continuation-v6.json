@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/workbench-continuation-v6.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m15-v6",
+  "executableIdentity": "C:/hostedtoolcache/node/24.22.2/x64/node.exe",
+  "startedAt": "2026-11-16T19:16:55.841Z",
+  "endedAt": "2026-11-16T19:16:59.500Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/vitest-workbench-continuation-v6.log",
+  "logDigest": "c75676a05be85dc31d7f1460f53fa424ec5b1ae602a2477872f9090f90498c7f"
+}

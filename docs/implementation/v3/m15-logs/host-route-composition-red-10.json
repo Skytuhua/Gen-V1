@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-workbench-host-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "owning service is absent"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:19:47.906Z",
+  "endedAt": "2026-11-15T22:19:54.292Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/host-route-composition-red-10.log",
+  "logDigest": "0dda4cd6354e172ea798b553d4e828a95dbb883232585f5931341cd282893b8f"
+}

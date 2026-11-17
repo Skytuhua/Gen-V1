@@ -1,0 +1,52 @@
+{
+  "receipt": "output-browser-final-03",
+  "originalRun": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench",
+  "checkedAt": "2026-11-15T22:42:23.404348+00:00",
+  "sourceCheck": {
+    "beforeEqualsReportEqualsCurrent": true,
+    "fileCount": 11,
+    "digests": {
+      "apps/web/src/WorkbenchOutput.tsx": "97af6b234bd842ada92ef37258942128370acb07cc4534c32dc9a8c2848d63a0",
+      "apps/web/src/workbench-window.ts": "f60e74407b09c9bea6956153f65a90fc124c009d8b06cf6d10f2c3943e856a2d",
+      "apps/web/src/workbench-output.css": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
+      "apps/web/src/workbench-recovery.ts": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+      "apps/web/src/journal.ts": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+      "apps/web/src/SourceSelectionActions.tsx": "96f2144595c7bbd5a42696e96e617077533731d0de7cae6fe2d8dfd2470d6ced",
+      "apps/web/src/source-workbench.css": "32c8a4284c227f423a12e803a7960c7e2649c0ce4393587016d3064407f2d536",
+      "apps/web/src/Markdown.tsx": "b590c8746468fd7d2eeb894cd22599cb1075ae35ff49bcb4b787288424938297",
+      "packages/contracts/source-selection.ts": "e63ce5749be5468b122df211f2663275bec8deb01d83b9fb908dc636fb4a7f25",
+      "tests/e2e/workbench-fixture.tsx": "a034670e9e36084cefca381bed941c0daefd6d7c985d26bc44cf4cdd8f7bef7d",
+      "tests/e2e/workbench.spec.ts": "a6e5f5445dc82ffa0b7b2be71b23ff49fb44c38d2b3d882a9472cb10fce75821"
+    }
+  },
+  "artifacts": [
+    {
+      "name": "renderer-performance.json",
+      "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench/artifacts/workbench-M15-controlled-r-a899a-with-100-000-retained-lines/m15-renderer-performance.json",
+      "retainedPath": "docs/implementation/v3/m15-artifacts/browser-final-03/renderer-performance.json",
+      "bytes": 9525,
+      "sha256": "080d127388172779f16b47bf5a1810c6752af9cf9bd84153d9cb51dd49eaf4c1"
+    },
+    {
+      "name": "results.json",
+      "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench/results.json",
+      "retainedPath": "docs/implementation/v3/m15-artifacts/browser-final-03/results.json",
+      "bytes": 32148,
+      "sha256": "795ddc3e2354cd8f824aba33b7b00cce6917f6d34e3bcea23684e99cab7e2908"
+    },
+    {
+      "name": "output-1280x800-zoom200.png",
+      "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1280x800-zoom200.png",
+      "retainedPath": "docs/implementation/v3/m15-artifacts/browser-final-03/output-1280x800-zoom200.png",
+      "bytes": 85459,
+      "sha256": "5ee5cb191b7023baf9f87c044d0999a4c3cac97e21e461a9a449cda8baa2f7aa"
+    },
+    {
+      "name": "output-1920x1080-zoom200.png",
+      "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794782409665-e886faf8-1d84-4945-b313-d95021c2f5e5/workbench/artifacts/workbench-M15-output-suppo-fadb7--at-both-viewports-and-zoom/output-1920x1080-zoom200.png",
+      "retainedPath": "docs/implementation/v3/m15-artifacts/browser-final-03/output-1920x1080-zoom200.png",
+      "bytes": 114968,
+      "sha256": "d002c38e6088391ffb141f13920e8e250f012ae2ad37f473cf9be94f70d01f7f"
+    }
+  ]
+}

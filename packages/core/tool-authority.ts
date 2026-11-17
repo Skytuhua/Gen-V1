@@ -12,6 +12,7 @@ import { OPERATION_EXECUTE, SKILL_TOOLS, TASK_FINISH, TASK_MEMORY, UI_TOOLS, VER
 import { PLANNING_TOOLS } from "./planning-tools.ts";
 import { toolSchemas } from "../capabilities/schemas.ts";
 import { z } from "zod";
+import { CONTEXT_RESULT_READ } from "./context-result-tool.ts";
 import { digest } from "../storage/store.ts";
 
 /** Where a call's effect is executed. "internal" bindings only mutate the
@@ -36,6 +37,7 @@ const READ_ROLES: ActorRole[] = ["run", "planning_child", "learning"];
 
 const CLASSIFICATION: Row[] = [
   ["ui_discover", "READ", "READ_RETRYABLE", RUN, "read", "none"],
+  ["context_result_read", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["ui_inspect", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["ui_present", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["ui_create_widget", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
@@ -72,7 +74,7 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
-  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS].find(tool => tool.name === name);
+  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
   if (schema) return z.toJSONSchema(schema) as Record<string, unknown>;

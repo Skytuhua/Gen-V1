@@ -1,0 +1,326 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "workbench-app.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5592 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5592",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "workbench-app.spec.ts",
+      "file": "workbench-app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "prepared memory and selected sources queue together while working and clear only after acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:53:25.404Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "memory-source-queued-command.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzY29wZSI6ICJSZWFsIEFwcCBhbmQgdHlwZWQgZGV0ZXJtaW5pc3RpYyBzb3VyY2UvbWVtb3J5IEhUVFA7IGhvc3QgYWRtaXNzaW9uIGlzIHNlcGFyYXRlIiwKICAicHJlcGFyYXRpb24iOiB7CiAgICAiYm9keSI6IHsKICAgICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIiwKICAgICAgInByb21wdCI6ICJVc2UgdGhpcyBzb3VyY2UgYWZ0ZXIgdGhlIGN1cnJlbnQgcnVuIiwKICAgICAgIm1vZGVsSWQiOiAidGVzdC9tb2RlbCIsCiAgICAgICJ0aGlua2luZ0xldmVsIjogbnVsbAogICAgfSwKICAgICJyZXF1ZXN0IjogewogICAgICAic2NvcGUiOiB7CiAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgInByb2plY3RJZGVudGl0eSI6ICJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwKICAgICAgICAidGhyZWFkSWQiOiAidGFzay10aHJlYWQiLAogICAgICAgICJhY2NvdW50SWQiOiAibWVtb3J5LWFjY291bnQtYSIsCiAgICAgICAgImJpbmRpbmdEaWdlc3QiOiAiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIKICAgICAgfSwKICAgICAgInJlcXVlc3RJZCI6ICJwcmVwYXJlZC1zb3VyY2UtcXVldWUtMSIsCiAgICAgICJjb250ZXh0R2VuZXJhdGlvbiI6IDEsCiAgICAgICJwaGFzZSI6ICJQUkVQQVJJTkciLAogICAgICAicmVjYWxsIjogewogICAgICAgICJyZXF1ZXN0SWQiOiAicHJlcGFyZWQtc291cmNlLXF1ZXVlLTEiLAogICAgICAgICJwcm9qZWN0SWRlbnRpdHkiOiAiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsCiAgICAgICAgImNvbnRleHRHZW5lcmF0aW9uIjogMSwKICAgICAgICAicXVlcnlEaWdlc3QiOiAiNzRjNWIwZjEzODhjNGZiZmVkYTBmYWRlZDAyNWU0YjM0ZTc3NWJmOWY1NDEwNTE0MjMzNDM4YmJiMjI0Mzk3ZSIsCiAgICAgICAgImNhbmRpZGF0ZUlkcyI6IFsKICAgICAgICAgICJhY2NlcHRlZCIKICAgICAgICBdLAogICAgICAgICJzZWxlY3RlZFJldmlzaW9ucyI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgIml0ZW1JZCI6ICJhY2NlcHRlZCIsCiAgICAgICAgICAgICJyZXZpc2lvbiI6IDEKICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJzY29yZXMiOiBbXSwKICAgICAgICAiZXhjbHVzaW9ucyI6IFtdLAogICAgICAgICJidWRnZXRCeXRlcyI6IDQwOTYsCiAgICAgICAgInByb2R1Y2VkQXQiOiAiMjAyNi0xMS0xNlQwMDowMDowMC4wMDBaIiwKICAgICAgICAic3RhdHVzIjogIkNPTVBMRVRFIgogICAgICB9LAogICAgICAiaXRlbXMiOiBbCiAgICAgICAgewogICAgICAgICAgImlkIjogImFjY2VwdGVkIiwKICAgICAgICAgICJwcm9qZWN0SWRlbnRpdHkiOiAiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsCiAgICAgICAgICAic2NvcGUiOiAiUFJPSkVDVCIsCiAgICAgICAgICAia2luZCI6ICJDT05TVFJBSU5UIiwKICAgICAgICAgICJ0ZXh0IjogIkZpeHR1cmUgYWNjZXB0ZWQgbWVtb3J5IHJldmlzaW9uIDEuIiwKICAgICAgICAgICJyZXZpc2lvbiI6IDEsCiAgICAgICAgICAic3RhdGUiOiAiQUNDRVBURUQiLAogICAgICAgICAgInNvdXJjZVJlZnMiOiBbCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAib3duZXJUaHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInNvdXJjZUtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgICAgICAgInNvdXJjZUlkIjogIm1lbW9yeS1zb3VyY2UtYWNjZXB0ZWQiLAogICAgICAgICAgICAgICJzb3VyY2VSZXZpc2lvbiI6ICJtZW1vcnktcjEiLAogICAgICAgICAgICAgICJjYXB0dXJlZFNlcSI6IDQsCiAgICAgICAgICAgICAgImRpZ2VzdCI6ICIyNjFlN2MyNjI0NjRjNGQ3ZGZjZGY4NTRlNWJlYjhmYzBjM2Q0MzkxOWRiMmVlMzliMjNlYzY0YzlmMTM5MTNkIiwKICAgICAgICAgICAgICAib2JzZXJ2ZWRTdGF0dXMiOiAiUkVQT1JURUQiCiAgICAgICAgICAgIH0KICAgICAgICAgIF0sCiAgICAgICAgICAiYXNzZXJ0ZWRCeSI6IHsKICAgICAgICAgICAgImtpbmQiOiAiQUdFTlQiLAogICAgICAgICAgICAiaWQiOiAiZml4dHVyZS1hZ2VudCIKICAgICAgICAgIH0sCiAgICAgICAgICAib2JzZXJ2ZWRBdCI6ICIyMDI2LTExLTE2VDAwOjAwOjAwLjAwMFoiLAogICAgICAgICAgImV4cGlyZXNBdCI6IG51bGwsCiAgICAgICAgICAic3VwZXJzZWRlcyI6IFtdLAogICAgICAgICAgInNlbnNpdGl2aXR5IjogIk5PUk1BTCIsCiAgICAgICAgICAicmV2aWV3RGVjaXNpb24iOiBudWxsCiAgICAgICAgfQogICAgICBdLAogICAgICAiaW5qZWN0ZWRCeXRlcyI6IDI0MCwKICAgICAgImV4cGlyZXNBdCI6ICIyMDI2LTExLTE2VDAzOjU0OjMxLjg2M1oiCiAgICB9CiAgfSwKICAiY2FwdHVyZWQiOiB7CiAgICAicmVmIjogewogICAgICAiY2FwdHVyZUlkIjogImNhcHR1cmUtMSIsCiAgICAgICJzb3VyY2UiOiB7CiAgICAgICAgImtpbmQiOiAiTUVTU0FHRSIsCiAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAic291cmNlUmV2aXNpb24iOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgImxvZ2ljYWxPd25lciI6IHsKICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAicHJvamVjdElkIjogIm1lbW9yeS1wcm9qZWN0IiwKICAgICAgICAgICJ3b3Jrc3BhY2VJZCI6ICJtZW1vcnktd29ya2luZy1jb3B5IgogICAgICAgIH0sCiAgICAgICAgImNvbnRlbnREaWdlc3QiOiAiODA5MTZlNzBlODhjYTY1Nzc5NGQ2NDE5YzNjMWY5YzQzNjk5NmMzMzFiNmIwZjFlNDRiNTFiYWNjNWVmZDdlMCIsCiAgICAgICAgImNhcHR1cmVkQXQiOiAiMjAyNi0xMS0xNlQwMzo1MzozMC42MDVaIiwKICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAiZW5jb2RpbmciOiAiVVRGMTYiLAogICAgICAgICAgInN0YXJ0IjogMCwKICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICJzZWxlY3RlZFRleHREaWdlc3QiOiAiZjYzYjY4NzI3NjMxM2EzZTdhMjBmYTMwNzJhYWZlZGIxYTk3NGViYmE3NWFjYTk5ZDJhNzUyZDI2ZGQ2ZTJlYSIKICAgICAgICB9CiAgICAgIH0sCiAgICAgICJrZWVwQ2FwdHVyZWQiOiBmYWxzZQogICAgfSwKICAgICJsYWJlbCI6ICJBc3Npc3RhbnQgbWVzc2FnZSIsCiAgICAicHJldmlldyI6ICJWaXNpYmxlIGV4YWN0IHNvdXJjZSIsCiAgICAicHJldmlld1RydW5jYXRlZCI6IGZhbHNlLAogICAgInNlbGVjdGVkQnl0ZXMiOiAyMCwKICAgICJyZXRhaW5lZCI6IHRydWUsCiAgICAic3RhdGUiOiAiQ1VSUkVOVCIKICB9LAogICJjb21tYW5kIjogewogICAgImlkIjogImJhY2IyNDhiLWY0NWEtNDg3OC04OTYwLTgyMTc5YWUwMGI0NyIsCiAgICAidHlwZSI6ICJtZXNzYWdlLnNlbmQiLAogICAgInBheWxvYWQiOiB7CiAgICAgICJjb250ZW50IjogIlVzZSB0aGlzIHNvdXJjZSBhZnRlciB0aGUgY3VycmVudCBydW4iLAogICAgICAibW9kZWxJZCI6ICJ0ZXN0L21vZGVsIiwKICAgICAgInRoaW5raW5nTGV2ZWwiOiBudWxsLAogICAgICAic291cmNlUmVmcyI6IFsKICAgICAgICB7CiAgICAgICAgICAiY2FwdHVyZUlkIjogImNhcHR1cmUtMSIsCiAgICAgICAgICAic291cmNlIjogewogICAgICAgICAgICAia2luZCI6ICJNRVNTQUdFIiwKICAgICAgICAgICAgInNvdXJjZUlkIjogInJlcGx5IiwKICAgICAgICAgICAgInNvdXJjZVJldmlzaW9uIjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgICAibG9naWNhbE93bmVyIjogewogICAgICAgICAgICAgICJ0aHJlYWRJZCI6ICJ0YXNrLXRocmVhZCIsCiAgICAgICAgICAgICAgInByb2plY3RJZCI6ICJtZW1vcnktcHJvamVjdCIsCiAgICAgICAgICAgICAgIndvcmtzcGFjZUlkIjogIm1lbW9yeS13b3JraW5nLWNvcHkiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJjb250ZW50RGlnZXN0IjogIjgwOTE2ZTcwZTg4Y2E2NTc3OTRkNjQxOWMzYzFmOWM0MzY5OTZjMzMxYjZiMGYxZTQ0YjUxYmFjYzVlZmQ3ZTAiLAogICAgICAgICAgICAiY2FwdHVyZWRBdCI6ICIyMDI2LTExLTE2VDAzOjUzOjMwLjYwNVoiLAogICAgICAgICAgICAicmFuZ2UiOiB7CiAgICAgICAgICAgICAgImVuY29kaW5nIjogIlVURjE2IiwKICAgICAgICAgICAgICAic3RhcnQiOiAwLAogICAgICAgICAgICAgICJlbmQiOiAyMCwKICAgICAgICAgICAgICAic2VsZWN0ZWRUZXh0RGlnZXN0IjogImY2M2I2ODcyNzYzMTNhM2U3YTIwZmEzMDcyYWFmZWRiMWE5NzRlYmJhNzVhY2E5OWQyYTc1MmQyNmRkNmUyZWEiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICAia2VlcENhcHR1cmVkIjogZmFsc2UKICAgICAgICB9CiAgICAgIF0sCiAgICAgICJzZW5kTW9kZSI6ICJBRlRFUl9DVVJSRU5UIiwKICAgICAgInJlcXVlc3RDb250ZXh0SWQiOiAicHJlcGFyZWQtc291cmNlLXF1ZXVlLTEiCiAgICB9LAogICAgInRocmVhZElkIjogInRhc2stdGhyZWFkIgogIH0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-ddfed96affde252e4851",
+          "file": "workbench-app.spec.ts",
+          "line": 1742,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8539,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:368:27",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 105,
+                      "line": 336
+                    },
+                    "snippet": "  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 105,
+                        "line": 336
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n\n  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:368:27"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:53:32.959Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-57ee6--without-changing-the-draft/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-57ee6--without-changing-the-draft/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 105,
+                    "line": 336
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-7db6500ea5526f0a8a9b",
+          "file": "workbench-app.spec.ts",
+          "line": 1849,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review opens retained disabled records and an empty current-owner module",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8109,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:395:28",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 105,
+                      "line": 336
+                    },
+                    "snippet": "  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 105,
+                        "line": 336
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n\n  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:395:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:53:43.128Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-d1772--empty-current-owner-module/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-d1772--empty-current-owner-module/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 105,
+                    "line": 336
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-04c0850a833786e3610c",
+          "file": "workbench-app.spec.ts",
+          "line": 1974,
+          "column": 1
+        },
+        {
+          "title": "M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8529,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:408:3",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                      "column": 105,
+                      "line": 336
+                    },
+                    "snippet": "  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                        "column": 105,
+                        "line": 336
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Sources and evidence', exact: true }).getByRole('button', { name: 'Open memory review', exact: true })\u001b[22m\n\n\n  334 |  const workbench=page.getByRole('dialog',{name:'Sources and evidence',exact:true});\n  335 |  await workbench.getByRole('navigation',{name:'Workbench views',exact:true}).getByRole('button',{name:'Evidence',exact:true}).click();\n> 336 |  const launch=workbench.getByRole('button',{name:'Open memory review',exact:true});await expect(launch).toBeEnabled();await launch.click();\n      |                                                                                                         ^\n  337 |  await expect(memoryPanel(page)).toBeVisible();return {workbench,launch};\n  338 | }\n  339 | const readDraftContext=(page:Page,owner:LogicalOwnerV1)=>page.evaluate(async logicalOwner=>{const path='/src/workbench-recovery.ts',recovery=await import(/* @vite-ignore */ path);return recovery.composeDraftContext(logicalOwner);},owner);\n    at openMemory (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:336:105)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts:408:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:53:52.648Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-16521-t-envelope-in-the-new-owner/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/artifacts/workbench-app-M15-memory-r-16521-t-envelope-in-the-new-owner/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench-app.spec.ts",
+                    "column": 105,
+                    "line": 336
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8431e80bd9f7fd428cd1-0e20a77fa269113ce035",
+          "file": "workbench-app.spec.ts",
+          "line": 2011,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:53:21.160Z",
+    "duration": 40390.385,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

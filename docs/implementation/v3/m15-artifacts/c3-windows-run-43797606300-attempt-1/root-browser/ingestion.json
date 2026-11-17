@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "ingestionStatus": "BYTES_VERIFIED",
+  "testOutcome": "Read original job conclusions and command statuses; ingestion does not grant a passing test result.",
+  "repository": "skytuhua-org/Gen-V1",
+  "workflow": ".github/workflows/m15-evidence.yml",
+  "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+  "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+  "runId": 43797606300,
+  "runAttempt": 1,
+  "runConclusion": "failure",
+  "artifactId": 14197300687,
+  "artifactName": "m15-root-browser-3f68a8f1bc1ca5a588862571d905163861e94492-43797606300-1",
+  "kind": "root-browser",
+  "shard": null,
+  "shardCount": null,
+  "event": "push",
+  "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "jobId": 133069880068,
+  "jobConclusion": "failure",
+  "archive": {
+    "path": "archive.zip",
+    "bytes": 66451738,
+    "sha256": "3aa515f7d1d92eca11038c99da28a44db1b4f2185a3139c046d4b2d2d6457432",
+    "githubDigest": "sha256:3aa515f7d1d92eca11038c99da28a44db1b4f2185a3139c046d4b2d2d6457432",
+    "githubDigestVerified": true
+  },
+  "metadata": [
+    {
+      "path": "github-run.json",
+      "bytes": 13144,
+      "sha256": "2fa3a089a883ad822181e80748245333cf0b0d497ce8fac93f7403e92e5045cb"
+    },
+    {
+      "path": "github-artifact.json",
+      "bytes": 747,
+      "sha256": "15b8db1a49c36da28b86ea2b2dad7fb43f7135ebe8706fa8938f5668517ea990"
+    },
+    {
+      "path": "github-jobs.json",
+      "bytes": 24002,
+      "sha256": "e346a124d3edff49afd12eee0e98356deeb49b9cf97324777ada29d0c6064f51"
+    }
+  ],
+  "files": {
+    "path": "files.json",
+    "entries": 427,
+    "bytes": 245323,
+    "sha256": "e242aa84ab5e13aee6a387a8895f65d8eb53a9dcb768810488db84775578c18a"
+  },
+  "sourceValidation": {
+    "status": "MATCH",
+    "records": [
+      {
+        "path": "test-results/m15/checkout-source.json",
+        "sha256": "3f9966d352a3036b74dcdaea6bf63b48b8ade29e0be097684f265ca4fcbff23b",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+          "recordedAt": "2026-11-16T03:33:15.2204429Z"
+        }
+      },
+      {
+        "path": "test-results/m15/root-comparison-source.json",
+        "sha256": "8a720b6e588e381da9008039910c0426bb7590854d47c824f78db8f5e083bdba",
+        "observed": {
+          "head": "3f68a8f1bc1ca5a588862571d905163861e94492",
+          "tree": "be7e206431f13b654b6aecd7c12c23d0e4b2dfdb",
+          "acceptedBase": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1",
+          "runner": "Windows-X64",
+          "image": "20261112.366.7",
+          "node": "v24.22.2",
+          "pnpm": "10.30.3",
+          "startedAt": "2026-11-16T03:34:02.0254998Z"
+        }
+      },
+      {
+        "path": "test-results/m15/root-baseline-source.json",
+        "sha256": "f42ef7afc6dea4d42aea3d8acb2d06339bbd2f35a054eee8246ec9804fb83a63",
+        "observed": {
+          "head": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+          "tree": "2ecdb4c95fc6b604159257a125064ad585b966e5",
+          "lockSha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+          "event": "push",
+          "ref": "refs/heads/agent/m15-v3",
+          "runId": "43797606300",
+          "runAttempt": "1"
+        }
+      }
+    ],
+    "missing": []
+  },
+  "commands": {
+    "observed": [
+      {
+        "path": "baseline/docs/implementation/v3/m15-logs/c3-windows-root-baseline-43797606300-1.json",
+        "sha256": "b2e2ea9cccf5c9b34217fbf860e31f0503e03ac3fde96d6e779b25d534ffbba1",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "baseline/docs/implementation/v3/m15-logs/c3-windows-root-baseline-43797606300-1.log",
+        "logSha256": "07404ca823c449f1a28c2666d1c3f62f9c018feb2c3c9fd79dbf3ab9e48a4942"
+      },
+      {
+        "path": "docs/implementation/v3/m15-logs/c3-windows-root-candidate-43797606300-1.json",
+        "sha256": "03851f8ced405501d02ee204a3540cf89447f783c971698917d8286e71a97fd4",
+        "status": "FAIL",
+        "exitCode": 1,
+        "termination": "NONE",
+        "log": "docs/implementation/v3/m15-logs/c3-windows-root-candidate-43797606300-1.log",
+        "logSha256": "29cf744c2d887787b091afb4db47f9d2be4fb9810f42c0734f3b5a16a2ea8f7a"
+      }
+    ],
+    "missing": [],
+    "additionalRetainedReceipts": []
+  },
+  "fullRepositoryResult": null,
+  "ingestedAt": "2026-11-16T04:10:57.935801+00:00",
+  "ingestionHelperSha256": "1d2616a45c097afe53a46c78536972917683df23e20b9b30a1042afcd45c2ca8",
+  "workflowEvidenceRevision": "c3-v2",
+  "splitBrowserResult": null
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/native-close-browser-application-01/apply.py"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T05:04:01.590Z",
+  "endedAt": "2026-11-16T05:04:01.794Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-native-close-browser-application-01.log",
+  "logDigest": "9b1a168547e1b7f94ef1c02e4f4a2769d9005d7469acc6dc597a0aaed00dffa3"
+}

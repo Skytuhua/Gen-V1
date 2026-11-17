@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/activity-output-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","tests/saved-drafts.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/journal.test.ts","tests/editor-handoff.test.ts","tests/public-source.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  17 passed (17)
+      Tests  204 passed | 1 skipped (205)
+   Start at  06:23:30
+   Duration  20.37s (transform 4.95s, setup 0ms, import 6.16s, tests 8.65s, environment 2ms)
+

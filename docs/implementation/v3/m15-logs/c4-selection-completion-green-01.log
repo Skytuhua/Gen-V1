@@ -1,0 +1,25 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--grep","M15 completed selection action","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-selection-completion-green-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 3 tests using 1 worker
+
+[1A[2K(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/3] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action clears its unchanged own range
+[1A[2K[2/3] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range
+[1A[2K[3/3] tests/e2e/workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source
+[1A[2K  3 passed (9.0s)

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "typecheck"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:45:27.581Z",
+  "endedAt": "2026-11-15T21:46:31.481Z",
+  "exitCode": 2,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/ui-integration-typecheck-01.log",
+  "logDigest": "f590fbf0eec2b2f92a0a2e43dacdc1abe4e96b2c50a028e716d200f38e0b1112"
+}
