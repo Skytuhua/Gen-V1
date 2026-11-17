@@ -127,3 +127,13 @@ PR #501 CI (Tests job runs `windows-latest`) reported shard 3/4 failure on head 
 Fix is test-only; core contract semantics are unchanged and were already correct — `stopCommand` refuses to signal an unproven identity and quarantines as UNKNOWN on every platform. Changes: platform-agnostic `killOwnedProcess` helper (POSIX group kill / win32 direct kill), `GONE`/`SETTLED`/`resolveProcessExit` assertions branched on `process.platform === "linux"`, non-Linux branch asserts the quarantine holds (`RECONCILIATION_REQUIRED`), and `rmSync` cleanup gains `maxRetries`/`retryDelay` across all four M10 test files.
 
 Local verification: background-work-v3 31/31, handoff 11/11, intake 13/13, decisions 5/5, `pnpm typecheck` exit 0, `pnpm lint` exit 0. Full Windows-platform evidence now rests on the CI run of this commit.
+
+## Session 6 — Windows CI PASS and parallel deliverables
+
+PR #501 CI on head `86c549d0`: **all checks green**, including `Tests (shard 3/4)` on `windows-latest` — the shard-3 failures (POSIX group kill, platform-verdict expectation, exit-receipt/store-close race) are resolved by `e3eb3301` + `86c549d0` (test-only; core semantics unchanged). This supplies real Windows-platform evidence for the M10 suites that the local arm64 host could not produce.
+
+Docs commit `c6611f1a` (README contribution/issue guidance + org-URL fixes) was additionally cherry-picked to `main` as `fe497314` so the change is live without waiting on the PR; the duplicate will merge cleanly.
+
+Contributor issues filed covering the remaining milestone holds and adjacent gaps: #575 (HOLD_SUPERVISOR), #576 (HOLD_FORK_API), #577 (live intake polling), #578 (m08-restore flake), #579–#590 (UI/UX/frontend: a11y passes, mixed-DPI acceptance, skipped agents-grid evidence job, reduced-motion audit, shortcut reference, theme contrast, zoom resilience, minimized-tool affordances).
+
+Milestone status unchanged: **PARTIAL** — external-authority holds now tracked as issues #575/#576/#577 plus HOLD_EXECUTION_PROFILE; local full `pnpm test`/`test:browser` environmental limits stand as recorded; `reviewerApproval` remains false.
