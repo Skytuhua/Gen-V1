@@ -42,10 +42,18 @@ test('text entry shares its first row with Changes and Create PR at wide and nar
  await fixture(page);const draft=page.getByRole('textbox',{name:'Message',exact:true});
  for(const width of [1440,390]){
   await page.setViewportSize({width,height:900});
-  const input=(await draft.boundingBox())!,actions=(await page.getByRole('group',{name:'Task actions',exact:true}).boundingBox())!;
-  expect(Math.abs(actions.y-input.y)).toBeLessThanOrEqual(6);expect(input.x+input.width).toBeLessThanOrEqual(actions.x);
-  expect(await page.locator('.composer-header-utilities').count()).toBe(0);expect((await page.locator('.composer').boundingBox())!.height).toBeLessThan(150);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  // Read related geometry in the same browser task. Separate boundingBox RPCs
+  // can straddle the resize and compare controls from different layout frames.
+  await expect(async()=>{
+   const bounds=await page.locator('.composer').evaluate(composer=>{
+    const input=composer.querySelector('textarea')!.getBoundingClientRect();
+    const actions=composer.querySelector('[role="group"][aria-label="Task actions"]')!.getBoundingClientRect();
+    return {viewport:[innerWidth,innerHeight],topDelta:Math.abs(actions.y-input.y),inputRight:input.right,actionsLeft:actions.left,
+     utilities:composer.querySelectorAll('.composer-header-utilities').length,height:composer.getBoundingClientRect().height,overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   expect(bounds.viewport).toEqual([width,900]);expect(bounds.topDelta).toBeLessThanOrEqual(6);expect(bounds.inputRight).toBeLessThanOrEqual(bounds.actionsLeft);
+   expect(bounds.utilities).toBe(0);expect(bounds.height).toBeLessThan(150);expect(bounds.overflow).toBeLessThanOrEqual(1);
+  }).toPass({timeout:5000});
  }
  await draft.fill('Keep this thought');await page.getByRole('button',{name:'Create PR',exact:true}).click();
  await expect(draft).toHaveValue('Create a pull request for the current changes.\n\nKeep this thought');await expect(draft).toBeFocused();
