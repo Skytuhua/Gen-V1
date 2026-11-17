@@ -2,22 +2,22 @@
 > gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m10-v6
 > tsx scripts/test-browser.ts --suite background-work
 
-Browser results: /home/piadmin/Gen-V1-m10-v6/test-results/browser/run-1794891428380-0b90c931-a189-4435-be8c-8d2ef586f74b
+Browser results: /home/piadmin/Gen-V1-m10-v6/test-results/browser/run-1794902699770-822d8df1-839c-4c65-85e8-c9a6e64f00f6
 
 Browser suite: background-work (1 spec files)
 
 Running 11 tests using 1 worker
 
-  ✓   1 tests/e2e/background-work.spec.ts:20:1 › drawer shows every required state with command, owner, elapsed and Open child task (4.1s)
-  ✓   2 tests/e2e/background-work.spec.ts:42:1 › human card responds with the exact request revision and declines without approval (3.3s)
-  ✓   3 tests/e2e/background-work.spec.ts:55:1 › decline settles the human step as cancelled without an approval (2.4s)
-  ✓   4 tests/e2e/background-work.spec.ts:65:1 › credential steps expose no plaintext entry and point at the secure surface (2.8s)
-  ✓   5 tests/e2e/background-work.spec.ts:73:1 › failed and stale responses surface errors without completing work (2.0s)
+  ✓   1 tests/e2e/background-work.spec.ts:20:1 › drawer shows every required state with command, owner, elapsed and Open child task (6.8s)
+  ✓   2 tests/e2e/background-work.spec.ts:42:1 › human card responds with the exact request revision and declines without approval (2.5s)
+  ✓   3 tests/e2e/background-work.spec.ts:55:1 › decline settles the human step as cancelled without an approval (3.0s)
+  ✓   4 tests/e2e/background-work.spec.ts:65:1 › credential steps expose no plaintext entry and point at the secure surface (2.0s)
+  ✓   5 tests/e2e/background-work.spec.ts:73:1 › failed and stale responses surface errors without completing work (1.9s)
   ✓   6 tests/e2e/background-work.spec.ts:87:1 › output uses cursor-based retrieval and refresh keeps the returned cursor (2.2s)
-  ✓   7 tests/e2e/background-work.spec.ts:104:1 › schedules expose next occurrence, display timezone, last run and pause custody (1.6s)
-  ✓   8 tests/e2e/background-work.spec.ts:119:1 › external inbox separates proposed from approved and gates approval on a model (2.2s)
-  ✓   9 tests/e2e/background-work.spec.ts:140:1 › close warning never promises sleep execution and quarantine stays visible (1.3s)
-  ✓  10 tests/e2e/background-work.spec.ts:148:1 › loading, empty, offline and retry states stay distinct from success (1.8s)
-  ✓  11 tests/e2e/background-work.spec.ts:165:1 › cancel is offered only for live work and records the owned stop (1.4s)
+  ✓   7 tests/e2e/background-work.spec.ts:104:1 › schedules expose next occurrence, display timezone, last run and pause custody (2.3s)
+  ✓   8 tests/e2e/background-work.spec.ts:119:1 › external inbox separates proposed from approved and gates approval on a model (2.7s)
+  ✓   9 tests/e2e/background-work.spec.ts:140:1 › close warning never promises sleep execution and quarantine stays visible (1.5s)
+  ✓  10 tests/e2e/background-work.spec.ts:148:1 › loading, empty, offline and retry states stay distinct from success (2.1s)
+  ✓  11 tests/e2e/background-work.spec.ts:165:1 › cancel is offered only for live work and records the owned stop (1.8s)
 
-  11 passed (29.5s)
+  11 passed (33.9s)

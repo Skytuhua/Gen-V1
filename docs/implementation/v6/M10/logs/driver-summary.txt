@@ -6,5 +6,6 @@ EXIT 0 :: pnpm typecheck
 EXIT 0 :: pnpm lint
 EXIT 1 :: pnpm test --maxWorkers=2
 EXIT 0 :: pnpm build
+EXIT 0 :: pnpm test:browser --suite background-work
 EXIT 1 :: pnpm test:browser
 DRIVER_DONE

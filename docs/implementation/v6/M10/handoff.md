@@ -93,3 +93,29 @@ The aborted merge restored a byte-identical tree, so the prior `-final` gate rec
 - `pnpm typecheck` exit 0; `pnpm lint` exit 0 (543 sources, 0 violations); `pnpm build` exit 0
 
 Full `pnpm test` / `pnpm test:browser` outcomes are unchanged from the recorded `-final` receipts on this identical SHA (environmental failures: python3.14 absent, Chrome/Edge channels absent; not waived, not classified as passes). Milestone outcome remains **PARTIAL**: C1/C2/C3 deterministic phases PASS; C4 HOLD_SUPERVISOR; C5 HOLD_FORK_API; base join HOLD_SOURCE_DRIFT; platform/live gates unmet. Production flags remain false; reviewerApproval remains false.
+
+## Session 4 — user-authorized conflict resolution and merge
+
+The user explicitly authorized resolving the session-3 conflict set and pushing the result. origin/main was re-captured as `567498568611bc33379b31a0630dfaf3691b339f` (it had advanced one commit past 33639138 during the session). `git merge --no-commit --no-ff 56749856` reproduced the same three conflicts:
+
+- `packages/core/capability-flags.ts` — kept `M15_FLAG_KEYS`, `M04FlagKey`, the three m04 registry entries AND the four M10 keys/registry entries; `CapabilityFlagKey` union covers all owners.
+- `apps/web/src/App.tsx` — kept main's `renderSplitRoot` rewrite (`customDock`, `customConversationLayout`, `onActiveViewsChange`); re-applied the three M10 insertions (`background-work` editor option + title + `openBackgroundWork` routing).
+- `apps/server/server.ts` — root cause was a whole-file EOL difference (base/theirs CRLF, ours LF) hiding a 2-line semantic change; resolution keeps main's CRLF file plus both `registerSourceWorkbenchRoutes` and `registerBackgroundRoutes` import+call.
+
+No blanket ours/theirs; every conflict was resolved by composing both sides' actual changes. Merge commit `cbb964169ed900253d78681e90d6069b9f22139c`. Auto-merged files (`service.ts`, `browser-suites.ts`, `public-source-files.json`) verified semantically: M10 anchors intact, JSON parses, suite registered.
+
+### Combined-tree verification
+
+`pnpm typecheck` exit 0; targeted suites re-verified pre-commit (60/60) and again as `-final` receipts post-commit; `pnpm lint` exit 0 (571 sources); `pnpm build` exit 0. The full `pnpm test` and `pnpm test:browser` gates were re-executed on the merged cut through the receipt runner (results below in this section's receipts; ledger `receipts.jsonl` rolled over — pre-merge `-final` rows preserved in `receipts-final-archived.jsonl`). A fresh baseline worktree `/tmp/gv1-m10-baseline2` at `56749856` (frozen-lockfile install, same node-pty prebuild provisioning) provides the matching same-base comparison for full-gate outcomes.
+
+### Evidence base update
+
+`build-evidence.mjs` now measures `baseSha` at the merge parent `56749856` so `changedFiles` contains only M10 work; inspected-path blobs are re-captured at that base. `expectedBaseSha` for validation follows the same SHA.
+
+### Session-4 gate outcomes on the merged cut (receipts.jsonl)
+
+- Targeted suites: background-work-v3 31/31, human-handoff-v3 11/11, external-intake-v3 13/13, decisions 5/5 — all exit 0.
+- `pnpm typecheck` exit 0; `pnpm lint` exit 0 (571 sources, 0 violations); `pnpm build` exit 0.
+- `pnpm test --maxWorkers=2` exit 1: **304 failed / 4115 passed / 62 skipped (4481)** vs fresh same-base baseline `/tmp/gv1-m10-baseline2` at `56749856`: **306 failed / 4053 passed / 62 skipped (4421)**. **All 304 candidate failure identities are shared with baseline — zero candidate-only failures.** The 60-test delta is exactly the new M10 suites (all pass). The 2 baseline-only identities (desktop-host startup collision, dev-plugin-runtime) are the same environmental/flaky class recorded on the prior cut. Dominant causes unchanged: python3.14 absent, linux-path-guard denials, native/platform suites.
+- `pnpm test:browser` exit recorded, termination **TIMEOUT** at the receipt runner's 60-minute bound after 35 suite groups (concurrent m04/m12/m14/m15 agent load; a separate m15 browser gate ran simultaneously). 24 of the 35 failed; 23 of those identities appear in the prior baseline's failed-suite list and the one new identity (`m08-restore`, a 20s load timeout) passes 7/7 in an isolated candidate rerun (24.7s). The focused `pnpm test:browser --suite background-work` receipt exits 0 (11/11) on the merged cut. A completed full-suite run remains an unmet gate; missing Chrome/Edge channels and port collisions are not waived.
+- Milestone outcome remains **PARTIAL**: C1/C2/C3 deterministic phases PASS on the merged cut; C4 HOLD_SUPERVISOR; C5 HOLD_FORK_API; HOLD_EXECUTION_PROFILE; platform/live gates unmet. Production flags remain false; reviewerApproval remains false.

@@ -1,11 +1,23 @@
 
- RUN  v4.1.12 /home/piadmin/Gen-V1-m10-v6
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1234919) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1406087) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/human-handoff-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 26828[2mms[22m[39m
+     [33m[2m✓[22m[39m pauses the work and blocks automatic retry while a step is pending [33m 3710[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a stale answer to a superseded request revision [33m 1643[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a response for another thread without resuming any work [33m 618[2mms[22m[39m
+     [33m[2m✓[22m[39m validates the response against the exact request schema [33m 7784[2mms[22m[39m
+     [33m[2m✓[22m[39m accepts one correlated answer and enqueues exactly one durable follow-up [33m 427[2mms[22m[39m
+     [33m[2m✓[22m[39m decline settles the request as declined, never approved, with no follow-up or grant [33m 1368[2mms[22m[39m
+     [33m[2m✓[22m[39m credential steps never accept plaintext message content [33m 691[2mms[22m[39m
+     [33m[2m✓[22m[39m replays the original receipt for an identical answer and conflicts on changed content [33m 2979[2mms[22m[39m
+     [33m[2m✓[22m[39m runs respond/decline through Service.command with durable outbox receipts [33m 2114[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers the follow-up outside the answer transaction on a model-bound thread [33m 3361[2mms[22m[39m
+     [33m[2m✓[22m[39m dismissing the notification leaves the human step pending and grants nothing [33m 2127[2mms[22m[39m
 
- Test Files  1 passed (1)
-      Tests  11 passed (11)
-   Start at  18:15:26
-   Duration  9.70s (transform 3.52s, setup 0ms, import 4.59s, tests 4.75s, environment 0ms)
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 23:42:29
+[2m   Duration [22m 33.79s[2m (transform 4.91s, setup 0ms, import 6.50s, tests 26.83s, environment 0ms)[22m
 

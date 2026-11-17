@@ -5,7 +5,7 @@ import { join } from 'node:path';
 // Usage: node compare-outcomes.mjs <candidate-vitest-log> <baseline-vitest-log> [candidate-browser-root] [baseline-browser-root]
 const [candidateLog, baselineLog, candidateBrowser, baselineBrowser] = process.argv.slice(2);
 const failedIdentities = log => {
-  const text = readFileSync(log, 'utf8');
+  const text = readFileSync(log, 'utf8').replace(/\x1b\[[0-9;]*m/g, '');
   const identities = new Set();
   for (const match of text.matchAll(/^\s*FAIL\s+(tests\/[^\s>]+(?:\s>\s[^\n]+)?)$/gm)) identities.add(match[1].replace(/\s+/g, ' ').trim());
   return identities;

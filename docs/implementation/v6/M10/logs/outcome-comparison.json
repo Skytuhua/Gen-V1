@@ -1,33 +1,23 @@
 {
-  "run": "final cut (post v6 completeness fixes)",
-  "candidateBrowserRun": "test-results/browser/run-1794883165519-3e73091e-f55f-410c-89f8-4e3ec5697c35",
-  "baselineBrowserRun": "/tmp/gv1-m10-baseline/test-results/browser/run-1794854187046-9ebb9fcd-a2cc-4423-81b5-b1086279f289",
   "candidateSummary": {
-    "files": "44 failed | 334 passed | 4 skipped (382)",
-    "tests": "298 \u23af\u23af\u23af\u23af\u23af\u23af"
+    "files": "\u001b[22m \u001b[1m\u001b[31m43 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m360 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m5 skipped\u001b[39m\u001b[90m (408)\u001b[39m",
+    "tests": "304 \u001b[49m\u001b[22m\u001b[31m⎯⎯⎯⎯⎯⎯\u001b[39m"
   },
   "baselineSummary": {
-    "files": "44 failed | 330 passed | 4 skipped (378)",
-    "tests": "298 \u23af\u23af\u23af\u23af\u23af\u23af"
+    "files": "\u001b[22m \u001b[1m\u001b[31m44 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m355 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m5 skipped\u001b[39m\u001b[90m (404)\u001b[39m",
+    "tests": "306 \u001b[49m\u001b[22m\u001b[31m⎯⎯⎯⎯⎯⎯\u001b[39m"
   },
-  "candidateFailedIdentities": 298,
-  "baselineFailedIdentities": 298,
-  "shared": 297,
-  "candidateOnly": [
-    "tests/personal-visuals-ui.test.ts > keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame"
-  ],
+  "candidateFailedIdentities": 304,
+  "baselineFailedIdentities": 306,
+  "shared": 304,
+  "candidateOnly": [],
   "baselineOnly": [
+    "tests/desktop-host.test.ts > reports a real startup collision without adopting an unrelated HTTP service",
     "tests/dev-plugin-runtime.test.ts > prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children"
-  ],
-  "candidateOnlyInvestigation": [
-    {
-      "id": "tests/personal-visuals-ui.test.ts > keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame",
-      "isolatedCandidateRerun": "PASS 7/7",
-      "conclusion": "load-induced flake; passes in isolation on the candidate cut"
-    }
-  ],
-  "baselineOnlyNote": "tests/dev-plugin-runtime.test.ts case failed only on the baseline full run and passes on the candidate full run; symmetric load noise.",
-  "browserCandidateFailures": 669,
+  ]
+}
+{
+  "browserCandidateFailures": 722,
   "browserBaselineFailures": 774,
   "browserCandidateOnly": [
     "agents-workspace-evidence.spec.ts > populated grid evidence at 1440 (after)",
@@ -47,11 +37,17 @@
     "agents-workspace.spec.ts > missing history remains reachable after offscreen bursts without moving the message being read",
     "agents-workspace.spec.ts > output while reading earlier retains position and exposes an explicit new-output action",
     "agents-workspace.spec.ts > project rows expose working parent and nested child transcripts before any details click",
+    "agents-workspace.spec.ts > readable geometry dark 1280x600 at 1",
     "agents-workspace.spec.ts > readable geometry dark 1440x900 at 1",
+    "agents-workspace.spec.ts > readable geometry dark 1920x1080 at 1",
     "agents-workspace.spec.ts > readable geometry dark 640x520 at 1.5",
     "agents-workspace.spec.ts > readable geometry light 1024x768 at 1.25",
     "agents-workspace.spec.ts > readable geometry light 390x700 at 1",
+    "agents-workspace.spec.ts > readable geometry light 390x844 at 1",
     "agents-workspace.spec.ts > the actual App candidate opens and restores compact routing without mounting snapshot bootstrap",
+    "agents-workspace.spec.ts > the actual App opens and restores compact routing without mounting snapshot bootstrap",
+    "agents-workspace.spec.ts > the actual App retains offscreen drafts, keyboard targets and the 24-history bound",
+    "artifact-style.spec.ts > current question and mapped form values survive expansion, thread switching and reload",
     "compact-model-picker.spec.ts > 1 model catalog exposes exact reasoning radios in the side panel",
     "compact-model-picker.spec.ts > 2 model catalog exposes exact reasoning radios in the side panel",
     "compact-model-picker.spec.ts > Ctrl+number quick-select commits the matching visible row",
@@ -70,10 +66,39 @@
     "compact-model-picker.spec.ts > reasoning radios expose only exact supported levels and keyboard selection stays in the panel",
     "compact-model-picker.spec.ts > search ArrowRight Home and End edit the caret without moving focus or committing",
     "compact-model-picker.spec.ts > wide picker keeps readable rows, a filter rail and a reasoning side panel",
+    "composer-integration.spec.ts > Resume uses the visible effort choice for a stopped task",
+    "composer-integration.spec.ts > integrated voice appends to the latest draft and thinking selection reaches the message command",
+    "composer-integration.spec.ts > the resume strip stays reachable above the composer while reading earlier messages",
+    "m08-pr-checks.spec.ts > pull-request panel renders .pr-checks (populated rollup)",
+    "memory-recovery-app.spec.ts > review: an open restored Usage tab stays closed in split workspace and keeps both composers available",
+    "micro-motion.spec.ts > a first fetched answer gets its own text reveal after the real pending phase",
+    "micro-motion.spec.ts > actual pending follows the prose tail and disappears when the answer settles",
+    "micro-motion.spec.ts > the waiting mark is static under reduced motion and pauses after its branch closes",
     "model-composer-refinement.spec.ts > combined trigger opens advertised models and actual reasoning options with unchanged callbacks",
     "model-composer-refinement.spec.ts > keyboard reasoning, working lock, project selection and narrow popup stay usable",
     "model-composer-refinement.spec.ts > provider search retains actual model identities and omits unsupported reasoning",
     "model-composer-refinement.spec.ts > the original standalone picker API still selects by keyboard and closes",
+    "redundant-ui.spec.ts > actual loading composer keeps overview Changes until its draft is ready",
+    "redundant-ui.spec.ts > actual minimized split composer retains its same-owner overview Changes route",
+    "saved-drafts.spec.ts > approved thread capacity blocks a new draft with an alert and keeps records in every working copy",
+    "saved-drafts.spec.ts > global retention evicts inactive threads and copies on list",
+    "saved-drafts.spec.ts > global retention evicts inactive threads and copies on load",
+    "saved-drafts.spec.ts > global retention evicts inactive threads and copies on switch",
+    "saved-drafts.spec.ts > idle expiry refreshes an open list and deletes only the expired saved record",
+    "saved-drafts.spec.ts > legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority",
+    "saved-drafts.spec.ts > named save, reload, delete/cancel and empty state stay local",
+    "settings-controls.spec.ts > advanced runtime disclosure keeps a full touch target on wide layouts",
+    "settings-controls.spec.ts > all Settings sections remain clear and reachable dark 1440",
+    "settings-controls.spec.ts > all Settings sections remain clear and reachable dark 390",
+    "settings-controls.spec.ts > all Settings sections remain clear and reachable light 1440",
+    "settings-controls.spec.ts > all Settings sections remain clear and reachable light 390",
+    "settings-controls.spec.ts > compact navigation preserves full search and section-picker touch targets",
+    "settings-controls.spec.ts > keyboard focus stays neutral without section frames or composer glow in dark",
+    "settings-controls.spec.ts > keyboard focus stays neutral without section frames or composer glow in light",
+    "sidebar-shared-menu.spec.ts > return announces success only after an accepted presentation write",
+    "sidebar-shared-menu.spec.ts > return announces success only after an rejected presentation write",
+    "sidebar-shared-menu.spec.ts > settle announces success only after an accepted presentation write",
+    "sidebar-shared-menu.spec.ts > settle announces success only after an rejected presentation write",
     "subscription-accounts.spec.ts > Settings search and section navigation retain the unsaved account choice",
     "subscription-accounts.spec.ts > Settings search retains the pending account write and its hidden failure for retry",
     "subscription-accounts.spec.ts > a bound thread with no catalog keeps its saved model and offers explicit setup",
@@ -101,13 +126,13 @@
     "subscription-accounts.spec.ts > signing out a non-default account preserves unrelated pinned and default catalogs",
     "subscription-accounts.spec.ts > switching account cancels readiness and ignores late failure",
     "subscription-accounts.spec.ts > switching account cancels readiness and ignores late identity",
+    "subscription-accounts.spec.ts > terminal-owned sign-in shows progress and blocks conflicting account actions",
+    "task-design.spec.ts > dark selections are neutral while keyboard focus remains visible",
     "task-design.spec.ts > route geometry stays legible on the night map without a blue surface wash",
-    "task-design.spec.ts > statistics lead with the selected trend without repeating measurements in navigation"
+    "task-design.spec.ts > statistics lead with the selected trend without repeating measurements in navigation",
+    "usage-app-integration.spec.ts > review: an open restored Usage tab stays closed in split workspace and keeps both composers available"
   ],
   "browserBaselineOnly": [
-    "artifact-style.spec.ts > bound relationships expose source status and map the selected stable node to actions",
-    "artifact-style.spec.ts > long email choices retain readable width and compact navigation at 960px",
-    "artifact-style.spec.ts > status reads actual host operation states and keeps receipt details available",
     "clarity-data-work.spec.ts > dark architecture is legible before selecting a node",
     "clarity-data-work.spec.ts > flat and unavailable trends describe only supplied values",
     "clarity-data-work.spec.ts > light architecture is legible before selecting a node",
@@ -134,7 +159,6 @@
     "composer-reference.spec.ts > reference composer reflows by its own width, preserves keyboard access and avoids horizontal overflow",
     "dark-default.spec.ts > an existing light preference still controls the loaded application",
     "dark-default.spec.ts > an existing system preference still controls the loaded application",
-    "document-smoothness.spec.ts > rapid same-page choices retain one preview and move toward the latest field without a viewport jump",
     "exploration-ui.spec.ts > cross-thread image grants cannot trigger a resource fetch",
     "exploration-ui.spec.ts > image feedback supports immediate pins, keyboard movement and durable edits without modifying the source",
     "exploration-ui.spec.ts > image pointer coordinates describe the rendered image and feedback stays attached through resize",
@@ -214,7 +238,6 @@
     "markdown.spec.ts > renders hostile HTML and javascript links as inert text inside tables",
     "markdown.spec.ts > renders the genuine Pi trace table with semantic headers and numeric alignment",
     "markdown.spec.ts > retains heading, inline, nested list and non-default ordered-list semantics",
-    "markdown.spec.ts > shares the derived-cell budget across separate ragged tables without losing their source",
     "markdown.spec.ts > streamed tables stay unmasked while prose updates retain sentence reveal",
     "markdown.spec.ts > table layout contains overflow and stays readable in light",
     "markdown.spec.ts > table layout contains overflow and stays readable in narrow",
@@ -233,15 +256,6 @@
     "operational-motion.spec.ts > reduced motion skips graph travel and context shimmer while preserving source state",
     "operational-motion.spec.ts > vertical row dots and existing SVG endpoints remain attached throughout history insertion",
     "progressive-fidelity.spec.ts > appending answer content reveals only new glyphs and keeps the committed answer opaque",
-    "redundant-ui.spec.ts > actual parked split composer retains its same-owner overview Changes route",
-    "saved-drafts.spec.ts > account/profile/thread/project/working-copy libraries remain isolated",
-    "saved-drafts.spec.ts > another window adding an inactive library reschedules the empty active library deadline",
-    "saved-drafts.spec.ts > empty active library schedules expiry for inactive threads and copies without reading their owner",
-    "saved-drafts.spec.ts > malformed inactive library does not block valid list or inactive expiry",
-    "saved-drafts.spec.ts > malformed inactive library does not block valid load or inactive expiry",
-    "saved-drafts.spec.ts > malformed inactive library does not block valid save or inactive expiry",
-    "saved-drafts.spec.ts > malformed inactive library does not block valid switch or inactive expiry",
-    "saved-drafts.spec.ts > malformed inactive library does not stop the global expiry deadline",
     "shell-micro-motion.spec.ts > a published plan flags the collapsed overview once without replaying on snapshot or theme updates",
     "shell-micro-motion.spec.ts > settings opens with bounded motion and reduced motion removes travel",
     "sidebar-collapse.spec.ts > keyboard buttons, shortcuts and search settle immediately with focus at 1024",
@@ -281,26 +295,6 @@
     "task-software.spec.ts > ApiExplorer keeps neutral selection, keyboard access and chat-only scrolling on narrow screens",
     "task-software.spec.ts > Pipeline keeps neutral selection, keyboard access and chat-only scrolling on narrow screens",
     "task-software.spec.ts > the assertion and source lead an investigation, with other checks below the working evidence",
-    "thread-move.spec.ts > desktop pointer moves FLIP only affected visible rows for 180ms with drawer closed at 1024",
     "thread-move.spec.ts > pointer no-ops, background sorting and restoration do not animate at 1024"
-  ],
-  "failedSuites": {
-    "candidate": 62,
-    "baseline": 64,
-    "candidateOnly": [],
-    "baselineOnly": [
-      "saved-drafts",
-      "thread-move"
-    ]
-  },
-  "candidateOnlyTestInvestigation": {
-    "compact-model-picker+agents-workspace (71 tests)": "all browserType.launch msedge failures; /opt/microsoft/msedge absent on both cuts; baseline run failed these suites earlier at fixed-port collision (127.0.0.1:5397/5636 already used) so no test results were recorded",
-    "task-design (2 tests)": "nondeterministic on both cuts \u2014 candidate isolated reruns failed 5 then 3 cases with every candidate-only case passing at least once; baseline isolated rerun also failed 2 cases (light selections, image proportions)"
-  },
-  "newM10Tests": {
-    "files": 4,
-    "tests": 60,
-    "failed": 0
-  },
-  "conclusion": "No candidate-only failing browser suite; the candidate strictly improves on baseline at suite granularity. Candidate-only test identities are missing-channel launch failures or load/timing flakes, none M10-attributable. Environmental failures are not waived."
+  ]
 }

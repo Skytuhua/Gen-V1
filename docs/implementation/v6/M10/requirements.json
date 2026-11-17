@@ -5,7 +5,7 @@
   "worktree": "/home/piadmin/Gen-V1-m10-v6",
   "auditAnchorSha": "4805af4680094d2af48ecf666688e750797e9dda",
   "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
-  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3 continuation: origin/main advanced to 33639138f1cca3a596cab6315b1518a799fea6a5; merge --no-commit --no-ff produced content conflicts in apps/server/server.ts, apps/web/src/App.tsx and packages/core/capability-flags.ts. Conflict paths and base/ours/theirs blob identities recorded in handoff.md; git merge --abort restored the clean task worktree at a8c85dcd. Join marked HOLD_SOURCE_DRIFT; no blanket ours/theirs or guessed replacement applied.",
+  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution — capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
   "ownershipSearch": {
     "localWorktrees": [
       "Gen-V1 (fix/t10-agents-grid-v3, preserved)",

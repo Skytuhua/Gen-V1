@@ -6,13 +6,6 @@ vite v7.3.7 building client environment for production...
 transforming...
 vite v7.3.7 building client environment for production...
 transforming...
-node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
-
-"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
- * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
- * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
-
-in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
 node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
 
 "// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
@@ -30,14 +23,21 @@ node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
 "// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
 
 in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
 ✓ 1792 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/plugin-runtime/assets/pdf-draft.worker-BsXEv1s_.js    438.34 kB
-dist/plugin-runtime/runtime.css                          1,055.80 kB │ gzip: 667.12 kB
-dist/plugin-runtime/runtime.js                           2,965.01 kB │ gzip: 960.12 kB
-✓ built in 16.68s
-✓ 2128 modules transformed.
+dist/plugin-runtime/runtime.css                          1,055.94 kB │ gzip: 667.00 kB
+dist/plugin-runtime/runtime.js                           2,967.45 kB │ gzip: 960.96 kB
+✓ built in 23.61s
+✓ 2144 modules transformed.
 rendering chunks...
 computing gzip size...
 ../../dist/web/index.html                                                      0.55 kB │ gzip:   0.34 kB
@@ -64,38 +64,43 @@ computing gzip size...
 ../../dist/web/assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2              85.07 kB
 ../../dist/web/assets/pdf-draft.worker-BsXEv1s_.js                           438.34 kB
 ../../dist/web/assets/pdf.worker.min-Dkey6ZUl.mjs                          1,321.31 kB
+../../dist/web/assets/WorkbenchOutput-BhafsS0u.css                             1.59 kB │ gzip:   0.61 kB
 ../../dist/web/assets/SignaturePad-DAcKZblR.css                                2.68 kB │ gzip:   0.65 kB
 ../../dist/web/assets/xterm-DDGTF8rc.css                                       3.62 kB │ gzip:   0.99 kB
-../../dist/web/assets/ImageCompare-RPgQ1nt1.css                                3.69 kB │ gzip:   1.19 kB
+../../dist/web/assets/ImageCompare-CAqSSQ52.css                                3.72 kB │ gzip:   1.20 kB
 ../../dist/web/assets/Settings-D5NFxjvA.css                                    5.44 kB │ gzip:   1.43 kB
 ../../dist/web/assets/EverydayData-73YFHHqC.css                                9.21 kB │ gzip:   2.16 kB
-../../dist/web/assets/InteractionTools-DVgicenx.css                           13.41 kB │ gzip:   2.89 kB
-../../dist/web/assets/ExplorationTools-nl79hqvf.css                           13.54 kB │ gzip:   3.06 kB
-../../dist/web/assets/SoftwareDevelopment-w-F-TgOD.css                        14.19 kB │ gzip:   3.09 kB
-../../dist/web/assets/WorkObjects-Bhzs1ppu.css                                14.84 kB │ gzip:   3.28 kB
-../../dist/web/assets/index-DMPHlvyJ.css                                      44.22 kB │ gzip:   9.98 kB
-../../dist/web/assets/DesktopEntry-CQDeJO9A.css                              273.24 kB │ gzip:  47.45 kB
+../../dist/web/assets/InteractionTools-iS4QBct-.css                           13.44 kB │ gzip:   2.90 kB
+../../dist/web/assets/ExplorationTools-MVI1ne0-.css                           13.60 kB │ gzip:   3.07 kB
+../../dist/web/assets/SoftwareDevelopment-CbQ8JQ2M.css                        14.24 kB │ gzip:   3.10 kB
+../../dist/web/assets/WorkObjects-Bm1FZWAj.css                                14.80 kB │ gzip:   3.27 kB
+../../dist/web/assets/index-CkAXV1Bj.css                                      44.27 kB │ gzip:  10.00 kB
+../../dist/web/assets/DesktopEntry-DUIToHw6.css                              279.47 kB │ gzip:  48.32 kB
 ../../dist/web/assets/pdf.worker.min-OGYDhRwp.js                               0.07 kB │ gzip:   0.09 kB
-../../dist/web/assets/focus-CfRGeNFD.js                                        0.34 kB │ gzip:   0.23 kB
+../../dist/web/assets/database-DBqA5pdk.js                                     0.25 kB │ gzip:   0.21 kB
+../../dist/web/assets/focus-BPUxaJ_7.js                                        0.34 kB │ gzip:   0.24 kB
 ../../dist/web/assets/addon-fit-DX4qG4td.js                                    1.21 kB │ gzip:   0.51 kB
-../../dist/web/assets/CompactSettings-DxvTW6Nq.js                              3.34 kB │ gzip:   1.40 kB
-../../dist/web/assets/ImageCompare-dVJkggB3.js                                 6.32 kB │ gzip:   2.54 kB
-../../dist/web/assets/SignaturePad-Cr7WIRQC.js                                12.39 kB │ gzip:   4.97 kB
-../../dist/web/assets/EverydayData-CGdXUMnV.js                                16.14 kB │ gzip:   5.71 kB
-../../dist/web/assets/ProjectMemoryReview-DF05fCBn.js                         16.16 kB │ gzip:   5.24 kB
-../../dist/web/assets/InteractionTools-wUlrSRjW.js                            21.49 kB │ gzip:   7.12 kB
-../../dist/web/assets/ExplorationTools-DuJr85m2.js                            21.98 kB │ gzip:   7.60 kB
-../../dist/web/assets/SoftwareDevelopment-CRBDVPOb.js                         24.49 kB │ gzip:   7.37 kB
-../../dist/web/assets/DocumentPreview-DnRen3Pk.js                             25.15 kB │ gzip:   9.52 kB
-../../dist/web/assets/WorkObjects-DlEruRyu.js                                 28.17 kB │ gzip:   9.57 kB
-../../dist/web/assets/Settings-DaQX-n3P.js                                    70.69 kB │ gzip:  22.04 kB
-../../dist/web/assets/index-2zW36RuU.js                                      194.76 kB │ gzip:  61.37 kB
+../../dist/web/assets/WorkbenchActivity-D69Yvi2s.js                            1.55 kB │ gzip:   0.87 kB
+../../dist/web/assets/CompactSettings-yy9cZu7g.js                              3.38 kB │ gzip:   1.42 kB
+../../dist/web/assets/ImageCompare-CAJ08iKe.js                                 6.31 kB │ gzip:   2.54 kB
+../../dist/web/assets/WorkbenchOutput-CMndpJsd.js                              7.23 kB │ gzip:   2.91 kB
+../../dist/web/assets/SignaturePad-H6cuI5Rl.js                                12.39 kB │ gzip:   4.97 kB
+../../dist/web/assets/ProjectMemoryReview-DLuB1Lxk.js                         16.05 kB │ gzip:   5.22 kB
+../../dist/web/assets/WorkbenchPanelContent-D4mSBaoW.js                       16.09 kB │ gzip:   5.45 kB
+../../dist/web/assets/EverydayData-CfGQ7B3W.js                                16.25 kB │ gzip:   5.75 kB
+../../dist/web/assets/InteractionTools-DdNAxoyp.js                            21.50 kB │ gzip:   7.13 kB
+../../dist/web/assets/ExplorationTools-CLvEPpWD.js                            21.98 kB │ gzip:   7.60 kB
+../../dist/web/assets/SoftwareDevelopment-CweQYH5X.js                         24.49 kB │ gzip:   7.38 kB
+../../dist/web/assets/DocumentPreview-BskBAW4k.js                             25.15 kB │ gzip:   9.52 kB
+../../dist/web/assets/WorkObjects-T515wKvG.js                                 27.97 kB │ gzip:   9.47 kB
+../../dist/web/assets/Settings-CauZnZj8.js                                    74.98 kB │ gzip:  23.53 kB
+../../dist/web/assets/index-CJ7AAWrv.js                                      194.76 kB │ gzip:  61.37 kB
 ../../dist/web/assets/xterm-B-qIQCd3.js                                      329.31 kB │ gzip:  83.04 kB
 ../../dist/web/assets/pdf-CL8ynlU4.js                                        495.58 kB │ gzip: 151.29 kB
-../../dist/web/assets/DesktopEntry-C5WduXSE.js                             1,123.69 kB │ gzip: 349.17 kB
+../../dist/web/assets/DesktopEntry-BRtUp3qE.js                             1,179.59 kB │ gzip: 366.16 kB
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 19.73s
+✓ built in 25.90s
