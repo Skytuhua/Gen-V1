@@ -1,11 +1,12 @@
-import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,rmSync,existsSync} from 'node:fs';
+import {it,expect,afterEach,vi} from 'vitest';
+import {mkdtempSync,rmSync,existsSync,writeFileSync,lstatSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {runBrowserChecklist,type BrowserDriver,type BrowserSession,type BrowserPage} from '../packages/core/browser-verification';
 import {browserChecklistSchema,type BrowserChecklistV1,type BrowserStep} from '../packages/contracts/verification';
 import {computeAssessment} from '../packages/core/verification-gate';
+import {sourceDigestSync} from '../packages/core/project-verification';
 import type {ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
@@ -16,7 +17,7 @@ const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
 const dirs:string[]=[];
 function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{vi.useRealTimers();for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 const owner:ToolOwner={threadId:'t1',runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null};
 
@@ -95,6 +96,23 @@ it('navigation or traffic outside the approved origins fails closed',async()=>{
  expect(traffic.outcome).toBe('FAIL');expect(traffic.deniedOrigins).toContain('https://cdn.evil.example');
 });
 
+it.each(['/dashboard-disabled','/dashboard?admin=1','/dashboard#unexpected'])('ASSERT_URL rejects a different URL sharing the expected prefix: %s',async path=>{
+ const result=await run(stateStore(),[
+  {kind:'ASSERT_URL',url:'http://127.0.0.1:4100/dashboard',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({url:`http://127.0.0.1:4100${path}`,visible:{nav:true}}));
+ expect(result.outcome).toBe('FAIL');
+ expect(result.observations.find(obs=>obs.checklistItemId==='item-1')?.outcome).toBe('FAIL');
+});
+
+it('ASSERT_URL accepts the same normalized URL',async()=>{
+ const result=await run(stateStore(),[
+  {kind:'ASSERT_URL',url:'http://127.0.0.1:4100',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({url:'http://127.0.0.1:4100/',visible:{nav:true}}));
+ expect(result.outcome).toBe('PASS');
+});
+
 it('a failed assertion stops the run and unobserved items are blocked, never green',async()=>{
  const store=stateStore();
  const driver=fakeDriver({texts:{'h1':'Other text'},visible:{}});
@@ -123,6 +141,15 @@ it('a schema-valid record or image alone never produces PASS',async()=>{
  // a capture alone is not a verification.
  expect(result.observations.find(obs=>obs.checklistItemId==='item-1'&&obs.assertion.includes('executed assertion'))?.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='item-2')?.outcome).toBe('BLOCKED');
+ // A caller cannot turn the capture into success by binding its check ID
+ // while omitting the runner's blocked behavioral evidence.
+ const captured=result.observations.find(obs=>obs.screenshotDigest)!;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[captured.checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.label).toBe('BLOCKED');
 });
 
 it('an asserted item still needs its required screenshot',async()=>{
@@ -138,6 +165,77 @@ it('an asserted item still needs its required screenshot',async()=>{
  ],driver);
  expect(result.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='item-2'&&obs.assertion.includes('needs a screenshot'))?.outcome).toBe('BLOCKED');
+});
+
+it('screenshot evidence cannot verify before host artifact custody exists',async()=>{
+ const store=stateStore();
+ const result=await run(store,[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+  {kind:'SCREENSHOT',checklistItemId:'item-2',required:true},
+ ],fakeDriver({texts:{h1:'Welcome home'}}));
+ expect(result.outcome).toBe('PASS');
+ const assess=(checkId:string)=>computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ const capture=result.observations.find(obs=>obs.screenshotDigest)!;
+ const behavior=result.observations.find(obs=>obs.checklistItemId==='item-2'&&!obs.screenshotDigest)!;
+ expect(assess(behavior.checkId).label).toBe('BLOCKED');
+ expect(assess(capture.checkId).label).toBe('BLOCKED');
+ expect(assess(behavior.checkId).requirements[0].missing).toContain('screenshot custody is unavailable for page-works ('+behavior.checkId+')');
+ expect(result.observations.every(obs=>obs.outcome==='PASS')).toBe(true);
+});
+
+it('executed browser assertions without screenshots remain verifiable',async()=>{
+ const result=await run(stateStore(),[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+ ],fakeDriver({texts:{h1:'Welcome home'}}));
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[result.observations[0].checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.label).toBe('VERIFIED');
+});
+
+it.each(['deleted','replaced'] as const)('a %s required screenshot cannot verify through the gate, task_finish or panel',async mutation=>{
+ const {Service}=await import('../packages/core/service');
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const store=stateStore(),root=tempDir('verify-source-'),stamp=new Date().toISOString(),boundOwner={...owner,projectId:'p1'};
+ writeFileSync(join(root,'app.ts'),'export const ready=true;\n');
+ const identity=lstatSync(root,{bigint:true});
+ const current={...digests,codeDigest:sourceDigestSync(root,['app.ts']),dependencyDigest:sourceDigestSync(root,[])};
+ store.internal('test.project','t1',()=>{
+  store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:'Project',projectId:'p1',workspaceId:null,accountId:null,kind:'main',mode:'build',status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1});
+  store.put('workspaceProject','p1',null,{id:'p1',name:'Project',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','p1',null,{path:root,identity:{dev:String(identity.dev),ino:String(identity.ino)}});
+ });
+ const result=await run(store,[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+  {kind:'SCREENSHOT',checklistItemId:'item-2',required:true},
+ ],fakeDriver({texts:{h1:'Welcome home'}}),{owner:boundOwner,digests:current});
+ const captured=result.observations.find(obs=>obs.screenshotDigest)!,behavior=result.observations.find(obs=>obs.checklistItemId==='item-2'&&!obs.screenshotDigest)!;
+ const recorded=store.all('visualObservation','t1');
+ expect(result.outcome).toBe('PASS');expect(existsSync(captured.artifactRefs[0])).toBe(true);
+ if(mutation==='deleted')rmSync(captured.artifactRefs[0]);
+ else writeFileSync(captured.artifactRefs[0],'replacement bytes');
+ const requirements=[{id:'page-works',checkRefs:[behavior.checkId]}];
+ store.internal('test.declaration','t1',()=>store.put('verificationDeclaration','t1','t1',{version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:[],environmentId:current.environmentId,requirements}));
+ const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:current.codeDigest,dependencyDigest:current.dependencyDigest,environmentId:current.environmentId},requirements,observations:result.observations,unresolvedEffects:[],verifierIdentity:'test',provenance:'synthetic browser core test'});
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{}),saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
+ process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{await service.tool({name:'task_finish',args:{commandId:'finish-'+mutation,outcome:'done'}},{threadId:'t1',runId:'r1',epoch:1});}
+ finally{await service.dispose();if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+ expect(assessment.label).toBe('BLOCKED');
+ expect(store.all<{label:string}>('assessment','t1').at(-1)?.label).toBe('BLOCKED');
+ const panel=verificationPanelModel(store,'t1');expect(panel.label).toBe('BLOCKED');
+ expect(panel.rows.every(row=>row.outcome==='PASS')).toBe(true);
+ expect(store.all('visualObservation','t1')).toEqual(recorded);
 });
 
 it('the origin policy blocks unapproved traffic at request time',async()=>{
@@ -226,4 +324,49 @@ it('driver failures record BLOCKED, not a fabricated outcome',async()=>{
  const result=await run(store,[{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}],driver);
  expect(result.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='__driver__')?.observed).toMatch(/renderer crashed/);
+});
+
+it('owned browser cleanup failure is retained and prevents successful verification',async()=>{
+ const store=stateStore();
+ const base=fakeDriver({texts:{h1:'Welcome home'}});
+ const driver:BrowserDriver={launch:async options=>({...await base.launch(options),close:async()=>{throw new Error('owned browser still running');}})};
+ const result=await run(store,[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+ ],driver);
+ expect(result.outcome).toBe('FAIL');
+ const cleanup=result.observations.find(obs=>obs.checklistItemId==='__cleanup__')!;
+ expect(cleanup.outcome).toBe('FAIL');
+ expect(cleanup.observed).toContain('owned browser still running');
+ expect(store.get('visualObservation',cleanup.checkId)).toEqual(cleanup);
+ const assertion=result.observations.find(obs=>obs.checklistItemId==='item-1')!;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[assertion.checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.label).toBe('FAILED');
+});
+
+it('completed browser steps release their deadline timers',async()=>{
+ vi.useFakeTimers();
+ const result=await run(stateStore(),[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
+ ],fakeDriver({texts:{h1:'Welcome home'},visible:{nav:true}}));
+ expect(result.outcome).toBe('PASS');
+ expect(vi.getTimerCount()).toBe(0);
+});
+
+it('a browser step still fails when its deadline expires',async()=>{
+ vi.useFakeTimers();let entered!:()=>void;
+ const started=new Promise<void>(resolve=>{entered=resolve;}),driver=fakeDriver();
+ driver.page.text=()=>{entered();return new Promise(()=>{});};
+ const pending=run(stateStore(),[{kind:'ASSERT_TEXT',selector:'h1',text:'Ready',checklistItemId:'item-1'}],driver);
+ await started;await vi.advanceTimersByTimeAsync(15_000);
+ const result=await pending;
+ expect(result.outcome).toBe('FAIL');
+ expect(result.observations.find(obs=>obs.checklistItemId==='__step__')?.outcome).toBe('FAIL');
+ expect(vi.getTimerCount()).toBe(0);
 });

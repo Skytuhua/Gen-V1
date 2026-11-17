@@ -160,6 +160,34 @@ test('prepares the exact draft with terminal excerpts, excludes a revision, and 
   await expect.poll(() => fixture.sends.length).toBe(1); expect(fixture.sends[0].payload).toMatchObject({requestContextId: 'prepared-1', content: fixture.preparations[0].prompt});
 });
 
+test('keeps a confirmed exclusion when the unchanged draft is inspected again', async ({page}) => {
+  const fixture = await host(page); await page.goto('/project-memory?prepare=1');
+  await page.getByRole('button', {name: 'Inspect prepared context', exact: true}).click();
+  const inspector = page.getByRole('dialog', {name: 'Context inspector', exact: true});
+  await inspector.getByRole('button', {name: 'Exclude from this request', exact: true}).click();
+  await expect(inspector).toContainText('No memory was selected for this request.');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', {name: 'Inspect prepared context', exact: true}).click();
+  await expect(inspector).toContainText('No memory was selected for this request.');
+  expect(fixture.preparations).toHaveLength(1);
+  await page.keyboard.press('Escape'); await page.getByRole('button', {name: 'Send draft', exact: true}).click();
+  await expect.poll(() => fixture.sends.length).toBe(1);
+  expect(fixture.sends[0].payload.requestContextId).toBe('prepared-1');
+});
+
+test('keeps a failed exclusion blocked when the unchanged draft is inspected again', async ({page}) => {
+  const fixture = await host(page);
+  await page.route('**/memory/requests/*/exclude', route => route.fulfill({status: 409, json: {error: {code: 'STALE_MEMORY', message: 'Exclusion was not confirmed.'}}}));
+  await page.goto('/project-memory?prepare=1'); await page.getByRole('button', {name: 'Inspect prepared context', exact: true}).click();
+  const inspector = page.getByRole('dialog', {name: 'Context inspector', exact: true});
+  await inspector.getByRole('button', {name: 'Exclude from this request', exact: true}).click();
+  await expect(inspector.getByRole('alert').first()).toContainText('Exclusion was not confirmed.');
+  await page.keyboard.press('Escape'); await page.getByRole('button', {name: 'Inspect prepared context', exact: true}).click();
+  await expect(inspector.getByRole('alert').first()).toContainText('Exclusion was not confirmed.');
+  await expect(page.getByRole('button', {name: 'Send draft', exact: true})).toBeDisabled();
+  expect(fixture.preparations).toHaveLength(1); expect(fixture.sends).toHaveLength(0);
+});
+
 test('invalidates exclusions when the draft changes and does not reuse its previous token', async ({page}) => {
   const fixture = await host(page); await page.goto('/project-memory?prepare=1'); await page.getByRole('button', {name: 'Inspect prepared context', exact: true}).click();
   const inspector = page.getByRole('dialog', {name: 'Context inspector', exact: true}); await inspector.getByRole('button', {name: 'Exclude from this request', exact: true}).click(); await expect(inspector).toContainText('No memory was selected');

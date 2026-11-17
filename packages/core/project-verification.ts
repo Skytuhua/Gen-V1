@@ -1,8 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream, readFileSync, realpathSync, statSync } from 'node:fs';
+import { createReadStream, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { join } from 'node:path';
-import { HarnessError } from '../contracts/index.ts';
+import { join, resolve } from 'node:path';
+import { HarnessError, type Thread } from '../contracts/index.ts';
+import type { ProjectSummary } from '../contracts/workspace.ts';
 import { approvalSchema, type ApprovalV1, type ToolOwner } from '../contracts/tool-effects.ts';
 import {
   checkObservationV1Schema, verificationRecipeV1Schema, type CheckObservationV1, type RecipePhase,
@@ -99,6 +100,28 @@ function canonicalSync(path: string): string {
   return realpathSync.native(path);
 }
 
+/** A model-supplied declaration is not a filesystem grant. Validate the
+ * current main-thread project and physical working copy before hashing it. */
+export function assertVerificationSourceRoot(store: Store, threadId: string, rootPath: string): void {
+  const denied = () => new HarnessError('CAPABILITY_DENIED', 'Verification sources require the current attested project working copy.');
+  try {
+    const thread = store.get<Thread>('thread', threadId);
+    const project = thread?.projectId ? store.get<ProjectSummary>('workspaceProject', thread.projectId) : null;
+    type PhysicalRoot = {path: string; identity: {dev: string; ino: string}};
+    const root = project ? store.get<PhysicalRoot>('workspaceProjectRoot', project.id) : null;
+    if (!thread || !project || project.authority.kind !== 'local' || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate' || store.get('archivedThread', threadId) || !root) throw denied();
+    const attest = (value: PhysicalRoot) => {
+      const info = lstatSync(value.path, {bigint: true});
+      if (!info.isDirectory() || info.isSymbolicLink() || resolve(canonicalSync(value.path)) !== resolve(value.path) || String(info.dev) !== value.identity.dev || String(info.ino) !== value.identity.ino) throw denied();
+    };
+    attest(root);
+    const workspace = thread.workspaceId ? store.get<PhysicalRoot & {id: string; threadId: string; projectId: string}>('workspaceBinding', thread.workspaceId) : null;
+    if (thread.workspaceId && (!workspace || workspace.id !== thread.workspaceId || workspace.threadId !== threadId || workspace.projectId !== project.id)) throw denied();
+    if (workspace) attest(workspace);
+    if (resolve(rootPath) !== resolve((workspace ?? root).path)) throw denied();
+  } catch { throw denied(); }
+}
+
 export function recipeDigest(recipe: VerificationRecipeV1): string {
   return digest({ environment: recipe.environment, phases: recipe.phases });
 }
@@ -111,14 +134,14 @@ export function environmentId(recipe: VerificationRecipeV1): string {
  * ApprovalV1 whose actionCommitment binds this recipe's digest and workspace
  * identity, with remaining uses and a live expiry, owned by this thread. */
 export function recipeApprovalCommitment(recipe: VerificationRecipeV1): string {
-  return digest({ kind: 'verification.recipe.register', recipeDigest: recipeDigest(recipe), workspaceIdentity: recipe.workspaceIdentity });
+  return digest({ kind: 'verification.recipe.register', recipeId: recipe.recipeId, version: recipe.version, revision: recipe.revision, recipeDigest: recipeDigest(recipe), workspaceIdentity: recipe.workspaceIdentity });
 }
 
 function consumeRecipeApproval(store: Store, approvalId: string, recipe: VerificationRecipeV1, owner: ToolOwner): void {
   const raw = store.get<ApprovalV1>('approval', approvalId);
   let approval: ApprovalV1;
   try { approval = approvalSchema.parse(raw); } catch { throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval is unavailable or malformed'); }
-  if (approval.owner.threadId !== owner.threadId) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval belongs to another owner');
+  if (digest(approval.owner) !== digest(owner)) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval belongs to another owner binding');
   if (approval.remainingUses < 1 || approval.expiresAt <= now()) throw new HarnessError('APPROVAL_REQUIRED', 'Recipe approval expired or was already consumed');
   if (approval.actionCommitment !== recipeApprovalCommitment(recipe)) throw new HarnessError('APPROVAL_REQUIRED', 'The approved recipe changed; approve the current recipe again');
   store.put('approval', approvalId, approval.owner.threadId, { ...approval, remainingUses: 0 });
@@ -166,10 +189,12 @@ export class ProjectVerificationService {
     let recorded!: VerificationRecipeV1;
     this.store.internal('verification.recipe.registered', owner.threadId, () => {
       const prior = this.store.get<VerificationRecipeV1>('verificationRecipe', parsed.recipeId);
-      if (prior && recipeDigest(prior) !== committed && parsed.revision <= prior.revision)
-        throw new HarnessError('RECIPE_REVISION', 'A changed recipe needs a new revision and a new approval');
+      if (prior && !this.store.all<VerificationRecipeV1>('verificationRecipe', owner.threadId).some(value => value.recipeId === parsed.recipeId))
+        throw new HarnessError('CAPABILITY_DENIED', 'A recipe belongs to another thread');
       consumeRecipeApproval(this.store, approvalId, parsed, owner);
-      recorded = { ...parsed, revision: (prior?.revision ?? 0) + 1 };
+      if (parsed.revision !== (prior?.revision ?? 0) + 1)
+        throw new HarnessError('RECIPE_REVISION', 'A recipe registration must approve the exact next revision');
+      recorded = parsed;
       this.store.put('verificationRecipe', parsed.recipeId, owner.threadId, recorded);
       return { recipeId: parsed.recipeId, revision: recorded.revision };
     });
@@ -208,7 +233,7 @@ export class ProjectVerificationService {
    * recipe launched and is recorded separately. */
   async runRecipe(owner: ToolOwner, request: RecipeExecutionRequest, launcher: VerificationLauncher, probe?: ListenerProbe): Promise<RecipeExecutionResult> {
     this.assertEnabled();
-    const recipe = this.recipe(request.recipeId);
+    const recipe = this.store.all<VerificationRecipeV1>('verificationRecipe', owner.threadId).find(value => value.recipeId === request.recipeId);
     if (!recipe) throw new HarnessError('NOT_FOUND', 'Verification recipe is unavailable');
     const executionId = request.executionId ?? `exec-${randomUUID()}`;
     const root = await canonical(recipe.workspaceIdentity.canonicalPath);
@@ -358,6 +383,9 @@ export class ProjectVerificationService {
       }
     }
     }
+    // A successful command cannot establish a clean verification run while
+    // its owned resources remain live or cleanup evidence could not be saved.
+    if (cleanupFailures.length && outcome === 'PASS') outcome = 'FAIL';
     return { executionId, observations, cleanupFailures, outcome };
   }
 }

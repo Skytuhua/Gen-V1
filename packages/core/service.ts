@@ -42,7 +42,7 @@ import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment } from "./verification-gate.ts";
-import { sourceDigestSync } from "./project-verification.ts";
+import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
@@ -409,40 +409,115 @@ export class Service {
   private compactionBindingOf(receipt:RequestContextV1){
     return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
   }
-  private async applyLossAwareCompaction(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+  private async applyLossAwareCompaction(command:HostCommand,thread:Thread) {
     const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
-    const run=prev.then(()=>this.applyLossAwareCompactionInner(thread));
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(command,thread));
     const tail=run.then(()=>undefined,()=>undefined);
     this.compactionInflight.set(thread.id,tail);
-    tail.finally(()=>{if(this.compactionInflight.get(thread.id)===tail)this.compactionInflight.delete(thread.id);});
+    this.background(tail);
+    tail.finally(()=>{
+      if(this.compactionInflight.get(thread.id)!==tail)return;
+      this.compactionInflight.delete(thread.id);
+      if(!this.closed)this.background(this.deliverOutbox(thread.id));
+    });
     return run;
   }
-  private async applyLossAwareCompactionInner(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+  private async applyLossAwareCompactionInner(command:HostCommand,thread:Thread) {
+    const duplicate=this.store.receipt(command);if(duplicate)return duplicate;
     const receipt=this.latestRequestReceipt(thread.id);
-    if(!receipt)return {status:'UNSUPPORTED_COMPACTION',candidateId:'',usageEntity:null};
-    const binding=this.compactionBindingOf(receipt);
+    if(!receipt||typeof this.runtime.nativeHistoryDigest!=='function')throw new HarnessError('UNSUPPORTED_COMPACTION','This adapter has no verified native compare-and-swap for loss-aware compaction');
+    const currentGeneration=()=>this.store.get<{generation:number}>('requestContextGeneration',thread.id)?.generation??receipt.contextGeneration;
+    const generation=currentGeneration();
+    if(!Number.isSafeInteger(generation)||generation<receipt.contextGeneration||generation>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+    const captured=this.requestBasis(thread,thread.modelId!,thread.thinkingLevel),receiptDigest=digest(receipt);
+    if(receipt.owner.threadId!==thread.id||receipt.owner.workspaceId!==captured.workspaceId||receipt.modelBinding.modelId!==captured.modelId||receipt.modelBinding.accountId!==captured.accountId)
+      throw new HarnessError('STALE_REQUEST_CONTEXT','The last request belongs to a different compaction owner.');
+    const stable=(basis:RequestContextBasis)=>{const {admissionDigest:_admission,...rest}=basis;return digest(rest);};
+    const stableDigest=stable(captured);
+    const beforeAdmission=()=>{
+      const current=this.thread(thread.id);
+      if(current.epoch!==thread.epoch||current.runId!==thread.runId||current.status!==thread.status||
+        digest(this.requestBasis(current,thread.modelId!,thread.thinkingLevel))!==digest(captured)||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during admission.');
+      this.assertNoOtherRun(thread.id);
+    };
+    const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
+    beforeAdmission();
+    const binding={...this.compactionBindingOf(receipt),generation};
     const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
     if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
     this.trackCompactionCandidate(thread.id,metadata.candidateId);
-    const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch,accountId:binding.accountId??null};
+    const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch+1,accountId:binding.accountId??null};
+    const accepted=this.store.command(command,()=>{
+      beforeAdmission();
+      this.store.put('runtimeIntent',ctx.runId,thread.id,{kind:'compaction',previousStatus:thread.status});
+      this.store.put('thread',thread.id,thread.id,{...thread,runId:ctx.runId,epoch:ctx.epoch,status:'working',error:null,updatedAt:now()});
+      return ctx;
+    });
+    const assertCurrent=(allowSettled=false,expectedGeneration=generation)=>{
+      const current=this.thread(thread.id);
+      if(this.closed||current.epoch!==ctx.epoch||current.runId!==ctx.runId&&!(allowSettled&&current.runId===null)||
+        !['working','awaiting_input','ready','completed'].includes(current.status)||current.sessionPath!==thread.sessionPath||current.modelId!==thread.modelId||
+        this.binding(current,modelProvider(thread.modelId!)).accountId!==binding.accountId||
+        stable(this.requestBasis(current,thread.modelId!,current.thinkingLevel))!==stableDigest||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==expectedGeneration)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during native work.');
+      return current;
+    };
     const bytes=(list:unknown[])=>list.reduce((n:number,m)=>n+Buffer.byteLength(JSON.stringify(m),'utf8'),0);
-    const outcome:{usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}={usageEntity:null};
-    const freshReceipt=this.latestRequestReceipt(thread.id);
-    const current=freshReceipt?this.compactionBindingOf(freshReceipt):binding;
-    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
-      const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
-      if(!snap)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
-      const beforeBytes=bytes(snap.messages);
-      await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,undefined,snap.sha256);
-      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null).catch(()=>null);
-      outcome.usageEntity={id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:after?bytes(after.messages):null};
-      return {generation:binding.generation+1,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
-    }:undefined});
+    let nativeError:unknown;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:async()=>{
+      try{
+        assertCurrent();
+        const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
+        assertCurrent();
+        if(!snap||!/^[a-f0-9]{64}$/.test(snap.sha256)||!Array.isArray(snap.messages))throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
+        const beforeBytes=bytes(snap.messages);
+        let ended=false,settled=false;
+        const unsubscribe=this.store.subscribe(event=>{
+          const payload=(event.payload as {result?:{runId?:string}}|null)?.result;
+          if(event.threadId!==thread.id||payload?.runId!==ctx.runId)return;
+          if(event.type==='runtime.compaction.end')ended=true;
+          if(event.type==='runtime.settled'&&ended)settled=true;
+        });
+        try{await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,memoryCheckpoint,snap.sha256);}
+        finally{unsubscribe();}
+        // A queued draft may allocate a request generation while native work is
+        // running. Accepted end/settled events prove application to the fenced
+        // source; retain that fact and allocate after the latest draft counter.
+        const settledGeneration=currentGeneration();
+        if(!settled||assertCurrent(true,settledGeneration).runId!==null)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The native source did not confirm compaction settlement.');
+        const appliedGeneration=this.store.internal('context.compaction.applied',thread.id,()=>{
+          assertCurrent(true,settledGeneration);
+          const previous=this.store.get<{generation:number}>('requestContextGeneration',thread.id)?.generation??binding.generation;
+          if(!Number.isSafeInteger(previous)||previous<binding.generation||previous>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+          this.store.put('requestContextGeneration',thread.id,thread.id,{generation:previous+1});
+          this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:null});
+          return previous+1;
+        }) as number;
+        // Post-apply measurement is optional. A changed owner may invalidate
+        // this measurement, but cannot rewrite confirmed native application.
+        try{
+          const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
+          assertCurrent(true,appliedGeneration);
+          if(after&&/^[a-f0-9]{64}$/.test(after.sha256)&&Array.isArray(after.messages))this.store.internal('context.compaction.measured',thread.id,()=>{
+            assertCurrent(true,appliedGeneration);
+            this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:bytes(after.messages)});
+          });
+        }catch{/* Keep the historical application and an unknown post-apply size. */}
+        return {generation:appliedGeneration,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
+      }catch(cause){nativeError=cause;throw cause;}
+    }});
     this.compactionVerdicts.set(metadata.candidateId,verdict.status);
     if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
     else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
     else this.compactionRegistry.markDiscarded(metadata.candidateId);
-    return {status:verdict.status,candidateId:metadata.candidateId,usageEntity:outcome.usageEntity};
+    if(verdict.status!=='APPLIED')this.runtimeFailure(ctx,nativeError??new Error('Native compaction was not applied.'));
+    if(!this.closed)this.store.internal('context.compaction.observed',thread.id,()=>{
+      this.writeCompactionProjection(thread.id);
+      if(this.store.get<Thread>('thread',thread.id)?.runId===null){const usage=this.store.get<{value:RuntimeUsage}>('usage',thread.id)!;this.store.put('usage',thread.id,thread.id,{...usage,value:{...usage.value,activity:'idle'}});}
+    });
+    if(verdict.status!=='APPLIED')throw new HarnessError('COMPACTION_FAILED',nativeError instanceof Error?nativeError.message:'The verified native compaction apply failed.');
+    return accepted;
   }
   private trackCompactionCandidate(threadId:string,candidateId:string):void {
     const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==candidateId),candidateId].slice(-8);
@@ -826,16 +901,7 @@ export class Service {
         if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
         if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
         this.assertNoOtherRun(thread.id);
-        const compactionOutcome = await this.applyLossAwareCompaction(thread);
-        if (compactionOutcome.status === 'UNSUPPORTED_COMPACTION')
-          throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
-        const receipt = this.store.command(command, () => {
-          if (compactionOutcome.usageEntity) this.store.put('compactionUsage', compactionOutcome.candidateId, thread.id, compactionOutcome.usageEntity);
-          this.writeCompactionProjection(thread.id);
-          return { verdict: compactionOutcome.status };
-        });
-        if (compactionOutcome.status === 'APPLIED') return receipt;
-        throw new HarnessError('COMPACTION_FAILED', 'The verified native compaction apply failed.');
+        return this.applyLossAwareCompaction(command,thread);
       }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
@@ -1161,6 +1227,9 @@ export class Service {
     });
   }
   private async deliverInputs(threadId:string):Promise<void>{
+    // Native settlement clears runId before loss-aware compaction records its
+    // final digest and generation. Keep the next input behind that entire fence.
+    if(this.compactionInflight.has(threadId))return;
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
@@ -1572,6 +1641,7 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }
@@ -1612,15 +1682,20 @@ export class Service {
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
-      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
-      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
+      try {
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
+        sourceAvailable = true;
+      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
       const last = observations.at(-1)!;
       sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
     }
-    return computeAssessment({
+    const assessment = computeAssessment({
       threadId: ctx.threadId,
       sourceCut,
       requirements: declaration?.requirements ?? [],
@@ -1629,6 +1704,14 @@ export class Service {
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
     });
+    if (!sourceAvailable) {
+      for (const requirement of assessment.requirements) {
+        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
+      }
+      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
+    }
+    return assessment;
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);

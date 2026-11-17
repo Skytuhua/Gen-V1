@@ -77,8 +77,15 @@ function sameOrigin(approved: readonly string[], value: string): boolean {
   });
 }
 
-function deadline(timeoutMs: number): Promise<never> {
-  return new Promise((_, reject) => setTimeout(() => reject(new HarnessError('BROWSER_STEP_TIMEOUT', 'A browser step exceeded its deadline')), timeoutMs));
+async function withStepDeadline<T>(operation: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([operation, new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new HarnessError('BROWSER_STEP_TIMEOUT', 'A browser step exceeded its deadline')), BROWSER_STEP_TIMEOUT_MS);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function runBrowserChecklist(store: Store, input: BrowserRunInput, env: Readonly<Record<string, string | undefined>> = process.env): Promise<BrowserRunResult> {
@@ -118,12 +125,12 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
     return digest;
   };
 
-  const record = (itemId: string, assertion: string, observed: string, outcomeValue: VisualObservationV1['outcome'], screenshotDigest: string | null, artifactRefs: string[] = []) => {
+  const record = (itemId: string, assertion: string, observed: string, outcomeValue: VisualObservationV1['outcome'], screenshotDigest: string | null, artifactRefs: string[] = [], observationKind: 'browser' | 'visual' = 'browser') => {
     const observation: VisualObservationV1 = {
       version: 1, checkId: `vobs-${randomUUID()}`, executionId, owner: input.owner,
       ...input.digests, argv: ['browser-checklist', checklist.checklistId], cwdIdentity: 'browser-profile',
       phase: 'BROWSER', startedAt: now(), endedAt: now(), exitCode: outcomeValue === 'PASS' ? 0 : null,
-      outcome: outcomeValue, artifactRefs, observationKind: 'visual',
+      outcome: outcomeValue, artifactRefs, observationKind,
       checklistItemId: itemId, actionTraceId, origin: session.page.url(), viewport: checklist.viewport,
       assertion, observed, screenshotDigest,
     };
@@ -147,35 +154,38 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
           outcome = 'FAIL';
           return 'stop';
         }
-        await Promise.race([session.page.goto(step.url), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        await withStepDeadline(session.page.goto(step.url));
         return 'ok';
       }
-      case 'CLICK': await Promise.race([session.page.click(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]); return 'ok';
-      case 'TYPE': await Promise.race([session.page.type(step.selector, step.text), deadline(BROWSER_STEP_TIMEOUT_MS)]); return 'ok';
+      case 'CLICK': await withStepDeadline(session.page.click(step.selector)); return 'ok';
+      case 'TYPE': await withStepDeadline(session.page.type(step.selector, step.text)); return 'ok';
       case 'ASSERT_TEXT': {
-        const text = await Promise.race([session.page.text(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const text = await withStepDeadline(session.page.text(step.selector));
         const pass = text !== null && text.includes(step.text);
         record(step.checklistItemId, `Element ${step.selector} contains "${step.text.slice(0, 200)}"`, text === null ? 'selector not found' : `observed "${text.slice(0, 200)}"`, pass ? 'PASS' : 'FAIL', null);
         if (!pass) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';
       }
       case 'ASSERT_VISIBLE': {
-        const visible = await Promise.race([session.page.visible(step.selector), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const visible = await withStepDeadline(session.page.visible(step.selector));
         record(step.checklistItemId, `Element ${step.selector} is visible`, visible ? 'visible' : 'not visible', visible ? 'PASS' : 'FAIL', null);
         if (!visible) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';
       }
       case 'ASSERT_URL': {
         const current = session.page.url();
-        const pass = current === step.url || current.startsWith(step.url);
+        let pass = false;
+        try { pass = new URL(current).href === new URL(step.url).href; } catch { /* an invalid URL cannot satisfy the assertion */ }
         record(step.checklistItemId, `URL is ${step.url}`, `observed ${current}`, pass ? 'PASS' : 'FAIL', null);
         if (!pass) { outcome = 'FAIL'; return 'stop'; }
         return 'ok';
       }
       case 'SCREENSHOT': {
-        const data = await Promise.race([session.page.screenshot(), deadline(BROWSER_STEP_TIMEOUT_MS)]);
+        const data = await withStepDeadline(session.page.screenshot());
         const digest = await writeShot(step.checklistItemId, data);
-        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [join(input.artifactDir, screenshots.get(step.checklistItemId)!)]);
+        // Capture is supporting evidence, distinct from an executed behavior
+        // assertion. Binding this record alone must never verify a requirement.
+        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [join(input.artifactDir, screenshots.get(step.checklistItemId)!)], 'visual');
         return 'ok';
       }
       case 'COLLECT_ERRORS': {
@@ -243,7 +253,11 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
       }
     }
   } finally {
-    await session.close().catch(() => {});
+    try { await session.close(); }
+    catch (error) {
+      record('__cleanup__', 'Owned browser resources closed', error instanceof Error ? error.message.slice(0, 500) : 'Owned browser cleanup failed', 'FAIL', null);
+      if (outcome === 'PASS') outcome = 'FAIL';
+    }
   }
   return { observations, collected: session.collectedFailures(), deniedOrigins, outcome };
 }
