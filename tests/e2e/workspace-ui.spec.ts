@@ -305,8 +305,8 @@ test('closing Settings cancels its pending catalog read and leaves the current w
  const retainedCatalog=(await reads()).find(read=>read.url==='/api/models')!.id;
  await page.getByRole('button',{name:'Settings',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();
- await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(2);
- const settingsCatalog=(await reads()).find(read=>read.url==='/api/models'&&read.id!==retainedCatalog)!.id;
+ await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models?refresh=1').length).toBe(1);
+ const settingsCatalog=(await reads()).find(read=>read.url==='/api/models?refresh=1'&&read.id!==retainedCatalog)!.id;
  await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();
  await expect.poll(async()=>(await reads()).find(read=>read.id===settingsCatalog)?.aborted).toBe(true);
  expect((await reads()).find(read=>read.id===retainedCatalog)).toMatchObject({hasSignal:true,aborted:false});

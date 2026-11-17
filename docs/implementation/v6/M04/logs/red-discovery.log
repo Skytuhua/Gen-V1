@@ -1,0 +1,26 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+ ❯ tests/context-discovery-v3.test.ts (6 tests | 1 failed) 1031ms
+   × ranks the repository map by requested path, referenced symbols, then normalized path and symbol 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/context-discovery-v3.test.ts > ranks the repository map by requested path, referenced symbols, then normalized path and symbol
+TypeError: rankRepoMap is not a function
+ ❯ tests/context-discovery-v3.test.ts:50:18
+     48|   };
+     49|   const map = buildRepoMap(Object.keys(sources), path => sources[path]…
+     50|   const ranked = rankRepoMap(map, { paths: ['src/requested.ts'], symbo…
+       |                  ^
+     51|   expect(ranked.files.map(file => file.path)).toEqual(['src/requested.…
+     52|   expect(ranked.files[0]).toMatchObject({ requestedPath: true, referen…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  04:18:18
+   Duration  1.43s (transform 403ms, setup 0ms, import 121ms, tests 1.03s, environment 0ms)
+

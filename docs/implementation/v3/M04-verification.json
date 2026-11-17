@@ -1,0 +1,696 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M04",
+  "baseSha": "161953c713970a3dfa76bb38691c7f803aec2e1c",
+  "sourceLockDigest": "50ae2feede052f382d9db21e87dd8fe0d6eedc51e3f58c6737b2e014d1edcafa",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "v6.deterministic-projection",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M04-T01-append-rewind-invalidation-cross-account",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-T02-100-500-tool-disclosure",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-T03-large-result-preview-range-disk-failure",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-T04-next-request-budget-byte-only",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-C04-pilot-limits",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-S05-repo-map-ranking",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-D03-utf8-preview-boundaries",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-S13-deterministic-paired-fixtures",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-compiler-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:03:42Z",
+          "endedAt": "2026-11-17T02:03:44Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-compiler-v3.log",
+          "logDigest": "b51067a0738c6f27eca348d09fe668695a6b4be433203e72264cbce038ed78c0"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-results-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:03:44Z",
+          "endedAt": "2026-11-17T02:03:46Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-results-v3.log",
+          "logDigest": "7480a41103b1fbb7a0af5c4c40311d2dac6501e9ddc493bf73a0fc1dec37f4d7"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-discovery-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:31:03Z",
+          "endedAt": "2026-11-17T02:31:12Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-discovery.log",
+          "logDigest": "c649f6d574260c67c26e30b88fa1db3dd12c1d8a1d26ba520ce309b3017ff7e2"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-request-observation.test.ts",
+            "tests/context-result-custody.test.ts",
+            "tests/context-draft-sources.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "tests/hermes-broker.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/public-source.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:31:12Z",
+          "endedAt": "2026-11-17T02:31:44Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-support.log",
+          "logDigest": "65b27a75b6216e28c75d3ff3354ed5b56a975884909e676a924f06dbfc5f1d36"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/logs/red-discovery.log",
+        "docs/implementation/v6/M04/logs/green-compiler.log",
+        "docs/implementation/v6/M04/logs/green-results.log",
+        "docs/implementation/v6/M04/logs/green-discovery.log"
+      ]
+    },
+    {
+      "id": "v6.compaction-and-experiment-gates",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M04-C03-metadata-sidecar-and-candidate-registry",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-T05-retention-and-binding-refusal",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-T06-precompute-races-and-cost-accounting",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-S09-shadow-budget-and-timeout-guard",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-S11-host-apply-gate",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-S12-precompute-guard",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/compaction-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:03:46Z",
+          "endedAt": "2026-11-17T02:03:48Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-compaction-v3.log",
+          "logDigest": "b6a68ac0f3cca5d2901d16720b70fcc4727cf05dc9c199f768da8ea13373f8c9"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/logs/red-compaction.log",
+        "docs/implementation/v6/M04/logs/green-compaction.log",
+        "docs/implementation/v6/M04/logs/red2-compaction.log",
+        "docs/implementation/v6/M04/logs/green2-shadow.log"
+      ]
+    },
+    {
+      "id": "v6.contract-preservation",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M04-C02-handle-shape-and-authority",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-D02-ownership-change-during-await",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-D04-hidden-tool-direct-script-child",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-D05-shadow-failure-and-stale-apply",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-G02-flags-default-off",
+          "status": "PASS"
+        },
+        {
+          "id": "M04-C01-request-context-shape-preserved",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-contract-preservation-v6.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:03:48Z",
+          "endedAt": "2026-11-17T02:03:52Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-context-contract-preservation-v6.log",
+          "logDigest": "cfdf339598a6dedd406888ea4bc6b0084fd0b09d79c8cf7fc63d16264757849b"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/logs/red-preservation.log",
+        "docs/implementation/v6/M04/logs/green-preservation.log"
+      ]
+    },
+    {
+      "id": "v6.host-custody-integration",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M04-D01-request-preparation-replay",
+          "status": "PASS",
+          "evidence": "Merged cut 161953c7: D01 case in tests/context-contract-preservation-v6.test.ts passes \u2014 identical prepared send replayed under the same command id admits exactly one input/one runtime.start; token reuse under a new id, prompt mutation and owner mutation reject before native dispatch; preparation identity unchanged."
+        },
+        {
+          "id": "M04-C3-composer-custody-admission",
+          "status": "PASS",
+          "evidence": "Merged cut: service send path admits through RequestContextCustody.prepare/claim/finalize/assertFinalized (main b4281a42 core, retained). 34 tests in request-preparation-service-v3.test.ts pass."
+        },
+        {
+          "id": "M04-U02-chip-refresh-keep-wiring",
+          "status": "PASS",
+          "evidence": "Satisfied by merged SourceWorkbench (revisions/digests, bounded previews, sourceRefs on next unsent draft, STALE_SOURCE refresh + KEEP_CAPTURED recovery, 8-ref/64 KiB bounds, owner/grant checks); context-draft-sources reducer retained+tested. source-workbench-host-v3/selection suites pass (56). Browser proof BLOCKED (msedge/chrome absent on linux-arm64)."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/handoff.md"
+      ]
+    },
+    {
+      "id": "v6.native-compaction",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "M04-S11-native-apply-proof",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_NATIVE_COMPACTION resolved by inspection: worker.py agent.compact (1277-1292) is unconditional _compress_context summary persistence \u2014 no exact-source-cut CAS, no binding/generation verification, no rollback witness. UNSUPPORTED_COMPACTION retained; deterministic candidate verdict now surfaced in usage.compaction."
+        },
+        {
+          "id": "M04-U03-compaction-preview-result-views",
+          "status": "PASS",
+          "evidence": "CompactionProjectionV1 added to RuntimeUsage; Service.recordCompactionCandidate mints/evaluates a registry candidate bound to the latest admitted receipt on flag-gated run.compact and projects candidates+accounting into the Compaction tab. Measured before/after remain null-honest (no native apply)."
+        },
+        {
+          "id": "unsupported-native-guard-refuses-legacy-compact",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/context-request-observation.test.ts",
+            "tests/context-result-custody.test.ts",
+            "tests/context-draft-sources.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "tests/hermes-broker.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/public-source.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:31:12Z",
+          "endedAt": "2026-11-17T02:31:44Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-support.log",
+          "logDigest": "65b27a75b6216e28c75d3ff3354ed5b56a975884909e676a924f06dbfc5f1d36"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/logs/support.log"
+      ]
+    },
+    {
+      "id": "v6.auxiliary-model",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "M04-S09-live-shadow-scoring",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_AUXILIARY_MODEL: no approved auxiliary model/account budget; OBSERVER_UNAVAILABLE verified with zero model calls."
+        },
+        {
+          "id": "M04-S12-live-precompute-summary",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_AUXILIARY_MODEL: summarizer test-injected only; experiment flag default off."
+        },
+        {
+          "id": "M04-S13-live-quality-cost",
+          "status": "NOT_RUN",
+          "evidence": "No authorized provider fixture; live measurements remain NOT_RUN."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    },
+    {
+      "id": "v6.ui-inspector",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "M04-U01-tabs-and-opaque-native-notes",
+          "status": "NOT_RUN",
+          "evidence": "usage-context suite config pins channel msedge (tests/e2e/usage-context.playwright.config.ts); msedge is unavailable on linux-arm64. All 21 tests failed at browser launch, not at assertions. Channel substitution forbidden. Compaction tab now renders CompactionProjectionV1 candidates from usage.compaction (U03 wired). Browser suite remains blocked on linux-arm64 channel absence."
+        },
+        {
+          "id": "M04-U01-row-inclusion-tokens-exclusion-fields",
+          "status": "PASS",
+          "evidence": "HOLD_CONTRACT_SHAPE resolved within specified spellings: HostRequestProjectionV1.sources emits inclusionReason/tokens/measurement/exclusionReason (RequestContextSegmentV1 spellings + U01 field); projectHostRequest adds excluded-fragment rows; Sources tab renders all fields. typecheck+fixture updated."
+        },
+        {
+          "id": "M04-U04-no-measured-cache-attribution",
+          "status": "NOT_RUN",
+          "evidence": "Same msedge platform hold; no measured cache attribution is claimed anywhere in the inspector at this cut."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [],
+      "evidence": "U01 fields and U03 data path resolved on source; real-browser proof remains BLOCKED (no msedge/chrome channel on linux-arm64)."
+    },
+    {
+      "id": "v6.platform-gates",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS"
+        },
+        {
+          "id": "lint",
+          "status": "PASS"
+        },
+        {
+          "id": "public-source-inventory",
+          "status": "PASS"
+        },
+        {
+          "id": "asset-builds",
+          "status": "PASS"
+        },
+        {
+          "id": "pnpm-build",
+          "status": "PASS"
+        },
+        {
+          "id": "pnpm-test-full",
+          "status": "FAIL",
+          "evidence": "Final cut: 277 failed / 3073 passed / 46 skipped (3396 tests) \u2014 failure count identical to unchanged baseline ee2c7ad1 (277 / 3063 / 46; the +10 passed are the new v6 tests). Failure sets differ only in six known timing-flaky non-M04 tests; quiet reruns of those suites on both cuts confirm bidirectional flakiness and the same stable environment failures (sandbox launcher, Python 3.14, native engines, 10k-file search limit). No M04-scoped suite fails. Gate remains an observed FAIL on both cuts."
+        },
+        {
+          "id": "pnpm-test-browser",
+          "status": "FAIL",
+          "evidence": "463 passed / 1239 failed across 78 suites (exit 1). 18 suites configure channel msedge and 12 channel chrome; neither distribution exists on this linux-arm64 host and channel changes are forbidden (R09), including the M04 usage-context suite (msedge, 21 launch failures). The 42 plain-chromium failed suites were rerun on the unchanged baseline cut: all 42 fail there as well; dist/web is byte-identical between cuts (53 files, equal SHA-256), so no browser delta is source-caused. Discordant suites terminal-excerpts (candidate rerun exit 0) and composer-commands (11/1 vs baseline 10/2) are timing-flaky. Gate remains an observed FAIL on both cuts. Final-cut pnpm build reproduced dist/web byte-identical (53 files, equal SHA-256) to the bundle this gate tested; tests/e2e and configs are unchanged by the v6 diff, so this receipt is bound to the final cut by bundle identity."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:03:52Z",
+          "endedAt": "2026-11-17T02:05:39Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-typecheck.log",
+          "logDigest": "601b8d4308fdb9da8eabefa514a2a7531a63ac5c63ca7ad69206a9338db7ad3a"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:05:39Z",
+          "endedAt": "2026-11-17T02:07:06Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-lint.log",
+          "logDigest": "ff6a1a962352e24656773420f42da139978709afb04f87bca0ac076cfc92b5c7"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T13:31:25Z",
+          "endedAt": "2026-11-16T13:31:39Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final-publicsource.log",
+          "logDigest": "e2cef524a9e6e40a2632babbb2f28c17d0add4416d7d2be233416640229ccf9a"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "build:credential-lease"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T13:36:29Z",
+          "endedAt": "2026-11-16T13:36:35Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final-lease.log",
+          "logDigest": "a41cb3e9d9a40ba641bb0c8e1ef9bf85d8402549e5a305a094309d46ecb8fbde"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T13:36:35Z",
+          "endedAt": "2026-11-16T13:36:38Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final-widgets.log",
+          "logDigest": "209c906e40c5d98493ae82a8e2ac7431ebccdcde1909e355730f4e304e5ab85d"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:28:46Z",
+          "endedAt": "2026-11-17T02:29:38Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-build.log",
+          "logDigest": "0e403e356a4594fab37c487ca029a6883028ce4aca28f592248070539be97d81"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "test"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-17T02:07:21Z",
+          "endedAt": "2026-11-17T02:22:11.955123Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/final3-full-test.log",
+          "logDigest": "53cac4ce5812898967fff9c55d19ed70c4d21b8210d0e3671250d9fb2dc3739a"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-v6 (handoff/m04-context-v3)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T13:36:38Z",
+          "endedAt": "2026-11-16T17:40:43Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/browser-bounded.log",
+          "logDigest": "d465f03bd301ac4cbcd641ccdd14cf6d1a8469217948298f6c69507becbc6dbb"
+        },
+        {
+          "argv": [
+            "/home/piadmin/tools/pnpm",
+            "test"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-baseline (detached ee2c7ad1)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T13:10:06Z",
+          "endedAt": "2026-11-16T13:24:18Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/baseline2-full-test.log",
+          "logDigest": "4b6bae3211c6d0b5a6965f8ab0160122c2ccb3b207f84ef88e8dbeaf0756e1e8"
+        },
+        {
+          "argv": [
+            "bash",
+            "-c",
+            "export PATH=$HOME/tools/node24/bin:$PATH; for s in root artifact-settle code-review-host m08-restore redundant-ui research-host saved-drafts sidebar-collapse terminal-excerpts micro-motion motion-tokens clarity-software clarity-review-parameters clarity-schedule-logs fidelity model-picker workspace compact-tools-cleanup composer-commands composer-prediction composer-press context-connections desktop-surfaces everyday floating inline-surfaces pdf plan-presentation project-search wo5-app-integration runtime-presentation shared-panels shell side-chat chat-view-modes smooth-operational snapshot-performance t3-centered tabs-identity table-controls task-design task-interface; do echo \"=== BASELINE SUITE $s ===\"; ~/tools/pnpm test:browser --suite \"$s\"; echo \"=== EXIT $s $? ===\"; done"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m04-baseline (detached ee2c7ad1)",
+          "executableIdentity": "pnpm 10.30.3; Node v24.11.1 (linux-arm64)",
+          "startedAt": "2026-11-16T17:57:59.140280Z",
+          "endedAt": "2026-11-16T20:22:54Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M04/logs/baseline-browser-bounded.log",
+          "logDigest": "33e0f45b659084fcad80545fdc7de32d7d9371b619db063a73050b2a68205fd8"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M04/logs/candidate2-full-test.log",
+        "docs/implementation/v6/M04/logs/baseline2-full-test.log",
+        "docs/implementation/v6/M04/logs/candidate-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/baseline-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/candidate-rerun-terminal.log",
+        "docs/implementation/v6/M04/logs/candidate-rerun-composer.log",
+        "docs/implementation/v6/M04/logs/final3-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/baseline3-delta-rerun.log",
+        "docs/implementation/v6/M04/logs/red2-compaction.log",
+        "docs/implementation/v6/M04/logs/green2-shadow.log"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "packages/contracts/request-context.ts",
+    "packages/core/context-compaction.ts",
+    "packages/core/context-relevance.ts",
+    "packages/workspace/repo-map.ts",
+    "scripts/public-source-files.json",
+    "tests/compaction-v3.test.ts",
+    "tests/context-discovery-v3.test.ts",
+    "tests/context-contract-preservation-v6.test.ts",
+    "docs/implementation/v3/M04-verification.json",
+    "docs/implementation/v6/M04/requirements.json",
+    "docs/implementation/v6/M04/handoff.md",
+    "docs/implementation/v6/M04/source-lock.json",
+    "docs/implementation/v6/M04/M04-verification-handoff.json",
+    "docs/implementation/v6/M04/logs/baseline-browser-bounded.log",
+    "docs/implementation/v6/M04/logs/baseline-compaction.log",
+    "docs/implementation/v6/M04/logs/baseline-compiler.log",
+    "docs/implementation/v6/M04/logs/baseline-delta-rerun.log",
+    "docs/implementation/v6/M04/logs/baseline-results.log",
+    "docs/implementation/v6/M04/logs/baseline-support.log",
+    "docs/implementation/v6/M04/logs/baseline2-full-test.log",
+    "docs/implementation/v6/M04/logs/baseline3-delta-rerun.log",
+    "docs/implementation/v6/M04/logs/browser-bounded.log",
+    "docs/implementation/v6/M04/logs/build-credential-lease.log",
+    "docs/implementation/v6/M04/logs/build-widgets.log",
+    "docs/implementation/v6/M04/logs/build.log",
+    "docs/implementation/v6/M04/logs/candidate-delta-rerun.log",
+    "docs/implementation/v6/M04/logs/candidate-rerun-composer.log",
+    "docs/implementation/v6/M04/logs/candidate-rerun-terminal.log",
+    "docs/implementation/v6/M04/logs/candidate2-full-test.log",
+    "docs/implementation/v6/M04/logs/final-lease.log",
+    "docs/implementation/v6/M04/logs/final-publicsource.log",
+    "docs/implementation/v6/M04/logs/final-widgets.log",
+    "docs/implementation/v6/M04/logs/final2-compaction-v3.log",
+    "docs/implementation/v6/M04/logs/final2-context-compiler-v3.log",
+    "docs/implementation/v6/M04/logs/final2-context-contract-preservation-v6.log",
+    "docs/implementation/v6/M04/logs/final2-context-discovery-v3.log",
+    "docs/implementation/v6/M04/logs/final2-context-results-v3.log",
+    "docs/implementation/v6/M04/logs/final2-lint.log",
+    "docs/implementation/v6/M04/logs/final2-support.log",
+    "docs/implementation/v6/M04/logs/final2-typecheck.log",
+    "docs/implementation/v6/M04/logs/final3-build.log",
+    "docs/implementation/v6/M04/logs/final3-compaction-v3.log",
+    "docs/implementation/v6/M04/logs/final3-context-compiler-v3.log",
+    "docs/implementation/v6/M04/logs/final3-context-contract-preservation-v6.log",
+    "docs/implementation/v6/M04/logs/final3-context-results-v3.log",
+    "docs/implementation/v6/M04/logs/final3-delta-rerun.log",
+    "docs/implementation/v6/M04/logs/final3-discovery.log",
+    "docs/implementation/v6/M04/logs/final3-full-test.log",
+    "docs/implementation/v6/M04/logs/final3-lint.log",
+    "docs/implementation/v6/M04/logs/final3-support.log",
+    "docs/implementation/v6/M04/logs/final3-typecheck.log",
+    "docs/implementation/v6/M04/logs/green-compaction.log",
+    "docs/implementation/v6/M04/logs/green-compiler.log",
+    "docs/implementation/v6/M04/logs/green-discovery.log",
+    "docs/implementation/v6/M04/logs/green-preservation.log",
+    "docs/implementation/v6/M04/logs/green-results.log",
+    "docs/implementation/v6/M04/logs/green2-shadow.log",
+    "docs/implementation/v6/M04/logs/red-compaction.log",
+    "docs/implementation/v6/M04/logs/red-discovery.log",
+    "docs/implementation/v6/M04/logs/red-preservation.log",
+    "docs/implementation/v6/M04/logs/red2-compaction.log"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "implementation-evidence",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "capability-flags",
+      "version": "984030800cd371d70fc20f9c0c7ad076a85a2afa",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts",
+        "tests/context-request-observation.test.ts"
+      ]
+    },
+    {
+      "name": "tool-effects",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "request-context",
+      "version": "335de718a510f29e32dc6bd227a9bcec9afcd7bb",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts",
+        "tests/context-results-v3.test.ts",
+        "tests/compaction-v3.test.ts",
+        "tests/context-contract-preservation-v6.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "context.compilerV1",
+      "enabled": false
+    },
+    {
+      "key": "tools.deferredV1",
+      "enabled": false
+    },
+    {
+      "key": "context.lossAwareCompactionV1",
+      "enabled": false
+    },
+    {
+      "key": "context.precomputeExperimentV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "HOLD_AUXILIARY_MODEL: no approved auxiliary model/account budget; shadow phase returns OBSERVER_UNAVAILABLE with zero model calls; precompute summarization is test-injected only and the experiment flag stays off.",
+    "HOLD_BROWSER_PLATFORM: scoped real-browser evidence (U01/U02) cannot run \u2014 configured channels msedge/chrome are unavailable on linux-arm64; channel substitution forbidden.",
+    "Native compaction apply: inspected worker.py agent.compact lacks exact-source-cut CAS \u2014 UNSUPPORTED_COMPACTION is correct; re-verify only if a CAS-capable native API ships.",
+    "Platform: linux-arm64 with provisioned Node v24.11.1/pnpm 10.30.3; pinned Python 3.14 and reviewed linux-path-guard sandbox launcher absent \u2014 dependent native/sandboxed suites fail as on baseline. Windows/installed CI and live provider evidence unverified.",
+    "All four M04 flags remain default false; no production enablement or native history mutation. reviewerApproval stays false; independent review must be recorded outside this manifest."
+  ],
+  "reviewerApproval": false
+}

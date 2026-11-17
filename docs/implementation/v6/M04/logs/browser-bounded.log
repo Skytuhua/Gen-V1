@@ -1,0 +1,285 @@
+# Bounded receipt derived from browser.log (full log: /home/piadmin/m04-v6-notes/browser.log).
+# Derivation: suite headers, per-suite summary counts, error-class histogram, final failed-suite list.
+Browser suite: root (16 spec files)
+Running 113 tests using 1 worker
+  53 failed
+  59 passed (25.7m)
+Browser suite: agents-workspace (1 spec files)
+Browser suite: artifact-settle (1 spec files)
+Browser suite: browser-action (1 spec files)
+Running 22 tests using 1 worker
+  22 failed
+Browser suite: code-review-host (1 spec files)
+Running 45 tests using 1 worker
+  45 failed
+Browser suite: compact-model-picker (3 spec files)
+Browser suite: ui-shell-overlays (1 spec files)
+Running 14 tests using 1 worker
+  14 failed
+Browser suite: file-checkpoints (1 spec files)
+Running 20 tests using 1 worker
+  20 passed (53.6s)
+Browser suite: m08-restore (2 spec files)
+Running 5 tests using 1 worker
+  1 failed
+  4 passed (25.8s)
+Browser suite: files-reading (1 spec files)
+Running 44 tests using 1 worker
+  44 failed
+Browser suite: generated-selects (3 spec files)
+Running 42 tests using 1 worker
+  42 failed
+Browser suite: graph-popovers (1 spec files)
+Running 24 tests using 1 worker
+  24 failed
+Browser suite: inbox-controls (1 spec files)
+Running 10 tests using 1 worker
+  10 failed
+Browser suite: memory-recovery (1 spec files)
+Running 25 tests using 1 worker
+  25 failed
+Browser suite: redundant-ui (1 spec files)
+Running 18 tests using 1 worker
+  9 failed
+  9 passed (2.7m)
+Browser suite: research-host (1 spec files)
+Running 31 tests using 1 worker
+  31 failed
+Browser suite: saved-drafts (1 spec files)
+Running 26 tests using 1 worker
+  26 failed
+Browser suite: saved-layout-chooser (1 spec files)
+Running 15 tests using 1 worker
+  15 failed
+Browser suite: scoped-conversation (1 spec files)
+Running 15 tests using 1 worker
+  15 failed
+Browser suite: settings-leaf-selects (3 spec files)
+Running 28 tests using 1 worker
+  28 failed
+Browser suite: sidebar-collapse (1 spec files)
+Running 32 tests using 1 worker
+  22 failed
+  10 passed (6.3m)
+Browser suite: sidebar-shared-menu (2 spec files)
+Running 24 tests using 1 worker
+  24 failed
+Browser suite: terminal-excerpts (1 spec files)
+Running 9 tests using 1 worker
+  5 failed
+  4 passed (3.3m)
+Browser suite: terminal-read (1 spec files)
+Running 26 tests using 1 worker
+  26 failed
+Browser suite: thread-hover (1 spec files)
+Running 16 tests using 1 worker
+  16 failed
+Browser suite: thread-move (1 spec files)
+Running 24 tests using 1 worker
+  24 passed (2.1m)
+Browser suite: usage-app-integration (3 spec files)
+Running 15 tests using 1 worker
+  15 failed
+Browser suite: workspace-host (1 spec files)
+Running 56 tests using 1 worker
+  56 failed
+Browser suite: memory-recovery-app (1 spec files)
+Running 12 tests using 1 worker
+  12 failed
+Browser suite: memory-recovery-journal (1 spec files)
+Running 4 tests using 1 worker
+  4 failed
+Browser suite: frontend-refinement (12 spec files)
+Running 91 tests using 1 worker
+  89 failed
+  2 passed (4.5m)
+Browser suite: conversation-find (1 spec files)
+Running 10 tests using 1 worker
+  10 passed (2.1m)
+Browser suite: conversation-scroll (1 spec files)
+Running 6 tests using 1 worker
+  6 passed (17.1s)
+Browser suite: micro-motion (8 spec files)
+Running 83 tests using 1 worker
+  46 failed
+  37 passed (16.4m)
+Browser suite: motion-tokens (2 spec files)
+Running 25 tests using 1 worker
+  8 failed
+  17 passed (4.6m)
+Browser suite: clarity-software (4 spec files)
+Running 34 tests using 1 worker
+  33 failed
+  1 passed (6.7m)
+Browser suite: clarity-review-parameters (3 spec files)
+Running 35 tests using 1 worker
+  27 failed
+  8 passed (8.2m)
+Browser suite: clarity-schedule-logs (3 spec files)
+Running 26 tests using 1 worker
+  13 failed
+  13 passed (4.7m)
+Browser suite: fidelity (2 spec files)
+Running 17 tests using 1 worker
+  13 failed
+  4 passed (4.3m)
+Browser suite: model-picker (2 spec files)
+Running 8 tests using 1 worker
+  7 failed
+  1 passed (3.8m)
+Browser suite: research-workspace (2 spec files)
+Running 23 tests using 1 worker
+  22 failed
+Browser suite: workspace (2 spec files)
+Running 33 tests using 1 worker
+  13 failed
+  20 passed (6.1m)
+Browser suite: chart-coordinates (1 spec files)
+Running 15 tests using 1 worker
+  15 passed (3.2m)
+Browser suite: code-review-workspace (1 spec files)
+Running 57 tests using 1 worker
+  57 failed
+Browser suite: compact-settings (1 spec files)
+Running 9 tests using 1 worker
+  9 failed
+Browser suite: compact-tools-cleanup (1 spec files)
+Running 9 tests using 1 worker
+  9 failed
+Browser suite: composer-commands (1 spec files)
+Running 12 tests using 1 worker
+  12 failed
+Browser suite: composer-prediction (1 spec files)
+Running 12 tests using 1 worker
+  11 failed
+  1 passed (2.8m)
+Browser suite: composer-press (1 spec files)
+Running 18 tests using 1 worker
+  4 failed
+  14 passed (2.3m)
+Browser suite: context-connections (1 spec files)
+Running 5 tests using 1 worker
+  5 failed
+Browser suite: desktop-surfaces (1 spec files)
+Running 28 tests using 1 worker
+  14 failed
+  14 passed (6.4m)
+Browser suite: everyday (1 spec files)
+Running 11 tests using 1 worker
+  8 failed
+  3 passed (2.5m)
+Browser suite: floating (1 spec files)
+Running 12 tests using 1 worker
+  9 failed
+  3 passed (3.7m)
+Browser suite: inline-surfaces (1 spec files)
+Running 10 tests using 1 worker
+  8 failed
+  2 passed (2.8m)
+Browser suite: native-browser-bounds (1 spec files)
+Running 3 tests using 1 worker
+  3 failed
+Browser suite: pdf (1 spec files)
+Running 21 tests using 1 worker
+  18 failed
+  3 passed (5.0m)
+Browser suite: plan-presentation (1 spec files)
+Running 3 tests using 1 worker
+  2 failed
+  1 passed (49.8s)
+Browser suite: project-app-integration (1 spec files)
+Running 9 tests using 1 worker
+  9 failed
+Browser suite: project-picker (1 spec files)
+Running 13 tests using 1 worker
+  13 failed
+Browser suite: project-search (1 spec files)
+Running 38 tests using 1 worker
+  26 failed
+  12 passed (12.7m)
+Browser suite: wo5-app-integration (1 spec files)
+Running 9 tests using 1 worker
+  9 failed
+Browser suite: runtime-presentation (1 spec files)
+Running 9 tests using 1 worker
+  6 failed
+  3 passed (3.2m)
+Browser suite: shared-panels (1 spec files)
+Running 30 tests using 1 worker
+  7 failed
+  23 passed (5.0m)
+Browser suite: shell (1 spec files)
+Running 69 tests using 1 worker
+  29 failed
+  38 passed (16.1m)
+Browser suite: short-tool-overflow (1 spec files)
+Running 12 tests using 1 worker
+  12 failed
+Browser suite: side-chat (1 spec files)
+Running 18 tests using 1 worker
+  9 failed
+  9 passed (4.4m)
+Browser suite: chat-view-modes (1 spec files)
+Running 21 tests using 1 worker
+  17 failed
+  4 passed (3.8m)
+Browser suite: smooth-operational (1 spec files)
+Running 7 tests using 1 worker
+  3 failed
+  4 passed (1.3m)
+Browser suite: smooth-pdf (1 spec files)
+Running 10 tests using 1 worker
+  10 passed (1.3m)
+Browser suite: snapshot-performance (1 spec files)
+Running 4 tests using 1 worker
+  2 failed
+  2 passed (3.0m)
+Browser suite: summary-dock (1 spec files)
+Running 21 tests using 1 worker
+  21 failed
+Browser suite: t3-centered (1 spec files)
+Running 7 tests using 1 worker
+  1 failed
+  6 passed (43.8s)
+Browser suite: tabs-identity (1 spec files)
+Running 4 tests using 1 worker
+  2 failed
+  2 passed (31.6s)
+Browser suite: table-controls (1 spec files)
+Running 20 tests using 1 worker
+  6 failed
+  14 passed (2.2m)
+Browser suite: task-design (1 spec files)
+Running 6 tests using 1 worker
+  3 failed
+  3 passed (44.2s)
+Browser suite: task-interface (1 spec files)
+Running 7 tests using 1 worker
+  2 failed
+  4 passed (48.8s)
+Browser suite: ui-shell-controls (1 spec files)
+Running 17 tests using 1 worker
+  17 failed
+Browser suite: usage-context (1 spec files)
+Running 21 tests using 1 worker
+  21 failed
+Browser suite: wo8 (1 spec files)
+Running 24 tests using 1 worker
+  24 passed (1.7m)
+Failed browser suites: root (exit 1), agents-workspace (exit 1), artifact-settle (exit 1), browser-action (exit 1), code-review-host (exit 1), compact-model-picker (exit 1), ui-shell-overlays (exit 1), m08-restore (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), inbox-controls (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), research-host (exit 1), saved-drafts (exit 1), saved-layout-chooser (exit 1), scoped-conversation (exit 1), settings-leaf-selects (exit 1), sidebar-collapse (exit 1), sidebar-shared-menu (exit 1), terminal-excerpts (exit 1), terminal-read (exit 1), thread-hover (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), frontend-refinement (exit 1), micro-motion (exit 1), motion-tokens (exit 1), clarity-software (exit 1), clarity-review-parameters (exit 1), clarity-schedule-logs (exit 1), fidelity (exit 1), model-picker (exit 1), research-workspace (exit 1), workspace (exit 1), code-review-workspace (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-commands (exit 1), composer-prediction (exit 1), composer-press (exit 1), context-connections (exit 1), desktop-surfaces (exit 1), everyday (exit 1), floating (exit 1), inline-surfaces (exit 1), native-browser-bounds (exit 1), pdf (exit 1), plan-presentation (exit 1), project-app-integration (exit 1), project-picker (exit 1), project-search (exit 1), wo5-app-integration (exit 1), runtime-presentation (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), side-chat (exit 1), chat-view-modes (exit 1), smooth-operational (exit 1), snapshot-performance (exit 1), summary-dock (exit 1), t3-centered (exit 1), tabs-identity (exit 1), table-controls (exit 1), task-design (exit 1), task-interface (exit 1), ui-shell-controls (exit 1), usage-context (exit 1)
+# Error-class histogram:
+# 471 x browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/m
+# 371 x element(s) not found
+# 270 x browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chro
+# 171 x [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+# 84 x [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+# 64 x [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)
+# 28 x [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[
+# 25 x [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2
+# 20 x locator.click: Test timeout of 30000ms exceeded.
+# 17 x page.waitForFunction: TypeError: Failed to execute 'getComputedStyle' on 'Window': paramet
+# 16 x [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[
+# 16 x page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+# 14 x locator.waitFor: Test timeout of 30000ms exceeded.
+# 13 x [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[2
+# 6 x [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Obje
