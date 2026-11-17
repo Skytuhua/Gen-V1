@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { Store } from '../packages/storage/store.ts';
+import type { Operation, Thread } from '../packages/contracts/index.ts';
 import { createContextCompiler, type ImmutableContextCut } from '../packages/core/context-compiler.ts';
 import { createContextToolDiscovery, createProgressiveToolSession } from '../packages/core/context-tool-discovery.ts';
 import { inspectTask } from '../packages/core/task-inspection.ts';
@@ -147,15 +148,28 @@ it.each([100, 500])('measures independent eager and progressive %i-tool schema p
 
 it('measures bounded inspection of 2,000 actual SQLite operation records', () => {
   const store = new Store(temporary()), threadId = 'large-history', seed = 42, payload = 'x'.repeat(8192);
+  const createdAt = '2026-11-17T00:00:00.000Z';
+  const thread: Thread = {
+    id: threadId, title: 'Offline retained history', projectName: null, createdAt, updatedAt: createdAt,
+    status: 'completed', epoch: 1, runId: null, modelId: null, sessionPath: null,
+  };
+  const operation = (id: string, owner: string, index: number, result: string): Operation => ({
+    id, threadId: owner, revision: 1, kind: 'fixture_read', description: 'Seed ' + seed + ' operation ' + index,
+    args: { fixtureIndex: index }, resourceIds: [], preconditions: {}, status: 'succeeded', approved: true, result, createdAt,
+  });
   try {
     store.internal('fixture', threadId, () => {
-      for (let index = 0; index < 2000; index++) store.put('operation', 'operation-' + index, threadId, {
-        id: 'operation-' + index, threadId, revision: 1, status: 'succeeded', description: 'Seed ' + seed + ' operation ' + index, result: payload,
-      });
-      store.put('operation', 'foreign-operation', 'other-thread', { id: 'foreign-operation', threadId: 'other-thread', result: 'FOREIGN_SENTINEL' });
+      store.put('thread', thread.id, thread.id, thread);
+      store.put('thread', 'other-thread', 'other-thread', { ...thread, id: 'other-thread', title: 'Other retained history' } satisfies Thread);
+      for (let index = 0; index < 2000; index++) {
+        const record = operation('operation-' + index, threadId, index, payload);
+        store.put('operation', record.id, record.threadId, record);
+      }
+      const foreign = operation('foreign-operation', 'other-thread', 0, 'FOREIGN_SENTINEL');
+      store.put('operation', foreign.id, foreign.threadId, foreign);
     });
     const baseline = timed(() => store.all('operation', threadId));
-    const candidate = timed(() => inspectTask(store, { id: threadId } as never, undefined, {}));
+    const candidate = timed(() => inspectTask(store, thread, undefined, {}));
     const baselineBytes = bytes(baseline.value), candidateBytes = bytes(candidate.value);
     expect(baseline.value).toHaveLength(2000);
     expect(candidate.value).toMatchObject({ counts: { operations: 2000 }, truncated: true });
