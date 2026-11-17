@@ -536,6 +536,7 @@ describe("M10 v6 completeness regressions", () => {
       await waitFor(() => f.coordinator.work(work.workId).state === "UNKNOWN");
       expect(f.coordinator.work(work.workId).outcome).toBeNull();
       killOwnedProcess(started.processIdentity!.pid);
+      await waitFor(() => f.coordinator.exitReceipt(work.workId) !== null);
     }
   });
 });
