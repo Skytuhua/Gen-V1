@@ -148,7 +148,8 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const a=aView.getByRole('textbox',{name:'Message',exact:true});
    await a.waitFor({state:'visible'});await a.fill('Float draft A');
    await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
-   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    expect(await a.inputValue()).toBe('Float draft A');
    expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
