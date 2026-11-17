@@ -143,6 +143,122 @@ class ContextCaptureFixture(unittest.TestCase):
         self.assertGreater(recovered["generation"], first["generation"])
 
 
+class AutomaticContainmentFixture(unittest.TestCase):
+    def setUp(self):
+        def load(name, file):
+            spec = importlib.util.spec_from_file_location(name, ROOT / "packages/runtime-hermes" / file)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        self.protection = load("automatic_protection_fixture", "compaction_protection.py")
+        self.checkpoint = load("automatic_checkpoint_fixture", "memory_checkpoint.py")
+        class Compressor:
+            def prune_tool_results_only(self, messages, **kwargs):
+                return messages[1:], 1
+            def _micro_compact(self, messages, **kwargs):
+                return messages[1:]
+        class Agent:
+            def __init__(self):
+                self.context_compressor = Compressor()
+            def _compress_context(self, messages, system_message, **kwargs):
+                return messages[1:], "rewritten system"
+        self.agent = Agent()
+        self.binding = {"ctx": {"threadId": "thread", "runId": "run", "epoch": 2}, "sessionPath": "/fixture/session.json", "modelId": "fixture-model", "accountId": None}
+        self.required = {"apiVersion": 1, "required": True}
+        self.capability = {"apiVersion": 1, "strategy": "REFUSE_UNPROTECTED_FOREGROUND"}
+        self.receipts = []
+        self.messages = [{"role": "user", "content": "unresolved instruction"}, {"role": "tool", "content": "exact retained source"}]
+
+    def scope(self, requirement=None, current=lambda: None):
+        return self.protection.contain_automatic(self.agent, self.required if requirement is None else requirement, self.binding, current, self.receipts.append, self.capability)
+
+    def test_all_native_call_shapes_refuse_without_replacing_or_mutating_the_live_list(self):
+        before = json.loads(json.dumps(self.messages))
+        with self.scope():
+            for trigger in ("turn_start_threshold", "pre_api", "post_tool", "overflow", "idle", "engine_preflight"):
+                with self.subTest(trigger=trigger):
+                    messages, system = self.agent._compress_context(self.messages, "exact system", trigger=trigger, bypass_cooldown=trigger == "overflow")
+                    self.assertIs(messages, self.messages)
+                    self.assertEqual(system, "exact system")
+            messages, count = self.agent.context_compressor.prune_tool_results_only(self.messages, current_tokens=30000)
+            self.assertIs(messages, self.messages)
+            self.assertEqual(count, 0)
+            self.assertIs(self.agent.context_compressor._micro_compact(self.messages, turn_session_id="session"), self.messages)
+        self.assertEqual(self.messages, before)
+        self.assertEqual([value["method"] for value in self.receipts], ["compress"] * 6 + ["prune", "micro"])
+        for value in self.receipts:
+            self.assertEqual(value["status"], "REFUSED")
+            self.assertEqual(value["reason"], "AUTOMATIC_PROTECTION_UNAVAILABLE")
+            self.assertEqual(value["owner"], self.binding)
+            self.assertNotIn("afterBytes", value)
+
+    def test_cancellation_and_exception_restore_every_original_instance_override(self):
+        compressor = self.agent.context_compressor
+        for target, name in ((self.agent, "_compress_context"), (compressor, "prune_tool_results_only"), (compressor, "_micro_compact")):
+            setattr(target, name, getattr(target, name))
+        original_agent, original_compressor = vars(self.agent).copy(), vars(compressor).copy()
+        cancelled = False
+        def current():
+            if cancelled:
+                raise RuntimeError("cancelled")
+        with self.assertRaises(KeyboardInterrupt):
+            with self.scope(current=current):
+                cancelled = True
+                self.assertIs(self.agent._compress_context(self.messages, "system")[0], self.messages)
+                raise KeyboardInterrupt()
+        self.assertEqual(vars(self.agent), original_agent)
+        self.assertEqual(vars(compressor), original_compressor)
+        self.assertEqual(self.receipts[0]["reason"], "HOST_REVOKED")
+        self.assertEqual(self.agent._compress_context(self.messages, "system"), (self.messages[1:], "rewritten system"))
+
+    def test_flag_off_leaves_native_and_manual_calls_unchanged(self):
+        before_agent, before_compressor = vars(self.agent).copy(), vars(self.agent.context_compressor).copy()
+        with self.protection.contain_automatic(self.agent, None, None, None, None, None):
+            self.assertEqual(self.agent._compress_context(self.messages, "system", force=True), (self.messages[1:], "rewritten system"))
+            self.assertEqual(self.agent.context_compressor.prune_tool_results_only(self.messages), (self.messages[1:], 1))
+            self.assertEqual(self.agent.context_compressor._micro_compact(self.messages), self.messages[1:])
+        self.assertEqual(vars(self.agent), before_agent)
+        self.assertEqual(vars(self.agent.context_compressor), before_compressor)
+        self.assertEqual(self.receipts, [])
+
+    def test_missing_capability_or_invalid_required_policy_cannot_fall_back(self):
+        for policy in ({"apiVersion": True, "required": True}, {"apiVersion": 1, "required": False}, {"apiVersion": 2, "required": True}, {"apiVersion": 1, "required": True, "extra": True}):
+            with self.subTest(policy=policy), self.assertRaises(self.protection.ProtectionError):
+                self.protection.assert_automatic_requirement(policy, self.capability)
+        with self.assertRaises(self.protection.ProtectionError):
+            self.protection.assert_automatic_requirement(self.required, None)
+        for key, value in (("runId", ""), ("threadId", ""), ("epoch", True)):
+            with self.subTest(owner=key), self.assertRaises(self.protection.ProtectionError):
+                original = self.binding["ctx"][key]
+                try:
+                    self.binding["ctx"][key] = value
+                    with self.scope():
+                        self.fail("Invalid foreground owner reached native work")
+                finally:
+                    self.binding["ctx"][key] = original
+        self.assertEqual(self.receipts, [])
+
+    def test_m05_checkpoint_remains_outermost_and_failure_never_reaches_compaction(self):
+        order = []
+        def persist(request):
+            order.append("checkpoint")
+            return {"apiVersion": 2, "requestId": request["requestId"], "checkpointId": "receipt", "digest": "a" * 64, "persisted": True}
+        self.receipts = order
+        with self.scope(), self.checkpoint.native_memory_checkpoint(self.agent, {"apiVersion": 2, "required": True}, self.binding, persist, lambda: None, {"apiVersion": 2, "hostOwned": True}):
+            self.assertIs(self.agent._compress_context(self.messages, "system")[0], self.messages)
+        self.assertEqual(order[0], "checkpoint")
+        self.assertEqual(order[1]["status"], "REFUSED")
+        order.clear()
+        def fail(request):
+            order.append("checkpoint failed")
+            raise RuntimeError("persistence denied")
+        with self.scope(), self.checkpoint.native_memory_checkpoint(self.agent, {"apiVersion": 2, "required": True}, self.binding, fail, lambda: None, {"apiVersion": 2, "hostOwned": True}):
+            with self.assertRaisesRegex(RuntimeError, "persistence denied"):
+                self.agent._compress_context(self.messages, "system")
+        self.assertEqual(order, ["checkpoint failed"])
+        self.assertNotIn("_compress_context", vars(self.agent))
+
+
 class WorkerFixture(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="hermes-original-")
@@ -158,6 +274,8 @@ class WorkerFixture(unittest.TestCase):
         self.m04_snapshot = None
         self.compaction_commit = True
         self.on_compaction_commit = None
+        self.transport_usage = None
+        self.gate_result = None
 
     def tearDown(self):
         self.proc.terminate()
@@ -181,6 +299,10 @@ class WorkerFixture(unittest.TestCase):
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
                 result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                if call["name"] == "$transport.usage" and self.transport_usage is not None:
+                    result = self.transport_usage
+                if call["name"] == "host_gate" and self.gate_result is not None:
+                    result = self.gate_result
                 if call["name"] == "$context.compaction.commit":
                     if self.on_compaction_commit is not None:
                         self.on_compaction_commit()
@@ -208,6 +330,10 @@ class WorkerFixture(unittest.TestCase):
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
                 result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                if call["name"] == "$transport.usage" and self.transport_usage is not None:
+                    result = self.transport_usage
+                if call["name"] == "host_gate" and self.gate_result is not None:
+                    result = self.gate_result
                 self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             else:
@@ -302,6 +428,83 @@ class WorkerFixture(unittest.TestCase):
         self.assertLess(len(result["messages"]), len(before))
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
         self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
+
+    def test_m04_required_automatic_protection_preserves_original_user_and_tool_history(self):
+        # Scripted usage forces the original engine's pressure branch; no real
+        # provider, token accounting or host token-fit admission is claimed.
+        self.transport_usage = {"inputTokens": 30000, "outputTokens": 4}
+        self.hello(config={"compression": {"enabled": True, "threshold_tokens": 2000, "protect_first_n": 0, "protect_last_n": 2,
+                                          "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user", "content": "M04_UNRESOLVED_AUTO_REQUIREMENT: retain this exact instruction until the user resolves it."},
+                   {"role": "assistant", "content": None, "tool_calls": [{"id": "original-tool", "type": "function", "function": {"name": "host_gate", "arguments": "{}"}}]},
+                   {"role": "tool", "tool_call_id": "original-tool", "content": "M04_EXACT_AUTO_SOURCE: selected source bytes 日本語, revision original-7."}]
+        history += [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"Older conversation turn {index}. Preserve approved work and exact source revisions. " * 32)} for index in range(12)]
+        params = {"ctx": {"threadId": "auto-protected", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None,
+                  "prompt": "PLAIN_REPLY_ONLY current user request", "history": history, "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("auto-protected"),
+                  "automaticCompactionProtection": {"apiVersion": 1, "required": True}}
+        # The original engine defers its first unanchored estimate. Prime its
+        # native pressure state with the explicitly synthetic usage above.
+        self.request("agent.start", {**params, "history": [], "prompt": "PLAIN_REPLY_ONLY prime native usage policy"})
+        self.until_settled()
+        params["ctx"] = {"threadId": "auto-protected", "runId": "protected", "epoch": 2}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        active = self.request("agent.history", {})["messages"]
+        public = lambda message: {key: value for key, value in message.items() if not key.startswith("_")}
+        retained = [public(message) for message in active]
+        for message in history:
+            self.assertIn(message, retained, "Unprotected automatic compaction discarded an exact original record")
+        self.assertTrue(any(message.get("role") == "user" and message.get("content") == params["prompt"] for message in retained))
+        refused = [event["data"] for event in events if event.get("event") == "compaction_refused"]
+        self.assertTrue(refused, "The required automatic-compaction refusal was not reported: " + "".join(self.stderr[-30:]))
+        self.assertTrue(all(value["status"] == "REFUSED" and value["reason"] == "AUTOMATIC_PROTECTION_UNAVAILABLE" for value in refused))
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], active)
+        self.assertNotIn("$context.compaction.commit", self.host_calls)
+        self.assertFalse(list(Path(params["sessionPath"]).parent.glob("*.history-*.json")))
+        # Dispose the original agent, then reopen the same immutable saved source.
+        self.request("agent.dispose", {})
+        resumed = {key: value for key, value in params.items() if key != "history"}
+        resumed.update(ctx={"threadId": "auto-protected", "runId": "reopen", "epoch": 3}, prompt="PLAIN_REPLY_ONLY after reopen")
+        self.request("agent.start", resumed)
+        self.until_settled()
+        reopened = [public(message) for message in self.request("agent.history", {})["messages"]]
+        for message in retained:
+            self.assertIn(message, reopened, "Reopening the session lost an original input or tool record")
+
+    def automatic_direct_fixture(self, method):
+        compression = {"enabled": True, "threshold_tokens": 200000, "protect_first_n": 0, "protect_last_n": 2,
+                       "abort_on_summary_failure": True, "proactive_prune_tokens": 1,
+                       "proactive_prune_min_result_chars": 100, "proactive_prune_min_reclaim_tokens": 1,
+                       "micro_compact": method == "micro"}
+        self.hello(config={"compression": compression, "auxiliary": {"background_review": {"enabled": False}}})
+        self.transport_usage = {"inputTokens": 30000, "outputTokens": 4}
+        self.gate_result = {"gate": "released"}
+        history = [{"role": "user", "content": "M04_CONFIGURED_AUTO: exact unresolved source requirement."},
+                   {"role": "assistant", "content": None, "tool_calls": [{"id": "old-call", "type": "function", "function": {"name": "host_gate", "arguments": "{}"}}]},
+                   {"role": "tool", "tool_call_id": "old-call", "content": "ORIGINAL_SELECTED_TOOL_BYTES_日本語 " * 1000}]
+        history += [{"role": "user" if index % 2 == 0 else "assistant", "content": f"Exact original turn {index}. " * 12} for index in range(8)]
+        params = {"ctx": {"threadId": "direct-auto", "runId": method, "epoch": 1}, "modelId": "fixture-model", "accountId": None,
+                  "prompt": "HOST_GATE_FIXTURE" if method == "prune" else "PLAIN_REPLY_ONLY", "history": history,
+                  "hostTools": [{"name": "host_gate", "description": "Return the declared fixture result", "parameters": {"type": "object"}}],
+                  "maxIterations": 3, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("direct-auto"),
+                  "automaticCompactionProtection": {"apiVersion": 1, "required": True}}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        refusals = [event["data"] for event in events if event.get("event") == "compaction_refused"]
+        self.assertTrue(any(value["method"] == method and value["status"] == "REFUSED" for value in refusals), refusals)
+        messages = self.request("agent.history", {})["messages"]
+        public = [{key: value for key, value in message.items() if not key.startswith("_")} for message in messages]
+        for message in history:
+            self.assertIn(message, public, "Configured native maintenance changed an exact original record")
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], messages)
+        self.assertNotIn("$context.compaction.commit", self.host_calls)
+
+    def test_m04_required_protection_contains_configured_native_proactive_pruning(self):
+        self.automatic_direct_fixture("prune")
+
+    def test_m04_required_protection_contains_configured_native_post_turn_micro_compaction(self):
+        self.automatic_direct_fixture("micro")
 
     def test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent(self):
         self.hello()
