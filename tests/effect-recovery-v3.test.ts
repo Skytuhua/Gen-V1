@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -27,7 +28,7 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-effect-recovery-'));
   const store = new Store(join(root, 'state'));
   const authority = new ToolAuthority(buildToolRegistry());
-  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), testEffectAuthenticator());
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
   return { store, authority, ledger };
 }
