@@ -1,12 +1,13 @@
 export interface OverlayViewport { left: number; top: number; width: number; height: number }
 export interface OverlayAnchor { left: number; right: number; top: number; bottom: number }
-export interface PopoverPlacement { left: number; top: number; width: number; height: number; side: 'above' | 'below' }
+export type OverlaySide = 'above' | 'below' | 'left' | 'right';
+export interface PopoverPlacement { left: number; top: number; width: number; height: number; side: OverlaySide }
 export interface PopoverPositionOptions {
   anchor: OverlayAnchor;
   viewport: OverlayViewport;
   width: number;
   height: number;
-  preferredSide?: 'above' | 'below';
+  preferredSide?: OverlaySide;
   align?: 'start' | 'end';
 }
 
@@ -17,15 +18,30 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
   const horizontalInset = Math.min(8, viewportWidth / 2), verticalInset = Math.min(8, viewportHeight / 2);
   const leftEdge = origin(viewport.left) + horizontalInset, topEdge = origin(viewport.top) + verticalInset;
   const availableWidth = viewportWidth - horizontalInset * 2, availableHeight = viewportHeight - verticalInset * 2;
-  const bottomEdge = topEdge + availableHeight;
+  const bottomEdge = topEdge + availableHeight, rightEdge = leftEdge + availableWidth;
   const above = Math.max(0, origin(anchor.top) - 8 - topEdge);
   const below = Math.max(0, bottomEdge - origin(anchor.bottom) - 8);
   const desiredHeight = Math.min(size(height), availableHeight);
-  const fitsPreferred = (preferredSide === 'above' ? above : below) >= desiredHeight;
-  const side = fitsPreferred ? preferredSide : above >= below ? 'above' : 'below';
   const popupWidth = Math.min(size(width), availableWidth);
-  const popupHeight = Math.min(desiredHeight, side === 'above' ? above : below);
   const clamp = (value: number, minimum: number, maximum: number) => Math.max(minimum, Math.min(value, maximum));
+  if (preferredSide === 'left' || preferredSide === 'right') {
+    const right = Math.max(0, rightEdge - origin(anchor.right) - 8);
+    const left = Math.max(0, origin(anchor.left) - 8 - leftEdge);
+    const desiredWidth = Math.min(size(width), availableWidth);
+    const side: OverlaySide = (preferredSide === 'right' ? right : left) >= desiredWidth
+      ? preferredSide
+      : right >= left ? 'right' : 'left';
+    const popupHeight = Math.min(desiredHeight, availableHeight);
+    const popupWidth = Math.min(desiredWidth, side === 'left' ? left : right);
+    return {
+      left: clamp(side === 'right' ? origin(anchor.right) + 8 : origin(anchor.left) - 8 - popupWidth, leftEdge, rightEdge - popupWidth),
+      top: clamp(align === 'end' ? origin(anchor.bottom) - popupHeight : origin(anchor.top), topEdge, bottomEdge - popupHeight),
+      width: popupWidth, height: popupHeight, side,
+    };
+  }
+  const fitsPreferred = (preferredSide === 'above' ? above : below) >= desiredHeight;
+  const side: OverlaySide = fitsPreferred ? preferredSide : above >= below ? 'above' : 'below';
+  const popupHeight = Math.min(desiredHeight, side === 'above' ? above : below);
   return {
     left: clamp(align === 'end' ? origin(anchor.right) - popupWidth : origin(anchor.left), leftEdge, leftEdge + availableWidth - popupWidth),
     top: clamp(side === 'above' ? origin(anchor.top) - 8 - popupHeight : origin(anchor.bottom) + 8, topEdge, bottomEdge - popupHeight),

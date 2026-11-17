@@ -16,6 +16,8 @@ export interface ThreadHoverCardProps<Target = unknown> {
   blocked?: boolean;
   projectColors?: Record<string, string>;
   onOpenPR?: (target: Target, owner: ThreadHoverScope) => void;
+  /** Side of the trigger the card prefers; flips to the opposite side when space is short. */
+  preferredSide?: 'above' | 'below' | 'left' | 'right';
   children: (trigger: ThreadHoverTriggerProps) => ReactNode;
 }
 
@@ -23,7 +25,7 @@ const focusable = 'button:not(:disabled), a[href], input:not(:disabled), select:
 const controls = (root: HTMLElement) => Array.from(root.querySelectorAll<HTMLElement>(focusable))
   .filter(node => node.tabIndex >= 0 && node.getClientRects().length && !node.closest('[inert], [hidden]'));
 
-export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache, blocked = false, projectColors, onOpenPR, children}: ThreadHoverCardProps<Target>) {
+export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache, blocked = false, projectColors, onOpenPR, preferredSide, children}: ThreadHoverCardProps<Target>) {
   const anchor = useRef<HTMLButtonElement>(null), content = useRef<HTMLDivElement>(null);
   const [body, setBody] = useState<HTMLDivElement | null>(null);
   const id = useId(), [open, setOpen] = useState(false), [present, setPresent] = useState(false), [height, setHeight] = useState(282);
@@ -112,7 +114,7 @@ export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache,
         else if ((event.key === 'Tab' && !event.shiftKey) || event.key === 'ArrowDown') {event.preventDefault(); enterCard();}
       },
     })}
-    <Popover anchor={anchor} contentRef={content} open={visible} present={visible || present} width={304} height={height} align="start" preferredSide="below"
+    <Popover anchor={anchor} contentRef={content} open={visible} present={visible || present} width={304} height={height} align="start" preferredSide={preferredSide ?? 'below'}
       id={id} className="thread-hover-card" role="dialog" aria-modal="false" aria-label={`Thread details: ${details.title}`} tabIndex={-1}
       onDismiss={dismiss} onPointerEnter={() => interaction.pointerEnter('card')} onPointerLeave={() => interaction.pointerLeave('card')}
       onFocus={() => interaction.focus(true)} onBlur={blur}

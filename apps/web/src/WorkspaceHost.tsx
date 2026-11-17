@@ -209,7 +209,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   const [mobile, setMobile] = useState(() => matchMedia('(max-width: 700px)').matches);
   const [rename, setRename] = useState<ThreadNavigationRow>(), [title, setTitle] = useState('');
   const [archive, setArchive] = useState<ThreadNavigationRow>();
-  const [unpin, setUnpin] = useState<ThreadNavigationRow>();
+  const [unpin, setUnpin] = useState<{ row: ThreadNavigationRow; patch: NonNullable<ThreadNavigationRow['presentation']> }>();
   const mutationPending = useRef(false), [mutationBusy, setMutationBusy] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const sidebar = useRef<HTMLElement>(null), scrim = useRef<HTMLButtonElement>(null), searchRef = useRef<HTMLInputElement>(null);
@@ -256,7 +256,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     finally {mutationPending.current = false; setMutationBusy(false);}
   };
   const present = async (row: ThreadNavigationRow, patch: NonNullable<ThreadNavigationRow['presentation']>) => {
-    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin(row); return false;}
+    if (patch.pinned === false && preferences.unpinConfirmation) {setUnpin({row, patch}); return false;}
     return mutate(async () => {await command('thread.presentation', patch, row.id); fail(navigation.refresh);});
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
@@ -269,6 +269,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       select={id => fail(() => openConversation(id))} create={() => action('new-thread')} settings={openSettings}
       onConnectProject={() => action('connect-project')} onOpenPullRequests={() => action('linked-pull-requests')} onOpenUsage={() => action('usage')}
       rename={row => {setRename(row); setTitle(row.title);}} archive={id => {const row = navigation.page?.items.find(value => value.id === id); if (row) {if (preferences.archiveConfirmation) setArchive(row); else archiveRow(row);}}} presentation={present}
+      ensureManualOrder={() => mutate(async () => {await command('settings.update', {preferences: {projectOrder: 'manual'}}); await refreshSettings(); fail(navigation.refresh);})}
       orderBounds={navigation.page?.stats}
       pageControls={<div className="workspace-host-navigation-page">
         {navigation.error && <ErrorState message={navigation.error} retryLabel="Retry threads" onRetry={() => fail(navigation.refresh)}/>}
@@ -292,7 +293,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       <label>Thread name<input autoFocus disabled={mutationBusy} value={title} maxLength={180} onChange={event => setTitle(event.target.value)}/></label><button disabled={mutationBusy || !title.trim()}>Save name</button>
     </form></Modal>
     <Modal open={Boolean(archive)} title="Archive thread" onClose={() => {if (!mutationPending.current) setArchive(undefined);}}><p>{archive?.title}</p><button disabled={mutationBusy} onClick={() => {if (archive) archiveRow(archive);}}>Archive</button></Modal>
-    <Modal open={Boolean(unpin)} title="Unpin thread" onClose={() => {if (!mutationPending.current) setUnpin(undefined);}}><p>{unpin?.title}</p><button disabled={mutationBusy} onClick={() => setUnpin(undefined)}>Keep pinned</button><button disabled={mutationBusy} onClick={() => {if (unpin) mutate(async () => {await command('thread.presentation', {pinned: false}, unpin.id); await navigation.refresh(); setUnpin(undefined);});}}>Unpin</button></Modal>
+    <Modal open={Boolean(unpin)} title="Unpin thread" onClose={() => {if (!mutationPending.current) setUnpin(undefined);}}><p>{unpin?.row.title}</p><button disabled={mutationBusy} onClick={() => setUnpin(undefined)}>Keep pinned</button><button disabled={mutationBusy} onClick={() => {if (unpin) mutate(async () => {await command('thread.presentation', unpin.patch, unpin.row.id); await navigation.refresh(); setUnpin(undefined);});}}>Unpin</button></Modal>
     <Toaster/><TooltipLayer/>
   </div>;
 }
