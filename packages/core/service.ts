@@ -1149,6 +1149,7 @@ export class Service {
     this.store.internal('input.source_blocked', inputs[0].threadId, () => {
       const blocked: string[] = [];
       for (const input of inputs) {
+        if (input.runId !== null || input.enteredRuntime === true) continue;
         const current = this.store.get<Outbox>('outbox', input.id);
         if (!current || current.threadId !== input.threadId || current.content !== input.content || digest(current.sourceRefs) !== digest(input.sourceRefs) || current.enteredRuntime === true || current.status === 'handled') continue;
         const proven = current.status === 'persisted' && current.runId === null || undispatchedRunId !== undefined && current.status === 'processing' && current.runId === undispatchedRunId;
