@@ -53,7 +53,7 @@ import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import { createCompactionCandidateRegistry, evaluateCompactionCandidate } from './context-compaction.ts';
+import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
 import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
@@ -120,6 +120,7 @@ export class Service {
   private readonly compactionRegistry = createCompactionCandidateRegistry();
   private readonly compactionCandidateIds = new Map<string, string[]>();
   private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
+  private readonly compactionInflight = new Map<string, Promise<void>>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -402,24 +403,62 @@ export class Service {
   private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
   /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
    * Never mutates native history; candidates carry metadata only. */
-  private recordCompactionCandidate(threadId:string):void {
+  private latestRequestReceipt(threadId:string):RequestContextV1|null {
     const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
-    if(!row)return;
-    const stored=JSON.parse(row.body) as {receipt?:RequestContextV1};
-    const receipt=stored.receipt;
-    if(!receipt)return;
-    const binding={generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+    if(!row)return null;
+    const receipt=(JSON.parse(row.body) as {receipt?:RequestContextV1}).receipt;
+    return receipt??null;
+  }
+  private compactionBindingOf(receipt:RequestContextV1){
+    return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+  }
+  private async applyLossAwareCompaction(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+    const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(thread));
+    const tail=run.then(()=>undefined,()=>undefined);
+    this.compactionInflight.set(thread.id,tail);
+    tail.finally(()=>{if(this.compactionInflight.get(thread.id)===tail)this.compactionInflight.delete(thread.id);});
+    return run;
+  }
+  private async applyLossAwareCompactionInner(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+    const receipt=this.latestRequestReceipt(thread.id);
+    if(!receipt)return {status:'UNSUPPORTED_COMPACTION',candidateId:'',usageEntity:null};
+    const binding=this.compactionBindingOf(receipt);
     const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
     if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
-    const verdict=evaluateCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeCasAvailable:false});
+    this.trackCompactionCandidate(thread.id,metadata.candidateId);
+    const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch,accountId:binding.accountId??null};
+    const bytes=(list:unknown[])=>list.reduce((n:number,m)=>n+Buffer.byteLength(JSON.stringify(m),'utf8'),0);
+    const outcome:{usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}={usageEntity:null};
+    const freshReceipt=this.latestRequestReceipt(thread.id);
+    const current=freshReceipt?this.compactionBindingOf(freshReceipt):binding;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
+      const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
+      if(!snap)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
+      const beforeBytes=bytes(snap.messages);
+      await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,undefined,snap.sha256);
+      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null).catch(()=>null);
+      outcome.usageEntity={id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:after?bytes(after.messages):null};
+      return {generation:binding.generation+1,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
+    }:undefined});
     this.compactionVerdicts.set(metadata.candidateId,verdict.status);
-    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==metadata.candidateId),metadata.candidateId].slice(-8);
+    if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
+    else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
+    else this.compactionRegistry.markDiscarded(metadata.candidateId);
+    return {status:verdict.status,candidateId:metadata.candidateId,usageEntity:outcome.usageEntity};
+  }
+  private trackCompactionCandidate(threadId:string,candidateId:string):void {
+    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==candidateId),candidateId].slice(-8);
     this.compactionCandidateIds.set(threadId,ids);
-    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);return entry?{
+  }
+  private writeCompactionProjection(threadId:string):void {
+    const ids=this.compactionCandidateIds.get(threadId)??[];
+    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);if(!entry)return null;
+      const usage=this.store.get<{beforeBytes:number;afterBytes:number|null}>('compactionUsage',id);return {
       metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
       retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
-      estimatedByteReduction:null,measuredBeforeBytes:entry.metadata.usageObservationRef?receipt.budget.utf8Bytes:null,measuredAfterBytes:null,
-    }:null;}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
+      estimatedByteReduction:null,measuredBeforeBytes:usage?usage.beforeBytes:null,measuredAfterBytes:usage?usage.afterBytes:null,
+    };}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
     const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
     const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
     this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
@@ -800,8 +839,19 @@ export class Service {
     }
     if (command.type === "run.compact") {
       if (capabilityEnabled('context.lossAwareCompactionV1')) {
-        this.recordCompactionCandidate(thread.id);
-        throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+        if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
+        if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
+        this.assertNoOtherRun(thread.id);
+        const compactionOutcome = await this.applyLossAwareCompaction(thread);
+        if (compactionOutcome.status === 'UNSUPPORTED_COMPACTION')
+          throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
+        const receipt = this.store.command(command, () => {
+          if (compactionOutcome.usageEntity) this.store.put('compactionUsage', compactionOutcome.candidateId, thread.id, compactionOutcome.usageEntity);
+          this.writeCompactionProjection(thread.id);
+          return { verdict: compactionOutcome.status };
+        });
+        if (compactionOutcome.status === 'APPLIED') return receipt;
+        throw new HarnessError('COMPACTION_FAILED', 'The verified native compaction apply failed.');
       }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
@@ -1115,6 +1165,7 @@ export class Service {
     this.store.internal('input.source_blocked', inputs[0].threadId, () => {
       const blocked: string[] = [];
       for (const input of inputs) {
+        if (input.runId !== null || input.enteredRuntime === true) continue;
         const current = this.store.get<Outbox>('outbox', input.id);
         if (!current || current.threadId !== input.threadId || current.content !== input.content || digest(current.sourceRefs) !== digest(input.sourceRefs) || current.enteredRuntime === true || current.status === 'handled') continue;
         const proven = current.status === 'persisted' && current.runId === null || undispatchedRunId !== undefined && current.status === 'processing' && current.runId === undispatchedRunId;

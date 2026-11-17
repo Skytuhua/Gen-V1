@@ -930,10 +930,14 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   useEffect(()=>{
     if(!splitEnabled||!convSplitState.layout||!thread||placedThread.current===thread.id)return;
     const current=convSplitState.layout,existing=Object.values(current.panes).find(pane=>pane.viewIds.some(id=>current.views[id]?.kind==='thread'&&current.views[id]?.binding.threadId===thread.id));
-    if(existing&&!existing.collapsed&&existing.activeViewId&&current.views[existing.activeViewId]?.kind==='thread'&&current.views[existing.activeViewId]?.binding.threadId===thread.id){placedThread.current=thread.id;return;}
+    if(existing&&!existing.collapsed&&existing.activeViewId&&current.views[existing.activeViewId]?.kind==='thread'&&current.views[existing.activeViewId]?.binding.threadId===thread.id){placedThread.current=focusedSplitThread(current)??thread.id;return;}
     placedThread.current=thread.id;
     void placeSplitThread(thread.id,existing?.id??current.focusedPaneId).catch(cause=>{placedThread.current=null;setError(messageOf(cause));});
   },[splitEnabled,convSplitState.layout,thread?.id]);
+  const focusedSplitThread=(layout:SplitWorkspaceLayout)=>{
+    const viewId=document.activeElement?.closest<HTMLElement>('[data-split-view]')?.dataset.splitView,view=viewId?layout.views[viewId]:undefined;
+    return view?.kind==='thread'&&view.binding.authority.kind==='local'?view.binding.threadId:undefined;
+  };
   const focusSplitOwner=(view:SurfaceRef)=>{if(view.binding.authority.kind!=='local'||!view.binding.threadId)return;placedThread.current=view.binding.threadId;setSelectedId(view.binding.threadId);};
   const convSendSplitCommand=async(type:string,payload:Record<string,unknown>)=>{
     if(type==='view.activate')await journalFlush();
@@ -942,22 +946,23 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   };
   const placementBase=(layout:SplitWorkspaceLayout,mainPaneId:string):ConversationPlacementRecord=>mainPlacement??{version:1,workspaceId:layout.id,mainPaneId,mainSelection:{kind:'new'},floating:{},mainBasis:mainBasisOf(layout,mainPaneId)};
   // Detach parks the conversation and floats it on the same plane; main becomes explicitly empty (T02/R02).
-  const detachConversation=async(view:SurfaceRef)=>{
+  const detachConversation=async(view:SurfaceRef,requestedRect?:ChatRect)=>{
     const current=convSplitState.layout;
     if(!current||view.kind!=='thread'||view.binding.authority.kind!=='local')return;
-    const mainPaneId=resolveMainPaneId(current),viewport={width:window.innerWidth,height:window.innerHeight},rect=clampChatRect(DEFAULT_FLOAT_RECT,viewport);
+    const mainPaneId=resolveMainPaneId(current),viewport={width:window.innerWidth,height:window.innerHeight},rect=clampChatRect(requestedRect??DEFAULT_FLOAT_RECT,viewport);
     const base=placementBase(current,mainPaneId);
     const expectation=capturePlacementExpectation(current,{type:'view.park',payload:{viewId:view.id}},mainPaneId);
     const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'detach',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:{kind:'empty'},desiredMainPaneId:mainPaneId,floatingAdd:{[view.id]:{view,rect}},floatingRemove:[],expectation};
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.park',{viewId:view.id});
+      const next=await convSplitState.send('view.park',{viewId:view.id,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'empty'},floating:{...base.floating,[view.id]:{view,rect}},mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=null;setSelectedId(null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next);
+        placedThread.current=focusedThreadId??null;setSelectedId(focusedThreadId??null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Return replaces the main pane with the floating conversation, parking whatever occupied main (T02/R02).
   const returnConversation=async(view:SurfaceRef)=>{
@@ -970,13 +975,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace'});
+      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace',baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'thread',threadId},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=threadId;setSelectedId(threadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Docking a float into a real pane split is an acknowledged command, never a local geometry change (T03/R03).
   const dockFloat=async(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer=false)=>{
@@ -990,15 +995,15 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     writePlacementRecord({...base,pending:intent});
     try{
       await prepareWorkspace();
-      const next=await convSplitState.send('pane.split',payload);
+      const next=await convSplitState.send('pane.split',{...payload,baseRevision:current.revision});
       if(expectationHolds(next,expectation)){
         const floating={...base.floating};delete floating[view.id];
         const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
         const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
         writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        placedThread.current=view.binding.threadId;setSelectedId(view.binding.threadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
+        const focusedThreadId=focusedSplitThread(next)??view.binding.threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){setError(messageOf(cause));}
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
   };
   // Local float geometry persists without a split command; the plane keeps the live rect (T02/R02).
   const moveFloat=(viewId:string,rect:ChatRect)=>{

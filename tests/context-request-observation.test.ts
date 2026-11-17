@@ -128,3 +128,74 @@ it('does not implement loss-aware compaction by calling legacy native compaction
     await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
   }
 });
+
+const compactionReceipt = (threadId: string) => ({ receipt: {
+  id: `receipt-${threadId}`, contextGeneration: 1, prompt: { utf8Bytes: 4096, context: [] },
+  modelBinding: { modelId: 'test/model', accountId: null }, owner: { workspaceId: 'workspace-fixture' },
+  instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64),
+  sourceCut: { revisionDigest: 'c'.repeat(64) }, budget: { utf8Bytes: 4096 },
+}});
+
+it('applies loss-aware compaction only through the verified native source-cut CAS', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'm04-compaction-cas-')), store = new Store(directory);
+  const compactCalls: Array<{ expected?: string }> = [];
+  let historyCalls = 0;
+  const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {},
+    followUp: async () => {}, cancel: async () => {},
+    compact: async (_ctx: unknown, _session: unknown, _model: unknown, _account: unknown, _checkpoint: unknown, expectedHistorySha256?: string) => { compactCalls.push({ expected: expectedHistorySha256 }); },
+    history: async () => [], dispose: async () => {},
+    nativeHistoryDigest: async () => { historyCalls++; return { sha256: 'd'.repeat(64), messages: [{ role: 'user', content: `segment ${historyCalls}` }] }; } };
+  const service = new Service(store, runtime);
+  try {
+    const threadId = 'thread-cas-fixture';
+    store.internal('fixture', threadId, () => {
+      store.put('thread', threadId, threadId, {
+        id: threadId, title: 'Fixture', runId: null, epoch: 1, status: 'ready', modelId: 'test/model',
+        sessionPath: '/synthetic-session', projectName: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+      });
+      store.put('requestContextReceipt', `receipt-${threadId}`, threadId, compactionReceipt(threadId));
+    });
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1', true);
+    await service.command({ id: 'compact', type: 'run.compact', threadId, payload: {} });
+    expect(compactCalls).toEqual([{ expected: 'd'.repeat(64) }]);
+    expect(historyCalls).toBe(2);
+    const usage = store.get<{ value: { compaction?: { candidates: Array<{ status: string; verdict: string | null; measuredBeforeBytes: number | null; measuredAfterBytes: number | null }> } } }>('usage', threadId);
+    const candidate = usage?.value.compaction?.candidates[0];
+    expect(candidate).toMatchObject({ status: 'APPLIED', verdict: 'APPLIED' });
+    expect(typeof candidate?.measuredBeforeBytes).toBe('number');
+    expect(typeof candidate?.measuredAfterBytes).toBe('number');
+  } finally {
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
+    await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
+  }
+});
+
+it('records a failed verdict without mutating when the native source-cut digest mismatches', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'm04-compaction-mismatch-')), store = new Store(directory);
+  const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {},
+    followUp: async () => {}, cancel: async () => {},
+    compact: async () => { const error = new Error('The native source history changed after admission; the compaction was not applied.') as Error & { code?: string }; error.code = 'HERMES_COMPACTION_MISMATCH'; throw error; },
+    history: async () => [], dispose: async () => {},
+    nativeHistoryDigest: async () => ({ sha256: 'e'.repeat(64), messages: [{ role: 'user', content: 'segment' }] }) };
+  const service = new Service(store, runtime);
+  try {
+    const threadId = 'thread-mismatch-fixture';
+    store.internal('fixture', threadId, () => {
+      store.put('thread', threadId, threadId, {
+        id: threadId, title: 'Fixture', runId: null, epoch: 1, status: 'ready', modelId: 'test/model',
+        sessionPath: '/synthetic-session', projectName: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+      });
+      store.put('requestContextReceipt', `receipt-${threadId}`, threadId, compactionReceipt(threadId));
+    });
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1', true);
+    await expect(service.command({ id: 'compact', type: 'run.compact', threadId, payload: {} })).rejects.toMatchObject({ code: 'COMPACTION_FAILED' });
+    const usage = store.get<{ value: { compaction?: { candidates: Array<{ status: string; verdict: string | null; measuredBeforeBytes: number | null }> } } }>('usage', threadId);
+    const candidate = usage?.value.compaction?.candidates[0];
+    expect(candidate).toMatchObject({ status: 'FAILED', verdict: 'FAILED' });
+    expect(candidate?.measuredBeforeBytes).toBeNull();
+    expect(store.get('thread', threadId)).toMatchObject({ status: 'ready', runId: null });
+  } finally {
+    __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
+    await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
+  }
+});

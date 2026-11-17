@@ -603,3 +603,37 @@ it('does not verify an execution when a bound failure falls outside the displaye
   expect(requirement).toMatchObject({grade:'REPORTED',freshness:'UNKNOWN',outcome:'UNVERIFIED_PARTIAL'});
   expect(evidence.items.find(item=>item.id==='verification-partial')).toMatchObject({outcome:'PARTIAL'});
 });
+
+
+it.each([
+  {entered: true, action: 'CANCEL'}, {entered: true, action: 'KEEP_CAPTURED'},
+  {entered: false, action: 'CANCEL'}, {entered: false, action: 'KEEP_CAPTURED'},
+] as const)('retains prior delivery uncertainty after resumed finalization fails ($entered, $action)', async ({entered, action}) => {
+  let failFinalize = false, finalizes = 0;
+  const f = fixture({requestContextEnabled: true, requestContextHooks: {finalize: async () => {finalizes++; if (failFinalize) throw Error('Resumed preparation failed'); return {sources: []};}}});
+  const workbench = f.workbench(), captured = await workbench.capture({commandId: 'prior-delivery-capture', source: f.source});
+  await f.send('prior-delivery-input', [captured.ref]); await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  if (entered) f.event({...f.starts[0], type: 'input.processing', inputIds: ['prior-delivery-input']});
+  expect(f.store.get('outbox', 'prior-delivery-input')).toMatchObject({runId: f.starts[0].runId, enteredRuntime: entered});
+  await f.service.command({id: 'stop-prior-delivery', type: 'run.stop', threadId: f.thread.id, payload: {}});
+  failFinalize = true;
+  await f.service.command({id: 'resume-prior-delivery', type: 'run.resume', threadId: f.thread.id, payload: {modelId: 'test/model'}});
+  await vi.waitFor(() => expect(f.service.thread(f.thread.id).status).toBe('interrupted'));
+  expect(finalizes).toBe(2); expect(f.starts).toHaveLength(1); expect(f.followUps).toEqual([]);
+  expect(f.store.get('outbox', 'prior-delivery-input')).toMatchObject({runId: expect.any(String), sourceRefs: [captured.ref]});
+  expect((await workbench.inputs(f.thread.id)).inputs).toEqual([expect.objectContaining({inputId: 'prior-delivery-input', canCancel: false, canKeepCaptured: false})]);
+  await expect(workbench.recoverInput({commandId: 'unsafe-prior-recovery', logicalOwner: f.owner, inputId: 'prior-delivery-input', action})).rejects.toMatchObject({code: 'INPUT_RECOVERY_UNAVAILABLE'});
+  expect(f.store.get('outbox', 'prior-delivery-input')).toMatchObject({status: 'processing', sourceRefs: [captured.ref]});
+});
+
+it.each(['CANCEL', 'KEEP_CAPTURED'] as const)('allows %s recovery after a first finalization fails before runtime', async action => {
+  const f = fixture({requestContextEnabled: true, requestContextHooks: {finalize: async () => {throw Error('Initial preparation failed');}}});
+  const workbench = f.workbench(), captured = await workbench.capture({commandId: 'never-delivered-capture', source: f.source});
+  await f.send('never-delivered-input', [captured.ref]);
+  await vi.waitFor(() => expect(f.service.thread(f.thread.id).status).toBe('interrupted'));
+  expect(f.starts).toEqual([]); expect(f.followUps).toEqual([]);
+  expect(f.store.get('outbox', 'never-delivered-input')).toMatchObject({runId: null, enteredRuntime: false});
+  expect((await workbench.inputs(f.thread.id)).inputs).toEqual([expect.objectContaining({inputId: 'never-delivered-input', canCancel: true, canKeepCaptured: true})]);
+  expect(await workbench.recoverInput({commandId: 'safe-first-recovery', logicalOwner: f.owner, inputId: 'never-delivered-input', action})).toMatchObject({result: {inputId: 'never-delivered-input', action, resumeRequired: action === 'KEEP_CAPTURED'}});
+  expect(f.starts).toEqual([]); expect(f.followUps).toEqual([]);
+});
