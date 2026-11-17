@@ -1,3 +1,4 @@
+import {VERIFICATION_PREPARE} from './verification-tools.ts';
 import { HarnessError } from "../contracts/index.ts";
 import {
   actorRoleSchema,
@@ -47,6 +48,7 @@ const CLASSIFICATION: Row[] = [
   ["ui_close", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["task_finish", "WORKSPACE_WRITE", "NONREPLAYABLE", ["run", "side", "planning_child"], "store", "none"],
   ["verification_declare", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
+  ["verification_prepare", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain-prepare", "operation"],
   ["task_memory", "WORKSPACE_WRITE", "PROVIDER_IDEMPOTENT", RUN, "store", "none"],
   ["plan_update", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
   ["agent_progress", "WORKSPACE_WRITE", "NONREPLAYABLE", ["planning_child"], "store", "none"],
@@ -76,7 +78,7 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
-  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
+  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, VERIFICATION_PREPARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
   if (schema) return z.toJSONSchema(schema) as Record<string, unknown>;

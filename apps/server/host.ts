@@ -7,7 +7,7 @@ import {createRuntime} from '../../packages/runtime/index.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
 import {acquireProfileLease,type ProfileLease} from './profile-lease.ts';
-import {createHermesService} from './hermes-service.ts';
+import {createHermesService,type HermesHostCapabilities} from './hermes-service.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
 import {AttentionRepository} from '../../packages/core/attention.ts';
 import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
@@ -19,13 +19,13 @@ import {checkInstalledCompatibility} from '../../packages/plugins/installation.t
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 import {configureHostCapabilityFlags,readCapabilityFlagOverrides,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
 
-export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>}
+export interface HostOptions extends HermesHostCapabilities {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>}
 export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
  createRuntime:typeof createRuntime;
- createService(store:Store,runtime:ReturnType<typeof createRuntime>):Service;
+ createService(store:Store,runtime:ReturnType<typeof createRuntime>,capabilities?:HermesHostCapabilities):Service;
  buildServer:typeof buildServer;
  buildWidgetServer:typeof buildWidgetServer;
  loadPlugins:typeof loadInstalledPlugins;
@@ -70,7 +70,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  try {
   profile=make.acquireProfile(resolve(options.dataDir));
   releaseCapabilities=configureHostCapabilityFlags(options.capabilityFlags);
-  store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime);
+  store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime,{verificationExecutor:options.verificationExecutor});
   const pluginRoot=resolve(options.pluginDir??process.env.HARNESS_PLUGIN_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenV1','plugins'));
   const version=JSON.parse(await readFile(fileURLToPath(new URL('../../package.json',import.meta.url)),'utf8')).version as string;
   try{plugins=await make.loadPlugins(pluginRoot,version);}catch{pluginLoadFailed=true;}

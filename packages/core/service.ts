@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
@@ -45,13 +46,18 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
-import { computeAssessment } from "./verification-gate.ts";
-import { sourceDigestSync } from "./project-verification.ts";
+import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
+import {VerificationWorkflow, isVerificationOperation, assertVerificationReadBasis, type VerificationReadBasis} from "./verification-workflow.ts";
+import {VerificationQa, type VerificationQaRuntimeFactory} from "./verification-qa.ts";
+import {VerificationRepair, type PreparedRepair} from './verification-repair.ts';
+import {verificationPanelModel, type VerificationPanelModel} from './verification-read-models.ts';
+import type {VerificationExecutorFactory} from "./verification-executor.ts";
+import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, ownerFor, actionCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
@@ -94,6 +100,9 @@ export interface ServiceOptions {
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  /** Trusted host composition only. Never accepted from model or UI input. */
+  verificationExecutor?:VerificationExecutorFactory;
+  verificationQaRuntimeFactory?:VerificationQaRuntimeFactory;
 }
 export class Service {
   readonly sourceWorkbench: SourceWorkbench;
@@ -136,6 +145,10 @@ export class Service {
   private readonly authority:ToolAuthority;
   private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
+  private readonly verificationEffects:ToolEffectLedger;
+  private readonly verification:VerificationWorkflow;
+  private readonly verificationQa:VerificationQa;
+  private readonly verificationRepair:VerificationRepair;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
@@ -231,6 +244,7 @@ export class Service {
     this.controlConsent = new BrowserConsentHost(store, {registry: hostControlDriverRegistry});
     this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
       requestContextEnabled: () => this.requestContextEnabled(),
+      readVerificationBasis: threadId => this.readVerificationBasis(threadId),
       readMemoryModule: async owner => {
         const memory = this.projectMemory, access = await memory.access(owner.projectId, owner.threadId), view = memory.read(access);
         return {state: !view.available ? 'DISABLED' : view.items.length || view.tombstones.length ? 'AVAILABLE' : 'EMPTY', reason: view.available ? null : view.disabledReason,
@@ -240,18 +254,22 @@ export class Service {
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    this.verificationEffects=new ToolEffectLedger(store,this.authority,createToolEffectFlags({"audit.effectsV1":true,"security.authorityV1":true}));
+    this.verification=new VerificationWorkflow(store,options.verificationExecutor);
+    this.verificationRepair=new VerificationRepair(store,this.verification);
+    this.verificationQa=new VerificationQa({store,work:()=>this.agentWork,runtimeFactory:options.verificationQaRuntimeFactory});
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
     this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
-    // M09: typed multi-agent work. No registered M08 managed-worktree profile
-    // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
-    // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
-    // read-only through the restricted resolver below.
+    // The verification role receives an exact live M02 proof and a separate
+    // restricted runtime. Other roles retain their existing activation gates.
     this.planExtensions=new PlanExtensionStore({store});
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
+      qaEnabled:()=>this.verificationQa.available(),roleProofs:{qa:(ctx,admission)=>this.verificationQa.proof(ctx,admission)},roleHandlers:{qa:(call,work)=>this.verificationQa.handle(call,work)},
+      observedUsage:work=>this.verificationQa.observedUsage(work),
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
-      runtimeFactory:options.agentWorkRuntimeFactory});
+      runtimeFactory:(work,spec)=>work.role==='QA'?this.verificationQa.child(work,spec):options.agentWorkRuntimeFactory?.(work,spec)??{supportsLiveSteer:false,send:async()=>{},cancel:async()=>{},dispose:async()=>{}}});
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
@@ -854,6 +872,7 @@ export class Service {
     };
   }
   async command(command: HostCommand): Promise<CommandReceipt> {
+    if (command.type === 'verification.prepare' || command.type === 'verification.rerun' || command.type.startsWith('verification.repair.')) return this.commandAdmitted(structuredClone(command));
     if (command.type !== 'message.send') return this.commandAdmitted(command);
     const accepted = this.store.receipt(command); if (accepted) return accepted;
     const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
@@ -955,6 +974,19 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type === 'verification.repair.stop') {
+      const receipt=this.store.command(command,()=>this.verificationRepair.stop(thread.id,p));
+      this.verificationRepair.cancelOwned((receipt.result as {planId:string}).planId);return receipt;
+    }
+    if (command.type === 'verification.repair.start' || command.type === 'verification.repair.next') {
+      const repair=this.verificationRepair.prepare(ownerFor(thread),command.type==='verification.repair.start'?'start':'next',p);
+      await this.prepareVerification(thread.id,repair.input,undefined,command,repair);return this.store.receipt(command)!;
+    }
+    if (command.type === 'verification.prepare' || command.type === 'verification.rerun') {
+      const input = command.type === 'verification.rerun' ? this.verification.rerunInput(ownerFor(thread), p) : p;
+      await this.prepareVerification(thread.id, input, undefined, command);
+      return this.store.receipt(command)!;
+    }
     if (command.type.startsWith('agentWork.')) {
       const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
       return this.agentWorkCommand(ctx, command);
@@ -1109,15 +1141,16 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        if (isVerificationOperation(op)) {const intent=this.verification.assertApproval(op);this.verificationRepair.assertApproval(op,intent);}
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
-        if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
+        if (isVerificationOperation(op) || this.effectFlags.enabled("security.authorityV1")) { const approval = (isVerificationOperation(op) ? this.verificationEffects : this.effects).issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
       }
       case "operation.reject": {
         const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id || op.status !== "prepared" || op.revision !== p.revision) throw new HarnessError("STALE_REVISION", "This prepared operation is no longer available");
         const next: Operation = { ...op, status: "cancelled", approved: false };
-        this.store.put("operation", op.id, thread.id, next); this.operationData(next);
+        this.store.put("operation", op.id, thread.id, next); if(isVerificationOperation(next))this.verificationRepair.rejected(next); this.operationData(next);
         const input: Outbox = { id: command.id, threadId: thread.id, content: "The user declined prepared operation " + op.id + ": " + op.description, status: "persisted", runId: null };
         this.enqueueInput(input); return next;
       }
@@ -1641,7 +1674,8 @@ export class Service {
     let entered = false;
     const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
     let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
-      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
+      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute)
+      : call.name==="verification_prepare" ? this.verificationEffects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
     // A cached effect skips the domain guard. Its previous bytes cannot mint
     // fresh resource authority, including when the old result was small.
     if (readRetryable && !entered && !publicCatalog) result = rangeRead
@@ -1692,6 +1726,7 @@ export class Service {
       catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
     }
     if (call.name === "ui_discover") return discoverCapabilities(args);
+    if (call.name === "verification_prepare") return this.prepareVerification(ctx.threadId, args, ctx);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
@@ -1720,6 +1755,7 @@ export class Service {
         throw error;
       }
     }
+    const verificationBasis = call.name === "task_finish" ? await this.readVerificationBasis(ctx.threadId) : null;
     const widget = call.name === "ui_create_widget" ? widgetDefinition(a) : null;
     this.assertRun(ctx);
     const apply = () => {
@@ -1770,6 +1806,8 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        if (this.store.get("verificationManaged", ctx.threadId)) throw new HarnessError("APPROVAL_REQUIRED", "Managed verification requirements can only change through a new exact recipe approval.");
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }
@@ -1780,7 +1818,7 @@ export class Service {
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
         if (hostFlagEnabled("verification.workflowV1")) {
-          const assessment = this.completionAssessment(ctx, call);
+          const assessment = this.completionAssessment(ctx, call, verificationBasis);
           if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
         }
         return { accepted: true, settlesAfterRuntime: true };
@@ -1793,12 +1831,13 @@ export class Service {
    * task_finish store transaction — no awaits. Verified only when every
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
-  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+  private completionAssessment(ctx: RunContext, call: ToolCall, basis: VerificationReadBasis | null): DeliverableAssessmentV1 | null {
+    const thread = this.assertRun(ctx);
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
       ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
       ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
-    ];
+    ].filter(observation => observationMatchesThreadOwner(observation, thread));
     if (!declaration && !observations.length) return null;
     // When effect auditing wraps task_finish, the ledger admits this very call
     // as DISPATCHED and settles it only after the body returns. That record is
@@ -1810,23 +1849,111 @@ export class Service {
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    const managed = Boolean(this.store.get("verificationManaged", ctx.threadId));
+    let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
-      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
-      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
+      try {
+        if (managed) assertVerificationReadBasis(this.store, ctx.threadId, basis);
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: basis?.environmentId ?? declaration.environmentId };
+        if (managed) assertVerificationReadBasis(this.store, ctx.threadId, basis);
+        sourceAvailable = true;
+      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
       const last = observations.at(-1)!;
       sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
     }
-    return computeAssessment({
+    const assessment = computeAssessment({
       threadId: ctx.threadId,
       sourceCut,
       requirements: declaration?.requirements ?? [],
       observations,
+      artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration?.requirements ?? []),
       unresolvedEffects,
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
+      recipeDigest: basis?.recipeDigest,
     });
+    if (!sourceAvailable) {
+      for (const requirement of assessment.requirements) {
+        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+        requirement.missing = [...requirement.missing, managed ? 'current approved execution authority or source inputs are unavailable' : 'current authorized source inputs are unavailable'].slice(0, 64);
+        if (managed && requirement.assessment === 'UNVERIFIED') requirement.assessment = 'BLOCKED';
+      }
+      if (assessment.label === 'VERIFIED' || managed && assessment.label === 'COMPLETED_UNVERIFIED') assessment.label = managed ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
+    }
+    return assessment;
+  }
+  private async readVerificationBasis(threadId: string): Promise<VerificationReadBasis | null> {
+    const signal = this.aborts.get(threadId)?.signal ?? new AbortController().signal;
+    return this.verification.readBasis(threadId, signal, () => {if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Verification evidence is unavailable while the host closes.');});
+  }
+  async verificationPanel(threadId: string): Promise<VerificationPanelModel> {
+    const basis = await this.readVerificationBasis(threadId);
+    return {...verificationPanelModel(this.store, threadId, basis), workflow: this.verificationRepair.view(threadId, this.verificationQa.available())};
+  }
+  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext, command?: HostCommand, repair?: PreparedRepair): Promise<Operation> {
+    const duplicate = command && this.store.receipt(command); if (duplicate) return duplicate.result as Operation;
+    this.assertMutation(threadId);
+    const assertPreparation = () => {
+      this.assertMutation(threadId); if (ctx) this.assertRun(ctx);
+      if (command && this.store.all<Operation>('operation', threadId).some(operation => isVerificationOperation(operation) && ['prepared', 'running', 'unknown'].includes(operation.status))) throw new HarnessError('VERIFICATION_BUSY', 'Resolve the outstanding verification operation before preparing another.');
+    };
+    assertPreparation();
+    const thread=ctx?this.assertRun(ctx):this.thread(threadId),owner=ownerFor(thread,ctx),control=this.aborts.get(threadId)??new AbortController();
+    this.aborts.set(threadId,control);this.retainController(control);
+    const assertCurrent=()=>{if(this.closed||this.updateClosing||control.signal.aborted||digest(ownerFor(this.thread(threadId)))!==digest(owner))throw new HarnessError('CANCELLED_RUN','Verification preparation lost its current owner.');};
+    try {
+      let args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
+      const existing = command && this.store.receipt(command); if (existing) return existing.result as Operation;
+      if(args.intent.qa)this.verificationQa.assertAvailable();
+      if(repair)args={intent:this.verificationRepair.bind(repair,args.intent)};
+      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.${intent.qa?' The QA token budget stops further actions after measured usage reaches its threshold; an in-flight model response may exceed the remaining amount. Its wall-time deadline and 32-tool-call bound are enforced by the host.':''}${intent.repair?` Repair attempt ${intent.repair.attempt} of at most 3, ending no later than ${intent.repair.deadline}; total QA token allocation ${intent.repair.budget.tokens}. Source edits require their own approval.`:''}`;
+      const operation:Operation={id:randomUUID(),threadId,revision:1,kind:'verification.run',args,resourceIds:[],preconditions:{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description,status:'prepared',approved:false,createdAt:now()};
+      const persist=()=>{assertCurrent();assertPreparation();this.store.put('operation',operation.id,threadId,operation);if(repair)this.verificationRepair.prepared(repair,operation);this.operationData(operation);return operation;};
+      return command?(this.store.command(command,persist).result as Operation):this.store.internal('operation.prepared',threadId,persist) as Operation;
+    } catch(error) {
+      const committed=command&&this.store.receipt(command);if(committed)return committed.result as Operation;if(repair)this.verificationRepair.preparationFailed(repair,error);throw error;
+    } finally {this.releaseController(threadId,control);}
+  }
+  private async executeVerificationOperation(op:Operation,control:AbortController):Promise<unknown> {
+    let admitted=false;
+    const invocationId='operation:'+op.id+'@'+op.revision;
+    const assertHost=()=>{if(this.closed||this.updateClosing||control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Verification execution was stopped.');};
+    try {
+      const prepared=await this.verification.preflight(op,control.signal,assertHost);assertHost();
+      this.verificationRepair.assertApproval(op,prepared.intent);
+      if(prepared.intent.qa)this.verificationQa.assertAvailable();
+      const thread=this.thread(op.threadId),approval=this.verificationEffects.approvalFor(op.id);
+      if(!approval||digest(approval.owner)!==digest(prepared.intent.owner))throw new HarnessError('APPROVAL_REQUIRED','The exact verification approval belongs to another owner.');
+      this.verificationEffects.verifyOperationApproval(op,thread);
+      this.verificationEffects.admitOperationDispatch(op,thread,()=>{
+        this.verificationRepair.admit(op,prepared.intent);
+        this.verification.admit(op,prepared);
+        const started:Operation={...op,status:'running'};this.store.put('operation',op.id,op.threadId,started);this.operationData(started);
+      });
+      admitted=true;
+      const current=()=>{
+        assertHost();const operation=this.store.get<Operation>('operation',op.id),effect=this.verificationEffects.get(invocationId),grant=this.store.get<import('../contracts/tool-effects.ts').ApprovalV1>('approval',approval.approvalId);
+        if(!operation||operation.status!=='running'||operation.revision!==op.revision||!operation.approved||digest(operation.args)!==digest(op.args)||effect?.state!=='DISPATCHED'||!grant||grant.remainingUses!==0||digest(grant.owner)!==digest(prepared.intent.owner)||grant.actionCommitment!==actionCommitment(op,this.thread(op.threadId)))throw new HarnessError('APPROVAL_REQUIRED','Verification operation authority changed after dispatch.');
+      };
+      const result=await this.verificationRepair.run(op,prepared.intent,control.signal,current,(signal,fence)=>prepared.intent.qa?this.verificationQa.run(op.id,prepared.intent,signal,fence,(qaSignal,qaFence)=>this.verification.run(prepared,qaSignal,qaFence)):this.verification.run(prepared,signal,fence));
+      const status:Operation['status']=result.cleanupFailures.length?'unknown':result.outcome==='PASS'?'succeeded':result.outcome==='CANCELLED'?'cancelled':'failed';
+      const state=status==='unknown'?'UNKNOWN_EXTERNAL_OUTCOME':status==='succeeded'?'SUCCEEDED':status==='cancelled'?'CANCELLED':'FAILED';
+      this.verificationEffects.settle(invocationId,{value:result},state);
+      if(!this.closed)this.store.internal('verification.operation.settled',op.threadId,()=>{
+        const ended:Operation={...op,status,result,...(status==='succeeded'?{}:{error:result.cleanupFailures.length?'Owned verification cleanup could not be confirmed.':'Verification finished with '+result.outcome.toLowerCase()+'.'})};
+        this.store.put('operation',op.id,op.threadId,ended);this.verification.recordResult(ended,prepared,result);this.verificationRepair.settled(ended,prepared.intent,result);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};
+      });
+      this.background(this.deliverOutbox(op.threadId));return result;
+    } catch(error) {
+      const status:Operation['status']=admitted?'unknown':'failed',message=error instanceof Error?error.message.slice(0,2000):'Verification execution was unavailable.';
+      if(!this.closed)this.store.internal('verification.operation.failed',op.threadId,()=>{const latest=this.store.get<Operation>('operation',op.id);if(!latest||latest.revision!==op.revision||digest(latest.args)!==digest(op.args)||!['prepared','running'].includes(latest.status))return{operationId:op.id,status:latest?.status??status};const ended:Operation={...op,status,error:message};this.store.put('operation',op.id,op.threadId,ended);this.verification.recordFailure(ended);this.verificationRepair.failed(ended,error);this.operationData(ended);this.enqueueOperationResult(ended);return{operationId:op.id,status};});
+      if(admitted&&this.verificationEffects.get(invocationId))this.verificationEffects.settle(invocationId,{error:message},'UNKNOWN_EXTERNAL_OUTCOME');
+      this.background(this.deliverOutbox(op.threadId));throw error;
+    }
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
@@ -1852,6 +1979,7 @@ export class Service {
     if (op.status !== "prepared") throw new HarnessError("RECONCILIATION_REQUIRED", "An operation is already running or has an uncertain outcome");
     this.assertMutation(op.threadId);
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
+    if (isVerificationOperation(op)) return this.executeVerificationOperation(op, control);
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
       this.effects.verifyOperationApproval(op, this.thread(op.threadId));
@@ -1969,7 +2097,8 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, input.threadId, { ...input, requestContextId:undefined, status: "persisted" });}
       return { inferenceCalls: 0 };
     });
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1") || this.store.all<ToolEffectRecord>("toolEffect").some(effect=>effect.toolId==="operation:verification.run"||effect.toolId==="verification_prepare")) recoverEffects(this.store);
+    this.verificationRepair.recover();
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();
@@ -1977,7 +2106,7 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.verificationQa.dispose(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
