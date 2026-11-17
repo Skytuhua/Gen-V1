@@ -11,6 +11,7 @@ import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts'
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
 import {createHash} from 'node:crypto';
 import {projectContextGrantDigest} from '../packages/core/approved-project-context.ts';
+import {REPOSITORY_MAP} from '../packages/core/repository-map-tool.ts';
 
 it('passes owned project instruction bytes only through the native system prefix and rejects changed active-turn instructions',async()=>{
  const f=await fixture({systemPrompt:'Host policy'}),input=run(),text='\nApproved project instructions: preserve the API.';
@@ -366,4 +367,25 @@ it('uses one owned snapshot for progressive discovery and denies premature and h
   __setCapabilityFlagForTests('tools.deferredV1',undefined);
   await f.runtime.dispose();
  }
+});
+
+it('admits the real repository-map schema only at the next frozen native request and dispatches its owned host call',async()=>{
+ const f=await fixture({hostTools:[REPOSITORY_MAP]});
+ const onTool=vi.fn(async()=>({files:[{path:'main.ts',mode:'PARSED',sha256:'a'.repeat(64),exports:[{name:'render',line:2}]}]}));
+ f.runtime.configure({onEvent:event=>f.events.push(event),onTool});
+ __setCapabilityFlagForTests('context.compilerV1',true);__setCapabilityFlagForTests('tools.deferredV1',true);
+ try{
+  await f.runtime.start(run());const ctx=f.start().ctx as Record<string,unknown>,args={resourceId:'project',paths:['main.ts']};
+  const call=(name:string,args:Record<string,unknown>)=>f.source().options.onHostCall!({id:name,name,args,ctx});
+  const before=await call('$context.tools.snapshot',{sequence:1}) as {names:string[];digest:string};
+  expect(before.names).not.toContain('repository_map');
+  expect(await call('context_discover_tools',{query:'repository_map'})).toEqual(expect.arrayContaining([expect.objectContaining({name:'repository_map'})]));
+  expect(await call('context_describe_tool',{name:'repository_map'})).toMatchObject({name:'repository_map',schema:REPOSITORY_MAP.parameters});
+  await expect(call('repository_map',args)).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
+  const after=await call('$context.tools.snapshot',{sequence:2}) as {names:string[];digest:string};
+  expect(after.names).toContain('repository_map');expect(after.digest).not.toBe(before.digest);
+  await expect(call('repository_map',args)).resolves.toMatchObject({files:[{path:'main.ts',sha256:'a'.repeat(64)}]});
+  expect(onTool).toHaveBeenCalledWith({name:'repository_map',args},expect.objectContaining({threadId:'thread',runId:'run',epoch:1}));
+  await f.settle();
+ }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);__setCapabilityFlagForTests('tools.deferredV1',undefined);await f.runtime.dispose();}
 });
