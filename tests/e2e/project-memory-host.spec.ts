@@ -275,3 +275,61 @@ test('the repeated-task runner preserves control custody and unknown spend throu
     }
   }
 });
+
+test('rejected proposals remain excluded from real submissions and survive host restart with their source intact', async ({ page, memoryHost }, info) => {
+  const { thread, proposed } = await createMemoryProject(page, memoryHost);
+  const row = () => review(page).getByRole('article', { name: `Memory ${proposed.id}`, exact: true });
+  await openReview(page);
+  await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
+  await row().getByRole('button', { name: `View source ${proposed.id} 1`, exact: true }).click();
+  await expect(review(page).getByRole('region', { name: 'Supporting source', exact: true }).locator('pre')).toHaveJSProperty('textContent', MEMORY_SOURCE);
+  await review(page).getByRole('button', { name: 'Close source', exact: true }).click();
+
+  const rejectedResponse = page.waitForResponse(response => {
+    if (!response.url().endsWith('/memory/actions') || response.request().method() !== 'POST') return false;
+    const body = response.request().postDataJSON() as { operation?: { action?: string; itemId?: string; baseRevision?: number } };
+    return body.operation?.action === 'reject' && body.operation.itemId === proposed.id && body.operation.baseRevision === proposed.revision;
+  });
+  const reject = row().getByRole('button', { name: `Reject ${proposed.id}`, exact: true });
+  await reject.focus(); await expect(reject).toBeFocused(); await reject.press('Enter');
+  expect((await rejectedResponse).status()).toBe(200);
+  await expect(row()).toHaveCount(0);
+  const rejected = (await memoryHost.memory(thread.id)).items.find(value => value.item.id === proposed.id)!.item;
+  expect(rejected).toMatchObject({ id: proposed.id, revision: 2, state: 'EXPIRED', text: MEMORY_CLAIM,
+    sourceRefs: proposed.sourceRefs, supersedes: [{ itemId: proposed.id, revision: 1 }], reviewDecision: { action: 'REJECT' } });
+  expect(Date.parse(rejected.expiresAt!)).toBeLessThanOrEqual(Date.now());
+  expect(memoryHost.store.get<{ item: typeof proposed }>('projectMemoryRevision', proposed.id + '@1')?.item).toEqual(proposed);
+  expect((await memoryHost.memory(thread.id)).tombstones).toEqual([]);
+  const writes = memoryHost.requests.filter(request => request.url.endsWith('/memory/actions') &&
+    (request.body as { operation?: { action?: string; itemId?: string } })?.operation?.action === 'reject');
+  expect(writes).toHaveLength(1);
+  expect(writes[0]).toMatchObject({ method: 'POST', status: 200, csrf: true,
+    body: { operation: { action: 'reject', itemId: proposed.id, baseRevision: 1 } } });
+  await review(page).getByRole('tab', { name: 'Accepted', exact: true }).click();
+  await expect(row()).toContainText('Expired · revision 2');
+  await review(page).getByRole('button', { name: 'Close dialog', exact: true }).click();
+
+  const prepared = await preview(page, memoryHost, thread.id, 'Explain SQLite persistence for this project.');
+  expect(prepared.items).toEqual([]); expect(prepared.injectedBytes).toBe(0);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Send message', exact: true }).click();
+  await expect.poll(() => memoryHost.runtime.deliveries.length).toBe(2);
+  expect(memoryHost.runtime.deliveries[1]!.requestContext?.requestId).toBe(prepared.requestId);
+  expect(memoryHost.runtime.deliveries[1]!.prompt).not.toContain(MEMORY_CLAIM);
+  await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+
+  await memoryHost.restart(); await page.reload(); await expect(composer(page)).toBeVisible();
+  await openReview(page);
+  await expect(row()).toContainText('Expired · revision 2');
+  expect((await memoryHost.memory(thread.id)).items.find(value => value.item.id === proposed.id)?.item).toEqual(rejected);
+  await row().getByRole('button', { name: `View source ${proposed.id} 1`, exact: true }).click();
+  await expect(review(page).getByRole('region', { name: 'Supporting source', exact: true }).locator('pre')).toHaveJSProperty('textContent', MEMORY_SOURCE);
+  await page.screenshot({ path: info.outputPath('memory-host-rejected-restart.png'), fullPage: true });
+  await review(page).getByRole('button', { name: 'Close dialog', exact: true }).click();
+  const restored = await preview(page, memoryHost, thread.id, 'Check SQLite persistence after rejecting and restarting.');
+  expect(restored.items).toEqual([]); expect(restored.injectedBytes).toBe(0);
+  expect(restored.requestId).not.toBe(prepared.requestId);
+  await info.attach('rejected-memory-receipt', { body: Buffer.from(JSON.stringify({ rejected, preparedRequestId: prepared.requestId,
+    restoredRequestId: restored.requestId, rejectedWrites: writes.length,
+    scope: 'Actual App, HTTP/CSRF, Service, SQLite and host restart with scripted foreground/extraction adapters. No live-provider or installed-desktop claim.' }, null, 2)), contentType: 'application/json' });
+});
