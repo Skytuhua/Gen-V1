@@ -35,23 +35,45 @@ const LABEL_TEXT: Record<NonNullable<Model['label']>, string> = {
 
 function outcomeClass(outcome: string, freshness: Row['freshness']): string {
   if (freshness === 'STALE') return 'verification-outcome stale';
-  if (outcome === 'PASS' || outcome === 'VERIFIED') return 'verification-outcome pass';
+  if ((outcome === 'PASS' || outcome === 'VERIFIED') && freshness === 'CURRENT') return 'verification-outcome pass';
   if (outcome === 'FAIL' || outcome === 'FAILED') return 'verification-outcome fail';
   return 'verification-outcome other';
 }
 
 export function VerificationPanel({ threadId }: { threadId: string }) {
-  const [model, setModel] = useState<Model | null>(null);
+  return <VerificationReadPanel key={threadId} threadId={threadId} />;
+}
+
+function VerificationReadPanel({ threadId }: { threadId: string }) {
+  const [state, setState] = useState<{threadId: string; model: Model | null; unavailable: boolean} | null>(null);
   useEffect(() => {
-    let cancelled = false;
-    const load = () => authenticated(() => fetch(`/api/threads/${encodeURIComponent(threadId)}/verification`, { credentials: 'same-origin', cache: 'no-store' }))
-      .then(read<{ verification: Model }>)
-      .then(body => { if (!cancelled) setModel(body.verification); })
-      .catch(() => {});
-    load();
-    const timer = setInterval(load, 4000);
-    return () => { cancelled = true; clearInterval(timer); };
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = async () => {
+      try {
+        const response = await authenticated(() => fetch(`/api/threads/${encodeURIComponent(threadId)}/verification`, {
+          credentials: 'same-origin', cache: 'no-store', signal: controller.signal,
+        }));
+        const body = await read<{verification: Model}>(response);
+        if (!controller.signal.aborted) setState({threadId, model: body.verification, unavailable: false});
+      } catch {
+        if (!controller.signal.aborted) setState({threadId, model: null, unavailable: true});
+      } finally {
+        // One read owns the next poll. A slower old response cannot replace a
+        // newer source result, and a hidden owner has no outstanding request.
+        if (!controller.signal.aborted) timer = setTimeout(() => void load(), 4000);
+      }
+    };
+    void load();
+    return () => { controller.abort(); clearTimeout(timer); };
   }, [threadId]);
+  // Render-time ownership matters: effects run after the newly selected owner
+  // renders, so resetting state in an effect alone can show the prior result.
+  const current = state?.threadId === threadId ? state : null;
+  const model = current?.model;
+  if (current?.unavailable) return <section className="verification-panel" aria-label="Verification">
+    <p role="status">Verification unavailable. The current evidence could not be refreshed.</p>
+  </section>;
   if (!model || (!model.label && !model.rows.length)) return null;
   return (
     <section className="verification-panel" aria-label="Verification">

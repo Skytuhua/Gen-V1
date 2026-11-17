@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ContextInspector, type ContextCompactionReport } from '../../apps/web/src/ContextInspector';
 import { UsageDialog } from '../../apps/web/src/UsageDialog';
 import { UsageFooter } from '../../apps/web/src/UsageFooter';
+import { VerificationPanel } from '../../apps/web/src/VerificationPanel';
 import type { UsageProviderReport } from '../../apps/web/src/usage-presentation';
 import type { ModelRequestObservationV1 } from '../../packages/contracts/model-request';
 import { EMPTY_USAGE, type Thread } from '../../packages/contracts';
@@ -75,4 +76,12 @@ function Fixture() {
       onRefresh={async () => { if (mode === 'refresh-error') throw Error('Synthetic refresh failure'); }} />
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<Fixture />);
+function VerificationFixture() {
+  const [threadId, setThreadId] = useState('thread-one');
+  return <main style={{padding: 12}}>
+    <button onClick={() => setThreadId('thread-one')}>First conversation</button>
+    <button onClick={() => setThreadId('thread-two')}>Second conversation</button>
+    <VerificationPanel threadId={threadId} />
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('verification') ? <VerificationFixture /> : <Fixture />);

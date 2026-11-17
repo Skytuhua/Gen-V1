@@ -7,10 +7,85 @@ const update = async (page: Page, action: string) => {
 };
 const context = (page: Page) => page.getByRole('dialog', { name: 'Context inspector' });
 const usage = (page: Page) => page.getByRole('dialog', { name: 'Usage', exact: true });
+const verification = (page: Page) => page.getByRole('region', {name: 'Verification', exact: true});
+const verificationResult = (requirement: string, freshness = 'CURRENT') => ({verification: {
+  label: 'VERIFIED', staleBanner: false,
+  summary: {verified: 1, failed: 0, unverified: 0, blocked: 0, missing: []},
+  rows: [{requirement, checkId: 'check-one', check: 'node verify.js', phase: 'TEST', sourceRevision: 'abc123', outcome: 'PASS', freshness, verifier: 'execution-one', evidence: [], missing: []}],
+}});
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route(url => url.pathname === '/usage-context', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="dark" data-native-titlebar="true"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>` }));
   await page.route('**/api/bootstrap', route => route.fulfill({ json: { csrfToken: 'synthetic' } }));
+});
+test('verification hides previous-owner evidence while the newly selected conversation loads', async ({page}) => {
+  let release: (() => Promise<void>) | undefined;
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: verificationResult('Private first requirement')}));
+  await page.route('**/api/threads/thread-two/verification', route => {release = () => route.fulfill({json: verificationResult('Second requirement')});});
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Private first requirement');
+  await page.getByRole('button', {name: 'Second conversation', exact: true}).click();
+  await expect.poll(() => Boolean(release)).toBe(true);
+  await expect(page.getByText('Private first requirement', {exact: true})).toHaveCount(0);
+  await release!();
+  await expect(verification(page)).toContainText('Second requirement');
+});
+test('verification rereads a revisited conversation before displaying its previous evidence', async ({page}) => {
+  let reads = 0, release: (() => Promise<void>) | undefined;
+  await page.route('**/api/threads/thread-one/verification', route => {
+    if (++reads === 1) return route.fulfill({json: verificationResult('Previous first evidence')});
+    release = () => route.fulfill({json: verificationResult('Current first evidence')});
+  });
+  await page.route('**/api/threads/thread-two/verification', () => {});
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Previous first evidence');
+  await page.getByRole('button', {name: 'Second conversation', exact: true}).click();
+  await page.getByRole('button', {name: 'First conversation', exact: true}).click();
+  await expect.poll(() => Boolean(release)).toBe(true);
+  await expect(page.getByText('Previous first evidence', {exact: true})).toHaveCount(0);
+  await release!();
+  await expect(verification(page)).toContainText('Current first evidence');
+});
+test('verification refresh failure removes the current-success label and reports unavailable evidence', async ({page}) => {
+  let reads = 0;
+  await page.route('**/api/threads/thread-one/verification', route => ++reads === 1
+    ? route.fulfill({json: verificationResult('Build passes')})
+    : route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Verification read failed.'}}}));
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Build passes');
+  await expect(verification(page).getByText('Verified', {exact: true})).toBeVisible();
+  await expect.poll(() => reads, {timeout: 7000}).toBeGreaterThan(1);
+  await expect(verification(page).getByRole('status')).toContainText('Verification unavailable');
+  await expect(verification(page).getByText('Verified', {exact: true})).toHaveCount(0);
+  await expect(verification(page).locator('.verification-outcome.pass')).toHaveCount(0);
+});
+test('verification does not overlap polling reads or replace newer evidence with an older response', async ({page}) => {
+  let reads = 0, release: (() => Promise<void>) | undefined;
+  const requested: string[] = [];
+  page.on('request', request => { if (request.url().endsWith('/verification')) requested.push(request.url()); });
+  await page.clock.install();
+  await page.route('**/api/threads/thread-one/verification', route => {
+    reads++;
+    if (reads === 1) return route.fulfill({json: verificationResult('Initial evidence')});
+    release = () => route.fulfill({json: verificationResult('Refreshed evidence')});
+  });
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('Initial evidence');
+  await page.clock.runFor(4000);
+  await expect.poll(() => Boolean(release), {timeout: 7000}).toBe(true);
+  // More polling intervals must not create another read while the response is held.
+  await page.clock.runFor(8000);
+  expect(requested).toHaveLength(2);
+  await release!();
+  await expect(verification(page)).toContainText('Refreshed evidence');
+});
+test('verification does not color a historical pass green when freshness is indeterminate', async ({page}) => {
+  await page.route('**/api/threads/thread-one/verification', route => route.fulfill({json: {
+    verification: {...verificationResult('Unavailable source', 'INDETERMINATE').verification, label: 'COMPLETED_UNVERIFIED'},
+  }}));
+  await page.goto('/usage-context?verification');
+  await expect(verification(page)).toContainText('INDETERMINATE');
+  await expect(verification(page).locator('.verification-outcome.pass')).toHaveCount(0);
 });
 test('a token decrease after a command acknowledgement is not a compaction receipt', async ({ page }) => {
   const commands: { type: string; threadId: string }[] = [];
