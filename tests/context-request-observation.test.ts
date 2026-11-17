@@ -6,6 +6,7 @@ import { Service } from '../packages/core/service';
 import { Store } from '../packages/storage/store';
 import { capabilityEnabled, M04_FLAG_KEYS, __setCapabilityFlagForTests } from '../packages/core/capability-flags';
 import type { RequestContextV1, RuntimeAdapter, RuntimeCallbacks } from '../packages/contracts';
+import { createInferenceBudgetLedger } from '../packages/runtime-hermes/context-budget';
 
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const close of cleanup.splice(0)) await close(); });
@@ -28,10 +29,21 @@ it('only projects minimal, current request observations under the host flag', as
     ...ctx, type: 'context.request', sequence, promptBytes: 13, knownInputs: 1, provider: 'hermes', rawText: 'synthetic private text', ...patch,
   });
   const observed = () => (store.get<{ value: { lastRequest?: unknown } }>('usage', ctx.threadId)?.value)?.lastRequest;
+  const budget = createInferenceBudgetLedger(null).preview({ sequence: 4, inputIds: ['input'], phase: 'foreground' }, 13);
+  const observedBudget = () => store.get<{ value: { inferenceBudget?: unknown } }>('usage', ctx.threadId)?.value?.inferenceBudget;
   expect(M04_FLAG_KEYS.map(key => capabilityEnabled(key))).toEqual([false, false, false, false]);
   emit(1);
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget });
   expect(observed()).toBeUndefined();
+  expect(observedBudget()).toBeUndefined();
   __setCapabilityFlagForTests('context.compilerV1', true);
+  callbacks.onEvent({ ...ctx, epoch: 3, type: 'context.budget', provider: 'hermes', budget });
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget: { ...budget, rawText: 'synthetic private text' } });
+  expect(observedBudget()).toBeUndefined();
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget });
+  callbacks.onEvent({ ...ctx, type: 'context.budget', provider: 'hermes', budget: { ...budget, sequence: 3 } });
+  callbacks.onEvent({ ...ctx, type: 'usage', usage: { inferenceBudget: { rawText: 'synthetic private text' } } });
+  expect(observedBudget()).toEqual({ ...ctx, budget });
   emit(4, { epoch: 3 }); expect(observed()).toBeUndefined();
   emit(4, { promptBytes: -1 }); expect(observed()).toBeUndefined();
   emit(4); emit(3);

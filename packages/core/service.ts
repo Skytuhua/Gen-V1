@@ -57,7 +57,7 @@ import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
-import { nativeContextProjectionSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1, type CompactionProjectionV1 } from '../contracts/request-context.ts';
+import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1, type CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
@@ -1474,7 +1474,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
-    if (event.type === 'context.request' && !capabilityEnabled('context.compilerV1')) return;
+    if (['context.request','context.budget'].includes(event.type) && !capabilityEnabled('context.compilerV1')) return;
     if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
     if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
     // Preserve event order: buffered deltas precede every other commit here.
@@ -1528,6 +1528,12 @@ export class Service {
         // snapshot instead of re-fetching it for every streamed chunk.
         return { runId: event.runId, message };
       }
+      if (event.type === 'context.budget') {
+        const parsed=inferenceBudgetSchema.safeParse(event.budget),old=this.store.get<{value:RuntimeUsage}>('usage',thread.id)?.value??EMPTY_USAGE;
+        if(!parsed.success||event.provider!=='hermes'||old.inferenceBudget?.runId===event.runId&&old.inferenceBudget.epoch===event.epoch&&old.inferenceBudget.budget.sequence>=parsed.data.sequence)return{runId:event.runId};
+        const inferenceBudget={threadId:thread.id,runId:event.runId,epoch:event.epoch,budget:parsed.data},usage={...old,inferenceBudget};
+        this.store.put('usage',thread.id,thread.id,{id:thread.id,value:usage});return{runId:event.runId,usage};
+      }
       if (event.type === 'context.request') {
         const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
         const { sequence, promptBytes, knownInputs } = event;
@@ -1556,7 +1562,7 @@ export class Service {
           this.relevanceObserver.forget(thread.id);
           if (lastRequest) { const { relevance: _retired, ...retained } = lastRequest; lastRequest = retained; }
         }
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest, inferenceBudget: old.inferenceBudget, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }

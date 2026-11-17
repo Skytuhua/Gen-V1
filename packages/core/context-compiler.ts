@@ -32,11 +32,23 @@ export function calculateNextContextBudget(input: {
   observedInputTokens: number; cacheReadSubsetTokens: number;
   newUnreportedToolTokens: number; reservedOutputTokens: number;
   turnNeedsAnotherRequest: boolean; contextWindowTokens?: number;
-}): { requiredTokens: number; shouldConsiderCompaction: boolean } {
-  const observed = measuredCount(input.observedInputTokens), cached = measuredCount(input.cacheReadSubsetTokens);
-  if (cached > observed) throw new RangeError('Cached input must be a subset of measured input');
-  const requiredTokens = measuredCount(observed + measuredCount(input.newUnreportedToolTokens) + measuredCount(input.reservedOutputTokens));
-  const overBudget = input.contextWindowTokens !== undefined && requiredTokens > measuredCount(input.contextWindowTokens);
+}): { requiredTokens: number; shouldConsiderCompaction: boolean };
+export function calculateNextContextBudget(input: {
+  observedInputTokens: number | null; cacheReadSubsetTokens: number | null;
+  newUnreportedToolTokens: number | null; reservedOutputTokens: number | null;
+  turnNeedsAnotherRequest: boolean; contextWindowTokens?: number | null;
+}): { requiredTokens: number | null; shouldConsiderCompaction: boolean | null };
+export function calculateNextContextBudget(input: {
+  observedInputTokens: number | null; cacheReadSubsetTokens: number | null;
+  newUnreportedToolTokens: number | null; reservedOutputTokens: number | null;
+  turnNeedsAnotherRequest: boolean; contextWindowTokens?: number | null;
+}): { requiredTokens: number | null; shouldConsiderCompaction: boolean | null } {
+  const count = (value: number | null) => value === null ? null : measuredCount(value);
+  const observed = count(input.observedInputTokens), cached = count(input.cacheReadSubsetTokens), tools = count(input.newUnreportedToolTokens), reserve = count(input.reservedOutputTokens);
+  if (observed !== null && cached !== null && cached > observed) throw new RangeError('Cached input must be a subset of measured input');
+  const requiredTokens = observed === null || tools === null || reserve === null ? null : measuredCount(observed + tools + reserve);
+  const window = input.contextWindowTokens === undefined ? undefined : count(input.contextWindowTokens);
+  const overBudget = window === undefined ? false : requiredTokens === null || window === null ? null : requiredTokens > window;
   return { requiredTokens, shouldConsiderCompaction: input.turnNeedsAnotherRequest && overBudget };
 }
 
