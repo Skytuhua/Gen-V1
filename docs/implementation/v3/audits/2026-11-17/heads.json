@@ -7,12 +7,14 @@
     {
       "pr": 591,
       "sha": "9eb6fc80b83641cf3a70b66d9f7fb18e5b24f6e5",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "fe4973141013d839c26c3e4769670b49d39de07a"
     },
     {
       "pr": 598,
       "sha": "fdf68a2bb376e825c9e29f9eb6950634274433ed",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "fe4973141013d839c26c3e4769670b49d39de07a"
     },
     {
       "pr": 625,

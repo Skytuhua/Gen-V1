@@ -45,7 +45,7 @@ try {
   const prs = new Set(), shas = new Set();
   for (const head of manifest.heads) {
     requireValue(Number.isSafeInteger(head.pr) && head.pr > 0 && !prs.has(head.pr)
-      && isSha(head.sha) && !shas.has(head.sha), 'Invalid or duplicate repair head.');
+      && isSha(head.sha) && !shas.has(head.sha) && (!head.branchBaseSha || isSha(head.branchBaseSha)), 'Invalid or duplicate repair head.');
     prs.add(head.pr); shas.add(head.sha);
   }
   requireValue(Array.isArray(manifest.tests) && manifest.tests.length > 0 && manifest.tests.length <= 64
@@ -57,7 +57,14 @@ try {
   for (const sha of new Set([manifest.auditAncestorSha, manifest.baseSha, ...manifest.heads.map(head => head.sha)]))
     git('fetch', '--no-tags', 'origin', sha);
   git('merge-base', '--is-ancestor', manifest.auditAncestorSha, manifest.baseSha);
-  for (const head of manifest.heads) git('merge-base', '--is-ancestor', manifest.auditAncestorSha, head.sha);
+  for (const head of manifest.heads) {
+    // Earlier reviewed PRs can branch before this audit cut. Their declared base
+    // must be the actual common ancestor and already belong to the pinned base.
+    const branchBase = head.branchBaseSha ?? manifest.auditAncestorSha;
+    git('merge-base', '--is-ancestor', branchBase, manifest.baseSha);
+    requireValue(git('merge-base', manifest.auditAncestorSha, head.sha) === branchBase,
+      'Repair head does not descend from its declared reviewed base: #' + head.pr);
+  }
   git('checkout', '--detach', manifest.baseSha);
   for (const head of manifest.heads) {
     console.log('M01_M03_MERGE=' + JSON.stringify(head));
