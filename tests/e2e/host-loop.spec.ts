@@ -7,6 +7,53 @@ import { GENERATED_APPS_ENABLED } from '../../packages/core/widgets.ts';
 // Integration verification only. No route interception, mocked fetch/EventSource,
 // real-provider calls, user projects, production setup data, or shell effects.
 const notes = (page: Page) => page.getByRole('textbox', { name: 'Review notes' });
+
+test('trusted catalog rejects broken and oversized updates, then supports a real repaired action, focus, reload and cancellation', async ({ page, host }, info) => {
+  await openHost(page); await sendFixture(page, 'document');
+  const original = host.artifact('structured'), owner = { ...host.runtime.activeRunContext! };
+  const broken = { root: 'run', elements: { run: { type: 'Button', props: { label: 'Run checked action', actionId: 'undeclared-check' } } } };
+  // Exercise the actual Service admission boundary, without poisoning the
+  // scripted runtime's health observer with an intentional negative fixture.
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: broken, actions: {} } }, owner)).rejects.toMatchObject({ code: 'INVALID_SPEC' });
+  expect(host.artifact('structured')).toEqual(original);
+  await expect(notes(page)).toBeVisible();
+  const oversized = documentSpec(); oversized.elements.document.props.text = 'x'.repeat(128 * 1024);
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: oversized } }, owner)).rejects.toMatchObject({ code: 'INVALID_SPEC' });
+  expect(host.artifact('structured')).toEqual(original);
+
+  const repaired = documentSpec();
+  repaired.elements.document.props.text = Array.from({ length: 90 }, (_, index) => `## Observation ${index + 1}\n\nRetained source-backed fixture detail for observation ${index + 1}.`).join('\n\n') + '\n\nFinal retained observation.';
+  repaired.elements.action.props.label = 'Run checked action';
+  const accepted = await host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: repaired, actions: { continue: { kind: 'agent', prompt: 'Continue source review' } } } }, owner) as { artifactId: string; revision: number };
+  expect(accepted).toMatchObject({ artifactId: original.id, revision: original.revision + 1 });
+  const artifact = region(page, 'Evidence document');
+  await expect(artifact.getByText('Final retained observation.', { exact: true })).toBeAttached();
+  await notes(page).fill('Keep the reviewed draft through reload and cancellation.');
+  await expect(notes(page)).toBeFocused();
+  await expect.poll(() => host.snapshot().userStates.find(state => state.id === original.stateId)?.values.note).toBe('Keep the reviewed draft through reload and cancellation.');
+  await expect(artifact.getByRole('button', { name: 'Saved', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(notes(page)).toHaveValue('Keep the reviewed draft through reload and cancellation.');
+  await expect(artifact.getByText('Final retained observation.', { exact: true })).toBeAttached();
+  const before = host.runtime.deliveries.length;
+  await artifact.getByRole('button', { name: 'Run checked action', exact: true }).click();
+  await expect.poll(() => host.runtime.deliveries.length).toBe(before + 1);
+  expect(host.runtime.deliveries.at(-1)?.method).toBe('followUp');
+  expect(host.commands.filter(command => command.type === 'action.submit')).toHaveLength(1);
+  await page.getByRole('button', { name: 'Stop agent', exact: true }).click();
+  await expect.poll(() => host.service.thread(original.threadId).status).toBe('stopped');
+  const retained = host.artifact('structured');
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: retained.revision,
+    title: 'Late publication', spec: documentSpec() } }, owner)).rejects.toMatchObject({ code: 'CANCELLED_RUN' });
+  expect(host.artifact('structured')).toEqual(retained);
+  await expect(notes(page)).toHaveValue('Keep the reviewed draft through reload and cancellation.');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toBeVisible();
+  await evidence(page, info, 'trusted-catalog-endurance');
+});
 const region = (page: Page, name: string) => page.getByRole('region', { name, exact: true }).or(page.getByRole('dialog', { name, exact: true }));
 async function widgetFrame(page: Page): Promise<Frame> {
   await expect(page.locator('iframe')).toHaveCount(1);
