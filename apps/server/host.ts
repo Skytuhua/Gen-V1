@@ -17,8 +17,9 @@ import {readFile} from 'node:fs/promises';
 import {loadInstalledPlugins,type PluginRegistry} from '../../packages/plugins/host.ts';
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
+import {configureHostCapabilityFlags,readCapabilityFlagOverrides,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
 
-export interface HostOptions extends HermesHostCapabilities {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string}
+export interface HostOptions extends HermesHostCapabilities {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>}
 export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
@@ -39,7 +40,8 @@ function port(value:unknown,name:string):number {
 }
 export function readHostOptions(env:NodeJS.ProcessEnv=process.env):HostOptions {
  if(env.HARNESS_DATA_DIR!==undefined&&!env.HARNESS_DATA_DIR.trim())throw new Error('HARNESS_DATA_DIR must be a nonempty directory.');
- return {dataDir:resolve(env.HARNESS_DATA_DIR??join(env.LOCALAPPDATA??homedir(),'GenerativeHarness')),port:port(env.HARNESS_PORT??4317,'HARNESS_PORT'),widgetPort:port(env.HARNESS_WIDGET_PORT??4318,'HARNESS_WIDGET_PORT'),dev:env.HARNESS_DEV==='1',launchToken:env.HARNESS_DESKTOP_LAUNCH_TOKEN};
+ const capabilityFlags=readCapabilityFlagOverrides(env);
+ return {dataDir:resolve(env.HARNESS_DATA_DIR??join(env.LOCALAPPDATA??homedir(),'GenerativeHarness')),port:port(env.HARNESS_PORT??4317,'HARNESS_PORT'),widgetPort:port(env.HARNESS_WIDGET_PORT??4318,'HARNESS_WIDGET_PORT'),dev:env.HARNESS_DEV==='1',launchToken:env.HARNESS_DESKTOP_LAUNCH_TOKEN,...(Object.keys(capabilityFlags).length?{capabilityFlags}:{})};
 }
 
 /** One owned host, reused by the CLI and the desktop's real-Node sidecar. */
@@ -50,6 +52,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  const make:HostFactories={acquireProfile:acquireProfileLease,createStore:dataDir=>new Store(dataDir),createRuntime,createService:createHermesService,buildServer,buildWidgetServer,loadPlugins:loadInstalledPlugins,createSkillCatalog:createPersonalSkillCatalog,...overrides};
  let plugins:PluginRegistry|undefined,pluginLoadFailed=false;
  let profile:ProfileLease|undefined,store:Store|undefined,runtime:ReturnType<typeof createRuntime>|undefined,service:Service|undefined,app:Awaited<ReturnType<typeof buildServer>>|undefined,widgets:Awaited<ReturnType<typeof buildWidgetServer>>|undefined,closing:Promise<void>|undefined,accepting=false;
+ let releaseCapabilities:(()=>void)|undefined;
  const close=()=>closing??= (async()=>{
   accepting=false;
   // Begin revoking task authority immediately, independently of HTTP/SSE close.
@@ -61,11 +64,12 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   ]);
   const failures:unknown[]=results.filter((result):result is PromiseRejectedResult=>result.status==='rejected').map(result=>result.reason);
   try{store?.close();}catch(error){failures.push(error);}
-  if(!failures.length)try{profile?.close();}catch(error){failures.push(error);}
+  if(!failures.length)try{profile?.close();releaseCapabilities?.();}catch(error){failures.push(error);}
   if(failures.length)throw new AggregateError(failures,`Could not close the harness: ${failures[0] instanceof Error?failures[0].message:'resource cleanup failed'}`);
  })();
  try {
   profile=make.acquireProfile(resolve(options.dataDir));
+  releaseCapabilities=configureHostCapabilityFlags(options.capabilityFlags);
   store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime,{verificationExecutor:options.verificationExecutor});
   const pluginRoot=resolve(options.pluginDir??process.env.HARNESS_PLUGIN_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenV1','plugins'));
   const version=JSON.parse(await readFile(fileURLToPath(new URL('../../package.json',import.meta.url)),'utf8')).version as string;
