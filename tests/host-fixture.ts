@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { buildServer, buildWidgetServer, type MountRegistry } from '../apps/server/server.ts';
-import { Service } from '../packages/core/service.ts';
+import { Service, type ServiceOptions } from '../packages/core/service.ts';
 import { Store } from '../packages/storage/store.ts';
 import type { ArtifactRecord, DataRecord, HostCommand, Operation, RuntimeAdapter, RuntimeCallbacks, RunContext, Snapshot, StartRun, SurfaceSpec, ToolCall } from '../packages/contracts/index.ts';
 
@@ -149,12 +149,12 @@ export class HostFixture {
   readonly generations: ContractRuntime[] = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
   private closing?: Promise<void>;
-  constructor(readonly folder: string, readonly sourceFile: string) {}
+  constructor(readonly folder: string, readonly sourceFile: string, readonly toolEffectFlags?: ServiceOptions['toolEffectFlags']) {}
   async start() {
     this.store = new Store(join(this.folder, 'storage'));
     this.closing = undefined;
     this.runtime = new ContractRuntime(this.folder); this.generations.push(this.runtime);
-    this.service = new Service(this.store, this.runtime); await this.service.recover();
+    this.service = new Service(this.store, this.runtime, { toolEffectFlags: this.toolEffectFlags }); await this.service.recover();
     const mounts: MountRegistry = new Map();
     this.host = await buildServer(this.service, { port: 4337, widgetPort: 4338, mounts, dev: false });
     this.widgets = await buildWidgetServer(this.service, mounts, 4338);
@@ -181,13 +181,14 @@ export class HostFixture {
   artifact(kind: 'structured' | 'widget'): ArtifactRecord { const item = this.snapshot().artifacts.find(value => value.kind === kind); if (!item) throw new Error(`Missing ${kind} artifact`); return item; }
 }
 
-export const test = base.extend<{ host: HostFixture }>({
-  host: async ({}, use, info) => {
+export const test = base.extend<{ host: HostFixture; toolEffectFlags: ServiceOptions['toolEffectFlags'] }>({
+  toolEffectFlags: [undefined, { option: true }],
+  host: async ({ toolEffectFlags }, use, info) => {
     await mkdir(info.outputDir, { recursive: true });
     // Keep native guard and SQLite paths below Windows path limits.
     const folder = await mkdtemp(join(tmpdir(), 'gen-host-'));
     const sourceFile = join(folder, 'evidence-ledger.md'); await writeFile(sourceFile, BEFORE, { flag: 'wx' });
-    const host = new HostFixture(folder, sourceFile); await host.start();
+    const host = new HostFixture(folder, sourceFile, toolEffectFlags); await host.start();
     try { await use(host); } finally {
       await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, folder, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), snapshot: host.snapshot() }, null, 2));
       await host.close();
