@@ -1,10 +1,11 @@
 import type { Store } from '../storage/store.ts';
+import type { Thread } from '../contracts/index.ts';
 import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
   VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
-import { computeAssessment, observationFreshness } from './verification-gate.ts';
+import { computeAssessment, observationFreshness, observationMatchesThreadOwner } from './verification-gate.ts';
 import { assertVerificationSourceRoot, sourceDigestSync } from './project-verification.ts';
 
 /** M06 additive read model for the verification panel. Columns: requirement,
@@ -66,6 +67,7 @@ function checkDetails(obs: CheckObservationV1 | VisualObservationV1): Verificati
 }
 
 export function verificationPanelModel(store: Store, threadId: string): VerificationPanelModel {
+  const thread = store.get<Thread>('thread', threadId);
   const declaration = store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
   const assessments = store.all<DeliverableAssessmentV1>('assessment', threadId);
   const latest = assessments.at(-1) ?? null;
@@ -73,6 +75,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     ...store.all<CheckObservationV1>('checkObservation', threadId),
     ...store.all<VisualObservationV1>('visualObservation', threadId),
   ];
+  const ownedObservations = observations.filter(observation => observationMatchesThreadOwner(observation, thread));
   // The current source cut describes the workspace at READ time, not when an
   // assessment was saved: with a declaration, re-digest the declared inputs
   // live. Unavailable inputs make freshness indeterminate — never verified.
@@ -103,7 +106,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
         environmentId: declaration?.environmentId ?? latest!.sourceCut.environmentId,
       },
       requirements: declaration?.requirements ?? latest!.requirements,
-      observations,
+      observations: ownedObservations,
       unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',
@@ -119,7 +122,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   }
 
   const matches = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
-  const freshnessOf = (obs: CheckObservationV1) => (current ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
+  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
   const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
@@ -127,8 +130,8 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     for (const req of declaration.requirements) {
       const bound = observations.filter(obs => req.checkRefs.some(ref => matches(obs, ref)));
       const state = assessed.get(req.id);
-      const missingRefs = req.checkRefs.filter(ref => !observations.some(obs => matches(obs, ref)));
-      for (const ref of missingRefs) rows.push({requirement: req.id, checkId: null, check: ref, phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: [`no observation bound to ${ref} for ${req.id}`]});
+      const missingRefs = req.checkRefs.filter(ref => !ownedObservations.some(obs => matches(obs, ref)));
+      for (const ref of missingRefs) rows.push({requirement: req.id, checkId: null, check: ref, phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: [`no current-owner observation bound to ${ref} for ${req.id}`]});
       if (!bound.length && !missingRefs.length) {
         rows.push({ requirement: req.id, checkId: null, check: '—', phase: null, sourceRevision: '—', outcome: 'UNVERIFIED', freshness: null, verifier: null, evidence: [], missing: state?.missing ?? [`no observation bound to ${req.id}`] });
         continue;
