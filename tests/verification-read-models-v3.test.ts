@@ -11,7 +11,7 @@ import type {ToolEffectRecord, ToolOwner} from '../packages/contracts/tool-effec
 
 const cleanup: (() => void)[] = [];
 afterEach(() => { for (const dispose of cleanup.splice(0).reverse()) dispose(); });
-const owner: ToolOwner = {threadId: 't1', runId: 'r1', epoch: 1, projectId: null, workspaceId: null, accountBinding: null};
+const owner: ToolOwner = {threadId: 't1', runId: 'r1', epoch: 1, projectId: 'p1', workspaceId: null, accountBinding: null};
 
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'verification-panel-'));
