@@ -74,7 +74,9 @@ export class SecretReferenceLedger {
     if (!sameDestination(requested, entry.ref.destination)) {
       throw denied('SECRET_REF_DESTINATION', 'Secret resolution requires the exact permitted destination.');
     }
-    const ttl = Math.min(Math.max(options?.ttlMs ?? DEFAULT_APPROVAL_TTL_MS, 1), MAX_APPROVAL_TTL_MS);
+    const requestedTtl = options?.ttlMs ?? DEFAULT_APPROVAL_TTL_MS;
+    if (!Number.isSafeInteger(requestedTtl)) throw denied('INVALID_INPUT', 'Secret approval TTL must be a finite safe integer.');
+    const ttl = Math.min(Math.max(requestedTtl, 1), MAX_APPROVAL_TTL_MS);
     const approval: IssuedApproval = {
       nonce: randomUUID(), refId, destination: structuredClone(entry.ref.destination),
       expiresAt: this.now() + ttl, actor: options?.actor ?? null, consumed: false,
