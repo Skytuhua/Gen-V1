@@ -166,8 +166,9 @@ export function createSecretRedactor(secrets: Iterable<string>, options?: { fiel
     variants.add(Buffer.from(secret, 'utf8').toString('base64'));
     variants.add(Buffer.from(secret, 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''));
   }
+  // Match complete JSON string values, including escaped quotes and backslashes.
   const fieldPatterns = (options?.fields ?? []).map(field =>
-    new RegExp(`("${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:\\s*")([^"]*)(")`, 'g'));
+    new RegExp(`("${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*:\\s*")((?:\\\\.|[^"\\\\])*)(")`, 'g'));
 
   function redact(text: string): { text: string; redactions: number } {
     // Match on an ANSI-stripped view so escape-split secrets still redact,
