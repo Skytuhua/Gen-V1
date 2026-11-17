@@ -118,7 +118,7 @@ jobs:
       - name: Exercise project memory and affected context browser flows
         run: |
           $failedSuites = @()
-          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
+          foreach ($suite in @('project-memory', 'project-memory-host', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
             pnpm test:browser --suite $suite
             if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
           }
@@ -138,6 +138,7 @@ jobs:
             test-results/browser/**/artifacts/**/*.png
             test-results/browser/**/artifacts/**/trace.zip
             test-results/browser/**/artifacts/**/host-observations.json
+            test-results/browser/**/artifacts/**/memory-host-observations.json
 
   hermes:
     name: Hermes contracts
