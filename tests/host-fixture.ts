@@ -1,12 +1,12 @@
 import { test as base, expect, type Page, type TestInfo } from '@playwright/test';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { buildServer, buildWidgetServer, type MountRegistry } from '../apps/server/server.ts';
 import { Service, type ServiceOptions } from '../packages/core/service.ts';
-import { Store } from '../packages/storage/store.ts';
+import { Store, digest } from '../packages/storage/store.ts';
 import type { ArtifactRecord, DataRecord, HostCommand, Operation, RuntimeAdapter, RuntimeCallbacks, RunContext, Snapshot, StartRun, SurfaceSpec, ToolCall } from '../packages/contracts/index.ts';
 
 export const HOST_URL = 'http://127.0.0.1:4337';
@@ -14,6 +14,19 @@ export const FIXTURE_LABEL = 'Host contract fixture (no model inference)';
 export const BEFORE = '# Evidence ledger\n\nOriginal test-owned source.\n';
 export const AFTER = '# Evidence ledger\n\nApproved test-owned replacement.\n';
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
+
+// Explicit test-only signer, retained by this fixture across Service restarts.
+// This exercises the authenticated ledger contract, not protected OS key custody.
+function fixtureEffectAuthenticator() {
+  const key = randomBytes(32), keyId = randomUUID();
+  const commit = (domain: string, value: unknown) => 'v1:' + keyId + ':' + createHmac('sha256', key)
+    .update('gen-v1/effect-authenticator/v1\0' + keyId + '\0' + domain + '\0').update(digest(value)).digest('hex');
+  return { keyId, commit, verify(domain: string, value: unknown, tag: string) {
+    const expected = commit(domain, value);
+    return typeof tag === 'string' && Buffer.byteLength(tag) === Buffer.byteLength(expected)
+      && timingSafeEqual(Buffer.from(tag), Buffer.from(expected));
+  } };
+}
 type FixtureStage = {
   kind: 'runtime' | 'tool'; name: string; status: 'pending' | 'succeeded' | 'failed';
   startedAt: string; startedMs: number; finishedAt?: string; elapsedMs?: number;
@@ -149,12 +162,16 @@ export class HostFixture {
   readonly generations: ContractRuntime[] = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
   private closing?: Promise<void>;
-  constructor(readonly folder: string, readonly sourceFile: string, readonly toolEffectFlags?: ServiceOptions['toolEffectFlags']) {}
+  private readonly effectOptions: { toolEffectFlags?: ServiceOptions['toolEffectFlags']; toolEffectAuthenticator?: ReturnType<typeof fixtureEffectAuthenticator> };
+  constructor(readonly folder: string, readonly sourceFile: string, readonly toolEffectFlags?: ServiceOptions['toolEffectFlags']) {
+    this.effectOptions = { toolEffectFlags, ...(toolEffectFlags?.['audit.effectsV1'] || toolEffectFlags?.['security.authorityV1']
+      ? { toolEffectAuthenticator: fixtureEffectAuthenticator() } : {}) };
+  }
   async start() {
     this.store = new Store(join(this.folder, 'storage'));
     this.closing = undefined;
     this.runtime = new ContractRuntime(this.folder); this.generations.push(this.runtime);
-    this.service = new Service(this.store, this.runtime, { toolEffectFlags: this.toolEffectFlags }); await this.service.recover();
+    this.service = new Service(this.store, this.runtime, this.effectOptions); await this.service.recover();
     const mounts: MountRegistry = new Map();
     this.host = await buildServer(this.service, { port: 4337, widgetPort: 4338, mounts, dev: false });
     this.widgets = await buildWidgetServer(this.service, mounts, 4338);
