@@ -1,0 +1,114 @@
+[
+ {
+  "argv": [
+   "node",
+   "node_modules/vitest/vitest.mjs",
+   "run",
+   "tests/browser-consent-v3.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+  "startedAt": "2026-11-17T08:59:03Z",
+  "endedAt": "2026-11-17T08:59:07Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-browser-consent-v3.log"
+ },
+ {
+  "argv": [
+   "node",
+   "node_modules/vitest/vitest.mjs",
+   "run",
+   "tests/desktop-control-v3.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+  "startedAt": "2026-11-17T08:59:08Z",
+  "endedAt": "2026-11-17T08:59:12Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-desktop-control-v3.log"
+ },
+ {
+  "argv": [
+   "node",
+   "node_modules/vitest/vitest.mjs",
+   "run",
+   "tests/interactive-control-decisions-v6.test.ts"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+  "startedAt": "2026-11-17T08:59:12Z",
+  "endedAt": "2026-11-17T08:59:24Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log"
+ },
+ {
+  "argv": [
+   "pnpm",
+   "typecheck"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "pnpm",
+  "startedAt": "2026-11-17T08:59:29Z",
+  "endedAt": "2026-11-17T09:00:05Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck.log"
+ },
+ {
+  "argv": [
+   "pnpm",
+   "lint"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "pnpm",
+  "startedAt": "2026-11-17T09:00:05Z",
+  "endedAt": "2026-11-17T09:00:34Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/lint.log"
+ },
+ {
+  "argv": [
+   "pnpm",
+   "build"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "pnpm",
+  "startedAt": "2026-11-17T09:00:34Z",
+  "endedAt": "2026-11-17T09:00:49Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/build.log"
+ },
+ {
+  "argv": [
+   "pnpm",
+   "test"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "pnpm",
+  "startedAt": "2026-11-17T08:57:20Z",
+  "endedAt": "2026-11-17T09:16:25Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/pnpm-test-bounded.log"
+ },
+ {
+  "argv": [
+   "pnpm",
+   "test:browser"
+  ],
+  "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+  "executableIdentity": "pnpm",
+  "startedAt": "2026-11-17T09:16:45Z",
+  "endedAt": "2026-11-17T10:41:09Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M16/logs/test-browser-bounded.log"
+ }
+]
