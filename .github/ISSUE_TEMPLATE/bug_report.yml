@@ -5,7 +5,7 @@ labels: []
 body:
   - type: markdown
     attributes:
-      value: "Thanks for reporting a problem. Search existing issues first and use synthetic or redacted data. Do not upload credentials, application profiles or private conversations. For sensitive findings, follow [SECURITY.md](https://github.com/Skytuhua/Gen-V1/blob/main/SECURITY.md)."
+      value: "Thanks for reporting a problem. Search existing issues first and use synthetic or redacted data. Do not upload credentials, application profiles or private conversations. For sensitive findings, follow [SECURITY.md](https://github.com/skytuhua-org/Gen-V1/blob/main/SECURITY.md)."
   - type: input
     id: version
     attributes:
