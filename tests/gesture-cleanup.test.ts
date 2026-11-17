@@ -42,7 +42,7 @@ function Fixture() {
     {cornerWidth > 0 && <div style={{ height: 300, width: cornerWidth }}>
       <WorkspaceSplitLayout layout={singleLayout} onCommand={async () => {}} renderView={view => <div style={{ padding: 8 }}>{view.id}</div>} />
     </div>}
-    {params.has('float') && <div style={{ height: 500, width: 900, display: 'flex' }}><WorkspaceSplitLayout layout={floatingLayout} floating={{'thread:solo':{x:100,y:80,width:400,height:params.has('terminal')?340:260}}} onMoveFloat={(viewId,rect)=>window.floatCommits.push({viewId,rect})} onCommand={async()=>{}} renderView={view=><input aria-label={'Float draft '+view.id} defaultValue="Retained float draft"/>}/></div>}
+    {params.has('float') && <div style={{ height: 500, width: 900, display: 'flex' }}><WorkspaceSplitLayout layout={floatingLayout} floating={{'thread:solo':{x:100,y:80,width:400,height:params.has('terminal')?340:260}}} onMoveFloat={(viewId,rect)=>window.floatCommits.push({viewId,rect})} onReturnFloat={()=>{}} onCommand={async()=>{}} renderView={view=><input aria-label={'Float draft '+view.id} defaultValue="Retained float draft"/>}/></div>}
     {cornerWidth === 0 && <FloatingWindow id="gesture-window" title="Gesture" anchor="top-right" defaultSize={{ width: 300, height: 200 }} focusOnOpen={false}>
       <p>window body</p>
     </FloatingWindow>}
@@ -270,6 +270,23 @@ describe('gesture cleanup', () => {
       expect(painted).toEqual(rect);
       expect(await input.inputValue()).toBe('Unsent terminal-position draft');
       expect(await page.evaluate(() => (window as any).originalFloatInput === document.querySelector('[data-split-view="thread:solo"] input'))).toBe(true);
+    } finally {await page.close();}
+  });
+
+
+  for (const delta of [2, 60]) it(`floating header click respects the movement threshold at release (${delta})`, async () => {
+    const page = await openPage('?float&terminal'), surface = page.locator('[data-split-view="thread:solo"]');
+    try {
+      const grip = page.getByRole('button', {name: 'Placement and move for Conversation'});
+      await grip.scrollIntoViewIfNeeded(); const box = (await grip.boundingBox())!, x = box.x + box.width / 2, y = box.y + box.height / 2;
+      await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 2, y);
+      const pointerId = await page.evaluate(() => (window as any).lastFloatPointer as number);
+      if (delta >= 3) await grip.dispatchEvent('pointerup', {pointerId, button: 0, clientX: x + delta, clientY: y});
+      await page.mouse.up(); await page.evaluate(() => new Promise(requestAnimationFrame));
+      const rect = {x: delta < 3 ? 100 : 100 + delta, y: 80, width: 400, height: 340};
+      await pw.poll(() => page.evaluate(() => (window as any).floatCommits)).toEqual([{viewId: 'thread:solo', rect}]);
+      expect(await surface.evaluate(node => ({x: parseFloat((node as HTMLElement).style.left), y: parseFloat((node as HTMLElement).style.top)}))).toEqual({x: rect.x, y: rect.y});
+      await pw(page.getByRole('menu')).toHaveCount(delta < 3 ? 1 : 0);
     } finally {await page.close();}
   });
 
