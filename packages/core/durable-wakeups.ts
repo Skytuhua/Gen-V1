@@ -371,6 +371,10 @@ export class DurableWakeupScheduler {
         }
       }
     });
+    // A host interruption can strand a held firing: the resume committed the
+    // wakeup PENDING but deliverHeld never claimed its deferred occurrence.
+    // Redeliver any held occurrence bound to a live wakeup.
+    for (const wakeup of this.store.all<WakeupRecord>("backgroundWakeup")) this.deliverHeld(wakeup);
   }
 
   reconcile(command: HostCommand, occurrenceKey: string, receipt: { observed: "DELIVERED" | "NOT_DISPATCHED"; receiptRef?: string }): BackgroundOccurrenceV1 {

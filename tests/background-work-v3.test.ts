@@ -420,6 +420,28 @@ describe("M10 review regressions", () => {
     expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
     expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === held[0]!.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
   });
+  it("a held firing stranded before resume redelivers through recover()", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "stranded", command: cmdSpec(f.root, ["-e", "0"]) });
+    const scheduler = f.coordinator.scheduler;
+    scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "run-7" } });
+    f.coordinator.requestHumanStep(command("background.human.request"), { requestId: "req-7", owner: f.owner, questionRevision: 1, responseSchema: {}, requiredAction: "answer", workId: work.workId });
+    f.coordinator.notifyHostEvent("runtime.settled", "run-7", "runtime.settled:run-7");
+    await waitFor(() => scheduler.schedules()[0]?.state === "BLOCKED");
+    // Simulate a host interruption: the answer landed and the wakeup was
+    // unblocked, but the process died before deliverHeld could re-claim the
+    // held occurrence — restart reconciliation must still deliver it.
+    const record = scheduler.allSchedules()[0]!;
+    f.store.internal("fixture.stranded", null, () => {
+      f.store.put("backgroundWakeup", record.wakeupId, null, { ...record, state: "PENDING", blockedReason: null });
+      const w = f.store.get<BackgroundWorkRecord>("backgroundWork", work.workId)!;
+      f.store.put("backgroundWork", work.workId, work.owner.threadId, { ...w, state: "QUEUED" });
+    });
+    scheduler.recover();
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+  });
   it("an auto-resumed schedule keeps an operator pause", async () => {
     const followUps: { id: string; threadId: string; content: string }[] = [];
     const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { followUps.push(input); f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });

@@ -210,6 +210,15 @@ describe("M10-T05/D05 untrusted content and approval gates", () => {
     expect(f2.intake.records()).toHaveLength(0);
     expect(permanent).toBe(3); // bounded retries, then defer — no dedup key written
   });
+  it("a forged repository_url is rejected without ever fetching the foreign origin", async () => {
+    const evil = "https://attacker.example.com/collect";
+    const urls: string[] = [];
+    const f = fixture({ fetchImpl: async url => { urls.push(String(url)); return String(url).includes("/issues") ? jsonResponse([issue({ repository_url: evil })]) : jsonResponse({ id: REPO }); } });
+    const result = await f.intake.pollOnce();
+    expect(result).toMatchObject({ status: "OK", proposals: 0, rejected: 1 });
+    expect(f.intake.records()[0]).toMatchObject({ disposition: "REJECTED", rejectionReason: "WRONG_REPOSITORY" });
+    expect(urls.filter(u => u.startsWith(evil))).toHaveLength(0); // credential never leaves the API origin
+  });
   it("a non-transient repository lookup failure rejects the record", async () => {
     const slug = "https://api.github.com/repos/skytuhua-org/Gen-V1";
     const f = fixture({ fetchImpl: async url => String(url).includes("/issues") ? jsonResponse([issue({ repository_url: slug })]) : jsonResponse({}, 404) });

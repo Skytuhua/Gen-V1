@@ -180,11 +180,23 @@ export class ExternalIntakeCoordinator {
     // configured identity is numeric. Resolve each distinct foreign-form URL
     // once and keep only those that resolve to the configured repository id.
     const expectedRepositoryUrl = `https://api.github.com/repositories/${config.repositoryId}`;
+    // repository_url is attacker-controlled issue content: the credential is
+    // only ever sent to the API origin already used for the issues read.
+    // Any other origin is foreign by definition and rejected without a fetch.
+    const apiOrigin = new URL(expectedRepositoryUrl).origin;
+    const foreignUrls = new Set<string>();
     const candidates = new Set<string>();
     for (const entry of records) {
       const record = entry as { repository_url?: unknown; pull_request?: unknown } | null;
-      if (record && typeof record.repository_url === "string" && !record.pull_request && record.repository_url !== expectedRepositoryUrl) candidates.add(record.repository_url);
-      if (candidates.size >= 10) break;
+      if (record && typeof record.repository_url === "string" && !record.pull_request && record.repository_url !== expectedRepositoryUrl) {
+        try {
+          if (new URL(record.repository_url).origin === apiOrigin) candidates.add(record.repository_url);
+          else foreignUrls.add(record.repository_url);
+        } catch {
+          foreignUrls.add(record.repository_url);
+        }
+      }
+      if (candidates.size + foreignUrls.size >= 10) break;
     }
     const verifiedRepositories = new Set<string>();
     const indeterminateRepositories = new Set<string>();
