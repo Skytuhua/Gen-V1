@@ -128,7 +128,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     if (!node) { if (content.current) { content.current.tabIndex = -1; content.current.focus(); } return; }
     if (node instanceof HTMLDetailsElement) node.open = true;
     const viewport=content.current!,target=node.getBoundingClientRect(),bounds=viewport.getBoundingClientRect();
-    viewport.scrollTop+=target.top-bounds.top-Math.max(0,(viewport.clientHeight-target.height)/2);
+    const scale=bounds.height/viewport.offsetHeight||1;
+    viewport.scrollTop+=(target.top-bounds.top)/scale-Math.max(0,(viewport.clientHeight-target.height/scale)/2);
     const focusable = [...node.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, [tabindex]')].find(element=>!element.matches(':disabled')&&element.tabIndex>=0&&element.getClientRects().length&&!element.closest('[inert], [hidden]')&&getComputedStyle(element).visibility!=='hidden');
     if (focusable) focusable.focus({preventScroll:true}); else { node.tabIndex = -1; node.focus({preventScroll:true}); }
   }, [pendingTarget, section]);
