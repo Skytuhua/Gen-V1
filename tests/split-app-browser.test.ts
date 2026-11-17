@@ -154,8 +154,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
    expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(0);
    const floatSurface=page.locator('[data-split-view="thread:thread-a"]');
-   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   const detachBox=(await floatSurface.boundingBox())!;
+   const shrinkBox=(await floatSurface.locator('.split-float-resize').boundingBox())!;
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2,shrinkBox.y+shrinkBox.height/2);await page.mouse.down();
+   await page.mouse.move(shrinkBox.x+shrinkBox.width/2-220,shrinkBox.y+shrinkBox.height/2-140,{steps:6});await page.mouse.up();
    const startBox=(await floatSurface.boundingBox())!;
+   expect(detachBox.width-startBox.width).toBeGreaterThan(100);expect(detachBox.height-startBox.height).toBeGreaterThan(60);
+   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
    await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
    await page.mouse.move(gripBox.x+gripBox.width/2+90,gripBox.y+gripBox.height/2+50,{steps:6});await page.mouse.up();
    const movedBox=(await floatSurface.boundingBox())!;
