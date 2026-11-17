@@ -33,7 +33,7 @@ function fixture(body = passingTest) {
   };
   for (const file of ['package.json', 'pnpm-lock.yaml', 'vitest.config.ts'])
     copyFileSync(join(repository, file), join(root, file));
-  put('.gitignore', 'node_modules\n');
+  put('.gitignore', 'node_modules\nignored-output\n');
   put('packages/contracts/index.ts', 'export const value = 42;\n');
   put('packages/contracts/implementation-evidence.ts', 'export const version = 3;\n');
   put('tests/gate.test.ts', body);
@@ -177,6 +177,18 @@ describe('M01 current dependency compatibility execution', () => {
     expect(receipt.status).toBe('BLOCKED');
     expect(receipt.commands).toEqual([]);
     expect(receipt.issues.map(issue => issue.code)).toContain('COMPATIBILITY_SETUP_BLOCKED');
+  });
+
+  it('blocks an external-looking output junction that resolves into the checkout', async () => {
+    const value = fixture();
+    const alias = join(value.directory, 'external-output-link');
+    symlinkSync(value.root, alias, process.platform === 'win32' ? 'junction' : 'dir');
+    try {
+      const receipt = await runDependencyContracts(value.lockPath, join(alias, 'ignored-output'), value.root);
+      expect(receipt.status).toBe('BLOCKED');
+      expect(receipt.commands).toEqual([]);
+      expect(receipt.issues.some(issue => issue.message.includes('outside the source checkout'))).toBe(true);
+    } finally { unlinkSync(alias); }
   });
 
   it('refuses an existing evidence directory and preserves its old receipts', async () => {

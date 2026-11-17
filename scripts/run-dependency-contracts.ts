@@ -113,9 +113,10 @@ function inspectTestReport(raw: unknown, root: string, testIds: string[]): TestR
 
 export async function runDependencyContracts(sourceLockPath: string, outputDirectory: string,
   repoRoot = fileURLToPath(new URL('../', import.meta.url))): Promise<DependencyExecutionReceipt> {
-  const out = resolve(outputDirectory);
+  const outputPath = resolve(outputDirectory);
   // Exclusive ownership prevents adoption or replacement of old command receipts.
-  await mkdir(out);
+  await mkdir(outputPath);
+  const out = realpathSync(outputPath);
   const receipt: DependencyExecutionReceipt = {
     format: 'M01.DependencyExecutionReceipt.v1', status: 'BLOCKED', releaseApproved: false,
     startedAt: new Date().toISOString(), endedAt: '', platform: process.platform + '-' + process.arch,
