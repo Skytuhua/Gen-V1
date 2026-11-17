@@ -179,6 +179,14 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   // Deep message search for threads whose history the snapshot windowed: the
   // client passes the truncated thread ids it knows about.
+  // M16 additive read model: mode | target | observe/interact | expiry |
+  // capability reason | Stop. Disabled presents the unavailable screen.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/control', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, control: service.controlConsent.surfaceModel(id) };
+  });
   app.get<{ Querystring: { q?: string; threads?: string } }>('/api/threads/search', async (request) => {
     if ((request.query.q !== undefined && typeof request.query.q !== 'string') || (request.query.threads !== undefined && typeof request.query.threads !== 'string')) throw new HarnessError('INVALID_INPUT', 'Search parameters must be single values');
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();

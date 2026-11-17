@@ -2,13 +2,13 @@ import {chromium} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
 import {mkdir,mkdtemp,copyFile,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {join,resolve} from 'node:path';
 import {serveChatFixture} from '../tests/e2e/chat-view-modes-fixture';
 import {CHAT_LAYOUT_KEY,type ChatMode} from '../packages/ui-shell/chat-layout';
 
 // Start Vite on 5490 first. --before is for the untouched base checkout only.
 const before=process.argv.includes('--before');
-const directory=process.env.WO6_CAPTURE_DIR??'/home/box/gen-company/ledger/WO-6/before-after';
+const directory=process.env.WO6_CAPTURE_DIR??resolve('test-results/wo6-before-after');
 const names={full:'Full page',drawer:'Side drawer',popup:'Pop-up'};
 const scratch=await mkdtemp(join(tmpdir(),'wo6-frames-')),browser=await chromium.launch({headless:true});
 const metrics:Record<string,unknown>={};
