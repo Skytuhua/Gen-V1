@@ -186,7 +186,12 @@ const cell = (value: number | null, suffix = '') => `<td>${value === null ? 'una
 // unavailable measurement, failed check and expected-negative reproduction.
 // Byte budgets are labelled bytes, never tokens.
 export function benchmarkReportHtml(records: readonly BenchmarkRecord[]): string {
-  const rows = records.flatMap(record => [record.baseline, record.candidate].filter((run): run is NonNullable<typeof run> => run !== null).map(run => {
+  const rows = records.flatMap(record => (['baseline', 'candidate'] as const).map(role => {
+    const run = record[role] ?? { role, status: 'UNAVAILABLE', measurement: {
+      elapsedMs: null, coldStartMs: null, firstPublicResponseMs: null, requests: null,
+      inputBytes: null, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
+      totalCostBytes: null, backgroundCostBytes: null, completionQuality: null,
+    } };
     const m = run.measurement;
     return `<tr class="${run.status.toLowerCase()}"><td>${escapeHtml(record.fixture)}</td><td>${escapeHtml(record.config)}</td><td>${record.model ? escapeHtml(record.model) : 'unavailable'}</td><td>${run.role}</td><td class="status">${run.status}</td><td>${record.seed}</td>`
       + cell(m.elapsedMs, ' ms') + cell(m.coldStartMs, ' ms') + cell(m.firstPublicResponseMs, ' ms') + cell(m.requests)
