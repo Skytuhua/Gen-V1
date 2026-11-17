@@ -54,6 +54,10 @@ def scripted_acp() -> None:
                 direct = '"name": "m04_direct_fixture"' in prompt
                 deferred = '"name": "m04_deferred_fixture"' in prompt
                 content = "M04 visibility: direct=" + str(int(direct)) + ", deferred=" + str(int(deferred))
+            elif "M04_INSTRUCTION_FIXTURE" in prompt:
+                first = "M04_INSTRUCTION_ONE_SENTINEL" in prompt
+                second = "M04_INSTRUCTION_TWO_SENTINEL" in prompt
+                content = "Project instructions: first=" + str(int(first)) + ", second=" + str(int(second))
             elif "PLAIN_REPLY_ONLY" in prompt:
                 content = "A plain source reply."
             elif '"success": true' in prompt or '"success":true' in prompt:
@@ -220,6 +224,29 @@ class WorkerFixture(unittest.TestCase):
         self.assertLess(len(result["messages"]), len(before))
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
         self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
+
+    def test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent(self):
+        self.hello()
+        params = {"ctx": {"threadId": "m04-instructions", "runId": "one", "epoch": 1},
+                  "modelId": "fixture-model", "accountId": None, "prompt": "M04_INSTRUCTION_FIXTURE",
+                  "systemPrompt": "Host policy. M04_INSTRUCTION_ONE_SENTINEL", "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-instructions")}
+        self.request("agent.start", params)
+        first = self.until_settled()[-1]["data"]
+        self.assertEqual(first["text"], "Project instructions: first=1, second=0")
+        before = self.request("agent.history", {})["messages"]
+        params["systemPrompt"] = "Host policy. M04_INSTRUCTION_TWO_SENTINEL"
+        params["ctx"] = {"threadId": "m04-instructions", "runId": "two", "epoch": 2}
+        self.request("agent.start", params)
+        second = self.until_settled()[-1]["data"]
+        self.assertEqual(second["text"], "Project instructions: first=0, second=1")
+        self.assertNotEqual(first["agentInstance"], second["agentInstance"])
+        self.assertEqual(self.request("agent.history", {})["messages"][:len(before)], before)
+        params["ctx"] = {"threadId": "m04-instructions", "runId": "three", "epoch": 3}
+        self.request("agent.start", params)
+        third = self.until_settled()[-1]["data"]
+        self.assertEqual(third["agentInstance"], second["agentInstance"])
+        self.assertEqual(third["text"], "Project instructions: first=0, second=1")
 
     def test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest(self):
         self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
