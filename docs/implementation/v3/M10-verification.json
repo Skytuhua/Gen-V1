@@ -95,7 +95,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "67a06776795d91a1c9febb298e30f2520f360d63ecc963efde48289d7f707e3a"
+          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:03.000Z",
+          "endedAt": "2026-11-17T22:14:20.616Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
         },
         {
           "argv": [
@@ -114,7 +133,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:30.180Z",
+          "endedAt": "2026-11-17T22:14:35.152Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
         }
       ],
       "artifactRefs": [
@@ -175,7 +213,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
-          "logDigest": "67a06776795d91a1c9febb298e30f2520f360d63ecc963efde48289d7f707e3a"
+          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:03.000Z",
+          "endedAt": "2026-11-17T22:14:20.616Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-background-work-final.log",
+          "logDigest": "c82872d60032bdd5a2a73a596cccb2ffa96abe29e955016bbe3cc23624650183"
         }
       ],
       "artifactRefs": [
@@ -225,7 +282,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
-          "logDigest": "8a8a1d189d25490035c276241a6bc5c4c939c30c5ffa9c9397d3a31f63510c18"
+          "logDigest": "948733272cfb1e47f00237ab3fe409bb8d46e0ed43575be38ca72fdc4c8beb6b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/human-handoff-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:20.704Z",
+          "endedAt": "2026-11-17T22:14:30.127Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-human-handoff-final.log",
+          "logDigest": "948733272cfb1e47f00237ab3fe409bb8d46e0ed43575be38ca72fdc4c8beb6b"
         },
         {
           "argv": [
@@ -244,7 +320,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:30.180Z",
+          "endedAt": "2026-11-17T22:14:35.152Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
         }
       ],
       "artifactRefs": [
@@ -299,7 +394,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
-          "logDigest": "a828de3c0cb571cf0b8575bfbf0222d5bb618ebe5ce4ef1a1789a8d21fc5a97c"
+          "logDigest": "386535f10240df7db2c1f3ed4d20c7f56f882c1c8005468ef8dc46edfc604938"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/external-intake-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:13:47.175Z",
+          "endedAt": "2026-11-17T22:14:02.858Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-external-intake-final.log",
+          "logDigest": "386535f10240df7db2c1f3ed4d20c7f56f882c1c8005468ef8dc46edfc604938"
         },
         {
           "argv": [
@@ -318,7 +432,26 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
-          "logDigest": "f492a7464975755fa6aa9962c20f3a8005c7ec6a3f47ccb730a0f1ea71d30248"
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:30.180Z",
+          "endedAt": "2026-11-17T22:14:35.152Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-vitest-decisions-final.log",
+          "logDigest": "cb7c52fb7eea4851ee2942fa5b2a6e457b1fe7e8e7d1ddf14f41dbb119b1c7e1"
         }
       ],
       "artifactRefs": [
@@ -422,6 +555,21 @@
         {
           "argv": [
             "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:14:38.668Z",
+          "endedAt": "2026-11-17T22:17:11.473Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-typecheck-final.log",
+          "logDigest": "e8c11f46739a56886e30fdf9d6cec329257e3b871d4eadbcdb7ba2b70f5e5c75"
+        },
+        {
+          "argv": [
+            "pnpm",
             "lint"
           ],
           "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
@@ -432,7 +580,22 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-lint-final.log",
-          "logDigest": "938cb79f3415ff4558d99e9a21d3fb24ee40e07b734a4ab840115b1c69b98f94"
+          "logDigest": "915159d005f6f19b0fa670cf0cd3470fb704fa11e4b8010af7e812bc5d7bd427"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:17:11.593Z",
+          "endedAt": "2026-11-17T22:18:53.242Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-lint-final.log",
+          "logDigest": "915159d005f6f19b0fa670cf0cd3470fb704fa11e4b8010af7e812bc5d7bd427"
         },
         {
           "argv": [
@@ -463,7 +626,22 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
-          "logDigest": "7a9ba6dbb822253320ecb2b0288b456005dbb69de9dc076865d3674b28713f48"
+          "logDigest": "82ad436e3a869e12b376f6ecf6b0cf2ea605b494a7fd67f12c7f20efba01f850"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T22:18:53.318Z",
+          "endedAt": "2026-11-17T22:19:33.501Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M10/logs/m10-build-final.log",
+          "logDigest": "82ad436e3a869e12b376f6ecf6b0cf2ea605b494a7fd67f12c7f20efba01f850"
         },
         {
           "argv": [
@@ -489,13 +667,27 @@
     }
   ],
   "changedFiles": [
+    ".github/ISSUE_TEMPLATE/bug_report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    "CONTRIBUTING.md",
+    "README.md",
     "apps/server/background-routes.ts",
     "apps/server/hermes-service.ts",
     "apps/server/server.ts",
     "apps/web/src/App.tsx",
     "apps/web/src/BackgroundWork.tsx",
+    "apps/web/src/ControlConsentPanel.tsx",
+    "apps/web/src/WorkspaceSplitLayout.tsx",
     "apps/web/src/background-work.css",
+    "apps/web/src/split-workspace-api.ts",
+    "check_m16_evidence.mts",
+    "docs/getting-started.md",
+    "docs/implementation/v3/M04-M06-review-20261117.md",
     "docs/implementation/v3/M10-verification.json",
+    "docs/implementation/v3/M16-source-lock.json",
+    "docs/implementation/v3/M16-verification.json",
+    "docs/implementation/v3/m04-m06-review-20261117/evidence.md",
+    "docs/implementation/v3/m04-m06-review-20261117/requirements.md",
     "docs/implementation/v6/M10/M10-source-lock.json",
     "docs/implementation/v6/M10/build-evidence.mjs",
     "docs/implementation/v6/M10/compare-outcomes.mjs",
@@ -562,23 +754,107 @@
     "docs/implementation/v6/M10/run-gates-r3.sh",
     "docs/implementation/v6/M10/run-gates-r4.sh",
     "docs/implementation/v6/M10/run-gates.sh",
+    "docs/implementation/v6/M16/handoff.md",
+    "docs/implementation/v6/M16/logs/build.log",
+    "docs/implementation/v6/M16/logs/lint.log",
+    "docs/implementation/v6/M16/logs/pnpm-test-bounded.log",
+    "docs/implementation/v6/M16/logs/test-browser-bounded.log",
+    "docs/implementation/v6/M16/logs/typecheck.log",
+    "docs/implementation/v6/M16/logs/vitest-browser-consent-v3.log",
+    "docs/implementation/v6/M16/logs/vitest-desktop-control-v3.log",
+    "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log",
+    "docs/implementation/v6/M16/requirements.json",
+    "docs/public/getting-started.md",
+    "docs/public/media/gen-v1-launch.mp4",
+    "docs/public/media/launch-ci-log-workflow.gif",
+    "docs/public/media/launch-ci-log-workflow.mp4",
+    "docs/public/media/launch-demos.md",
+    "docs/public/media/launch-interactive-table.gif",
+    "docs/public/media/launch-interactive-table.mp4",
+    "docs/public/media/launch-interactive-table.webp",
+    "docs/public/media/launch-laptop-comparison.gif",
+    "docs/public/media/launch-laptop-comparison.mp4",
+    "docs/public/media/launch-migration-checklist.gif",
+    "docs/public/media/launch-migration-checklist.mp4",
+    "docs/public/media/launch-pr-review-workflow.gif",
+    "docs/public/media/launch-pr-review-workflow.mp4",
+    "docs/public/media/launch-pull-request.gif",
+    "docs/public/media/launch-pull-request.mp4",
+    "docs/public/media/launch-pull-request.webp",
+    "docs/public/media/launch-rollout-plan.gif",
+    "docs/public/media/launch-rollout-plan.mp4",
+    "docs/public/media/launch-runtime-comparison.gif",
+    "docs/public/media/launch-runtime-comparison.mp4",
+    "docs/public/media/launch-study-plan.gif",
+    "docs/public/media/launch-study-plan.mp4",
+    "docs/public/media/launch-weekend-trip.gif",
+    "docs/public/media/launch-weekend-trip.mp4",
+    "docs/public/media/launch-workspace.webp",
+    "docs/public/release-notes.md",
+    "docs/verification/README.md",
+    "gen_m16_evidence.py",
+    "m16_records.json",
     "packages/contracts/background-work.ts",
+    "packages/contracts/implementation-evidence.ts",
+    "packages/contracts/interactive-control.ts",
     "packages/core/background-work.ts",
+    "packages/core/browser-consent.ts",
     "packages/core/capability-flags.ts",
+    "packages/core/desktop-control.ts",
     "packages/core/durable-wakeups.ts",
+    "packages/core/effect-recovery.ts",
     "packages/core/external-intake.ts",
+    "packages/core/secret-references.ts",
+    "packages/core/security.ts",
     "packages/core/service.ts",
+    "packages/core/tool-effect-read-models.ts",
+    "packages/core/tool-effects.ts",
+    "packages/integrations/index.ts",
+    "packages/storage/store.ts",
+    "run_m16_bounded.py",
     "scripts/browser-suites.ts",
     "scripts/public-source-files.json",
+    "scripts/record-centered-workspace.ts",
+    "scripts/record-chat-view-modes.ts",
+    "scripts/record-expanded-review.ts",
+    "scripts/record-natural-inspection.ts",
+    "scripts/record-readme-launch.ts",
+    "scripts/record-side-chat-review.ts",
+    "scripts/review-capture.ts",
+    "scripts/select-regression-tests.ts",
+    "scripts/verify-m05-evidence.ts",
+    "scripts/verify-review.ts",
+    "scripts/verify-smooth-review.ts",
     "tests/background-contract-decisions-v6.test.ts",
     "tests/background-work-v3.test.ts",
+    "tests/browser-consent-v3.test.ts",
+    "tests/context-result-custody.test.ts",
+    "tests/desktop-control-v3.test.ts",
     "tests/e2e/background-work.playwright.config.ts",
     "tests/e2e/background-work.spec.ts",
     "tests/e2e/background-work.vite.config.ts",
+    "tests/e2e/composer-app-refinement.spec.ts",
     "tests/e2e/fixtures/background-work.html",
     "tests/e2e/fixtures/background-work.tsx",
+    "tests/e2e/mobile-navigation.spec.ts",
+    "tests/e2e/shell-error-ownership.spec.ts",
+    "tests/e2e/shell-micro-motion.spec.ts",
+    "tests/e2e/usage-app-integration.spec.ts",
+    "tests/e2e/workbench-app.spec.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/evidence-aggregation-v3.test.ts",
     "tests/external-intake-v3.test.ts",
-    "tests/human-handoff-v3.test.ts"
+    "tests/gesture-cleanup.test.ts",
+    "tests/human-handoff-v3.test.ts",
+    "tests/interactive-control-decisions-v6.test.ts",
+    "tests/regression-selection-keys-v3.test.ts",
+    "tests/secret-approval-lifetime-v3.test.ts",
+    "tests/secret-redaction-json-v3.test.ts",
+    "tests/secret-resolution-races-v3.test.ts",
+    "tests/split-app-browser.test.ts",
+    "tests/tool-effect-read-owner-v3.test.ts",
+    "tests/tool-effect-replay-authority-v3.test.ts",
+    "tests/tool-effect-replay-owner-v3.test.ts"
   ],
   "dependencyContracts": [
     {

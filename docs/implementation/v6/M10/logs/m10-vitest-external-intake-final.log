@@ -1,14 +1,16 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
 
-(node:1406416) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(node:1660023) ExperimentalWarning: SQLite is an experimental feature and might change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 3605[2mms[22m[39m
-     [33m[2m✓[22m[39m stays disabled without the host flag or explicit enablement, and unavailable without authentication [33m 1579[2mms[22m[39m
-     [33m[2m✓[22m[39m exposes no webhook listener or push ingestion surface [33m 394[2mms[22m[39m
+ [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 4332[2mms[22m[39m
+     [33m[2m✓[22m[39m prompt injection in issue text creates no executor call and no authority [33m 341[2mms[22m[39m
+     [33m[2m✓[22m[39m a repeated issue revision creates no executor call; an authorized new issue creates one proposal only [33m 804[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes no webhook listener or push ingestion surface [33m 677[2mms[22m[39m
+     [33m[2m✓[22m[39m routes approval through thread.create and message.send on the real Service [33m 412[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m13 passed[39m[22m[90m (13)[39m
-[2m   Start at [22m 23:43:04
-[2m   Duration [22m 8.84s[2m (transform 3.71s, setup 0ms, import 4.92s, tests 3.61s, environment 0ms)[22m
+[2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m   Start at [22m 14:13:49
+[2m   Duration [22m 13.53s[2m (transform 6.16s, setup 0ms, import 8.68s, tests 4.33s, environment 1ms)[22m
 
