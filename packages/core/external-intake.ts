@@ -122,9 +122,10 @@ export class ExternalIntakeCoordinator {
       if (current && current.sourceInstallation !== installation) this.store.put("intakeConfig", "global", null, { ...current, sourceInstallation: installation, updatedAt: iso(this.now()) });
     });
     // Pull requests and issues share the issues endpoint sorted by updated
-    // time; on an active repository a single page can be all PRs and real
-    // issues are never inspected. Page forward until at least one non-PR
-    // record is seen, the page is short, or the page bound is hit.
+    // time; on an active repository any single page can be mostly PRs and
+    // real issues are never inspected. Keep paging while pages are full —
+    // one issue on a page does not prove the next page holds none — bounded
+    // by intakePollPages and ending on a short page.
     const perPage = BACKGROUND_SCHEDULER_LIMITS.intakePageSize;
     const records: unknown[] = [];
     let lastFailure: unknown = null, attempts = 0;
@@ -173,8 +174,7 @@ export class ExternalIntakeCoordinator {
         return { status: "FAILED", ...empty, attempts, error: this.lastError };
       }
       records.push(...pageRecords);
-      const sawIssue = pageRecords.some(entry => !(entry as { pull_request?: unknown } | null)?.pull_request);
-      if (sawIssue || pageRecords.length < perPage) break;
+      if (pageRecords.length < perPage) break;
     }
     // GitHub returns repository_url in /repos/{owner}/{name} form while the
     // configured identity is numeric. Resolve each distinct foreign-form URL
@@ -187,17 +187,36 @@ export class ExternalIntakeCoordinator {
       if (candidates.size >= 10) break;
     }
     const verifiedRepositories = new Set<string>();
+    const indeterminateRepositories = new Set<string>();
     for (const repositoryUrl of candidates) {
-      try {
-        const res = await this.fetchImpl(repositoryUrl, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "User-Agent": "gen-v1-host" },
-          redirect: "error",
-        });
-        if (!res.ok) continue;
-        const repo = await res.json() as { id?: unknown };
-        if (repo && repo.id === config.repositoryId) verifiedRepositories.add(repositoryUrl);
-      } catch { /* unverified URLs fail closed as WRONG_REPOSITORY */ }
+      // Transient failures must not permanently reject a real issue: retry
+      // with the same bounded policy as the issues read, and when the lookup
+      // stays indeterminate the record is deferred to the next poll rather
+      // than rejected and deduplicated forever.
+      let verdict: "VERIFIED" | "WRONG" | "INDETERMINATE" = "INDETERMINATE";
+      for (let attempt = 1; attempt <= BACKGROUND_SCHEDULER_LIMITS.retryAttempts; attempt++) {
+        attempts++;
+        if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
+        if (attempt > 1) await this.sleep(BACKGROUND_SCHEDULER_LIMITS.retryDelaysMs[attempt - 2] ?? 2_000);
+        if (this.stopped) return { status: "CANCELLED", ...empty, attempts };
+        try {
+          const res = await this.fetchImpl(repositoryUrl, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "User-Agent": "gen-v1-host" },
+            redirect: "error",
+          });
+          if (res.ok) {
+            const repo = await res.json() as { id?: unknown };
+            verdict = repo && repo.id === config.repositoryId ? "VERIFIED" : "WRONG";
+            break;
+          }
+          if (!this.transient(res.status, null)) { verdict = "WRONG"; break; }
+        } catch (error) {
+          if (!this.transient(null, error)) { verdict = "WRONG"; break; }
+        }
+      }
+      if (verdict === "VERIFIED") verifiedRepositories.add(repositoryUrl);
+      else if (verdict === "INDETERMINATE") indeterminateRepositories.add(repositoryUrl);
     }
     const stamp = this.now();
     const result = this.store.internal("intake.polled", null, () => {
@@ -211,6 +230,9 @@ export class ExternalIntakeCoordinator {
         if (record.pull_request) continue; // issue records only
         const deliveryKey = JSON.stringify([config.repositoryId, record.node_id, record.updated_at]);
         if (this.store.get("intakeDelivery", deliveryKey)) { duplicates++; continue; }
+        // Indeterminate provenance defers the record to a later poll without
+        // a dedup key or a rejection record — it is neither seen nor decided.
+        if (indeterminateRepositories.has(record.repository_url)) continue;
         this.store.put("intakeDelivery", deliveryKey, null, { repositoryId: config.repositoryId, eventId: record.node_id, updatedAt: record.updated_at, capturedAt: iso(stamp) });
         // Wrong repository: captured and rejected, never proposed or executed.
         if (record.repository_url !== expectedRepositoryUrl && !verifiedRepositories.has(record.repository_url)) {

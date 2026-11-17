@@ -28,6 +28,7 @@ function issue(overrides: Record<string, unknown> = {}) {
   };
 }
 const jsonResponse = (records: unknown, status = 200) => new Response(JSON.stringify(records), { status, headers: { "content-type": "application/json" } });
+const pr = (i: number, base = 400) => ({ node_id: `PR_${base + i}`, number: base + i, title: `PR ${base + i}`, html_url: `https://github.com/skytuhua-org/Gen-V1/pull/${base + i}`, updated_at: "2026-11-16T00:00:00Z", repository_url: `https://api.github.com/repositories/${REPO}`, pull_request: { url: `https://api.github.com/repos/skytuhua-org/Gen-V1/pulls/${base + i}` } });
 
 function fixture(options: { fetchImpl?: typeof fetch; auth?: { token(): Promise<string>; login?: string | null }; createTask?: (request: unknown) => Promise<{ threadId: string }>; withService?: boolean } = {}) {
   const root = mkdtempSync(join(realpathSync(tmpdir()), "m10-intake-"));
@@ -177,9 +178,41 @@ describe("M10-T05/D05 untrusted content and approval gates", () => {
     expect(f.intake.records()[0]).toMatchObject({ disposition: "REJECTED", rejectionReason: "WRONG_REPOSITORY" });
     expect(f.executorCalls).toHaveLength(0);
   });
-  it("fails closed when the repository lookup cannot be verified", async () => {
+  it("a page full of mostly-PRs still reads the next page's issues", async () => {
+    const f = fixture({ fetchImpl: async url => {
+      const page = Number(new URL(String(url)).searchParams.get("page"));
+      if (page === 1) return jsonResponse([...Array.from({ length: 99 }, (_, i) => pr(i)), issue({ number: 11, node_id: "I_11" })]);
+      return jsonResponse([issue({ number: 22, node_id: "I_22" })]);
+    } });
+    const result = await f.intake.pollOnce();
+    expect(result).toMatchObject({ status: "OK", proposals: 2, rejected: 0 });
+    expect(f.intake.records().map(r => r.proposedTask.issueNumber).sort()).toEqual([11, 22]);
+  });
+  it("a transient repository lookup failure defers instead of permanently rejecting", async () => {
     const slug = "https://api.github.com/repos/skytuhua-org/Gen-V1";
-    const f = fixture({ fetchImpl: async url => String(url).includes("/issues") ? jsonResponse([issue({ repository_url: slug })]) : jsonResponse({}, 500) });
+    let lookups = 0;
+    const f = fixture({ fetchImpl: async url => {
+      if (String(url).includes("/issues")) return jsonResponse([issue({ repository_url: slug })]);
+      lookups++;
+      return lookups === 1 ? jsonResponse({}, 500) : jsonResponse({ id: REPO });
+    } });
+    const result = await f.intake.pollOnce();
+    expect(result).toMatchObject({ status: "OK", proposals: 1, rejected: 0 });
+    expect(lookups).toBe(2); // the transient 500 retried before deciding
+    let permanent = 0;
+    const f2 = fixture({ fetchImpl: async url => {
+      if (String(url).includes("/issues")) return jsonResponse([issue({ repository_url: slug })]);
+      permanent++;
+      return jsonResponse({}, 500);
+    } });
+    const deferred = await f2.intake.pollOnce();
+    expect(deferred.rejected).toBe(0);
+    expect(f2.intake.records()).toHaveLength(0);
+    expect(permanent).toBe(3); // bounded retries, then defer — no dedup key written
+  });
+  it("a non-transient repository lookup failure rejects the record", async () => {
+    const slug = "https://api.github.com/repos/skytuhua-org/Gen-V1";
+    const f = fixture({ fetchImpl: async url => String(url).includes("/issues") ? jsonResponse([issue({ repository_url: slug })]) : jsonResponse({}, 404) });
     const result = await f.intake.pollOnce();
     expect(result).toMatchObject({ status: "OK", proposals: 0, rejected: 1 });
     expect(f.intake.records()[0]).toMatchObject({ disposition: "REJECTED", rejectionReason: "WRONG_REPOSITORY" });

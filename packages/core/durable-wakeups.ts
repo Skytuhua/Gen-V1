@@ -258,8 +258,12 @@ export class DurableWakeupScheduler {
     }
     const revalidation = this.revalidate?.(delivery) ?? { ok: true as const };
     if (!revalidation.ok) {
+      // A WAITING_HUMAN block is a deferral, not a consumption: the claimed
+      // firing stays claimable under its own occurrence key so a later resume
+      // can deliver it (host events never re-arrive with the same identity).
+      const held = revalidation.blockedReason === "WAITING_HUMAN";
       this.store.internal("background.occurrence.blocked", null, () => {
-        this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null });
+        this.setOccurrence(key, held ? { state: "PENDING", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
         const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
         if (wakeup) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: revalidation.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
       });
@@ -305,8 +309,11 @@ export class DurableWakeupScheduler {
         return;
       }
       if (outcome.status === "BLOCKED") {
+        // Same deferral rule as the revalidation path: a human wait holds the
+        // firing for redelivery; any other block consumes it.
+        const held = outcome.blockedReason === "WAITING_HUMAN";
         this.store.internal("background.occurrence.blocked", null, () => {
-          this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null });
+          this.setOccurrence(key, held ? { state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
           if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: outcome.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
@@ -393,34 +400,58 @@ export class DurableWakeupScheduler {
     return next;
   }
   resume(command: HostCommand, wakeupId: string): WakeupRecord {
-    return this.store.command(command, () => this.resumeRecord(this.requireWakeup(wakeupId))).result as WakeupRecord;
+    const resumed = this.store.command(command, () => this.resumeRecord(this.requireWakeup(wakeupId), true)).result as WakeupRecord;
+    this.deliverHeld(resumed);
+    return resumed;
   }
 
   /** A blocked AT_UTC wakeup cleared its due instant and cancelled its claimed
    * occurrence before delivery; unblocking it must re-arm the firing or it can
    * never deliver. Bumping scheduleRevision mints a fresh occurrence key for
    * the same due instant, so the cancelled receipt stays as history while the
-   * firing becomes claimable again. Interval schedules already carry a future
-   * nextDueAtMs and host-event wakeups re-arm on the next event, so they need
-   * only the state flip. */
-  private resumeRecord(wakeup: WakeupRecord): WakeupRecord {
-    let next = { ...wakeup, paused: false, state: wakeup.state === "BLOCKED" ? "PENDING" : wakeup.state, blockedReason: wakeup.state === "BLOCKED" ? null : wakeup.blockedReason, updatedAt: iso(this.now()) };
-    if (wakeup.state === "BLOCKED" && wakeup.trigger.kind === "AT_UTC" && wakeup.nextDueAtMs === null)
+   * firing becomes claimable again. A firing deferred by a human wait keeps a
+   * PENDING occurrence under its original key, so no new key is minted for it.
+   * Interval schedules already carry a future nextDueAtMs and host-event
+   * wakeups re-arm on the next event, so they need only the state flip.
+   * `clearPaused` stays an explicit operator decision: the auto-resume path
+   * never releases a schedule the operator paused. */
+  private resumeRecord(wakeup: WakeupRecord, clearPaused: boolean): WakeupRecord {
+    const unblocking = wakeup.state === "BLOCKED";
+    const held = unblocking ? this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").some(item => item.wakeupId === wakeup.wakeupId && item.state === "PENDING" && item.dispatch === "NOT_DISPATCHED") : false;
+    let next = { ...wakeup, paused: clearPaused ? false : wakeup.paused, state: unblocking ? "PENDING" : wakeup.state, blockedReason: unblocking ? null : wakeup.blockedReason, updatedAt: iso(this.now()) };
+    if (unblocking && !held && wakeup.trigger.kind === "AT_UTC" && wakeup.nextDueAtMs === null)
       next = { ...next, scheduleRevision: wakeup.scheduleRevision + 1, nextDueAtMs: wakeup.trigger.dueAtMs };
     this.store.put("backgroundWakeup", wakeup.wakeupId, null, next);
     return next;
   }
 
+  /** After an unblock, re-claim and dispatch any occurrence that was held
+   * (PENDING, never dispatched) by the block. An operator-paused wakeup keeps
+   * its firing held until the explicit resume. */
+  private deliverHeld(wakeup: WakeupRecord): void {
+    if (wakeup.paused || wakeup.state !== "PENDING") return;
+    for (const occurrence of this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => item.wakeupId === wakeup.wakeupId && item.state === "PENDING" && item.dispatch === "NOT_DISPATCHED")) {
+      const delivery = this.claimOccurrence(wakeup.wakeupId, occurrence.occurrenceKey, {
+        scheduledDueAtMs: occurrence.scheduledDueAtMs, hostEventId: occurrence.hostEventId,
+        ...(wakeup.trigger.kind === "INTERVAL_UTC" ? { intervalAnchor: wakeup.trigger } : {}),
+      });
+      if (delivery) this.dispatch(delivery);
+    }
+  }
+
   /** Auto-resume only wakeups parked for a specific reason (for example a
-   * human wait that has now been answered); operator-paused or otherwise
-   * blocked schedules stay untouched. */
+   * human wait that has now been answered); operator-paused schedules keep
+   * their pause, and otherwise-blocked schedules stay untouched. */
   resumeBlockedForWork(taskId: string, blockedReason: string): void {
-    this.store.internal("background.wakeups.resumedForWork", taskId, () => {
+    const resumed = this.store.internal("background.wakeups.resumedForWork", taskId, () => {
+      const out: WakeupRecord[] = [];
       for (const wakeup of this.store.all<WakeupRecord>("backgroundWakeup")) {
         if (wakeup.taskId !== taskId || wakeup.state !== "BLOCKED" || wakeup.blockedReason !== blockedReason) continue;
-        this.resumeRecord(wakeup);
+        out.push(this.resumeRecord(wakeup, false));
       }
-    });
+      return out;
+    }) as WakeupRecord[];
+    for (const wakeup of resumed) this.deliverHeld(wakeup);
   }
   cancel(command: HostCommand, wakeupId: string): WakeupRecord {
     return this.store.command(command, () => this.cancelRecord(wakeupId)).result as WakeupRecord;
@@ -475,10 +506,14 @@ export class DurableWakeupScheduler {
   }
 
   get busy(): boolean { return this.inFlight.size > 0; }
+  /** Display read: bounded to the UI schema cap. Lifecycle code must use
+   * allSchedules() — a capped list can never drive pause or cancel. */
   schedules(): WakeupRecord[] {
     return this.store.all<WakeupRecord>("backgroundWakeup")
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 200);
   }
+  /** Unbounded inventory for lifecycle operations (pauseAll, cancelWork). */
+  allSchedules(): WakeupRecord[] { return this.store.all<WakeupRecord>("backgroundWakeup"); }
   occurrences(wakeupId?: string): BackgroundOccurrenceV1[] {
     return this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => wakeupId === undefined || item.wakeupId === wakeupId);
   }

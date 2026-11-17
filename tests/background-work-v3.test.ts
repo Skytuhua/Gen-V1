@@ -370,21 +370,21 @@ describe("M10 review regressions", () => {
     expect(parked.state).toBe("BLOCKED");
     expect(parked.blockedReason).toBe("WAITING_HUMAN");
     expect(f.coordinator.work(work.workId).processIdentity).toBeNull();
+    // The deferral holds the claimed firing for redelivery, never consumes it.
+    const held = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === parked.wakeupId);
+    expect(held).toHaveLength(1);
+    expect(held[0]!.state).toBe("PENDING");
     f.coordinator.respondHumanStep(command("background.human.respond", {}, "thread-1"), { requestId: "req-1", revision: 1, response: { proceed: true } });
     expect(f.coordinator.work(work.workId).state).toBe("QUEUED");
-    const resumed = scheduler.schedules()[0]!;
-    expect(resumed.state).toBe("PENDING");
-    expect(resumed.nextDueAtMs).not.toBeNull();
-    expect(resumed.scheduleRevision).toBeGreaterThan(parked.scheduleRevision);
-    await scheduler.tick();
     await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
     expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+    expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === parked.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
   });
   it("a blocked AT_UTC wakeup re-arms on resume instead of staying permanently dead", async () => {
     const f = fixture();
     enable("jobs.backgroundV1");
     let outcome: "BLOCKED" | "DELIVERED" = "BLOCKED";
-    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => outcome === "BLOCKED" ? { status: "BLOCKED", blockedReason: "WAITING_HUMAN" } : { status: "DELIVERED" } });
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => outcome === "BLOCKED" ? { status: "BLOCKED", blockedReason: "EXTERNAL_HOLD" } : { status: "DELIVERED" } });
     cleanups.push(() => scheduler.stop());
     const dueAtMs = f.now() - 1;
     const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "task-1", trigger: { kind: "AT_UTC", dueAtMs } });
@@ -400,6 +400,64 @@ describe("M10 review regressions", () => {
     const occurrences = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === wakeup.wakeupId);
     expect(occurrences.filter(o => o.state === "CANCELLED")).toHaveLength(1);
     expect(occurrences.filter(o => o.state === "DELIVERED")).toHaveLength(1);
+  });
+  it("a human-deferred host-event firing delivers on resume without a new event", async () => {
+    const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "deferred event", command: cmdSpec(f.root, ["-e", "0"]) });
+    const scheduler = f.coordinator.scheduler;
+    scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "run-9" } });
+    f.coordinator.requestHumanStep(command("background.human.request"), { requestId: "req-9", owner: f.owner, questionRevision: 1, responseSchema: {}, requiredAction: "answer", workId: work.workId });
+    f.coordinator.notifyHostEvent("runtime.settled", "run-9", "runtime.settled:run-9");
+    await waitFor(() => scheduler.schedules()[0]?.state === "BLOCKED");
+    expect(scheduler.schedules()[0]!.blockedReason).toBe("WAITING_HUMAN");
+    const held = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === scheduler.schedules()[0]!.wakeupId);
+    expect(held).toHaveLength(1);
+    expect(held[0]!.state).toBe("PENDING");
+    f.coordinator.respondHumanStep(command("background.human.respond", {}, "thread-1"), { requestId: "req-9", revision: 1, response: { ok: true } });
+    // The held occurrence redelivers under its original key — no second event.
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
+    expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === held[0]!.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
+  });
+  it("an auto-resumed schedule keeps an operator pause", async () => {
+    const followUps: { id: string; threadId: string; content: string }[] = [];
+    const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { followUps.push(input); f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "paused", command: cmdSpec(f.root, ["-e", "0"]) });
+    const scheduler = f.coordinator.scheduler;
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "AT_UTC", dueAtMs: f.now() - 1 } });
+    f.coordinator.requestHumanStep(command("background.human.request"), { requestId: "req-p", owner: f.owner, questionRevision: 1, responseSchema: {}, requiredAction: "answer", workId: work.workId });
+    await scheduler.tick();
+    await waitFor(() => scheduler.schedules()[0]?.state === "BLOCKED");
+    scheduler.pause(command("background.wakeup.pause"), wakeup.wakeupId);
+    f.coordinator.respondHumanStep(command("background.human.respond", {}, "thread-1"), { requestId: "req-p", revision: 1, response: { ok: true } });
+    const after = scheduler.allSchedules().find(w => w.wakeupId === wakeup.wakeupId)!;
+    expect(after.paused).toBe(true);
+    expect(after.state).toBe("PENDING");
+    await new Promise(resolve => setTimeout(resolve, 300));
+    expect(f.coordinator.work(work.workId).processIdentity).toBeNull();
+    const resumed = scheduler.resume(command("background.wakeup.resume"), wakeup.wakeupId);
+    expect(resumed.paused).toBe(false);
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+  });
+  it("a scheduled firing during an in-flight manual start waits instead of blocking", async () => {
+    let release!: () => void;
+    const gateHeld = new Promise<void>(resolve => { release = resolve; });
+    const f = fixture({ executionGate: async () => { await gateHeld; return { allowed: true }; } });
+    enable("jobs.backgroundV1");
+    const work = f.coordinator.admit(command("background.work.admit"), { owner: f.owner, kind: "COMMAND", title: "overlap", command: cmdSpec(f.root, ["-e", "0"]) });
+    const scheduler = f.coordinator.scheduler;
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: work.workId, trigger: { kind: "AT_UTC", dueAtMs: f.now() - 1 } });
+    const manual = f.coordinator.startCommand(work.workId);
+    await new Promise(resolve => setTimeout(resolve, 20));
+    const ticked = scheduler.tick();
+    release();
+    await Promise.all([manual, ticked]);
+    await waitFor(() => f.coordinator.work(work.workId).state === "SETTLED");
+    const record = scheduler.allSchedules().find(w => w.wakeupId === wakeup.wakeupId)!;
+    expect(record.state).toBe("DELIVERED");
+    expect(record.blockedReason).toBeNull();
   });
   it("a direct start on a revoked owner blocks instead of launching", async () => {
     const f = fixture({ executionGate: async () => ({ allowed: true }) });

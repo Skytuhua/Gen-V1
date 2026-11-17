@@ -110,7 +110,7 @@ export class BackgroundWorkCoordinator {
   private readonly permits = new Map<string, { release: () => void; teardownConfirmed: boolean }>();
   private readonly idleControls = new Map<string, AbortController>();
   private readonly executorWork = new Set<Promise<unknown>>();
-  private readonly starting = new Set<string>();
+  private readonly starting = new Map<string, Promise<BackgroundWorkRecord>>();
   private draining = false;
 
   constructor(options: BackgroundWorkOptions) {
@@ -292,7 +292,7 @@ export class BackgroundWorkCoordinator {
       this.idleControls.get(work.workId)?.abort();
       return this.transition(work, work.state, { error: note }, note);
     }
-    for (const wakeup of this.scheduler.schedules().filter(item => item.taskId === work.workId && item.state !== "CANCELLED"))
+    for (const wakeup of this.scheduler.allSchedules().filter(item => item.taskId === work.workId && item.state !== "CANCELLED"))
       this.scheduler.cancelRecord(wakeup.wakeupId);
     const next = this.transition(work, "SETTLED", { outcome: "CANCELLED", settledAtMs: this.now() }, note);
     this.releasePermitIfConfirmed(work.workId, true);
@@ -312,37 +312,45 @@ export class BackgroundWorkCoordinator {
     if (!owner.ok) {
       return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: owner.blockedReason })) as BackgroundWorkRecord;
     }
-    // A second start while a launch is in flight or a session is live must
-    // never spawn again — the previous child would be orphaned unsupervised.
-    if (this.starting.has(workId)) return this.requireWork(workId);
-    this.starting.add(workId);
+    // A second start while a launch is in flight awaits the same admission:
+    // the caller receives the first launch's outcome, so a scheduled firing
+    // sees RUNNING rather than a spurious still-QUEUED record.
+    const inFlight = this.starting.get(workId);
+    if (inFlight) return inFlight;
+    const launch = this.launchAfterGate(work);
+    this.starting.set(workId, launch);
     try {
-      const profileId = work.profileId ?? "trusted-host";
-      const decision = await this.executionGate({ profileId, spec: work.command });
-      if (!decision.allowed) {
-        return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: decision.reason || BACKGROUND_HOLD_REASONS.executionProfile })) as BackgroundWorkRecord;
-      }
-      const current = this.requireWork(workId);
-      if (current.state === "SETTLED" || current.state === "UNKNOWN" || this.draining) return current;
-      if (current.state === "RUNNING") {
-        if (this.sessions.has(workId)) return current;
-        // RUNNING without an owned supervised session is an orphan risk:
-        // quarantine instead of spawning a second unowned process.
-        this.markUnknown(workId, "RUNNING without an owned session cannot be restarted blindly.");
-        return this.requireWork(workId);
-      }
-      // Work paused for a human does not launch until the answer lands; the
-      // parked schedule is released by respondHumanStep's auto-resume.
-      if (current.state === "WAITING_HUMAN") return current;
-      // Custody may have drifted while the execution gate was pending.
-      const drifted = this.revalidateOwner(current);
-      if (!drifted.ok) {
-        return this.store.internal("background.work.blocked", null, () => this.transition(current, "BLOCKED", { blockedReason: drifted.blockedReason })) as BackgroundWorkRecord;
-      }
-      return this.launch(workId);
+      return await launch;
     } finally {
-      this.starting.delete(workId);
+      if (this.starting.get(workId) === launch) this.starting.delete(workId);
     }
+  }
+
+  private async launchAfterGate(work: BackgroundWorkRecord): Promise<BackgroundWorkRecord> {
+    const workId = work.workId;
+    const profileId = work.profileId ?? "trusted-host";
+    const decision = await this.executionGate!({ profileId, spec: work.command! });
+    if (!decision.allowed) {
+      return this.store.internal("background.work.blocked", null, () => this.transition(this.requireWork(workId), "BLOCKED", { blockedReason: decision.reason || BACKGROUND_HOLD_REASONS.executionProfile })) as BackgroundWorkRecord;
+    }
+    const current = this.requireWork(workId);
+    if (current.state === "SETTLED" || current.state === "UNKNOWN" || this.draining) return current;
+    if (current.state === "RUNNING") {
+      if (this.sessions.has(workId)) return current;
+      // RUNNING without an owned supervised session is an orphan risk:
+      // quarantine instead of spawning a second unowned process.
+      this.markUnknown(workId, "RUNNING without an owned session cannot be restarted blindly.");
+      return this.requireWork(workId);
+    }
+    // Work paused for a human does not launch until the answer lands; the
+    // parked schedule is released by respondHumanStep's auto-resume.
+    if (current.state === "WAITING_HUMAN") return current;
+    // Custody may have drifted while the execution gate was pending.
+    const drifted = this.revalidateOwner(current);
+    if (!drifted.ok) {
+      return this.store.internal("background.work.blocked", null, () => this.transition(current, "BLOCKED", { blockedReason: drifted.blockedReason })) as BackgroundWorkRecord;
+    }
+    return this.launch(workId);
   }
 
   private launch(workId: string): BackgroundWorkRecord {
@@ -392,6 +400,9 @@ export class BackgroundWorkCoordinator {
           resolve();
         };
         child.once("exit", finish);
+        // stdio closes after exit and can still deliver chunks inside the
+        // append throttle window; flush the tail once the streams are done.
+        child.once("close", () => { if (session.output) this.persistOutput(session, true); });
         child.once("error", error => {
           if (session.exited) return;
           // Spawn failure before identity: FAILED. Later transport error with
@@ -750,8 +761,12 @@ export class BackgroundWorkCoordinator {
   }
 
   humanSteps(threadId?: string): HumanStepV1[] {
-    // Bounded like works(): the read surface never grows past its schema cap.
-    return this.store.all<HumanStepV1>("humanStep").filter(step => threadId === undefined || step.owner.threadId === threadId).slice(-200);
+    // Bounded like works(), but pending steps rank first: a step the host is
+    // waiting on must never age out of the read surface behind history.
+    return this.store.all<HumanStepV1>("humanStep")
+      .filter(step => threadId === undefined || step.owner.threadId === threadId)
+      .sort((a, b) => (a.deliveryState === "PENDING" ? 0 : 1) - (b.deliveryState === "PENDING" ? 0 : 1))
+      .slice(0, 200);
   }
 
   /** Allowlisted host events reach HOST_EVENT wakeups by exact correlation
@@ -825,7 +840,7 @@ export class BackgroundWorkCoordinator {
   pauseAll(command: HostCommand): { paused: number; stopped: number; quarantined: number } {
     return this.store.command(command, () => {
       let paused = 0;
-      for (const wakeup of this.scheduler.schedules()) {
+      for (const wakeup of this.scheduler.allSchedules()) {
         if (!wakeup.paused && wakeup.state !== "CANCELLED") { this.scheduler.pauseRecord(wakeup.wakeupId); paused++; }
       }
       let stopped = 0, quarantined = 0;
