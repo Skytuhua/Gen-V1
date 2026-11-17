@@ -11,6 +11,8 @@ import * as installedVerification from '../scripts/verify-installed-desktop.ts';
 import {Store} from '../packages/storage/store.ts';
 import {ProjectMemory} from '../packages/core/project-memory.ts';
 import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
+import {MemoryConsolidator} from '../packages/core/memory-consolidation.ts';
+import type {MemoryAction} from '../packages/contracts/project-memory.ts';
 
 const directory='C:\\verification\\exclusive\\installed';
 const clear=():InstallPreflight=>({entries:[],runningAppPids:[],shortcuts:[],updaterCache:{path:'C:\\fixture\\generative-harness-desktop-updater',present:false}});
@@ -175,9 +177,51 @@ describe('installed desktop verification custody',()=>{
 
 describe('installed project memory retention fixture',()=>{
  it('requires an explicit retention option and rejects unknown or duplicated options',()=>{
-  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false});
-  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true});
-  for(const args of [[],['setup'],['setup','unpacked','--enable-memory'],['setup','unpacked','--project-memory-retention','--project-memory-retention']])expect(()=>installedVerification.readInstalledVerificationArguments(args)).toThrow(/usage|pass|option/i);
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false,memoryEnabled:false});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:false});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention','--project-memory-enabled'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:true});
+  for(const args of [[],['setup'],['setup','unpacked','--enable-memory'],['setup','unpacked','--project-memory-enabled'],['setup','unpacked','--project-memory-retention','--project-memory-retention'],['setup','unpacked','--project-memory-retention','--project-memory-enabled','--project-memory-enabled']])expect(()=>installedVerification.readInstalledVerificationArguments(args)).toThrow(/usage|pass|option/i);
+ });
+ it('activates only project memory for explicit enabled launches and never inherits ambient feature flags',()=>{
+  vi.stubEnv('HARNESS_FLAG_MEMORY_PROJECT_V1','true');vi.stubEnv('HARNESS_FLAG_MEMORY_EXTERNAL_RECALL_EXPERIMENT_V1','true');vi.stubEnv('HARNESS_FLAG_CONTEXT_COMPILER_V1','true');
+  try{
+   const enabled=installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],'enabled');
+   expect(enabled.HARNESS_FLAG_MEMORY_PROJECT_V1).toBe('true');
+   for(const env of [enabled,installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],'default-off'),installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319])]){
+    expect(env.HARNESS_DESKTOP_TEST_DATA_DIR).toBe('disposable');expect(env.HARNESS_DESKTOP_PORT).toBe('4317');expect(env.HARNESS_DESKTOP_WIDGET_PORT).toBe('4318');
+    expect(env.HARNESS_FLAG_MEMORY_EXTERNAL_RECALL_EXPERIMENT_V1).toBeUndefined();expect(env.HARNESS_FLAG_CONTEXT_COMPILER_V1).toBeUndefined();
+   }
+   expect(installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],'default-off').HARNESS_FLAG_MEMORY_PROJECT_V1).toBeUndefined();
+   expect(installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319]).HARNESS_FLAG_MEMORY_PROJECT_V1).toBeUndefined();
+  }finally{vi.unstubAllEnvs();}
+ });
+ it('audits an enabled profile after exit with deterministic consolidation while rejecting model auxiliary work',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-enabled-'))),flags=registeredCapabilityFlags();
+  try{
+   const {seedInstalledMemoryProfile,observeInstalledMemoryStorage,INSTALLED_MEMORY_CASE}=await import('../scripts/installed-memory-retention.ts');
+   const seed=await seedInstalledMemoryProfile(root),store=new Store(seed.profile.path);
+   try{
+    const memory=new ProjectMemory(store,{enabled:()=>true}),access=await memory.access(seed.projectId,seed.threadId);
+    const consolidator=new MemoryConsolidator(store,{snapshot:value=>memory.consolidationSnapshot(value)});
+    const review=async(operation:MemoryAction)=>{
+     memory.review(access,{id:crypto.randomUUID(),type:'project.memory.review',threadId:seed.threadId,payload:{operation}},'installed-audit-test');
+     await consolidator.consolidate(access);
+    };
+    await review({action:'configure',baseRevision:2,enabled:true,sourceThreadIds:[seed.threadId]});
+    await review({action:'edit',itemId:seed.items.edit.id,baseRevision:2,text:INSTALLED_MEMORY_CASE.editedText});
+    await review({action:'accept',itemId:seed.items.accept.id,baseRevision:1});
+    await review({action:'reject',itemId:seed.items.reject.id,baseRevision:1});
+    await review({action:'forget',itemId:seed.items.forget.id,baseRevision:2});
+   }finally{store.close();}
+   const observation=await observeInstalledMemoryStorage(seed,1,'enabled');
+   expect(observation).toMatchObject({installedHostMode:'enabled',available:false,enabled:true,accountCount:0,activeRunCount:0,auxiliaryUsage:{consolidation:{modelCalls:0,cost:0,pending:0}}});
+   expect(observation.recordCounts.projectMemoryAuxiliaryUsage).toBeGreaterThan(0);
+   expect(registeredCapabilityFlags()).toEqual(flags);
+   const changed=new Store(seed.profile.path);
+   try{const row=changed.all<{id:string;usage:Record<string,unknown>}>('projectMemoryAuxiliaryUsage')[0]!;changed.internal('installed.test.charge',null,()=>{changed.put('projectMemoryAuxiliaryUsage',row.id,null,{...row,usage:{...row.usage,modelCalls:1,cost:null}});return {};});}
+   finally{changed.close();}
+   await expect(observeInstalledMemoryStorage(seed,1,'enabled')).rejects.toThrow();
+  }finally{await rm(root,{recursive:true,force:true});}
  });
  it('seeds source-linked records in place and reopens them with the production default-off policy and no model owner',async()=>{
   const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-retention-'))),flags=registeredCapabilityFlags();
