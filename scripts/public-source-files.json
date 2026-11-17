@@ -3194,6 +3194,7 @@
     "tests/verification-evidence-owner-v3.test.ts",
     "tests/verification-executor-binding.test.ts",
     "tests/verification-executor.test.ts",
+    "tests/verification-managed-recipe.test.ts",
     "tests/verification-read-models-v3.test.ts",
     "tests/verification-source-authority.test.ts",
     "tests/verification-source-digest.test.ts",

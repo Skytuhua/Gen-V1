@@ -348,15 +348,18 @@ it('a START server stays owned and alive; early exit fails the phase',async()=>{
  expect(dead.observations.some(obs=>obs.phase==='READINESS')).toBe(false);
 });
 
-it('owned processes are terminated even when a phase throws outside its error handling',async()=>{
+it('lost source inputs leave blocked evidence and owned processes are still terminated',async()=>{
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
  const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
- // Delete a declared input mid-run so the next phase's digest recomputation throws.
+ // Delete a declared input mid-run so the post-check source cut is unavailable.
  let built=false;
  const l=launcher([{exitCode:0},{exitCode:0}]);
  const destructive:VerificationLauncher={launch:async req=>{const proc=await l.fn.launch(req);if(!built){built=true;rmSync(join(root,'app.ts'),{force:true});}return proc;}};
- expect(await codeAsync(service.runRecipe(o,request('recipe-1'),destructive,{probe:async()=>({reachable:true,ownerPid:1})}))).toBe('INVALID_RESOURCE');
+ const result=await service.runRecipe(o,request('recipe-1'),destructive,{probe:async()=>({reachable:true,ownerPid:1})});
+ expect(result.outcome).toBe('BLOCKED');
+ expect(result.observations.some(observation=>observation.outcome==='BLOCKED'&&observation.detail?.includes('BLOCKED_SOURCE_DRIFT'))).toBe(true);
+ expect(result.observations.some(observation=>observation.phase==='TEST')).toBe(false);
  expect(l.launched.length).toBeGreaterThan(0);
  expect(l.launched.every(proc=>proc.terminated)).toBe(true);
 });
