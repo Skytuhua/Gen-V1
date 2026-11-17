@@ -293,7 +293,8 @@ test('rejected proposals remain excluded from real submissions and survive host 
   const reject = row().getByRole('button', { name: `Reject ${proposed.id}`, exact: true });
   await reject.focus(); await expect(reject).toBeFocused(); await reject.press('Enter');
   expect((await rejectedResponse).status()).toBe(200);
-  await expect(row()).toHaveCount(0);
+  await expect(row()).toContainText('Rejected · revision 2');
+  await expect(row().getByRole('button', { name: `Accept ${proposed.id}`, exact: true })).toHaveCount(0);
   const rejected = (await memoryHost.memory(thread.id)).items.find(value => value.item.id === proposed.id)!.item;
   expect(rejected).toMatchObject({ id: proposed.id, revision: 2, state: 'EXPIRED', text: MEMORY_CLAIM,
     sourceRefs: proposed.sourceRefs, supersedes: [{ itemId: proposed.id, revision: 1 }], reviewDecision: { action: 'REJECT' } });
@@ -306,7 +307,9 @@ test('rejected proposals remain excluded from real submissions and survive host 
   expect(writes[0]).toMatchObject({ method: 'POST', status: 200, csrf: true,
     body: { operation: { action: 'reject', itemId: proposed.id, baseRevision: 1 } } });
   await review(page).getByRole('tab', { name: 'Accepted', exact: true }).click();
-  await expect(row()).toContainText('Expired · revision 2');
+  await expect(row()).toHaveCount(0);
+  await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
+  await expect(row()).toContainText('Rejected · revision 2');
   await review(page).getByRole('button', { name: 'Close dialog', exact: true }).click();
 
   const prepared = await preview(page, memoryHost, thread.id, 'Explain SQLite persistence for this project.');
@@ -320,7 +323,9 @@ test('rejected proposals remain excluded from real submissions and survive host 
 
   await memoryHost.restart(); await page.reload(); await expect(composer(page)).toBeVisible();
   await openReview(page);
-  await expect(row()).toContainText('Expired · revision 2');
+  await expect(row()).toHaveCount(0);
+  await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
+  await expect(row()).toContainText('Rejected · revision 2');
   expect((await memoryHost.memory(thread.id)).items.find(value => value.item.id === proposed.id)?.item).toEqual(rejected);
   await row().getByRole('button', { name: `View source ${proposed.id} 1`, exact: true }).click();
   await expect(review(page).getByRole('region', { name: 'Supporting source', exact: true }).locator('pre')).toHaveJSProperty('textContent', MEMORY_SOURCE);

@@ -11,6 +11,7 @@ const tabs = ['Accepted', 'Proposals', 'Conflicts', 'Deleted history'] as const;
 type Tab = typeof tabs[number];
 type Row = ProjectMemoryView['items'][number];
 const label = (value: string) => value[0] + value.slice(1).toLowerCase().replaceAll('_', ' ');
+const rejectedProposal = (item: MemoryItemV1) => item.state === 'EXPIRED' && item.reviewDecision?.action === 'REJECT';
 const message = (cause: unknown) => cause instanceof Error ? cause.message : 'Project memory could not be updated.';
 const date = (value: string | null) => value ? new Date(value).toLocaleString() : 'Never';
 function age(value: string) {
@@ -65,7 +66,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       retry.current = undefined; clearDetails(); setEditor(undefined);
       if (operation.action === 'configure') configDirty.current = false;
       if (receipt.result.state === 'CONFLICT') {setTab('Conflicts'); setNotice('Both revisions were retained. Resolve the conflict before this memory can be recalled.');}
-      else setNotice(operation.action === 'forget' ? 'Forgotten. Retrieval exclusion is immediate; physical purge is tracked in Deleted history.' : 'Project memory updated.');
+      else setNotice(operation.action === 'forget' ? 'Forgotten. Retrieval exclusion is immediate; physical purge is tracked in Deleted history.' : operation.action === 'reject' ? 'Rejected. This proposal is excluded from recall.' : 'Project memory updated.');
       await load(); return true;
     } catch (cause) {if (active.current) setError(message(cause)); return false;}
     finally {if (active.current) {locked.current = false; setBusy(false);}}
@@ -91,7 +92,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
     } catch (cause) {if (active.current) setError(message(cause));}
     finally {if (active.current) {locked.current = false; setBusy(false);}}
   }
-  const blocked = busy || loading, mutationBlocked = blocked || readOnly, rows = view?.items.filter(({item}) => tab === 'Accepted' ? item.state === 'ACCEPTED' || item.state === 'EXPIRED' : tab === 'Proposals' ? item.state === 'PROPOSED' : tab === 'Conflicts' ? item.state === 'CONFLICT' : false) ?? [];
+  const blocked = busy || loading, mutationBlocked = blocked || readOnly, rows = view?.items.filter(({item}) => tab === 'Accepted' ? item.state === 'ACCEPTED' || item.state === 'EXPIRED' && !rejectedProposal(item) : tab === 'Proposals' ? item.state === 'PROPOSED' || rejectedProposal(item) : tab === 'Conflicts' ? item.state === 'CONFLICT' : false) ?? [];
   return <Modal open title="Project memory" onClose={close} className="project-memory-review">
     <div className="project-memory-body">
       {readOnly && <p className="project-memory-caption">Read-only review. Manage memory from the project overview.</p>}
@@ -119,6 +120,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
         }}>{value}</button>)}</div>
         <div role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tabs.indexOf(tab)}`} aria-busy={blocked}>
           {tab === 'Accepted' && <p className="project-memory-caption">Expired records remain visible here and are excluded from recall.</p>}
+          {tab === 'Proposals' && <p className="project-memory-caption">Rejected proposals remain visible here and are excluded from recall.</p>}
           {rows.map(row => <MemoryRow key={`${row.item.id}:${row.item.revision}`} row={row} projectName={view.projectName} disabled={blocked} readOnly={readOnly} onAction={act} onEdit={item => {if (!readOnly) {clearDetails(); setEditor(item);}}} onSource={(item, ref) => void detail(item, ref)} onForget={item => void detail(item)}/>)}
           {tab !== 'Deleted history' && !rows.length && <p className="project-memory-empty">No {tab.toLowerCase()} memories.</p>}
           {tab === 'Deleted history' && (view.tombstones.length ? view.tombstones.map(tombstone => <article className="project-memory-row" key={tombstone.itemId}><header><strong>{tombstone.itemId}</strong><span>Deletion revision {tombstone.deletionRevision}</span></header><p>Excluded from retrieval on <time dateTime={tombstone.deletedAt}>{date(tombstone.deletedAt)}</time>.</p><p>{tombstone.purgeStatus === 'COMPLETE' ? 'Physical purge complete' : 'Physical purge pending'}</p><details><summary>Invalidated summaries and indexes ({tombstone.affectedDerivedArtifacts.length})</summary><ul>{tombstone.affectedDerivedArtifacts.map(value => <li key={value}>{value}</li>)}</ul></details></article>) : <p className="project-memory-empty">No deleted memories.</p>)}
@@ -135,7 +137,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
 function MemoryRow({row, projectName, disabled, readOnly, onAction, onEdit, onSource, onForget}: {row: Row; projectName: string; disabled: boolean; readOnly: boolean; onAction: (operation: MemoryAction) => Promise<boolean>; onEdit: (item: MemoryItemV1) => void; onSource: (item: MemoryItemV1, ref: MemorySourceRefV1) => void; onForget: (item: MemoryItemV1) => void}) {
   const {item} = row, mutationBlocked = disabled || readOnly;
   return <article className="project-memory-row" aria-label={`Memory ${item.id}`}>
-    <header><strong>{label(item.kind)}</strong><span>{label(item.state)} · revision {item.revision}</span></header>
+    <header><strong>{label(item.kind)}</strong><span>{rejectedProposal(item) ? 'Rejected' : label(item.state)} · revision {item.revision}</span></header>
     <p className="project-memory-text">{item.text}</p>
     <dl className="project-memory-metadata"><dt>Project</dt><dd>{projectName}</dd><dt>Age</dt><dd><time dateTime={item.observedAt} title={date(item.observedAt)}>{age(item.observedAt)}</time></dd><dt>Expiry</dt><dd>{item.expiresAt ? <time dateTime={item.expiresAt}>{date(item.expiresAt)}</time> : 'None'}</dd><dt>Last used</dt><dd>{row.lastUsedAt ? <time dateTime={row.lastUsedAt}>{date(row.lastUsedAt)}</time> : 'Never'}</dd><dt>Asserted by</dt><dd>{label(item.assertedBy.kind)} · {item.sensitivity === 'SENSITIVE' ? 'Sensitive' : 'Normal sensitivity'}</dd><dt>Source</dt><dd>{item.sourceRefs.map((ref, index) => <span className="project-memory-source" key={`${ref.digest}:${index}`}><span>{label(ref.sourceKind)} · {label(ref.observedStatus)}</span><button type="button" disabled={disabled} aria-label={`View source ${item.id} ${index + 1}`} onClick={() => onSource(item, ref)}>View pinned source</button></span>)}</dd></dl>
     {item.state === 'CONFLICT' ? <><ConflictReview row={row} disabled={disabled} readOnly={readOnly} onAction={onAction} onSource={onSource}/><button type="button" className="project-memory-danger" disabled={mutationBlocked} aria-label={`Forget ${item.id}`} onClick={() => onForget(item)}>Forget</button></> : <div className="project-memory-actions">
