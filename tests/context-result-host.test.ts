@@ -7,13 +7,14 @@ import { Store } from '../packages/storage/store';
 import { configureHostCapabilityFlags } from '../packages/core/capability-flags';
 import type { DataRecord, ResourceGrant, RuntimeAdapter, RuntimeCallbacks, RuntimeUsage, Thread } from '../packages/contracts';
 
-const hooks = vi.hoisted(() => ({ afterPut: undefined as (() => void) | undefined, afterGet: undefined as (() => void) | undefined }));
+const hooks = vi.hoisted(() => ({ afterPut: undefined as (() => void) | undefined, afterGet: undefined as (() => void) | undefined, beforeRead: undefined as (() => Promise<void>) | undefined }));
 // Portable host orchestration proof. Only the native guard is substituted;
 // actual grants, resolver, file reads, domain dispatch, Store and vault remain real.
 vi.mock('../packages/core/file-access.ts', async original => {
   const module = await original<typeof import('../packages/core/file-access.ts')>();
   return { ...module, withResourceGrant: async <T>(grant: ResourceGrant, dataDir: string, path: string | undefined, write: boolean, signal: AbortSignal, action: (path: string) => Promise<T>) => {
     if (signal.aborted) throw Error('Cancelled');
+    await hooks.beforeRead?.();
     const { resolveGrant } = await import('../packages/core/security.ts');
     return action(await resolveGrant(grant, path, write, dataDir));
   } };
@@ -30,9 +31,9 @@ vi.mock('../packages/core/context-result-custody.ts', async original => {
 });
 
 const cleanup: Array<() => Promise<void>> = [];
-afterEach(async () => { hooks.afterPut = undefined; hooks.afterGet = undefined; for (const close of cleanup.splice(0)) await close(); });
-function fixture(options: { enabled?: boolean; additionalTool?: () => Promise<unknown> } = {}) {
-  const release = configureHostCapabilityFlags(options.enabled === false ? {} : { 'context.compilerV1': true, 'tools.deferredV1': true });
+afterEach(async () => { hooks.afterPut = undefined; hooks.afterGet = undefined; hooks.beforeRead = undefined; for (const close of cleanup.splice(0)) await close(); });
+function fixture(options: { enabled?: boolean; deferred?: boolean; additionalTool?: () => Promise<unknown> } = {}) {
+  const release = configureHostCapabilityFlags(options.enabled === false ? {} : { 'context.compilerV1': true, 'tools.deferredV1': options.deferred !== false });
   const folder = mkdtempSync(join(tmpdir(), 'm04-result-host-')), project = join(folder, 'project');
   mkdirSync(project);
   const store = new Store(join(folder, 'profile'));
@@ -196,4 +197,47 @@ it('does not replay a cached range after its original grant is revoked', async (
   f.store.internal('fixture.revoke', f.ctx.threadId, () => f.store.remove('resource', f.grant.id));
   expect(await f.service.tool({ ...call, args: { ...call.args, invocationId: effect.invocationId } }, f.ctx)).toEqual({ status: 'UNAVAILABLE' });
   expect(f.store.all('toolEffect', f.ctx.threadId)).toEqual(receipts);
+});
+
+
+it.each([true, false])('admits at most four actual context reads with deferred schemas %s', async deferred => {
+  const f = fixture({deferred});
+  for (let index = 0; index < 5; index++) writeFileSync(join(f.project, `bounded-${index}.txt`), `Source ${index}`);
+  let release!: () => void, fifthEntered!: (value: string) => void, entered = 0;
+  const held = new Promise<void>(resolve => {release = resolve;}), unexpected = new Promise<string>(resolve => {fifthEntered = resolve;});
+  hooks.beforeRead = async () => {if (++entered === 5) fifthEntered('ADMITTED_FIFTH_READ'); await held;};
+  const invoke = (index: number) => f.service.tool({name: 'repository_read', args: {resourceId: f.grant.id, path: `bounded-${index}.txt`}}, f.ctx);
+  const pending = Array.from({length: 4}, (_, index) => invoke(index));
+  let fifth: Promise<unknown> | undefined;
+  try {
+    await vi.waitFor(() => expect(entered).toBe(4));
+    fifth = invoke(4).then(() => 'DELIVERED', error => error.code);
+    expect(await Promise.race([fifth, unexpected])).toBe('CONTEXT_READ_LIMIT');
+    expect(entered).toBe(4);
+  } finally {release(); await Promise.allSettled([...pending, ...(fifth ? [fifth] : [])]); hooks.beforeRead = undefined;}
+  await expect(invoke(4)).resolves.toBeDefined();
+});
+
+
+it('releases a context-read admission after a guarded read fails', async () => {
+  const f = fixture({deferred: false});
+  hooks.beforeRead = async () => {throw Error('Intended guarded-read failure');};
+  for (let index = 0; index < 4; index++) {
+    writeFileSync(join(f.project, `failed-${index}.txt`), 'Source');
+    await expect(f.service.tool({name: 'repository_read', args: {resourceId: f.grant.id, path: `failed-${index}.txt`}}, f.ctx)).rejects.toThrow('Intended guarded-read failure');
+  }
+  hooks.beforeRead = undefined;
+  await expect(f.read('Next read remains available.')).resolves.toBeDefined();
+});
+
+it('keeps the legacy read behavior when the context compiler is disabled', async () => {
+  const f = fixture({enabled: false}); let entered = 0, release!: () => void;
+  const held = new Promise<void>(resolve => {release = resolve;});
+  hooks.beforeRead = async () => {entered++; await held;};
+  const pending = Array.from({length: 5}, (_, index) => {
+    writeFileSync(join(f.project, `legacy-${index}.txt`), 'Source');
+    return f.service.tool({name: 'repository_read', args: {resourceId: f.grant.id, path: `legacy-${index}.txt`}}, f.ctx);
+  });
+  try {await vi.waitFor(() => expect(entered).toBe(5));}
+  finally {release(); await Promise.allSettled(pending); hooks.beforeRead = undefined;}
 });
