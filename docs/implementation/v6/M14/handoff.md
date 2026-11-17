@@ -176,10 +176,14 @@ on `agent/m14-v3` at `30b5d649`.
   dialog-closed at 8.4s) but no file is written and Electron's
   DownloadItem `done` resolves interrupted, so the app's custody
   check rejects it ("the native save was interrupted or its byte
-  count changed"). Root cause: the UIA-invoked IFileSaveDialog
-  result never reaches the download item as a committed path —
-  a harness/app save-handoff issue, not M14 code. Deterministic
-  across two runs including a quiet-box retry.
+  count changed"). Root-cause bisection refuted the parent-child
+  channel theory: an idle Node child failed with `stdio:'ipc'`
+  and passed without one, but the real backend fails identically
+  with newline-JSON-over-stdio and with `stdin:'ignore'` (no
+  channel at all) — the discriminating factor is inside the real
+  backend/harness environment, not the channel
+  (`win-native-save-bisection.log`). Deterministic across runs;
+  a harness/app issue, not M14 code.
 
 ## Holds
 

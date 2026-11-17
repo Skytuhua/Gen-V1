@@ -2,7 +2,7 @@
  "schemaVersion": 3,
  "bundleId": "M14",
  "baseSha": "aca5f0612e52a494040d7a78585ac1cf8de06c08",
- "sourceLockDigest": "d017c6e3b295d2b9b34f3602142dfe0ba89eb048ae90d60efe7c44506e9cd671",
+ "sourceLockDigest": "2a6c4cef8fa5793f3e3e0986778d2713a2ad551dd47bff996ef5d170017d5486",
  "platform": "linux-arm64",
  "nodeVersion": "v24.11.1",
  "packageManagerVersion": "10.30.3",
@@ -949,7 +949,7 @@
     {
      "id": "windows-native-and-installed-desktop",
      "status": "FAIL",
-     "evidence": "desktop:build and desktop:package produce Gen-V1-Setup-0.6.5-win-x64.exe + win-unpacked on win-x64. verify-installed-desktop runs the full owned matrix - NSIS install, payload custody, provider verification, two installed launches with local recovery, memory proposal review/accept/reject - and fails only at the project-memory native-save export: the UIA worker completes the real Save-As dialog (file-name-set, save-invoked, dialog-closed at 8.4s) but no file is written and Electron's DownloadItem 'done' resolves interrupted, so the app's custody check rejects it ('the native save was interrupted or its byte count changed'). Root cause is in the harness/app save-handoff, not M14 code: the UIA-invoked IFileSaveDialog result never reaches the download item as a committed path. Deterministic across two runs including a quiet-box retry. Packaged-providers verification passed (passed:true)."
+     "evidence": "desktop:build and desktop:package produce Gen-V1-Setup-0.6.5-win-x64.exe + win-unpacked on win-x64. verify-installed-desktop runs the full owned matrix - NSIS install, payload custody, provider verification, two installed launches with local recovery, memory proposal review/accept/reject - and fails only at the project-memory native-save export: the UIA worker completes the real Save-As dialog (file-name-set, save-invoked, dialog-closed at 8.4s) but no file is written and Electron's DownloadItem 'done' resolves interrupted, so the app's custody check rejects it ('the native save was interrupted or its byte count changed'). Root cause: the UIA-invoked IFileSaveDialog result never reaches the download item as a committed path - a harness/app save-handoff issue, not M14 code. Root-cause bisection refuted the child-channel theory: an idle Node child failed with an stdio:'ipc' channel and passed without one, but the real backend fails identically with newline-JSON-over-stdio and with stdin:'ignore' (no channel at all) - the discriminating factor is inside the real backend/harness environment, not the parent-child channel (win-native-save-bisection.log). Deterministic across runs. Packaged-providers verification passed (passed:true)."
     }
    ],
    "commands": [

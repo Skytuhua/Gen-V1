@@ -380,6 +380,7 @@
   "docs/implementation/v3/m14/logs/win-hermes-rerun.log",
   "docs/implementation/v3/m14/logs/win-integrations-rerun.log",
   "docs/implementation/v3/m14/logs/win-lint.log",
+  "docs/implementation/v3/m14/logs/win-native-save-bisection.log",
   "docs/implementation/v3/m14/logs/win-pnpm-test.log",
   "docs/implementation/v3/m14/logs/win-test-browser-dead-suites.log",
   "docs/implementation/v3/m14/logs/win-test-browser-rerun.log",

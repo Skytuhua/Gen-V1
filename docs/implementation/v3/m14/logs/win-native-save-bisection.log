@@ -1,0 +1,41 @@
+# W3 native-save bisection — win-x64, 2026-11-17
+
+Goal: find why the installed desktop's project-memory native save
+cancels (DownloadItem `done` -> interrupted, 0 bytes written) after a
+completed UIA-driven Save-As dialog.
+
+Bisection (idle sidecar children, same packaged asar, driver-driven):
+- idle child, stdio ['pipe','pipe','pipe'] + Node IPC channel: FAIL
+- idle child, stdin 'ignore', stdout/stderr pipes, stdout handshake: PASS
+=> initial conclusion: the Node `stdio:'ipc'` channel cancels the download.
+
+Fix attempt: replaced the parent<->backend Node IPC channel with
+newline-JSON frames ('HARNESS_IPC ' prefix) over stdin/stdout pipes
+(apps/desktop/backend-policy.ts attachBackendStdioChannel /
+backendChannelSend / requestBackendShutdown; apps/server/main.ts
+stdio channel; main.ts stdio ['pipe','pipe','pipe']; shutdown test
+rewritten). Typecheck/lint/unit(4/4)/package all green.
+
+Verify (verify-installed-desktop --project-memory-retention, real
+packaged build): STILL FAILS identically ("the native save was
+interrupted or its byte count changed", nativeSave.dialog.status=
+running, 0 bytes). The stdin pipe alone did not fix it.
+
+Discriminating control run: same fix packaged with stdio
+['ignore','pipe','pipe'] + HARNESS_BACKEND_STDIN=0 (backend skips
+stdin listeners -> no child-side channel at all):
+  .harness-release-output-stdin0c -> verify run-1794930564447-*:
+  FAILS IDENTICALLY (dialog.status=running, byte check fails).
+
+Conclusion: REFUTED. Neither the Node IPC channel nor the stdin pipe
+explains the cancel. The real backend fails with ANY stdio shape,
+while the idle child passed with the same shapes -> the earlier
+idle-child bisection was confounded (n=1 cells); the discriminating
+factor is inside the real backend or harness environment, not the
+channel. Probable next suspects (not yet bisected): the backend's
+listening HTTP server / uv-loop activity, its env, or UIA/CDP
+interplay in the harness driver.
+
+Transport change reverted entirely (no proven benefit; do not ship an
+unproven rework of a launch-token custody channel). Status: FAIL,
+root cause deeper than the channel — recorded honestly.
