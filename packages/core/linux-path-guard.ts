@@ -117,7 +117,10 @@ function connect(){return broker??=(async()=>{
 
 const uncertain=()=>new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN','Credential mount ownership did not settle. Retain caller custody.');
 export function validateLinuxCredentialPath(authPath:string,root:string):string{
- if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:accounts|manager-runtime\/accounts)\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
+ // Credentials live under an accounts/ namespace at any depth inside the
+ // state root; the manager-runtime/accounts shape is the one named prefix,
+ // and manager-* impostors or dot segments are never part of it.
+ if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:manager-runtime\/)?(?:(?!manager-|\.\.?(?=\/|$))[^/]+\/)*accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
  return posix.dirname(authPath);
 }
 

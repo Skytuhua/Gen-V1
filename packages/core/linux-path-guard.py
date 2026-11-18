@@ -171,7 +171,7 @@ class DirectoryGuard:
         self.credentials, self.barriers = {}, {}
 
     def credential_parent(self, auth):
-        if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:accounts|manager-runtime/accounts)/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
+        if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:manager-runtime/)?(?:(?!manager-|\.\.?(?=/|$))[^/]+/)*accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
             raise PermissionError('A named account credential path is required')
         return os.path.dirname(auth)
 
