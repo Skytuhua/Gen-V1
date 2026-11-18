@@ -217,7 +217,7 @@ function OperationExecutionPolicy({ kind }: { kind: string }) {
   return <p className="muted" role="note" aria-label="Execution policy"><strong>Unrestricted host</strong>. Uses your local user privileges, including your account's file and network access. This operation has no isolated execution backend.</p>;
 }
 export function OperationDecision({ operation, refresh, owner }: { operation: Operation; refresh: () => Promise<void>; owner?: Thread }) {
-  const observationKey = JSON.stringify([operation.status, operation.approved, owner?.id, owner?.runId ?? null, owner?.epoch, owner?.status, owner?.accountId ?? null, owner?.projectId ?? null, owner?.workspaceId ?? null]);
+  const observationKey = JSON.stringify([operation.status, operation.approved, owner?.id, owner?.runId ?? null, owner?.epoch, owner?.status, owner?.accountId ?? null, owner?.modelId ?? null, owner?.projectId ?? null, owner?.workspaceId ?? null]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [projectTrust, setProjectTrust] = useState<ProjectTrustReadiness>();
