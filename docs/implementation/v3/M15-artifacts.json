@@ -9526,6 +9526,26 @@
       "sha256": "d9987859cd2e8c058bed3d62124473c9c59866cb71ddd0f22f05af13487bcab8"
     },
     {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline-r2.json",
+      "bytes": 739,
+      "sha256": "802726e0ed9d54a2ef42c0b94fee15922b3d4d60437ab1d0363a0f65d3cb89ed"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline-r2.log",
+      "bytes": 5823,
+      "sha256": "5eff2768592376e76da80eddb7f1c2b9288183bbba5acae1e91f24ae943a0f37"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline.json",
+      "bytes": 619,
+      "sha256": "b8cfd85ac67c6f98a58776944d45707ee16ab45c11c11e5c999daede4fd01725"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline.log",
+      "bytes": 21183,
+      "sha256": "ccbc5733a2aa8395821b72d32b4f7a24a087a6ead30097e1a62ecd86167ac5ce"
+    },
+    {
       "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-candidate.json",
       "bytes": 611,
       "sha256": "7a94fee80a297da9b96eb5f1a5d0200725c86b3d02eec86829a894eaf10f6aad"

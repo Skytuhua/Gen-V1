@@ -3879,6 +3879,24 @@
     "endedAt": "2026-11-18T10:30:52.942Z"
   },
   {
+    "id": "v6w-root-baseline-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-root-baseline-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:30:46.489Z",
+    "endedAt": "2026-11-18T11:32:40.189Z"
+  },
+  {
+    "id": "v6w-root-baseline",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-root-baseline.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:24:47.428Z",
+    "endedAt": "2026-11-18T11:29:23.561Z"
+  },
+  {
     "id": "v6w-root-candidate",
     "receipt": "docs/implementation/v3/m15-logs/v6w-root-candidate.json",
     "phase": "ATTEMPT_HISTORY",

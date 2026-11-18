@@ -11,7 +11,7 @@
 ## What this continuation closed
 
 - **C4 Windows actual gates** — executed on CI run `44310248562` at `840bb636` (all 7 jobs) plus local replays on this box (`v6w-*` receipts):
-  - Browser contracts (installed Edge `msedge`): **18/18 suite receipts PASS**, including `agents-actual-app` (real App, `AGENTSUI_APP_CANDIDATE=0`), `artifact-acknowledgment`, and split-browser vitest (68/68).
+  - Browser contracts: **18/18 suite receipts PASS** — 17 suites on installed Edge (`msedge`), including `agents-actual-app` (real App, `AGENTSUI_APP_CANDIDATE=0`), `artifact-acknowledgment`, and split-browser vitest (68/68); `desktop-surfaces` runs on Chromium by workflow declaration ("declared desktop bridge browser fixtures in Chromium") — it scripts the native bridge and is not installed-desktop-app proof.
   - Native 37-file contracts: executes; 36/37 files green. Residual failure: `hermes-original-integration` ×2 (`handled` vs `processing`) — identical on PR #675's own CI, on this run's shard 2/4, and on local replay. **Proven inherited from main; not M15-scope; not altered for a pass.**
   - Full repository 4 shards: 1/3/4 PASS; 2/4 fails only the same inherited hermes pair. `project-search-host` 10,000-file bound passed this run (earlier single failure was a timing flake, passes isolated on both cuts).
   - Root browser comparison R09: accepted-`b4aa` baseline PASS and candidate PASS at parity (local candidate 171/1 skip; baseline's 2 flaky files each green on retry).
