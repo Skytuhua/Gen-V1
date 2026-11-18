@@ -237,6 +237,51 @@ test('shows bounded read-only relevance candidates without claiming native histo
   await expect(observation).toHaveCount(0);
 });
 
+test('compaction details expose retained references and separate byte measurements from unavailable cost', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await candidates.getByText('Retained constraint references', { exact: true }).click();
+  await expect(candidates).toContainText('DECISION:taskMemory:keep-tests');
+  await expect(candidates).toContainText('PENDING_APPROVAL:request:review-change');
+  await expect(candidates).toContainText('Estimated reduction: 0 bytes (estimate)');
+  await expect(candidates).toContainText('Measured source: 1.2K bytes; measured result: 600 bytes');
+  await expect(context(page)).toContainText('Omitted native categories: unavailable');
+  await expect(context(page)).toContainText('Auxiliary model cost: unavailable');
+  await expect(context(page)).toContainText('Recent candidate view: 1 attempt');
+  await expect(context(page)).not.toContainText('cost 0');
+});
+
+test('compaction details keep absent estimates and measurements unavailable', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-unavailable');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await expect(candidates).toContainText('failed');
+  await expect(candidates).toContainText('Estimated reduction: unavailable');
+  await expect(candidates).toContainText('Measured source: unavailable; measured result: unavailable');
+  await expect(context(page)).toContainText('Recent candidate view: 1 attempt · 0 discarded · 1 failed');
+  await expect(context(page)).toContainText('Auxiliary byte accounting: unavailable');
+  await expect(context(page)).not.toContainText('0 bytes (estimate)');
+});
+
+test('compaction details page long retained-reference lists without hiding their remaining count', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-many');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await candidates.getByText('Retained constraint references', { exact: true }).click();
+  const references = candidates.getByRole('list', { name: 'Retained constraint references' });
+  await expect(references.getByRole('listitem')).toHaveCount(32);
+  await expect(candidates).toContainText('Showing 32 of 34 references');
+  await candidates.getByRole('button', { name: 'Show 2 more references', exact: true }).click();
+  await expect(references.getByRole('listitem')).toHaveCount(34);
+  await expect(references).toContainText('native-record:' + 'd'.repeat(64) + ':33');
+  await expect(candidates.getByRole('button', { name: /more references/ })).toHaveCount(0);
+  expect(await references.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+});
+
 test('shows admitted instruction revisions, overlap precedence and refused directives in the existing Sources tab', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'request-instructions');
   await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
