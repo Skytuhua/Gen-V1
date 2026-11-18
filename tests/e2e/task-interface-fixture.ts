@@ -68,6 +68,12 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     if (path === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'fixture-csrf', widgetOrigin: 'http://localhost:4318' } });
     if (path === '/api/models') return route.fulfill({ json: { models: [{ id: 'test/model', provider: 'test', name: 'Fixture' }] } });
     if (path === '/api/snapshot') return route.fulfill({ json: snapshot });
+    if (path === '/api/operation-project-trust' || path === '/api/operation-project-trust/status') {
+      const query = new URL(route.request().url()).searchParams;
+      const operation = snapshot.operations.find(item => item.id === query.get('operationId') && item.threadId === query.get('threadId') && item.revision === Number(query.get('operationRevision')));
+      if (!operation) return route.fulfill({ status: 404 });
+      return route.fulfill({ json: { version: 1, enabled: false, reason: 'PROJECT_TRUST_DISABLED', threadId: operation.threadId, operationId: operation.id, operationRevision: operation.revision } });
+    }
     if (path === '/api/shell-settings') return route.fulfill({json: snapshot.settings});
     if (path === '/api/split-workspace') return route.fulfill({json: splitLayout});
     if (path === '/api/split-workspace/profiles') return route.fulfill({json: []});

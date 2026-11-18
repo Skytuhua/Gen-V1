@@ -43,6 +43,15 @@ export function resolveMainPaneId(layout:SplitWorkspaceLayout,saved?:string|null
  if(Object.hasOwn(layout.panes,'pane-main'))return 'pane-main';
  return splitPaneIds(layout.root)[0]!;
 }
+/** True only when this thread's plan is the showing tab of a non-collapsed pane; a parked or backgrounded tab is not on screen. */
+export function planVisible(layout:SplitWorkspaceLayout,threadId:string):boolean{
+ for(const pane of Object.values(layout.panes)){
+  if(pane.collapsed||!pane.activeViewId)continue;
+  const view=layout.views[pane.activeViewId];
+  if(view?.kind==='plan'&&view.binding.threadId===threadId)return true;
+ }
+ return false;
+}
 function viewLocation(layout:SplitWorkspaceLayout,viewId:string):string|'parked'|null{
  if(layout.parkedViewIds.includes(viewId))return 'parked';
  for(const pane of Object.values(layout.panes))if(pane.viewIds.includes(viewId))return pane.id;

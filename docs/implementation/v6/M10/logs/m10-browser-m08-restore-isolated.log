@@ -1,0 +1,19 @@
+
+> gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m10-v6
+> tsx scripts/test-browser.ts --suite m08-restore
+
+Browser results: /home/piadmin/Gen-V1-m10-v6/test-results/browser/run-1794906896461-bf06e5d8-9ecd-4c55-86fa-93367e38aa6e
+
+Browser suite: m08-restore (2 spec files)
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (populated rollup) (5.1s)
+  ✓  2 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (empty rollup) (1.6s)
+  ✓  3 tests/e2e/m08-restore-ui.spec.ts:15:1 › plan shows confirmation with planned paths; cancel resets; confirm applies (1.8s)
+  ✓  4 tests/e2e/m08-restore-ui.spec.ts:49:1 › conflict apply result names the skipped files (1.5s)
+  ✓  5 tests/e2e/m08-restore-ui.spec.ts:65:1 › disabled restore adapter shows its reason and no file checkboxes (1.0s)
+  ✓  6 tests/e2e/m08-restore-ui.spec.ts:72:1 › uncertain partial recovery never claims files were restored (1.4s)
+  ✓  7 tests/e2e/m08-restore-ui.spec.ts:85:1 › actual App reports an uncertain restore without claiming success (7.7s)
+
+  7 passed (24.9s)

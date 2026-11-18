@@ -31,15 +31,42 @@ async function load(page: Page, query = '', hold = true) {
   await expect(row(page, 'thread-4')).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 }
-async function move(page: Page, id: string, edge: 'top' | 'bottom', key?: 'Enter' | 'Space') {
-  const trigger = page.getByRole('button', { name: `Options for Thread ${id.slice('thread-'.length)}`, exact: true });
-  // Pointer-open + keyboard-select must still settle immediately.
-  await trigger.click();
-  const item = page.getByRole('menuitem', { name: `Move to ${edge}`, exact: true });
-  if (key) { await item.focus(); await page.keyboard.press(key); }
-  else await item.click();
-  await expect(page.getByRole('menu')).toHaveCount(0);
-  await expect(trigger).toBeFocused();
+async function move(page: Page, id: string, edge: 'top' | 'bottom', keyboard = false) {
+  const item = page.locator(`.sidebar-thread-row[data-thread-id="${id}"] .thread-item`);
+  if (keyboard) {
+    // Alt+Arrow steps reorder one slot at a time and settle immediately.
+    const index = () => page.locator('.thread-flat-list>.sidebar-thread-row').evaluateAll((nodes, id) => nodes.findIndex(node => (node as HTMLElement).dataset.threadId === id), id);
+    const press = edge === 'top' ? 'Alt+ArrowUp' : 'Alt+ArrowDown';
+    await item.focus();
+    for (let n = 0; n < 40; n++) {
+      const at = await index();
+      if (at < 0 || (edge === 'top' && at === 0) || (edge === 'bottom' && at === (await page.locator('.thread-flat-list>.sidebar-thread-row').count()) - 1)) break;
+      await page.keyboard.press(press);
+      await expect.poll(() => index()).toBe(edge === 'top' ? at - 1 : at + 1);
+    }
+    return;
+  }
+  // One pointer drag produces one commit. A mid-list dragover resolves a target
+  // without tripping the edge auto-scroll, and the drop lands on the list's
+  // overflowed tail — scrollTop stays put so displaced rows visibly slide.
+  await item.evaluate((node, edge) => {
+    const dataTransfer = new DataTransfer();
+    node.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer }));
+    const nav = node.closest('.thread-list')!;
+    const list = nav.querySelector('[data-thread-list="flat"]')!;
+    const others = () => [...list.querySelectorAll('.sidebar-thread-row')].filter(row => !row.contains(node));
+    const at = (type: string, clientY: number) => {
+      const ref = (edge === 'top' ? others()[0] : others().at(-1))!.getBoundingClientRect();
+      return new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer, clientX: ref.left + ref.width / 2, clientY });
+    };
+    const ref = (edge === 'top' ? others()[0] : others().at(-1))!.getBoundingClientRect();
+    const clip = nav.getBoundingClientRect();
+    nav.dispatchEvent(at('dragover', edge === 'top' ? ref.top + 2 : (clip.top + clip.bottom) / 2));
+    nav.dispatchEvent(at('drop', edge === 'top' ? ref.top + 2 : ref.bottom - 2));
+    node.dispatchEvent(new DragEvent('dragend', { bubbles: true, dataTransfer }));
+  }, edge);
+  // The commit resolves through a promise chain; let React flush before asserting.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 async function finish(page: Page) {
   await page.locator('.sidebar-thread-row').evaluateAll(nodes => nodes.forEach(node => node.getAnimations().forEach(animation => animation.finish())));
@@ -53,7 +80,7 @@ async function immediate(page: Page) {
 
 for (const width of [1024, 1440]) {
   test(`desktop pointer moves FLIP only affected visible rows for 180ms with drawer closed at ${width}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 1000 }); await load(page, 'bounds');
+    await page.setViewportSize({ width, height: 1000 }); await load(page);
     const sidebar = page.getByRole('complementary', { name: 'Thread navigation' });
     await expect(sidebar).toBeVisible();
     await expect(sidebar).not.toHaveClass(/\bsidebar-open\b/);
@@ -84,10 +111,10 @@ for (const width of [1024, 1440]) {
     console.log(`thread-move ${width}: affected rows 180ms / ${easeMove}, delay 0ms`);
   });
 
-  for (const key of ['Enter', 'Space'] as const) test(`${key} selection changes order immediately at ${width}`, async ({ page }) => {
+  test(`keyboard steps change order immediately at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await load(page);
-    await move(page, 'thread-4', 'top', key); expect((await order(page))[0]).toBe('thread-4');
-    await move(page, 'thread-4', 'bottom', key); expect((await order(page)).at(-1)).toBe('thread-4');
+    await move(page, 'thread-4', 'top', true); expect((await order(page))[0]).toBe('thread-4');
+    await move(page, 'thread-4', 'bottom', true); expect((await order(page)).at(-1)).toBe('thread-4');
     await immediate(page);
   });
 
@@ -165,7 +192,7 @@ test('moving a row out of the viewport still animates displaced visible rows', a
 
 test('keyboard activation interrupts a pointer move immediately', async ({ page }) => {
   await load(page); await move(page, 'thread-4', 'top');
-  await move(page, 'thread-4', 'bottom', 'Enter');
+  await move(page, 'thread-4', 'bottom', true);
   expect((await order(page)).at(-1)).toBe('thread-4'); expect(await records(page)).toHaveLength(4);
   expect(await page.locator('.sidebar-thread-row').evaluateAll(nodes => nodes.every(node => !node.getAnimations().length && getComputedStyle(node).transform === 'none'))).toBe(true);
 });

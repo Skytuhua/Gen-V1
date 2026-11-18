@@ -99,10 +99,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.goto(origin+'/split-app-check',{timeout:20000});
   if(mode==='split'){
    if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
-   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible',timeout:20000});
   }else if(mode==='default'){
-   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible'});
-  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible'});
+   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible',timeout:20000});
+  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible',timeout:20000});
   return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
  }
 
@@ -566,8 +566,8 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
    if(await overview.getByRole('button',{name:'Expand Project overview',exact:true}).isVisible())await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
    const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await summary.waitFor({state:'visible'});expect(await summary.getAttribute('data-plan-revision')).toBe('7');expect(await summary.textContent()).toContain('Inspect then verify');expect(await summary.textContent()).toContain('1 of 2 tasks complete');
-   await overview.locator('summary').filter({hasText:'Agents and history'}).click();expect(await overview.textContent()).toContain('Inspect source');await overview.locator('summary').filter({hasText:'Side conversations'}).click();expect(await overview.textContent()).toContain('Related discussion');await overview.locator('summary').filter({hasText:'Automations'}).click();expect(await overview.textContent()).toContain('No automation service connected.');
-   await summary.getByRole('button',{name:'Open full plan',exact:false}).click();const detailed=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detailed.waitFor({state:'visible'});expect(await detailed.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detailed.textContent()).toContain('Verify the result');const planPane=Object.values(host.layout.panes).find(pane=>pane.viewIds.includes('plan:thread-a'))!,planBounds=await page.locator('[data-split-pane="'+planPane.id+'"]').boundingBox();expect(planBounds!.width).toBeGreaterThanOrEqual(240);expect(planBounds!.height).toBeGreaterThanOrEqual(180);expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);expect(host.errors).toEqual([]);
+   await overview.locator('summary').filter({hasText:'Agents and history'}).click();expect(await overview.textContent()).toContain('Inspect source');await overview.locator('summary').filter({hasText:'Side conversations'}).click();expect(await overview.textContent()).toContain('Related discussion');expect(await overview.locator('summary').filter({hasText:'Automations'}).count()).toBe(0);
+   const detailed=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detailed.waitFor({state:'visible'});expect(await summary.getByRole('button',{name:'Open full plan',exact:false}).count()).toBe(0);expect(await detailed.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detailed.textContent()).toContain('Verify the result');const planPane=Object.values(host.layout.panes).find(pane=>pane.viewIds.includes('plan:thread-a'))!,planBounds=await page.locator('[data-split-pane="'+planPane.id+'"]').boundingBox();expect(planBounds!.width).toBeGreaterThanOrEqual(240);expect(planBounds!.height).toBeGreaterThanOrEqual(180);expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
 

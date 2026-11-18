@@ -17,11 +17,12 @@ function fixture() {
   const ctx = { threadId: thread.id, runId: thread.runId, epoch: thread.epoch };
   const definition: RegistryEntry = { id: 'fixture_read', version: 1, schemaDigest: 'a'.repeat(64),
     risk: 'READ', replayClass: 'READ_RETRYABLE', allowedRoles: ['run'], executorBinding: 'read', approval: 'none' };
-  const ledger = new ToolEffectLedger(store, new ToolAuthority([definition]));
+  const authority = new ToolAuthority([definition]);
+  const ledger = new ToolEffectLedger(store, authority);
   const call: ToolCall = { name: definition.id, args: { invocationId: 'inv-a', path: 'fixture.txt' } };
   const input = { call, ctx, thread, role: 'run' as const };
   const executor = vi.fn(async () => ({ value: 'private original result' }));
-  return { ledger, definition, call, input, thread, executor };
+  return { ledger, authority, definition, call, input, thread, executor };
 }
 
 describe('M02 replay retains exact owner and current authorization', () => {
@@ -60,7 +61,10 @@ describe('M02 replay retains exact owner and current authorization', () => {
     const x = fixture();
     await x.ledger.invoke(x.input, x.executor);
     const before = x.ledger.get('inv-a');
+    // The authority parses its own copy, so a schema change reaches the ledger
+    // through the entry it actually authorizes against, not the caller's object.
     x.definition.schemaDigest = 'b'.repeat(64);
+    x.authority.require(x.definition.id).schemaDigest = 'b'.repeat(64);
     const replay = () => method === 'invoke' ? x.ledger.invoke(x.input, x.executor)
       : x.ledger.admit({ call: x.call, owner: ownerFor(x.thread), definition: x.definition });
     await expect(Promise.resolve().then(replay)).rejects.toMatchObject({ code: 'INVOCATION_CONFLICT' });
