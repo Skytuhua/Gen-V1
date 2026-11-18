@@ -41,7 +41,7 @@ export type ToolProgramV1 = z.infer<typeof toolProgramV1Schema>;
 export const nestedCallV1Schema = z.strictObject({
   version: z.literal(1), parentProgramId: id, stableCallKey: z.string().regex(/^call:(?:0|[1-9][0-9]?)$/),
   invocationId: id, owner: toolOwnerSchema, toolName: id, definitionDigest: digest,
-  argumentsCommitment: digest, resultRef: id.nullable(), effectClass: z.literal('READ_RETRYABLE'),
+  argumentsCommitment: z.string().min(1), resultRef: id.nullable(), effectClass: z.literal('READ_RETRYABLE'),
   state: z.enum(['PREPARED', 'DISPATCHED', 'SUCCEEDED', 'FAILED', 'CANCELLED', 'UNKNOWN']),
   error: programErrorSchema.nullable(),
 });

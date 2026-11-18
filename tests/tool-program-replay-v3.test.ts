@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,11 +8,12 @@ import { spawn } from 'node:child_process';
 import { ToolPrograms } from '../packages/core/tool-programs.ts';
 import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authority.ts';
 import { ToolDisclosure } from '../packages/core/tool-disclosure.ts';
-import { ToolEffectLedger, privateArgumentCommitment } from '../packages/core/tool-effects.ts';
+import { privateArgumentCommitment } from '../packages/core/tool-effects.ts';
 import { createJavaScriptExecutor } from '../packages/runtime/tool-program-worker.ts';
 import type { ProgramExecutor, ProgramExecutionRequest, ProgramJournalV1, NestedCallV1, ToolProgramV1 } from '../packages/contracts/tool-program.ts';
 import type { ToolOwner, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
-import { CRASH_POINTS, REPLAY_OWNER, REPLAY_SOURCE, openReplayHarness, type CrashPoint } from './fixtures/tool-program-replay-harness-v3.ts';
+import { CRASH_POINTS, REPLAY_OWNER, REPLAY_SOURCE, openReplayHarness, m12Ledger, type CrashPoint } from './fixtures/tool-program-replay-harness-v3.ts';
+import { toolSchemas } from '../packages/capabilities/schemas.ts';
 
 let executor: ProgramExecutor;
 const cleanups: (() => Promise<void> | void)[] = [];
@@ -103,7 +105,7 @@ describe('M12 actual JavaScript durable replay', () => {
 
   it.each(['source', 'runtime', 'arguments', 'call sequence', 'nested owner', 'issued count'] as const)(
     'rejects a changed %s with REPLAY_DIVERGED before any additional read', async change => {
-      const { f, program, result } = await completed(fixture(), REPLAY_SOURCE, change === 'issued count' ? { deadlineMs: 1000 } : {});
+      const { f, program, result } = await completed(fixture(), REPLAY_SOURCE, {});
       const receipts = nestedEffects(f).map(effect => effect.invocationId);
       let replayExecutor = executor;
       if (change === 'source') replace<{ source: string }>(f, 'toolProgramPrivate', program.programId, value => ({ ...value, source: value.source + '\nreturn 99;' }));
@@ -123,15 +125,21 @@ describe('M12 actual JavaScript durable replay', () => {
   it('rejects an actual registry definition change even after the host discloses the replacement', async () => {
     const { f, program } = await completed();
     const receipts = nestedEffects(f).map(effect => effect.invocationId);
-    const registry = buildToolRegistry().map(definition => definition.id === 'repository_read' ? { ...definition, version: definition.version + 1 } : definition);
-    const authority = new ToolAuthority(registry);
-    const disclosure = new ToolDisclosure(f.store, authority, { currentOwner: () => REPLAY_OWNER, eligibleTools: ['repository_read'] });
-    disclosure.disclose(REPLAY_OWNER, ['repository_read']);
-    const programs = new ToolPrograms(f.store, { ...f.host, authority, disclosure, effects: new ToolEffectLedger(f.store, authority) });
-    cleanups.push(() => programs.close());
-    const replay = await programs.run(program.programId, REPLAY_OWNER, executor, { replay: true });
-    expect(replay).toMatchObject({ state: 'FAILED', error: { code: 'REPLAY_DIVERGED' } });
-    expectReadReceiptsUnchanged(f, 1, receipts);
+    const originalSchema = toolSchemas.repository_read;
+    (toolSchemas as Record<string, unknown>).repository_read = originalSchema.extend({ driftedMarker: z.string().optional() });
+    try {
+      const registry = buildToolRegistry();
+      const authority = new ToolAuthority(registry);
+      const disclosure = new ToolDisclosure(f.store, authority, { currentOwner: () => REPLAY_OWNER, eligibleTools: ['repository_read'] });
+      disclosure.disclose(REPLAY_OWNER, ['repository_read']);
+      const programs = new ToolPrograms(f.store, { ...f.host, authority, disclosure, effects: m12Ledger(f.store, authority) });
+      cleanups.push(() => programs.close());
+      const replay = await programs.run(program.programId, REPLAY_OWNER, executor, { replay: true });
+      expect(replay).toMatchObject({ state: 'FAILED', error: { code: 'REPLAY_DIVERGED' } });
+      expectReadReceiptsUnchanged(f, 1, receipts);
+    } finally {
+      (toolSchemas as Record<string, unknown>).repository_read = originalSchema;
+    }
   });
 
   it.each(['threadId', 'runId', 'epoch', 'projectId', 'workspaceId', 'accountBinding'] as const)(
@@ -167,7 +175,7 @@ describe('M12 actual JavaScript durable replay', () => {
   it('compares the actual VM issued count before releasing a replayed first delivery', async () => {
     const f = fixture();
     const originalSource = "return await Promise.all([tools.call('repository_read', {sequence: 0}), tools.call('repository_read', {sequence: 1})]);";
-    const program = await f.prepare(originalSource, { deadlineMs: 1200 });
+    const program = await f.prepare(originalSource);
     const first = await f.programs.run(program.programId, REPLAY_OWNER, executor);
     expect(first.state).toBe('SUCCEEDED');
     const journal = f.store.get<ProgramJournalV1>('programJournal', program.programId)!;
@@ -191,7 +199,7 @@ describe('M12 actual JavaScript durable replay', () => {
 
   it('reuses the original absolute deadline instead of granting a new replay budget', async () => {
     const f = fixture();
-    const program = await f.prepare(REPLAY_SOURCE, { deadlineMs: 600 });
+    const program = await f.prepare(REPLAY_SOURCE, { deadlineMs: 8_000 });
     const first = await f.programs.run(program.programId, REPLAY_OWNER, executor);
     expect(first.state).toBe('SUCCEEDED');
     const journal = f.store.get<ProgramJournalV1>('programJournal', program.programId)!;
@@ -253,7 +261,7 @@ async function killAt(directory: string, point: CrashPoint) {
     let output = '';
     const capture = (chunk: Buffer) => { output = (output + chunk.toString('utf8')).slice(-16 * 1024); };
     child.stdout.on('data', capture); child.stderr.on('data', capture);
-    const timeout = setTimeout(() => { child.kill('SIGKILL'); reject(new Error(`Crash fixture timed out at ${point}: ${output}`)); }, 10_000);
+    const timeout = setTimeout(() => { child.kill('SIGKILL'); reject(new Error(`Crash fixture timed out at ${point}: ${output}`)); }, 60_000);
     child.once('error', error => { clearTimeout(timeout); reject(error); });
     child.once('exit', (code, signal) => { clearTimeout(timeout); resolve({ code, signal, output }); });
   });

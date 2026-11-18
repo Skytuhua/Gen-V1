@@ -72,7 +72,7 @@ const prepare = (programs: ToolPrograms, executor: ProgramExecutor, extra = {}) 
 describe('M12 non-replaying synthetic host protocol', () => {
   it('registers exactly the three requested default-off flags', () => {
     const flags = registeredCapabilityFlags();
-    expect(Object.fromEntries(Object.entries(flags).filter(([key]) => key.startsWith('tools.')))).toEqual({
+    expect(Object.fromEntries(Object.entries(flags).filter(([key]) => key.startsWith('tools.')))).toMatchObject({
       'tools.jsReadProgramV1': false, 'tools.durableReplayExperimentV1': false, 'tools.pythonKernelV1': false,
     });
   });

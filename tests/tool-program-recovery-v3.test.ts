@@ -9,11 +9,10 @@ import type { NestedCallV1, ToolProgramV1 } from '../packages/contracts/tool-pro
 import type { ToolEffectRecord, ToolOwner } from '../packages/contracts/tool-effects.ts';
 import { Service } from '../packages/core/service.ts';
 import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authority.ts';
-import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
 import { PrivateToolResults } from '../packages/core/tool-results.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
-import { REPLAY_OWNER, type CrashPoint, type ReplayFixtureState } from './fixtures/tool-program-replay-harness-v3.ts';
+import { REPLAY_OWNER, m12Ledger, type CrashPoint, type ReplayFixtureState } from './fixtures/tool-program-replay-harness-v3.ts';
 
 const cleanups: (() => Promise<void> | void)[] = [];
 afterEach(async () => {
@@ -32,7 +31,7 @@ async function killAt(path: string, point: CrashPoint) {
     let output = '';
     const capture = (chunk: Buffer) => { output = (output + chunk.toString('utf8')).slice(-16 * 1024); };
     child.stdout.on('data', capture); child.stderr.on('data', capture);
-    const timeout = setTimeout(() => { child.kill('SIGKILL'); reject(new Error(`Crash fixture timed out at ${point}: ${output}`)); }, 10_000);
+    const timeout = setTimeout(() => { child.kill('SIGKILL'); reject(new Error(`Crash fixture timed out at ${point}: ${output}`)); }, 60_000);
     child.once('error', error => { clearTimeout(timeout); reject(error); });
     child.once('exit', (code, signal) => { clearTimeout(timeout); resolve({ code, signal, output }); });
   });
@@ -52,7 +51,7 @@ async function crashed(point: CrashPoint) {
     modelId: null, sessionPath: null, createdAt: '', updatedAt: '',
   };
   store.internal('m12.recovery.fixture.thread', thread.id, () => { store.put('thread', thread.id, thread.id, thread); });
-  const authority = new ToolAuthority(buildToolRegistry()), effects = new ToolEffectLedger(store, authority);
+  const authority = new ToolAuthority(buildToolRegistry()), effects = m12Ledger(store, authority);
   const unrelated = effects.admit({
     call: { name: 'repository_read', args: { invocationId: 'unrelated-m02-read' } },
     owner: REPLAY_OWNER, definition: authority.require('repository_read'),

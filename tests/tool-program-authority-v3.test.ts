@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
 import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authority.ts';
-import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
+import { m12Ledger } from './fixtures/tool-program-replay-harness-v3.ts';
 import type { Thread } from '../packages/contracts/index.ts';
 
 const cleanups: (() => void)[] = [];
@@ -15,7 +15,7 @@ const call = { name: 'repository_read', args: { invocationId: 'nested', resource
 function fixture() {
   const dir = mkdtempSync(join(tmpdir(), 'm12-authority-')), store = new Store(dir);
   cleanups.push(() => { store.close(); rmSync(dir, { recursive: true, force: true }); });
-  return { store, ledger: new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry())) };
+  return { store, ledger: m12Ledger(store, new ToolAuthority(buildToolRegistry())) };
 }
 
 it.each(['accountId', 'projectId', 'workspaceId'] as const)('does not reattach a receipt after %s changes', async key => {
@@ -35,8 +35,8 @@ it('rechecks current role authority before returning a completed receipt', async
 it('binds receipt reuse to the entire current definition', async () => {
   const { store, ledger } = fixture();
   await ledger.invoke({ call, ctx, thread, role: 'run' }, async () => 7);
-  const entries = buildToolRegistry().map(entry => entry.id === call.name ? { ...entry, version: entry.version + 1 } : entry);
-  const changed = new ToolEffectLedger(store, new ToolAuthority(entries));
+  const entries = buildToolRegistry().map(entry => entry.id === call.name ? { ...entry, schemaDigest: entry.schemaDigest + ':changed' } : entry);
+  const changed = m12Ledger(store, new ToolAuthority(entries));
   await expect(changed.invoke({ call, ctx, thread, role: 'run' }, async () => 8)).rejects.toMatchObject({ code: 'INVOCATION_CONFLICT' });
 });
 

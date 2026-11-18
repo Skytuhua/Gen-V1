@@ -19,7 +19,6 @@ import { EffectAdmissionPolicy } from "./effect-admission-policy.ts";
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
 export const toolDefinitionCommitment = (definition: RegistryEntry): string => digest(definition);
-const sameOwner = (left: ToolOwner, right: ToolOwner): boolean => digest(left) === digest(right);
 
 const CONTROL_KEYS = new Set(["commandId", "invocationId"]);
 const SECRET_KEY = /secret|token|password|credential|api[_-]?key|authorization|cookie/i;

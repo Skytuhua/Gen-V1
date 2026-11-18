@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,9 +8,9 @@ import type { ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import { ToolPrograms, type ToolProgramResult } from '../packages/core/tool-programs.ts';
 import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authority.ts';
 import { ToolDisclosure } from '../packages/core/tool-disclosure.ts';
-import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
 import { createJavaScriptExecutor } from '../packages/runtime/tool-program-worker.ts';
-import { REPLAY_OWNER, REPLAY_SOURCE, openReplayHarness } from './fixtures/tool-program-replay-harness-v3.ts';
+import { REPLAY_OWNER, REPLAY_SOURCE, openReplayHarness, m12Ledger } from './fixtures/tool-program-replay-harness-v3.ts';
+import { toolSchemas } from '../packages/capabilities/schemas.ts';
 
 const PRIVATE_SOURCE = 'M12_DIAGNOSTIC_PRIVATE_SOURCE';
 const PRIVATE_ERROR = 'M12_DIAGNOSTIC_PRIVATE_ERROR';
@@ -98,14 +99,19 @@ describe('M12 exact replay incompatibility diagnostics', () => {
   it('identifies a changed host tool registry after explicit redisclosure', async () => {
     const original = await completed();
     const { f } = original;
-    const registry = buildToolRegistry().map(definition => definition.id === 'repository_read'
-      ? { ...definition, version: definition.version + 1 } : definition);
-    const authority = new ToolAuthority(registry);
-    const disclosure = new ToolDisclosure(f.store, authority, { currentOwner: () => REPLAY_OWNER, eligibleTools: ['repository_read'] });
-    disclosure.disclose(REPLAY_OWNER, ['repository_read']);
-    const programs = new ToolPrograms(f.store, { ...f.host, authority, disclosure, effects: new ToolEffectLedger(f.store, authority) });
-    cleanups.push(() => programs.close());
-    await rejectsBeforeExecution(original, 'Program tool registry digest differs from the original execution', programs);
+    const originalSchema = toolSchemas.repository_read;
+    (toolSchemas as Record<string, unknown>).repository_read = originalSchema.extend({ driftedMarker: z.string().optional() });
+    try {
+      const registry = buildToolRegistry();
+      const authority = new ToolAuthority(registry);
+      const disclosure = new ToolDisclosure(f.store, authority, { currentOwner: () => REPLAY_OWNER, eligibleTools: ['repository_read'] });
+      disclosure.disclose(REPLAY_OWNER, ['repository_read']);
+      const programs = new ToolPrograms(f.store, { ...f.host, authority, disclosure, effects: m12Ledger(f.store, authority) });
+      cleanups.push(() => programs.close());
+      await rejectsBeforeExecution(original, 'Program tool registry digest differs from the original execution', programs);
+    } finally {
+      (toolSchemas as Record<string, unknown>).repository_read = originalSchema;
+    }
   });
 
   const journalMismatches: { field: string; message: string; change(value: ProgramJournalV1): ProgramJournalV1 }[] = [

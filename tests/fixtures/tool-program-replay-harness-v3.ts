@@ -1,6 +1,7 @@
 import { Store, digest } from '../../packages/storage/store.ts';
 import { ToolAuthority, buildToolRegistry, type RegistryEntry } from '../../packages/core/tool-authority.ts';
-import { ToolEffectLedger } from '../../packages/core/tool-effects.ts';
+import { ToolEffectLedger, createToolEffectFlags } from '../../packages/core/tool-effects.ts';
+import { createEffectAuthenticator } from '../../packages/core/host-effect-authenticator.ts';
 import { ToolDisclosure } from '../../packages/core/tool-disclosure.ts';
 import { PrivateToolResults } from '../../packages/core/tool-results.ts';
 import { ToolPrograms, type ToolProgramOptions } from '../../packages/core/tool-programs.ts';
@@ -22,6 +23,21 @@ export interface ReplayFixtureState {
   reads: number;
   programId: string | null;
   killedAt: CrashPoint | null;
+}
+
+/** Fixed fixture key — deterministic across the crash child and the reopening
+ * parent so signed argument commitments compare equal in both processes. This
+ * exercises real HMAC crypto; it is injected test material, not OS custody. */
+const M12_EFFECT_KEY = new Uint8Array(32).fill(0x6d);
+const M12_EFFECT_KEY_ID = '6d7f0a12-0000-4000-8000-000000000d12';
+
+/** Ledger in the same admission mode as every reopened store that already holds
+ * effect receipts: the latched AUDIT history requires audit.effectsV1, and the
+ * signed commitments need the deterministic fixture authenticator. */
+export function m12Ledger(store: Store, authority: ToolAuthority): ToolEffectLedger {
+  return new ToolEffectLedger(store, authority,
+    createToolEffectFlags({ 'audit.effectsV1': true }),
+    createEffectAuthenticator(M12_EFFECT_KEY, M12_EFFECT_KEY_ID));
 }
 interface HarnessOptions {
   owner: ToolOwner;
@@ -50,7 +66,7 @@ export function openReplayHarness(directory: string, options: HarnessOptions) {
   const disclosure = new ToolDisclosure(store, authority, { currentOwner: () => currentOwner, eligibleTools: ['repository_read'] });
   disclosure.disclose(options.owner, ['repository_read']);
   const results = new PrivateToolResults(store, { currentOwner: () => currentOwner });
-  const effects = new ToolEffectLedger(store, authority);
+  const effects = m12Ledger(store, authority);
   const host: ToolProgramOptions = {
     authority, disclosure, results, effects, currentOwner: () => currentOwner,
     enabled: () => true,
