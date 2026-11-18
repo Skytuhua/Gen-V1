@@ -164,10 +164,17 @@ export function createIntegrationHost(options:IntegrationHostOptions){
    secretReferences.assertCurrent(args.reference,args.binding.executable);
   };
   assertCurrent();const launch=await manager.context7Launch(scope);assertCurrent();
-  return withContext7Binding(launch,args.binding,context.signal,async(current,signal)=>{
-   assertCurrent();return manager.approvedContext7(scope,args.request,{operationId:operation.id,binding:current,signal,assertCurrent,
-    resolveSecret:()=>secretReferences.resolveApproved(args.reference,current.executable,operation.id)});
-  });
+  let responseObserved=false,observedResult:unknown;
+  try{
+   return await withContext7Binding(launch,args.binding,context.signal,async(current,signal)=>{
+    assertCurrent();const result=await manager.approvedContext7(scope,args.request,{operationId:operation.id,binding:current,signal,assertCurrent,
+     resolveSecret:()=>secretReferences.resolveApproved(args.reference,current.executable,operation.id)});
+    observedResult=result;responseObserved=true;return result;
+   });
+  }catch(error){
+   if(responseObserved)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action returned a result, but native custody did not confirm completion.',{observedResult});
+   throw error;
+  }
  };
  const operationExecutors=Object.freeze({'integration.context7':executeContext7});
  return {manager,settingsFor,additionalTool,operationExecutors,complete,secretReferences:()=>secretReferences.status(),
