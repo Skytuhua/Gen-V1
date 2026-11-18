@@ -1,0 +1,10 @@
+{
+  "case": "vitest-tool-program-v3.test.ts",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "22/22 in 64.9s at load ~9 incl. default 64/65 boundary.",
+  "logDigest": "sha256:c8c7ef07202b872f701e81d796cfa5657a070a3eaaffbff2bc14669671b42aa3",
+  "log": "logs/r04/vitest-tool-program-v3-retry.log"
+}

@@ -1,0 +1,10 @@
+{
+  "case": "tool-program-backend-v3",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/tool-program-backend-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "14/14.",
+  "logDigest": "sha256:b5fd33226d1246dfed2cda83e471a73b7a6292ba16dd9566528be1dd18dfd173",
+  "log": "logs/r04/vitest-tool-program-backend-v3.log"
+}

@@ -1,0 +1,11 @@
+{
+  "case": "tests/public-source.test.ts",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm exec vitest run tests/public-source.test.ts",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "13/13 manifest closure checks incl. R04 union.",
+  "durationSec": 18,
+  "logDigest": "sha256:4c9172385a53b04035de4319ae90cb0984dc5cf8cd22e11cc622d9cccf745488",
+  "log": "logs/r04/public-source.log"
+}

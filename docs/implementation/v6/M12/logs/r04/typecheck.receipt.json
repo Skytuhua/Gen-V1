@@ -1,0 +1,10 @@
+{
+  "case": "pnpm typecheck",
+  "cut": "d9bc6df00fab7f819aebf56be71ad88516ea89d9",
+  "command": "pnpm typecheck (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "0 type errors at the integrated R04 cut.",
+  "logDigest": "sha256:44d5303f4810c9bea61105cb82194a3fd75bfe938a0d437bad635a7bc2469cab",
+  "log": "logs/r04/typecheck.log"
+}
