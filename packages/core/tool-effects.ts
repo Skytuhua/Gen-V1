@@ -295,6 +295,8 @@ export class ToolEffectLedger {
     if (!this.flags.enabled("security.authorityV1")) return;
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
+    // Authenticated verification binds the complete owner (threadId, runId,
+    // accountBinding, projectId, workspaceId, epoch) and the action commitment.
     this.verifyAuthenticatedApproval(approval, ownerFor(thread), operation, thread);
   }
 
