@@ -66,16 +66,11 @@ export class ControlRuntime {
   }
 
   /** S02 target candidates for a pending consent: browser modes enumerate the
-   * driver's registered in-app targets; the desktop-application mode runs the
-   * driver's approved picker and returns the exact user selection. */
+   * driver's registered in-app targets; the desktop-application mode lists the
+   * driver's app-owned consent-chooser rows (each carries its own proven
+   * window handle — the system picker's pickTarget stays held). */
   async targets(mode: ControlMode): Promise<ControlTargetCandidateV1[]> {
     const driver = this.requireDriver();
-    if (mode === 'SELECTED_DESKTOP_APPLICATION') {
-      return this.consent.listTargets(mode, async () => {
-        const picked = await driver.pickTarget(mode);
-        return picked === null ? [] : [picked];
-      });
-    }
     return this.consent.listTargets(mode, () => driver.candidates(mode));
   }
 

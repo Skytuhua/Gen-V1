@@ -8,9 +8,10 @@
 // BitBlt/PrintWindow fallbacks, never broad screen capture.
 //
 // Node-API surface (called only from apps/desktop/control-bridge.ts):
-//   pickWindow(ownerHwndBuffer|null) -> Promise<{handle,processId,title,bounds,dpiScale}|null>
-//   windowIdentity(handle:number)    -> Promise<same|null>
-//   captureWindow(handle:number)     -> Promise<{data:Buffer,width,height}>
+//   pickWindow(ownerHwndBuffer|null) -> HELD: system picker cannot bind an HWND (CONTROL_PICKER_BINDING_UNSUPPORTED)
+//   listWindows()                    -> Promise<windowObject[]> — app-owned chooser feed; each row carries its own HWND
+//   windowIdentity(handle:number)    -> Promise<same|null> — live HWND+PID+bounds+DPI re-proof
+//   captureWindow(handle:number)     -> Promise<{data:Buffer,width,height}> — CreateForWindow after revalidation
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -94,11 +95,28 @@ bool enumerableAppWindow(HWND hwnd) {
   return (rect.right - rect.left) > 0 && (rect.bottom - rect.top) > 0;
 }
 
-// EnumWindows-driven enumeration was removed: matching a GraphicsCaptureItem
-// back to an HWND by display name or client size cannot prove same-object
-// binding (a display can share a window's title or dimensions). The picker
-// holds no public API returning the picked item's HWND, so the window path is
-// held rather than approximated.
+// Enumeration feeds the app-owned consent chooser: every row carries its own
+// HWND directly, so the user's selection is a same-object binding — no
+// DisplayName/dimension matching is ever used to derive identity.
+struct EnumContext { std::vector<WindowDesc> windows; };
+BOOL CALLBACK enumWindow(HWND hwnd, LPARAM param) {
+  auto* context = reinterpret_cast<EnumContext*>(param);
+  if (!enumerableAppWindow(hwnd)) return TRUE;
+  WindowDesc desc{};
+  desc.hwnd = hwnd;
+  GetWindowThreadProcessId(hwnd, &desc.pid);
+  desc.title = windowText(hwnd);
+  GetWindowRect(hwnd, &desc.rect);
+  desc.dpi = GetDpiForWindow(hwnd);
+  context->windows.push_back(std::move(desc));
+  return TRUE;
+}
+
+std::vector<WindowDesc> appWindows() {
+  EnumContext context{};
+  EnumWindows(enumWindow, reinterpret_cast<LPARAM>(&context));
+  return std::move(context.windows);
+}
 
 std::optional<WindowDesc> describe(HWND hwnd) {
   if (!IsWindow(hwnd) || !enumerableAppWindow(hwnd)) return std::nullopt;
@@ -148,18 +166,24 @@ struct Work {
   napi_async_work work = nullptr;
   napi_deferred deferred = nullptr;
   HWND hwnd = nullptr;
-  enum class Kind { Pick, Identity, Capture } kind = Kind::Pick;
+  enum class Kind { Pick, Identity, Capture, List } kind = Kind::Pick;
   // Results
   bool hasWindow = false;
   WindowDesc window{};
   std::vector<BYTE> png;
+  std::vector<WindowDesc> windows;
   uint32_t width = 0, height = 0;
   std::string error;
 };
 
 void complete(napi_env env, Work* work, bool isNull) {
   napi_value result = nullptr;
-  if (isNull) {
+  if (work->kind == Work::Kind::List) {
+    napi_create_array_with_length(env, work->windows.size(), &result);
+    for (size_t i = 0; i < work->windows.size(); ++i) {
+      napi_set_element(env, result, (uint32_t)i, windowObject(env, work->windows[i]));
+    }
+  } else if (isNull) {
     napi_get_null(env, &result);
   } else if (work->kind == Work::Kind::Capture) {
     napi_create_object(env, &result);
@@ -182,7 +206,7 @@ void complete(napi_env env, Work* work, bool isNull) {
 void finish(napi_env env, napi_status, void* data) {
   std::unique_ptr<Work> work(static_cast<Work*>(data));
   if (work->error.empty()) {
-    complete(env, work.get(), work->kind != Work::Kind::Capture && !work->hasWindow);
+    complete(env, work.get(), work->kind != Work::Kind::List && work->kind != Work::Kind::Capture && !work->hasWindow);
   } else {
     napi_value error;
     napi_create_error(env, nullptr, ([&] { napi_value v; napi_create_string_utf8(env, work->error.c_str(), NAPI_AUTO_LENGTH, &v); return v; })(), &error);
@@ -383,17 +407,47 @@ class WgcSession {
   wgc::GraphicsCaptureSession session_{nullptr};
 };
 
-// capture/identity are likewise held: no caller can supply a proven HWND while
-// the picker binding gap stands, so these paths refuse rather than capture an
-// unproven window.
+// The HWND arrives already proven by the app-owned chooser (the row carried
+// the handle itself). CreateForWindow is still only invoked after the window
+// is revalidated as a live enumerable application window — recycling, loss or
+// ambiguity fails closed before any capture object exists.
 void captureOnSta(void* raw) {
   auto* result = static_cast<CaptureResult*>(raw);
-  result->error = "CONTROL_PICKER_BINDING_UNSUPPORTED: window capture requires a proven selected window identity; selected-window control is held.";
+  try {
+    auto desc = describe(result->hwnd);
+    if (!desc) { result->error = "The selected window no longer exists or is not a capturable application window."; return; }
+    WgcSession session(result->hwnd);
+    if (!session.grab(result->png, result->width, result->height)) result->error = "The selected window produced no capturable frame.";
+    result->window = *desc;
+  } catch (const winrt::hresult_error& error) {
+    result->error = "Window capture failed: " + utf8(std::wstring(error.message().c_str(), error.message().size()));
+  } catch (const std::exception& error) {
+    result->error = error.what();
+  } catch (...) {
+    result->error = "Window capture failed.";
+  }
 }
 
 void identityOnSta(void* raw) {
   auto* result = static_cast<PickResult*>(raw);
-  result->error = "CONTROL_PICKER_BINDING_UNSUPPORTED: window identity requires a proven selected window; selected-window control is held.";
+  auto desc = describe(result->owner); // owner field reused to carry the HWND
+  if (desc) { result->window = *desc; result->cancelled = false; }
+  else result->cancelled = true;
+}
+
+struct ListResult { std::vector<WindowDesc> windows; std::string error; };
+
+void listOnSta(void* raw) {
+  auto* result = static_cast<ListResult*>(raw);
+  try {
+    result->windows = appWindows();
+    // Displays are excluded by construction: enumerableAppWindow requires a
+    // live top-level application window owned by another real process.
+  } catch (const std::exception& error) {
+    result->error = error.what();
+  } catch (...) {
+    result->error = "Window enumeration failed.";
+  }
 }
 
 // ---- napi entry points ----------------------------------------------------
@@ -422,6 +476,11 @@ Work* makeWork(napi_env env, napi_callback_info info, size_t& argc, napi_value* 
             onSta(identityOnSta, &result);
             if (!result.error.empty()) work->error = result.error;
             else if (!result.cancelled) { work->hasWindow = true; work->window = result.window; }
+          } else if (work->kind == Work::Kind::List) {
+            ListResult result{};
+            onSta(listOnSta, &result);
+            if (!result.error.empty()) work->error = result.error;
+            else work->windows = std::move(result.windows);
           } else {
             CaptureResult result{};
             result.hwnd = work->hwnd;
@@ -481,8 +540,20 @@ napi_value captureWindow(napi_env env, napi_callback_info info) {
   return promise;
 }
 
+// App-owned consent chooser feed: rows of live enumerable application windows
+// carrying their own HWND/PID/title/geometry/DPI — identity is the handle
+// itself, never a derived match.
+napi_value listWindows(napi_env env, napi_callback_info info) {
+  size_t argc = 0;
+  napi_value promise;
+  Work* work = makeWork<ListResult>(env, info, argc, nullptr, Work::Kind::List, &promise);
+  napi_queue_async_work(env, work->work);
+  return promise;
+}
+
 napi_value init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "pickWindow", ([&] { napi_value f; napi_create_function(env, "pickWindow", NAPI_AUTO_LENGTH, pickWindow, nullptr, &f); return f; })());
+  napi_set_named_property(env, exports, "listWindows", ([&] { napi_value f; napi_create_function(env, "listWindows", NAPI_AUTO_LENGTH, listWindows, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "windowIdentity", ([&] { napi_value f; napi_create_function(env, "windowIdentity", NAPI_AUTO_LENGTH, windowIdentity, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "captureWindow", ([&] { napi_value f; napi_create_function(env, "captureWindow", NAPI_AUTO_LENGTH, captureWindow, nullptr, &f); return f; })());
   return exports;

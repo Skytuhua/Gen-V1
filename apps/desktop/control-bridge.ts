@@ -65,14 +65,18 @@ export interface BridgeWindowIdentity {
 
 /** Native seam — implemented by windows-control-bridge.node on Windows. */
 export interface WindowsWindowBridge {
-  /** Runs the system GraphicsCapturePicker; resolves null on user cancel.
-   * Must bind the picked item to one unique live application HWND — displays,
-   * zero or ambiguous matches reject. */
+  /** Runs the system GraphicsCapturePicker — HELD: the picked item carries no
+   * authoritative HWND (CONTROL_PICKER_BINDING_UNSUPPORTED). */
   pickWindow(ownerHandle: Buffer | null): Promise<BridgeWindowIdentity | null>;
-  /** Live identity for a previously picked window; resolves null when the
+  /** App-owned consent-chooser feed: live enumerable application windows, each
+   * row carrying its own HWND — the user's selection is a same-object binding,
+   * never a title/size match. */
+  listWindows(): Promise<BridgeWindowIdentity[]>;
+  /** Live identity for a previously selected window; resolves null when the
    * window no longer exists or identity cannot be proven. */
   windowIdentity(handle: number): Promise<BridgeWindowIdentity | null>;
-  /** PNG bytes + dimensions of the selected window via Windows.Graphics.Capture. */
+  /** PNG bytes + dimensions of the selected window via Windows.Graphics.Capture
+   * — CreateForWindow only after live revalidation of the exact HWND. */
   captureWindow(handle: number): Promise<{ data: Buffer; width: number; height: number }>;
 }
 
@@ -123,6 +127,19 @@ function browserOrigin(rawUrl: string): string | null {
   }
 }
 
+/** Chooser-row → target identity: the HWND is the creation-bound token (plus
+ * owning process); the chooser session binds geometry + DPI at selection time
+ * so any move/resize/DPI change mismatches on revalidation (S06/D04). */
+function windowIdentity(nativeId: BridgeWindowIdentity, chooserSession: string): Identity {
+  const { bounds } = nativeId;
+  return {
+    kind: 'APPLICATION',
+    creationIdentity: `win:${nativeId.handle}:${nativeId.processId}`,
+    sessionIdentity: SESSION_BIND(['wgc', chooserSession, 'geo', bounds.x, bounds.y, bounds.width, bounds.height, 'dpi', nativeId.dpiScale]),
+    origin: null,
+  };
+}
+
 export interface ControlBridge {
   /** Routes one 'harness.control.call' frame; returns true when handled. */
   handleCall(value: Record<string, unknown>): Promise<boolean>;
@@ -153,12 +170,27 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
     return { browser, live };
   };
 
-  const requireLiveWindow = async (_identity: Identity): Promise<BridgeWindowIdentity> => {
-    // HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker cannot
-    // return an authoritative HWND for the picked item, so no 'win:' identity
-    // is provable and every window path is unavailable until an approved
-    // same-object binding exists.
-    fail('DRIVER_UNAVAILABLE', 'Selected-window control is held: the capture picker cannot return an authoritative window identity.');
+  const windowHandle = (identity: Identity): number => {
+    const match = /^win:(\d+):(\d+)$/.exec(String(identity.creationIdentity));
+    if (!match) fail('TARGET_MISMATCH', 'The consented window target has an unproven identity.');
+    return Number(match[1]);
+  };
+
+  const requireLiveWindow = async (identity: Identity): Promise<BridgeWindowIdentity> => {
+    if (!deps.native) fail('DRIVER_UNAVAILABLE', 'No approved window driver is present.');
+    const handle = windowHandle(identity);
+    const native = await deps.native.windowIdentity(handle);
+    if (!native || `win:${native.handle}:${native.processId}` !== identity.creationIdentity) {
+      fail('TARGET_MISMATCH', 'The consented window no longer exists or its identity cannot be proven.');
+    }
+    // Recompute the session binding over the live bounds/DPI while keeping the
+    // granted chooser session — any move/resize/DPI change mismatches (S06/D04).
+    const segments = identity.sessionIdentity.split('|');
+    const chooserSession = segments[0] === 'wgc' && segments[1]?.startsWith('wgc-') ? segments[1] : null;
+    if (!chooserSession || windowIdentity(native, chooserSession).sessionIdentity !== identity.sessionIdentity) {
+      fail('TARGET_MISMATCH', 'The consented window moved, resized or changed DPI since consent was granted.');
+    }
+    return native;
   };
 
   const observation = (target: Identity) => ({ observationId: `obs-${randomUUID()}`, target, geometry: geometryOf(target), observedAtMs: deps.now() });
@@ -172,18 +204,33 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
   const ops: Record<string, (payload: Record<string, unknown>) => Promise<Record<string, unknown>>> = {
     async candidates(payload) {
       const mode = String(payload.mode);
-      if (mode !== 'CONSENTED_EXISTING_TAB') return { candidates: [] };
-      const candidates = [...deps.browsers()].map(browser => {
-        try { return { target: browserIdentity(browser), title: browser.title() }; }
-        catch { return null; }
-      }).filter(Boolean);
+      if (mode === 'CONSENTED_EXISTING_TAB') {
+        const candidates = [...deps.browsers()].map(browser => {
+          try { return { target: browserIdentity(browser), title: browser.title() }; }
+          catch { return null; }
+        }).filter(Boolean);
+        return { candidates };
+      }
+      if (mode !== 'SELECTED_DESKTOP_APPLICATION') return { candidates: [] };
+      // App-owned consent chooser: every row is a live enumerable application
+      // window carrying its own HWND — the user's selection is a same-object
+      // binding (D02/D04), never a title/size match. One chooser session per
+      // enumeration binds geometry + DPI at selection time.
+      if (!deps.native) fail('DRIVER_UNAVAILABLE', 'No approved window driver is present.');
+      const chooserSession = `wgc-${randomUUID()}`;
+      const windows = await deps.native.listWindows();
+      const candidates = windows.map(nativeId => ({
+        target: windowIdentity(nativeId, chooserSession),
+        title: nativeId.title || null,
+      }));
       return { candidates };
     },
     async pickTarget(payload) {
       if (String(payload.mode) !== 'SELECTED_DESKTOP_APPLICATION') return { candidate: null };
-      // HOLD_PICKER_BINDING: the picker cannot return an authoritative window
-      // identity — refuse rather than mint an unprovable 'win:' identity.
-      fail('DRIVER_UNAVAILABLE', 'Selected-window control is held: the capture picker cannot return an authoritative window identity.');
+      // HOLD_PICKER_BINDING stands for the system picker itself: it cannot
+      // return an authoritative window identity. The approved chooser path is
+      // `candidates` above; this op stays refused.
+      fail('DRIVER_UNAVAILABLE', 'The system capture picker cannot return an authoritative window identity; use the consent-chooser candidates.');
     },
     async observe(payload) {
       const target = payload.target as Identity;
@@ -290,9 +337,10 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
         artifactSha256,
         adapterModule: deps.adapterModulePath,
         adapterModuleSha256,
-        // HOLD_PICKER_BINDING: 'native-window' is not registered — the picker
-        // cannot return an authoritative window identity (D02/D04).
-        apiProtocols: ['browser-tab'],
+        // The app-owned chooser binds HWNDs authoritatively, so 'native-window'
+        // registers whenever the approved addon is loaded (fixture-qualified;
+        // HOLD_PICKER_BINDING still covers the system picker's pickTarget).
+        apiProtocols: deps.native ? ['browser-tab', 'native-window'] : ['browser-tab'],
         backendProofRef: `electron/${deps.apiVersion}`,
         targetIdentityFormat: 'gen-v1.control-target.v1',
         captureBounds: { maxWidth: 8192, maxHeight: 8192, maxBytes: 33554432 },
@@ -338,7 +386,7 @@ export function loadWindowsWindowBridge(searchRoot: string): WindowsWindowBridge
   try {
     const require = createRequire(searchRoot);
     const addon = require('./windows-control-bridge.node') as Partial<WindowsWindowBridge>;
-    if (typeof addon.pickWindow !== 'function' || typeof addon.windowIdentity !== 'function' || typeof addon.captureWindow !== 'function') return null;
+    if (typeof addon.pickWindow !== 'function' || typeof addon.listWindows !== 'function' || typeof addon.windowIdentity !== 'function' || typeof addon.captureWindow !== 'function') return null;
     return addon as WindowsWindowBridge;
   } catch {
     return null;

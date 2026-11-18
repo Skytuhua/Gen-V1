@@ -175,47 +175,77 @@ describe('M16 C3 browser adapter via sidecar driver', () => {
   });
 });
 
-describe('M16 C4 window adapter via sidecar driver (HOLD_PICKER_BINDING)', () => {
+describe('M16 C4 window adapter via sidecar driver (app-owned chooser)', () => {
   const windowId = { handle: 0x1f00, processId: 4321, title: 'Notepad', bounds: { x: 5, y: 6, width: 640, height: 480 }, dpiScale: 1 };
   const native = (over: Partial<WindowsWindowBridge> = {}): WindowsWindowBridge => ({
-    pickWindow: async () => windowId,
+    pickWindow: async () => { throw Object.assign(new Error('CONTROL_PICKER_BINDING_UNSUPPORTED'), { code: 'DRIVER_UNAVAILABLE' }); },
+    listWindows: async () => [windowId],
     windowIdentity: async handle => (handle === windowId.handle ? windowId : null),
     captureWindow: async () => ({ data: Buffer.from([1, 2, 3]), width: 640, height: 480 }),
     ...over,
   });
-  // An identity only the picker path could have minted — fabricated here to
-  // prove every downstream op fails closed rather than trusting it.
-  const fabricated: ControlTargetIdentityV1 = { kind: 'APPLICATION', creationIdentity: 'win:7936:4321', sessionIdentity: 'wgc|wgc-abc|geo|5|6|640|480|dpi|1', origin: null };
+  const pick = async (call: ReturnType<typeof harness>['call'], driver: ReturnType<typeof harness>['driver']) =>
+    targetOf((await call(driver.candidates('SELECTED_DESKTOP_APPLICATION')))[0]!);
 
-  it('picker path refuses: no authoritative window identity can be minted', async () => {
+  it('chooser rows carry their own HWND — same-object binding, no matching', async () => {
+    const { driver, call } = harness({ native: native() });
+    const candidates = await call(driver.candidates('SELECTED_DESKTOP_APPLICATION'));
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]!.target.kind).toBe('APPLICATION');
+    expect(candidates[0]!.target.creationIdentity).toBe(`win:${windowId.handle}:${windowId.processId}`);
+    expect(candidates[0]!.target.sessionIdentity).toMatch(/^wgc\|wgc-/);
+    expect(candidates[0]!.title).toBe('Notepad');
+  });
+
+  it('captures the exact selected window', async () => {
+    const { driver, call } = harness({ native: native() });
+    const target = await pick(call, driver);
+    const frame = await call(driver.capture(target));
+    expect(frame.width).toBe(640);
+    expect(frame.data).toEqual(Buffer.from([1, 2, 3]));
+  });
+
+  it('refuses when the window vanished', async () => {
+    const nativeBridge = native();
+    const { driver, call } = harness({ native: nativeBridge });
+    const target = await pick(call, driver);
+    nativeBridge.windowIdentity = async () => null;
+    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+  });
+
+  it('refuses when the window moved or changed DPI', async () => {
+    const nativeBridge = native();
+    const { driver, call } = harness({ native: nativeBridge });
+    const target = await pick(call, driver);
+    nativeBridge.windowIdentity = async () => ({ ...windowId, bounds: { ...windowId.bounds, x: 999 } });
+    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+    nativeBridge.windowIdentity = async () => ({ ...windowId, dpiScale: 2 });
+    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+  });
+
+  it('system picker op stays refused (HOLD_PICKER_BINDING)', async () => {
     const { driver, call } = harness({ native: native() });
     await expect(call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION'))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
-  });
-
-  it('observe refuses a window target even when a native bridge is present', async () => {
-    const { driver, call } = harness({ native: native() });
-    await expect(call(driver.observe(fabricated))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
-  });
-
-  it('capture refuses a window target even when a native bridge is present', async () => {
-    const { driver, call } = harness({ native: native() });
-    await expect(call(driver.capture(fabricated))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
-  });
-
-  it('cancel on a window target stays a safe no-op (DRIVER_UNAVAILABLE tolerated)', async () => {
-    const { driver, call } = harness({ native: native() });
-    await expect(call(driver.cancelInput(fabricated))).resolves.toBeUndefined();
   });
 
   it('native input dispatch stays unsupported (no proven delivery path)', async () => {
     const { driver, call } = harness({ native: native() });
-    const action = { actionId: 'a5', grantId: 'g1', target: fabricated, action: 'CLICK' as const, redactedParameters: { x: 1, y: 1 }, preObservationRef: null, postObservationRef: null, effectReceipt: null };
+    const target = await pick(call, driver);
+    const action = { actionId: 'a5', grantId: 'g1', target, action: 'CLICK' as const, redactedParameters: { x: 1, y: 1 }, preObservationRef: null, postObservationRef: null, effectReceipt: null };
     await expect(call(driver.dispatch(action))).rejects.toMatchObject({ code: 'CONTROL_OP_UNSUPPORTED' });
+  });
+
+  it('cancel on a window target stays a safe no-op (gone target tolerated)', async () => {
+    const nativeBridge = native();
+    const { driver, call } = harness({ native: nativeBridge });
+    const target = await pick(call, driver);
+    nativeBridge.windowIdentity = async () => null;
+    await expect(call(driver.cancelInput(target))).resolves.toBeUndefined();
   });
 
   it('no native bridge => DRIVER_UNAVAILABLE, never a fallback', async () => {
     const { driver, call } = harness({ native: null });
-    await expect(call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION'))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
+    await expect(call(driver.candidates('SELECTED_DESKTOP_APPLICATION'))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
   });
 });
 

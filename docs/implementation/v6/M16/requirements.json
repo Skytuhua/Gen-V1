@@ -145,7 +145,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance is held twice over: HOLD_PICKER_BINDING — GraphicsCapturePicker exposes no authoritative HWND for the picked item, so the window path fails closed (DRIVER_UNAVAILABLE) until an approved same-object binding exists; then HOLD_PLATFORM_PROOF for real-platform acceptance. NOT_RUN."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows rows carry their own HWND; CreateForWindow after revalidation). System-picker pickTarget stays held (HOLD_PICKER_BINDING). NOT_RUN pending Windows fixture run."
     },
     {
       "id": "M16-G01",
@@ -208,7 +208,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
       "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
-      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance requires an installed approved driver; the picker cannot return an authoritative window identity (HOLD_PICKER_BINDING), so the window path stays disabled and this remains BLOCKED/NOT_RUN."
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed chooser-path artifact before any live approval; the system-picker path stays held (HOLD_PICKER_BINDING) and chooser fixture receipts are pending — BLOCKED/NOT_RUN."
     }
   ]
 }
