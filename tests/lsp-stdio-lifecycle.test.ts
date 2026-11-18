@@ -13,8 +13,8 @@ afterEach(async () => {
 
 // A minimal LSP peer: Content-Length framing and one `initialize` answer.
 const server = (body: string) => `
-const fs=require('node:fs');
 ${body}
+function start(){
 let buffer=Buffer.alloc(0);
 process.stdin.on('data',value=>{
  buffer=Buffer.concat([buffer,value]);
@@ -34,6 +34,7 @@ process.stdin.on('data',value=>{
   process.stdout.write(payload);
  }
 });
+}
 `;
 
 async function fixture(body: string) {
@@ -52,9 +53,9 @@ const document = (root: string, version = 1) => {
 };
 
 it('initializes a language server that logs to stderr before answering', {timeout: 20000}, async () => {
-  // A synchronous 4 MiB stderr log fills the unread pipe and blocks the server
-  // before it can read its first request.
-  const {root, adapter} = await fixture(`const chunk=Buffer.alloc(64*1024,120);for(let index=0;index<64;index++)fs.writeSync(2,chunk);`);
+  // Wait for a 4 MiB stderr write before reading the first request. An unread
+  // pipe stalls the callback; a synchronous fd write can instead throw EAGAIN.
+  const {root, adapter} = await fixture(`process.stderr.write(Buffer.alloc(4*1024*1024,120),error=>{if(error)throw error;start();});`);
   await adapter.openDocument(document(root), new AbortController().signal);
   expect(adapter.encoding).toBe('UTF8');
 });

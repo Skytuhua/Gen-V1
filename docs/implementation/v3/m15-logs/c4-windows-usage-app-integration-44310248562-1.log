@@ -1,0 +1,31 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","usage-app-integration"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795008250962-5caf18c7-8e15-407d-89eb-1db7550a57eb
+
+Browser suite: usage-app-integration (3 spec files)
+
+Running 19 tests using 1 worker
+
+  ok  1 tests\e2e\mobile-navigation.spec.ts:4:1 › mobile navigation backdrop remains clickable after a nested Settings dialog closes (5.2s)
+  ok  2 tests\e2e\shell-error-ownership.spec.ts:4:1 › failed handoffs have one dismissible shell presenter and keep drafts and commands guarded (2.9s)
+  ok  3 tests\e2e\shell-error-ownership.spec.ts:93:1 › the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection (3.0s)
+  ok  4 tests\e2e\usage-app-integration.spec.ts:151:1 › actual App sidebar Usage opens canonical modal and retains the conversation draft (2.9s)
+  ok  5 tests\e2e\usage-app-integration.spec.ts:176:39 › actual App live usage launcher starts closed and toggles the summary at 375px (4.9s)
+  ok  6 tests\e2e\usage-app-integration.spec.ts:176:39 › actual App live usage launcher starts closed and toggles the summary at 768px (4.3s)
+  ok  7 tests\e2e\usage-app-integration.spec.ts:176:39 › actual App live usage launcher starts closed and toggles the summary at 1440px (4.4s)
+  ok  8 tests\e2e\usage-app-integration.spec.ts:222:1 › actual App Live usage preference controls the composer launcher without opening the summary (2.1s)
+  ok  9 tests\e2e\usage-app-integration.spec.ts:256:1 › split conversation launchers control the shared summary for the active pane and start closed after reload (6.5s)
+  ok 10 tests\e2e\usage-app-integration.spec.ts:361:1 › actual App dock header remains a disclosure and its body opens the same Usage modal (2.7s)
+  ok 11 tests\e2e\usage-app-integration.spec.ts:388:1 › actual App context portal protects IME, retains its owner command, and never infers a receipt (2.8s)
+  ok 12 tests\e2e\usage-app-integration.spec.ts:419:1 › actual App captured usage scope does not switch to another thread on snapshots (2.2s)
+  ok 13 tests\e2e\usage-app-integration.spec.ts:445:1 › canonical App migrates the old Usage route without a modal and leaves saved Thread memory reachable (2.3s)
+  ok 14 tests\e2e\usage-app-integration.spec.ts:470:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch (2.4s)
+  ok 15 tests\e2e\usage-app-integration.spec.ts:480:1 › Usage opened after restored-route migration resolves its loaded conversation scope (2.7s)
+  ok 16 tests\e2e\usage-app-integration.spec.ts:501:64 › restored Usage stays closed for the canonical renderer with missing mode and keeps both composers available (4.9s)
+  ok 17 tests\e2e\usage-app-integration.spec.ts:501:64 › restored Usage stays closed for the canonical renderer with v2-chat mode and keeps both composers available (4.8s)
+  ok 18 tests\e2e\usage-app-integration.spec.ts:501:64 › restored Usage stays closed for the canonical renderer with v3-chat mode and keeps both composers available (4.9s)
+  ok 19 tests\e2e\usage-app-integration.spec.ts:501:64 › restored Usage stays closed for the canonical renderer with split mode and keeps both composers available (4.8s)
+
+  19 passed (1.2m)

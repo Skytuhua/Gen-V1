@@ -1,0 +1,292 @@
+{
+ "kind": "m17-raw-artifact-index",
+ "note": "Companion to docs/implementation/v3/M17-verification.json. Raw tool/test output is not committed to source (CONTRIBUTING.md); originals preserved verbatim in agent-owned local evidence store, NOT published/uploaded. Path redaction: absolute worktree/tool paths withheld; command argv, exit codes, timestamps and digests unmodified.",
+ "retention": "agent-owned local evidence store (private machine path; verbatim copies + SHA256SUMS)",
+ "published": false,
+ "entries": [
+  {
+   "phase": "C1_PAIRING_CONTRACTS_AND_LIFECYCLE",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/device-pairing-v3.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-device-pairing-v3.summary.json",
+   "summaryDigest": "794dae611137aafd4e6148e7ab1cb894d79759af4ed625f8dd29217627e9bba4",
+   "rawArtifact": {
+    "file": "vitest-device-pairing-v3.log",
+    "sha256": "f90903132a750bfb35cfd289b16471ce98e29929c2c81688eac2faef0197e40d",
+    "bytes": 2385,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C2_BOUNDED_READ_SYNC",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/read-sync-v3.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+   "summaryDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+   "rawArtifact": {
+    "file": "vitest-read-sync-v3.log",
+    "sha256": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
+    "bytes": 2815,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "V6_DECISION_CASES",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/read-sync-decisions-v6.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+   "summaryDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+   "rawArtifact": {
+    "file": "vitest-read-sync-decisions-v6.log",
+    "sha256": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
+    "bytes": 1696,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C4_REMOTE_VIEW_AND_SETTINGS_UI",
+   "argv": [
+    "pnpm",
+    "typecheck"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-typecheck.summary.json",
+   "summaryDigest": "56494593d7b33cb6faf4b3a5c7719afe79771cf800955a159c50a48883c10ab2",
+   "rawArtifact": {
+    "file": "pnpm-typecheck.log",
+    "sha256": "c126de429093599031aa03b9a4d30d2c32d0be5773a01b63bc9fa17bf7f4b001",
+    "bytes": 109,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C4_REMOTE_VIEW_AND_SETTINGS_UI",
+   "argv": [
+    "pnpm",
+    "lint"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-lint.summary.json",
+   "summaryDigest": "1c1f30086cb1a0b4af66221083ec0108836e85cfcc020f224a6a0d601c99d0b9",
+   "rawArtifact": {
+    "file": "pnpm-lint.log",
+    "sha256": "62a54b935e06826820c45bad5f5462cdf1cca0a3aec45920939fc9110d06ffb6",
+    "bytes": 248,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C4_REMOTE_VIEW_AND_SETTINGS_UI",
+   "argv": [
+    "pnpm",
+    "build"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-build.summary.json",
+   "summaryDigest": "a8ee1995133a8888cd8c668317361ef32ca76caf57de54e00a89d4f9412a1628",
+   "rawArtifact": {
+    "file": "pnpm-build.log",
+    "sha256": "42ff2ae88da67cb6e062db5b5c66d8c347c82b26eb9e7cb2266d52991e1c3f96",
+    "bytes": 8848,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C5_INPUT_SUBMISSION_GATE",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/read-sync-decisions-v6.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+   "summaryDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+   "rawArtifact": {
+    "file": "vitest-read-sync-decisions-v6.log",
+    "sha256": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
+    "bytes": 1696,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "G02_CAPABILITY_FLAGS",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/read-sync-v3.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+   "summaryDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+   "rawArtifact": {
+    "file": "vitest-read-sync-v3.log",
+    "sha256": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
+    "bytes": 2815,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "C3_REMOTE_TRANSPORT_DEPLOYMENT",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/remote-transport-v3.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-remote-transport-v3.summary.json",
+   "summaryDigest": "fc1d49e160cd6895071d5eb09e2becca569aa5be105eb856eff71b51c776965a",
+   "rawArtifact": {
+    "file": "vitest-remote-transport-v3.log",
+    "sha256": "c585f695827a7230dc4e38f7aae592d3632302f2810a444a4ebc79a1ff898554",
+    "bytes": 871,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "FULL_SUITE_GATES",
+   "argv": [
+    "pnpm",
+    "test"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-test.summary.json",
+   "summaryDigest": "92e4d78d9a92bb2e31e3abd45c20e902ebc245b97cc7a9326880df1a72bc7077",
+   "rawArtifact": {
+    "file": "pnpm-test.log",
+    "sha256": "d52687cd1fb10963da352a478fd63d82807ae127993246cf54568bc82a7fdf81",
+    "bytes": 656478,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "FULL_SUITE_GATES",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/public-source.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-public-source-inherited.summary.json",
+   "summaryDigest": "93f2a156b9fd943882da6508fef9200dd46a044f900053f9e290ffee7d735014",
+   "rawArtifact": {
+    "file": "vitest-public-source-inherited.log",
+    "sha256": "7037581edfed7d4b307346b8ce3c90929ea692f963bfea43f27f206bb2b1b317",
+    "bytes": 3876,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "FULL_SUITE_GATES",
+   "argv": [
+    "pnpm",
+    "test:browser"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-test-browser.summary.json",
+   "summaryDigest": "2a918f676425d8d8a18bb0cff86c072df4906fe1b4d0686e3c75315f08cff562",
+   "rawArtifact": {
+    "file": "pnpm-test-browser.log",
+    "sha256": "b0d62337a156f899b450cd9297937b5ed116ecfb0f9e59c21084da11ef3641e1",
+    "bytes": 2912997,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "INTEGRATED_CUT_REVALIDATION",
+   "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/device-pairing-v3.test.ts",
+    "tests/read-sync-v3.test.ts",
+    "tests/read-sync-decisions-v6.test.ts",
+    "tests/remote-transport-v3.test.ts",
+    "tests/public-source.test.ts"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.summary.json",
+   "summaryDigest": "2590e23bc205211fe10614195e0bc4fa7eeb47b49ccbc9212098e8115dfbe7dd",
+   "rawArtifact": {
+    "file": "vitest-m17-suite-integrated-a71dd850.log",
+    "sha256": "d0ed513c8f6864c03089df9c5b1d077b446521516256535fa207839834817c96",
+    "bytes": 7375,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "INTEGRATED_CUT_REVALIDATION",
+   "argv": [
+    "pnpm",
+    "typecheck"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.summary.json",
+   "summaryDigest": "c47c44c47d7bc40e3b922489fe9a8dce5a65d9af7384fc7371f3235b36779870",
+   "rawArtifact": {
+    "file": "pnpm-typecheck-a71dd850.log",
+    "sha256": "d06fe179002b2f6c3f6cc671e410103ff39869dd1cf70e66e196a3a9f34c076f",
+    "bytes": 70,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "INTEGRATED_CUT_REVALIDATION",
+   "argv": [
+    "pnpm",
+    "lint"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.summary.json",
+   "summaryDigest": "8e67d78d68fa0dec1e5b6a449981cc9afd351c7d6e1f20ff6fabdb6735a8d579",
+   "rawArtifact": {
+    "file": "pnpm-lint-a71dd850.log",
+    "sha256": "e402c49e49038496682743a122c8e1b945c17df8238c5d9f4029cf9ef41918dc",
+    "bytes": 209,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  },
+  {
+   "phase": "INTEGRATED_CUT_REVALIDATION",
+   "argv": [
+    "pnpm",
+    "build"
+   ],
+   "summaryRef": "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.summary.json",
+   "summaryDigest": "552a6677dc50d2bb1c25cab191e55c7123f56b1a1f9dc04d03a62f21ed89f887",
+   "rawArtifact": {
+    "file": "pnpm-build-a71dd850.log",
+    "sha256": "5b12169253dc67c9ab5e89de778834db89cb299eca403c020d6dd47a0c8a3697",
+    "bytes": 8809,
+    "retention": "agent-owned local evidence store",
+    "published": false
+   }
+  }
+ ]
+}

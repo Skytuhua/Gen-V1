@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "scoped-conversation"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T10:56:25.367Z",
+  "endedAt": "2026-11-18T10:56:48.100Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-browser-scoped-conversation.log",
+  "logDigest": "aad17ef7798aefb354766699fb029db1406e92fcf75d6ed87979f9583656121c"
+}
