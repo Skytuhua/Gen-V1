@@ -186,14 +186,35 @@ production flag change.
   (`child.stdin.end()`; `kill` at +2 s; `await closed`,
   `packages/core/file-access.ts`) never settles because the wedged
   powershell cannot be killed — even `taskkill /F` — so `withPathGuard`
-  never returns and the bounded denial becomes a permanent hang. Exact
-  seam for the minimal fail-closed fix (owner decision): bound the
-  close wait (`Promise.race([closed, timeout])`) and let the original
-  `CAPABILITY_DENIED` win over teardown; the latent sibling is the
-  unbounded `child.once('spawn'|'error')` in
-  `packages/runtime-hermes/client.ts`. Consent/capture/Stop unreachable →
-  browser slice BLOCKED. Side effect disclosed: one orphaned owned
-  powershell pid survived `taskkill /F` on the box.
+  never returns and the bounded denial becomes a permanent hang. Fix
+  implemented on this branch (owner-authorized): the Windows outer
+  `withPathGuard` teardown is now bounded — the existing 2 s graceful
+  exit, exactly one kill attempt, then at most 2 s more to confirm the
+  close; an unconfirmed close invalidates the session (`exited`, rpc
+  permanently denied, listeners/streams/process references released and
+  unref'd) and a fulfilled action fails closed with `CAPABILITY_DENIED`
+  rather than claiming the child was reaped; an earlier
+  `CAPABILITY_DENIED`/`CANCELLED` (including native details) still wins.
+  With a wedged powershell the guard now rejects at ≈49 s (45 s acquire
+  bound + ≤4 s teardown) → `service.recover()` throws →
+  `apps/server/main.ts` emits the `backend-error` stage + `harness.error`
+  → desktop `backend-policy` records a diagnosed `backend-error` inside
+  its deadline instead of a silent `backend-deadline` — a promptly
+  diagnosed failure, distinct from `harness.ready` readiness.
+  Fake-child regressions (`tests/file-access-startup.test.ts`): denied
+  acquire settles inside the bound with action never entered and the
+  original denial untouched (incl. `nativeCode`), fulfilled action +
+  unconfirmed close fails closed, close-after-kill still returns the
+  value, one-kill-attempt counts asserted; normal close unchanged.
+  Verified locally on this cut: file-access-startup 14/14, control-bridge
+  59/59 suites green, typecheck 0, lint 618/0, evidence checker 0 issues;
+  `desktop-host-ipc` error-channel suite passes unchanged. The latent
+  sibling — unbounded `child.once('spawn'|'error')` in
+  `packages/runtime-hermes/client.ts` — remains by design (not this
+  owner's hunk). Consent/capture/Stop unreachable → browser slice
+  BLOCKED. Side effect disclosed: one orphaned owned powershell pid
+  survived `taskkill /F` on the box; no further native launches there —
+  a clean, isolated verifier is required for platform proof.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
@@ -227,9 +248,11 @@ production flag change.
   fixture re-run for final teardown confirmation. Browser slice BLOCKED on
   `backend-deadline`: the backend never publishes `harness.ready` even
   standalone (>300 s silent) because `service.recover()` →
-  `source.library.initialize()` hangs inside `withPathGuard`'s unbounded
-  teardown `await closed` when its wedged powershell guard child won't
-  die — proven by the discriminator above.
+  `source.library.initialize()` hung inside `withPathGuard`'s previously
+  unbounded teardown `await closed` when its wedged powershell guard
+  child won't die — proven by the discriminator and now fixed on this
+  branch (bounded close + fail-closed invalidation above); platform proof
+  still requires a clean, isolated Windows run reaching `harness.ready`.
 - Older receipts @ `bdf5e27c` (hold cut): vitest 56/56, typecheck/lint 0,
   artifact `FC7F2161…C1E4`, all three exports refusing — preserved in git
   history and superseded by the `636d9095` bound-item receipts above.

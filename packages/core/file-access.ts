@@ -84,18 +84,40 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     queue = pending.then(() => {}, () => {}); return pending;
   };
   const onError = () => {}; child.stdin.on("error", onError);
+  let fulfilled = false;
   try {
     child.stderr.resume();
     const manifest = await current.rpc({ command: "acquire", id: randomUUID(), paths },options?.startupAcquisition===true);
     active(signal); if (current.exited) throw denied();
     const value = await sessions.run(current, () => action(manifest));
     if (current.exited) throw denied();
+    fulfilled = true;
     return value;
   } finally {
     releasing=true;current.loss.clear();
     child.stdin.end();
-    const timer = setTimeout(() => child.kill(), 2000);
-    await closed; clearTimeout(timer);
+    // Bounded teardown: the 2s graceful exit, then exactly one kill attempt
+    // and at most 2s more to confirm the close. A close we cannot confirm
+    // must never be claimed reaped.
+    const confirmed = await new Promise<boolean>(finish => {
+      const kill = setTimeout(() => { try { child.kill(); } catch { /* A refused kill leaves the close unconfirmed. */ } }, 2000);
+      const bound = setTimeout(() => finish(false), 4000);
+      closed.then(() => { clearTimeout(kill); clearTimeout(bound); finish(true); });
+    });
+    if (!confirmed) {
+      // Invalidate the session so pending or late RPC work cannot revive it,
+      // and release every reference this guard holds to the child.
+      current.exited = true;
+      current.rpc = () => Promise.reject(denied());
+      for (const stream of [child.stdin, child.stdout, child.stderr]) {
+        stream.removeAllListeners();
+        stream.destroy();
+        (stream as { unref?: () => void }).unref?.();
+      }
+      child.removeAllListeners();
+      child.unref?.();
+      if (fulfilled) throw denied();
+    }
   }
 }
 
